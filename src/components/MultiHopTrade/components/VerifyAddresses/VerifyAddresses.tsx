@@ -30,10 +30,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
-  selectBuyAsset,
+  selectInputBuyAsset,
+  selectInputSellAsset,
   selectManualReceiveAddress,
   selectPortfolioAccountMetadataByAccountId,
-  selectSellAsset,
 } from 'state/slices/selectors'
 import { selectFirstHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -52,8 +52,8 @@ export const VerifyAddresses = () => {
 
   const [verifiedAddresses, setVerifiedAddresses] = useState(new Set<string>())
 
-  const buyAsset = useAppSelector(selectBuyAsset)
-  const sellAsset = useAppSelector(selectSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAsset = useAppSelector(selectInputSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
 
   const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()

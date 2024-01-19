@@ -7,11 +7,11 @@ import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import type { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 import { fromThorBaseUnit, getAccountAddresses } from '.'
 import type {
+  AsymSide,
   MidgardLiquidityProvider,
   MidgardLiquidityProvidersList,
   MidgardPool,
@@ -540,3 +540,11 @@ export const calculateEarnings = (
 
   return { totalEarningsFiatUserCurrency, assetEarnings, runeEarnings }
 }
+
+export const calculatePoolOwnershipPercentage = ({
+  userLiquidityUnits,
+  totalPoolUnits,
+}: {
+  userLiquidityUnits: string
+  totalPoolUnits: string
+}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()

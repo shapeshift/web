@@ -9,8 +9,8 @@ import { SlideTransitionY } from 'components/SlideTransitionY'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type { ApiQuote } from 'state/apis/swappers'
-import { selectBuyAsset } from 'state/slices/selectors'
+import type { ApiQuote } from 'state/apis/swapper'
+import { selectInputBuyAsset } from 'state/slices/selectors'
 import { selectActiveQuoteIndex } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,7 +26,7 @@ const arrowDownIcon = <ArrowDownIcon />
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
   ({ sortedQuotes: _sortedQuotes, isLoading }) => {
     const wallet = useWallet().state.wallet
-    const { chainId: buyAssetChainId } = useAppSelector(selectBuyAsset)
+    const { chainId: buyAssetChainId } = useAppSelector(selectInputBuyAsset)
     const isSnapInstalled = useIsSnapInstalled()
     const walletSupportsBuyAssetChain = useWalletSupportsChain({
       chainId: buyAssetChainId,

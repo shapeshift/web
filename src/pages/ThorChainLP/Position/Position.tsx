@@ -380,12 +380,12 @@ export const Position = () => {
               borderColor='border.base'
             >
               <PoolInfo
-                volume24h={volume24h ?? '0'}
-                volume24hChange={swap24hChange?.volumeChangePercentage ?? 0}
-                fee24hChange={swap24hChange?.feeChangePercentage ?? 0}
-                fees24h={fees24h ?? '0'}
-                allTimeVolume={allTimeVolume ?? '0'}
-                apy={foundPool.poolAPY ?? '0'}
+                volume24h={volume24h}
+                volume24hChange={swap24hChange?.volumeChangePercentage}
+                fee24hChange={swap24hChange?.feeChangePercentage}
+                fees24h={fees24h}
+                allTimeVolume={allTimeVolume}
+                apy={foundPool.poolAPY}
                 tvl={tvl.tvl}
                 tvl24hChange={tvl24hChange ?? 0}
                 assetIds={poolAssetIds}

@@ -7,10 +7,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectBuyAsset,
+  selectInputBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
-} from 'state/slices/swappersSlice/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const getReceiveAddress = async ({
@@ -37,7 +37,7 @@ export const useReceiveAddress = ({
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>(undefined)
 
   // Selectors
-  const buyAsset = useAppSelector(selectBuyAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),

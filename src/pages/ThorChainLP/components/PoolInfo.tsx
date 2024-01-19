@@ -1,6 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Card, Flex, Stack } from '@chakra-ui/react'
+import { Card, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import React, { useMemo } from 'react'
@@ -17,24 +17,25 @@ type ChangeTagProps = {
 }
 
 const ChangeTag: React.FC<ChangeTagProps> = ({ value }) => {
-  if (value === undefined) return null
-  const icon = value >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />
-  const color = value >= 0 ? 'green.500' : 'red.500'
+  const icon = (value ?? 0) >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />
+  const color = (value ?? 0) >= 0 ? 'green.500' : 'red.500'
   return (
-    <Flex color={color} fontSize='sm' alignItems='center'>
-      {icon}
-      <Amount.Percent value={value} fontWeight='medium' color={color} />
-    </Flex>
+    <Skeleton isLoaded={!!value}>
+      <Flex color={color} fontSize='sm' alignItems='center'>
+        {icon}
+        <Amount.Percent value={value ?? '0'} fontWeight='medium' color={color} />
+      </Flex>
+    </Skeleton>
   )
 }
 
 type PoolInfoProps = {
   assetIds: AssetId[]
-  allTimeVolume: string
-  volume24h: string
-  volume24hChange: number
-  fees24h: string
-  fee24hChange: number
+  allTimeVolume?: string
+  volume24h?: string
+  volume24hChange?: number
+  fees24h?: string
+  fee24hChange?: number
   apy: string
   tvl?: string
   tvl24hChange?: number
@@ -96,15 +97,15 @@ export const PoolInfo = ({
             <Stack px={4} py={2} spacing={4}>
               <Flex justifyContent='space-between' fontSize='sm' fontWeight='medium'>
                 <Flex gap={2}>
-                  <AssetIcon size='xs' assetId={assetIds[0]} />
-                  <AssetSymbol assetId={assetIds[0]} />
+                  <AssetIcon size='xs' assetId={assetIds[1]} />
+                  <AssetSymbol assetId={assetIds[1]} />
                 </Flex>
                 <Amount value={runeTvl ?? ''} abbreviated={true} />
               </Flex>
               <Flex justifyContent='space-between' fontSize='sm' fontWeight='medium'>
                 <Flex gap={2}>
-                  <AssetIcon size='xs' assetId={assetIds[1]} />
-                  <AssetSymbol assetId={assetIds[1]} />
+                  <AssetIcon size='xs' assetId={assetIds[0]} />
+                  <AssetSymbol assetId={assetIds[0]} />
                 </Flex>
                 <Amount value={assetTvl ?? ''} abbreviated={true} />
               </Flex>
@@ -148,10 +149,12 @@ export const PoolInfo = ({
 
       <Flex flexWrap='wrap' gap={6} flexDirection={direction}>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Flex alignItems='center' gap={2}>
-            <Amount.Fiat fontSize='xl' value={tvl ?? 0} fontWeight='medium' />
-            {tvlChangeTag}
-          </Flex>
+          <Skeleton isLoaded={!!tvl}>
+            <Flex alignItems='center' gap={2}>
+              <Amount.Fiat fontSize='xl' value={tvl ?? 0} fontWeight='medium' />
+              {tvlChangeTag}
+            </Flex>
+          </Skeleton>
           <Text
             fontSize='sm'
             color='text.subtle'
@@ -160,9 +163,11 @@ export const PoolInfo = ({
           />
         </Stack>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Flex alignItems='center' gap={2}>
-            <Amount.Fiat fontSize='xl' value={allTimeVolume ?? '0'} fontWeight='medium' />
-          </Flex>
+          <Skeleton isLoaded={!!allTimeVolume}>
+            <Flex alignItems='center' gap={2}>
+              <Amount.Fiat fontSize='xl' value={allTimeVolume ?? '0'} fontWeight='medium' />
+            </Flex>
+          </Skeleton>
           <Text
             fontSize='sm'
             color='text.subtle'
@@ -173,10 +178,12 @@ export const PoolInfo = ({
       </Flex>
       <Flex flexWrap='wrap' gap={6} flexDirection={direction}>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Flex alignItems='center' gap={2}>
-            <Amount.Fiat fontSize='xl' value={volume24h ?? 0} fontWeight='medium' />
-            {volumeChangeTag}
-          </Flex>
+          <Skeleton isLoaded={!!volume24h}>
+            <Flex alignItems='center' gap={2}>
+              <Amount.Fiat fontSize='xl' value={volume24h ?? 0} fontWeight='medium' />
+              {volumeChangeTag}
+            </Flex>
+          </Skeleton>
           <Text
             fontSize='sm'
             color='text.subtle'
@@ -185,10 +192,12 @@ export const PoolInfo = ({
           />
         </Stack>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Flex alignItems='center' gap={2}>
-            <Amount.Fiat fontSize='xl' value={fees24h ?? 0} fontWeight='medium' />
-            {feeChangeTag}
-          </Flex>
+          <Skeleton isLoaded={!!fees24h}>
+            <Flex alignItems='center' gap={2}>
+              <Amount.Fiat fontSize='xl' value={fees24h ?? 0} fontWeight='medium' />
+              {feeChangeTag}
+            </Flex>
+          </Skeleton>
           <Text fontSize='sm' color='text.subtle' fontWeight='medium' translation='pools.fees24h' />
         </Stack>
       </Flex>

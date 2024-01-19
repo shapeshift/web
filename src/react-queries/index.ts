@@ -15,6 +15,8 @@ import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 // Feature-agnostic, abstracts away midgard endpoints
 const midgard = createQueryKeys('midgard', {
   swapsData: (assetId: AssetId | undefined, timeframe: '24h' | 'previous24h' | '7d') => ({
+    // We may or may not want to revisit this, but this will prevent overfetching for now
+    staleTime: Infinity,
     enabled: !!assetId,
     queryKey: ['midgardSwapsData', assetId ?? '', timeframe],
     queryFn: async () => {
@@ -52,6 +54,8 @@ const midgard = createQueryKeys('midgard', {
     },
   }),
   poolData: (assetId: AssetId | undefined) => ({
+    // We may or may not want to revisit this, but this will prevent overfetching for now
+    staleTime: Infinity,
     enabled: !!assetId,
     queryKey: ['midgardPoolData', assetId],
     queryFn: async () => {
@@ -65,8 +69,9 @@ const midgard = createQueryKeys('midgard', {
     },
   }),
   poolsData: () => ({
-    queryKey: ['midgardPoolsData'],
+    // We may or may not want to revisit this, but this will prevent overfetching for now
     staleTime: Infinity,
+    queryKey: ['midgardPoolsData'],
     queryFn: async () => {
       const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
         `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
@@ -79,6 +84,8 @@ const midgard = createQueryKeys('midgard', {
 // Feature-agnostic, abstracts away THORNode endpoints
 const thornode = createQueryKeys('thornode', {
   poolData: (assetId: AssetId | undefined) => ({
+    // We may or may not want to revisit this, but this will prevent overfetching for now
+    staleTime: Infinity,
     enabled: !!assetId,
     queryKey: ['thornodePoolData', assetId],
     queryFn: async () => {

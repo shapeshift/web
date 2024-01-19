@@ -74,13 +74,12 @@ export const usePools = () => {
   )
   const pools = useQuery({
     ...reactQueries.midgard.poolsData(),
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-
-    // Parses pools with 3 positions per pool:
+    // Parses pools with 3 "positions" per pool:
     // - RUNE asym
     // - Asset asym
     // - Sym
+    // This is done to represent the different type of possible deposits for a given position, but may not necessarily relate to 3 pools being displayed
+    // per actual pool at view-layer depending on product specs
     select: selectPools,
   })
 

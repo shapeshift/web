@@ -43,7 +43,6 @@ export const useAllUserLpData = ({
 
   const { data: allMidgardPools, isSuccess: isMidgardPoolsDataLoaded } = useQuery({
     ...reactQueries.midgard.poolsData(),
-    staleTime: Infinity,
   })
   const queries = useMemo(
     () =>

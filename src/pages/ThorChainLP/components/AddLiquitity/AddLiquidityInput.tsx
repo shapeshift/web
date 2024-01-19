@@ -291,7 +291,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       )
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
-  }, [asset, assetCryptoLiquidityAmount, foundPool?.asymSide, runeCryptoLiquidityAmount])
+  }, [
+    asset,
+    assetCryptoLiquidityAmount,
+    foundPool?.asymSide,
+    foundPool?.isAsymmetric,
+    runeCryptoLiquidityAmount,
+  ])
 
   useEffect(() => {
     if (

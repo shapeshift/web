@@ -139,8 +139,8 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(quoteData.index))
-  }, [dispatch, quoteData.index])
+    dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(quoteData.quote?.id))
+  }, [dispatch, quoteData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)

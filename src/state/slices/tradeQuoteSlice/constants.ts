@@ -22,4 +22,5 @@ export const initialState: TradeQuoteSliceState = {
   confirmedQuote: undefined,
   activeStep: undefined,
   tradeExecution: initialTradeExecutionState,
+  tradeQuotes: {},
 }

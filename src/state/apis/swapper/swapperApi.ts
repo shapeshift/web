@@ -56,7 +56,7 @@ export const swapperApiBase = createApi({
 
 export const swapperApi = swapperApiBase.injectEndpoints({
   endpoints: build => ({
-    getTradeQuote: build.query<Omit<ApiQuote, 'index'>[], GetTradeQuoteInput>({
+    getTradeQuote: build.query<null, GetTradeQuoteInput>({
       queryFn: async (tradeQuoteInput: GetTradeQuoteInput, { dispatch, getState }) => {
         // clear the trade quote slice to prevent data corruption as results come in
         dispatch(tradeQuoteSlice.actions.clear())
@@ -82,7 +82,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
         )
 
         if (quoteResults.length === 0) {
-          return { data: [] }
+          return { data: null }
         }
 
         const quotesWithInputOutputRatios = quoteResults
@@ -168,7 +168,17 @@ export const swapperApi = swapperApiBase.injectEndpoints({
           }),
         )
 
-        return { data: unorderedQuotes }
+        const tradeQuotesById = unorderedQuotes.reduce(
+          (acc, quoteData, i) => {
+            acc[quoteData.quote?.id ?? `${quoteData.swapperName}-${i}`] = quoteData
+            return acc
+          },
+          {} as Record<string, Omit<ApiQuote, 'index'>>,
+        )
+
+        dispatch(tradeQuoteSlice.actions.upsertTradeQuotes(tradeQuotesById))
+
+        return { data: null }
       },
       providesTags: ['TradeQuote'],
     }),

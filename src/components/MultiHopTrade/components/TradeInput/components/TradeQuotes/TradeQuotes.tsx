@@ -71,10 +71,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
     const quotes = useMemo(
       () =>
         sortedQuotes.map((quoteData, i) => {
-          const { index } = quoteData
+          const { quote } = quoteData
 
-          // TODO(woodenfurniture): use quote ID when we want to support multiple quotes per swapper
-          const isActive = activeQuoteIndex === index
+          const isActive = activeQuoteIndex === quote?.id
           const bestQuoteSteps = bestQuoteData?.quote?.steps
           const lastStep = bestQuoteSteps?.[bestQuoteSteps.length - 1]
 
@@ -83,7 +82,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
               isActive={isActive}
               isLoading={isLoading}
               isBest={i === 0}
-              key={index}
+              key={quote?.id ?? i}
               quoteData={quoteData}
               bestBuyAmountBeforeFeesCryptoBaseUnit={
                 lastStep?.buyAmountBeforeFeesCryptoBaseUnit ?? '0'

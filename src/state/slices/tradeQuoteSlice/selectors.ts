@@ -101,7 +101,7 @@ export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
       Object.values(tradeQuotes).filter(({ errors }) => errors.length > 0),
       happyQuotes.length,
     )
-    return [...happyQuotes, ...errorQuotes]
+    return [...happyQuotes, ...errorQuotes].map((quote, index) => Object.assign(quote, { index }))
   },
 )
 
@@ -113,27 +113,29 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
-export const selectActiveQuoteId: Selector<ReduxState, number | undefined> = createSelector(
+export const selectActiveQuoteId: Selector<ReduxState, string | undefined> = createSelector(
   selectTradeQuoteSlice,
   tradeQuote => tradeQuote.activeQuoteId,
 )
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
-  createSelector(selectActiveQuoteId, selectTradeQuotes, (activeQuoteIndex, tradeQuotes) =>
-    activeQuoteIndex !== undefined ? tradeQuotes[activeQuoteIndex]?.swapperName : undefined,
+  createSelector(selectActiveQuoteId, selectTradeQuotes, (activeQuoteId, tradeQuotes) =>
+    activeQuoteId !== undefined ? tradeQuotes[activeQuoteId]?.swapperName : undefined,
   )
 
-export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
-  createDeepEqualOutputSelector(
-    selectTradeQuotes,
-    selectActiveQuoteId,
-    (tradeQuotes, activeQuoteIndex) => {
-      // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
-      if (activeQuoteIndex === undefined) return undefined
+export const selectActiveSwapperApiResponse: Selector<
+  ReduxState,
+  Omit<ApiQuote, 'index'> | undefined
+> = createDeepEqualOutputSelector(
+  selectTradeQuotes,
+  selectActiveQuoteId,
+  (tradeQuotes, activeQuoteId) => {
+    // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
+    if (activeQuoteId === undefined) return undefined
 
-      return tradeQuotes[activeQuoteIndex]
-    },
-  )
+    return tradeQuotes[activeQuoteId]
+  },
+)
 
 export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(

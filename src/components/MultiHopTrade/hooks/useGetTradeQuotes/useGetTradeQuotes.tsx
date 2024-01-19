@@ -34,7 +34,10 @@ import {
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
-import { selectTradeQuoteRequestErrors } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectSortedTradeQuotes,
+  selectTradeQuoteRequestErrors,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -294,7 +297,7 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const { data, isFetching, error } = useGetTradeQuoteQuery(tradeQuoteInput, {
+  const { isFetching, error } = useGetTradeQuoteQuery(tradeQuoteInput, {
     skip: !shouldRefetchTradeQuotes,
     pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
     /*
@@ -310,12 +313,16 @@ export const useGetTradeQuotes = () => {
     return !!error || tradeQuoteRequestErrors.length > 0
   }, [error, tradeQuoteRequestErrors.length])
 
+  const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
+
+  // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (data && mixpanel) {
-      const quoteData = getMixPanelDataFromApiQuotes(data)
+    if (isFetching) return
+    if (mixpanel) {
+      const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [data, mixpanel])
+  }, [sortedTradeQuotes, mixpanel, isFetching])
 
   return { isFetching, didFail }
 }

@@ -1,10 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { reactQueries } from 'react-queries'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 
@@ -13,16 +12,8 @@ type UseLendingPositionDataProps = {
   assetId?: AssetId
 }
 
-// non-exhaustive, we only use this to get the current blockheight
-type ThorchainBlock = {
-  header: {
-    height: number
-  }
-}
-
 // Current blocktime as per https://thorchain.network/stats
 const thorchainBlockTimeSeconds = '6.1'
-const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
 export const useRepaymentLockData = ({
   accountId,
@@ -31,36 +22,10 @@ export const useRepaymentLockData = ({
   // enabled will be used in conjunction with this hook's own isRepaymentLockQueryEnabled to determine whether or not to run the query
   enabled = true,
 }: UseLendingPositionDataProps & QueryObserverOptions) => {
-  const repaymentLockQueryKey = useMemo(
-    () => ['thorchainLendingRepaymentLock', { accountId, assetId, enabled }],
-    [accountId, assetId, enabled],
-  )
-
   const { data: blockHeight } = useQuery({
-    // Mark blockHeight query as stale at the end of each THOR block
-    staleTime: thorchainBlockTimeMs,
-    queryKey: ['thorchainBlockHeight'],
-    queryFn: async () => {
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const { data: block } = await axios.get<ThorchainBlock>(`${daemonUrl}/lcd/thorchain/block`)
-      const blockHeight = block.header.height
-      return blockHeight
-    },
-    enabled: true,
-  })
-
-  const { data: mimir } = useQuery({
-    // We use the mimir query to get the repayment maturity block, so need to mark it stale at the end of each THOR block
-    staleTime: thorchainBlockTimeMs,
-    queryKey: ['thorchainMimir'],
-    queryFn: async () => {
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const { data: mimir } = await axios.get<Record<string, unknown>>(
-        `${daemonUrl}/lcd/thorchain/mimir`,
-      )
-      return mimir
-    },
-    enabled: true,
+    ...reactQueries.thornode.block(),
+    select: block => block.header.height,
+    enabled,
   })
 
   const lendingPositionQueryKey = useMemo(
@@ -77,63 +42,48 @@ export const useRepaymentLockData = ({
     queryFn: thorchainLendingPositionQueryFn,
     // accountId and assetId are actually enabled at runtime - see enabled below
     queryKey: lendingPositionQueryKey as [string, { accountId: AccountId; assetId: AssetId }],
-    enabled: !!accountId && !!assetId,
+    enabled: enabled && !!accountId && !!assetId,
   })
 
-  const isRepaymentLockQueryEnabled = useMemo(() => {
-    // We always need the LOANREPAYMENTMATURITY value from the mimir query as repaymentMaturity
-    if (!mimir) return false
-    // We need position data to calculate the repayment lock for a specific account's position
-    if (!!accountId && !!assetId) return isPositionQuerySuccess && !!blockHeight
-
-    // We have a mimir, and we're not looking for a specific position's repayment lock, so we can proceed with the query
-    return true
-  }, [accountId, assetId, blockHeight, isPositionQuerySuccess, mimir])
-
   const repaymentLockData = useQuery({
-    staleTime: Infinity,
-    queryKey: repaymentLockQueryKey,
-    queryFn: () => {
-      // This should never happen given the enabled flag but just in case
-      if (!mimir) throw new Error('mimir must be defined to get the loan repayment maturity')
+    ...reactQueries.thornode.mimir(),
+    enabled,
+    select: mimir => {
+      if (!mimir) return null
 
-      if ('LOANREPAYMENTMATURITY' in mimir)
-        return {
-          repaymentMaturity: mimir.LOANREPAYMENTMATURITY as number,
-          position,
-          blockHeight,
-        }
-      return null
-    },
-    select: data => {
-      if (!data) return null
-      const { repaymentMaturity, position, blockHeight } = data
+      const repaymentMaturity =
+        'LOANREPAYMENTMATURITY' in mimir ? (mimir.LOANREPAYMENTMATURITY as number) : null
 
-      // No position, return the repayment maturity as specified by the network, i.e not for the specific position
-      if (!position)
-        return bnOrZero(repaymentMaturity)
+      // If we have position and blockHeight, calculate repaymentLock
+      if (
+        accountId &&
+        assetId &&
+        position &&
+        isPositionQuerySuccess &&
+        blockHeight &&
+        repaymentMaturity
+      ) {
+        const { last_open_height } = position
+        const repaymentBlock = bnOrZero(last_open_height).plus(repaymentMaturity)
+        const repaymentLock = bnOrZero(repaymentBlock)
+          .minus(blockHeight)
           .times(thorchainBlockTimeSeconds)
           .div(60 * 60 * 24)
-          .toString()
+          .toFixed(1)
 
-      const { last_open_height } = position
+        return {
+          ...mimir,
+          repaymentMaturity,
+          repaymentLock,
+        }
+      }
 
-      const repaymentBlock = bnOrZero(last_open_height).plus(repaymentMaturity)
-
-      // This shouldn't happen, see isRepaymentLockQueryEnabled above.
-      // calling this hook with an `accountId` and an `assetId` requires `blockHeight` to be defined for this query to run
-      // But if anything changes, and we happen to not have a blockHeight, this brings safety
-      if (!blockHeight) return null
-
-      const repaymentLock = bnOrZero(repaymentBlock)
-        .minus(blockHeight)
-        .times(thorchainBlockTimeSeconds)
-        .div(60 * 60 * 24)
-        .toFixed(1)
-
-      return repaymentLock
+      // Return mimir data with repayment maturity if available
+      return {
+        ...mimir,
+        repaymentMaturity,
+      }
     },
-    enabled: Boolean(enabled && isRepaymentLockQueryEnabled),
   })
 
   return repaymentLockData

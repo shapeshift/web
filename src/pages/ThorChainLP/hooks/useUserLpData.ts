@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
+import { reactQueries } from 'react-queries'
 import { bn } from 'lib/bignumber/bignumber'
 import type {
   MidgardPoolResponse,
@@ -47,15 +48,7 @@ export const useUserLpData = ({
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: thornodePoolData } = useQuery({
-    queryKey: ['thornodePoolData', assetId],
-    queryFn: async () => {
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { data: poolData } = await axios.get<ThornodePoolResponse>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
-      )
-
-      return poolData
-    },
+    ...reactQueries.thornode.poolData(assetId),
   })
 
   const { data: midgardPoolData } = useQuery({

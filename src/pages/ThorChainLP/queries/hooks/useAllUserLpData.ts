@@ -33,7 +33,7 @@ export const useAllUserLpData = ({
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
-  const { data: allThornodePools, isSuccess: isThornodePoolsDataLoaded } = useQuery({
+  const { data: availableThornodePools, isSuccess: isAvailableThornodePoolsDataLoaded } = useQuery({
     ...reactQueries.thornode.poolsData(),
     select: pools => pools.filter(pool => pool.status === 'Available'),
   })
@@ -48,9 +48,9 @@ export const useAllUserLpData = ({
         return {
           ...reactQueries.thorchainLp.userLpData(assetId),
           enabled: Boolean(
-            isThornodePoolsDataLoaded &&
+            isAvailableThornodePoolsDataLoaded &&
               isMidgardPoolsDataLoaded &&
-              allThornodePools?.find(pool => pool.asset === poolAssetId) &&
+              availableThornodePools?.find(pool => pool.asset === poolAssetId) &&
               allMidgardPools?.find(pool => pool.asset === poolAssetId),
           ),
           // We may or may not want to revisit this, but this will prevent overfetching for now
@@ -79,9 +79,9 @@ export const useAllUserLpData = ({
               assetId,
               positions: (positions ?? [])
                 .map(position => {
-                  if (!(assetId && allThornodePools && allMidgardPools)) return null
+                  if (!(assetId && availableThornodePools && allMidgardPools)) return null
 
-                  const thornodePoolData = allThornodePools.find(
+                  const thornodePoolData = availableThornodePools.find(
                     pool => pool.asset === position.pool,
                   )
                   const midgardPoolData = allMidgardPools.find(pool => pool.asset === position.pool)
@@ -140,10 +140,10 @@ export const useAllUserLpData = ({
       }),
     [
       allMidgardPools,
-      allThornodePools,
+      availableThornodePools,
       assetIds,
       isMidgardPoolsDataLoaded,
-      isThornodePoolsDataLoaded,
+      isAvailableThornodePoolsDataLoaded,
       marketData,
       portfolioAccounts,
       runeMarketData?.price,

@@ -3,8 +3,6 @@ import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import uniq from 'lodash/uniq'
 import { useCallback, useMemo } from 'react'
 import { generatePath, useHistory } from 'react-router'
@@ -14,7 +12,6 @@ import { Main } from 'components/Layout/Main'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import { calculateEarnings, getEarnings } from 'lib/utils/thorchain/lp'
@@ -92,29 +89,14 @@ const PositionButton = ({
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
-  const { data: thornodePoolData } = useQuery({
-    enabled: Boolean(true),
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    queryKey: ['thornodePoolData', assetId],
-    queryFn: async () => {
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { data: poolData } = await axios.get<ThornodePoolResponse>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
-      )
-
-      return poolData
-    },
-  })
-
   const { data: earnings, isLoading: isEarningsLoading } = useQuery({
-    enabled: Boolean(thornodePoolData),
+    enabled: Boolean(true),
     // We may or may not want to revisit this, but this will prevent overfetching for now
     staleTime: Infinity,
     queryKey: ['thorchainearnings', userPoolData.dateFirstAdded],
     queryFn: () => getEarnings({ from: userPoolData.dateFirstAdded }),
     select: data => {
-      if (!data || !thornodePoolData) return null
+      if (!data) return null
       const poolAssetId = assetIdToPoolAssetId({ assetId })
       const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!foundHistoryPool) return null

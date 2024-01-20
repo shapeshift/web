@@ -42,6 +42,7 @@ import {
   getFees,
   getVolume,
 } from 'lib/utils/thorchain/lp'
+import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -180,31 +181,100 @@ export const Position = () => {
     selectMarketDataById(state, foundPool?.assetId ?? ''),
   )
 
-  const { data: volume24h } = useQuery({
-    queryKey: ['thorchainPoolVolume24h', foundPool?.assetId ?? ''],
-    queryFn: () => (foundPool ? getVolume('24h', foundPool.assetId, runeMarketData.price) : ''),
+  const { data: swapDataPrevious24h } = useQuery({
+    enabled: Boolean(foundPool?.assetId ?? ''),
+    // The queryKey isn't a mistake here - the underlying endpoint that's used is the swaps endpoint for a specific period
+    // getVolume, getFees, and get24hSwapChangePercentage all consume the same underlying endpoint
+    // so we can cache the result of the query for all of them, and use the selector to derive the right data for each
+    queryKey: ['midgardSwapsData', foundPool?.assetId ?? '', 'previous24h'],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundPool?.assetId ?? '' })
+
+      const now = Math.floor(Date.now() / 1000)
+      const twentyFourHoursAgo = now - 24 * 60 * 60
+      const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
+
+      const from = fortyEightHoursAgo
+      const to = twentyFourHoursAgo
+      const { data } = await axios.get<MidgardSwapHistoryResponse>(
+        `${
+          getConfig().REACT_APP_MIDGARD_URL
+        }/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
+      )
+      return data
+    },
   })
 
-  const { data: swap24hChange } = useQuery({
-    queryKey: ['get24hSwapChangePercentage', foundPool?.assetId ?? ''],
-    queryFn: () =>
-      foundPool
-        ? get24hSwapChangePercentage(foundPool.assetId, runeMarketData.price, assetMarketData.price)
-        : null,
+  // TODO(gomes): maybe consume me in the useQuery below? They both do the same thing except this one returns raw data and the next one selects data
+  const { data: swapData24h } = useQuery({
+    enabled: Boolean(foundPool?.assetId),
+    // The queryKey isn't a mistake here - the underlying endpoint that's used is the swaps endpoint for a specific period
+    // getVolume, getFees, and get24hSwapChangePercentage all consume the same underlying endpoint
+    // so we can cache the result of the query for all of them, and use the selector to derive the right data for each
+    queryKey: ['midgardSwapsData', foundPool?.assetId ?? '', '24h'],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundPool?.assetId ?? '' })
+
+      const now = Math.floor(Date.now() / 1000)
+      const twentyFourHoursAgo = now - 24 * 60 * 60
+
+      const from = twentyFourHoursAgo
+      const to = now
+      const { data } = await axios.get<MidgardSwapHistoryResponse>(
+        `${
+          getConfig().REACT_APP_MIDGARD_URL
+        }/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
+      )
+      return data
+    },
   })
+
+  const fees24h = useMemo(() => {
+    if (!swapData24h) return undefined
+
+    return getFees(runeMarketData.price, assetMarketData.price, swapData24h)
+  }, [assetMarketData.price, runeMarketData.price, swapData24h])
+
+  const { data: volume24h } = useQuery({
+    enabled: Boolean(foundPool?.assetId),
+    // The queryKey isn't a mistake here - the underlying endpoint that's used is the swaps endpoint for a specific period
+    // getVolume, getFees, and get24hSwapChangePercentage all consume the same underlying endpoint
+    // so we can cache the result of the query for all of them, and use the selector to derive the right data for each
+    queryKey: ['midgardSwapsData', foundPool?.assetId ?? '', '24h'],
+    queryFn: async () => {
+      const poolAssetId = assetIdToPoolAssetId({ assetId: foundPool?.assetId ?? '' })
+
+      const now = Math.floor(Date.now() / 1000)
+      const twentyFourHoursAgo = now - 24 * 60 * 60
+
+      const from = twentyFourHoursAgo
+      const to = now
+      const { data } = await axios.get<MidgardSwapHistoryResponse>(
+        `${
+          getConfig().REACT_APP_MIDGARD_URL
+        }/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
+      )
+      return data
+    },
+
+    select: data => getVolume(runeMarketData.price, data),
+  })
+
+  const swap24hChange = useMemo(() => {
+    if (!foundPool || !swapData24h || !swapDataPrevious24h) return null
+
+    return get24hSwapChangePercentage(
+      runeMarketData.price,
+      assetMarketData.price,
+      swapData24h,
+      swapDataPrevious24h,
+    )
+  }, [foundPool, swapData24h, swapDataPrevious24h, runeMarketData, assetMarketData])
 
   const { data: tvl24hChange } = useQuery({
     queryKey: ['get24hTvlChangePercentage', foundPool?.assetId ?? ''],
     queryFn: () =>
       foundPool ? get24hTvlChangePercentage(foundPool.assetId) : Promise.resolve(null),
-  })
-
-  const { data: fees24h } = useQuery({
-    queryKey: ['thorchainPoolFees24h', foundPool?.assetId ?? ''],
-    queryFn: () =>
-      foundPool
-        ? getFees('24h', foundPool.assetId, runeMarketData.price, assetMarketData.price)
-        : '',
   })
 
   const { data: allTimeVolume } = useQuery({

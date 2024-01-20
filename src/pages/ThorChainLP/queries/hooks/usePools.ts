@@ -1,8 +1,7 @@
 import { type AssetId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { useCallback } from 'react'
+import { reactQueries } from 'react-queries'
 import { sellSupportedChainIds } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { MidgardPoolResponse, ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -74,20 +73,13 @@ export const usePools = () => {
     [assets],
   )
   const pools = useQuery({
-    queryKey: ['midgardPoolData'],
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    queryFn: async () => {
-      const { data: poolData } = await axios.get<MidgardPoolResponse[]>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
-      )
-
-      return poolData
-    },
-    // Parses pools with 3 positions per pool:
+    ...reactQueries.midgard.poolsData(),
+    // Parses pools with 3 "positions" per pool:
     // - RUNE asym
     // - Asset asym
     // - Sym
+    // This is done to represent the different type of possible deposits for a given position, but may not necessarily relate to 3 pools being displayed
+    // per actual pool at view-layer depending on product specs
     select: selectPools,
   })
 

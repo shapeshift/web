@@ -1,19 +1,13 @@
 import { type AccountId, type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { useMemo } from 'react'
+import { reactQueries } from 'react-queries'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn } from 'lib/bignumber/bignumber'
-import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { getThorchainAvailablePools } from 'lib/utils/thorchain'
-import {
-  calculatePoolOwnershipPercentage,
-  getCurrentValue,
-  getThorchainLiquidityProviderPosition,
-} from 'lib/utils/thorchain/lp'
+import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
 import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type MidgardPool } from 'lib/utils/thorchain/lp/types'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -39,35 +33,26 @@ export const useAllUserLpData = ({
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
-  const { data: allThornodePools, isSuccess: isThornodePoolsDataLoaded } = useQuery({
-    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
-    staleTime: 60_000,
-    queryKey: ['thorchainAvailablePools'],
-    queryFn: getThorchainAvailablePools,
+  const { data: availableThornodePools, isSuccess: isAvailableThornodePoolsDataLoaded } = useQuery({
+    ...reactQueries.thornode.poolsData(),
+    select: pools => pools.filter(pool => pool.status === 'Available'),
   })
 
   const { data: allMidgardPools, isSuccess: isMidgardPoolsDataLoaded } = useQuery({
-    queryKey: ['midgardPoolData'],
-    staleTime: Infinity,
-    queryFn: async () => {
-      const { data } = await axios.get<MidgardPoolResponse[]>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
-      )
-      return data
-    },
+    ...reactQueries.midgard.poolsData(),
   })
   const queries = useMemo(
     () =>
       assetIds.map(assetId => {
         const poolAssetId = assetIdToPoolAssetId({ assetId })
         return {
+          ...reactQueries.thorchainLp.userLpData(assetId),
           enabled: Boolean(
-            isThornodePoolsDataLoaded &&
+            isAvailableThornodePoolsDataLoaded &&
               isMidgardPoolsDataLoaded &&
-              allThornodePools?.find(pool => pool.asset === poolAssetId) &&
+              availableThornodePools?.find(pool => pool.asset === poolAssetId) &&
               allMidgardPools?.find(pool => pool.asset === poolAssetId),
           ),
-          queryKey: ['thorchainUserLpData', { assetId }],
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
           queryFn: async () => {
@@ -78,7 +63,9 @@ export const useAllUserLpData = ({
             const allPositions = (
               await Promise.all(
                 accountIds.map(accountId =>
-                  getThorchainLiquidityProviderPosition({ accountId, assetId }),
+                  queryClient.fetchQuery(
+                    reactQueries.thorchainLp.liquidityProviderPosition({ accountId, assetId }),
+                  ),
                 ),
               )
             )
@@ -92,9 +79,9 @@ export const useAllUserLpData = ({
               assetId,
               positions: (positions ?? [])
                 .map(position => {
-                  if (!(assetId && allThornodePools && allMidgardPools)) return null
+                  if (!(assetId && availableThornodePools && allMidgardPools)) return null
 
-                  const thornodePoolData = allThornodePools.find(
+                  const thornodePoolData = availableThornodePools.find(
                     pool => pool.asset === position.pool,
                   )
                   const midgardPoolData = allMidgardPools.find(pool => pool.asset === position.pool)
@@ -153,10 +140,10 @@ export const useAllUserLpData = ({
       }),
     [
       allMidgardPools,
-      allThornodePools,
+      availableThornodePools,
       assetIds,
       isMidgardPoolsDataLoaded,
-      isThornodePoolsDataLoaded,
+      isAvailableThornodePoolsDataLoaded,
       marketData,
       portfolioAccounts,
       runeMarketData?.price,

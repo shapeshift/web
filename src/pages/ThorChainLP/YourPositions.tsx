@@ -5,6 +5,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import uniq from 'lodash/uniq'
 import { useCallback, useMemo } from 'react'
+import { reactQueries } from 'react-queries'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
@@ -14,15 +15,15 @@ import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { calculateEarnings, getEarnings } from 'lib/utils/thorchain/lp'
+import { calculateEarnings } from 'lib/utils/thorchain/lp'
 import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import { useAllUserLpData } from './hooks/useAllUserLpData'
-import { usePools } from './hooks/usePools'
+import { useAllUserLpData } from './queries/hooks/useAllUserLpData'
+import { usePools } from './queries/hooks/usePools'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -90,11 +91,7 @@ const PositionButton = ({
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: earnings, isLoading: isEarningsLoading } = useQuery({
-    enabled: Boolean(true),
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    queryKey: ['thorchainearnings', userPoolData.dateFirstAdded],
-    queryFn: () => getEarnings({ from: userPoolData.dateFirstAdded }),
+    ...reactQueries.thorchainLp.earnings(userPoolData.dateFirstAdded),
     select: data => {
       if (!data) return null
       const poolAssetId = assetIdToPoolAssetId({ assetId })

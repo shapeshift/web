@@ -132,3 +132,10 @@ export const isLendingQuoteOpen = (
 export const isLendingQuoteClose = (
   quote: LendingQuoteOpen | LendingQuoteClose | null,
 ): quote is LendingQuoteClose => Boolean(quote && 'quoteDebtRepaidAmountUserCurrency' in quote)
+
+// non-exhaustive, we only use this to get the current blockheight
+export type ThorchainBlock = {
+  header: {
+    height: number
+  }
+}

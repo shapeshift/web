@@ -1,20 +1,14 @@
-import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { AxiosError } from 'axios'
+import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { getAddress, isAddress } from 'viem'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
-import { fromThorBaseUnit, getAccountAddresses } from '.'
+import { fromThorBaseUnit } from '.'
 import type {
   AsymSide,
-  MidgardLiquidityProvider,
-  MidgardLiquidityProvidersList,
   MidgardPool,
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
@@ -42,97 +36,6 @@ export const getAllThorchainLiquidityProviderPositions = async (
   if (!data || 'error' in data) return []
 
   return data
-}
-
-export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidityProvidersList> => {
-  const queryKey = ['thorchainLiquidityMembers']
-  const queryFn = async () => {
-    const { data } = await axios.get<MidgardLiquidityProvidersList>(
-      `${getConfig().REACT_APP_MIDGARD_URL}/members`,
-    )
-
-    return data
-  }
-
-  const result = await queryClient.fetchQuery({
-    queryKey,
-    queryFn,
-    // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
-    staleTime: Infinity,
-  })
-
-  return result
-}
-
-export const getThorchainLiquidityMember = async (
-  _address: string,
-): Promise<MidgardLiquidityProvider | null> => {
-  // Ensure Ethereum addresses are checksummed
-  const address = isAddress(_address) ? getAddress(_address) : _address
-  try {
-    // We only need to fetch /member/<evmAddress> once vs. once per EVM chain
-    const queryKey = ['thorchainLiquidityMember', { address }]
-
-    const queryFn = async () => {
-      const { data } = await axios.get<MidgardLiquidityProvider>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
-      )
-
-      return data
-    }
-
-    const result = await queryClient.fetchQuery({
-      queryKey,
-      queryFn,
-      // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
-      staleTime: Infinity,
-    })
-
-    return result
-  } catch (e) {
-    // THORCHain returns a 404 which is perfectly valid, but axios catches as an error
-    // We only want to log errors to the console if they're actual errors, not 404s
-    if ((e as AxiosError).isAxiosError && (e as AxiosError).response?.status !== 404)
-      console.error(e)
-
-    return null
-  }
-}
-
-export const getThorchainLiquidityProviderPosition = async ({
-  accountId,
-  assetId,
-}: {
-  accountId: AccountId
-  assetId: AssetId
-}): Promise<(MidgardPool & { accountId: AccountId })[] | null> => {
-  const accountPosition = await (async () => {
-    if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
-      const address = fromAccountId(accountId).account
-      return getThorchainLiquidityMember(address)
-    }
-
-    const allMembers = await getAllThorchainLiquidityMembers()
-
-    if (!allMembers.length) {
-      throw new Error(`No THORChain members found`)
-    }
-
-    const accountAddresses = await getAccountAddresses(accountId)
-
-    const foundMember = allMembers.find(member => accountAddresses.includes(member))
-    if (!foundMember) return null
-
-    return getThorchainLiquidityMember(foundMember)
-  })()
-  if (!accountPosition) return null
-
-  // An address may be shared across multiple pools for EVM chains, which could produce wrong results
-  const positions = accountPosition.pools
-    .filter(pool => pool.pool === assetIdToPoolAssetId({ assetId }))
-    .map(position => ({ ...position, accountId }))
-
-  return positions
 }
 
 export const calculateTVL = (
@@ -405,15 +308,16 @@ export const estimateAddThorchainLiquidityPosition = async ({
 // TODO: add 'percentage' param
 // https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
 export const estimateRemoveThorchainLiquidityPosition = async ({
-  accountId,
+  // i.e the result of the liquidityProviderPosition({ accountId, assetId }) query
+  lpPositions,
   assetId,
 }: {
   accountId: AccountId
   assetId: AssetId
   assetAmountCryptoThorPrecision: string
+  lpPositions: (MidgardPool & { accountId: AccountId })[]
   asymSide: AsymSide | null
 }) => {
-  const lpPositions = await getThorchainLiquidityProviderPosition({ accountId, assetId })
   const poolAssetId = assetIdToPoolAssetId({ assetId })
   // TODO: this is wrong. Expose selectLiquidityPositionsData from useUserLpData , consume this instead of getThorchainLiquidityProviderPosition
   // and get the right position for the user depending on the asymSide

@@ -2,6 +2,7 @@
   "common": {
     "free": "Gratuit",
     "back": "Retour",
+    "and": "et",
     "balance": "Solde",
     "next": "Suivant",
     "error": "Erreur",
@@ -16,8 +17,10 @@
     "claimable": "Réclamable",
     "approve": "Autoriser",
     "confirm": "Confirmer",
+    "seeDetails": "Voir les détails",
     "activity": "Activité",
     "reject": "Rejeter",
+    "goBack": "Retour",
     "connected": "Connecté",
     "allocation": "Répartition",
     "value": "Valeur",
@@ -550,7 +553,8 @@
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
     "arkeo": "Airdrop Arkeo",
-    "lending": "Prêts"
+    "lending": "Prêts",
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Envoi",
@@ -568,6 +572,7 @@
     "to": "Pour",
     "from": "De",
     "trade": "Échange",
+    "swap": "Échange",
     "amount": "Montant",
     "for": "pour",
     "emptyMessage": "Vos transactions %{status} apparaîtront ici.",
@@ -602,6 +607,28 @@
       "thor": {
         "transferOut": "Transfert sortant"
       },
+      "thorchain": {
+        "deposit": "Dépôt",
+        "depositRefund": "Remboursement de dépôt",
+        "loanOpen": "Ouverture de prêt",
+        "loanOpenRefund": "Remboursement d'ouverture de prêt",
+        "loanOut": "Collatéral de prêt reçu",
+        "loanRepayment": "Remboursement de prêt",
+        "loanRepaymentRefund": "Restitution de remboursement de prêt",
+        "out": "Sortant reçu",
+        "swapOut": "Échange reçu",
+        "swapRefund": "Remboursement d'échange",
+        "transferOut": "Transfert sortant",
+        "withdraw": "Retrait demandé",
+        "withdrawOut": "Retrait reçu"
+      },
+      "swap": {
+        "deposit": "Échange",
+        "streamingSwap": "Échange streamé",
+        "out": "Échange",
+        "refund": "Remboursement",
+        "outbound": "Sortant"
+      },
       "foxy": {
         "stake": "Mise",
         "unstake": "Démise",
@@ -629,13 +656,6 @@
         "begin_unbonding": "Annulation de délégation",
         "begin_redelegate": "Redéléguation",
         "withdraw_delegator_reward": "Réclamation de récompense"
-      },
-      "swap": {
-        "deposit": "Échange",
-        "streamingSwap": "Échange streamé",
-        "out": "Échange",
-        "refund": "Remboursement",
-        "outbound": "Sortant"
       },
       "ibc": {
         "transfer": "Envoi",
@@ -749,50 +769,22 @@
     },
     "errors": {
       "title": "Il y a eu un problème",
-      "sellAssetMiddleSentence": "actif à vendre",
-      "buyAssetMiddleSentence": "actif à acheter",
-      "notEnoughEth": "Solde ETH insuffisant pour les frais de carburant sur cette transaction.",
       "amountTooSmall": "Minimum : %{minLimit}",
       "amountTooSmallUnknownMinimum": "Montant insuffisant",
       "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",
-      "negativeMax": "Fonds insuffisants pour les frais de minage sur cette transaction. Frais de minage estimés : %{estimatedMinerFee}",
-      "invalidMax": "Montant invalide. Le montant maximal de la transaction pour cette paire est de %{maxLimit}.",
       "insufficientFunds": "Fonds insuffisants pour les frais de minage et le montant",
       "transactionRejected": "L'utilisateur a rejeté la transaction",
-      "broadcastFailed": "Une erreur s'est produite lors de la diffusion de la transaction",
-      "insufficientFundsForLimit": "Fonds insuffisants. Le montant minimum d'échange pour cette paire est de %{minLimit}",
-      "insufficientFundsForAmount": "Fonds insuffisants. Votre solde en %{symbol} est inférieur au montant sélectionné",
       "insufficientFundsForProtocolFee": "%{symbol} insuffisant sur %{chainName} pour les frais",
-      "invalidTradePair": "Paire d'échange invalide : %{sellAssetName} et %{buyAssetName}",
-      "invalidTradePairBtnText": "Paire d'échange invalide",
       "unsupportedTradePair": "Paire d'échange non prise en charge",
-      "noLiquidityError": "Liquidités disponibles insuffisantes",
-      "overMaxSlippage": "Cette transaction entraînerait un glissement (slippage) de plus de %{slippagePercentage}%. Veuillez négocier un montant inférieur pour obtenir un meilleur prix.",
-      "balanceToLow": "Le solde est trop bas. Le montant minimum de transaction pour cette paire est de %{minLimit}",
-      "dexTradeFailed": "Échec de l'échange, jetons restitués",
-      "quoteFailed": "Une erreur s'est produite lors de l'obtention d'un devis pour votre échange.",
+      "noRouteFound": "Aucun route trouvée pour cette paire et ce montant",
       "quoteExpired": "Devis expiré, réessayez.",
-      "failedQuoteExecuted": "Impossible d'exécuter un devis qui a échoué",
-      "sellAssetRequired": "Impossible d'exécuter un devis sans un actif à vendre",
-      "sellAmountRequired": "Impossible d'exécuter un devis sans un montant à vendre",
-      "depositAddressRequired": "Impossible d'exécuter un devis ETH sans une adresse de DEX",
-      "sellAssetNetworkAndSymbolRequired": "Le réseau de l'actif et son symbole sont tous deux nécessaires pour exécuter un devis",
-      "hdwalletInvalidConfig": "Une erreur s'est produite lors de la communication avec votre porte-monnaie matériel",
-      "allowanceRequiredFailed": "Une erreur s'est produite lors de l'autorisation de l'allocation requise pour l'échange.",
-      "checkApprovalNeededFailed": "Une erreur s'est produite lors de la vérification de l'autorisation de votre échange.",
-      "approveInfiniteFailed": "Une erreur s'est produite lors de l'autorisation de votre échange.",
-      "buildTradeFailed": "Une erreur s'est produite lors de la mise en œuvre de votre échange.",
-      "grantAllowanceFailed": "Une erreur s'est produite lors de l'octroi de l'allocation.",
-      "minMaxError": "Une erreur s'est produite lors de l'obtention du montant minimal / maximal de l'échange",
-      "executeTradeFailed": "Une erreur s'est produite lors de l'exécution de votre échange.",
-      "unsupportedPair": "Paire d'échange non supportée actuellement.",
-      "unsupportedChain": "Chaîne non supportée actuellement.",
-      "rateError": "Nous ne sommes pas en mesure d'obtenir un devis pour cette paire",
+      "quoteUnsupportedChain": "Chaîne non prise en charge",
+      "quoteCrossChainNotSupported": "Inter-chaînes non pris en charge",
+      "networkFeeEstimateFailed": "Échec de l'estimation des frais de réseau",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} non pris en charge par le porte-monnaie",
-      "sellAssetNotSupportedByWallet": "Actif à vendre non pris en charge par le porte-monnaie",
-      "intermediaryAssetNotSupportedByWallet": "Intermédiaire non pris en charge par le porte-monnaie",
-      "noReceiveAddress": "Pas d'adresse de réception pour %{assetSymbol}",
-      "tradingNotActive": "Échanges en %{assetSymbol} temporairement interrompus",
+      "intermediaryAssetNotSupportedByWallet": "Actif intermédiaire %{assetSymbol}.%{chainSymbol} non pris en charge par le porte-monnaie",
+      "noReceiveAddress": "Aucune adresse de réception pour %{assetSymbol} sur %{chainName}",
+      "tradingNotActiveForChain": "Les transactions sont temporairement interrompues sur %{chainName}",
       "tradingNotActiveNoAssetSymbol": "Échanges temporairement interrompus pour cette route",
       "signing": {
         "failed": "Une erreur s'est produite lors de la signature de la transaction",
@@ -1757,6 +1749,7 @@
       "Send": "Envoi",
       "Receive": "Réception",
       "Trade": "Échange",
+      "Swap": "Échange",
       "Refund": "Remboursement"
     },
     "assets": "Actifs",
@@ -2186,5 +2179,68 @@
     "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais d'échange et la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet de simulation.",
     "tradeFee": "Frais d'échange",
     "totalTradeFee": "Frais d'échange totaux"
+  },
+  "pools": {
+    "pools": "Pools",
+    "pool": "Pool",
+    "tvl": "TVL",
+    "volume24h": "Volume 24H",
+    "volume7d": "Volume 7J",
+    "balance": "Solde",
+    "unclaimedFees": "Frais non réclamés",
+    "poolShare": "Part du pool",
+    "yourPosition": "Votre position",
+    "poolInformation": "Informations du pool",
+    "poolsBody": "Fournissez des liquidités et gagnez des frais sur les échanges de ce pool.",
+    "availablePools": "Pools disponibles",
+    "addLiquidity": "Ajouter de la liquidité",
+    "removeLiquidity": "Retirer de la liquidité",
+    "initialPricesAndPoolShare": "Prix ​​initiaux et part du pool",
+    "pricePerAsset": "%{from} par %{to}",
+    "symAlert": "Votre %{from} sera divisé en une exposition 50:50 à %{to} et %{from} dès votre entrée dans le pool.",
+    "shareOfPool": "Part du pool",
+    "assetDepositAmount": "Montant du dépôt %{asset}",
+    "totalLiquidity": "Liquidité totale",
+    "totalVolume": "Volume total",
+    "fees24h": "Frais 24H",
+    "estimatedTime": "Temps estimé",
+    "liquidityValue": "Valeur de liquidité",
+    "selectPair": "Sélectionner une paire",
+    "depositAmounts": "Montants des dépôts",
+    "awaitingConfirmation": "En attente de confirmation",
+    "transactionSubmitted": "Transaction soumise",
+    "waitingForConfirmation": "En attente de confirmation",
+    "totalTokensLocked": "Total des jetons verrouillés",
+    "chainFee": "Frais %{chain}",
+    "supplying": "Mis à disposition",
+    "confirmAndDeposit": "Confirmer et déposer",
+    "yourPositions": {
+      "yourPositions": "Vos positions",
+      "emptyTitle": "Aucune position active",
+      "emptyBody": "Vos positions actives dans le pool de liquidité apparaîtront ici."
+    },
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "Qu’est-ce qu’un pool de liquidités ?",
+        "body": "Un pool de liquidité est un pool de fonds décentralisé qui contient des actifs utilisés pour faciliter les échanges sur un réseau blockchain. Il joue un rôle crucial dans la finance décentralisée (DeFi) en fournissant des liquidités à diverses paires pour les échanges."
+      },
+      "how": {
+        "title": "Comment fonctionnent les pools de liquidité ?",
+        "body": "Les pools de liquidité fonctionnent sur le principe d'utilisateurs déposant leurs actifs dans un contrat intelligent pour créer un pool. Ces actifs sont ensuite utilisés pour permettre des échanges décentralisés, laissant aux utilisateurs la possibilité d'échanger avec le pool. En contrepartie de la liquidité, les utilisateurs reçoivent une part des frais d'échanges générés par la plateforme."
+      },
+      "amm": {
+        "title": "Market-makers automatisés (Automated Market Makers ou AMM)",
+        "body": "De nombreux pools de liquidité fonctionnent comme des market-makers automatisés (Automated Market Makers ou AMM), utilisant des algorithmes pour déterminer le prix des actifs en fonction du ratio de jetons dans le pool. Cela permet des échanges décentralisés et continus sans avoir besoin d’un carnet d’ordres (order book) traditionnel."
+      },
+      "rewards": {
+        "title": "Gagner des récompenses",
+        "body": "Les fournisseurs de liquidité gagnent des récompenses sous forme de frais d'échanges et, dans certains cas, des jetons de gouvernance de la plateforme en plus. Ces récompenses sont proportionnelles au montant des liquidités fournies."
+      },
+      "risks": {
+        "title": "Risques et considérations",
+        "body": "Bien que les pools de liquidités offrent des opportunités de gains, il est important d'être conscient des risques impliqués, notamment des pertes impermanentes, des vulnérabilités des contrats intelligents et de la volatilité du marché. Les utilisateurs doivent effectuer des recherches approfondies avant de participer."
+      }
+    }
   }
 }

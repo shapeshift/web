@@ -344,6 +344,23 @@ export const useGetTradeQuotes = () => {
     return combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
   }, [combinedQuoteMeta])
 
+  const isSwapperFetching: Record<SwapperName, boolean> = useMemo(() => {
+    return {
+      [SwapperName.CowSwap]: cowSwapQuoteMeta.isFetching,
+      [SwapperName.OneInch]: oneInchQuoteMeta.isFetching,
+      [SwapperName.LIFI]: lifiQuoteMeta.isFetching,
+      [SwapperName.Thorchain]: thorchainQuoteMeta.isFetching,
+      [SwapperName.Zrx]: zrxQuoteMeta.isFetching,
+      [SwapperName.Test]: false,
+    }
+  }, [
+    cowSwapQuoteMeta.isFetching,
+    lifiQuoteMeta.isFetching,
+    oneInchQuoteMeta.isFetching,
+    thorchainQuoteMeta.isFetching,
+    zrxQuoteMeta.isFetching,
+  ])
+
   const allQuotesHaveError = useMemo(() => {
     return combinedQuoteMeta.every(quoteMeta => !!quoteMeta.error)
   }, [combinedQuoteMeta])
@@ -365,5 +382,5 @@ export const useGetTradeQuotes = () => {
     }
   }, [sortedTradeQuotes, mixpanel, isFetching])
 
-  return { isFetching, didFail }
+  return { isFetching, isSwapperFetching, didFail }
 }

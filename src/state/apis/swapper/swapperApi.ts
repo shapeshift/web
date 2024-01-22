@@ -56,7 +56,7 @@ export const swapperApiBase = createApi({
 
 export const swapperApi = swapperApiBase.injectEndpoints({
   endpoints: build => ({
-    getTradeQuote: build.query<null, TradeQuoteRequest>({
+    getTradeQuote: build.query<SwapperName, TradeQuoteRequest>({
       queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {
         // clear the trade quote slice to prevent data corruption as results come in
         dispatch(tradeQuoteSlice.actions.clear())
@@ -68,7 +68,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
 
-        if (!isSwapperEnabled) return { data: null }
+        if (!isSwapperEnabled) return { data: swapperName }
 
         // hydrate crypto market data for buy and sell assets
         await dispatch(
@@ -85,7 +85,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
         )
 
         if (quoteResult === undefined) {
-          return { data: null }
+          return { data: swapperName }
         }
 
         const quoteWithInputOutputRatios = (quoteResult => {
@@ -182,11 +182,13 @@ export const swapperApi = swapperApiBase.injectEndpoints({
           {} as Record<string, Omit<ApiQuote, 'index'>>,
         )
 
-        dispatch(tradeQuoteSlice.actions.upsertTradeQuotes(tradeQuotesById))
+        await dispatch(tradeQuoteSlice.actions.upsertTradeQuotes(tradeQuotesById))
 
-        return { data: null }
+        return { data: swapperName }
       },
-      providesTags: ['TradeQuote'],
+      providesTags: (_result, _error, tradeQuoteRequest) => [
+        { type: 'TradeQuote' as const, id: tradeQuoteRequest.swapperName },
+      ],
     }),
     getSupportedAssets: build.query<
       {

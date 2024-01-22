@@ -97,7 +97,11 @@ const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
 export const TradeInput = memo(() => {
-  const { isFetching: isQuoteLoading, didFail: tradeQuoteRequestFailed } = useGetTradeQuotes()
+  const {
+    isFetching: isQuoteLoading,
+    isSwapperFetching,
+    didFail: tradeQuoteRequestFailed,
+  } = useGetTradeQuotes()
   const {
     state: { wallet },
   } = useWallet()
@@ -142,10 +146,13 @@ export const TradeInput = memo(() => {
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
     [sellAmountCryptoPrecision],
   )
+
   const quoteStatusTranslation = useMemo(() => {
     const quoteRequestError = quoteRequestErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
+      case isQuoteLoading:
+        return 'common.loadingText'
       case !!quoteRequestError:
         return getQuoteRequestErrorTranslation(quoteRequestError)
       case !!tradeQuoteError:
@@ -155,7 +162,7 @@ export const TradeInput = memo(() => {
       default:
         return 'trade.previewTrade'
     }
-  }, [activeQuoteErrors, quoteRequestErrors])
+  }, [activeQuoteErrors, quoteRequestErrors, isQuoteLoading])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
@@ -319,9 +326,13 @@ export const TradeInput = memo(() => {
   const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
     () =>
       hasUserEnteredAmount ? (
-        <TradeQuotes sortedQuotes={sortedQuotes} isLoading={isLoading} />
+        <TradeQuotes
+          sortedQuotes={sortedQuotes}
+          isLoading={isLoading}
+          isSwapperFetching={isSwapperFetching}
+        />
       ) : null,
-    [hasUserEnteredAmount, isLoading, sortedQuotes],
+    [hasUserEnteredAmount, isLoading, sortedQuotes, isSwapperFetching],
   )
 
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(

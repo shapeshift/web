@@ -138,6 +138,9 @@ export const getLongtailToL1Quote = async (
         allowanceContract: ALLOWANCE_CONTRACT,
       })),
       isLongtail: true,
+      longtailData: {
+        longtailToLExpectedAmountOut: quotedAmountOut,
+      },
     }))
 
     return Ok(updatedQuotes)

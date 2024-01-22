@@ -19,6 +19,9 @@ type ThorTradeQuoteSpecificMetadata = {
   isStreaming: boolean
   memo: string
   recommendedMinimumCryptoBaseUnit: string
+  longtailData?: {
+    longtailToLExpectedAmountOut?: bigint
+  }
 }
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {

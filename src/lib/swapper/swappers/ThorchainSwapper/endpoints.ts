@@ -73,7 +73,15 @@ export const thorchainApi: SwapperApi = {
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
-    const { router: to, data, steps, memo: tcMemo, tradeType } = tradeQuote as ThorEvmTradeQuote
+    const {
+      router: to,
+      data,
+      steps,
+      memo: tcMemo,
+      tradeType,
+      longtailData,
+      slippageTolerancePercentageDecimal,
+    } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
     const value = isNativeEvmAsset(sellAsset.assetId)
@@ -146,9 +154,16 @@ export const thorchainApi: SwapperApi = {
         const publicClient = viemClientByChainId[chainId as EvmChainId]
         assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
+        const expectedAmountOut =
+          BigInt(longtailData?.longtailToLExpectedAmountOut ?? 0) || BigInt(0)
+        // Ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
+        assert(expectedAmountOut !== undefined, 'expectedAmountOut is undefined')
+
+        const amountOutMin =
+          expectedAmountOut * (1n - BigInt(slippageTolerancePercentageDecimal || 0n))
+
         const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
         const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-        const amountOutMin: bigint = BigInt(0) // todo: the buy amount
         const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
         const tenMinutes = BigInt(600)
         const deadline = currentTimestamp + tenMinutes

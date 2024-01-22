@@ -26,7 +26,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -159,8 +159,11 @@ export const thorchainApi: SwapperApi = {
         // Ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
         assert(expectedAmountOut !== undefined, 'expectedAmountOut is undefined')
 
-        const amountOutMin =
-          expectedAmountOut * (1n - BigInt(slippageTolerancePercentageDecimal || 0n))
+        const amountOutMin = BigInt(
+          bnOrZero(expectedAmountOut.toString())
+            .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+            .toFixed(0, BigNumber.ROUND_UP),
+        )
 
         const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
         const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)

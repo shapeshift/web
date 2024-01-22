@@ -155,6 +155,11 @@ export const thorchainApi: SwapperApi = {
         assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
         const expectedAmountOut = BigInt(longtailData?.longtailToL1ExpectedAmountOut ?? 0)
+        // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
+        assert(
+          expectedAmountOut !== undefined && expectedAmountOut !== 0n,
+          'expectedAmountOut is undefined',
+        )
 
         const amountOutMin = BigInt(
           bnOrZero(expectedAmountOut.toString())

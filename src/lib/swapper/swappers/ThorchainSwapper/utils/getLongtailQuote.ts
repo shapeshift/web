@@ -139,7 +139,7 @@ export const getLongtailToL1Quote = async (
       })),
       isLongtail: true,
       longtailData: {
-        longtailToLExpectedAmountOut: quotedAmountOut,
+        longtailToL1ExpectedAmountOut: quotedAmountOut,
       },
     }))
 

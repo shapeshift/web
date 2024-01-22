@@ -20,7 +20,7 @@ type ThorTradeQuoteSpecificMetadata = {
   memo: string
   recommendedMinimumCryptoBaseUnit: string
   longtailData?: {
-    longtailToLExpectedAmountOut?: bigint
+    longtailToL1ExpectedAmountOut?: bigint
   }
 }
 export type ThorEvmTradeQuote = TradeQuote &

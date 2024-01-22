@@ -154,16 +154,16 @@ export const thorchainApi: SwapperApi = {
         const publicClient = viemClientByChainId[chainId as EvmChainId]
         assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
-        const expectedAmountOut =
-          BigInt(longtailData?.longtailToLExpectedAmountOut ?? 0) || BigInt(0)
-        // Ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
-        assert(expectedAmountOut !== undefined, 'expectedAmountOut is undefined')
+        const expectedAmountOut = BigInt(longtailData?.longtailToL1ExpectedAmountOut ?? 0)
 
         const amountOutMin = BigInt(
           bnOrZero(expectedAmountOut.toString())
             .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
             .toFixed(0, BigNumber.ROUND_UP),
         )
+
+        // Ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
+        assert(amountOutMin > 0n, 'expectedAmountOut is zero')
 
         const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
         const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)

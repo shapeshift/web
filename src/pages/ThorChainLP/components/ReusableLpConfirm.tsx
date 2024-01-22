@@ -70,6 +70,11 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     return getChainAdapterManager().get(asset.chainId)?.getDisplayName()
   }, [asset])
 
+  const baseAssetNetwork = useMemo(() => {
+    if (!baseAsset) return undefined
+    return getChainAdapterManager().get(baseAsset.chainId)?.getDisplayName()
+  }, [baseAsset])
+
   const assetIds = useMemo(() => {
     if (!pool || !baseAsset) return []
     return [pool.assetId, baseAsset.assetId]
@@ -183,7 +188,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
             </TimelineItem>
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('pools.chainFee', { chain: 'THORChain' })}</Row.Label>
+                <Row.Label>{translate('pools.chainFee', { chain: baseAssetNetwork })}</Row.Label>
                 <Row.Value display='flex' gap={1}>
                   <Amount.Crypto value='0.02' symbol='RUNE' />
                   <Flex color='text.subtle'>

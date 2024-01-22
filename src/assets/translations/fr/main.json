@@ -776,7 +776,7 @@
       "transactionRejected": "L'utilisateur a rejeté la transaction",
       "insufficientFundsForProtocolFee": "%{symbol} insuffisant sur %{chainName} pour les frais",
       "unsupportedTradePair": "Paire d'échange non prise en charge",
-      "noRouteFound": "Aucun route trouvée pour cette paire et ce montant",
+      "noRouteFound": "Aucune route trouvée pour cette paire et ce montant",
       "quoteExpired": "Devis expiré, réessayez.",
       "quoteUnsupportedChain": "Chaîne non prise en charge",
       "quoteCrossChainNotSupported": "Inter-chaînes non pris en charge",

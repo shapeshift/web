@@ -1,7 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
@@ -19,9 +18,7 @@ type AddLiquidityStatusProps = {
 
 export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) => {
   const history = useHistory()
-  const [firstTx, setFirstTx] = useState(TxStatus.Unknown)
-  const [secondTx, setSecondTx] = useState(TxStatus.Pending)
-  const [isComplete, setIsComplete] = useState(false)
+  const [activeStep, setActiveStep] = useState(0)
 
   const { opportunityId } = confirmedQuote
 
@@ -39,7 +36,7 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
   const assets: Asset[] = useMemo(() => {
     if (!(foundPool && asset && rune)) return []
 
-    if (foundPool.asymSide === null) return [asset, rune]
+    if (foundPool.asymSide === null) return [rune, asset]
     if (foundPool.asymSide === AsymSide.Rune) return [rune]
     if (foundPool.asymSide === AsymSide.Asset) return [asset]
 
@@ -50,15 +47,18 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
     history.push(AddLiquidityRoutePaths.Input)
   }, [history])
 
-  const handleNext = useCallback(() => {
-    setFirstTx(TxStatus.Confirmed)
-    setSecondTx(TxStatus.Unknown)
-  }, [])
+  const handleComplete = useCallback(() => {
+    setActiveStep(activeStep + 1)
+  }, [activeStep])
+
+  const isComplete = useMemo(() => {
+    return activeStep === assets.length
+  }, [activeStep, assets.length])
 
   const assetCards = useMemo(() => {
     return (
       <Stack mt={4}>
-        {assets.map(asset => {
+        {assets.map((asset, index) => {
           const amountCryptoPrecision =
             asset.assetId === thorchainAssetId
               ? confirmedQuote.runeCryptoLiquidityAmount
@@ -68,8 +68,8 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
               key={asset.assetId}
               assetId={asset.assetId}
               amountCryptoPrecision={amountCryptoPrecision}
-              handleSignTx={handleNext}
-              status={TxStatus.Unknown}
+              onComplete={handleComplete}
+              isActive={index === activeStep}
             />
           )
         })}
@@ -79,7 +79,8 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
     assets,
     confirmedQuote.runeCryptoLiquidityAmount,
     confirmedQuote.assetCryptoLiquidityAmount,
-    handleNext,
+    handleComplete,
+    activeStep,
   ])
 
   if (!foundPool) return null
@@ -90,6 +91,7 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
       confirmedQuote={confirmedQuote}
       baseAssetId={thorchainAssetId}
       handleBack={handleGoBack}
+      isComplete={isComplete}
     >
       {assetCards}
     </ReusableLpStatus>

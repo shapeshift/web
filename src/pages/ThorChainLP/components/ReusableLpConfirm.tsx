@@ -139,6 +139,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 <Amount.Crypto
                   fontWeight='bold'
                   value={amountCryptoPrecision}
+                  maximumFractionDigits={4}
                   symbol={_asset.symbol}
                 />
                 <Amount.Fiat fontSize='sm' color='text.subtle' value={amountFiatUserCurrency} />

@@ -1,19 +1,12 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Center,
-  CircularProgress,
-  Collapse,
-  Flex,
-} from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -21,18 +14,45 @@ import { useAppSelector } from 'state/store'
 type TransactionRowProps = {
   assetId?: AssetId
   amountCryptoPrecision: string
-  handleSignTx: () => void
-  status: TxStatus
+  onComplete: () => void
+  isActive?: boolean
+  isLast?: boolean
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
   amountCryptoPrecision,
-  handleSignTx,
-  status,
+  onComplete,
+  isActive,
 }) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const [status, setStatus] = useState(TxStatus.Unknown)
+  const [txId, setTxId] = useState<string | null>(null)
+
+  const handleSignTx = useCallback(() => {
+    setStatus(TxStatus.Pending)
+    setTxId('200')
+  }, [])
+
+  useEffect(() => {
+    let isMounted = true
+
+    if (status === TxStatus.Pending) {
+      setTimeout(() => {
+        if (isMounted) {
+          setStatus(TxStatus.Confirmed)
+          onComplete()
+        }
+      }, 1000)
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, [onComplete, status])
+
+  const txIdLink = useMemo(() => `${asset?.explorerTxLink}/${txId}`, [asset?.explorerTxLink, txId])
 
   if (!asset) return null
 
@@ -42,9 +62,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         <AssetIcon size='xs' assetId={asset.assetId} />
         <Amount.Crypto fontWeight='bold' value={amountCryptoPrecision} symbol={asset.symbol} />{' '}
         <Flex ml='auto' alignItems='center' gap={2}>
+          {txId && (
+            <Button as={Link} isExternal href={txIdLink} size='xs'>
+              {translate('common.seeDetails')}
+            </Button>
+          )}
           {status === TxStatus.Confirmed ? (
             <>
-              <Button size='xs'>{translate('common.seeDetails')}</Button>
               <Center
                 bg='background.success'
                 boxSize='24px'
@@ -56,11 +80,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               </Center>
             </>
           ) : (
-            <CircularProgress size='24px' />
+            <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
           )}
         </Flex>
       </CardHeader>
-      <Collapse in={status === TxStatus.Unknown}>
+      <Collapse in={isActive}>
         <CardBody display='flex' flexDir='column' gap={2}>
           <Row fontSize='sm'>
             <Row.Label>{translate('common.gasFee')}</Row.Label>
@@ -68,7 +92,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               <Amount.Crypto value='0.02' symbol={asset.symbol} />
             </Row.Value>
           </Row>
-          <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSignTx}>
+          <Button
+            mx={-2}
+            size='lg'
+            colorScheme='blue'
+            onClick={handleSignTx}
+            isLoading={status === TxStatus.Pending}
+          >
             {translate('common.signTransaction')}
           </Button>
         </CardBody>

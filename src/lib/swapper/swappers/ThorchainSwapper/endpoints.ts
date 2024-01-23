@@ -12,17 +12,15 @@ import {
   type GetUnsignedCosmosSdkTransactionArgs,
   type GetUnsignedEvmTransactionArgs,
   type GetUnsignedUtxoTransactionArgs,
-  makeSwapErrorRight,
   type SwapErrorRight,
   type SwapperApi,
   type TradeQuote,
-  TradeQuoteError,
   type UtxoFeeData,
 } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import { Err, type Result } from '@sniptt/monads/build'
+import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -168,15 +166,6 @@ export const thorchainApi: SwapperApi = {
             .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
             .toFixed(0, BigNumber.ROUND_UP),
         )
-
-        if (amountOutMin <= 0n) {
-          throw Err(
-            makeSwapErrorRight({
-              code: TradeQuoteError.SellAmountBelowMinimum,
-              message: 'Sell amount is too small',
-            }),
-          )
-        }
 
         // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
         assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')

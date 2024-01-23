@@ -13,7 +13,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { PropsWithChildren } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { rune } from 'test/mocks/assets'
@@ -30,23 +30,18 @@ import { TransactionRow } from './TransactionRow'
 
 type ReusableLpStatusProps = {
   handleBack: () => void
-  onStepComplete: () => void
   baseAssetId: AssetId
-  isComplete?: boolean
   confirmedQuote: ConfirmedQuote
-  activeStepIndex?: number
 } & PropsWithChildren
 
 export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   baseAssetId,
-  isComplete,
   confirmedQuote,
   handleBack,
-  onStepComplete,
-  activeStepIndex,
   children,
 }) => {
   const translate = useTranslate()
+  const [activeStepIndex, setActiveStepIndex] = useState(0)
 
   const { data: parsedPools } = usePools()
 
@@ -73,6 +68,17 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         assertUnreachable(pool.asymSide)
     }
   }, [asset, baseAsset, pool])
+
+  const handleComplete = useCallback(() => {
+    setActiveStepIndex(activeStepIndex + 1)
+  }, [activeStepIndex])
+
+  // This allows us to either do a single step or multiple steps
+  // Once a step is complete the next step is shown
+  // If the active step is the same as the length of steps we can assume it is complete.
+  const isComplete = useMemo(() => {
+    return activeStepIndex === assets.length
+  }, [activeStepIndex, assets.length])
 
   const hStackDivider = useMemo(() => {
     if (pool?.asymSide) return <></>
@@ -147,7 +153,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               key={_asset.assetId}
               assetId={_asset.assetId}
               amountCryptoPrecision={amountCryptoPrecision}
-              onComplete={onStepComplete}
+              onComplete={handleComplete}
               isActive={index === activeStepIndex}
             />
           )
@@ -158,7 +164,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     assets,
     confirmedQuote.runeCryptoLiquidityAmount,
     confirmedQuote.assetCryptoLiquidityAmount,
-    onStepComplete,
+    handleComplete,
     activeStepIndex,
   ])
 

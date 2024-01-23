@@ -142,40 +142,38 @@ export const SelectModal = () => {
             ))
           }
         </Grid>
-        {!walletInfo?.name && (
-          <Flex
-            direction={flexDirProp}
-            mb={mbProp}
-            ml={mlProp}
-            mt={2}
-            justifyContent='center'
-            alignItems='center'
+        <Flex
+          direction={flexDirProp}
+          mb={mbProp}
+          ml={mlProp}
+          mt={2}
+          justifyContent='center'
+          alignItems='center'
+        >
+          <Button variant='link' borderTopRadius='none' colorScheme='blue' onClick={handleCreate}>
+            {translate('walletProvider.selectModal.create')}
+          </Button>
+          <Text
+            mx={1}
+            color='text.subtle'
+            colorScheme='blue'
+            translation={'walletProvider.selectModal.or'}
+          />
+          <Button
+            mr={1}
+            variant='link'
+            borderTopRadius='none'
+            colorScheme='blue'
+            onClick={handleImport}
           >
-            <Button variant='link' borderTopRadius='none' colorScheme='blue' onClick={handleCreate}>
-              {translate('walletProvider.selectModal.create')}
-            </Button>
-            <Text
-              mx={1}
-              color='text.subtle'
-              colorScheme='blue'
-              translation={'walletProvider.selectModal.or'}
-            />
-            <Button
-              mr={1}
-              variant='link'
-              borderTopRadius='none'
-              colorScheme='blue'
-              onClick={handleImport}
-            >
-              {translate('walletProvider.selectModal.import')}
-            </Button>
-            <Text
-              color='text.subtle'
-              colorScheme='blue'
-              translation={'walletProvider.selectModal.aWallet'}
-            />
-          </Flex>
-        )}
+            {translate('walletProvider.selectModal.import')}
+          </Button>
+          <Text
+            color='text.subtle'
+            colorScheme='blue'
+            translation={'walletProvider.selectModal.aWallet'}
+          />
+        </Flex>
       </ModalBody>
     </>
   )

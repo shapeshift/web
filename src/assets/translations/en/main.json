@@ -754,6 +754,7 @@
     "recipientAddress": "Recipient address",
     "customRecipientAddress": "Custom recipient address",
     "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
+    "enterCustomRecipientAddress": "Enter custom recipient address",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",

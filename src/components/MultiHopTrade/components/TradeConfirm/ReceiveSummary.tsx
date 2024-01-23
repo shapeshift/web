@@ -362,7 +362,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                     value={''} // TODO: Controlled input value
                     onChange={handleInputChange}
                     autoFocus
-                    placeholder='Enter recipient address' // Placeholder text
+                    placeholder={translate('trade.customRecipientAddressDescription')}
                   />
                   <InputRightElement width='4.5rem'>
                     <Box

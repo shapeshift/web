@@ -32,6 +32,7 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
 import {
+  selectActiveQuoteId,
   selectSortedTradeQuotes,
   selectTradeQuoteRequestErrors,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -354,6 +355,13 @@ export const useGetTradeQuotes = () => {
     )
   }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
 
+  // true if any debounce, input or swapper is fetching
+  const isAnyFetching = useMemo(() => {
+    return (
+      isDebouncing || isFetchingInput || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
+    )
+  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+
   const isUninitialized = useMemo(() => {
     return combinedQuoteMeta.every(quoteMeta => quoteMeta.isUninitialized)
   }, [combinedQuoteMeta])
@@ -386,6 +394,22 @@ export const useGetTradeQuotes = () => {
   }, [allQuotesHaveError, tradeQuoteRequestErrors.length])
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
+  const activeQuoteId = useAppSelector(selectActiveQuoteId)
+
+  // auto-select the best quote once all quotes have arrived
+  useEffect(() => {
+    // don't override user selection, don't rug users by auto-selecting while results are incoming
+    if (activeQuoteId || isUninitialized || isAnyFetching) return
+
+    const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
+
+    // don't auto-select nothing, don't auto-select errored quotes
+    if (bestQuote?.quote === undefined || bestQuote.errors.length > 0) {
+      return
+    }
+
+    dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(bestQuote.quote.id))
+  }, [activeQuoteId, isUninitialized, isAnyFetching, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {

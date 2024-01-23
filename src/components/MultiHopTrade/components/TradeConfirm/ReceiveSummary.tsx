@@ -380,7 +380,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                         borderRadius='md'
                         onClick={handleSaveClick}
                       >
-                        <CheckIcon />
+                        {checkIcon}
                       </Box>
                       <Box
                         as='button'
@@ -390,7 +390,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                         borderRadius='md'
                         onClick={handleCancelClick}
                       >
-                        <CloseIcon />
+                        {closeIcon}
                       </Box>
                     </Box>
                   </InputRightElement>

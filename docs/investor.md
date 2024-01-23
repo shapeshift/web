@@ -3,7 +3,7 @@ The `investor` package is an abstraction to implement protocols that allow for s
 
 [Idle Finance](https://idle.finance) is an example of this type of single-sided staking protocol.
 
-You can look at [lib/investor/investor-idle](https://github.com/shapeshift/web/tree/develop/src/lib/investor/investor-idle) as an example implementation.
+You can look at [lib/investor/investor-foxy](https://github.com/shapeshift/web/tree/develop/src/lib/investor/investor-foxy) as an example implementation.
 
 ### 
 The `investor` package is made up of three parts.

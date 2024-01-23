@@ -21,7 +21,7 @@ import type {
 import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 import type { MarketDataById } from './types'
 
-const initialState: MarketDataState = {
+export const initialState: MarketDataState = {
   crypto: {
     byId: {},
     ids: [],

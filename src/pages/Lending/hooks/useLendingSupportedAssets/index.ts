@@ -3,6 +3,7 @@ import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
+import { reactQueries } from 'react-queries'
 import { useSelector } from 'react-redux'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -11,7 +12,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { getThorchainAvailablePools } from 'lib/utils/thorchain'
 import { selectAssetById, selectWalletChainIds } from 'state/slices/selectors'
 import { store } from 'state/store'
 
@@ -22,10 +22,8 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
   const isSnapInstalled = useIsSnapInstalled()
 
   const { data: availablePools } = useQuery({
-    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
-    staleTime: 60_000,
-    queryKey: ['thorchainAvailablePools'],
-    queryFn: getThorchainAvailablePools,
+    ...reactQueries.thornode.poolsData(),
+    select: pools => pools.filter(pool => pool.status === 'Available'),
   })
 
   const walletSupportChains = useMemo(

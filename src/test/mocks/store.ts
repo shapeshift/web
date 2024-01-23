@@ -21,7 +21,7 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   },
 })
 
-const mockSwappersApi = Object.assign(mockApiFactory('swappersApi' as const), {
+const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
   provided: {
     TradeQuote: {},
   },
@@ -36,8 +36,7 @@ export const mockStore: ReduxState = {
   nftApi: mockApiFactory('nftApi' as const),
   covalentApi: mockApiFactory('covalentApi' as const),
   zapper: mockApiFactory('zapper' as const),
-  swapperApi: mockApiFactory('swapperApi' as const),
-  swappersApi: mockSwappersApi,
+  swapperApi: mockSwapperApi,
   foxyApi: mockApiFactory('foxyApi' as const),
   fiatRampApi: mockApiFactory('fiatRampApi' as const),
   snapshotApi: mockApiFactory('snapshotApi' as const),
@@ -170,7 +169,7 @@ export const mockStore: ReduxState = {
       ids: [],
     },
   },
-  swappers: {
+  tradeInput: {
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
     sellAssetAccountId: undefined,

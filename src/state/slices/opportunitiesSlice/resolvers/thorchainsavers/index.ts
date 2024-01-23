@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { reactQueries } from 'react-queries'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { fromThorBaseUnit, getThorchainAvailablePools } from 'lib/utils/thorchain'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -32,17 +33,16 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
   const thorchainPools = await queryClient.fetchQuery({
-    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
-    staleTime: 60_000,
-    queryKey: ['thorchainAvailablePools'],
-    queryFn: getThorchainAvailablePools,
+    ...reactQueries.thornode.poolsData(),
   })
 
   if (!thorchainPools.length) {
     throw new Error('Error fetching THORChain pools')
   }
 
-  const opportunityIds = thorchainPools.reduce<OpportunityId[]>((acc, currentPool) => {
+  const availablePools = thorchainPools.filter(pool => pool.status === 'Available')
+
+  const opportunityIds = availablePools.reduce<OpportunityId[]>((acc, currentPool) => {
     const maybeOpportunityId = poolAssetIdToAssetId(currentPool.asset)
 
     if (
@@ -91,19 +91,18 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   const thorchainPools = await queryClient.fetchQuery({
-    // Mark pools data as stale after 60 seconds to handle the case of going from halted to available and vice versa
-    staleTime: 60_000,
-    queryKey: ['thorchainAvailablePools'],
-    queryFn: getThorchainAvailablePools,
+    ...reactQueries.thornode.poolsData(),
   })
 
   if (!thorchainPools.length) {
     throw new Error('Error fetching THORChain pools')
   }
 
+  const availablePools = thorchainPools.filter(pool => pool.status === 'Available')
+
   const stakingOpportunitiesById: Record<StakingId, OpportunityMetadata> = {}
 
-  for (const thorchainPool of thorchainPools) {
+  for (const thorchainPool of availablePools) {
     const assetId = poolAssetIdToAssetId(thorchainPool.asset)
     if (!assetId || !opportunityIds.includes(assetId as OpportunityId)) continue
 

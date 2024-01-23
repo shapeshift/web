@@ -13,7 +13,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
 import type {
   MidgardActionsResponse,
-  ThornodePoolResponse,
   ThornodeStatusResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
@@ -210,17 +209,3 @@ export const getAccountAddresses = memoize(
   async (accountId: AccountId): Promise<string[]> =>
     (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
-
-export const getThorchainAvailablePools = async () => {
-  const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-  const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-    `${daemonUrl}/lcd/thorchain/pools`,
-  )
-  if (poolResponse.isOk()) {
-    const allPools = poolResponse.unwrap().data
-    const availablePools = allPools.filter(pool => pool.status === 'Available')
-    return availablePools
-  }
-
-  return []
-}

@@ -3,6 +3,7 @@ import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
+import { reactQueries } from 'react-queries'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Main } from 'components/Layout/Main'
@@ -13,8 +14,8 @@ import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import type { ParsedPool } from './hooks/usePools'
-import { usePools } from './hooks/usePools'
+import type { ParsedPool } from './queries/hooks/usePools'
+import { usePools } from './queries/hooks/usePools'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -61,18 +62,18 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const tvl = useMemo(
-    () => calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price),
+    () => calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price).tvl,
     [pool.assetDepth, pool.runeDepth, runeMarketData.price],
   )
 
   const { data: volume24H, isLoading: isVolume24HLoading } = useQuery({
-    queryKey: ['thorchainPoolData24h', pool.assetId],
-    queryFn: () => getVolume('24h', pool.assetId, runeMarketData.price),
+    ...reactQueries.midgard.swapsData(pool.assetId, '24h'),
+    select: data => getVolume(runeMarketData.price, data),
   })
 
   const { data: volume7D, isLoading: isVolume7DLoading } = useQuery({
-    queryKey: ['thorchainPoolData7d', pool.assetId],
-    queryFn: () => getVolume('7d', pool.assetId, runeMarketData.price),
+    ...reactQueries.midgard.swapsData(pool.assetId, '7d'),
+    select: data => getVolume(runeMarketData.price, data),
   })
 
   return (

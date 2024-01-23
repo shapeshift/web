@@ -8,7 +8,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 
-export type SwappersState = {
+export type TradeInputState = {
   buyAsset: Asset
   sellAsset: Asset
   sellAssetAccountId: AccountId | undefined
@@ -20,7 +20,7 @@ export type SwappersState = {
 }
 
 // Define the initial state:
-const initialState: SwappersState = {
+const initialState: TradeInputState = {
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
   sellAssetAccountId: undefined,
@@ -32,8 +32,8 @@ const initialState: SwappersState = {
 }
 
 // Create the slice:
-export const swappers = createSlice({
-  name: 'swappers',
+export const tradeInput = createSlice({
+  name: 'tradeInput',
   initialState,
   reducers: {
     clear: () => initialState,

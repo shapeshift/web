@@ -4,6 +4,7 @@ import { Route, Switch, useRouteMatch } from 'react-router'
 import { AddLiquidityPage } from './AddLiquidityPage'
 import { AvailablePools } from './AvailablePools'
 import { Pool } from './Pool/Pool'
+import { Position } from './Position/Position'
 import { YourPositions } from './YourPositions'
 
 export const poolRowGrid: GridProps['gridTemplateColumns'] = {
@@ -23,12 +24,12 @@ export const PoolsPage = () => {
         <YourPositions />
       </Route>
       <Route path={`${path}/poolAccount/:poolAccountId/:poolOpportunityId`}>
-        <Pool />
+        <Position />
       </Route>
       <Route path={`${path}/poolAccount/:poolOpportunityId`}>
         <Pool />
       </Route>
-      <Route path={`${path}/add`}>
+      <Route path={`${path}/add/:poolOpportunityId?`}>
         <AddLiquidityPage />
       </Route>
     </Switch>

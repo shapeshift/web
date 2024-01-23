@@ -21,7 +21,7 @@ import type {
 import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 import type { MarketDataById } from './types'
 
-const initialState: MarketDataState = {
+export const initialState: MarketDataState = {
   crypto: {
     byId: {},
     ids: [],
@@ -167,13 +167,6 @@ export const marketApi = createApi({
       // named function for profiling+debugging purposes
       queryFn: async function findByAssetIds(assetIds: AssetId[], { dispatch }) {
         if (assetIds.length === 0) return { data: null }
-
-        const idleProvider = getMarketServiceManager().marketProviders.find(provider =>
-          provider.baseUrl.includes('idle.finance'),
-        )
-
-        // fetch idle market data once so we can leverage cached state thereafter
-        if (idleProvider) await idleProvider.findAll({ count: 0 })
 
         const responseData = await Promise.all(
           assetIds.map(async assetId => {

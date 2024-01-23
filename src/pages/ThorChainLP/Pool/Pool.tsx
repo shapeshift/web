@@ -5,54 +5,38 @@ import {
   Card,
   CardBody,
   CardFooter,
-  CardHeader,
   Container,
   Flex,
   Heading,
   IconButton,
   Stack,
-  TabPanel,
-  TabPanels,
-  Tabs,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import type { Property } from 'csstype'
-import type { PropsWithChildren } from 'react'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
+import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
-import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { DynamicComponent } from 'components/DynamicComponent'
+import { reactQueries } from 'react-queries'
+import { generatePath, matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
+import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Main } from 'components/Layout/Main'
-import { RawText, Text } from 'components/Text'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import {
-  calculateEarnings,
   calculateTVL,
   get24hSwapChangePercentage,
-  get24hTvlChangePercentage,
-  getAllTimeVolume,
-  getEarnings,
   getFees,
   getVolume,
 } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AddLiquidity } from '../components/AddLiquitity/AddLiquidity'
+import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
-import { RemoveLiquidity } from '../components/RemoveLiquidity/RemoveLiquidity'
-import { usePools } from '../hooks/usePools'
-import { useUserLpData } from '../hooks/useUserLpData'
-import { Faq } from './components/Faq'
-import { PoolInfo } from './components/PoolInfo'
+import { PoolInfo } from '../components/PoolInfo'
+import { usePools } from '../queries/hooks/usePools'
+import { PairRates } from './components/PairRates'
+import { PoolChart } from './components/PoolChart'
 
 type MatchParams = {
   poolAccountId?: AccountId
@@ -60,21 +44,30 @@ type MatchParams = {
 }
 
 const containerPadding = { base: 6, '2xl': 8 }
-const maxWidth = { base: '100%', md: '450px' }
-const responsiveFlex = { base: 'auto', lg: 1 }
+const maxWidth = { base: '100%', md: '350px' }
 
-const PoolHeader = () => {
+const subHeaderFlexDirection: ResponsiveValue<Property.FlexDirection> = {
+  base: 'column',
+  md: 'row',
+}
+
+type PoolHeaderProps = {
+  assetIds: AssetId[]
+  name: string
+}
+
+const PoolHeader: React.FC<PoolHeaderProps> = ({ assetIds, name }) => {
   const translate = useTranslate()
   const history = useHistory()
   const { path } = useRouteMatch()
   const handleBack = useCallback(() => {
-    const isPoolPage = matchPath('/lending/pool/:poolAssetId', path)
-    const isPoolAccountPage = matchPath('/lending/poolAccount/:poolAccountId/:poolAssetId', path)
+    const isPoolPage = matchPath('/pools/positions/:poolAssetId', path)
+    const isPoolAccountPage = matchPath('/pools/poolAccount/:poolAccountId/:poolAssetId', path)
 
     if (isPoolAccountPage) {
-      history.push('/lending/loans')
+      history.push('/pools/positions')
     } else if (isPoolPage) {
-      history.push('/lending')
+      history.push('/pools')
     }
   }, [history, path])
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
@@ -82,58 +75,12 @@ const PoolHeader = () => {
     <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
       <Flex gap={4} alignItems='center'>
         <IconButton icon={backIcon} aria-label={translate('pools.pools')} onClick={handleBack} />
-        <Heading>{translate('pools.pools')}</Heading>
+        <Flex gap={4} alignItems='center'>
+          <PoolIcon assetIds={assetIds} size='sm' />
+          <Heading as='h3'>{name}</Heading>
+        </Flex>
       </Flex>
     </Container>
-  )
-}
-
-type FormHeaderProps = {
-  setStepIndex: (index: number) => void
-  activeIndex: number
-}
-type FormHeaderTabProps = {
-  index: number
-  onClick: (index: number) => void
-  isActive?: boolean
-} & PropsWithChildren
-
-const activeStyle = { color: 'text.base' }
-
-const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
-  const handleClick = useCallback(() => {
-    onClick(index)
-  }, [index, onClick])
-  return (
-    <Button
-      onClick={handleClick}
-      isActive={isActive}
-      variant='unstyled'
-      color='text.subtle'
-      _active={activeStyle}
-    >
-      {children}
-    </Button>
-  )
-}
-
-const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) => {
-  const translate = useTranslate()
-  const handleClick = useCallback(
-    (index: number) => {
-      setStepIndex(index)
-    },
-    [setStepIndex],
-  )
-  return (
-    <Flex px={6} py={4} gap={4}>
-      <FormHeaderTab index={0} onClick={handleClick} isActive={activeIndex === 0}>
-        {translate('pools.addLiquidity')}
-      </FormHeaderTab>
-      <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1}>
-        {translate('pools.removeLiquidity')}
-      </FormHeaderTab>
-    </Flex>
   )
 }
 
@@ -141,6 +88,8 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-rev
 
 export const Pool = () => {
   const params = useParams<MatchParams>()
+  const translate = useTranslate()
+  const history = useHistory()
 
   const { data: parsedPools } = usePools()
 
@@ -151,29 +100,24 @@ export const Pool = () => {
     return parsedPools.find(pool => pool.opportunityId === routeOpportunityId)
   }, [params, parsedPools])
 
-  const { data: userData } = useUserLpData({ assetId: foundPool?.assetId ?? '' })
-
-  const foundUserData = useMemo(() => {
-    if (!userData) return undefined
-
-    // TODO(gomes): when routed from the "Your positions" page, we will want to handle multi-account and narrow by AccountId
-    // TODO(gomes): when supporting multi account for this, we will want to either handle default, highest balance account as default,
-    // or, probably better from an architectural standpoint, have each account position be its separate row
-    return userData?.find(data => data.opportunityId === foundPool?.opportunityId)
-  }, [foundPool?.opportunityId, userData])
-
-  const [stepIndex, setStepIndex] = useState<number>(0)
-
-  const headerComponent = useMemo(() => <PoolHeader />, [])
-
   const poolAssetIds = useMemo(() => {
     if (!foundPool) return []
 
     return [foundPool.assetId, thorchainAssetId]
   }, [foundPool])
 
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const headerComponent = useMemo(
+    () => <PoolHeader assetIds={poolAssetIds} name={foundPool?.name ?? ''} />,
+    [foundPool?.name, poolAssetIds],
+  )
+
+  const handleAddLiquidityClick = useCallback(() => {
+    history.push(
+      generatePath('/pools/add/:poolOpportunityId', {
+        poolOpportunityId: foundPool?.opportunityId ?? '',
+      }),
+    )
+  }, [foundPool?.opportunityId, history])
 
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
   const assetMarketData = useAppSelector(state =>
@@ -181,91 +125,52 @@ export const Pool = () => {
   )
 
   const { data: volume24h } = useQuery({
-    queryKey: ['thorchainPoolVolume24h', foundPool?.assetId ?? ''],
-    queryFn: () => (foundPool ? getVolume('24h', foundPool.assetId, runeMarketData.price) : ''),
+    ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    select: data => getVolume(runeMarketData.price, data),
   })
 
-  const { data: swap24hChange } = useQuery({
-    queryKey: ['get24hSwapChangePercentage', foundPool?.assetId ?? ''],
-    queryFn: () =>
-      foundPool
-        ? get24hSwapChangePercentage(foundPool.assetId, runeMarketData.price, assetMarketData.price)
-        : null,
+  const { data: swapDataPrevious24h } = useQuery({
+    ...reactQueries.midgard.swapsData(foundPool?.assetId, 'previous24h'),
   })
+
+  const { data: swapData24h } = useQuery({
+    ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+  })
+
+  const fees24h = useMemo(() => {
+    if (!swapData24h) return
+
+    return getFees(runeMarketData.price, assetMarketData.price, swapData24h)
+  }, [swapData24h, runeMarketData.price, assetMarketData.price])
+
+  const swap24hChange = useMemo(() => {
+    if (!swapData24h || !swapDataPrevious24h) return
+
+    return get24hSwapChangePercentage(
+      runeMarketData.price,
+      assetMarketData.price,
+      swapData24h,
+      swapDataPrevious24h,
+    )
+  }, [swapData24h, swapDataPrevious24h, runeMarketData.price, assetMarketData.price])
 
   const { data: tvl24hChange } = useQuery({
-    queryKey: ['get24hTvlChangePercentage', foundPool?.assetId ?? ''],
-    queryFn: () =>
-      foundPool ? get24hTvlChangePercentage(foundPool.assetId) : Promise.resolve(null),
-  })
-
-  const { data: fees24h } = useQuery({
-    queryKey: ['thorchainPoolFees24h', foundPool?.assetId ?? ''],
-    queryFn: () =>
-      foundPool
-        ? getFees('24h', foundPool.assetId, runeMarketData.price, assetMarketData.price)
-        : '',
+    ...reactQueries.thorchainLp.tvl24hChange(foundPool?.assetId),
   })
 
   const { data: allTimeVolume } = useQuery({
-    queryKey: ['thorchainPoolVolumeAllTime', foundPool?.assetId ?? ''],
-    queryFn: () => (foundPool ? getAllTimeVolume(foundPool.assetId, runeMarketData.price) : ''),
+    ...reactQueries.thorchainLp.allTimeVolume(foundPool?.assetId, runeMarketData.price),
   })
-
-  const { data: thornodePoolData } = useQuery({
-    enabled: Boolean(foundPool),
-    queryKey: ['thornodePoolData', foundPool?.assetId ?? ''],
-    queryFn: async () => {
-      const poolAssetId = assetIdToPoolAssetId({ assetId: foundPool?.assetId ?? '' })
-      const { data: poolData } = await axios.get<ThornodePoolResponse>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
-      )
-
-      return poolData
-    },
-  })
-
-  const { data: earnings } = useQuery({
-    enabled: Boolean(foundUserData && thornodePoolData),
-    queryKey: ['thorchainearnings', foundUserData?.dateFirstAdded ?? ''],
-    queryFn: () =>
-      foundUserData ? getEarnings({ from: foundUserData.dateFirstAdded }) : undefined,
-    select: data => {
-      if (!data || !foundUserData || !thornodePoolData) return null
-      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserData.assetId })
-      const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
-      if (!foundHistoryPool) return null
-
-      return calculateEarnings(
-        foundHistoryPool.assetLiquidityFees,
-        foundHistoryPool.runeLiquidityFees,
-        foundUserData.poolShare,
-        runeMarketData.price,
-        assetMarketData.price,
-      )
-    },
-  })
-
-  const liquidityValueComponent = useMemo(
-    () => <Amount.Fiat value={foundUserData?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
-    [foundUserData?.totalValueFiatUserCurrency],
-  )
-
-  const unclaimedFeesComponent = useMemo(
-    () => <Amount.Fiat value={earnings?.totalEarningsFiatUserCurrency ?? '0'} fontSize='2xl' />,
-    [earnings?.totalEarningsFiatUserCurrency],
-  )
 
   const tvl = useMemo(() => {
-    if (!foundPool) return '0'
+    if (!foundPool)
+      return { tvl: '0', assetAmountCrytoPrecision: '0', runeAmountCryptoPrecision: '0' }
 
     return calculateTVL(foundPool.assetDepth, foundPool.runeDepth, runeMarketData.price)
   }, [foundPool, runeMarketData.price])
 
-  const TabHeader = useMemo(
-    () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
-    [stepIndex],
-  )
+  const addIcon = useMemo(() => <FaPlus />, [])
+  const swapIcon = useMemo(() => <SwapIcon />, [])
 
   if (!foundPool) return null
 
@@ -273,142 +178,50 @@ export const Pool = () => {
     <Main headerComponent={headerComponent}>
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
-          <Card>
-            <CardHeader px={8} py={8}>
-              <Flex gap={4} alignItems='center'>
-                <PoolIcon assetIds={poolAssetIds} size='md' />
-                <Heading as='h3'>{foundPool.name}</Heading>
-              </Flex>
-            </CardHeader>
-            <CardBody gap={6} display='flex' flexDir='column' px={8} pb={8} pt={0}>
-              <Text translation='pools.yourPosition' fontWeight='medium' />
-              <Flex gap={12} flexWrap='wrap'>
-                <Stack flex={1}>
-                  <DynamicComponent
-                    label='pools.liquidityValue'
-                    component={liquidityValueComponent}
-                    flex={responsiveFlex}
-                    flexDirection='column-reverse'
-                  />
-                  <Card borderRadius='lg'>
-                    <Stack px={4} py={2} spacing={4}>
-                      <Flex
-                        fontSize='sm'
-                        justifyContent='space-between'
-                        alignItems='center'
-                        fontWeight='medium'
-                      >
-                        <Flex alignItems='center' gap={2}>
-                          <AssetIcon size='xs' assetId={poolAssetIds[0]} />
-                          <RawText>{asset?.symbol ?? ''}</RawText>
-                        </Flex>
-                        <Amount.Crypto
-                          value={foundUserData?.underlyingAssetAmountCryptoPrecision ?? '0'}
-                          symbol={asset?.symbol ?? ''}
-                        />
-                      </Flex>
-                      <Flex
-                        fontSize='sm'
-                        justifyContent='space-between'
-                        alignItems='center'
-                        fontWeight='medium'
-                      >
-                        <Flex alignItems='center' gap={2}>
-                          <AssetIcon size='xs' assetId={poolAssetIds[1]} />
-                          <RawText>{runeAsset?.symbol ?? ''}</RawText>
-                        </Flex>
-                        <Amount.Crypto
-                          value={foundUserData?.underlyingRuneAmountCryptoPrecision ?? '0'}
-                          symbol={runeAsset?.symbol ?? ''}
-                        />
-                      </Flex>
-                    </Stack>
-                  </Card>
-                </Stack>
-                <Stack flex={1}>
-                  <DynamicComponent
-                    label='pools.unclaimedFees'
-                    component={unclaimedFeesComponent}
-                    flex={responsiveFlex}
-                    flexDirection='column-reverse'
-                  />
-                  <Card borderRadius='lg'>
-                    <Stack px={4} py={2} spacing={4}>
-                      <Flex
-                        fontSize='sm'
-                        justifyContent='space-between'
-                        alignItems='center'
-                        fontWeight='medium'
-                      >
-                        <Flex alignItems='center' gap={2}>
-                          <AssetIcon size='xs' assetId={poolAssetIds[0]} />
-                          <RawText>{asset?.symbol ?? ''}</RawText>
-                        </Flex>
-                        <Amount.Crypto
-                          value={earnings?.assetEarnings ?? '0'}
-                          symbol={asset?.symbol ?? ''}
-                        />
-                      </Flex>
-                      <Flex
-                        fontSize='sm'
-                        justifyContent='space-between'
-                        alignItems='center'
-                        fontWeight='medium'
-                      >
-                        <Flex alignItems='center' gap={2}>
-                          <AssetIcon size='xs' assetId={poolAssetIds[1]} />
-                          <RawText>{runeAsset?.symbol ?? ''}</RawText>
-                        </Flex>
-                        <Amount.Crypto
-                          value={earnings?.runeEarnings ?? '0'}
-                          symbol={runeAsset?.symbol ?? ''}
-                        />
-                      </Flex>
-                    </Stack>
-                  </Card>
-                </Stack>
-              </Flex>
-            </CardBody>
-            <CardFooter
-              gap={6}
-              display='flex'
-              flexDir='column'
-              px={8}
-              py={8}
-              borderTopWidth={1}
-              borderColor='border.base'
-            >
-              <PoolInfo
-                volume24h={volume24h ?? '0'}
-                volume24hChange={swap24hChange?.volumeChangePercentage ?? 0}
-                fee24hChange={swap24hChange?.feeChangePercentage ?? 0}
-                fees24h={fees24h ?? '0'}
-                allTimeVolume={allTimeVolume ?? '0'}
-                apy={foundPool.poolAPY ?? '0'}
-                tvl={tvl}
-                tvl24hChange={tvl24hChange ?? 0}
-                assetIds={poolAssetIds}
-              />
-            </CardFooter>
-          </Card>
+          <Flex
+            gap={4}
+            justifyContent='space-between'
+            alignItems='center'
+            flexDir={subHeaderFlexDirection}
+          >
+            <PairRates assetIds={poolAssetIds} />
+            <Flex gap={4}>
+              <Button onClick={handleAddLiquidityClick} leftIcon={addIcon}>
+                {translate('pools.addLiquidity')}
+              </Button>
+              <Button colorScheme='blue' leftIcon={swapIcon}>
+                {translate('trade.trade')}
+              </Button>
+            </Flex>
+          </Flex>
+          <Flex flexWrap='wrap' gap={4}>
+            <Card width='full' maxWidth={maxWidth}>
+              <CardFooter gap={6} display='flex' flexDir='column' px={8} py={8}>
+                <PoolInfo
+                  volume24h={volume24h}
+                  volume24hChange={swap24hChange?.volumeChangePercentage}
+                  fee24hChange={swap24hChange?.feeChangePercentage}
+                  fees24h={fees24h}
+                  allTimeVolume={allTimeVolume}
+                  apy={foundPool.poolAPY}
+                  tvl={tvl.tvl}
+                  runeTvl={tvl.runeAmountCryptoPrecision}
+                  assetTvl={tvl.assetAmountCrytoPrecision}
+                  tvl24hChange={tvl24hChange ?? 0}
+                  assetIds={poolAssetIds}
+                  direction='column'
+                  display='full'
+                  reverse
+                />
+              </CardFooter>
+            </Card>
+            <Card flex={1}>
+              <CardBody>
+                <PoolChart />
+              </CardBody>
+            </Card>
+          </Flex>
           <Faq />
-        </Stack>
-        <Stack flex={1} maxWidth={maxWidth}>
-          <Card>
-            <Tabs onChange={setStepIndex} variant='unstyled' index={stepIndex}>
-              <TabPanels>
-                <TabPanel px={0} py={0}>
-                  <AddLiquidity
-                    headerComponent={TabHeader}
-                    opportunityId={foundPool.opportunityId}
-                  />
-                </TabPanel>
-                <TabPanel px={0} py={0}>
-                  <RemoveLiquidity headerComponent={TabHeader} />
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Card>
         </Stack>
       </Flex>
     </Main>

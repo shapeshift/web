@@ -1,3 +1,4 @@
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { BN } from 'lib/bignumber/bignumber'
 
 export type ThorNodeLiquidityProvider = {
@@ -183,4 +184,43 @@ export type MidgardTvlHistoryItem = {
 export type MidgardTvlHistoryResponse = {
   meta: MidgardTvlHistoryItem
   intervals: MidgardTvlHistoryItem[]
+}
+
+export type ConfirmedQuote = {
+  assetCryptoLiquidityAmount: string
+  assetFiatLiquidityAmount: string
+  runeCryptoLiquidityAmount: string
+  runeFiatLiquidityAmount: string
+  shareOfPoolDecimalPercent: string
+  slippageRune: string
+  opportunityId: string
+}
+export enum AsymSide {
+  Asset = 'asset',
+  Rune = 'rune',
+}
+
+export type UserLpDataPosition = {
+  dateFirstAdded: string
+  liquidityUnits: string
+  underlyingAssetAmountCryptoPrecision: string
+  underlyingRuneAmountCryptoPrecision: string
+  isAsymmetric: boolean
+  asymSide: AsymSide | null
+  underlyingAssetValueFiatUserCurrency: string
+  underlyingRuneValueFiatUserCurrency: string
+  totalValueFiatUserCurrency: string
+  poolOwnershipPercentage: string
+  opportunityId: string
+  poolShare: string
+
+  // DO NOT REMOVE these two. While it looks like this would be superfluous because we already have AccountId, that's not exactly true.
+  // AccountId refers to the AccountId the position was *fetched* with/for, e.g ETH account 0 or ROON account 0.
+  // However, for sym., the position will be present in both ETH and RUNE /member/<address> responses, so we need to keep track of both addresses
+  // for reliable deduplication
+  runeAddress: string
+  assetAddress: string
+  accountId: AccountId
+
+  assetId: AssetId
 }

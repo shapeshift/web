@@ -1,19 +1,14 @@
-import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { AxiosError } from 'axios'
+import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { getAddress, isAddress } from 'viem'
 import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import type { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
-import { fromThorBaseUnit, getAccountAddresses } from '.'
+import { fromThorBaseUnit } from '.'
 import type {
-  MidgardLiquidityProvider,
-  MidgardLiquidityProvidersList,
+  AsymSide,
   MidgardPool,
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
@@ -43,78 +38,11 @@ export const getAllThorchainLiquidityProviderPositions = async (
   return data
 }
 
-export const getAllThorchainLiquidityMembers = async (): Promise<MidgardLiquidityProvidersList> => {
-  const { data } = await axios.get<MidgardLiquidityProvidersList>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/members`,
-  )
-
-  if (!data?.length || 'error' in data) return []
-
-  return data
-}
-
-export const getThorchainLiquidityMember = async (
-  _address: string,
-): Promise<MidgardLiquidityProvider | null> => {
-  // Ensure Ethereum addresses are checksummed
-  const address = isAddress(_address) ? getAddress(_address) : _address
-  try {
-    const { data } = await axios.get<MidgardLiquidityProvider>(
-      `${getConfig().REACT_APP_MIDGARD_URL}/member/${address}`,
-    )
-
-    return data
-  } catch (e) {
-    // THORCHain returns a 404 which is perfectly valid, but axios catches as an error
-    // We only want to log errors to the console if they're actual errors, not 404s
-    if ((e as AxiosError).isAxiosError && (e as AxiosError).response?.status !== 404)
-      console.error(e)
-
-    return null
-  }
-}
-
-export const getThorchainLiquidityProviderPosition = async ({
-  accountId,
-  assetId,
-}: {
-  accountId: AccountId
-  assetId: AssetId
-}): Promise<(MidgardPool & { accountId: AccountId })[] | null> => {
-  const accountPosition = await (async () => {
-    if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
-      const address = fromAccountId(accountId).account
-      return getThorchainLiquidityMember(address)
-    }
-
-    const allMembers = await getAllThorchainLiquidityMembers()
-
-    if (!allMembers.length) {
-      throw new Error(`No THORChain members found`)
-    }
-
-    const accountAddresses = await getAccountAddresses(accountId)
-
-    const foundMember = allMembers.find(member => accountAddresses.includes(member))
-    if (!foundMember) return null
-
-    return getThorchainLiquidityMember(foundMember)
-  })()
-  if (!accountPosition) return null
-
-  // An address may be shared across multiple pools for EVM chains, which could produce wrong results
-  const positions = accountPosition.pools
-    .filter(pool => pool.pool === assetIdToPoolAssetId({ assetId }))
-    .map(position => ({ ...position, accountId }))
-
-  return positions
-}
-
 export const calculateTVL = (
   assetDepthCryptoBaseUnit: string,
   runeDepthCryptoBaseUnit: string,
   runePrice: string,
-): string => {
+): { tvl: string; assetAmountCrytoPrecision: string; runeAmountCryptoPrecision: string } => {
   const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepthCryptoBaseUnit)
   const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepthCryptoBaseUnit)
 
@@ -123,64 +51,30 @@ export const calculateTVL = (
 
   const tvl = assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).times(2)
 
-  return tvl.toFixed()
+  const result = {
+    tvl: tvl.toFixed(),
+    assetAmountCrytoPrecision: assetDepthCryptoPrecision.toFixed(),
+    runeAmountCryptoPrecision: runeDepthCryptoPrecision.toFixed(),
+  }
+
+  return result
 }
 
-export const getVolume = async (
-  timeframe: '24h' | '7d',
-  assetId: AssetId,
+export const getVolume = (
   runePrice: string,
-): Promise<string> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-
-  const { from, to } = (() => {
-    const now = Math.floor(Date.now() / 1000)
-    if (timeframe === '24h') {
-      const twentyFourHoursAgo = now - 24 * 60 * 60
-
-      return { from: twentyFourHoursAgo, to: now }
-    }
-
-    if (timeframe === '7d') {
-      const sevenDaysAgo = now - 7 * 24 * 60 * 60
-
-      return { from: sevenDaysAgo, to: now }
-    }
-
-    throw new Error(`Invalid timeframe ${timeframe}`)
-  })()
-
-  const { data } = await axios.get<MidgardSwapHistoryResponse>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
-  )
-
-  const volume = data.meta.totalVolume
+  swapHistoryResponse: MidgardSwapHistoryResponse,
+): string => {
+  const volume = swapHistoryResponse.meta.totalVolume
 
   return fromThorBaseUnit(volume).times(runePrice).toFixed()
 }
 
-export const get24hSwapChangePercentage = async (
-  assetId: AssetId,
+export const get24hSwapChangePercentage = (
   runePrice: string,
   assetPrice: string,
-): Promise<{ volumeChangePercentage: number; feeChangePercentage: number } | null> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const now = Math.floor(Date.now() / 1000)
-  const twentyFourHoursAgo = now - 24 * 60 * 60
-  const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
-
-  const { data: current24hData } = await axios.get<MidgardSwapHistoryResponse>(
-    `${
-      getConfig().REACT_APP_MIDGARD_URL
-    }/history/swaps?pool=${poolAssetId}&from=${twentyFourHoursAgo}&to=${now}`,
-  )
-
-  const { data: previous24hData } = await axios.get<MidgardSwapHistoryResponse>(
-    `${
-      getConfig().REACT_APP_MIDGARD_URL
-    }/history/swaps?pool=${poolAssetId}&from=${fortyEightHoursAgo}&to=${twentyFourHoursAgo}`,
-  )
-
+  current24hData: MidgardSwapHistoryResponse,
+  previous24hData: MidgardSwapHistoryResponse,
+): { volumeChangePercentage: number; feeChangePercentage: number } | null => {
   // Get previous 24h fees
   const previousToAssetFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toAssetFees)
   const previousToRuneFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toRuneFees)
@@ -271,37 +165,13 @@ export const getCurrentValue = (
   }
 }
 
-export const getFees = async (
-  timeframe: '24h' | 'all',
-  assetId: string,
+export const getFees = (
   runePrice: string,
   assetPrice: string,
-): Promise<string> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-
-  const { from, to } = (() => {
-    const now = Math.floor(Date.now() / 1000)
-    if (timeframe === '24h') {
-      const twentyFourHoursAgo = now - 24 * 60 * 60
-
-      return { from: twentyFourHoursAgo, to: now }
-    }
-
-    if (timeframe === 'all') {
-      const genesis = '1647907200'
-
-      return { from: genesis, to: now }
-    }
-
-    throw new Error(`Invalid timeframe ${timeframe}`)
-  })()
-
-  const { data: currentData } = await axios.get<MidgardSwapHistoryResponse>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
-  )
-
-  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(currentData.meta.toAssetFees)
-  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(currentData.meta.toRuneFees)
+  swapHistoryResponse: MidgardSwapHistoryResponse,
+): string => {
+  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(swapHistoryResponse.meta.toAssetFees)
+  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(swapHistoryResponse.meta.toRuneFees)
   const currentToAssetFeesFiatUserCurrency = currentToAssetFeesCryptoPrecision.times(assetPrice)
   const currentToRuneFeesFiatUserCurrency = currentToRuneFeesCryptoPrecision.times(runePrice)
   const currentFeesFiatUserCurrency = currentToAssetFeesFiatUserCurrency.plus(
@@ -326,7 +196,7 @@ export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Pro
   return totalVolumeFiatUserCurrency.toFixed()
 }
 
-// https://dev.thorchain.org/thorchain-dev/interface-guide/math#lp-units-add
+// https://dev.thorchain.org/concepts/math.html#lp-units-add
 export const getLiquidityUnits = ({
   pool,
   assetAmountCryptoThorPrecision,
@@ -365,6 +235,7 @@ export const getPoolShare = (liquidityUnits: BN, pool: MidgardPoolResponse): Poo
   }
 }
 
+// https://dev.thorchain.org/concepts/math.html#slippage
 export const getSlipOnLiquidity = ({
   runeAmountCryptoThorPrecision,
   assetAmountCryptoThorPrecision,
@@ -386,6 +257,7 @@ export const getSlipOnLiquidity = ({
 }
 
 // Estimates a liquidity position for given crypto amount value, both asymmetrical and symetrical
+// https://dev.thorchain.org/concepts/math.html#lp-units-add
 export const estimateAddThorchainLiquidityPosition = async ({
   runeAmountCryptoThorPrecision,
   assetId,
@@ -434,16 +306,18 @@ export const estimateAddThorchainLiquidityPosition = async ({
 }
 
 // TODO: add 'percentage' param
+// https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
 export const estimateRemoveThorchainLiquidityPosition = async ({
-  accountId,
+  // i.e the result of the liquidityProviderPosition({ accountId, assetId }) query
+  lpPositions,
   assetId,
 }: {
   accountId: AccountId
   assetId: AssetId
   assetAmountCryptoThorPrecision: string
+  lpPositions: (MidgardPool & { accountId: AccountId })[]
   asymSide: AsymSide | null
 }) => {
-  const lpPositions = await getThorchainLiquidityProviderPosition({ accountId, assetId })
   const poolAssetId = assetIdToPoolAssetId({ assetId })
   // TODO: this is wrong. Expose selectLiquidityPositionsData from useUserLpData , consume this instead of getThorchainLiquidityProviderPosition
   // and get the right position for the user depending on the asymSide
@@ -531,3 +405,11 @@ export const calculateEarnings = (
 
   return { totalEarningsFiatUserCurrency, assetEarnings, runeEarnings }
 }
+
+export const calculatePoolOwnershipPercentage = ({
+  userLiquidityUnits,
+  totalPoolUnits,
+}: {
+  userLiquidityUnits: string
+  totalPoolUnits: string
+}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()

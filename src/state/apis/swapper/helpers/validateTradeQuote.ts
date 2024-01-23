@@ -19,14 +19,11 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectFirstHopSellAccountId,
+  selectInputSellAmountCryptoPrecision,
   selectPortfolioAccountIdByNumberByChainId,
-  selectSellAmountCryptoPrecision,
+  selectSecondHopSellAccountId,
 } from 'state/slices/selectors'
 import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
-import {
-  selectSecondHopSellAccountId,
-  selectSellAmountCryptoBaseUnit,
-} from 'state/slices/tradeQuoteSlice/selectors'
 
 import type { ErrorWithMeta } from '../types'
 import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
@@ -109,8 +106,8 @@ export const validateTradeQuote = async (
   const secondHop = quote.steps[1]
   const lastHop = isMultiHopTrade ? secondHop : firstHop
   const walletSupportedChainIds = selectWalletSupportedChainIds(state)
-  const sellAmountCryptoPrecision = selectSellAmountCryptoPrecision(state)
-  const sellAmountCryptoBaseUnit = selectSellAmountCryptoBaseUnit(state)
+  const sellAmountCryptoPrecision = selectInputSellAmountCryptoPrecision(state)
+  const sellAmountCryptoBaseUnit = firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
   const buyAmountCryptoBaseUnit = lastHop.buyAmountBeforeFeesCryptoBaseUnit
 
   // the network fee asset for the first hop in the trade
@@ -206,10 +203,12 @@ export const validateTradeQuote = async (
 
   const recommendedMinimumCryptoBaseUnit = (quote as ThorTradeQuote)
     .recommendedMinimumCryptoBaseUnit
-  const isUnsafeQuote = !(
-    !recommendedMinimumCryptoBaseUnit ||
-    bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
-  )
+  const isUnsafeQuote =
+    sellAmountCryptoBaseUnit &&
+    !(
+      !recommendedMinimumCryptoBaseUnit ||
+      bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
+    )
 
   const disableSmartContractSwap = await (async () => {
     // Swappers other than THORChain shouldn't be affected by this limitation

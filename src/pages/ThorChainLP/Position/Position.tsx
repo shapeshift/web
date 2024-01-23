@@ -395,7 +395,10 @@ export const Position = () => {
                   />
                 </TabPanel>
                 <TabPanel px={0} py={0}>
-                  <RemoveLiquidity headerComponent={TabHeader} />
+                  <RemoveLiquidity
+                    headerComponent={TabHeader}
+                    opportunityId={foundPool.opportunityId}
+                  />
                 </TabPanel>
               </TabPanels>
             </Tabs>

@@ -102,6 +102,7 @@ export const SelectModal = () => {
     state: { walletInfo },
     connect,
     create,
+    importWallet,
   } = useWallet()
   const translate = useTranslate()
 
@@ -113,6 +114,11 @@ export const SelectModal = () => {
   const handleCreate = useCallback(
     () => create(isMobileApp ? KeyManager.Mobile : KeyManager.Native),
     [create],
+  )
+
+  const handleImport = useCallback(
+    () => importWallet(isMobileApp ? KeyManager.Mobile : KeyManager.Native),
+    [importWallet],
   )
 
   return (
@@ -136,24 +142,40 @@ export const SelectModal = () => {
             ))
           }
         </Grid>
-        <Flex direction={flexDirProp} mt={2} justifyContent='center' alignItems='center'>
-          <Text
-            mb={mbProp}
-            color='text.subtle'
-            translation={walletInfo?.name ? 'common.or' : 'walletProvider.selectModal.footer'}
-          />
-          <Button
-            variant='link'
+        {!walletInfo?.name && (
+          <Flex
+            direction={flexDirProp}
             mb={mbProp}
             ml={mlProp}
-            borderTopRadius='none'
-            colorScheme='blue'
-            onClick={handleCreate}
-            data-test='connect-wallet-create-one-button'
+            mt={2}
+            justifyContent='center'
+            alignItems='center'
           >
-            {translate('walletProvider.selectModal.create')}
-          </Button>
-        </Flex>
+            <Button variant='link' borderTopRadius='none' colorScheme='blue' onClick={handleCreate}>
+              {translate('walletProvider.selectModal.create')}
+            </Button>
+            <Text
+              mx={1}
+              color='text.subtle'
+              colorScheme='blue'
+              translation={'walletProvider.selectModal.or'}
+            />
+            <Button
+              mr={1}
+              variant='link'
+              borderTopRadius='none'
+              colorScheme='blue'
+              onClick={handleImport}
+            >
+              {translate('walletProvider.selectModal.import')}
+            </Button>
+            <Text
+              color='text.subtle'
+              colorScheme='blue'
+              translation={'walletProvider.selectModal.aWallet'}
+            />
+          </Flex>
+        )}
       </ModalBody>
     </>
   )

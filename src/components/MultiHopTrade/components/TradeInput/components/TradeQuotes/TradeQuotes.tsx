@@ -76,7 +76,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         sortedQuotes.map((quoteData, i) => {
           const { quote } = quoteData
 
-          const isActive = activeQuoteIndex !== undefined && activeQuoteIndex === quote?.id
+          const isActive = activeQuoteIndex !== undefined && activeQuoteIndex.quoteId === quote?.id
           const bestQuoteSteps = bestQuoteData?.quote?.steps
           const lastStep = bestQuoteSteps?.[bestQuoteSteps.length - 1]
 

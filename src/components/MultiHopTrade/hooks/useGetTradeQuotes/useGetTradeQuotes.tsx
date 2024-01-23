@@ -1,10 +1,8 @@
-import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
@@ -16,7 +14,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isSkipToken, isSome } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper'
 import { GET_TRADE_QUOTE_POLLING_INTERVAL, swapperApi } from 'state/apis/swapper/swapperApi'
@@ -103,35 +101,12 @@ const getMixPanelDataFromApiQuotes = (
   }
 }
 
-const isEqualExceptAffiliateBpsAndSlippage = (
-  a: GetTradeQuoteInput | typeof skipToken,
-  b: GetTradeQuoteInput | undefined,
-) => {
-  if (!isSkipToken(a) && b) {
-    const {
-      affiliateBps: _affiliateBps,
-      slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
-      ...aWithoutAffiliateBpsAndSlippage
-    } = a
-
-    const {
-      affiliateBps: _updatedAffiliateBps,
-      slippageTolerancePercentageDecimal: _updatedSlippageTolerancePercentageDecimal,
-      ...bWithoutAffiliateBpsAndSlippage
-    } = b
-
-    return isEqual(aWithoutAffiliateBpsAndSlippage, bWithoutAffiliateBpsAndSlippage)
-  }
-}
-
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
-  const previousTradeQuoteInput = usePrevious(tradeQuoteInput)
-  const isTradeQuoteUpdated = tradeQuoteInput !== previousTradeQuoteInput
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
   const [isFetchingInput, setIsFetchingInput] = useState(false)
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -186,8 +161,7 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        isTradeQuoteUpdated &&
-          wallet &&
+        wallet &&
           !isDebouncing &&
           sellAccountId &&
           sellAccountMetadata &&
@@ -195,7 +169,6 @@ export const useGetTradeQuotes = () => {
           !isVotingPowerLoading,
       ),
     [
-      isTradeQuoteUpdated,
       wallet,
       isDebouncing,
       sellAccountId,
@@ -209,8 +182,6 @@ export const useGetTradeQuotes = () => {
     // Don't update tradeQuoteInput while we're still debouncing
     if (isDebouncing) return
 
-    setIsFetchingInput(true)
-
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
     // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
     // That effectively means we'll unsubscribe to queries, considering them stale
@@ -218,6 +189,8 @@ export const useGetTradeQuotes = () => {
 
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
+        setIsFetchingInput(true)
+
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
@@ -249,34 +222,10 @@ export const useGetTradeQuotes = () => {
           pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
         })
 
-        // if the quote input args changed, reset the selected swapper and update the trade quote args
-        if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
-          updatedTradeQuoteInput && bnOrZero(sellAmountCryptoPrecision).gt(0)
-            ? setTradeQuoteInput(updatedTradeQuoteInput)
-            : setTradeQuoteInput(skipToken)
-
-          // If only the affiliateBps or the userslippageTolerancePercentageDecimal changed, we've
-          // switched swappers where one has a different default slippageTolerancePercentageDecimal
-          // In this case, we don't want to reset the selected swapper unless the input is the skipToken
-          if (
-            !isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput) &&
-            tradeQuoteInput !== skipToken
-          ) {
-            dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
-          }
-        }
+        setTradeQuoteInput(updatedTradeQuoteInput)
 
         setIsFetchingInput(false)
       })()
-    } else {
-      // if the quote input args changed, reset the selected swapper and update the trade quote args
-      if (tradeQuoteInput !== skipToken) {
-        setTradeQuoteInput(skipToken)
-        dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
-        dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
-      }
-
-      setIsFetchingInput(false)
     }
   }, [
     buyAsset,
@@ -286,7 +235,6 @@ export const useGetTradeQuotes = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     votingPower,
-    tradeQuoteInput,
     wallet,
     receiveAccountMetadata?.bip44Params,
     userslippageTolerancePercentageDecimal,
@@ -408,7 +356,12 @@ export const useGetTradeQuotes = () => {
       return
     }
 
-    dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(bestQuote.quote.id))
+    dispatch(
+      tradeQuoteSlice.actions.setActiveQuoteIndex({
+        swapperName: bestQuote.swapperName,
+        quoteId: bestQuote.quote.id,
+      }),
+    )
   }, [activeQuoteId, isUninitialized, isAnyFetching, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here

@@ -7,6 +7,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { isSome } from 'lib/utils'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
 import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
@@ -93,12 +94,16 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
 export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
   selectTradeQuotes,
   tradeQuotes => {
+    const allQuotes = Object.values(tradeQuotes)
+      .filter(isSome)
+      .map(swapperQuotes => Object.values(swapperQuotes))
+      .flat()
     const happyQuotes = sortQuotes(
-      Object.values(tradeQuotes).filter(({ errors }) => errors.length === 0),
+      allQuotes.filter(({ errors }) => errors.length === 0),
       0,
     )
     const errorQuotes = sortQuotes(
-      Object.values(tradeQuotes).filter(({ errors }) => errors.length > 0),
+      allQuotes.filter(({ errors }) => errors.length > 0),
       happyQuotes.length,
     )
     return [...happyQuotes, ...errorQuotes]
@@ -113,15 +118,19 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
-export const selectActiveQuoteId: Selector<ReduxState, string | undefined> = createSelector(
-  selectTradeQuoteSlice,
-  tradeQuote => tradeQuote.activeQuoteId,
-)
+export const selectActiveQuoteId: Selector<
+  ReduxState,
+  { swapperName: SwapperName; quoteId: string } | undefined
+> = createSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.activeQuoteId)
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
-  createSelector(selectActiveQuoteId, selectTradeQuotes, (activeQuoteId, tradeQuotes) =>
-    activeQuoteId !== undefined ? tradeQuotes[activeQuoteId]?.swapperName : undefined,
-  )
+  createSelector(selectActiveQuoteId, selectTradeQuotes, (activeQuoteId, tradeQuotes) => {
+    if (activeQuoteId === undefined) return
+    // need to ensure a quote exists for the selection
+    if (tradeQuotes[activeQuoteId.swapperName]?.[activeQuoteId.quoteId]) {
+      return activeQuoteId.swapperName
+    }
+  })
 
 export const selectActiveSwapperApiResponse: Selector<
   ReduxState,
@@ -133,7 +142,7 @@ export const selectActiveSwapperApiResponse: Selector<
     // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
     if (activeQuoteId === undefined) return undefined
 
-    return tradeQuotes[activeQuoteId]
+    return tradeQuotes[activeQuoteId.swapperName]?.[activeQuoteId.quoteId]
   },
 )
 

@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { PartialRecord } from '@shapeshiftoss/types'
 import type { ApiQuote } from 'state/apis/swapper'
 
 import { initialState, initialTradeExecutionState } from './constants'
@@ -14,10 +15,10 @@ import {
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
-  activeQuoteId: string | undefined // the selected quote id used to find the active quote in the api responses
+  activeQuoteId: { swapperName: SwapperName; quoteId: string } | undefined // the selected quote id used to find the active quote in the api responses
   confirmedQuote: TradeQuote | undefined // the quote being executed
   tradeExecution: TradeExecutionMetadata
-  tradeQuotes: Record<string, Omit<ApiQuote, 'index'>> // mapping from quoteId to ApiQuote
+  tradeQuotes: PartialRecord<SwapperName, Record<string, Omit<ApiQuote, 'index'>>> // mapping from swapperName to quoteId to ApiQuote
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -25,10 +26,20 @@ export const tradeQuoteSlice = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertTradeQuotes: (state, action: PayloadAction<Record<string, Omit<ApiQuote, 'index'>>>) => {
-      state.tradeQuotes = Object.assign(state.tradeQuotes, action.payload)
+    upsertTradeQuotes: (
+      state,
+      action: PayloadAction<{
+        swapperName: SwapperName
+        quotesById: Record<string, Omit<ApiQuote, 'index'>> | undefined
+      }>,
+    ) => {
+      const { swapperName, quotesById } = action.payload
+      state.tradeQuotes[swapperName] = quotesById
     },
-    setActiveQuoteIndex: (state, action: PayloadAction<string | undefined>) => {
+    setActiveQuoteIndex: (
+      state,
+      action: PayloadAction<{ swapperName: SwapperName; quoteId: string } | undefined>,
+    ) => {
       state.activeQuoteId = action.payload
     },
     incrementStep: state => {

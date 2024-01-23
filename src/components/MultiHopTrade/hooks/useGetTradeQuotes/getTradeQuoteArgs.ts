@@ -46,12 +46,11 @@ export const getTradeQuoteArgs = async ({
   potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
-}: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput | undefined> => {
-  if (!sellAsset || !buyAsset) return undefined
+}: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput> => {
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
       sellAmountBeforeFeesCryptoPrecision,
-      sellAsset?.precision || 0,
+      sellAsset.precision || 0,
     ),
     sellAsset,
     buyAsset,
@@ -62,7 +61,8 @@ export const getTradeQuoteArgs = async ({
     allowMultiHop,
     slippageTolerancePercentageDecimal,
   }
-  if (isEvmSwap(sellAsset?.chainId) || isCosmosSdkSwap(sellAsset?.chainId)) {
+
+  if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
     const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
     const sellAssetChainAdapter = assertGetChainAdapter(sellAsset.chainId)
     const sendAddress = await sellAssetChainAdapter.getAddress({
@@ -77,8 +77,10 @@ export const getTradeQuoteArgs = async ({
       sendAddress,
       receiveAccountNumber,
     }
-  } else if (isUtxoSwap(sellAsset?.chainId)) {
-    if (!sellAccountType) return
+  } else if (isUtxoSwap(sellAsset.chainId)) {
+    if (!sellAccountType) {
+      throw Error('missing account type')
+    }
     const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
     const sendAddress = await sellAssetChainAdapter.getAddress({
       accountNumber: sellAccountNumber,
@@ -98,4 +100,6 @@ export const getTradeQuoteArgs = async ({
       sendAddress,
     }
   }
+
+  throw Error('unexpected chain namespace')
 }

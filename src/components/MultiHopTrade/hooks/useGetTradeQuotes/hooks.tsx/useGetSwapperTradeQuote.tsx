@@ -1,7 +1,9 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { swapperApi, useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch } from 'state/store'
 
 export const useGetSwapperTradeQuote = (
   swapperName: SwapperName,
@@ -9,11 +11,18 @@ export const useGetSwapperTradeQuote = (
   skip: boolean,
   pollingInterval: number | undefined,
 ) => {
+  const dispatch = useAppDispatch()
   const tradeQuoteRequest = useMemo(() => {
     return skip || tradeQuoteInput === skipToken
       ? skipToken
       : Object.assign({}, tradeQuoteInput, { swapperName })
   }, [skip, swapperName, tradeQuoteInput])
+
+  const queryStateRequest = useMemo(() => {
+    return tradeQuoteInput === skipToken
+      ? skipToken
+      : Object.assign({}, tradeQuoteInput, { swapperName })
+  }, [swapperName, tradeQuoteInput])
 
   useGetTradeQuoteQuery(tradeQuoteRequest, {
     skip,
@@ -27,7 +36,16 @@ export const useGetSwapperTradeQuote = (
   // so to persist fetching state after an inflight requests becomes skipped, we need to
   // read the request status and cached data from the Redux store
   // https://redux-toolkit.js.org/rtk-query/api/created-api/hooks#usequerystate
-  return swapperApi.endpoints.getTradeQuote.useQueryState(
-    Object.assign({}, tradeQuoteInput, { swapperName }),
-  )
+  const queryStateMeta = swapperApi.endpoints.getTradeQuote.useQueryState(queryStateRequest)
+
+  useEffect(() => {
+    dispatch(
+      tradeQuoteSlice.actions.upsertTradeQuotes({
+        swapperName,
+        quotesById: queryStateMeta.data,
+      }),
+    )
+  }, [swapperName, dispatch, queryStateMeta.data])
+
+  return queryStateMeta
 }

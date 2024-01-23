@@ -56,19 +56,24 @@ export const swapperApiBase = createApi({
 
 export const swapperApi = swapperApiBase.injectEndpoints({
   endpoints: build => ({
-    getTradeQuote: build.query<SwapperName, TradeQuoteRequest>({
+    getTradeQuote: build.query<Record<string, Omit<ApiQuote, 'index'>>, TradeQuoteRequest>({
       queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {
-        // clear the trade quote slice to prevent data corruption as results come in
-        dispatch(tradeQuoteSlice.actions.clear())
-
         const state = getState() as ReduxState
         const { swapperName, sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
           tradeQuoteInput
+
+        dispatch(
+          tradeQuoteSlice.actions.upsertTradeQuotes({
+            swapperName,
+            quotesById: undefined,
+          }),
+        )
+
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
 
-        if (!isSwapperEnabled) return { data: swapperName }
+        if (!isSwapperEnabled) return { data: {} }
 
         // hydrate crypto market data for buy and sell assets
         await dispatch(
@@ -85,7 +90,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
         )
 
         if (quoteResult === undefined) {
-          return { data: swapperName }
+          return { data: {} }
         }
 
         const quoteWithInputOutputRatios = (quoteResult => {
@@ -182,9 +187,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
           {} as Record<string, Omit<ApiQuote, 'index'>>,
         )
 
-        await dispatch(tradeQuoteSlice.actions.upsertTradeQuotes(tradeQuotesById))
-
-        return { data: swapperName }
+        return { data: tradeQuotesById }
       },
       providesTags: (_result, _error, tradeQuoteRequest) => [
         { type: 'TradeQuote' as const, id: tradeQuoteRequest.swapperName },

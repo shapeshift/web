@@ -29,7 +29,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
-const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: 'normal' }
+const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: '1' }
 const boxProps = { px: 0, m: 0 }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 
@@ -272,25 +272,27 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
               </Button>
             )}
-            <PercentOptionsButtonGroup
-              options={percentOptions}
-              isDisabled={isReadOnly || isSendMaxDisabled}
-              onMaxClick={handleOnMaxClick}
-              onClick={onPercentOptionClick ?? noop}
-            />
-            {balance && assetId && !label && (
-              <AccountDropdown
-                defaultAccountId={accountId}
-                assetId={assetId}
-                onChange={onAccountIdChange}
-                disabled={isAccountSelectionDisabled}
-                autoSelectHighestBalance
-                buttonProps={buttonProps}
-                boxProps={boxProps}
-                showLabel={false}
-                label={accountDropdownLabel}
+            <Flex alignItems='center' justifyContent='flex-end' gap={2}>
+              <PercentOptionsButtonGroup
+                options={percentOptions}
+                isDisabled={isReadOnly || isSendMaxDisabled}
+                onMaxClick={handleOnMaxClick}
+                onClick={onPercentOptionClick ?? noop}
               />
-            )}
+              {balance && assetId && !label && (
+                <AccountDropdown
+                  defaultAccountId={accountId}
+                  assetId={assetId}
+                  onChange={onAccountIdChange}
+                  disabled={isAccountSelectionDisabled}
+                  autoSelectHighestBalance
+                  buttonProps={buttonProps}
+                  boxProps={boxProps}
+                  showLabel={false}
+                  label={accountDropdownLabel}
+                />
+              )}
+            </Flex>
           </Flex>
         )}
 

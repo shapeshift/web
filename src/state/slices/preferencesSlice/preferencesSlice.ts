@@ -49,6 +49,7 @@ export type FeatureFlags = {
   LedgerWallet: boolean
   MultiHopTrades: boolean
   ThorchainSwapLongtail: boolean
+  HolisticRecipientAddress: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -115,6 +116,7 @@ const initialState: Preferences = {
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     MultiHopTrades: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
+    HolisticRecipientAddress: getConfig().REACT_APP_FEATURE_HOLISTIC_RECIPIENT_ADDRESS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

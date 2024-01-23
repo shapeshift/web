@@ -87,7 +87,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         _asset.assetId === thorchainAssetId
           ? confirmedQuote.runeCryptoLiquidityAmount
           : confirmedQuote.assetCryptoLiquidityAmount
-      return <Amount.Crypto value={amountCryptoPrecision} symbol={_asset.symbol} />
+      return (
+        <Amount.Crypto
+          key={`amount-${asset.assetId}`}
+          value={amountCryptoPrecision}
+          symbol={_asset.symbol}
+        />
+      )
     })
 
     return (

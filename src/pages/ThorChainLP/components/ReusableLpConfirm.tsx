@@ -130,6 +130,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 
           return (
             <Card
+              key={_asset.assetId}
               display='flex'
               alignItems='center'
               justifyContent='center'

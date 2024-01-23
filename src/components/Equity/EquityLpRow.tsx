@@ -117,6 +117,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
 
   return (
     <EquityRow
+      accountId={accountId}
       onClick={handleClick}
       icon={getMetadataForProvider(opportunity.provider)?.icon ?? ''}
       label={opportunity.provider}

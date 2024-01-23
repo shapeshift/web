@@ -113,9 +113,10 @@ export const HopTransactionStep = ({
       )
     }
 
-    const isThorStreamingSwap =
-      tradeQuoteStep.source === THORCHAIN_STREAM_SWAP_SOURCE ||
-      THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
+    const isThorStreamingSwap = [
+      THORCHAIN_STREAM_SWAP_SOURCE,
+      THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+    ].includes(tradeQuoteStep.source)
 
     if (sellTxHash !== undefined && isThorStreamingSwap) {
       return (

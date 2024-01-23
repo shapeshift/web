@@ -169,15 +169,6 @@ export const thorchainApi: SwapperApi = {
             .toFixed(0, BigNumber.ROUND_UP),
         )
 
-        if (amountOutMin <= 0n) {
-          throw Err(
-            makeSwapErrorRight({
-              code: TradeQuoteError.SellAmountBelowMinimum,
-              message: 'Sell amount is too small',
-            }),
-          )
-        }
-
         // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
         assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
 

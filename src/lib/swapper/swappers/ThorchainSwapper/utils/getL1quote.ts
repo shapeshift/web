@@ -28,7 +28,11 @@ import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
-import { THORCHAIN_STREAM_SWAP_SOURCE } from '../constants'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_LONGTAIL_SWAP_SOURCE,
+  THORCHAIN_STREAM_SWAP_SOURCE,
+} from '../constants'
 import type {
   ThorEvmTradeQuote,
   ThorTradeQuote,
@@ -101,24 +105,45 @@ export const getL1quote = async (
       }).toFixed()
     : '0'
 
-  const getRouteValues = (quote: ThornodeQuoteResponseSuccess, isStreaming: boolean) => ({
-    source: isStreaming ? THORCHAIN_STREAM_SWAP_SOURCE : SwapperName.Thorchain,
-    quote,
-    // don't take affiliate fee into account, this will be displayed as a separate line item
-    expectedAmountOutThorBaseUnit: bnOrZero(quote.expected_amount_out)
-      .plus(bnOrZero(quote.fees.affiliate))
-      .toFixed(),
-    isStreaming,
-    affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
-    // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
-    // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-    slippageBps: isStreaming ? bn(0) : inputSlippageBps,
-    // TODO: this is off by about an hour in most cases, more work required to make it useable
-    // estimatedExecutionTimeMs: quote.total_swap_seconds
-    //   ? 1000 * quote.total_swap_seconds
-    //   : undefined,
-    estimatedExecutionTimeMs: undefined,
-  })
+  const getRouteValues = (quote: ThornodeQuoteResponseSuccess, isStreaming: boolean) => {
+    const source = (() => {
+      if (isStreaming && tradeType === TradeType.L1ToL1) return THORCHAIN_STREAM_SWAP_SOURCE
+      if (
+        isStreaming &&
+        [TradeType.L1ToLongTail, TradeType.LongTailToL1, TradeType.LongTailToLongTail].includes(
+          tradeType,
+        )
+      )
+        return THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
+      if (
+        !isStreaming &&
+        [TradeType.L1ToLongTail, TradeType.LongTailToL1, TradeType.LongTailToLongTail].includes(
+          tradeType,
+        )
+      )
+        return THORCHAIN_LONGTAIL_SWAP_SOURCE
+      return SwapperName.Thorchain
+    })()
+
+    return {
+      source,
+      quote,
+      // don't take affiliate fee into account, this will be displayed as a separate line item
+      expectedAmountOutThorBaseUnit: bnOrZero(quote.expected_amount_out)
+        .plus(bnOrZero(quote.fees.affiliate))
+        .toFixed(),
+      isStreaming,
+      affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
+      // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
+      // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
+      slippageBps: isStreaming ? bn(0) : inputSlippageBps,
+      // TODO: this is off by about an hour in most cases, more work required to make it useable
+      // estimatedExecutionTimeMs: quote.total_swap_seconds
+      //   ? 1000 * quote.total_swap_seconds
+      //   : undefined,
+      estimatedExecutionTimeMs: undefined,
+    }
+  }
 
   const perRouteValues = [getRouteValues(swapQuote, false)]
 

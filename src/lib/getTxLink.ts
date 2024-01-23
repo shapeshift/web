@@ -2,7 +2,11 @@ import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { Dex } from '@shapeshiftoss/unchained-client'
 
-import { THORCHAIN_STREAM_SWAP_SOURCE } from './swapper/swappers/ThorchainSwapper/constants'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_LONGTAIL_SWAP_SOURCE,
+  THORCHAIN_STREAM_SWAP_SOURCE,
+} from './swapper/swappers/ThorchainSwapper/constants'
 
 type GetBaseUrl = {
   name: SwapSource | Dex | undefined
@@ -21,6 +25,8 @@ export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetBaseU
     case Dex.Thor:
     case SwapperName.Thorchain:
     case THORCHAIN_STREAM_SWAP_SOURCE:
+    case THORCHAIN_LONGTAIL_SWAP_SOURCE:
+    case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
       return 'https://viewblock.io/thorchain/tx/'
     default:
       return defaultExplorerBaseUrl

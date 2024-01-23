@@ -30,13 +30,12 @@ import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { ParsedPool } from '../queries/hooks/usePools'
+import { usePools } from '../queries/hooks/usePools'
 import { PoolIcon } from './PoolIcon'
 
 type ReusableLpConfirmProps = {
   handleBack: () => void
   handleConfirm: () => void
-  pool?: ParsedPool
   baseAssetId: AssetId
   confirmedQuote: ConfirmedQuote
 }
@@ -55,12 +54,19 @@ const dividerStyle = {
 export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   handleBack,
   handleConfirm,
-  pool,
   baseAssetId,
   confirmedQuote,
 }) => {
   const translate = useTranslate()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
+
+  const { data: parsedPools } = usePools()
+
+  const pool = useMemo(() => {
+    if (!parsedPools) return undefined
+
+    return parsedPools.find(pool => pool.opportunityId === confirmedQuote.opportunityId)
+  }, [confirmedQuote.opportunityId, parsedPools])
 
   const asset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
 

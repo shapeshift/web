@@ -1,4 +1,3 @@
-import { Stack } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
@@ -10,7 +9,6 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ReusableLpStatus } from '../ReusableLpStatus/ReusableLpStatus'
-import { TransactionRow } from '../ReusableLpStatus/TransactionRow'
 import { AddLiquidityRoutePaths } from './types'
 
 type AddLiquidityStatusProps = {
@@ -19,7 +17,7 @@ type AddLiquidityStatusProps = {
 
 export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) => {
   const history = useHistory()
-  const [activeStep, setActiveStep] = useState(0)
+  const [activeStepIndex, setActiveStepIndex] = useState(0)
 
   const { opportunityId } = confirmedQuote
 
@@ -54,52 +52,24 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
   }, [history])
 
   const handleComplete = useCallback(() => {
-    setActiveStep(activeStep + 1)
-  }, [activeStep])
+    setActiveStepIndex(activeStepIndex + 1)
+  }, [activeStepIndex])
 
+  // This allows us to either do a single step or multiple steps
+  // Once a step is complete the next step is shown
+  // If the active step is the same as the length of steps we can assume it is complete.
   const isComplete = useMemo(() => {
-    return activeStep === assets.length
-  }, [activeStep, assets.length])
-
-  const assetCards = useMemo(() => {
-    return (
-      <Stack mt={4}>
-        {assets.map((asset, index) => {
-          const amountCryptoPrecision =
-            asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeCryptoLiquidityAmount
-              : confirmedQuote.assetCryptoLiquidityAmount
-          return (
-            <TransactionRow
-              key={asset.assetId}
-              assetId={asset.assetId}
-              amountCryptoPrecision={amountCryptoPrecision}
-              onComplete={handleComplete}
-              isActive={index === activeStep}
-            />
-          )
-        })}
-      </Stack>
-    )
-  }, [
-    assets,
-    confirmedQuote.runeCryptoLiquidityAmount,
-    confirmedQuote.assetCryptoLiquidityAmount,
-    handleComplete,
-    activeStep,
-  ])
-
-  if (!foundPool) return null
+    return activeStepIndex === assets.length
+  }, [activeStepIndex, assets.length])
 
   return (
     <ReusableLpStatus
-      pool={foundPool}
       confirmedQuote={confirmedQuote}
       baseAssetId={thorchainAssetId}
       handleBack={handleGoBack}
       isComplete={isComplete}
-    >
-      {assetCards}
-    </ReusableLpStatus>
+      activeStepIndex={activeStepIndex}
+      onStepComplete={handleComplete}
+    />
   )
 }

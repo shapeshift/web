@@ -7,6 +7,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Stack,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
@@ -19,28 +20,41 @@ import { rune } from 'test/mocks/assets'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { assertUnreachable } from 'lib/utils'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
-import type { ParsedPool } from 'pages/ThorChainLP/queries/hooks/usePools'
+import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { TransactionRow } from './TransactionRow'
+
 type ReusableLpStatusProps = {
   handleBack: () => void
-  pool?: ParsedPool
+  onStepComplete: () => void
   baseAssetId: AssetId
   isComplete?: boolean
   confirmedQuote: ConfirmedQuote
+  activeStepIndex?: number
 } & PropsWithChildren
 
 export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
-  pool,
   baseAssetId,
   isComplete,
   confirmedQuote,
   handleBack,
+  onStepComplete,
+  activeStepIndex,
   children,
 }) => {
   const translate = useTranslate()
+
+  const { data: parsedPools } = usePools()
+
+  const pool = useMemo(() => {
+    if (!parsedPools) return undefined
+
+    return parsedPools.find(pool => pool.opportunityId === confirmedQuote.opportunityId)
+  }, [confirmedQuote.opportunityId, parsedPools])
 
   const asset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
@@ -48,11 +62,16 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const assets: Asset[] = useMemo(() => {
     if (!(pool && asset && baseAsset)) return []
 
-    if (pool.asymSide === null) return [asset, baseAsset]
-    if (pool.asymSide === AsymSide.Rune) return [baseAsset]
-    if (pool.asymSide === AsymSide.Asset) return [asset]
-
-    throw new Error('Invalid asym side')
+    switch (pool.asymSide) {
+      case null:
+        return [baseAsset, asset]
+      case AsymSide.Rune:
+        return [baseAsset]
+      case AsymSide.Asset:
+        return [asset]
+      default:
+        assertUnreachable(pool.asymSide)
+    }
   }, [asset, baseAsset, pool])
 
   const hStackDivider = useMemo(() => {
@@ -115,9 +134,40 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     )
   }, [asset, assets, confirmedQuote, pool, hStackDivider, isComplete, translate])
 
+  const assetCards = useMemo(() => {
+    return (
+      <Stack mt={4}>
+        {assets.map((_asset, index) => {
+          const amountCryptoPrecision =
+            _asset.assetId === thorchainAssetId
+              ? confirmedQuote.runeCryptoLiquidityAmount
+              : confirmedQuote.assetCryptoLiquidityAmount
+          return (
+            <TransactionRow
+              key={_asset.assetId}
+              assetId={_asset.assetId}
+              amountCryptoPrecision={amountCryptoPrecision}
+              onComplete={onStepComplete}
+              isActive={index === activeStepIndex}
+            />
+          )
+        })}
+      </Stack>
+    )
+  }, [
+    assets,
+    confirmedQuote.runeCryptoLiquidityAmount,
+    confirmedQuote.assetCryptoLiquidityAmount,
+    onStepComplete,
+    activeStepIndex,
+  ])
+
   return (
     <SlideTransition>
       {renderBody}
+      <CardFooter flexDir='column' px={4}>
+        {assetCards}
+      </CardFooter>
       {children && (
         <CardFooter flexDir='column' px={4}>
           {children}

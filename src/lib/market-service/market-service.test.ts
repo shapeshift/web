@@ -149,7 +149,7 @@ describe('market service', () => {
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findAll({ count: Number() })
-      expect(result).toEqual(mockYearnServiceFindAllData)
+      expect(result).toEqual(mockFoxyMarketData)
     })
   })
 
@@ -167,7 +167,7 @@ describe('market service', () => {
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(args)
-      expect(result).toEqual(mockYearnFindByAssetIdData)
+      expect(result).toEqual(mockFoxyMarketData)
     })
 
     it('can return null if no data found', async () => {
@@ -203,7 +203,7 @@ describe('market service', () => {
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
       )
-      expect(result).toEqual(mockYearnPriceHistoryData)
+      expect(result).toEqual(mockFoxyPriceHistoryData)
     })
 
     it('can return null if no data found', async () => {

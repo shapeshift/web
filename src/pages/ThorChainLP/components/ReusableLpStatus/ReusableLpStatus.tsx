@@ -114,9 +114,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           : confirmedQuote.assetCryptoLiquidityAmount
       return (
         <Amount.Crypto
-          key={`amount-${asset.assetId}`}
+          key={`amount-${_asset.assetId}`}
           value={amountCryptoPrecision}
           symbol={_asset.symbol}
+          maximumFractionDigits={4}
         />
       )
     })

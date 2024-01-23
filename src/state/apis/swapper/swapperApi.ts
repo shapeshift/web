@@ -10,6 +10,8 @@ import {
   getSupportedSellAssetIds,
   getTradeQuotes,
 } from 'lib/swapper/swapper'
+import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteResponse } from 'state/apis/swapper/types'
@@ -162,6 +164,7 @@ export const swapperApi = _swapperApi.injectEndpoints({
         const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
           quotesWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
+            const tradeType = (quote as ThorEvmTradeQuote)?.tradeType
 
             const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
               // allow swapper errors to flow through
@@ -181,8 +184,10 @@ export const swapperApi = _swapperApi.injectEndpoints({
                   }),
                 )
               return {
-                isTradingActiveOnSellPool,
-                isTradingActiveOnBuyPool,
+                isTradingActiveOnSellPool:
+                  tradeType === TradeType.LongTailToL1 || isTradingActiveOnSellPool,
+                isTradingActiveOnBuyPool:
+                  tradeType === TradeType.L1ToLongTail || isTradingActiveOnBuyPool,
               }
             })()
 

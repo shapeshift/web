@@ -5,28 +5,30 @@ import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shap
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
-import type {
-  CosmosSdkFeeData,
-  EvmTransactionRequest,
-  GetTradeQuoteInput,
-  GetUnsignedCosmosSdkTransactionArgs,
-  GetUnsignedEvmTransactionArgs,
-  GetUnsignedUtxoTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  TradeQuote,
-  UtxoFeeData,
+import {
+  type CosmosSdkFeeData,
+  type EvmTransactionRequest,
+  type GetTradeQuoteInput,
+  type GetUnsignedCosmosSdkTransactionArgs,
+  type GetUnsignedEvmTransactionArgs,
+  type GetUnsignedUtxoTransactionArgs,
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  type SwapperApi,
+  type TradeQuote,
+  TradeQuoteError,
+  type UtxoFeeData,
 } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import { type Result } from '@sniptt/monads/build'
+import { Err, type Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -73,7 +75,15 @@ export const thorchainApi: SwapperApi = {
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
-    const { router: to, data, steps, memo: tcMemo, tradeType } = tradeQuote as ThorEvmTradeQuote
+    const {
+      router: to,
+      data,
+      steps,
+      memo: tcMemo,
+      tradeType,
+      longtailData,
+      slippageTolerancePercentageDecimal,
+    } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
     const value = isNativeEvmAsset(sellAsset.assetId)
@@ -146,9 +156,33 @@ export const thorchainApi: SwapperApi = {
         const publicClient = viemClientByChainId[chainId as EvmChainId]
         assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
+        const expectedAmountOut = BigInt(longtailData?.longtailToL1ExpectedAmountOut ?? 0)
+        // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
+        assert(
+          expectedAmountOut !== undefined && expectedAmountOut > 0n,
+          'expected expectedAmountOut to be a positive amount',
+        )
+
+        const amountOutMin = BigInt(
+          bnOrZero(expectedAmountOut.toString())
+            .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+            .toFixed(0, BigNumber.ROUND_UP),
+        )
+
+        if (amountOutMin <= 0n) {
+          throw Err(
+            makeSwapErrorRight({
+              code: TradeQuoteError.SellAmountBelowMinimum,
+              message: 'Sell amount is too small',
+            }),
+          )
+        }
+
+        // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
+        assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
+
         const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
         const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-        const amountOutMin: bigint = BigInt(0) // todo: the buy amount
         const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
         const tenMinutes = BigInt(600)
         const deadline = currentTimestamp + tenMinutes

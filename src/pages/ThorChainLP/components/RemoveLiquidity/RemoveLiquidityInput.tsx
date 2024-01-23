@@ -31,7 +31,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { AsymSide } from 'pages/ThorChainLP/hooks/useUserLpData'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -72,6 +71,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerCom
   const handleSubmit = useCallback(() => {
     history.push(RemoveLiquidityRoutePaths.Confirm)
   }, [history])
+
+  const handleAsymSideChange = useCallback(() => {
+    console.info('asym change')
+  }, [])
 
   const percentOptions = useMemo(() => [], [])
 
@@ -121,7 +124,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerCom
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.removeAmounts')}
           </FormLabel>
-          <LpType assetId={ethAssetId} asymSide={AsymSide.Asset} />
+          <LpType assetId={ethAssetId} onAsymSideChange={handleAsymSideChange} />
           <Stack px={6} py={4} spacing={4}>
             <Amount.Percent value='0.02' fontSize='2xl' />
             <Slider>

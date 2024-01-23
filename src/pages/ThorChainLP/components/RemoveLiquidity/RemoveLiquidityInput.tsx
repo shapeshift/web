@@ -31,6 +31,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { assertUnreachable } from 'lib/utils'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
@@ -183,11 +184,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
     if (!(asset && rune && foundPool)) return null
 
     const assets: Asset[] = (() => {
-      if (foundPool.asymSide === null) return [asset, rune]
-      if (foundPool.asymSide === AsymSide.Rune) return [rune]
-      if (foundPool.asymSide === AsymSide.Asset) return [asset]
-
-      throw new Error('Invalid asym side')
+      switch (foundPool.asymSide) {
+        case null:
+          return [rune, asset]
+        case AsymSide.Rune:
+          return [rune]
+        case AsymSide.Asset:
+          return [asset]
+        default:
+          assertUnreachable(foundPool.asymSide)
+      }
     })()
 
     return (

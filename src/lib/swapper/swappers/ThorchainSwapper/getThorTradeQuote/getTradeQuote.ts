@@ -19,6 +19,9 @@ type ThorTradeQuoteSpecificMetadata = {
   isStreaming: boolean
   memo: string
   recommendedMinimumCryptoBaseUnit: string
+  longtailData?: {
+    longtailToL1ExpectedAmountOut?: bigint
+  }
 }
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
@@ -58,15 +61,6 @@ export const getThorTradeQuote = async (
   const buyPoolId = assetIdToPoolAssetId({ assetId: buyAsset.assetId })
   const sellPoolId = assetIdToPoolAssetId({ assetId: sellAsset.assetId })
 
-  if (!buyPoolId || !sellPoolId) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Unsupported trade pair',
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
   // If one or both of these are undefined it means we are tradeing one or more long-tail ERC20 tokens
   const sellAssetPool = poolsResponse.find(pool => pool.asset === sellPoolId)
   const buyAssetPool = poolsResponse.find(pool => pool.asset === buyPoolId)
@@ -78,6 +72,18 @@ export const getThorTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: 'Unknown trade type',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
+  if (
+    (!buyPoolId && tradeType !== TradeType.L1ToLongTail) ||
+    (!sellPoolId && tradeType !== TradeType.LongTailToL1)
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Unsupported trade pair',
         code: TradeQuoteError.UnsupportedTradePair,
       }),
     )

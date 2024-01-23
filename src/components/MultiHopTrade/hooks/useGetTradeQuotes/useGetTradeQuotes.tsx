@@ -224,6 +224,8 @@ export const useGetTradeQuotes = () => {
 
         setTradeQuoteInput(updatedTradeQuoteInput)
 
+        dispatch(tradeQuoteSlice.actions.clear())
+
         setIsFetchingInput(false)
       })()
     }

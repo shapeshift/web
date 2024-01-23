@@ -132,6 +132,7 @@ export const useGetTradeQuotes = () => {
   const previousTradeQuoteInput = usePrevious(tradeQuoteInput)
   const isTradeQuoteUpdated = tradeQuoteInput !== previousTradeQuoteInput
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
+  const [isFetchingInput, setIsFetchingInput] = useState(false)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const useReceiveAddressArgs = useMemo(
@@ -207,6 +208,8 @@ export const useGetTradeQuotes = () => {
     // Don't update tradeQuoteInput while we're still debouncing
     if (isDebouncing) return
 
+    setIsFetchingInput(true)
+
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
     // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
     // That effectively means we'll unsubscribe to queries, considering them stale
@@ -251,15 +254,18 @@ export const useGetTradeQuotes = () => {
             ? setTradeQuoteInput(updatedTradeQuoteInput)
             : setTradeQuoteInput(skipToken)
 
-          // If only the affiliateBps or the userslippageTolerancePercentageDecimal changed, we've either:
-          // - switched swappers where one has a different default slippageTolerancePercentageDecimal
-          // In either case, we don't want to reset the selected swapper
-          if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
-            return
-          } else {
+          // If only the affiliateBps or the userslippageTolerancePercentageDecimal changed, we've
+          // switched swappers where one has a different default slippageTolerancePercentageDecimal
+          // In this case, we don't want to reset the selected swapper unless the input is the skipToken
+          if (
+            !isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput) &&
+            tradeQuoteInput !== skipToken
+          ) {
             dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
           }
         }
+
+        setIsFetchingInput(false)
       })()
     } else {
       // if the quote input args changed, reset the selected swapper and update the trade quote args
@@ -268,6 +274,8 @@ export const useGetTradeQuotes = () => {
         dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
         dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
       }
+
+      setIsFetchingInput(false)
     }
   }, [
     buyAsset,
@@ -341,7 +349,13 @@ export const useGetTradeQuotes = () => {
   // cease fetching state when at least 1 response is available
   // more quotes will arrive after, which is intentional.
   const isFetching = useMemo(() => {
-    return combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
+    return (
+      isDebouncing || isFetchingInput || combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
+    )
+  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+
+  const isUninitialized = useMemo(() => {
+    return combinedQuoteMeta.every(quoteMeta => quoteMeta.isUninitialized)
   }, [combinedQuoteMeta])
 
   const isSwapperFetching: Record<SwapperName, boolean> = useMemo(() => {
@@ -382,5 +396,5 @@ export const useGetTradeQuotes = () => {
     }
   }, [sortedTradeQuotes, mixpanel, isFetching])
 
-  return { isFetching, isSwapperFetching, didFail }
+  return { isUninitialized, isFetching, isSwapperFetching, didFail }
 }

@@ -27,9 +27,7 @@ export const useGetSwapperTradeQuote = (
   // so to persist fetching state after an inflight requests becomes skipped, we need to
   // read the request status and cached data from the Redux store
   // https://redux-toolkit.js.org/rtk-query/api/created-api/hooks#usequerystate
-  const { isFetching, error } = swapperApi.endpoints.getTradeQuote.useQueryState(
+  return swapperApi.endpoints.getTradeQuote.useQueryState(
     Object.assign({}, tradeQuoteInput, { swapperName }),
   )
-
-  return { isFetching, error }
 }

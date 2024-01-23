@@ -99,6 +99,7 @@ const emptyPercentOptions: number[] = []
 export const TradeInput = memo(() => {
   const {
     isFetching: isQuoteLoading,
+    isUninitialized: isQuoteUninitialized,
     isSwapperFetching,
     didFail: tradeQuoteRequestFailed,
   } = useGetTradeQuotes()
@@ -153,6 +154,8 @@ export const TradeInput = memo(() => {
     switch (true) {
       case isQuoteLoading:
         return 'common.loadingText'
+      case isQuoteUninitialized:
+        return 'trade.previewTrade'
       case !!quoteRequestError:
         return getQuoteRequestErrorTranslation(quoteRequestError)
       case !!tradeQuoteError:
@@ -162,7 +165,7 @@ export const TradeInput = memo(() => {
       default:
         return 'trade.previewTrade'
     }
-  }, [activeQuoteErrors, quoteRequestErrors, isQuoteLoading])
+  }, [activeQuoteErrors, quoteRequestErrors, isQuoteUninitialized, isQuoteLoading])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
@@ -344,8 +347,9 @@ export const TradeInput = memo(() => {
   }, [isUnsafeQuote])
 
   const quoteHasError = useMemo(() => {
+    if (isQuoteUninitialized || isQuoteLoading) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [activeQuoteErrors?.length, quoteRequestErrors?.length])
+  }, [isQuoteUninitialized, isQuoteLoading, activeQuoteErrors?.length, quoteRequestErrors?.length])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (

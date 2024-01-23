@@ -108,6 +108,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   if (!opportunity || !asset) return null
   return (
     <EquityRow
+      accountId={accountId}
       onClick={handleClick}
       fiatAmount={opportunity.fiatAmount}
       totalFiatBalance={totalFiatBalance}

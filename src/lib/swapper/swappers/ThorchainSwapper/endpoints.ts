@@ -5,22 +5,24 @@ import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shap
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
-import type {
-  CosmosSdkFeeData,
-  EvmTransactionRequest,
-  GetTradeQuoteInput,
-  GetUnsignedCosmosSdkTransactionArgs,
-  GetUnsignedEvmTransactionArgs,
-  GetUnsignedUtxoTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  TradeQuote,
-  UtxoFeeData,
+import {
+  type CosmosSdkFeeData,
+  type EvmTransactionRequest,
+  type GetTradeQuoteInput,
+  type GetUnsignedCosmosSdkTransactionArgs,
+  type GetUnsignedEvmTransactionArgs,
+  type GetUnsignedUtxoTransactionArgs,
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  type SwapperApi,
+  type TradeQuote,
+  TradeQuoteError,
+  type UtxoFeeData,
 } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import { type Result } from '@sniptt/monads/build'
+import { Err, type Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -157,8 +159,8 @@ export const thorchainApi: SwapperApi = {
         const expectedAmountOut = BigInt(longtailData?.longtailToL1ExpectedAmountOut ?? 0)
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
         assert(
-          expectedAmountOut !== undefined && expectedAmountOut !== 0n,
-          'expectedAmountOut is undefined',
+          expectedAmountOut !== undefined && expectedAmountOut > 0n,
+          'expected expectedAmountOut to be a positive amount',
         )
 
         const amountOutMin = BigInt(
@@ -167,8 +169,17 @@ export const thorchainApi: SwapperApi = {
             .toFixed(0, BigNumber.ROUND_UP),
         )
 
-        // Ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
-        assert(amountOutMin > 0n, 'expectedAmountOut is zero')
+        if (amountOutMin <= 0n) {
+          throw Err(
+            makeSwapErrorRight({
+              code: TradeQuoteError.SellAmountBelowMinimum,
+              message: 'Sell amount is too small',
+            }),
+          )
+        }
+
+        // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
+        assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
 
         const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
         const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)

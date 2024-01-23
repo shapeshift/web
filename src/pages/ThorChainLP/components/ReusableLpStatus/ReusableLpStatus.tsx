@@ -168,6 +168,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     activeStepIndex,
   ])
 
+  if (!(pool && asset && baseAsset)) return null
+
   return (
     <SlideTransition>
       {renderBody}

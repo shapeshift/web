@@ -179,7 +179,7 @@ export const thorchainApi: SwapperApi = {
         }
 
         // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
-        assert(amountOutMin > 0n, 'expected expectedAmountOut to be be a positive amount')
+        assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
 
         const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
         const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)

@@ -9,7 +9,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_STREAM_SWAP_SOURCE,
+} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
@@ -110,7 +113,9 @@ export const HopTransactionStep = ({
       )
     }
 
-    const isThorStreamingSwap = tradeQuoteStep.source === THORCHAIN_STREAM_SWAP_SOURCE
+    const isThorStreamingSwap =
+      tradeQuoteStep.source === THORCHAIN_STREAM_SWAP_SOURCE ||
+      THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
 
     if (sellTxHash !== undefined && isThorStreamingSwap) {
       return (

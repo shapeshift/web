@@ -20,7 +20,7 @@ type EquityRowBaseProps = {
   icon?: string | JSX.Element
   apy?: string
   isLoading?: boolean
-  accountId?: AccountId
+  accountId: AccountId | undefined
 } & ButtonProps
 
 type EquityRowProps = EquityRowBaseProps
@@ -115,18 +115,20 @@ export const EquityRow: React.FC<EquityRowProps> = ({
               <RawText>{label}</RawText>
               {subText && divider}
               {subText && <RawText>{subText}</RawText>}
-              <Tag
-                whiteSpace='nowrap'
-                colorScheme='blue'
-                fontSize='x-small'
-                fontWeight='bold'
-                minHeight='auto'
-                py={1}
-                alignSelf='center'
-                ml={tagMlMd4}
-              >
-                {subtitle}
-              </Tag>
+              {subtitle && (
+                <Tag
+                  whiteSpace='nowrap'
+                  colorScheme='blue'
+                  fontSize='x-small'
+                  fontWeight='bold'
+                  minHeight='auto'
+                  py={1}
+                  alignSelf='center'
+                  ml={tagMlMd4}
+                >
+                  {subtitle}
+                </Tag>
+              )}
             </Stack>
             <RawText color='chakra-body-text' fontSize={fontSizeMdMd} display={displayMdNone}>
               {label}

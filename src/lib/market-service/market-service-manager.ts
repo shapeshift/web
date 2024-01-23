@@ -13,7 +13,6 @@ import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
-import { IdleMarketService } from './idle/idle'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 
@@ -48,7 +47,6 @@ export class MarketServiceManager {
       // Yearn is currently borked upstream
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
-      new IdleMarketService({ providerUrls }),
       new FoxyMarketService({ providerUrls }),
     ]
   }

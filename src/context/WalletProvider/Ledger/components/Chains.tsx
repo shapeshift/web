@@ -21,6 +21,7 @@ import {
   bchChainId,
   btcAssetId,
   btcChainId,
+  cosmosAssetId,
   dogeAssetId,
   dogeChainId,
   ethAssetId,
@@ -56,7 +57,15 @@ export const LedgerChains = () => {
   const walletChainIds = useAppSelector(selectWalletChainIds)
 
   const availableAssetIds = useMemo(
-    () => [btcAssetId, dogeAssetId, bchAssetId, ltcAssetId, ethAssetId, thorchainAssetId],
+    () => [
+      btcAssetId,
+      dogeAssetId,
+      bchAssetId,
+      ltcAssetId,
+      ethAssetId,
+      thorchainAssetId,
+      cosmosAssetId,
+    ],
     [],
   )
 

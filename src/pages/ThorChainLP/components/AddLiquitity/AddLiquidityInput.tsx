@@ -164,7 +164,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     history.push(AddLiquidityRoutePaths.Confirm)
   }, [history])
 
-  const percentOptions = useMemo(() => [], [])
+  const percentOptions = useMemo(() => [1], [])
 
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 

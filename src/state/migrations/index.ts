@@ -1,4 +1,5 @@
 import { clearAssets } from './clearAssets'
+import { clearMarketData } from './clearMarketData'
 import { clearNfts } from './clearNfts'
 import { clearOpportunities } from './clearOpportunities'
 import { clearPortfolio } from './clearPortfolio'
@@ -24,4 +25,5 @@ export const migrations = {
   16: clearOpportunities,
   17: clearTxHistory,
   18: clearTxHistory,
+  19: clearMarketData,
 }

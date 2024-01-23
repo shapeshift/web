@@ -49,7 +49,10 @@ import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { THORCHAIN_STREAM_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_STREAM_SWAP_SOURCE,
+} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
 import { selectManualReceiveAddress } from 'state/slices/tradeInputSlice/selectors'
 import {
@@ -156,7 +159,9 @@ export const TradeConfirm = () => {
   const txHash = buyTxHash ?? sellTxHash
 
   const isThorStreamingSwap = useMemo(
-    () => tradeQuoteStep?.source === THORCHAIN_STREAM_SWAP_SOURCE,
+    () =>
+      tradeQuoteStep?.source === THORCHAIN_STREAM_SWAP_SOURCE ||
+      tradeQuoteStep?.source === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
     [tradeQuoteStep?.source],
   )
 

@@ -201,9 +201,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 <Row.Value display='flex' gap={1}>
                   <Amount.Crypto value='0.02' symbol='RUNE' />
                   <Flex color='text.subtle'>
-                    {'('}
-                    <Amount.Fiat value='10.00' />
-                    {')'}
+                    <Amount.Fiat value='10.00' prefix='(' suffix=')' />
                   </Flex>
                 </Row.Value>
               </Row>
@@ -214,9 +212,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 <Row.Value display='flex' gap={1}>
                   <Amount.Crypto value='0.02' symbol='ETH' />
                   <Flex color='text.subtle'>
-                    {'('}
-                    <Amount.Fiat value='10.00' />
-                    {')'}
+                    <Amount.Fiat value='10.00' prefix='(' suffix=')' />
                   </Flex>
                 </Row.Value>
               </Row>

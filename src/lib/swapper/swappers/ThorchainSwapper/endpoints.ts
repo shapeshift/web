@@ -12,17 +12,15 @@ import {
   type GetUnsignedCosmosSdkTransactionArgs,
   type GetUnsignedEvmTransactionArgs,
   type GetUnsignedUtxoTransactionArgs,
-  makeSwapErrorRight,
   type SwapErrorRight,
   type SwapperApi,
   type TradeQuote,
-  TradeQuoteError,
   type UtxoFeeData,
 } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import { Err, type Result } from '@sniptt/monads/build'
+import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
 import { getConfig } from 'config'

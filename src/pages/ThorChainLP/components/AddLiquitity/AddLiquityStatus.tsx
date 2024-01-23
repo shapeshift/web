@@ -3,6 +3,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
+import { assertUnreachable } from 'lib/utils'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
@@ -36,11 +37,16 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
   const assets: Asset[] = useMemo(() => {
     if (!(foundPool && asset && rune)) return []
 
-    if (foundPool.asymSide === null) return [rune, asset]
-    if (foundPool.asymSide === AsymSide.Rune) return [rune]
-    if (foundPool.asymSide === AsymSide.Asset) return [asset]
-
-    throw new Error('Invalid asym side')
+    switch (foundPool.asymSide) {
+      case null:
+        return [rune, asset]
+      case AsymSide.Rune:
+        return [rune]
+      case AsymSide.Asset:
+        return [asset]
+      default:
+        assertUnreachable(foundPool.asymSide)
+    }
   }, [asset, foundPool, rune])
 
   const handleGoBack = useCallback(() => {

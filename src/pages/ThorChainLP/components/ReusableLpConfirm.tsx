@@ -25,6 +25,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { assertUnreachable } from 'lib/utils'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -109,11 +110,18 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     if (!pool || !asset || !baseAsset) return null
 
     const assets: Asset[] = (() => {
-      if (pool.asymSide === null) return [asset, baseAsset]
-      if (pool.asymSide === AsymSide.Rune) return [baseAsset]
-      if (pool.asymSide === AsymSide.Asset) return [asset]
+      if (!(pool && asset && baseAsset)) return []
 
-      throw new Error('Invalid asym side')
+      switch (pool.asymSide) {
+        case null:
+          return [baseAsset, asset]
+        case AsymSide.Rune:
+          return [baseAsset]
+        case AsymSide.Asset:
+          return [asset]
+        default:
+          assertUnreachable(pool.asymSide)
+      }
     })()
 
     return (

@@ -17,20 +17,28 @@ const AddLiquidityEntries = [
 
 export type RemoveLiquidityProps = {
   headerComponent?: JSX.Element
+  opportunityId?: string
+  paramOpportunityId?: string
 }
-export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({ headerComponent }) => {
+export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
+  headerComponent,
+  opportunityId,
+}) => {
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
-      <RemoveLiquidityRoutes headerComponent={headerComponent} />
+      <RemoveLiquidityRoutes headerComponent={headerComponent} opportunityId={opportunityId} />
     </MemoryRouter>
   )
 }
 
-const RemoveLiquidityRoutes: React.FC<RemoveLiquidityProps> = ({ headerComponent }) => {
+const RemoveLiquidityRoutes: React.FC<RemoveLiquidityProps> = ({
+  headerComponent,
+  opportunityId,
+}) => {
   const location = useLocation()
   const renderRemoveLiquidityInput = useCallback(
-    () => <RemoveLiquidityInput headerComponent={headerComponent} />,
-    [headerComponent],
+    () => <RemoveLiquidityInput headerComponent={headerComponent} opportunityId={opportunityId} />,
+    [headerComponent, opportunityId],
   )
   const renderRemoveLiquidityConfirm = useCallback(() => <RemoveLiquidityConfirm />, [])
   const renderRemoveLiquidityStatus = useCallback(() => <RemoveLiquidityStatus />, [])

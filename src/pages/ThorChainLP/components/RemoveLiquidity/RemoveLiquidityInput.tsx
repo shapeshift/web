@@ -17,20 +17,22 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -52,13 +54,63 @@ const dividerStyle = {
   marginTop: 12,
 }
 
-export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerComponent }) => {
+export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
+  headerComponent,
+  opportunityId,
+  paramOpportunityId,
+}) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
-  const asset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const asset2 = useAppSelector(state => selectAssetById(state, usdcAssetId))
   const history = useHistory()
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
+  const { data: parsedPools } = usePools()
+
+  const defaultOpportunityId = useMemo(() => {
+    if (!parsedPools) return undefined
+    if (opportunityId) return undefined
+    if (paramOpportunityId) return paramOpportunityId
+
+    const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
+
+    return firstAsymOpportunityId
+  }, [parsedPools, opportunityId, paramOpportunityId])
+
+  const [activeOpportunityId, setActiveOpportunityId] = useState(
+    opportunityId ?? defaultOpportunityId,
+  )
+
+  useEffect(() => {
+    if (!(opportunityId || defaultOpportunityId)) return
+
+    setActiveOpportunityId(opportunityId ?? defaultOpportunityId)
+  }, [defaultOpportunityId, opportunityId])
+
+  const foundPool = useMemo(() => {
+    if (!parsedPools) return undefined
+    return parsedPools.find(pool => pool.opportunityId === activeOpportunityId)
+  }, [activeOpportunityId, parsedPools])
+
+  const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  useEffect(() => {
+    if (!_asset) return
+    setAsset(_asset)
+  }, [_asset])
+
+  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  const [asset, setAsset] = useState<Asset | undefined>(_asset)
+
+  useEffect(() => {
+    if (!(asset && parsedPools)) return
+    // We only want to run this effect in the standalone AddLiquidity page
+    if (!defaultOpportunityId) return
+
+    const foundOpportunityId = (parsedPools ?? []).find(
+      pool => pool.assetId === asset.assetId && pool.asymSide === null,
+    )?.opportunityId
+    if (!foundOpportunityId) return
+    setActiveOpportunityId(foundOpportunityId)
+  }, [asset, defaultOpportunityId, parsedPools])
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -72,9 +124,20 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerCom
     history.push(RemoveLiquidityRoutePaths.Confirm)
   }, [history])
 
-  const handleAsymSideChange = useCallback(() => {
-    console.info('asym change')
-  }, [])
+  const handleAsymSideChange = useCallback(
+    (asymSide: string | null) => {
+      if (!(parsedPools && asset)) return
+
+      // The null option gets casted as an empty string by the radio component so we cast it back to null
+      const parsedAsymSide = (asymSide as AsymSide | '') || null
+      const assetPools = parsedPools.filter(pool => pool.assetId === asset.assetId)
+      const foundPool = assetPools.find(pool => pool.asymSide === parsedAsymSide)
+      if (!foundPool) return
+
+      setActiveOpportunityId(foundPool.opportunityId)
+    },
+    [asset, parsedPools],
+  )
 
   const percentOptions = useMemo(() => [], [])
 
@@ -116,6 +179,38 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerCom
     )
   }, [backIcon, handleBackClick, headerComponent, translate])
 
+  const tradeAssetInputs = useMemo(() => {
+    if (!(asset && rune && foundPool)) return null
+
+    const assets: Asset[] = (() => {
+      if (foundPool.asymSide === null) return [asset, rune]
+      if (foundPool.asymSide === AsymSide.Rune) return [rune]
+      if (foundPool.asymSide === AsymSide.Asset) return [asset]
+
+      throw new Error('Invalid asym side')
+    })()
+
+    return (
+      <Stack divider={pairDivider} spacing={0}>
+        {assets.map(_asset => {
+          return (
+            <TradeAssetInput
+              assetId={_asset?.assetId}
+              assetIcon={_asset?.icon ?? ''}
+              assetSymbol={_asset?.symbol ?? ''}
+              onAccountIdChange={handleAccountIdChange}
+              percentOptions={percentOptions}
+              rightComponent={ReadOnlyAsset}
+              formControlProps={formControlProps}
+            />
+          )
+        })}
+      </Stack>
+    )
+  }, [asset, foundPool, handleAccountIdChange, pairDivider, percentOptions, rune])
+
+  if (!foundPool || !asset || !rune) return null
+
   return (
     <SlideTransition>
       {renderHeader}
@@ -124,7 +219,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerCom
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.removeAmounts')}
           </FormLabel>
-          <LpType assetId={ethAssetId} onAsymSideChange={handleAsymSideChange} />
+          <LpType
+            assetId={asset.assetId}
+            onAsymSideChange={handleAsymSideChange}
+            defaultOpportunityId={defaultOpportunityId}
+          />
           <Stack px={6} py={4} spacing={4}>
             <Amount.Percent value='0.02' fontSize='2xl' />
             <Slider>
@@ -142,24 +241,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({ headerCom
           </Stack>
           <Divider borderColor='border.base' />
           <Stack divider={pairDivider} spacing={0}>
-            <TradeAssetInput
-              assetId={ethAssetId}
-              assetIcon={asset?.icon ?? ''}
-              assetSymbol={asset?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
-            <TradeAssetInput
-              assetId={usdcAssetId}
-              assetIcon={asset2?.icon ?? ''}
-              assetSymbol={asset2?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              formControlProps={formControlProps}
-            />
+            {tradeAssetInputs}
           </Stack>
         </Stack>
       </Stack>

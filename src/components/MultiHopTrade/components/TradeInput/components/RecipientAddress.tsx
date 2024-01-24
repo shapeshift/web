@@ -116,8 +116,13 @@ export const RecipientAddress = () => {
   }, [])
 
   const resetManualReceiveAddress = useCallback(() => {
+    // Reset the manual receive address in store
     dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
-  }, [dispatch])
+    // And also the form value itself, to avoid the user going from
+    // custom recipient -> cleared custom recipient -> custom recipient where the previously set custom recipient
+    // would be displayed, wrongly hinting this is the default wallet address
+    setFormValue(SendFormFields.Input, '')
+  }, [dispatch, setFormValue])
 
   const onSubmit = useCallback(
     (values: FieldValues) => {

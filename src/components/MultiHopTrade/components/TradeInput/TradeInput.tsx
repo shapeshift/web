@@ -358,13 +358,17 @@ export const TradeInput = memo(() => {
       isLoading ||
       !isSellAmountEntered ||
       !activeQuote ||
-      disableSmartContractSwap
+      disableSmartContractSwap ||
+      !activeSwapperName ||
+      isSwapperFetching[activeSwapperName]
     )
   }, [
     activeQuote,
+    activeSwapperName,
     disableSmartContractSwap,
     isLoading,
     isSellAmountEntered,
+    isSwapperFetching,
     manualReceiveAddressIsValidating,
     quoteHasError,
   ])

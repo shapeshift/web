@@ -1,6 +1,6 @@
 import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons'
 import {
-  Box,
+  Button,
   Divider,
   FormControl,
   IconButton,
@@ -54,7 +54,7 @@ export const RecipientAddress = () => {
   const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
   const {
-    formState: { isValidating, isValid },
+    formState: { isValidating, isValid, errors },
     // trigger: formTrigger, // TODO(gomes): do we need this?
     setValue: setFormValue,
     handleSubmit,
@@ -134,34 +134,28 @@ export const RecipientAddress = () => {
   return isRecipientAddressEditing ? (
     <form>
       <FormControl>
-        <InputGroup size='sm'>
+        <InputGroup>
           <AddressInput
             rules={rules}
             placeholder={translate('trade.enterCustomRecipientAddress')}
           />
           <InputRightElement width='4.5rem'>
-            <Box
-              as='button'
+            <IconButton
+              color='green.500'
+              aria-label='Save'
               disabled={!isValid}
-              display='flex'
-              alignItems='center'
-              justifyContent='space-between'
-              width='full'
-              px='2'
+              size='xs'
               onClick={handleFormSubmit}
-            >
-              {checkIcon}
-            </Box>
-            <Box
-              as='button'
-              display='flex'
-              alignItems='center'
-              justifyContent='center'
-              borderRadius='md'
+              mr={2}
+              icon={checkIcon}
+            ></IconButton>
+            <IconButton
+              color='red.500'
+              icon={closeIcon}
+              aria-label='Cancel'
+              size='xs'
               onClick={handleCancelClick}
-            >
-              {closeIcon}
-            </Box>
+            ></IconButton>
           </InputRightElement>
         </InputGroup>
       </FormControl>

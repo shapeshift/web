@@ -64,7 +64,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   // If we have a valid manual receive address, set it in the form
   useEffect(() => {
     manualReceiveAddress && setFormValue(SendFormFields.Input, manualReceiveAddress)
-  }, [dispatch, manualReceiveAddress, setFormValue])
+  }, [manualReceiveAddress, setFormValue])
 
   useEffect(() => {
     dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))

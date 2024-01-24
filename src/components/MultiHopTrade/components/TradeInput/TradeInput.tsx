@@ -37,6 +37,7 @@ import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
+import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -49,6 +50,7 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -209,41 +211,66 @@ export const TradeInput = memo(() => {
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
 
-  const userAddress = useMemo(() => {
+  const sellAddress = useMemo(() => {
     if (!sellAssetAccountId) return ''
 
     return fromAccountId(sellAssetAccountId).account
   }, [sellAssetAccountId])
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress)
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+
+  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
+    useIsSmartContractAddress(sellAddress)
+
+  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
+    useIsSmartContractAddress(receiveAddress ?? '')
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
+    if (_isSmartContractSellAddress !== false) return true
+    if (
+      tradeQuoteStep?.source === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE &&
+      _isSmartContractReceiveAddress !== false
+    )
+      return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, activeSwapperName])
+  }, [
+    _isSmartContractReceiveAddress,
+    _isSmartContractSellAddress,
+    activeSwapperName,
+    tradeQuoteStep?.source,
+  ])
 
   const isLoading = useMemo(
     () =>
       isQuoteRequestFetching ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
-      isAddressByteCodeLoading ||
+      isSellAddressByteCodeLoading ||
+      isReceiveAddressByteCodeLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isAddressByteCodeLoading,
-      isConfirmationLoading,
       isQuoteRequestFetching,
+      isConfirmationLoading,
       isSupportedAssetsLoading,
+      isSellAddressByteCodeLoading,
+      isReceiveAddressByteCodeLoading,
       isVotingPowerLoading,
     ],
   )

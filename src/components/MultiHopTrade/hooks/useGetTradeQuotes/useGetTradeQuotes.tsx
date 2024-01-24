@@ -37,6 +37,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
+import type { SwapperTradeQuoteCommonArgs } from './hooks.tsx/useGetSwapperTradeQuote'
 import { useGetSwapperTradeQuote } from './hooks.tsx/useGetSwapperTradeQuote'
 
 type MixPanelQuoteMeta = {
@@ -255,43 +256,21 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const skip = !shouldRefetchTradeQuotes
-  const pollingInterval = hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined
+  const commonTradeQuoteArgs: SwapperTradeQuoteCommonArgs = useMemo(() => {
+    const skip = !shouldRefetchTradeQuotes
+    const pollingInterval = hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined
+    return {
+      tradeQuoteInput,
+      skip,
+      pollingInterval,
+    }
+  }, [hasFocus, shouldRefetchTradeQuotes, tradeQuoteInput])
 
-  const cowSwapQuoteMeta = useGetSwapperTradeQuote(
-    SwapperName.CowSwap,
-    tradeQuoteInput,
-    skip,
-    pollingInterval,
-  )
-
-  const oneInchQuoteMeta = useGetSwapperTradeQuote(
-    SwapperName.OneInch,
-    tradeQuoteInput,
-    skip,
-    pollingInterval,
-  )
-
-  const lifiQuoteMeta = useGetSwapperTradeQuote(
-    SwapperName.LIFI,
-    tradeQuoteInput,
-    skip,
-    pollingInterval,
-  )
-
-  const thorchainQuoteMeta = useGetSwapperTradeQuote(
-    SwapperName.Thorchain,
-    tradeQuoteInput,
-    skip,
-    pollingInterval,
-  )
-
-  const zrxQuoteMeta = useGetSwapperTradeQuote(
-    SwapperName.Zrx,
-    tradeQuoteInput,
-    skip,
-    pollingInterval,
-  )
+  const cowSwapQuoteMeta = useGetSwapperTradeQuote(SwapperName.CowSwap, commonTradeQuoteArgs)
+  const oneInchQuoteMeta = useGetSwapperTradeQuote(SwapperName.OneInch, commonTradeQuoteArgs)
+  const lifiQuoteMeta = useGetSwapperTradeQuote(SwapperName.LIFI, commonTradeQuoteArgs)
+  const thorchainQuoteMeta = useGetSwapperTradeQuote(SwapperName.Thorchain, commonTradeQuoteArgs)
+  const zrxQuoteMeta = useGetSwapperTradeQuote(SwapperName.Zrx, commonTradeQuoteArgs)
 
   const combinedQuoteMeta = useMemo(() => {
     return [cowSwapQuoteMeta, oneInchQuoteMeta, lifiQuoteMeta, thorchainQuoteMeta, zrxQuoteMeta]

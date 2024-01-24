@@ -1,20 +1,9 @@
-import { Card, CardHeader, Flex, keyframes, useColorModeValue } from '@chakra-ui/react'
+import { Card, CardHeader, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { RawText } from 'components/Text'
 
 import { SwapperIcon } from '../../SwapperIcon/SwapperIcon'
-
-const pulseAnimation = keyframes({
-  '0%': {
-    borderColor: 'var(--chakra-colors-background-surface-raised-base)',
-    background: 'var(--chakra-colors-background-surface-raised-base)',
-  },
-  '100%': {
-    borderColor: 'var(--chakra-colors-background-surface-raised-pressed)',
-    background: 'var(--chakra-colors-background-surface-raised-pressed)',
-  },
-})
 
 const borderRadius = { base: 'md', md: 'lg' }
 const hoverProps = {
@@ -30,7 +19,6 @@ export type TradeQuoteCardProps = {
   headerContent: JSX.Element
   bodyContent: JSX.Element | null
   isDisabled: boolean
-  isLoading?: boolean
   onClick?: () => void
 }
 
@@ -42,7 +30,6 @@ export const TradeQuoteCard = ({
   headerContent,
   bodyContent,
   isDisabled,
-  isLoading,
   onClick,
 }: TradeQuoteCardProps) => {
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
@@ -65,7 +52,6 @@ export const TradeQuoteCard = ({
       borderWidth={2}
       boxShadow='none'
       bg={isActive ? 'background.surface.hover' : 'transparent'}
-      animation={isLoading ? `0.8s linear infinite alternate ${pulseAnimation}` : undefined}
       cursor={isDisabled ? 'not-allowed' : 'pointer'}
       borderColor={isActive ? activeSwapperColor : 'border.base'}
       _hover={isDisabled ? undefined : hoverProps}

@@ -15,7 +15,6 @@ import { selectInputBuyAsset } from 'state/slices/selectors'
 import { selectActiveQuoteId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FetchingTradeQuote } from './FetchingTradeQuote'
 import { TradeQuote } from './TradeQuote'
 
 type TradeQuotesProps = {
@@ -74,7 +73,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
     const quotes = useMemo(
       () =>
         sortedQuotes.map((quoteData, i) => {
-          const { quote } = quoteData
+          const { swapperName, quote } = quoteData
 
           const isActive = activeQuoteIndex !== undefined && activeQuoteIndex.quoteId === quote?.id
           const bestQuoteSteps = bestQuoteData?.quote?.steps
@@ -83,7 +82,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
           return (
             <TradeQuote
               isActive={isActive}
-              isLoading={isLoading}
+              isLoading={isLoading || isSwapperFetching[swapperName]}
               isBest={i === 0}
               key={quote?.id ?? i}
               quoteData={quoteData}
@@ -93,22 +92,40 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
             />
           )
         }),
-      [activeQuoteIndex, bestQuoteData?.quote?.steps, isLoading, sortedQuotes],
+      [activeQuoteIndex, bestQuoteData?.quote?.steps, isLoading, isSwapperFetching, sortedQuotes],
     )
 
-    // add some loading state per swapper so missing quotes have obvious explanation
+    // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
+    // only show these placeholders when quotes aren't already visible in the list
     const fetchingSwappers = useMemo(() => {
       return Object.entries(isSwapperFetching)
         .filter(([_swapperName, isFetching]) => isFetching)
+        .filter(
+          ([swapperName, _isFetching]) =>
+            !sortedQuotes.some(quoteData => quoteData.swapperName === swapperName),
+        )
         .map(([swapperName, _isFetching]) => {
+          const quoteData = {
+            index: 0, // TODO: remove index from this type
+            quote: undefined,
+            swapperName: swapperName as SwapperName,
+            inputOutputRatio: 0,
+            errors: [],
+            warnings: [],
+          }
           return (
-            <FetchingTradeQuote
+            <TradeQuote
+              isActive={false}
+              isLoading={true}
+              isBest={false}
               key={`${swapperName}-fetching`}
-              swapperName={swapperName as SwapperName}
+              // eslint-disable-next-line react-memo/require-usememo
+              quoteData={quoteData}
+              bestBuyAmountBeforeFeesCryptoBaseUnit='0'
             />
           )
         })
-    }, [isSwapperFetching])
+    }, [isSwapperFetching, sortedQuotes])
 
     const quoteOverlayAfter = useMemo(() => {
       return {

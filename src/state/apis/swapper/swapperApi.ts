@@ -62,12 +62,12 @@ export const swapperApi = swapperApiBase.injectEndpoints({
         const { swapperName, sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
           tradeQuoteInput
 
-        dispatch(
-          tradeQuoteSlice.actions.upsertTradeQuotes({
-            swapperName,
-            quotesById: undefined,
-          }),
-        )
+        // dispatch(
+        //   tradeQuoteSlice.actions.upsertTradeQuotes({
+        //     swapperName,
+        //     quotesById: undefined,
+        //   }),
+        // )
 
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)

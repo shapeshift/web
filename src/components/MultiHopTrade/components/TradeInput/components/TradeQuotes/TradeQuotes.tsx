@@ -120,6 +120,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
               isLoading={true}
               isBest={false}
               key={id}
+              // eslint doesn't understand useMemo not possible to use inside map
               // eslint-disable-next-line react-memo/require-usememo
               quoteData={quoteData}
               bestBuyAmountBeforeFeesCryptoBaseUnit='0'

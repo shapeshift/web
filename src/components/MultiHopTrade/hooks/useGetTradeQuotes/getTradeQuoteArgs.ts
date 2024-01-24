@@ -50,7 +50,7 @@ export const getTradeQuoteArgs = async ({
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
       sellAmountBeforeFeesCryptoPrecision,
-      sellAsset.precision || 0,
+      sellAsset.precision,
     ),
     sellAsset,
     buyAsset,

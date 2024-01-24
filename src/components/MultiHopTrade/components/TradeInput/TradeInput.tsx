@@ -98,10 +98,10 @@ const emptyPercentOptions: number[] = []
 
 export const TradeInput = memo(() => {
   const {
-    isFetching: isQuoteLoading,
-    isUninitialized: isQuoteUninitialized,
+    isQuoteRequestFetching,
+    isQuoteRequestUninitialized,
     isSwapperFetching,
-    didFail: tradeQuoteRequestFailed,
+    didQuoteRequestFail,
   } = useGetTradeQuotes()
   const {
     state: { wallet },
@@ -152,9 +152,9 @@ export const TradeInput = memo(() => {
     const quoteRequestError = quoteRequestErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case isQuoteLoading:
+      case isQuoteRequestFetching:
         return 'common.loadingText'
-      case isQuoteUninitialized:
+      case isQuoteRequestUninitialized:
         return 'trade.previewTrade'
       case !!quoteRequestError:
         return getQuoteRequestErrorTranslation(quoteRequestError)
@@ -165,7 +165,7 @@ export const TradeInput = memo(() => {
       default:
         return 'trade.previewTrade'
     }
-  }, [activeQuoteErrors, quoteRequestErrors, isQuoteUninitialized, isQuoteLoading])
+  }, [activeQuoteErrors, quoteRequestErrors, isQuoteRequestUninitialized, isQuoteRequestFetching])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
@@ -231,7 +231,7 @@ export const TradeInput = memo(() => {
 
   const isLoading = useMemo(
     () =>
-      isQuoteLoading ||
+      isQuoteRequestFetching ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isAddressByteCodeLoading ||
@@ -242,7 +242,7 @@ export const TradeInput = memo(() => {
     [
       isAddressByteCodeLoading,
       isConfirmationLoading,
-      isQuoteLoading,
+      isQuoteRequestFetching,
       isSupportedAssetsLoading,
       isVotingPowerLoading,
     ],
@@ -347,9 +347,14 @@ export const TradeInput = memo(() => {
   }, [isUnsafeQuote])
 
   const quoteHasError = useMemo(() => {
-    if (isQuoteUninitialized || isQuoteLoading) return false
+    if (isQuoteRequestUninitialized || isQuoteRequestFetching) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [isQuoteUninitialized, isQuoteLoading, activeQuoteErrors?.length, quoteRequestErrors?.length])
+  }, [
+    isQuoteRequestUninitialized,
+    isQuoteRequestFetching,
+    activeQuoteErrors?.length,
+    quoteRequestErrors?.length,
+  ])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -428,7 +433,7 @@ export const TradeInput = memo(() => {
               gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
               rate={rate}
               isLoading={isLoading}
-              isError={tradeQuoteRequestFailed}
+              isError={didQuoteRequestFail}
             />
 
             {activeQuote ? (
@@ -483,7 +488,7 @@ export const TradeInput = memo(() => {
       totalNetworkFeeFiatPrecision,
       rate,
       isLoading,
-      tradeQuoteRequestFailed,
+      didQuoteRequestFail,
       activeQuote,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,

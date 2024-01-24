@@ -299,20 +299,20 @@ export const useGetTradeQuotes = () => {
 
   // cease fetching state when at least 1 response is available
   // more quotes will arrive after, which is intentional.
-  const isFetching = useMemo(() => {
+  const isQuoteRequestFetching = useMemo(() => {
     return (
       isDebouncing || isFetchingInput || combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
     )
   }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
 
   // true if any debounce, input or swapper is fetching
-  const isAnyFetching = useMemo(() => {
+  const isAnyQuoteFetching = useMemo(() => {
     return (
       isDebouncing || isFetchingInput || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
     )
   }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
 
-  const isUninitialized = useMemo(() => {
+  const isQuoteRequestUninitialized = useMemo(() => {
     return combinedQuoteMeta.every(quoteMeta => quoteMeta.isUninitialized)
   }, [combinedQuoteMeta])
 
@@ -339,7 +339,7 @@ export const useGetTradeQuotes = () => {
 
   const tradeQuoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
 
-  const didFail = useMemo(() => {
+  const didQuoteRequestFail = useMemo(() => {
     return allQuotesHaveError || tradeQuoteRequestErrors.length > 0
   }, [allQuotesHaveError, tradeQuoteRequestErrors.length])
 
@@ -349,7 +349,7 @@ export const useGetTradeQuotes = () => {
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
     // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteId || isUninitialized || isAnyFetching) return
+    if (activeQuoteId || isQuoteRequestUninitialized || isAnyQuoteFetching) return
 
     const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
 
@@ -359,16 +359,21 @@ export const useGetTradeQuotes = () => {
     }
 
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteId, isUninitialized, isAnyFetching, dispatch])
+  }, [activeQuoteId, isQuoteRequestUninitialized, isAnyQuoteFetching, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (isFetching) return
+    if (isQuoteRequestFetching) return
     if (mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [sortedTradeQuotes, mixpanel, isFetching])
+  }, [sortedTradeQuotes, mixpanel, isQuoteRequestFetching])
 
-  return { isUninitialized, isFetching, isSwapperFetching, didFail }
+  return {
+    isQuoteRequestUninitialized,
+    isQuoteRequestFetching,
+    isSwapperFetching,
+    didQuoteRequestFail,
+  }
 }

@@ -38,7 +38,14 @@ export const getTxLink = ({ name, defaultExplorerBaseUrl, txId, tradeId }: GetTx
   const isOrder = !!tradeId
   const baseUrl = getTxBaseUrl({ name, defaultExplorerBaseUrl, isOrder })
 
-  if ([SwapperName.Thorchain, THORCHAIN_STREAM_SWAP_SOURCE].includes(name as SwapSource)) {
+  if (
+    [
+      SwapperName.Thorchain,
+      THORCHAIN_STREAM_SWAP_SOURCE,
+      THORCHAIN_LONGTAIL_SWAP_SOURCE,
+      THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+    ].includes(name as SwapSource)
+  ) {
     return `${baseUrl}${id.replace(/^0x/, '')}`
   }
 

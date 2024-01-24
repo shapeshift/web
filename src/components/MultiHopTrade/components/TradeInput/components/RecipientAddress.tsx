@@ -175,18 +175,16 @@ export const RecipientAddress = () => {
         </Row.Label>
         <Row.Value whiteSpace='nowrap'>
           {isCustomRecipientAddress ? (
-            <Tag size='md' colorScheme='blue'>
-              <TagLabel>{middleEllipsis(receiveAddress)}</TagLabel>
-              <TagCloseButton onClick={resetManualReceiveAddress} />
-            </Tag>
+            <Tooltip label={translate('trade.thisIsYourCustomRecipientAddress')} placement='top'>
+              <Tag size='md' colorScheme='blue'>
+                <TagLabel>{middleEllipsis(receiveAddress)}</TagLabel>
+                <TagCloseButton onClick={resetManualReceiveAddress} />
+              </Tag>
+            </Tooltip>
           ) : (
             <Stack direction='row' spacing={1} alignItems='center'>
               <RawText>{middleEllipsis(receiveAddress)}</RawText>
-              <Tooltip
-                label={translate('trade.customRecipientAddressDescription')}
-                placement='top'
-                hasArrow
-              >
+              <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
                 <IconButton
                   aria-label='Edit recipient address'
                   icon={editIcon}

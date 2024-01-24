@@ -754,6 +754,7 @@
     "recipientAddress": "Recipient address",
     "customRecipientAddress": "Custom recipient address",
     "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
+    "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",

@@ -12,6 +12,7 @@ import {
 import { ethChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { FieldValues } from 'react-hook-form'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
@@ -50,9 +51,10 @@ export const RecipientAddress = () => {
   const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
   const {
-    formState: { isValidating },
+    formState: { isValidating, isValid },
     // trigger: formTrigger, // TODO(gomes): do we need this?
     setValue: setFormValue,
+    handleSubmit,
   } = useFormContext()
 
   // If we have a valid manual receive address, set it in the form
@@ -64,8 +66,7 @@ export const RecipientAddress = () => {
     dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))
   }, [dispatch, isValidating])
 
-  // TODO(gomes): implement me
-  const isCustomRecipientAddress = false
+  const isCustomRecipientAddress = Boolean(manualReceiveAddress)
   const recipientAddressTranslation: TextPropTypes['translation'] = isCustomRecipientAddress
     ? 'trade.customRecipientAddress'
     : 'trade.recipientAddress'
@@ -75,7 +76,6 @@ export const RecipientAddress = () => {
       required: true,
       validate: {
         validateAddress: async (rawInput: string) => {
-          console.log({ rawInput })
           try {
             const value = rawInput.trim() // trim leading/trailing spaces
             // this does not throw, everything inside is handled
@@ -86,7 +86,6 @@ export const RecipientAddress = () => {
               disableUrlParsing: true,
             }
             const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-            dispatch(tradeInput.actions.setManualReceiveAddress(address || undefined))
             const invalidMessage = isYatSupported
               ? 'common.invalidAddressOrYat'
               : 'common.invalidAddress'
@@ -111,32 +110,38 @@ export const RecipientAddress = () => {
     setIsRecipientAddressEditing(false)
   }, [])
 
-  const handleSaveClick = useCallback(() => {
-    setIsRecipientAddressEditing(false)
-  }, [])
+  const onSubmit = useCallback(
+    (values: FieldValues) => {
+      // We don't need to revalidate here as submit will only be enabled if the form is valid
+      const address = values[SendFormFields.Input]
+      dispatch(tradeInput.actions.setManualReceiveAddress(address))
+    },
+    [dispatch],
+  )
+
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   if (!isHolisticRecipientAddressEnabled) return null
   if (!receiveAddress) return null
 
   return isRecipientAddressEditing ? (
-    <FormControl>
-      <InputGroup size='sm'>
-        <AddressInput rules={rules} placeholder={translate('trade.enterCustomRecipientAddress')} />
-        <InputRightElement width='4.5rem'>
-          <Box
-            display='flex'
-            alignItems='center'
-            justifyContent='space-between'
-            width='full'
-            px='2'
-          >
+    <form>
+      <FormControl>
+        <InputGroup size='sm'>
+          <AddressInput
+            rules={rules}
+            placeholder={translate('trade.enterCustomRecipientAddress')}
+          />
+          <InputRightElement width='4.5rem'>
             <Box
               as='button'
+              disabled={!isValid}
               display='flex'
               alignItems='center'
-              justifyContent='center'
-              borderRadius='md'
-              onClick={handleSaveClick}
+              justifyContent='space-between'
+              width='full'
+              px='2'
+              onClick={handleFormSubmit}
             >
               {checkIcon}
             </Box>
@@ -150,10 +155,10 @@ export const RecipientAddress = () => {
             >
               {closeIcon}
             </Box>
-          </Box>
-        </InputRightElement>
-      </InputGroup>
-    </FormControl>
+          </InputRightElement>
+        </InputGroup>
+      </FormControl>
+    </form>
   ) : (
     <>
       <Divider borderColor='border.base' />

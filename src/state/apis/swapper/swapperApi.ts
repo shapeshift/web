@@ -20,7 +20,6 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { apiErrorHandler } from '../utils'
@@ -56,7 +55,7 @@ export const swapperApiBase = createApi({
 
 export const swapperApi = swapperApiBase.injectEndpoints({
   endpoints: build => ({
-    getTradeQuote: build.query<Record<string, Omit<ApiQuote, 'index'>>, TradeQuoteRequest>({
+    getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteRequest>({
       queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {
         const state = getState() as ReduxState
         const { swapperName, sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
@@ -122,7 +121,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
           })
         })(quoteResult)
 
-        const unorderedQuotes: Omit<ApiQuote, 'index'>[] = await Promise.all(
+        const unorderedQuotes: ApiQuote[] = await Promise.all(
           quoteWithInputOutputRatios.map(async quoteData => {
             const { quote, swapperName, inputOutputRatio, error } = quoteData
             const tradeType = (quote as ThorEvmTradeQuote)?.tradeType
@@ -184,7 +183,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
             acc[quoteData.quote?.id ?? `${quoteData.swapperName}-${i}`] = quoteData
             return acc
           },
-          {} as Record<string, Omit<ApiQuote, 'index'>>,
+          {} as Record<string, ApiQuote>,
         )
 
         return { data: tradeQuotesById }

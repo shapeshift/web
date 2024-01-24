@@ -106,10 +106,7 @@ export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, P
     {},
   )
 
-export const sortQuotes = (
-  unorderedQuotes: Omit<ApiQuote, 'index'>[],
-  startingIndex: number,
-): ApiQuote[] => {
+export const sortQuotes = (unorderedQuotes: ApiQuote[], startingIndex: number): ApiQuote[] => {
   return orderBy(unorderedQuotes, ['inputOutputRatio', 'swapperName'], ['desc', 'asc']).map(
     (apiQuote, i) => Object.assign({}, apiQuote, { index: startingIndex + i }),
   )

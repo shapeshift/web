@@ -106,7 +106,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         )
         .map(([swapperName, _isFetching]) => {
           const quoteData = {
-            index: 0, // TODO: remove index from this type
             quote: undefined,
             swapperName: swapperName as SwapperName,
             inputOutputRatio: 0,

@@ -132,19 +132,17 @@ export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefin
     }
   })
 
-export const selectActiveSwapperApiResponse: Selector<
-  ReduxState,
-  Omit<ApiQuote, 'index'> | undefined
-> = createDeepEqualOutputSelector(
-  selectTradeQuotes,
-  selectActiveQuoteId,
-  (tradeQuotes, activeQuoteId) => {
-    // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
-    if (activeQuoteId === undefined) return undefined
+export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
+  createDeepEqualOutputSelector(
+    selectTradeQuotes,
+    selectActiveQuoteId,
+    (tradeQuotes, activeQuoteId) => {
+      // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
+      if (activeQuoteId === undefined) return undefined
 
-    return tradeQuotes[activeQuoteId.swapperName]?.[activeQuoteId.quoteId]
-  },
-)
+      return tradeQuotes[activeQuoteId.swapperName]?.[activeQuoteId.quoteId]
+    },
+  )
 
 export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(

@@ -18,7 +18,7 @@ export type TradeQuoteSliceState = {
   activeQuoteId: { swapperName: SwapperName; quoteId: string } | undefined // the selected quote id used to find the active quote in the api responses
   confirmedQuote: TradeQuote | undefined // the quote being executed
   tradeExecution: TradeExecutionMetadata
-  tradeQuotes: PartialRecord<SwapperName, Record<string, Omit<ApiQuote, 'index'>>> // mapping from swapperName to quoteId to ApiQuote
+  tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -30,7 +30,7 @@ export const tradeQuoteSlice = createSlice({
       state,
       action: PayloadAction<{
         swapperName: SwapperName
-        quotesById: Record<string, Omit<ApiQuote, 'index'>> | undefined
+        quotesById: Record<string, ApiQuote> | undefined
       }>,
     ) => {
       const { swapperName, quotesById } = action.payload

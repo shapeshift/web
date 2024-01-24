@@ -192,7 +192,7 @@ export const Hop = ({
           {shouldRenderFinalSteps && (
             <AssetSummaryStep
               asset={tradeQuoteStep.buyAsset}
-              amountCryptoBaseUnit={tradeQuoteStep.buyAmountBeforeFeesCryptoBaseUnit}
+              amountCryptoBaseUnit={tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit}
               isLastStep={shouldRenderFinalSteps}
             />
           )}

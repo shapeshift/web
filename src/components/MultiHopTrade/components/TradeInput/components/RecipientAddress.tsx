@@ -1,6 +1,5 @@
 import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons'
 import {
-  Button,
   Divider,
   FormControl,
   IconButton,
@@ -16,9 +15,10 @@ import { ethChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
+import type { SendInput } from 'components/Modals/Send/Form'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { Row } from 'components/Row/Row'
@@ -54,11 +54,13 @@ export const RecipientAddress = () => {
   const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
   const {
-    formState: { isValidating, isValid, errors },
+    formState: { isValidating, isValid },
     // trigger: formTrigger, // TODO(gomes): do we need this?
     setValue: setFormValue,
     handleSubmit,
   } = useFormContext()
+
+  const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
 
   // If we have a valid manual receive address, set it in the form
   useEffect(() => {
@@ -158,6 +160,9 @@ export const RecipientAddress = () => {
             ></IconButton>
           </InputRightElement>
         </InputGroup>
+        {Boolean(value.length && !isValid) && (
+          <Text translation='common.invalidAddress' color='yellow.200' mt={2} />
+        )}
       </FormControl>
     </form>
   ) : (

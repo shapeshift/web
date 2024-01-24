@@ -16,6 +16,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
+import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
@@ -44,8 +45,10 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     }),
     [wallet],
   )
+  const activeQuote = useAppSelector(selectActiveQuote)
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-  const shouldShowManualReceiveAddressInput = !manualReceiveAddress && !walletReceiveAddress
+  const shouldShowManualReceiveAddressInput =
+    !manualReceiveAddress && !walletReceiveAddress && !activeQuote
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()

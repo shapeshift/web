@@ -12,7 +12,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import type { ApiQuote } from 'state/apis/swapper'
 import { selectInputBuyAsset } from 'state/slices/selectors'
-import { selectActiveQuoteId } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectActiveQuoteMeta } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
@@ -53,7 +53,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
       return _sortedQuotes
     }, [_sortedQuotes, isBuyAssetChainSupported, receiveAddress])
 
-    const activeQuoteId = useAppSelector(selectActiveQuoteId)
+    const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
     const translate = useTranslate()
     const [showAll, setShowAll] = useState(false)
     const bestQuoteData = sortedQuotes[0]
@@ -75,7 +75,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         sortedQuotes.map((quoteData, i) => {
           const { swapperName, quote, id } = quoteData
 
-          const isActive = activeQuoteId !== undefined && activeQuoteId.quoteId === id
+          const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
           const bestQuoteSteps = bestQuoteData?.quote?.steps
           const lastStep = bestQuoteSteps?.[bestQuoteSteps.length - 1]
 
@@ -92,7 +92,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
             />
           )
         }),
-      [activeQuoteId, bestQuoteData?.quote?.steps, isLoading, isSwapperFetching, sortedQuotes],
+      [activeQuoteMeta, bestQuoteData?.quote?.steps, isLoading, isSwapperFetching, sortedQuotes],
     )
 
     // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list

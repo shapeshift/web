@@ -30,7 +30,7 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
 import {
-  selectActiveQuoteId,
+  selectActiveQuoteMeta,
   selectSortedTradeQuotes,
   selectTradeQuoteRequestErrors,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -323,12 +323,12 @@ export const useGetTradeQuotes = () => {
   }, [allQuotesHaveError, tradeQuoteRequestErrors.length])
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
-  const activeQuoteId = useAppSelector(selectActiveQuoteId)
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
     // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteId || isQuoteRequestUninitialized || isAnyQuoteFetching) return
+    if (activeQuoteMeta || isQuoteRequestUninitialized || isAnyQuoteFetching) return
 
     const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
 
@@ -338,7 +338,7 @@ export const useGetTradeQuotes = () => {
     }
 
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteId, isQuoteRequestUninitialized, isAnyQuoteFetching, dispatch])
+  }, [activeQuoteMeta, isQuoteRequestUninitialized, isAnyQuoteFetching, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {

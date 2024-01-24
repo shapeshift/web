@@ -118,29 +118,29 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
-export const selectActiveQuoteId: Selector<
+export const selectActiveQuoteMeta: Selector<
   ReduxState,
-  { swapperName: SwapperName; quoteId: string } | undefined
-> = createSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.activeQuoteId)
+  { swapperName: SwapperName; identifier: string } | undefined
+> = createSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.activeQuoteMeta)
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
-  createSelector(selectActiveQuoteId, selectTradeQuotes, (activeQuoteId, tradeQuotes) => {
-    if (activeQuoteId === undefined) return
+  createSelector(selectActiveQuoteMeta, selectTradeQuotes, (activeQuoteMeta, tradeQuotes) => {
+    if (activeQuoteMeta === undefined) return
     // need to ensure a quote exists for the selection
-    if (tradeQuotes[activeQuoteId.swapperName]?.[activeQuoteId.quoteId]) {
-      return activeQuoteId.swapperName
+    if (tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]) {
+      return activeQuoteMeta.swapperName
     }
   })
 
 export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
     selectTradeQuotes,
-    selectActiveQuoteId,
-    (tradeQuotes, activeQuoteId) => {
+    selectActiveQuoteMeta,
+    (tradeQuotes, activeQuoteMeta) => {
       // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
-      if (activeQuoteId === undefined) return undefined
+      if (activeQuoteMeta === undefined) return undefined
 
-      return tradeQuotes[activeQuoteId.swapperName]?.[activeQuoteId.quoteId]
+      return tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]
     },
   )
 

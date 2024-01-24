@@ -18,7 +18,7 @@ export const initialTradeExecutionState = {
 }
 
 export const initialState: TradeQuoteSliceState = {
-  activeQuoteId: undefined,
+  activeQuoteMeta: undefined,
   confirmedQuote: undefined,
   activeStep: undefined,
   tradeExecution: initialTradeExecutionState,

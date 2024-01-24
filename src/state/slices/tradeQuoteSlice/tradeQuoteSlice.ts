@@ -15,7 +15,7 @@ import {
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
-  activeQuoteId: { swapperName: SwapperName; quoteId: string } | undefined // the selected quote id used to find the active quote in the api responses
+  activeQuoteMeta: { swapperName: SwapperName; identifier: string } | undefined // the selected quote metadata used to find the active quote in the api responses
   confirmedQuote: TradeQuote | undefined // the quote being executed
   tradeExecution: TradeExecutionMetadata
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
@@ -38,12 +38,12 @@ export const tradeQuoteSlice = createSlice({
     },
     setActiveQuote: (state, action: PayloadAction<ApiQuote | undefined>) => {
       if (action.payload === undefined) {
-        state.activeQuoteId = undefined
+        state.activeQuoteMeta = undefined
       } else {
         const { swapperName, id } = action.payload
-        state.activeQuoteId = {
+        state.activeQuoteMeta = {
           swapperName,
-          quoteId: id,
+          identifier: id,
         }
       }
     },
@@ -58,7 +58,7 @@ export const tradeQuoteSlice = createSlice({
       state.activeStep = undefined
     },
     resetActiveQuote: state => {
-      state.activeQuoteId = undefined
+      state.activeQuoteMeta = undefined
     },
     setConfirmedQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {
       state.confirmedQuote = action.payload

@@ -188,6 +188,11 @@ export const useGetTradeQuotes = () => {
     // That effectively means we'll unsubscribe to queries, considering them stale
     dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
+    if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
+      dispatch(tradeQuoteSlice.actions.clear())
+      return
+    }
+
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
         setIsFetchingInput(true)
@@ -278,14 +283,14 @@ export const useGetTradeQuotes = () => {
 
   // cease fetching state when at least 1 response is available
   // more quotes will arrive after, which is intentional.
-  const isQuoteRequestFetching = useMemo(() => {
+  const isEverySwapperFetching = useMemo(() => {
     return (
       isDebouncing || isFetchingInput || combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
     )
   }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
 
   // true if any debounce, input or swapper is fetching
-  const isAnyQuoteFetching = useMemo(() => {
+  const isQuoteRequestIncomplete = useMemo(() => {
     return (
       isDebouncing || isFetchingInput || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
     )
@@ -328,7 +333,7 @@ export const useGetTradeQuotes = () => {
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
     // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteMeta || isQuoteRequestUninitialized || isAnyQuoteFetching) return
+    if (activeQuoteMeta || isQuoteRequestUninitialized || isQuoteRequestIncomplete) return
 
     const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
 
@@ -338,20 +343,21 @@ export const useGetTradeQuotes = () => {
     }
 
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteMeta, isQuoteRequestUninitialized, isAnyQuoteFetching, dispatch])
+  }, [activeQuoteMeta, isQuoteRequestUninitialized, isQuoteRequestIncomplete, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (isQuoteRequestFetching) return
+    if (isEverySwapperFetching) return
     if (mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [sortedTradeQuotes, mixpanel, isQuoteRequestFetching])
+  }, [sortedTradeQuotes, mixpanel, isEverySwapperFetching])
 
   return {
     isQuoteRequestUninitialized,
-    isQuoteRequestFetching,
+    isAnySwapperFetched: !isEverySwapperFetching,
+    isQuoteRequestComplete: !isQuoteRequestIncomplete,
     isSwapperFetching,
     didQuoteRequestFail,
   }

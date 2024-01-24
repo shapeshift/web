@@ -53,7 +53,6 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
 
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
-  selectTradeQuotes,
   selectIsWalletConnected,
   selectWalletSupportedChainIds,
   selectManualReceiveAddress,
@@ -62,7 +61,6 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   selectInputBuyAsset,
   (
     inputSellAmountCryptoBaseUnit,
-    swappersApiTradeQuotes,
     isWalletConnected,
     walletSupportedChainIds,
     manualReceiveAddress,
@@ -83,10 +81,29 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
       buyAsset,
     })
 
-    if (Object.keys(swappersApiTradeQuotes).length === 0) {
-      return [{ error: TradeQuoteRequestError.NoQuotesAvailable }, ...topLevelValidationErrors]
+    return topLevelValidationErrors
+  },
+)
+
+export const selectTradeQuoteResponseErrors = createDeepEqualOutputSelector(
+  selectInputSellAmountCryptoBaseUnit,
+  selectTradeQuotes,
+  (inputSellAmountCryptoBaseUnit, swappersApiTradeQuotes) => {
+    const hasUserEnteredAmount = bnOrZero(inputSellAmountCryptoBaseUnit).gt(0)
+    if (!hasUserEnteredAmount) return []
+
+    const numSwappers = Object.values(SwapperName).length - 1 // minus 1 because test swapper not used
+
+    // don't report NoQuotesAvailable if any swapper has not upserted a response
+    if (Object.values(swappersApiTradeQuotes).length < numSwappers) {
+      return []
+    }
+
+    // if every quote response is empty, no quotes are available
+    if (Object.values(swappersApiTradeQuotes).every(quotes => Object.keys(quotes).length === 0)) {
+      return [{ error: TradeQuoteRequestError.NoQuotesAvailable }]
     } else {
-      return topLevelValidationErrors
+      return []
     }
   },
 )

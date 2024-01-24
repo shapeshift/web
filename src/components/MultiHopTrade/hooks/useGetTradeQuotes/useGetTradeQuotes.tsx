@@ -359,7 +359,7 @@ export const useGetTradeQuotes = () => {
     }
 
     dispatch(
-      tradeQuoteSlice.actions.setActiveQuoteIndex({
+      tradeQuoteSlice.actions.setActiveQuoteId({
         swapperName: bestQuote.swapperName,
         quoteId: bestQuote.quote.id,
       }),

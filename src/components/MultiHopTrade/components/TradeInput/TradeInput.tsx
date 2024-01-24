@@ -185,7 +185,7 @@ export const TradeInput = memo(() => {
     // clear the confirmed quote on mount to prevent stale data affecting the selectors
     dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
     // clear the active quote index on mount to prevent stale data affecting the selectors
-    dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
+    dispatch(tradeQuoteSlice.actions.resetActiveQuoteId())
     dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 

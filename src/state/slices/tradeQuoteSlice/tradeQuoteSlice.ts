@@ -36,7 +36,7 @@ export const tradeQuoteSlice = createSlice({
       const { swapperName, quotesById } = action.payload
       state.tradeQuotes[swapperName] = quotesById
     },
-    setActiveQuoteIndex: (
+    setActiveQuoteId: (
       state,
       action: PayloadAction<{ swapperName: SwapperName; quoteId: string } | undefined>,
     ) => {
@@ -52,7 +52,7 @@ export const tradeQuoteSlice = createSlice({
     resetActiveStep: state => {
       state.activeStep = undefined
     },
-    resetActiveQuoteIndex: state => {
+    resetActiveQuoteId: state => {
       state.activeQuoteId = undefined
     },
     setConfirmedQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {

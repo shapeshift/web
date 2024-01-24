@@ -116,7 +116,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const handleQuoteSelection = useCallback(() => {
     dispatch(
-      tradeQuoteSlice.actions.setActiveQuoteIndex(
+      tradeQuoteSlice.actions.setActiveQuoteId(
         quoteData.quote
           ? {
               swapperName: quoteData.swapperName,

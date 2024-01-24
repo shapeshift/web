@@ -48,11 +48,11 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
 
   const isHolisticRecipientAddressEnabled = useFeatureFlag('HolisticRecipientAddress')
   const activeQuote = useAppSelector(selectActiveQuote)
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-  const shouldShowManualReceiveAddressInput =
-    !manualReceiveAddress &&
-    !walletReceiveAddress &&
-    (!activeQuote || !isHolisticRecipientAddressEnabled)
+  const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  // If we have a quote, then we were able to get it, meaning we do have a receive address, either wallet default or custom
+  // If the flag is on however, we should hide this as soon as we get a quote, since the new recipient address component will kick in
+  // in <ReceiveSummary />
+  const shouldShowManualReceiveAddressInput = !activeQuote || !isHolisticRecipientAddressEnabled
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()

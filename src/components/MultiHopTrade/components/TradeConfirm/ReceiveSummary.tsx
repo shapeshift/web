@@ -136,8 +136,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       setShowFeeModal(!showFeeModal)
     }, [showFeeModal])
 
-    // Recipient address logic, form, state and handlers
-
     const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
       () => ['trade.minAmountAfterSlippage', { slippage: slippageAsPercentageString }],
       [slippageAsPercentageString],

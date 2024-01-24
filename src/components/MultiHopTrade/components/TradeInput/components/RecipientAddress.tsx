@@ -24,7 +24,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { middleEllipsis } from 'lib/utils'
-import { selectInputBuyAsset, selectManualReceiveAddress } from 'state/slices/selectors'
+import { selectInputBuyAsset } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -44,8 +44,8 @@ export const RecipientAddress = () => {
     }),
     [wallet],
   )
-  const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
-  const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectInputBuyAsset)
   const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
@@ -121,7 +121,7 @@ export const RecipientAddress = () => {
   return isRecipientAddressEditing ? (
     <FormControl>
       <InputGroup size='sm'>
-        <AddressInput rules={rules} placeholder={'TODO'} />
+        <AddressInput rules={rules} placeholder={translate('trade.enterCustomRecipientAddress')} />
         <InputRightElement width='4.5rem'>
           <Box
             display='flex'

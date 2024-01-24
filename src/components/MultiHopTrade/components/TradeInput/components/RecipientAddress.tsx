@@ -7,6 +7,9 @@ import {
   InputGroup,
   InputRightElement,
   Stack,
+  Tag,
+  TagCloseButton,
+  TagLabel,
   Tooltip,
 } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
@@ -110,6 +113,10 @@ export const RecipientAddress = () => {
     setIsRecipientAddressEditing(false)
   }, [])
 
+  const resetManualReceiveAddress = useCallback(() => {
+    dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
+  }, [dispatch])
+
   const onSubmit = useCallback(
     (values: FieldValues) => {
       // We don't need to revalidate here as submit will only be enabled if the form is valid
@@ -167,21 +174,28 @@ export const RecipientAddress = () => {
           <Text translation={recipientAddressTranslation} />
         </Row.Label>
         <Row.Value whiteSpace='nowrap'>
-          <Stack direction='row' spacing={1} alignItems='center'>
-            <RawText>{middleEllipsis(receiveAddress)}</RawText>
-            <Tooltip
-              label={translate('trade.customRecipientAddressDescription')}
-              placement='top'
-              hasArrow
-            >
-              <IconButton
-                aria-label='Edit recipient address'
-                icon={editIcon}
-                variant='ghost'
-                onClick={handleEditRecipientAddressClick}
-              />
-            </Tooltip>
-          </Stack>
+          {isCustomRecipientAddress ? (
+            <Tag size='md' colorScheme='blue'>
+              <TagLabel>{middleEllipsis(receiveAddress)}</TagLabel>
+              <TagCloseButton onClick={resetManualReceiveAddress} />
+            </Tag>
+          ) : (
+            <Stack direction='row' spacing={1} alignItems='center'>
+              <RawText>{middleEllipsis(receiveAddress)}</RawText>
+              <Tooltip
+                label={translate('trade.customRecipientAddressDescription')}
+                placement='top'
+                hasArrow
+              >
+                <IconButton
+                  aria-label='Edit recipient address'
+                  icon={editIcon}
+                  variant='ghost'
+                  onClick={handleEditRecipientAddressClick}
+                />
+              </Tooltip>
+            </Stack>
+          )}
         </Row.Value>
       </Row>
     </>

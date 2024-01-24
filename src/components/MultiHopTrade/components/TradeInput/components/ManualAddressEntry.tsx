@@ -13,6 +13,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -38,6 +39,20 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
 
   const isSnapInstalled = useIsSnapInstalled()
+  const walletSupportsBuyAssetChain = useWalletSupportsChain({
+    chainId: buyAssetChainId,
+    wallet,
+    isSnapInstalled,
+  })
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const isHolisticRecipientAddressEnabled = useFeatureFlag('HolisticRecipientAddress')
+  const shouldShowManualReceiveAddressInput = useMemo(() => {
+    // Use old "wallet does not support chain" when the flag is off so we always display this
+    if (!isHolisticRecipientAddressEnabled) return !walletSupportsBuyAssetChain
+    // If the flag is on, we want to display this if the wallet doesn't support the buy asset chain,
+    // but stop displaying it as soon as we have a quote
+    return !walletSupportsBuyAssetChain && !activeQuote
+  }, [activeQuote, isHolisticRecipientAddressEnabled, walletSupportsBuyAssetChain])
 
   const useReceiveAddressArgs = useMemo(
     () => ({
@@ -45,14 +60,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     }),
     [wallet],
   )
-
-  const isHolisticRecipientAddressEnabled = useFeatureFlag('HolisticRecipientAddress')
-  const activeQuote = useAppSelector(selectActiveQuote)
   const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-  // If we have a quote, then we were able to get it, meaning we do have a receive address, either wallet default or custom
-  // If the flag is on however, we should hide this as soon as we get a quote, since the new recipient address component will kick in
-  // in <ReceiveSummary />
-  const shouldShowManualReceiveAddressInput = !activeQuote || !isHolisticRecipientAddressEnabled
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()

@@ -33,7 +33,7 @@ export const useGetSwapperTradeQuote = (
   })
 
   // skip tokens invalidate loading state of the original useGetTradeQuoteQuery hook
-  // so to persist fetching state after an inflight requests becomes skipped, we need to
+  // so to persist fetching state after an inflight request becomes skipped, we need to
   // read the request status and cached data from the Redux store
   // https://redux-toolkit.js.org/rtk-query/api/created-api/hooks#usequerystate
   const queryStateMeta = swapperApi.endpoints.getTradeQuote.useQueryState(queryStateRequest)

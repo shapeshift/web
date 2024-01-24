@@ -61,13 +61,6 @@ export const swapperApi = swapperApiBase.injectEndpoints({
         const { swapperName, sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
           tradeQuoteInput
 
-        // dispatch(
-        //   tradeQuoteSlice.actions.upsertTradeQuotes({
-        //     swapperName,
-        //     quotesById: undefined,
-        //   }),
-        // )
-
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
@@ -126,6 +119,9 @@ export const swapperApi = swapperApiBase.injectEndpoints({
             const { quote, swapperName, inputOutputRatio, error } = quoteData
             const tradeType = (quote as ThorEvmTradeQuote)?.tradeType
 
+            // use the quote source as the ID so user selection can persist through polling
+            const quoteSource = quoteData.quote?.steps[0].source ?? quoteData.swapperName
+
             const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
               // allow swapper errors to flow through
               if (error !== undefined) {
@@ -153,6 +149,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
 
             if (isTradingActiveOnSellPool === undefined || isTradingActiveOnBuyPool === undefined) {
               return {
+                id: quoteSource,
                 quote,
                 swapperName,
                 inputOutputRatio,
@@ -169,6 +166,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
               isTradingActiveOnBuyPool,
             })
             return {
+              id: quoteSource,
               quote,
               swapperName,
               inputOutputRatio,
@@ -179,8 +177,8 @@ export const swapperApi = swapperApiBase.injectEndpoints({
         )
 
         const tradeQuotesById = unorderedQuotes.reduce(
-          (acc, quoteData, i) => {
-            acc[quoteData.quote?.id ?? `${quoteData.swapperName}-${i}`] = quoteData
+          (acc, quoteData) => {
+            acc[quoteData.id] = quoteData
             return acc
           },
           {} as Record<string, ApiQuote>,

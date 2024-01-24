@@ -73,9 +73,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
     const quotes = useMemo(
       () =>
         sortedQuotes.map((quoteData, i) => {
-          const { swapperName, quote } = quoteData
+          const { swapperName, quote, id } = quoteData
 
-          const isActive = activeQuoteId !== undefined && activeQuoteId.quoteId === quote?.id
+          const isActive = activeQuoteId !== undefined && activeQuoteId.quoteId === id
           const bestQuoteSteps = bestQuoteData?.quote?.steps
           const lastStep = bestQuoteSteps?.[bestQuoteSteps.length - 1]
 
@@ -105,7 +105,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
             !sortedQuotes.some(quoteData => quoteData.swapperName === swapperName),
         )
         .map(([swapperName, _isFetching]) => {
+          const id = `${swapperName}-fetching`
           const quoteData = {
+            id,
             quote: undefined,
             swapperName: swapperName as SwapperName,
             inputOutputRatio: 0,
@@ -117,7 +119,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
               isActive={false}
               isLoading={true}
               isBest={false}
-              key={`${swapperName}-fetching`}
+              key={id}
               // eslint-disable-next-line react-memo/require-usememo
               quoteData={quoteData}
               bestBuyAmountBeforeFeesCryptoBaseUnit='0'

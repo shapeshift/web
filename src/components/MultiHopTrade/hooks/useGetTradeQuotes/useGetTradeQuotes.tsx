@@ -358,12 +358,7 @@ export const useGetTradeQuotes = () => {
       return
     }
 
-    dispatch(
-      tradeQuoteSlice.actions.setActiveQuoteId({
-        swapperName: bestQuote.swapperName,
-        quoteId: bestQuote.quote.id,
-      }),
-    )
+    dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
   }, [activeQuoteId, isUninitialized, isAnyFetching, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here

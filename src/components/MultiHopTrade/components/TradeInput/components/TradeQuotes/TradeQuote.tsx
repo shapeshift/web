@@ -115,16 +115,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(
-      tradeQuoteSlice.actions.setActiveQuoteId(
-        quoteData.quote
-          ? {
-              swapperName: quoteData.swapperName,
-              quoteId: quoteData.quote.id,
-            }
-          : undefined,
-      ),
-    )
+    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
   }, [dispatch, quoteData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))

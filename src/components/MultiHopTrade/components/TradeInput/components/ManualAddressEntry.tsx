@@ -45,10 +45,14 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     }),
     [wallet],
   )
+
+  const isHolisticRecipientAddressEnabled = useFeatureFlag('HolisticRecipientAddress')
   const activeQuote = useAppSelector(selectActiveQuote)
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const shouldShowManualReceiveAddressInput =
-    !manualReceiveAddress && !walletReceiveAddress && !activeQuote
+    !manualReceiveAddress &&
+    !walletReceiveAddress &&
+    (!activeQuote || !isHolisticRecipientAddressEnabled)
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()

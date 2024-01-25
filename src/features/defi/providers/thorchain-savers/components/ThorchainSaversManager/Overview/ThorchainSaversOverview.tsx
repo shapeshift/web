@@ -36,8 +36,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { selectSwapperApiTradingActivePending } from 'state/apis/swapper/selectors'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
+import { useGetIsTradingActiveQuery } from 'state/apis/swapper/swapperApi'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getMaybeThorchainSaversDepositQuote,
@@ -62,7 +61,7 @@ import {
   selectTxsByFilter,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversEmpty } from './ThorchainSaversEmpty'
 
@@ -77,13 +76,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const [hideEmptyState, setHideEmptyState] = useState(false)
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
-  const [isHalted, setIsHalted] = useState(false)
   const [isHardCapReached, setIsHardCapReached] = useState(false)
 
   const assetId = toAssetId({
@@ -132,21 +129,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [accountId, defaultAccountId, highestBalanceAccountId],
   )
 
-  useEffect(() => {
-    ;(async () => {
-      const { getIsTradingActive } = swapperApi.endpoints
-      const { data: isTradingActive } = await appDispatch(
-        getIsTradingActive.initiate({
-          assetId,
-          swapperName: SwapperName.Thorchain,
-        }),
-      )
-
-      if (!isTradingActive) {
-        setIsHalted(true)
-      }
-    })()
-  }, [appDispatch, assetId])
+  const { data: isTradingActive, isFetching: isTradingActiveQueryPending } =
+    useGetIsTradingActiveQuery({
+      assetId,
+      swapperName: SwapperName.Thorchain,
+    })
 
   useEffect(() => {
     if (!maybeAccountId) return
@@ -238,8 +225,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       .length,
   )
 
-  const isTradingActiveQueryPending = useAppSelector(selectSwapperApiTradingActivePending)
-
   const makeDefaultMenu = useCallback(
     ({
       isFull,
@@ -287,7 +272,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isFull: opportunityMetadata?.isFull || isHardCapReached,
       hasPendingTxs,
       hasPendingQueries,
-      isHalted,
+      isHalted: !isTradingActive,
     })
   }, [
     earnOpportunityData,
@@ -296,7 +281,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     isHardCapReached,
     hasPendingTxs,
     hasPendingQueries,
-    isHalted,
+    isTradingActive,
   ])
 
   const renderVaultCap = useMemo(() => {

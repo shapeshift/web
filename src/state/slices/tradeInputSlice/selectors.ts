@@ -1,10 +1,14 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { Selector } from 'react-redux'
 import { bn } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
-import { selectWalletAccountIds } from '../common-selectors'
+import {
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectWalletAccountIds,
+} from '../common-selectors'
 import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import { selectPortfolioAssetAccountBalancesSortedUserCurrency } from '../portfolioSlice/selectors'
 import {
@@ -122,6 +126,13 @@ export const selectInputSellAmountCryptoPrecision = createSelector(
   tradeInput => tradeInput.sellAmountCryptoPrecision,
 )
 
+export const selectInputSellAmountCryptoBaseUnit = createSelector(
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
+  (sellAmountCryptoPrecision, sellAsset) =>
+    toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision),
+)
+
 export const selectManualReceiveAddress = createSelector(
   selectTradeInput,
   tradeInput => tradeInput.manualReceiveAddress,
@@ -139,4 +150,24 @@ export const selectInputSellAmountUsd = createSelector(
     if (!sellAssetUsdRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
   },
+)
+
+export const selectSellAssetBalanceFilter = createSelector(
+  selectFirstHopSellAccountId,
+  selectInputSellAsset,
+  (firstHopSellAccountId, sellAsset) => {
+    return {
+      accountId: firstHopSellAccountId,
+      assetId: sellAsset.assetId,
+    }
+  },
+)
+
+export const selectSellAssetBalanceCryptoBaseUnit = createSelector(
+  (state: ReduxState) =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
+      accountId: selectFirstHopSellAccountId(state),
+      assetId: selectInputSellAsset(state).assetId,
+    }),
+  sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
 )

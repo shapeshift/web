@@ -7,19 +7,25 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { isSome } from 'lib/utils'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
-import { TradeQuoteWarning } from 'state/apis/swapper'
-import { selectSwappersApiTradeQuotes } from 'state/apis/swapper/selectors'
+import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
+import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
+  selectInputBuyAsset,
   selectInputBuyAssetUserCurrencyRate,
+  selectInputSellAmountCryptoBaseUnit,
+  selectInputSellAsset,
   selectInputSellAssetUsdRate,
   selectInputSellAssetUserCurrencyRate,
+  selectManualReceiveAddress,
   selectSecondHopSellAccountId,
+  selectSellAssetBalanceCryptoBaseUnit,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
@@ -27,9 +33,11 @@ import {
   getHopTotalNetworkFeeUserCurrencyPrecision,
   getHopTotalProtocolFeesFiatPrecision,
   getTotalProtocolFeeByAsset,
+  sortQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
+import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
   selectCryptoMarketData,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
@@ -37,6 +45,70 @@ import {
 } from '../marketDataSlice/selectors'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
+
+const selectTradeQuotes = createDeepEqualOutputSelector(
+  selectTradeQuoteSlice,
+  tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
+)
+
+export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
+  selectInputSellAmountCryptoBaseUnit,
+  selectTradeQuotes,
+  selectIsWalletConnected,
+  selectWalletSupportedChainIds,
+  selectManualReceiveAddress,
+  selectSellAssetBalanceCryptoBaseUnit,
+  selectInputSellAsset,
+  selectInputBuyAsset,
+  (
+    inputSellAmountCryptoBaseUnit,
+    swappersApiTradeQuotes,
+    isWalletConnected,
+    walletSupportedChainIds,
+    manualReceiveAddress,
+    sellAssetBalanceCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  ) => {
+    const hasUserEnteredAmount = bnOrZero(inputSellAmountCryptoBaseUnit).gt(0)
+    if (!hasUserEnteredAmount) return []
+
+    const topLevelValidationErrors = validateQuoteRequest({
+      isWalletConnected,
+      walletSupportedChainIds,
+      manualReceiveAddress,
+      sellAssetBalanceCryptoBaseUnit,
+      sellAmountCryptoBaseUnit: inputSellAmountCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    })
+
+    if (Object.keys(swappersApiTradeQuotes).length === 0) {
+      return [{ error: TradeQuoteRequestError.NoQuotesAvailable }, ...topLevelValidationErrors]
+    } else {
+      return topLevelValidationErrors
+    }
+  },
+)
+
+export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
+  selectTradeQuotes,
+  tradeQuotes => {
+    const allQuotes = Object.values(tradeQuotes)
+      .filter(isSome)
+      .map(swapperQuotes => Object.values(swapperQuotes))
+      .flat()
+    const happyQuotes = sortQuotes(
+      allQuotes.filter(({ errors }) => errors.length === 0),
+      0,
+    )
+    const errorQuotes = sortQuotes(
+      allQuotes.filter(({ errors }) => errors.length > 0),
+      happyQuotes.length,
+    )
+    return [...happyQuotes, ...errorQuotes]
+  },
+)
 
 export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSelector(
   selectTradeQuoteSlice,
@@ -46,34 +118,29 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
-export const selectActiveQuoteIndex: Selector<ReduxState, number | undefined> = createSelector(
-  selectTradeQuoteSlice,
-  tradeQuote => tradeQuote.activeQuoteIndex,
-)
+export const selectActiveQuoteMeta: Selector<
+  ReduxState,
+  { swapperName: SwapperName; identifier: string } | undefined
+> = createSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.activeQuoteMeta)
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
-  createSelector(
-    selectActiveQuoteIndex,
-    selectSwappersApiTradeQuotes,
-    (activeQuoteIndex, apiQuotes) =>
-      activeQuoteIndex !== undefined ? apiQuotes[activeQuoteIndex]?.swapperName : undefined,
-  )
+  createSelector(selectActiveQuoteMeta, selectTradeQuotes, (activeQuoteMeta, tradeQuotes) => {
+    if (activeQuoteMeta === undefined) return
+    // need to ensure a quote exists for the selection
+    if (tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]) {
+      return activeQuoteMeta.swapperName
+    }
+  })
 
 export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
-    selectSwappersApiTradeQuotes,
-    selectActiveQuoteIndex,
-    (quotes, activeQuoteIndex) => {
+    selectTradeQuotes,
+    selectActiveQuoteMeta,
+    (tradeQuotes, activeQuoteMeta) => {
       // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
-      if (activeQuoteIndex === undefined) return undefined
+      if (activeQuoteMeta === undefined) return undefined
 
-      const selectedQuote = quotes[activeQuoteIndex]
-      if (selectedQuote?.quote !== undefined) {
-        return selectedQuote
-      } else {
-        const successfulQuotes = quotes.filter(({ quote }) => quote !== undefined)
-        return successfulQuotes.length > 0 ? successfulQuotes[0] : undefined
-      }
+      return tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]
     },
   )
 

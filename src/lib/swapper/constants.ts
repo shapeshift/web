@@ -17,25 +17,12 @@ export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
   message: `quote timed out after ${QUOTE_TIMEOUT_MS / 1000}s`,
 })
 
-export const swappers: { swapperName: SwapperName; swapper: SwapperApi & Swapper }[] = [
-  {
-    swapperName: SwapperName.LIFI,
-    swapper: { ...lifiSwapper, ...lifiApi },
-  },
-  {
-    swapperName: SwapperName.Thorchain,
-    swapper: { ...thorchainSwapper, ...thorchainApi },
-  },
-  {
-    swapperName: SwapperName.Zrx,
-    swapper: { ...zrxSwapper, ...zrxApi },
-  },
-  {
-    swapperName: SwapperName.CowSwap,
-    swapper: { ...cowSwapper, ...cowApi },
-  },
-  {
-    swapperName: SwapperName.OneInch,
-    swapper: { ...oneInchSwapper, ...oneInchApi },
-  },
-]
+// PartialRecord not used to ensure exhaustiveness
+export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> = {
+  [SwapperName.LIFI]: { ...lifiSwapper, ...lifiApi },
+  [SwapperName.Thorchain]: { ...thorchainSwapper, ...thorchainApi },
+  [SwapperName.Zrx]: { ...zrxSwapper, ...zrxApi },
+  [SwapperName.CowSwap]: { ...cowSwapper, ...cowApi },
+  [SwapperName.OneInch]: { ...oneInchSwapper, ...oneInchApi },
+  [SwapperName.Test]: undefined,
+}

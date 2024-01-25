@@ -164,6 +164,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
               error,
               isTradingActiveOnSellPool,
               isTradingActiveOnBuyPool,
+              sendAddress,
             })
             return {
               id: quoteSource,

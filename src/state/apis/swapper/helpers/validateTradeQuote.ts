@@ -36,12 +36,16 @@ export const validateTradeQuote = async (
     error,
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
+    sendAddress,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | undefined
     error: SwapErrorRight | undefined
     isTradingActiveOnSellPool: boolean
     isTradingActiveOnBuyPool: boolean
+    // TODO(gomes): this should most likely live in the quote alongside the receiveAddress,
+    // summoning @woodenfurniture WRT implications of that, this works for now
+    sendAddress: string | undefined
   },
 ): Promise<{
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -100,6 +104,9 @@ export const validateTradeQuote = async (
 
     return { errors: [tradeQuoteError], warnings: [] }
   }
+
+  // This should really never happen but in case it does:
+  if (!sendAddress) throw new Error('sendAddress is required')
 
   const isMultiHopTrade = quote.steps.length > 1
   const firstHop = quote.steps[0]
@@ -215,7 +222,7 @@ export const validateTradeQuote = async (
     if (swapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    const _isSmartContractAddress = await isSmartContractAddress(quote.receiveAddress)
+    const _isSmartContractAddress = await isSmartContractAddress(sendAddress)
     if (_isSmartContractAddress !== false) return true
 
     // All checks passed - this is an EOA address

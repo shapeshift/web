@@ -1,4 +1,4 @@
-import { Button, Flex, List } from '@chakra-ui/react'
+import { Button, Flex, List, Tag } from '@chakra-ui/react'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -50,6 +50,7 @@ export const OpportunityRow: React.FC<
     type,
     apy,
     icons,
+    expired,
   } = opportunity
   const translate = useTranslate()
   const history = useHistory()
@@ -104,10 +105,12 @@ export const OpportunityRow: React.FC<
 
   const subTextJoined = useMemo(() => {
     const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
+    const expiredElement = <Tag colorScheme='red'>{translate('common.expired')}</Tag>
     const hasBalanceElement = <RawText textTransform='capitalize'>{group ?? type}</RawText>
     const subText = [
-      aprElement,
+      ...(expired ? [] : [aprElement]),
       ...(!bnOrZero(cryptoAmountBaseUnit).isZero() ? [hasBalanceElement] : []),
+      ...(expired ? [expiredElement] : []),
     ]
 
     return subText.map((element, index) => (
@@ -116,7 +119,7 @@ export const OpportunityRow: React.FC<
         {element}
       </Flex>
     ))
-  }, [apy, cryptoAmountBaseUnit, group, type])
+  }, [apy, cryptoAmountBaseUnit, expired, group, translate, type])
 
   const renderNestedAssets = useMemo(() => {
     return (

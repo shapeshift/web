@@ -221,7 +221,7 @@ export const validateTradeQuote = async (
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (swapperName !== SwapperName.Thorchain) return false
 
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
+    // Sender is either a smart contract address, or the bytecode is still loading - disable confirm
     const _isSmartContractAddress = await isSmartContractAddress(sendAddress)
     if (_isSmartContractAddress !== false) return true
 

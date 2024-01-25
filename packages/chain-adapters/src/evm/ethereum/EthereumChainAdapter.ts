@@ -29,6 +29,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
         api: args.providers.http,
+        midgardUrl: args.midgardUrl,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

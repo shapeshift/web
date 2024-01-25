@@ -300,7 +300,7 @@ describe('parseTx', () => {
             components: [{ value: '59872' }],
           },
         ],
-        data: { parser: 'thorchain', memo, swap: { type: 'Standard' } },
+        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Standard' } },
         trade,
       }
 
@@ -419,7 +419,7 @@ describe('parseTx', () => {
             components: [{ value: '469636' }],
           },
         ],
-        data: { parser: 'thorchain', memo, swap: { type: 'Streaming' } },
+        data: { parser: 'thorchain', memo, method: 'swap', swap: { type: 'Streaming' } },
         trade,
       }
 

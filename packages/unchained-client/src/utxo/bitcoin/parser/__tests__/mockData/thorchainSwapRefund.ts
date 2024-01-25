@@ -1,4 +1,4 @@
-import type { ActionsResponse } from '../../../../parser/thorchain'
+import type { ActionsResponse } from '../../../../../parser/thorchain'
 import type { Tx } from '../../../index'
 
 const tx: Tx = {

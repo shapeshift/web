@@ -18,7 +18,7 @@ import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput }
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
-import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
+import type { EvmChainId } from '../EvmBaseAdapter'
 import * as avalanche from './AvalancheChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -86,7 +86,7 @@ const makeGetAccountMockResponse = (balance: {
 const makeChainAdapterArgs = (overrideArgs?: {
   providers?: { http: unchained.avalanche.V1Api }
   chainId?: EvmChainId
-}): ChainAdapterArgs<unchained.avalanche.V1Api> =>
+}): avalanche.ChainAdapterArgs =>
   merge(
     {
       providers: {
@@ -94,6 +94,7 @@ const makeChainAdapterArgs = (overrideArgs?: {
         ws: {} as unchained.ws.Client<unchained.avalanche.Tx>,
       },
       rpcUrl: '',
+      midgardUrl: '',
     },
     overrideArgs,
   )

@@ -106,7 +106,6 @@ export interface ChainAdapterArgs<T = unchained.evm.Api> {
     ws: unchained.ws.Client<unchained.evm.types.Tx>
   }
   rpcUrl: string
-  midgardUrl: string
 }
 
 export interface EvmBaseAdapterArgs extends ChainAdapterArgs {

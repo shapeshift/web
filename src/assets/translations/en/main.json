@@ -604,9 +604,6 @@
         "exit": "Unstake",
         "removeLiquidityETH": "Remove liquidity"
       },
-      "thor": {
-        "transferOut": "Transfer out"
-      },
       "thorchain": {
         "deposit": "Deposit",
         "depositRefund": "Deposit Refund",

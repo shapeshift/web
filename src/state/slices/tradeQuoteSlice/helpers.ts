@@ -1,9 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { orderBy } from 'lodash'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import type { ApiQuote } from 'state/apis/swapper'
 import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 export const getHopTotalNetworkFeeUserCurrencyPrecision = (
@@ -103,3 +105,9 @@ export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, P
     (acc, step) => _reduceTotalProtocolFeeByAssetForStep(acc, step),
     {},
   )
+
+export const sortQuotes = (unorderedQuotes: ApiQuote[], startingIndex: number): ApiQuote[] => {
+  return orderBy(unorderedQuotes, ['inputOutputRatio', 'swapperName'], ['desc', 'asc']).map(
+    (apiQuote, i) => Object.assign({}, apiQuote, { index: startingIndex + i }),
+  )
+}

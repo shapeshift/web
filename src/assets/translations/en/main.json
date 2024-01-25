@@ -751,6 +751,10 @@
     "updatingQuote": "Updating quote...",
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "manualReceiveAddress": "Receive address",
+    "recipientAddress": "Recipient address",
+    "customRecipientAddress": "Custom recipient address",
+    "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
+    "enterCustomRecipientAddress": "Enter custom recipient address",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
@@ -1603,7 +1607,10 @@
       "header": "Connect A Wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
       "footer": "Don't have a wallet?",
-      "create": "Create one"
+      "create": "Create",
+      "or": "or",
+      "import": "Import",
+      "aWallet": "a wallet"
     },
     "walletConnectV2": {
       "start": {
@@ -2207,7 +2214,7 @@
     "estimatedTime": "Estimated Time",
     "liquidityValue": "Liquidity Value",
     "selectPair": "Select Pair",
-    "depositAmounts": "Deposit Amounts",
+    "depositAmounts": "Deposit Amount(s)",
     "awaitingConfirmation": "Awaiting confirmation",
     "transactionSubmitted": "Transaction submitted",
     "waitingForConfirmation": "Waiting for Confirmation",
@@ -2215,6 +2222,7 @@
     "chainFee": "%{chain} Fee",
     "supplying": "Supplying",
     "confirmAndDeposit": "Confirm and Deposit",
+    "removeAmounts": "Remove Amount(s)",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

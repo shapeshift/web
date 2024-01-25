@@ -1,26 +1,10 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Collapse,
-  Flex,
-  Skeleton,
-  Tag,
-  Tooltip,
-  useColorModeValue,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Collapse, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
-import prettyMilliseconds from 'pretty-ms'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
-import { BsLayers } from 'react-icons/bs'
-import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
 import { TwirlyToggle } from 'components/MultiHopTrade/components/TwirlyToggle'
@@ -46,7 +30,8 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { SwapperIcon } from '../SwapperIcon/SwapperIcon'
+import { TradeQuoteCard } from './components/TradeQuoteCard'
+import { TradeQuoteContent } from './components/TradeQuoteContent'
 
 type TradeQuoteProps = {
   isActive: boolean
@@ -54,12 +39,6 @@ type TradeQuoteProps = {
   quoteData: ApiQuote
   bestBuyAmountBeforeFeesCryptoBaseUnit: string
   isLoading: boolean
-}
-
-const borderRadius = { base: 'md', md: 'lg' }
-const hoverProps = {
-  cursor: 'pointer',
-  bg: 'background.surface.hover',
 }
 
 export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
@@ -73,9 +52,6 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const redColor = useColorModeValue('red.500', 'red.200')
-  const focusColor = useColorModeValue('blackAlpha.400', 'whiteAlpha.400')
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen: errors.length === 0,
   })
@@ -139,8 +115,8 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.setActiveQuoteIndex(quoteData.index))
-  }, [dispatch, quoteData.index])
+    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+  }, [dispatch, quoteData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)
@@ -195,18 +171,6 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         return <Tag size='sm'>{translate('common.alternative')}</Tag>
     }
   }, [errors, quote, translate, hasAmountWithPositiveReceive, isAmountEntered, isBest])
-
-  const activeSwapperColor = (() => {
-    if (!isTradingActive) return redColor
-    if (!hasAmountWithPositiveReceive) return redColor
-    if (isActive) return 'border.focused'
-    return borderColor
-  })()
-
-  const activeProps = useMemo(
-    () => ({ borderColor: isActive ? 'transparent' : focusColor }),
-    [focusColor, isActive],
-  )
 
   const isDisabled = !quote || errors?.length > 0
   const showSwapperError = ![
@@ -269,131 +233,59 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     )
   }, [isLoading, quote, quoteData.swapperName, toPercent, translate, userSlippagePercentageDecimal])
 
+  const headerContent = useMemo(() => {
+    return (
+      <Flex gap={2}>
+        <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
+        {isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
+      </Flex>
+    )
+  }, [isDisabled, isLoading, isOpen, onToggle, quote, tag])
+
+  const bodyContent = useMemo(() => {
+    return quote ? (
+      <Collapse in={isOpen}>
+        <TradeQuoteContent
+          isLoading={isLoading}
+          buyAsset={buyAsset}
+          isBest={isBest}
+          numHops={quote?.steps.length}
+          totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
+          hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
+          totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
+          quoteDifferenceDecimalPercentage={quoteDifferenceDecimalPercentage}
+          networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
+          totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
+          slippage={slippage}
+        />
+      </Collapse>
+    ) : null
+  }, [
+    buyAsset,
+    hasAmountWithPositiveReceive,
+    isBest,
+    isLoading,
+    isOpen,
+    networkFeeUserCurrencyPrecision,
+    quote,
+    quoteDifferenceDecimalPercentage,
+    slippage,
+    totalEstimatedExecutionTimeMs,
+    totalReceiveAmountCryptoPrecision,
+    totalReceiveAmountFiatPrecision,
+  ])
+
   return showSwapper ? (
-    <>
-      <Card
-        borderWidth={2}
-        boxShadow='none'
-        bg={isActive ? 'background.surface.hover' : 'transparent'}
-        cursor={isDisabled ? 'not-allowed' : 'pointer'}
-        borderColor={isActive ? activeSwapperColor : 'border.base'}
-        _hover={isDisabled ? undefined : hoverProps}
-        _active={isDisabled ? undefined : activeProps}
-        borderRadius={borderRadius}
-        size='sm'
-        flexDir='column'
-        width='full'
-        fontSize='sm'
-        onClick={isDisabled ? undefined : handleQuoteSelection}
-        transitionProperty='common'
-        transitionDuration='normal'
-      >
-        <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4}>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Flex gap={2} alignItems='center'>
-              <SwapperIcon swapperName={quoteData.swapperName} />
-              <RawText fontWeight='medium'>
-                {quote?.steps[0].source ?? quoteData.swapperName}
-              </RawText>
-            </Flex>
-            <Flex gap={2}>
-              <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-              {isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
-            </Flex>
-          </Flex>
-        </CardHeader>
-
-        {quote && (
-          <Collapse in={isOpen}>
-            <CardBody
-              py={2}
-              px={4}
-              display='flex'
-              alignItems='center'
-              justifyContent='space-between'
-            >
-              <Flex gap={2} flexDir='column' justifyContent='space-between' alignItems='flex-start'>
-                <Flex gap={2} alignItems='center'>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Crypto
-                      value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-                      symbol={buyAsset?.symbol ?? ''}
-                      fontSize='xl'
-                      lineHeight={1}
-                    />
-                  </Skeleton>
-                  {!isBest &&
-                    hasAmountWithPositiveReceive &&
-                    quoteDifferenceDecimalPercentage !== 0 && (
-                      <Skeleton isLoaded={!isLoading}>
-                        <Amount.Percent
-                          value={-quoteDifferenceDecimalPercentage}
-                          prefix='('
-                          suffix=')'
-                          autoColor
-                        />
-                      </Skeleton>
-                    )}
-                </Flex>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat
-                    color='text.subtle'
-                    value={totalReceiveAmountFiatPrecision}
-                    prefix='≈'
-                    lineHeight={1}
-                  />
-                </Skeleton>
-              </Flex>
-            </CardBody>
-
-            <CardFooter px={4} pb={4}>
-              <Flex justifyContent='left' alignItems='left' gap={8}>
-                <Skeleton isLoaded={!isLoading}>
-                  <Flex gap={2} alignItems='center'>
-                    <RawText color='text.subtle'>
-                      <FaGasPump />
-                    </RawText>
-
-                    {
-                      // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-                      !networkFeeUserCurrencyPrecision ? (
-                        translate('trade.unknownGas')
-                      ) : (
-                        <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
-                      )
-                    }
-                  </Flex>
-                </Skeleton>
-                {slippage}
-                {totalEstimatedExecutionTimeMs !== undefined &&
-                  totalEstimatedExecutionTimeMs > 0 && (
-                    <Skeleton isLoaded={!isLoading}>
-                      <Flex gap={2} alignItems='center'>
-                        <RawText color='text.subtle'>
-                          <FaRegClock />
-                        </RawText>
-                        {prettyMilliseconds(totalEstimatedExecutionTimeMs)}
-                      </Flex>
-                    </Skeleton>
-                  )}
-                <Skeleton isLoaded={!isLoading}>
-                  {quote?.steps.length > 1 && (
-                    <Tooltip label={translate('trade.numHops', { numHops: quote?.steps.length })}>
-                      <Flex gap={2} alignItems='center'>
-                        <RawText color='text.subtle'>
-                          <BsLayers />
-                        </RawText>
-                        {quote?.steps.length ?? ''}
-                      </Flex>
-                    </Tooltip>
-                  )}
-                </Skeleton>
-              </Flex>
-            </CardFooter>
-          </Collapse>
-        )}
-      </Card>
-    </>
+    <TradeQuoteCard
+      title={quote?.steps[0].source ?? quoteData.swapperName}
+      swapperName={quoteData.swapperName}
+      headerContent={headerContent}
+      bodyContent={bodyContent}
+      onClick={handleQuoteSelection}
+      isActive={isActive}
+      isActionable={isTradingActive && hasAmountWithPositiveReceive && errors.length === 0}
+      isDisabled={isDisabled}
+    />
   ) : null
 }
 

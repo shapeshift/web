@@ -1,6 +1,8 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { PartialRecord } from '@shapeshiftoss/types'
+import type { ApiQuote } from 'state/apis/swapper'
 
 import { initialState, initialTradeExecutionState } from './constants'
 import {
@@ -13,9 +15,10 @@ import {
 
 export type TradeQuoteSliceState = {
   activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
-  activeQuoteIndex: number | undefined // the selected swapper used to find the active quote in the api response
+  activeQuoteMeta: { swapperName: SwapperName; identifier: string } | undefined // the selected quote metadata used to find the active quote in the api responses
   confirmedQuote: TradeQuote | undefined // the quote being executed
   tradeExecution: TradeExecutionMetadata
+  tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -23,8 +26,26 @@ export const tradeQuoteSlice = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setActiveQuoteIndex: (state, action: PayloadAction<number | undefined>) => {
-      state.activeQuoteIndex = action.payload
+    upsertTradeQuotes: (
+      state,
+      action: PayloadAction<{
+        swapperName: SwapperName
+        quotesById: Record<string, ApiQuote> | undefined
+      }>,
+    ) => {
+      const { swapperName, quotesById } = action.payload
+      state.tradeQuotes[swapperName] = quotesById ?? {}
+    },
+    setActiveQuote: (state, action: PayloadAction<ApiQuote | undefined>) => {
+      if (action.payload === undefined) {
+        state.activeQuoteMeta = undefined
+      } else {
+        const { swapperName, id } = action.payload
+        state.activeQuoteMeta = {
+          swapperName,
+          identifier: id,
+        }
+      }
     },
     incrementStep: state => {
       const activeQuote = state.confirmedQuote
@@ -36,8 +57,8 @@ export const tradeQuoteSlice = createSlice({
     resetActiveStep: state => {
       state.activeStep = undefined
     },
-    resetActiveQuoteIndex: state => {
-      state.activeQuoteIndex = undefined
+    resetActiveQuote: state => {
+      state.activeQuoteMeta = undefined
     },
     setConfirmedQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {
       state.confirmedQuote = action.payload

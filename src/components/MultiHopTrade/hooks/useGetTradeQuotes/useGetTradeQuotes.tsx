@@ -1,9 +1,8 @@
-import { usePrevious } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
-import { isEqual } from 'lodash'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
@@ -15,14 +14,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isSkipToken, isSome } from 'lib/utils'
+import { isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper'
-import {
-  GET_TRADE_QUOTE_POLLING_INTERVAL,
-  swapperApi,
-  useGetTradeQuoteQuery,
-} from 'state/apis/swapper/swapperApi'
+import { GET_TRADE_QUOTE_POLLING_INTERVAL, swapperApi } from 'state/apis/swapper/swapperApi'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -34,8 +29,16 @@ import {
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
+import {
+  selectActiveQuoteMeta,
+  selectSortedTradeQuotes,
+  selectTradeQuoteRequestErrors,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+import type { SwapperTradeQuoteCommonArgs } from './hooks.tsx/useGetSwapperTradeQuote'
+import { useGetSwapperTradeQuote } from './hooks.tsx/useGetSwapperTradeQuote'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -58,7 +61,9 @@ type GetMixPanelDataFromApiQuotesReturn = {
   isActionable: boolean // is any quote in the request actionable
 }
 
-const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromApiQuotesReturn => {
+const getMixPanelDataFromApiQuotes = (
+  quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
+): GetMixPanelDataFromApiQuotesReturn => {
   const bestInputOutputRatio = quotes[0]?.inputOutputRatio
   const state = store.getState()
   const { assetId: sellAssetId, chainId: sellAssetChainId } = selectInputSellAsset(state)
@@ -97,36 +102,14 @@ const getMixPanelDataFromApiQuotes = (quotes: ApiQuote[]): GetMixPanelDataFromAp
   }
 }
 
-const isEqualExceptAffiliateBpsAndSlippage = (
-  a: GetTradeQuoteInput | typeof skipToken,
-  b: GetTradeQuoteInput | undefined,
-) => {
-  if (!isSkipToken(a) && b) {
-    const {
-      affiliateBps: _affiliateBps,
-      slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
-      ...aWithoutAffiliateBpsAndSlippage
-    } = a
-
-    const {
-      affiliateBps: _updatedAffiliateBps,
-      slippageTolerancePercentageDecimal: _updatedSlippageTolerancePercentageDecimal,
-      ...bWithoutAffiliateBpsAndSlippage
-    } = b
-
-    return isEqual(aWithoutAffiliateBpsAndSlippage, bWithoutAffiliateBpsAndSlippage)
-  }
-}
-
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
-  const previousTradeQuoteInput = usePrevious(tradeQuoteInput)
-  const isTradeQuoteUpdated = tradeQuoteInput !== previousTradeQuoteInput
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
+  const [isFetchingInput, setIsFetchingInput] = useState(false)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const useReceiveAddressArgs = useMemo(
@@ -179,8 +162,7 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        isTradeQuoteUpdated &&
-          wallet &&
+        wallet &&
           !isDebouncing &&
           sellAccountId &&
           sellAccountMetadata &&
@@ -188,7 +170,6 @@ export const useGetTradeQuotes = () => {
           !isVotingPowerLoading,
       ),
     [
-      isTradeQuoteUpdated,
       wallet,
       isDebouncing,
       sellAccountId,
@@ -207,8 +188,15 @@ export const useGetTradeQuotes = () => {
     // That effectively means we'll unsubscribe to queries, considering them stale
     dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
+    if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
+      dispatch(tradeQuoteSlice.actions.clear())
+      return
+    }
+
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
+        setIsFetchingInput(true)
+
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
@@ -240,29 +228,12 @@ export const useGetTradeQuotes = () => {
           pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
         })
 
-        // if the quote input args changed, reset the selected swapper and update the trade quote args
-        if (!isEqual(tradeQuoteInput, updatedTradeQuoteInput ?? skipToken)) {
-          updatedTradeQuoteInput && bnOrZero(sellAmountCryptoPrecision).gt(0)
-            ? setTradeQuoteInput(updatedTradeQuoteInput)
-            : setTradeQuoteInput(skipToken)
+        setTradeQuoteInput(updatedTradeQuoteInput)
 
-          // If only the affiliateBps or the userslippageTolerancePercentageDecimal changed, we've either:
-          // - switched swappers where one has a different default slippageTolerancePercentageDecimal
-          // In either case, we don't want to reset the selected swapper
-          if (isEqualExceptAffiliateBpsAndSlippage(tradeQuoteInput, updatedTradeQuoteInput)) {
-            return
-          } else {
-            dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
-          }
-        }
+        dispatch(tradeQuoteSlice.actions.clear())
+
+        setIsFetchingInput(false)
       })()
-    } else {
-      // if the quote input args changed, reset the selected swapper and update the trade quote args
-      if (tradeQuoteInput !== skipToken) {
-        setTradeQuoteInput(skipToken)
-        dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
-        dispatch(tradeQuoteSlice.actions.resetActiveQuoteIndex())
-      }
     }
   }, [
     buyAsset,
@@ -272,7 +243,6 @@ export const useGetTradeQuotes = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     votingPower,
-    tradeQuoteInput,
     wallet,
     receiveAccountMetadata?.bip44Params,
     userslippageTolerancePercentageDecimal,
@@ -291,25 +261,104 @@ export const useGetTradeQuotes = () => {
     return () => clearInterval(interval)
   }, [])
 
-  useGetTradeQuoteQuery(tradeQuoteInput, {
-    skip: !shouldRefetchTradeQuotes,
-    pollingInterval: hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined,
-    /*
-    If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
-    We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
-    */
-    refetchOnMountOrArgChange: true,
-  })
+  const commonTradeQuoteArgs: SwapperTradeQuoteCommonArgs = useMemo(() => {
+    const skip = !shouldRefetchTradeQuotes
+    const pollingInterval = hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined
+    return {
+      tradeQuoteInput,
+      skip,
+      pollingInterval,
+    }
+  }, [hasFocus, shouldRefetchTradeQuotes, tradeQuoteInput])
 
-  // NOTE: we're using currentData here, not data, see https://redux-toolkit.js.org/rtk-query/usage/conditional-fetching
-  // This ensures we never return cached data, if skip has been set after the initial query load
-  // currentData is always undefined when skip === true, so we have to access it like so:
-  const { currentData } = swapperApi.endpoints.getTradeQuote.useQueryState(tradeQuoteInput)
+  const cowSwapQuoteMeta = useGetSwapperTradeQuote(SwapperName.CowSwap, commonTradeQuoteArgs)
+  const oneInchQuoteMeta = useGetSwapperTradeQuote(SwapperName.OneInch, commonTradeQuoteArgs)
+  const lifiQuoteMeta = useGetSwapperTradeQuote(SwapperName.LIFI, commonTradeQuoteArgs)
+  const thorchainQuoteMeta = useGetSwapperTradeQuote(SwapperName.Thorchain, commonTradeQuoteArgs)
+  const zrxQuoteMeta = useGetSwapperTradeQuote(SwapperName.Zrx, commonTradeQuoteArgs)
 
+  const combinedQuoteMeta = useMemo(() => {
+    return [cowSwapQuoteMeta, oneInchQuoteMeta, lifiQuoteMeta, thorchainQuoteMeta, zrxQuoteMeta]
+  }, [cowSwapQuoteMeta, oneInchQuoteMeta, lifiQuoteMeta, thorchainQuoteMeta, zrxQuoteMeta])
+
+  // cease fetching state when at least 1 response is available
+  // more quotes will arrive after, which is intentional.
+  const isEverySwapperFetching = useMemo(() => {
+    return (
+      isDebouncing || isFetchingInput || combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
+    )
+  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+
+  // true if any debounce, input or swapper is fetching
+  const isQuoteRequestIncomplete = useMemo(() => {
+    return (
+      isDebouncing || isFetchingInput || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
+    )
+  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+
+  const isQuoteRequestUninitialized = useMemo(() => {
+    return combinedQuoteMeta.every(quoteMeta => quoteMeta.isUninitialized)
+  }, [combinedQuoteMeta])
+
+  const isSwapperFetching: Record<SwapperName, boolean> = useMemo(() => {
+    return {
+      [SwapperName.CowSwap]: cowSwapQuoteMeta.isFetching,
+      [SwapperName.OneInch]: oneInchQuoteMeta.isFetching,
+      [SwapperName.LIFI]: lifiQuoteMeta.isFetching,
+      [SwapperName.Thorchain]: thorchainQuoteMeta.isFetching,
+      [SwapperName.Zrx]: zrxQuoteMeta.isFetching,
+      [SwapperName.Test]: false,
+    }
+  }, [
+    cowSwapQuoteMeta.isFetching,
+    lifiQuoteMeta.isFetching,
+    oneInchQuoteMeta.isFetching,
+    thorchainQuoteMeta.isFetching,
+    zrxQuoteMeta.isFetching,
+  ])
+
+  const allQuotesHaveError = useMemo(() => {
+    return combinedQuoteMeta.every(quoteMeta => !!quoteMeta.error)
+  }, [combinedQuoteMeta])
+
+  const tradeQuoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
+
+  const didQuoteRequestFail = useMemo(() => {
+    return allQuotesHaveError || tradeQuoteRequestErrors.length > 0
+  }, [allQuotesHaveError, tradeQuoteRequestErrors.length])
+
+  const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
+
+  // auto-select the best quote once all quotes have arrived
   useEffect(() => {
-    if (currentData && mixpanel) {
-      const quoteData = getMixPanelDataFromApiQuotes(currentData.quotes)
+    // don't override user selection, don't rug users by auto-selecting while results are incoming
+    if (activeQuoteMeta || isQuoteRequestUninitialized || isQuoteRequestIncomplete) return
+
+    const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
+
+    // don't auto-select nothing, don't auto-select errored quotes
+    if (bestQuote?.quote === undefined || bestQuote.errors.length > 0) {
+      return
+    }
+
+    dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
+  }, [activeQuoteMeta, isQuoteRequestUninitialized, isQuoteRequestIncomplete, dispatch])
+
+  // TODO: move to separate hook so we don't need to pull quote data into here
+  useEffect(() => {
+    if (isEverySwapperFetching) return
+    if (mixpanel) {
+      const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [currentData, mixpanel])
+  }, [sortedTradeQuotes, mixpanel, isEverySwapperFetching])
+
+  return {
+    isQuoteRequestUninitialized,
+    isAnySwapperFetched: !isEverySwapperFetching,
+    isQuoteRequestComplete: !isQuoteRequestIncomplete,
+    isSwapperFetching,
+    didQuoteRequestFail,
+  }
 }

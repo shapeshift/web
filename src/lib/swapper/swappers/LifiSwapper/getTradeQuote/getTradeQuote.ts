@@ -21,7 +21,7 @@ import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
-import { isFulfilled } from 'lib/utils'
+import { isFulfilled, isRejected } from 'lib/utils'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
@@ -235,6 +235,15 @@ export async function getTradeQuote(
       }
     }),
   )
+
+  if (promises.every(isRejected)) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[LiFi: tradeQuote] - failed to get fee data',
+        code: TradeQuoteError.NetworkFeeEstimationFailed,
+      }),
+    )
+  }
 
   return Ok(promises.filter(isFulfilled).map(({ value }) => value))
 }

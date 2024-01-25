@@ -7,7 +7,7 @@ import { setupCache } from 'axios-cache-interceptor'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { isCrossAccountTradeSupported } from '../../state/helpers'
-import { AsyncResultOf, isTruthy } from '../utils'
+import { AsyncResultOf } from '../utils'
 
 const getRequestFilter = (cachedUrls: string[]) => (request: AxiosRequestConfig) =>
   !cachedUrls.some(url => request.url?.includes(url))
@@ -97,17 +97,18 @@ export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServi
 export const getEnabledSwappers = (
   { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags,
   isCrossAccountTrade: boolean,
-) => {
-  return [
-    LifiSwap && SwapperName.LIFI,
-    ThorSwap && SwapperName.Thorchain,
-    ZrxSwap && SwapperName.Zrx,
-    OneInch && SwapperName.OneInch,
-    Cowswap && SwapperName.CowSwap,
-  ]
-    .filter(isTruthy)
-    .filter(swapperName => {
-      const swapperSupportsCrossAccountTrade = isCrossAccountTradeSupported(swapperName)
-      return !isCrossAccountTrade || swapperSupportsCrossAccountTrade
-    })
+): Record<SwapperName, boolean> => {
+  return {
+    [SwapperName.LIFI]:
+      LifiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.LIFI)),
+    [SwapperName.Thorchain]:
+      ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
+    [SwapperName.Zrx]:
+      ZrxSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Zrx)),
+    [SwapperName.OneInch]:
+      OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
+    [SwapperName.CowSwap]:
+      Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
+    [SwapperName.Test]: false,
+  }
 }

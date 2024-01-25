@@ -29,8 +29,8 @@ export const FeeModal = ({ isOpen, onClose: handleClose }: FeeModalProps) => {
         <ModalCloseButton />
         <Tabs variant='button'>
           <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
-            <Tab>{translate('foxDiscounts.feeSummary')}</Tab>
-            <Tab>{translate('foxDiscounts.simulateFee')}</Tab>
+            <Tab color='text.subtle'>{translate('foxDiscounts.feeSummary')}</Tab>
+            <Tab color='text.subtle'>{translate('foxDiscounts.simulateFee')}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel p={0}>

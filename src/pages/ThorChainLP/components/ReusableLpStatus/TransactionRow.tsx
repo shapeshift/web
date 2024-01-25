@@ -3,7 +3,7 @@ import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@sha
 import { CONTRACT_INTERACTION, type FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import dayjs from 'dayjs'
@@ -18,7 +18,6 @@ import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -52,6 +51,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   onComplete,
   isActive,
 }) => {
+  const queryClient = useQueryClient()
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   // TODO(gomes): we'll probably need this when implementing waitForThorchainUpdate
@@ -91,26 +91,28 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       console.log('thorchain update complete')
     },
     onSuccess: async () => {
+      console.log({ allQueries: queryClient.getQueryCache().getAll() })
       await queryClient.invalidateQueries({
-        queryKey: ['thorchainLiquidityMember'],
+        queryKey: [reactQueries.thorchainLp.liquidityMember._def],
         exact: false,
         stale: true,
       })
       await queryClient.invalidateQueries({
-        queryKey: ['thorchainLiquidityMembers'],
+        queryKey: [reactQueries.thorchainLp.liquidityMembers._def],
         exact: false,
         stale: true,
       })
       await queryClient.invalidateQueries({
-        queryKey: ['thorchainLiquidityProviderPosition'],
+        queryKey: [reactQueries.thorchainLp.userLpData._def],
         exact: false,
         stale: true,
       })
       await queryClient.invalidateQueries({
-        queryKey: ['thorchainUserLpData'],
+        queryKey: [reactQueries.thorchainLp.liquidityProviderPosition._def],
         exact: false,
         stale: true,
       })
+      console.log({ allQueriesAfterInvalidation: queryClient.getQueryCache().getAll() })
     },
   })
 

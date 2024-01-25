@@ -1,9 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { reactQueries } from 'react-queries'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
@@ -20,6 +19,7 @@ type UseUserLpDataProps = {
 export const useUserLpData = ({
   assetId,
 }: UseUserLpDataProps): UseQueryResult<UserLpDataPosition[] | null> => {
+  const queryClient = useQueryClient()
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )

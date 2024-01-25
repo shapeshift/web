@@ -1,9 +1,8 @@
 import { type AccountId, type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
@@ -29,6 +28,7 @@ export const useAllUserLpData = ({
 }: {
   assetIds: AssetId[]
 }): UseQueryResult<UseUserLpDataReturn | null>[] => {
+  const queryClient = useQueryClient()
   const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
@@ -139,13 +139,14 @@ export const useAllUserLpData = ({
         }
       }),
     [
-      allMidgardPools,
-      availableThornodePools,
       assetIds,
-      isMidgardPoolsDataLoaded,
       isAvailableThornodePoolsDataLoaded,
-      marketData,
+      isMidgardPoolsDataLoaded,
+      availableThornodePools,
+      allMidgardPools,
       portfolioAccounts,
+      queryClient,
+      marketData,
       runeMarketData?.price,
     ],
   )

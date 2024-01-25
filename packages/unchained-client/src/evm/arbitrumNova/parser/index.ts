@@ -1,11 +1,11 @@
 import type { Tx } from '../../../generated/arbitrumNova'
-import type { TransactionParserArgs } from '../../parser'
+import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
 import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 
 export class TransactionParser extends BaseTransactionParser<Tx> {
-  constructor(args: TransactionParserArgs) {
+  constructor(args: BaseTransactionParserArgs) {
     super(args)
 
     this.registerParsers([

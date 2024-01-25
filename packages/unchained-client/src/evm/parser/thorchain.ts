@@ -10,6 +10,8 @@ const routerAbi = [
   'function deposit(address vault, address asset, uint256 amount, string memo)',
   'function depositWithExpiry(address vault, address asset, uint256 amount, string memo, uint256 expiration)',
   'function transferOut(address to, address asset, uint256 amount, string memo)',
+  'function transferOutAndCall(address target, address finalAsset, address to, uint256 amountOutMin, string memo)',
+  'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
 ]
 
 const depositRegex = /^[^:]+:[^:]+(?:::[^:]+:[^:]+)?$/
@@ -25,6 +27,8 @@ interface SupportedFunctions {
   depositSigHash: string
   depositWithExpirySigHash: string
   transferOutSigHash: string
+  transferOutAndCallSigHash: string
+  swapInSigHash: string
 }
 
 export class Parser implements SubParser<Tx> {
@@ -38,6 +42,8 @@ export class Parser implements SubParser<Tx> {
       depositSigHash: this.abiInterface.getSighash('deposit'),
       depositWithExpirySigHash: this.abiInterface.getSighash('depositWithExpiry'),
       transferOutSigHash: this.abiInterface.getSighash('transferOut'),
+      transferOutAndCallSigHash: this.abiInterface.getSighash('transferOutAndCall'),
+      swapInSigHash: this.abiInterface.getSighash('swapIn'),
     }
     this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
   }
@@ -55,12 +61,11 @@ export class Parser implements SubParser<Tx> {
         // failed to decode input data
         if (!decoded) return
 
-        return decoded.args.memo as string
+        return (decoded.args.memo as string) || (decoded.args.tcMemo as string)
       }
 
       // input data may be a raw thorchain memo
       const maybeMemo = Buffer.from(tx.inputData.slice(2), 'hex').toString()
-      console.log({ maybeMemo })
       if ([depositRegex, withdrawRegex].some(regex => regex.test(maybeMemo))) {
         return maybeMemo
       }

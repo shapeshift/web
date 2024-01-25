@@ -55,7 +55,9 @@ import thorchainStreamingSwapRefundEth from './mockData/thorchainStreamingSwapRe
 import thorchainStreamingSwapRefundToken from './mockData/thorchainStreamingSwapRefundToken'
 import thorchainStreamingSwapToken from './mockData/thorchainStreamingSwapToken'
 import thorchainSwapEth from './mockData/thorchainSwapEth'
+import thorchainSwapLongtail from './mockData/thorchainSwapLongtail'
 import thorchainSwapOutboundEth from './mockData/thorchainSwapOutboundEth'
+import thorchainSwapOutboundLongtail from './mockData/thorchainSwapOutboundLongtail'
 import thorchainSwapOutboundToken from './mockData/thorchainSwapOutboundToken'
 import thorchainSwapRefundEth from './mockData/thorchainSwapRefundEth'
 import thorchainSwapRefundToken from './mockData/thorchainSwapRefundToken'
@@ -1795,6 +1797,91 @@ describe('parseTx', () => {
           },
         ],
         data: { parser: 'thorchain', method: 'loanRepaymentRefund', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse longtail swap', async () => {
+      const { tx } = thorchainSwapLongtail
+      const address = '0x10f6f534449A36489D65eF12A54A324102899479'
+      const memo = '=:DOGE.DOGE:D5ZxkWY2dwwjPhUEQBRHcb3wNamft1XGga:654517605534:ss:0'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        fee: {
+          assetId: ethAssetId,
+          value: tx.fee,
+        },
+        transfers: [
+          {
+            type: TransferType.Send,
+            from: address,
+            to: '0x11733abf0cdb43298f7e949c930188451a9A9Ef2',
+            assetId: 'eip155:1/erc20:0xd533a949740bb3306d119cc777fa900ba034cd52',
+            totalValue: '1177917668085453396367',
+            components: [{ value: '1177917668085453396367' }],
+            token: {
+              contract: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+              decimals: 18,
+              name: 'Curve DAO Token',
+              symbol: 'CRV',
+            },
+          },
+        ],
+        data: { parser: 'thorchain', method: 'swap', memo, swap: { type: 'Standard' } },
+        trade: { dexName: Dex.Thor, memo, type: TradeType.Swap },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse longtail swap outbound', async () => {
+      const { tx, actionsResponse } = thorchainSwapOutboundLongtail
+      const address = '0x80AcE046480e13b1dFCc5c7535c2D2d4Da652Fc6'
+      const memo = 'OUT:DC9C74908B12B8762E844AB1D143A3AC292D616D38AA5FCF7F8FF6702C21E9FB'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        transfers: [
+          {
+            assetId: 'eip155:1/erc20:0x04fa0d235c4abf4bcf4787af4cf447de572ef828',
+            components: [{ value: '239486540176872266724' }],
+            from: '0x157Dfa656Fdf0D18E1bA94075a53600D81cB3a97',
+            to: address,
+            totalValue: '239486540176872266724',
+            type: TransferType.Receive,
+            token: {
+              contract: '0x04Fa0d235C4abf4BcF4787aF4CF447DE572eF828',
+              decimals: 18,
+              name: 'UMA Voting Token v1',
+              symbol: 'UMA',
+            },
+          },
+        ],
+        data: { parser: 'thorchain', memo, method: 'swapOut', swap: { type: 'Standard' } },
       }
 
       const txParser = await makeTxParser()

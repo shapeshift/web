@@ -26,7 +26,12 @@ import {
   createBuildCustomTxInput,
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
-import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectTxById,
+} from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
@@ -45,7 +50,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 }) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const [status, setStatus] = useState(TxStatus.Unknown)
+  // TODO(gomes): we'll probably need this when implementing waitForThorchainUpdate
+  // const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
@@ -58,6 +64,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectFirstAccountIdByChainId(state, asset?.chainId ?? ''),
   )
 
+  // TODO(gomes): introspect UTXO from address
+  const accountAddress = useMemo(
+    () => defaultAssetAccountId && fromAccountId(defaultAssetAccountId).account,
+    [defaultAssetAccountId],
+  )
+  const serializedTxIndex = useMemo(() => {
+    if (!(txId && accountAddress && defaultAssetAccountId)) return ''
+    return serializeTxIndex(defaultAssetAccountId, txId, accountAddress)
+  }, [accountAddress, defaultAssetAccountId, txId])
+
+  const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
+
+  console.log({ serializedTxIndex, tx })
+
   const handleSignTx = useCallback(() => {
     if (!asset) return
     if (!wallet) return
@@ -66,7 +86,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     return (async () => {
       const isRuneTx = asset.assetId === thorchainAssetId
-      // TODO(gomes): AccountId should be programmatic obviously
+      // TODO(gomes): AccountId should be programmatic obviously, and there is no notion of ROON/Asset here anyway
       const accountId = isRuneTx ? defaultRuneAccountId : defaultAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
@@ -152,7 +172,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
           })
 
-          console.log({ txid })
+          setTxId(txid)
         }
       })()
 
@@ -167,21 +187,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [amountCryptoPrecision, asset, defaultAssetAccountId, defaultRuneAccountId, wallet])
 
   useEffect(() => {
-    let isMounted = true
-
-    if (status === TxStatus.Pending) {
-      setTimeout(() => {
-        if (isMounted) {
-          setStatus(TxStatus.Confirmed)
-          onComplete()
-        }
-      }, 1000)
+    // TODO(gomes): obviously waitForThorchainUpdate instead of Tx complete but that'll do for now
+    if (tx?.status === TxStatus.Confirmed) {
+      onComplete()
     }
-
-    return () => {
-      isMounted = false
-    }
-  }, [onComplete, status])
+  }, [onComplete, tx?.status])
 
   const txIdLink = useMemo(() => `${asset?.explorerTxLink}/${txId}`, [asset?.explorerTxLink, txId])
 
@@ -198,7 +208,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               {translate('common.seeDetails')}
             </Button>
           )}
-          {status === TxStatus.Confirmed ? (
+          {tx?.status === TxStatus.Confirmed ? (
             <>
               <Center
                 bg='background.success'
@@ -211,7 +221,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               </Center>
             </>
           ) : (
-            <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
+            <CircularProgress isIndeterminate={tx?.status === TxStatus.Pending} size='24px' />
           )}
         </Flex>
       </CardHeader>
@@ -228,7 +238,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             size='lg'
             colorScheme='blue'
             onClick={handleSignTx}
-            isLoading={status === TxStatus.Pending}
+            isLoading={tx?.status === TxStatus.Pending}
           >
             {translate('common.signTransaction')}
           </Button>

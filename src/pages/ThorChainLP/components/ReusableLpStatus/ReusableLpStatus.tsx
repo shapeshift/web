@@ -70,13 +70,16 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   }, [asset, baseAsset, pool])
 
   const handleComplete = useCallback(() => {
+    if (activeStepIndex === assets.length) return
+
     setActiveStepIndex(activeStepIndex + 1)
-  }, [activeStepIndex])
+  }, [activeStepIndex, assets.length])
 
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown
   // If the active step is the same as the length of steps we can assume it is complete.
   const isComplete = useMemo(() => {
+    console.log({ activeStepIndex, assetsLength: assets.length })
     return activeStepIndex === assets.length
   }, [activeStepIndex, assets.length])
 

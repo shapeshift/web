@@ -1,11 +1,11 @@
-import { Button, Flex, List } from '@chakra-ui/react'
+import { Button, Flex, List, Stat, Tag } from '@chakra-ui/react'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type {
   LpEarnOpportunityType,
@@ -50,6 +50,7 @@ export const OpportunityRow: React.FC<
     type,
     apy,
     icons,
+    expired,
   } = opportunity
   const translate = useTranslate()
   const history = useHistory()
@@ -104,10 +105,19 @@ export const OpportunityRow: React.FC<
 
   const subTextJoined = useMemo(() => {
     const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
+    const expiredElement = (
+      <Stat fontWeight='medium'>
+        <Tag colorScheme='yellow'>
+          <Text translation='defi.ended' />
+        </Tag>
+      </Stat>
+    )
+
     const hasBalanceElement = <RawText textTransform='capitalize'>{group ?? type}</RawText>
     const subText = [
-      aprElement,
+      ...(expired ? [] : [aprElement]),
       ...(!bnOrZero(cryptoAmountBaseUnit).isZero() ? [hasBalanceElement] : []),
+      ...(expired ? [expiredElement] : []),
     ]
 
     return subText.map((element, index) => (
@@ -116,7 +126,7 @@ export const OpportunityRow: React.FC<
         {element}
       </Flex>
     ))
-  }, [apy, cryptoAmountBaseUnit, group, type])
+  }, [apy, cryptoAmountBaseUnit, expired, group, type])
 
   const renderNestedAssets = useMemo(() => {
     return (

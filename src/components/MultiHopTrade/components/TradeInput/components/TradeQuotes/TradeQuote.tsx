@@ -170,7 +170,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     }
   }, [errors, quote, translate, hasAmountWithPositiveReceive, isAmountEntered, isBest])
 
-  const isDisabled = !quote || errors?.length > 0
+  const isDisabled = !quote || errors?.length > 0 || isLoading
   const showSwapperError = ![
     TradeQuoteValidationError.UnknownError,
     SwapperTradeQuoteError.UnknownError,
@@ -235,7 +235,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     return (
       <Flex gap={2}>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-        {isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
+        {!isLoading && isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
       </Flex>
     )
   }, [isDisabled, isLoading, isOpen, onToggle, quote, tag])

@@ -6,7 +6,6 @@ import {
   Button,
   CardFooter,
   CardHeader,
-  Collapse,
   Divider,
   Flex,
   Heading,
@@ -399,18 +398,6 @@ export const TradeInput = memo(() => {
     wallet,
   ])
 
-  const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
-    () =>
-      hasUserEnteredAmount ? (
-        <TradeQuotes
-          sortedQuotes={sortedQuotes}
-          isLoading={isLoading}
-          isSwapperFetching={isSwapperFetching}
-        />
-      ) : null,
-    [hasUserEnteredAmount, isLoading, sortedQuotes, isSwapperFetching],
-  )
-
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
@@ -699,9 +686,11 @@ export const TradeInput = memo(() => {
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
             >
-              <Collapse in={!!sortedQuotes.length && hasUserEnteredAmount}>
-                {MaybeRenderedTradeQuotes}
-              </Collapse>
+              <TradeQuotes
+                sortedQuotes={sortedQuotes}
+                isLoading={isLoading}
+                isSwapperFetching={isSwapperFetching}
+              />
             </TradeAssetInput>
           </Stack>
           {ConfirmSummary}

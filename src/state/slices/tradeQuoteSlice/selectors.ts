@@ -51,6 +51,21 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
 
+// this is required to break a race condition between rtk query and our selectors
+// we're treating redux as the source of truth.
+export const selectIsSwapperQuoteAvailable = createDeepEqualOutputSelector(
+  selectTradeQuotes,
+  tradeQuotes => {
+    return Object.values(SwapperName).reduce(
+      (acc, swapperName) => {
+        acc[swapperName as SwapperName] = tradeQuotes[swapperName] !== undefined
+        return acc
+      },
+      {} as Record<SwapperName, boolean>,
+    )
+  },
+)
+
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectIsWalletConnected,
@@ -115,14 +130,8 @@ export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
       .filter(isSome)
       .map(swapperQuotes => Object.values(swapperQuotes))
       .flat()
-    const happyQuotes = sortQuotes(
-      allQuotes.filter(({ errors }) => errors.length === 0),
-      0,
-    )
-    const errorQuotes = sortQuotes(
-      allQuotes.filter(({ errors }) => errors.length > 0),
-      happyQuotes.length,
-    )
+    const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
+    const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
     return [...happyQuotes, ...errorQuotes]
   },
 )

@@ -287,9 +287,11 @@ export const useGetTradeQuotes = () => {
 
   // cease fetching state when at least 1 response is available
   // more quotes will arrive after, which is intentional.
-  const isEverySwapperFetching = useMemo(() => {
+  const isAnySwapperFetched = useMemo(() => {
     return (
-      isDebouncing || isFetchingInput || combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
+      !isDebouncing &&
+      !isFetchingInput &&
+      combinedQuoteMeta.some(quoteMeta => !quoteMeta.isFetching)
     )
   }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
 
@@ -351,16 +353,16 @@ export const useGetTradeQuotes = () => {
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (isEverySwapperFetching) return
+    if (isQuoteRequestIncomplete) return
     if (mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [sortedTradeQuotes, mixpanel, isEverySwapperFetching])
+  }, [sortedTradeQuotes, mixpanel, isQuoteRequestIncomplete])
 
   return {
     isQuoteRequestUninitialized,
-    isAnySwapperFetched: !isEverySwapperFetching,
+    isAnySwapperFetched,
     isQuoteRequestComplete: !isQuoteRequestIncomplete,
     isSwapperFetching,
     didQuoteRequestFail,

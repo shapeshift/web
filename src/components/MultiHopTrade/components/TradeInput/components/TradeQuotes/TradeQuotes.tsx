@@ -1,22 +1,24 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { SwapperName } from '@shapeshiftoss/swapper'
-import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import { AnimatePresence, motion } from 'framer-motion'
+import { orderBy, uniqBy } from 'lodash'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { SlideTransitionY } from 'components/SlideTransitionY'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ApiQuote } from 'state/apis/swapper'
-import { selectInputBuyAsset } from 'state/slices/selectors'
+import { selectInputSellAmountCryptoPrecision } from 'state/slices/selectors'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
-import { selectActiveQuoteMeta } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectActiveQuoteMeta,
+  selectIsSwapperQuoteAvailable,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
+
+const MotionBox = motion(Box)
 
 type TradeQuotesProps = {
   sortedQuotes: ApiQuote[]
@@ -26,42 +28,79 @@ type TradeQuotesProps = {
 
 const arrowDownIcon = <ArrowDownIcon />
 
+const motionBoxProps = {
+  initial: { opacity: 0, height: 0 },
+  animate: { opacity: 1, height: 'auto' },
+  exit: { opacity: 0, height: 0, overflow: 'hidden' },
+  transition: { type: 'spring', stiffness: 100, damping: 20 },
+}
+
+export const sortQuotes = (
+  unorderedQuotes: ({ originalIndex: number } & ApiQuote)[],
+): ApiQuote[] => {
+  return orderBy(
+    unorderedQuotes,
+    ['originalIndex', 'inputOutputRatio', 'swapperName'],
+    ['asc', 'desc', 'asc'],
+  )
+}
+
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
-  ({ sortedQuotes: _sortedQuotes, isLoading, isSwapperFetching }) => {
-    const wallet = useWallet().state.wallet
-    const { chainId: buyAssetChainId } = useAppSelector(selectInputBuyAsset)
-    const isSnapInstalled = useIsSnapInstalled()
-    const walletSupportsBuyAssetChain = useWalletSupportsChain({
-      chainId: buyAssetChainId,
-      wallet,
-      isSnapInstalled,
-    })
-    const isBuyAssetChainSupported = walletSupportsBuyAssetChain
-
-    const useReceiveAddressArgs = useMemo(
-      () => ({
-        fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-      }),
-      [wallet],
-    )
-    const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
-    // TODO(gomes): buy chain not supported effectively means connecting MM/other EVM-only wallets and trying to get a THOR trade quote
-    // This makes things not borked as it doesn't display quotes at all vs. stale quotes with the wrong symbol, but we may want to ditch the
-    // destination param instead, to be able to get a quote, *if* and only if we can ensure proper guards are in place to never allow a memo without a destination
-    const sortedQuotes = useMemo(() => {
-      if (!isBuyAssetChainSupported && !receiveAddress) return []
-
-      return _sortedQuotes
-    }, [_sortedQuotes, isBuyAssetChainSupported, receiveAddress])
-
+  ({ sortedQuotes, isLoading, isSwapperFetching }) => {
     const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
     const translate = useTranslate()
     const [showAll, setShowAll] = useState(false)
     const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
+    const quoteListRef = useRef<ApiQuote[]>([])
     const bottomOverlay = useColorModeValue(
       'linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.4) 100%)',
       'linear-gradient(to bottom,  rgba(24,27,30,0) 0%,rgba(24,27,30,0.9) 100%)',
     )
+
+    const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperQuoteAvailable)
+    const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+
+    const quoteList = useMemo(() => {
+      // nuke the stale quotes when entered amount is 0
+      if (bnOrZero(sellAmountCryptoPrecision).lte(0)) {
+        quoteListRef.current = []
+        return quoteListRef.current
+      }
+
+      // Mark stale quotes as stale.
+      // Assign the original array index so we can keep loading quotes roughly in their original spot
+      // in the list. This makes loading state less jarring visually because quotes tend to move
+      // around less as results arrive.
+      const staleQuotes = quoteListRef.current
+        .map((quoteData, originalIndex) => {
+          return Object.assign({}, quoteData, { isStale: true, originalIndex })
+        })
+        .filter(quoteData => {
+          return (
+            isLoading ||
+            isSwapperFetching[quoteData.swapperName] ||
+            !isSwapperQuoteAvailable[quoteData.swapperName]
+          )
+        })
+
+      const sortedQuotesWithOriginalIndex = sortedQuotes.map((quoteData, originalIndex) => {
+        return Object.assign({}, quoteData, { isStale: false, originalIndex })
+      })
+
+      const allQuotes = uniqBy([...sortedQuotesWithOriginalIndex, ...staleQuotes], 'id')
+
+      const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
+      const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
+
+      quoteListRef.current = [...happyQuotes, ...errorQuotes]
+      return quoteListRef.current
+    }, [
+      isLoading,
+      isSwapperFetching,
+      isSwapperQuoteAvailable,
+      sellAmountCryptoPrecision,
+      sortedQuotes,
+    ])
 
     const hasMoreThanOneQuote = useMemo(() => {
       return sortedQuotes.length > 1
@@ -78,35 +117,59 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
           })
         : undefined
 
-      return sortedQuotes.map((quoteData, i) => {
-        const { swapperName, quote, id } = quoteData
+      return quoteList.map((quoteData, i) => {
+        const { swapperName, id, isStale } = quoteData
 
         const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
         return (
-          <TradeQuote
-            isActive={isActive}
-            isLoading={isLoading || isSwapperFetching[swapperName]}
-            isBest={i === 0}
-            key={quote?.id ?? i}
-            quoteData={quoteData}
-            bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
-          />
+          <MotionBox key={id} layout {...motionBoxProps}>
+            <TradeQuote
+              isActive={isActive}
+              isLoading={
+                isLoading ||
+                isSwapperFetching[quoteData.swapperName] ||
+                !isSwapperQuoteAvailable[swapperName] ||
+                isStale
+              }
+              isBest={i === 0}
+              key={id}
+              quoteData={quoteData}
+              bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
+            />
+          </MotionBox>
         )
       })
-    }, [activeQuoteMeta, bestQuoteData?.quote, isLoading, isSwapperFetching, sortedQuotes])
+    }, [
+      activeQuoteMeta,
+      bestQuoteData,
+      isLoading,
+      isSwapperFetching,
+      isSwapperQuoteAvailable,
+      quoteList,
+    ])
 
     // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
     // only show these placeholders when quotes aren't already visible in the list
     const fetchingSwappers = useMemo(() => {
-      return Object.entries(isSwapperFetching)
-        .filter(([_swapperName, isFetching]) => isFetching)
+      if (bnOrZero(sellAmountCryptoPrecision).lte(0)) {
+        return []
+      }
+
+      return Object.entries(isSwapperQuoteAvailable)
         .filter(
-          ([swapperName, _isFetching]) =>
-            !sortedQuotes.some(quoteData => quoteData.swapperName === swapperName),
+          ([swapperName, isQuoteAvailable]) =>
+            // don't render a loading placeholder for the test swapper
+            swapperName !== SwapperName.Test &&
+            // only render loading placeholders for swappers that are still fetching data
+            (!isQuoteAvailable || isSwapperFetching[swapperName as SwapperName]) &&
+            // filter out entries that already have a placeholder
+            !quoteList.some(quoteData => quoteData.swapperName === swapperName),
         )
-        .map(([swapperName, _isFetching]) => {
-          const id = `${swapperName}-fetching`
+        .map(([swapperName, _isQuoteAvailable]) => {
+          // Attempt to match other quote identifiers to MotionBox can animate.
+          // Typically the identifier is the swapper name but not always.
+          const id = swapperName
           const quoteData = {
             id,
             quote: undefined,
@@ -114,21 +177,24 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
             inputOutputRatio: 0,
             errors: [],
             warnings: [],
+            isStale: true,
           }
           return (
-            <TradeQuote
-              isActive={false}
-              isLoading={true}
-              isBest={false}
-              key={id}
-              // eslint doesn't understand useMemo not possible to use inside map
-              // eslint-disable-next-line react-memo/require-usememo
-              quoteData={quoteData}
-              bestTotalReceiveAmountCryptoPrecision={undefined}
-            />
+            <MotionBox key={id} layout {...motionBoxProps}>
+              <TradeQuote
+                isActive={false}
+                isLoading={true}
+                isBest={false}
+                key={id}
+                // eslint doesn't understand useMemo not possible to use inside map
+                // eslint-disable-next-line react-memo/require-usememo
+                quoteData={quoteData}
+                bestTotalReceiveAmountCryptoPrecision={undefined}
+              />
+            </MotionBox>
           )
         })
-    }, [isSwapperFetching, sortedQuotes])
+    }, [isSwapperFetching, isSwapperQuoteAvailable, sellAmountCryptoPrecision, quoteList])
 
     const quoteOverlayAfter = useMemo(() => {
       return {

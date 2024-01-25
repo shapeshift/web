@@ -24,11 +24,20 @@ import foxyInstantUnstake from './mockData/foxyInstantUnstake'
 import foxyStake from './mockData/foxyStake'
 import foxyUnstake from './mockData/foxyUnstake'
 import multiSigSendEth from './mockData/multiSigSendEth'
+import thorchainLoanOpenEth from './mockData/thorchainLoanOpenEth'
+import thorchainLoanOpenRefundEth from './mockData/thorchainLoanOpenRefundEth'
+import thorchainLoanOutboundEth from './mockData/thorchainLoanOutboundEth'
+import thorchainLoanOutboundToken from './mockData/thorchainLoanOutboundToken'
+import thorchainLoanRepaymentEth from './mockData/thorchainLoanRepaymentEth'
+import thorchainLoanRepaymentRefundEth from './mockData/thorchainLoanRepaymentRefundEth'
+import thorchainLoanRepaymentRefundToken from './mockData/thorchainLoanRepaymentRefundToken'
+import thorchainLoanRepaymentToken from './mockData/thorchainLoanRepaymentToken'
 import thorchainLpDepositEth from './mockData/thorchainLpDepositEth'
 import thorchainLpDepositToken from './mockData/thorchainLpDepositToken'
 import thorchainLpOutboundEth from './mockData/thorchainLpOutboundEth'
 import thorchainLpOutboundToken from './mockData/thorchainLpOutboundToken'
 import thorchainLpRefundEth from './mockData/thorchainLpRefundEth'
+import thorchainLpRefundToken from './mockData/thorchainLpRefundToken'
 import thorchainLpWithdrawEth from './mockData/thorchainLpWithdrawEth'
 import thorchainLpWithdrawToken from './mockData/thorchainLpWithdrawToken'
 import thorchainSaversDepositEth from './mockData/thorchainSaversDepositEth'
@@ -1460,6 +1469,332 @@ describe('parseTx', () => {
           },
         ],
         data: { parser: 'thorchain', memo, method: 'withdrawOut', liquidity: { type: 'LP' } },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse token lp refund', async () => {
+      const { tx, actionsResponse } = thorchainLpRefundToken
+      const address = '0xc49066C93521a32135574656573458bE11dBA05B'
+      const memo = 'REFUND:8238A7E45925D5A2982B9B72472ED641B710CCB7572AF7B3297999263927D0C4'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        transfers: [
+          {
+            assetId: 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
+            components: [{ value: '2059204899' }],
+            from: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            to: address,
+            totalValue: '2059204899',
+            type: TransferType.Receive,
+            token: usdtToken,
+          },
+        ],
+        data: { parser: 'thorchain', memo, method: 'depositRefund', liquidity: { type: 'LP' } },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse eth loan open', async () => {
+      const { tx } = thorchainLoanOpenEth
+      const address = '0x782C14C79945caD46Fbea57bb73d796366e76147'
+      const memo =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::t:0'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        fee: {
+          assetId: ethAssetId,
+          value: tx.fee,
+        },
+        transfers: [
+          {
+            type: TransferType.Send,
+            from: address,
+            to: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            assetId: ethAssetId,
+            totalValue: '5000000000000000',
+            components: [{ value: '5000000000000000' }],
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanOpen', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse eth loan repayment', async () => {
+      const { tx } = thorchainLoanRepaymentEth
+      const address = '0xAe96D15537aFa0ceBc7792C8D4977de6CBf759c5'
+      const memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        fee: {
+          assetId: ethAssetId,
+          value: tx.fee,
+        },
+        transfers: [
+          {
+            type: TransferType.Send,
+            from: address,
+            to: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            assetId: ethAssetId,
+            totalValue: '45961550000000000',
+            components: [{ value: '45961550000000000' }],
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanRepayment', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse eth loan outbound', async () => {
+      const { tx, actionsResponse } = thorchainLoanOutboundEth
+      const address = '0x6293Eb0863C083819731eB329940a9b931cd9Cd9'
+      const memo = 'OUT:BE469BD2AFE7C5896EDE7D48BAB88FE8ABF8DCE9207AAC04FEBD746A7B43417D'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        transfers: [
+          {
+            type: TransferType.Receive,
+            from: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            to: address,
+            assetId: ethAssetId,
+            totalValue: '1008315360000000000',
+            components: [{ value: '1008315360000000000' }],
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanOut', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse eth loan open refund', async () => {
+      const { tx, actionsResponse } = thorchainLoanOpenRefundEth
+      const address = '0xcc24D4368654599f05b637cdBC935c519a29310c'
+      const memo = 'REFUND:C8A08F3B12A3C371E06BBD036050029B5B940C24D2FAD85F112DC2B758B74B1A'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        transfers: [
+          {
+            type: TransferType.Receive,
+            from: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            to: address,
+            assetId: ethAssetId,
+            totalValue: '4997600000000000000',
+            components: [{ value: '4997600000000000000' }],
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanOpenRefund', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse eth loan repayment refund', async () => {
+      const { tx, actionsResponse } = thorchainLoanRepaymentRefundEth
+      const address = '0x2E2F2A4a49b0c936012aF4b67db562fF0e7D10d7'
+      const memo = 'REFUND:4DD8EEC829D9B5DC7910D4984272BA963600BA0F537F3ECB565C0BC05F589AE6'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        transfers: [
+          {
+            type: TransferType.Receive,
+            from: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            to: address,
+            assetId: ethAssetId,
+            totalValue: '305222000000000000',
+            components: [{ value: '305222000000000000' }],
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanRepaymentRefund', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse token loan repayment', async () => {
+      const { tx } = thorchainLoanRepaymentToken
+      const address = '0x6293Eb0863C083819731eB329940a9b931cd9Cd9'
+      const memo = '$-:ETH.ETH:0x6293eb0863c083819731eb329940a9b931cd9cd9'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        fee: {
+          assetId: ethAssetId,
+          value: tx.fee,
+        },
+        transfers: [
+          {
+            type: TransferType.Send,
+            from: address,
+            to: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            assetId: 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
+            totalValue: '751706937',
+            components: [{ value: '751706937' }],
+            token: usdtToken,
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanRepayment', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse token loan outbound', async () => {
+      const { tx, actionsResponse } = thorchainLoanOutboundToken
+      const address = '0x0F55f315617869cBF62bdc4f883d8C0AD90Cf63f'
+      const memo = 'OUT:C803297230FA11CE9BFE1F2FC2A6A0A534776DF95AED33DF8EDE62BE0FCB266C'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        transfers: [
+          {
+            type: TransferType.Receive,
+            from: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            to: address,
+            assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            totalValue: '1300324741',
+            components: [{ value: '1300324741' }],
+            token: usdcToken,
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanOut', memo },
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse token loan repayment refund', async () => {
+      const { tx, actionsResponse } = thorchainLoanRepaymentRefundToken
+      const address = '0x8a7eAE0fbd128D33022e9d64D912f9903e0f5fcc'
+      const memo = 'REFUND:92627113DC24A26A1DA33D9184CA4D0969628D72FB2B3675F01FAAB6EF6E6DE7'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: ethChainId,
+        transfers: [
+          {
+            type: TransferType.Receive,
+            from: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146',
+            to: address,
+            assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+            totalValue: '110703296',
+            components: [{ value: '110703296' }],
+            token: usdcToken,
+          },
+        ],
+        data: { parser: 'thorchain', method: 'loanRepaymentRefund', memo },
       }
 
       const txParser = await makeTxParser()

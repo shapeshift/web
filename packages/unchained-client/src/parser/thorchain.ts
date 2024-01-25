@@ -198,6 +198,8 @@ export class Parser {
         switch (swapType.toLowerCase()) {
           case '$-':
           case 'loan-':
+          case '$+':
+          case 'loan+':
             return 'loan'
           default:
             return action.type

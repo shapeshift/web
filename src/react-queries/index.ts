@@ -9,6 +9,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
@@ -148,6 +149,18 @@ const thornode = createQueryKeys('thornode', {
         return block
       },
       enabled: true,
+    }
+  },
+  inboundAddress: (assetId: AssetId | undefined) => {
+    if (!assetId) throw new Error('assetId is required')
+
+    return {
+      staleTime: 60_000, // 60 seconds to handle pools going to/from live/halt states
+      queryKey: ['thorchainInboundAddress'],
+      queryFn: () => {
+        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+        return getInboundAddressDataForChain(daemonUrl, assetId)
+      },
     }
   },
 })

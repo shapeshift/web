@@ -3,6 +3,7 @@ import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@sha
 import { CONTRACT_INTERACTION, type FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useQuery } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import dayjs from 'dayjs'
@@ -10,6 +11,7 @@ import { utils } from 'ethers/lib/ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -76,8 +78,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
-  console.log({ serializedTxIndex, tx })
+  const { data: inboundAddressData, isLoading: inboundAddressLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddress(assetId),
+    enabled: !!assetId,
+    select: data => data?.unwrap(),
+  })
 
+  console.log({ inboundAddressData })
   const handleSignTx = useCallback(() => {
     if (!asset) return
     if (!wallet) return
@@ -130,10 +137,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           // return { txToSign, adapter }
           // TODO(gomes): isEvmDeposit here, also handle UTXOs and ATOM, make this a switch
         } else {
+          if (!inboundAddressData?.router) return
+
           const thorContract = getOrCreateContractByType({
-            // THORChain_Router, TODO(gomes): add proper const and support for this
-            // TODO(gomes): does this rotate?
-            address: '0xb30eC53F98ff5947EDe720D32aC2da7e52A5f56b',
+            address: inboundAddressData.router,
             type: ContractType.ThorRouter,
             chainId: asset.chainId,
           })
@@ -161,7 +168,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             adapter,
             data,
             value: amountCryptoBaseUnit.toString(),
-            to: '0xb30eC53F98ff5947EDe720D32aC2da7e52A5f56b',
+            to: inboundAddressData.router,
             wallet,
           })
 
@@ -184,7 +191,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       // hex: signedTx,
       // })
     })()
-  }, [amountCryptoPrecision, asset, defaultAssetAccountId, defaultRuneAccountId, wallet])
+  }, [
+    amountCryptoPrecision,
+    asset,
+    defaultAssetAccountId,
+    defaultRuneAccountId,
+    inboundAddressData.router,
+    wallet,
+  ])
 
   useEffect(() => {
     // TODO(gomes): obviously waitForThorchainUpdate instead of Tx complete but that'll do for now
@@ -238,7 +252,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             size='lg'
             colorScheme='blue'
             onClick={handleSignTx}
-            isLoading={tx?.status === TxStatus.Pending}
+            isLoading={tx?.status === TxStatus.Pending || isInboundAddressLoading}
           >
             {translate('common.signTransaction')}
           </Button>

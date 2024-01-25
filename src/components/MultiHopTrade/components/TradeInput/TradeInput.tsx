@@ -154,14 +154,14 @@ export const TradeInput = memo(() => {
     setIsQuoteRequestComplete(false)
   }, [sellAmountCryptoPrecision])
 
-  // when the a quote becomes available, set the quote state to fetched
+  // when a quote becomes available, set the quote states to fetched
   useEffect(() => {
     if (_isAnySwapperFetched) {
       setIsAnySwapperFetched(true)
     }
   }, [_isAnySwapperFetched])
 
-  // when the a quote is complete, mark it as complete
+  // when a quote request is complete, mark it as complete
   useEffect(() => {
     if (_isQuoteRequestComplete) {
       setIsQuoteRequestComplete(true)

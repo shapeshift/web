@@ -82,7 +82,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { accountNumber, wallet, showOnDevice = false } = input
+    const { accountNumber, pubKey, wallet, showOnDevice = false } = input
+
+    if (pubKey) return pubKey
 
     try {
       if (supportsCosmos(wallet)) {

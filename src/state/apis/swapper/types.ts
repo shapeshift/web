@@ -49,13 +49,15 @@ export enum TradeQuoteWarning {
 export type ErrorWithMeta<T> = { error: T; meta?: InterpolationOptions }
 
 export type ApiQuote = {
-  index: number
+  id: string
   quote: TradeQuote | undefined
   swapperName: SwapperName
   inputOutputRatio: number
   errors: ErrorWithMeta<TradeQuoteError>[]
   warnings: ErrorWithMeta<TradeQuoteWarning>[]
 }
+
+export type TradeQuoteRequest = { swapperName: SwapperName } & GetTradeQuoteInput
 
 export type TradeQuoteResponse = {
   errors: ErrorWithMeta<TradeQuoteRequestError>[]

@@ -42,9 +42,9 @@ import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DepositType } from './components/DepositType'
+import { LpType } from '../LpType'
+import { ReadOnlyAsset } from '../ReadOnlyAsset'
 import { PoolSummary } from './components/PoolSummary'
-import { ReadOnlyAsset } from './components/ReadOnlyAsset'
 import { AddLiquidityRoutePaths } from './types'
 
 const buttonProps = { flex: 1, justifyContent: 'space-between' }
@@ -164,7 +164,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     history.push(AddLiquidityRoutePaths.Confirm)
   }, [history])
 
-  const percentOptions = useMemo(() => [], [])
+  const percentOptions = useMemo(() => [1], [])
 
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
@@ -468,7 +468,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.depositAmounts')}
           </FormLabel>
-          <DepositType
+          <LpType
             assetId={asset.assetId}
             defaultOpportunityId={defaultOpportunityId}
             onAsymSideChange={handleAsymSideChange}

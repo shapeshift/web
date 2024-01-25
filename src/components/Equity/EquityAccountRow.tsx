@@ -71,6 +71,7 @@ export const EquityAccountRow = ({
   if (!(asset && equityRowIcon)) return null
   return (
     <EquityRow
+      accountId={accountId}
       onClick={handleClick}
       icon={equityRowIcon}
       label={translate('accounts.accountNumber', { accountNumber })}

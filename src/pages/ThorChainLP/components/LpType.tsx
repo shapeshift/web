@@ -8,7 +8,7 @@ import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 
-import { PoolIcon } from '../../PoolIcon'
+import { PoolIcon } from './PoolIcon'
 
 const checked = {
   bg: 'background.surface.raised.pressed',
@@ -78,11 +78,7 @@ type DepositTypeProps = {
   onAsymSideChange: (asymSide: string | null) => void
   defaultOpportunityId?: string
 }
-export const DepositType = ({
-  assetId,
-  defaultOpportunityId,
-  onAsymSideChange,
-}: DepositTypeProps) => {
+export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: DepositTypeProps) => {
   const assetIds = useMemo(() => {
     return [assetId, thorchainAssetId]
   }, [assetId])

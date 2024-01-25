@@ -7,6 +7,7 @@ import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopT
 import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -222,8 +223,21 @@ export const validateTradeQuote = async (
     if (swapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    const _isSmartContractAddress = await isSmartContractAddress(sendAddress)
-    if (_isSmartContractAddress !== false) return true
+    const _isSmartContractSellAddress = await isSmartContractAddress(sendAddress)
+    const _isSmartContractReceiveAddress = await isSmartContractAddress(quote.receiveAddress)
+    // For long-tails, the *destination* address cannot be a smart contract
+    // https://dev.thorchain.org/aggregators/aggregator-overview.html#admonition-warning
+    // This doesn't apply to regular THOR swaps however, which docs have no mention of *destination* having to be an EOA
+    // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?search=smart%20contract
+    if (
+      firstHop.source === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE &&
+      _isSmartContractReceiveAddress !== false
+    )
+      return true
+    // Regardless of whether this is a long-tail or not, the *source* address should never be a smart contract
+    // https://dev.thorchain.org/concepts/sending-transactions.html?highlight=smart%20congtract%20address#admonition-danger-2
+    // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?highlight=smart%20congtract%20address#admonition-warning-1
+    if (_isSmartContractSellAddress !== false) return true
 
     // All checks passed - this is an EOA address
     return false

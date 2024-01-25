@@ -146,14 +146,21 @@ export const RecipientAddress = () => {
             rules={rules}
             placeholder={translate('trade.enterCustomRecipientAddress')}
           />
-          <InputRightElement width='4.5rem'>
+          <InputRightElement
+            width='full'
+            height='full'
+            display='flex'
+            gap={2}
+            pr={2}
+            alignItems='center'
+            justifyContent='flex-end'
+          >
             <IconButton
               color='green.500'
               aria-label='Save'
               disabled={!isValid}
               size='xs'
               onClick={handleFormSubmit}
-              mr={2}
               icon={checkIcon}
             />
             <IconButton

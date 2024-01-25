@@ -1,14 +1,32 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION, type FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { getOrCreateContractByType } from 'contracts/contractManager'
+import { ContractType } from 'contracts/types'
+import dayjs from 'dayjs'
+import { utils } from 'ethers/lib/ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
-import { selectAssetById } from 'state/slices/selectors'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { toBaseUnit } from 'lib/math'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  getSupportedEvmChainIds,
+} from 'lib/utils/evm'
+import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
@@ -29,11 +47,124 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
+  const wallet = useWallet().state.wallet
+
+  // FIXME: there should be recieved as part of confirmedQuote
+  const defaultAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, asset?.chainId ?? ''),
+  )
+  // TODO(gomes): this is obviously wrong, this component doesn't have the notion of two assets.
+  const defaultRuneAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, asset?.chainId ?? ''),
+  )
 
   const handleSignTx = useCallback(() => {
-    setStatus(TxStatus.Pending)
-    setTxId('200')
-  }, [])
+    if (!asset) return
+    if (!wallet) return
+
+    const supportedEvmChainIds = getSupportedEvmChainIds()
+
+    return (async () => {
+      const isRuneTx = asset.assetId === thorchainAssetId
+      // TODO(gomes): AccountId should be programmatic obviously
+      const accountId = isRuneTx ? defaultRuneAccountId : defaultAssetAccountId
+      if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
+      const { account } = fromAccountId(accountId)
+      const poolAssetId = assetIdToPoolAssetId({ assetId: asset.assetId })
+      const memo = `+:${poolAssetId}::ss:29` // FIXME(gomes): make it work for RUNE, but also for asset deposits
+      const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
+
+      // TODO(gomes): implement me proper, and move me to the right place
+      // const estimatedFees = await estimateFees({
+      // cryptoAmount: amountCryptoBaseUnit,
+      // assetId: asset.assetId,
+      // TODO(gomes): this is wrong. This isn't a memo, but should be depositWithExpiry for EVM chains,
+      // and similar calls for others, add isTokenDeposit logic if applicable
+      // memo: supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)
+      // ? utils.hexlify(utils.toUtf8Bytes(memo))
+      // : memo,
+      // to: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146', // TODO(gomes): router contract
+      // sendMax: false,
+      // accountId,
+      // contractAddress: undefined,
+      // })
+
+      await (async () => {
+        // We'll probably need to switch on chainNamespace instead here
+        if (isRuneTx) {
+          // const adapter = assertGetThorchainChainAdapter()
+          //
+          // LP deposit using THOR is a MsgDeposit tx
+          // const { txToSign } = await adapter.buildDepositTransaction({
+          // from: account,
+          // accountNumber: 0, // FIXME
+          // value: amountCryptoBaseUnit,
+          // memo,
+          // chainSpecific: {
+          // gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
+          // .chainSpecific.gasLimit,
+          // fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
+          // },
+          // })
+          //
+          // return { txToSign, adapter }
+          // TODO(gomes): isEvmDeposit here, also handle UTXOs and ATOM, make this a switch
+        } else {
+          const thorContract = getOrCreateContractByType({
+            // THORChain_Router, TODO(gomes): add proper const and support for this
+            // TODO(gomes): does this rotate?
+            address: '0xb30eC53F98ff5947EDe720D32aC2da7e52A5f56b',
+            type: ContractType.ThorRouter,
+            chainId: asset.chainId,
+          })
+
+          const expiry = BigInt(dayjs().add(15, 'minute').unix())
+          const data = encodeFunctionData({
+            abi: thorContract.abi,
+            functionName: 'depositWithExpiry',
+            args: [
+              // vault, TODO(gomes): fetch me programatically per asset
+              '0x64Fc77C58122a7fb66659Dc4D54d8CBb35EafF3b',
+              // TODO(gomes): handle non-native assets here
+              '0x0000000000000000000000000000000000000000',
+              // getAddress(fromAssetId(assetId).assetReference),
+              BigInt(amountCryptoBaseUnit.toString()),
+              memo,
+              expiry,
+            ],
+          })
+
+          const adapter = assertGetEvmChainAdapter(asset.chainId)
+
+          const buildCustomTxInput = await createBuildCustomTxInput({
+            accountNumber: 0, // TODO(gomes) programmatic
+            adapter,
+            data,
+            value: amountCryptoBaseUnit.toString(),
+            to: '0xb30eC53F98ff5947EDe720D32aC2da7e52A5f56b',
+            wallet,
+          })
+
+          // TODO(gomes): fees estimation
+          const txid = await buildAndBroadcast({
+            adapter,
+            buildCustomTxInput,
+            receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+          })
+
+          console.log({ txid })
+        }
+      })()
+
+      // setStatus(TxStatus.Pending) // TODO(gomes): this should be done automagically using reactivity from the Txid
+      // setTxId('200') // TODO(gomes)
+      // await adapter.broadcastTransaction({
+      // senderAddress: account,
+      // receiverAddress: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146', // FIXME: Thorchain router contract
+      // hex: signedTx,
+      // })
+    })()
+  }, [amountCryptoPrecision, asset, defaultAssetAccountId, defaultRuneAccountId, wallet])
 
   useEffect(() => {
     let isMounted = true

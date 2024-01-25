@@ -3,7 +3,7 @@ import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@sha
 import { CONTRACT_INTERACTION, type FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import dayjs from 'dayjs'
@@ -18,6 +18,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -28,6 +29,7 @@ import {
   createBuildCustomTxInput,
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
+import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
@@ -78,7 +80,49 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
-  const { data: inboundAddressData, isLoading: inboundAddressLoading } = useQuery({
+  const { mutateAsync } = useMutation({
+    mutationKey: [txId],
+    mutationFn: async ({ txId: _txId }: { txId: string }) => {
+      console.log('waiting for thorchain update')
+      await waitForThorchainUpdate({
+        txId: _txId,
+        skipOutbound: true, // this is an LP Tx, there is no outbound
+      }).promise
+      console.log('thorchain update complete')
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['thorchainLiquidityMember'],
+        exact: false,
+        stale: true,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['thorchainLiquidityMembers'],
+        exact: false,
+        stale: true,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['thorchainLiquidityProviderPosition'],
+        exact: false,
+        stale: true,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: ['thorchainUserLpData'],
+        exact: false,
+        stale: true,
+      })
+    },
+  })
+
+  useEffect(() => {
+    if (!(txId && tx)) return
+    if (tx?.status !== TxStatus.Confirmed) return
+    ;(async () => {
+      await mutateAsync({ txId })
+    })()
+  }, [mutateAsync, tx, txId])
+
+  const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddress(assetId),
     enabled: !!assetId,
     select: data => data?.unwrap(),
@@ -196,7 +240,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     asset,
     defaultAssetAccountId,
     defaultRuneAccountId,
-    inboundAddressData.router,
+    inboundAddressData?.router,
     wallet,
   ])
 

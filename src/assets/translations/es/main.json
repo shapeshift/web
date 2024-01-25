@@ -2,6 +2,7 @@
   "common": {
     "free": "Gratis",
     "back": "Atrás",
+    "and": "y",
     "balance": "Balance",
     "next": "Siguiente",
     "error": "Error",
@@ -16,8 +17,10 @@
     "claimable": "Reclamable",
     "approve": "Aprobar",
     "confirm": "Confirmar",
+    "seeDetails": "Ver detalles",
     "activity": "Actividad",
     "reject": "Rechazar",
+    "goBack": "Regresar",
     "connected": "Conectado",
     "allocation": "Asignación",
     "value": "Valor",
@@ -550,7 +553,8 @@
     "buyCrypto": "Comprar/Vender Cripto",
     "buyCryptoShort": "Comprar/Vender",
     "arkeo": "Airdrop Arkeo ",
-    "lending": "Préstamo"
+    "lending": "Préstamo",
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -568,6 +572,7 @@
     "to": "A",
     "from": "De",
     "trade": "Intercambiar",
+    "swap": "Intercambiar",
     "amount": "Cantidad",
     "for": "para",
     "emptyMessage": "El %{status} de tus transacciones aparecerán aquí.",
@@ -602,6 +607,28 @@
       "thor": {
         "transferOut": "Transferencia afuera"
       },
+      "thorchain": {
+        "deposit": "Depositar",
+        "depositRefund": "Reembolso de depósito",
+        "loanOpen": "Préstamo abierto",
+        "loanOpenRefund": "Reembolso abierto de préstamo",
+        "loanOut": "Garantía de préstamo recibida",
+        "loanRepayment": "Pago de Prestamo",
+        "loanRepaymentRefund": "Reembolso del Pago de Préstamo",
+        "out": "Saliente Recibido",
+        "swapOut": "Intercambio Recibido",
+        "swapRefund": "Reembolso de intercambio",
+        "transferOut": "Trasferencia",
+        "withdraw": "Retiro Solicitado",
+        "withdrawOut": "Retiro Recibido"
+      },
+      "swap": {
+        "deposit": "Intercambiar",
+        "streamingSwap": "Streaming Swap",
+        "out": "Intercambiar",
+        "refund": "Reembolso",
+        "outbound": "Saliente"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Retirar de Stake",
@@ -629,13 +656,6 @@
         "begin_unbonding": "Retirar Delegación",
         "begin_redelegate": "Redelegar",
         "withdraw_delegator_reward": "Reclamar Recompensa"
-      },
-      "swap": {
-        "deposit": "Intercambiar",
-        "streamingSwap": "Streaming Swap",
-        "out": "Intercambiar",
-        "refund": "Reembolso",
-        "outbound": "Saliente"
       },
       "ibc": {
         "transfer": "Enviado",
@@ -749,50 +769,22 @@
     },
     "errors": {
       "title": "Algo salió mal",
-      "sellAssetMiddleSentence": "vender activo",
-      "buyAssetMiddleSentence": "comprar activo",
-      "notEnoughEth": "No hay suficiente ETH para la tarifa de gas en esta transacción.",
       "amountTooSmall": "Mínimo: %{minLimit}",
       "amountTooSmallUnknownMinimum": "Cantidad demasiado baja",
       "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
-      "negativeMax": "No hay suficientes fondos para la tarifa del minero en esta transacción. Tarifa de minero estimada %{estimatedMinerFee}",
-      "invalidMax": "Monto inválido. El monto máximo de negociación para este par es %{maxLimit}.",
       "insufficientFunds": "Fondos insuficientes para la tarifa y el monto del minero",
       "transactionRejected": "Usuario ha rechazado la transacción.",
-      "broadcastFailed": "Ocurrió un error al transmitir la transacción",
-      "insufficientFundsForLimit": "Fondos insuficientes. El monto mínimo de operación para este par es %{minLimit}",
-      "insufficientFundsForAmount": "Fondos insuficientes. Tu %{symbol} el saldo es menor que la cantidad seleccionada",
       "insufficientFundsForProtocolFee": "%{symbol} insuficiente en %{chainName} para las tarifas",
-      "invalidTradePair": "Par comercial no válido: %{sellAssetName} y %{buyAssetName}",
-      "invalidTradePairBtnText": "Par de intercambio no válido",
       "unsupportedTradePair": "Par No Compatible",
-      "noLiquidityError": "No hay suficiente liquidez disponible",
-      "overMaxSlippage": "Este comercio daría como resultado más de %{slippagePercentage}% deslizamiento. Intercambie una cantidad menor por un mejor precio",
-      "balanceToLow": "Saldo demasiado bajo. El monto mínimo de operación para este par es %{minLimit}",
-      "dexTradeFailed": "Comercio fallido, Tokens regresados",
-      "quoteFailed": "Se produjo un error al obtener una cotización para su operación.",
+      "noRouteFound": "No se encontraron rutas para este par y cantidad",
       "quoteExpired": "Cotización caducada, intente de nuevo.",
-      "failedQuoteExecuted": "No se puede ejecutar una cotización fallida",
-      "sellAssetRequired": "No se puede ejecutar una cotización sin un activo para vender",
-      "sellAmountRequired": "No se puede ejecutar una cotización sin una cantidad para vender",
-      "depositAddressRequired": "No se puede ejecutar una cotización ETH sin una dirección DEX",
-      "sellAssetNetworkAndSymbolRequired": "Tanto la red de activos como el símbolo son necesarios para ejecutar una cotización",
-      "hdwalletInvalidConfig": "Ocurrió un error al comunicarse con su billetera de hardware",
-      "allowanceRequiredFailed": "Ocurrió un error al aprobar la asignación requerida para operar.",
-      "checkApprovalNeededFailed": "Ocurrió un error al verificar la aprobación de su operación.",
-      "approveInfiniteFailed": "Ocurrió un error al aprobar su operación.",
-      "buildTradeFailed": "Ocurrió un error al construir su intercambio.",
-      "grantAllowanceFailed": "Ocurrió un error al otorgar la asignación.",
-      "minMaxError": "Se produjo un error al obtener el monto mínimo / máximo de la operación",
-      "executeTradeFailed": "Ocurrió un error al ejecutar su operación.",
-      "unsupportedPair": "Este par comercial no es compatible actualmente.",
-      "unsupportedChain": "Esta cadena no es compatible actualmente.",
-      "rateError": "No podemos obtener una cotización para este par.",
+      "quoteUnsupportedChain": "Cadena no compatible",
+      "quoteCrossChainNotSupported": "Cadena cruzada no compatible",
+      "networkFeeEstimateFailed": "No se pudo estimar tarifa de red",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} no es compatible con la billetera",
-      "sellAssetNotSupportedByWallet": "Vender activo no soportado por billetera",
-      "intermediaryAssetNotSupportedByWallet": "Intermediario no soportado por billetera",
-      "noReceiveAddress": "Sin dirección de recepción para %{assetSymbol}",
-      "tradingNotActive": "Operaciones temporalmente interrumpidas para %{assetSymbol}",
+      "intermediaryAssetNotSupportedByWallet": "Activo intermediario %{assetSymbol}.%{chainSymbol} no admitido por billetera",
+      "noReceiveAddress": "No hay dirección de recepción para %{assetSymbol} en %{chainName}",
+      "tradingNotActiveForChain": "Intercambios temporalmente detenidos en %{chainName}",
       "tradingNotActiveNoAssetSymbol": "Intercambios detenidos temporalmente en esta ruta",
       "signing": {
         "failed": "Ocurrió un error al firmar la transacción",
@@ -1757,6 +1749,7 @@
       "Send": "Enviar",
       "Receive": "Recibir",
       "Trade": "Intercambiar",
+      "Swap": "Intercambiar",
       "Refund": "Reembolso"
     },
     "assets": "Activos",
@@ -2186,5 +2179,68 @@
     "breakdownBody": "A continuación se muestra un desglose de tarifas comerciales y  descuento Poder FOX aplicado. Descubra cuánto más puede ahorrar en la pestaña de simulación.",
     "tradeFee": "Tarifa de intercambio",
     "totalTradeFee": "Tarifa total de intercambio"
+  },
+  "pools": {
+    "pools": "Pools",
+    "pool": "Pool",
+    "tvl": "TVL",
+    "volume24h": "Volumen 24H",
+    "volume7d": "Volumen 7D",
+    "balance": "Balance",
+    "unclaimedFees": "Tarifas No Reclamadas",
+    "poolShare": "Porcentaje de Pool",
+    "yourPosition": "Su posición",
+    "poolInformation": "Información de Pool",
+    "poolsBody": "Agregue liquidez y gane tarifas en las operaciones del pool.",
+    "availablePools": "Pools Disponibles",
+    "addLiquidity": "Agregar Liquidez",
+    "removeLiquidity": "Retirar liquidez",
+    "initialPricesAndPoolShare": "Precios iniciales y participación en el pool",
+    "pricePerAsset": "%{from} por %{to}",
+    "symAlert": "Su %{from} se dividirá en exposición 50:50 para %{to} y %{from} al ingresar al grupo.",
+    "shareOfPool": "Participación de Pool",
+    "assetDepositAmount": "%{asset} Monto de Depósito",
+    "totalLiquidity": "Liquidez Total",
+    "totalVolume": "Volumen Total",
+    "fees24h": "Tarifas 24H",
+    "estimatedTime": "Tiempo Estimado",
+    "liquidityValue": "Valor de Liquidez",
+    "selectPair": "Seleccione Par",
+    "depositAmounts": "Montos de Depósito",
+    "awaitingConfirmation": "Esperando confirmación",
+    "transactionSubmitted": "Transacción enviada",
+    "waitingForConfirmation": "Esperando Confirmación",
+    "totalTokensLocked": "Total de Tokens Bloqueados",
+    "chainFee": "Tarifa %{chain}",
+    "supplying": "Agregar",
+    "confirmAndDeposit": "Confirmar y Depositar",
+    "yourPositions": {
+      "yourPositions": "Tus Posiciones",
+      "emptyTitle": "No hay posiciones activas",
+      "emptyBody": "Sus posiciones activas en el pool aparecerán aquí."
+    },
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "¿Qué es un Fondo de Liquidez?",
+        "body": "Un fondo de liquidez es un grupo descentralizado que contienen activos utilizados para facilitar el comercio en una blockchain. Desempeña un papel crucial en las finanzas descentralizadas (DeFi) al proporcionar liquidez para varios pares comerciales."
+      },
+      "how": {
+        "title": "¿Cómo funcionan los fondos de liquidez?",
+        "body": "Los fondos de liquidez funcionan por usuarios que depositan sus activos en un contrato inteligente. Luego, estos activos se utilizan para intercambios descentralizados, permitiendo intercambios en ese grupo. A cambio de proporcionar liquidez, los usuarios reciben parte de las tarifas generadas en la app."
+      },
+      "amm": {
+        "title": "Creadores de Mercado Automatizados (AMM)",
+        "body": "Muchos fondos de liquidez operan como creadores de mercado automatizados (AMM), usando algoritmos que determinan el precio de activos segun la proporción de tokens. Esto permite el comercio descentralizado y continuo sin libro de órdenes tradicional."
+      },
+      "rewards": {
+        "title": "Ganar Recompensas",
+        "body": "Los proveedores obtienen recompensas de tarifas cobradas en los intercambios y, en algunos casos, tokens adicionales por la app. Las recompensas son proporcionales a la liquidez."
+      },
+      "risks": {
+        "title": "Riesgos y Consideraciones",
+        "body": "Si bien los fondos de liquidez ofrecen oportunidades de ganancias, es importante ser consciente de riesgos, como pérdidas no permanentes, vulnerabilidad de contratos inteligentes y volatilidad de mercado. Debe realizar una investigación exhaustiva antes."
+      }
+    }
   }
 }

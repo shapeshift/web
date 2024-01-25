@@ -2,6 +2,7 @@
   "common": {
     "free": "kostenlos",
     "back": "Zurück",
+    "and": "und",
     "balance": "Kontostand",
     "next": "Weiter",
     "error": "Fehler",
@@ -16,8 +17,10 @@
     "claimable": "Beanspruchbar",
     "approve": "Genehmigen",
     "confirm": "Bestätigen",
+    "seeDetails": "Siehe Details",
     "activity": "Aktivität",
     "reject": "Ablehnen",
+    "goBack": "Geh zurück",
     "connected": "Verbunden",
     "allocation": "Zuweisung",
     "value": "Wert",
@@ -550,7 +553,8 @@
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
     "arkeo": "Arkeo Airdrop",
-    "lending": "Verleihen"
+    "lending": "Verleihen",
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -568,6 +572,7 @@
     "to": "Zu",
     "from": "Von",
     "trade": "Handeln",
+    "swap": "Tauschen",
     "amount": "Betrag",
     "for": "für",
     "emptyMessage": "Ihre %{status} Transaktionen werden hier angezeigt.",
@@ -602,6 +607,28 @@
       "thor": {
         "transferOut": "Übertragen"
       },
+      "thorchain": {
+        "deposit": "Einzahlung",
+        "depositRefund": "Rückerstattung der Einzahlung",
+        "loanOpen": "Kredit offen",
+        "loanOpenRefund": "Offene Rückerstattung des Kredites",
+        "loanOut": "Erhaltene Kreditsicherheiten",
+        "loanRepayment": "Kreditrückzahlung",
+        "loanRepaymentRefund": "Rückerstattung der Kreditrückzahlung",
+        "out": "Ausgehend empfangen",
+        "swapOut": "Tausch erhalten",
+        "swapRefund": "Swap Rückerstattung",
+        "transferOut": "Auslagern",
+        "withdraw": "Auszahlung beantragt",
+        "withdrawOut": "Auszahlung erhalten"
+      },
+      "swap": {
+        "deposit": "Tausch",
+        "streamingSwap": "Streaming Tausch",
+        "out": "Tausch",
+        "refund": "Erstattung",
+        "outbound": "Ausgehend"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Staking beenden",
@@ -629,13 +656,6 @@
         "begin_unbonding": "Undelegieren",
         "begin_redelegate": "Wieder Delegieren",
         "withdraw_delegator_reward": "Belohnung einfordern"
-      },
-      "swap": {
-        "deposit": "Tausch",
-        "streamingSwap": "Streaming Tausch",
-        "out": "Tausch",
-        "refund": "Erstattung",
-        "outbound": "Ausgehend"
       },
       "ibc": {
         "transfer": "Gesendet",
@@ -749,50 +769,22 @@
     },
     "errors": {
       "title": "Etwas ist schief gelaufen",
-      "sellAssetMiddleSentence": "Vermögenswerte verkaufen",
-      "buyAssetMiddleSentence": "Vermögenswerte kaufen",
-      "notEnoughEth": "Nicht genug ETH für die Gasgebühr bei dieser Transaktion.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "amountTooSmallUnknownMinimum": "Betrag zu niedrig",
       "sellAmountDoesNotCoverFee": "Verkaufsbetrag niedriger als die Gebühr",
-      "negativeMax": "Nicht genügend Kapital für die Miner-Gebühr für diese Transaktion. Geschätzte Minergebühr %{estimatedMinerFee}",
-      "invalidMax": "Ungültige Menge. Der maximale Handelsbetrag für dieses Paar beträgt %{maxLimit}.",
       "insufficientFunds": "Unzureichende Mittel für Miner-Gebühr und -Betrag",
       "transactionRejected": "Der Benutzer hat die Transaktion abgelehnt",
-      "broadcastFailed": "Beim Senden der Transaktion ist ein Fehler aufgetreten",
-      "insufficientFundsForLimit": "Unzureichende Mittel. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
-      "insufficientFundsForAmount": "Unzureichende Mittel. Ihr %{symbol} Guthaben liegt unter dem ausgewählten Betrag",
       "insufficientFundsForProtocolFee": "Nicht genügend %{symbol} auf %{chainName} für Gebühren",
-      "invalidTradePair": "Ungültiges Handelspaar: %{sellAssetName} und %{buyAssetName}",
-      "invalidTradePairBtnText": "Ungültiges Handelspaar",
       "unsupportedTradePair": "Nicht unterstütztes Handelspaar",
-      "noLiquidityError": "Nicht genügend Liquidität vorhanden",
-      "overMaxSlippage": "Dieser Handel würde zu einer Marktabweichung von über %{slippagePercentage} % führen. Bitte tauschen Sie einen geringeren Betrag gegen einen besseren Preis",
-      "balanceToLow": "Guthaben zu niedrig. Der minimale Handelsbetrag für dieses Paar beträgt %{minLimit}",
-      "dexTradeFailed": "Handel fehlgeschlagen, Token zurückgegeben",
-      "quoteFailed": "Beim Abrufen eines Angebots für Ihren Handel ist ein Fehler aufgetreten.",
+      "noRouteFound": "Für dieses Paar und diese Menge wurden keine Routen gefunden",
       "quoteExpired": "Angebot abgelaufen, versuchen Sie es erneut.",
-      "failedQuoteExecuted": "Ein fehlgeschlagenes Angebot kann nicht ausgeführt werden",
-      "sellAssetRequired": "Ein Angebot kann nicht ohne einen zu verkaufenden Vermögenswert ausgeführt werden",
-      "sellAmountRequired": "Ein Angebot kann nicht ohne einen zu verkaufenden Betrag ausgeführt werden",
-      "depositAddressRequired": "Ohne DEX-Adresse kann kein ETH-Quote ausgeführt werden",
-      "sellAssetNetworkAndSymbolRequired": "Sowohl das passende Netzwerk als auch das Symbol sind erforderlich, um ein Angebot auszuführen",
-      "hdwalletInvalidConfig": "Bei der Kommunikation mit Ihrer Hardware Wallet ist ein Fehler aufgetreten",
-      "allowanceRequiredFailed": "Beim Abrufen der Genehmigung für den Handel ist ein Fehler aufgetreten.",
-      "checkApprovalNeededFailed": "Bei der Überprüfung der Genehmigung für Ihren Handel ist ein Fehler aufgetreten.",
-      "approveInfiniteFailed": "Bei der Genehmigung Ihres Handels ist ein Fehler aufgetreten.",
-      "buildTradeFailed": "Beim Erstellen Ihres Handels ist ein Fehler aufgetreten.",
-      "grantAllowanceFailed": "Beim Gewähren der Genehmigung ist ein Fehler aufgetreten.",
-      "minMaxError": "Beim Abrufen des minimalen / maximalen Handelsbetrags ist ein Fehler aufgetreten",
-      "executeTradeFailed": "Bei der Ausführung Ihres Handels ist ein Fehler aufgetreten.",
-      "unsupportedPair": "Dieses Handelspaar wird derzeit nicht unterstützt.",
-      "unsupportedChain": "Diese Blockchain wird derzeit nicht unterstützt.",
-      "rateError": "Wir können für dieses Paar kein Angebot einholen",
+      "quoteUnsupportedChain": "Kette wird nicht unterstützt",
+      "quoteCrossChainNotSupported": "Kette zu Kette wird nicht unterstützt",
+      "networkFeeEstimateFailed": "Die Netzwerkgebühr konnte nicht geschätzt werden",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} wird von der Wallet nicht unterstützt",
-      "sellAssetNotSupportedByWallet": "Verkauf dieses Vermögenswertes wird von der Wallet nicht unterstützt",
-      "intermediaryAssetNotSupportedByWallet": "Vermittler wird von Wallet nicht unterstützt",
-      "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol}",
-      "tradingNotActive": "Handel von %{assetSymbol}  vorübergehend angehalten",
+      "intermediaryAssetNotSupportedByWallet": "Vermittler-Asset %{assetSymbol}.%{chainSymbol} wird von der Wallet nicht unterstützt",
+      "noReceiveAddress": "Keine Empfangsadresse für %{assetSymbol} auf %{chainName}",
+      "tradingNotActiveForChain": "Der Handel am %{chainName} wurde vorübergehend gestoppt",
       "tradingNotActiveNoAssetSymbol": "Der Handel auf dieser Route wurde vorübergehend eingestellt",
       "signing": {
         "failed": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
@@ -1757,6 +1749,7 @@
       "Send": "Senden",
       "Receive": "Erhalten",
       "Trade": "Handeln",
+      "Swap": "Tauschen",
       "Refund": "Erstatten"
     },
     "assets": "Vermögenswerte",
@@ -2186,5 +2179,68 @@
     "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer Handelsgebühren und des entsprechenden angewendeten FOX Power Rabatten. Erfahren Sie auf derRegisterkarte „Simulieren“, wie viel mehr Sie  sparen können.",
     "tradeFee": "Handelsgebühr",
     "totalTradeFee": "Gesamte Handelsgebühr"
+  },
+  "pools": {
+    "pools": "Pools",
+    "pool": "Pool",
+    "tvl": "TVL",
+    "volume24h": "Volumen 24h",
+    "volume7d": "Volumen 7T",
+    "balance": "Saldo",
+    "unclaimedFees": "Nicht beanspruchte Gebühren",
+    "poolShare": "Poolanteil",
+    "yourPosition": "Dein Position",
+    "poolInformation": "Pool Information",
+    "poolsBody": "Stellen Sie Liquidität bereit und verdienen Sie Gebühren für Trades in diesem Pool.",
+    "availablePools": "Verfügbare Pools",
+    "addLiquidity": "Liquidität hinzufügen",
+    "removeLiquidity": "Liquidität entfernen",
+    "initialPricesAndPoolShare": "Anfangspreise und Poolanteil",
+    "pricePerAsset": "%{from} pro %{to}",
+    "symAlert": "Ihr %{from} wird beim Eintritt in den Pool in ein 50:50-Engagement für %{to} und %{from} aufgeteilt.",
+    "shareOfPool": "Anteil am Pool",
+    "assetDepositAmount": "%{asset} Einzahlungsbetrag",
+    "totalLiquidity": "Gesamtliquidität",
+    "totalVolume": "Gesamtvolumen",
+    "fees24h": "Gebühren 24h",
+    "estimatedTime": "Geschätzte Zeit",
+    "liquidityValue": "Liquiditätswert",
+    "selectPair": "Paar auswählen",
+    "depositAmounts": "Einzahlungsbeträge",
+    "awaitingConfirmation": "Erwarte Bestätigung",
+    "transactionSubmitted": "Transaktion übermittelt",
+    "waitingForConfirmation": "Auf Bestätigung warten",
+    "totalTokensLocked": "Gesamtzahl der gesperrten Token",
+    "chainFee": "%{chain} Gebühr",
+    "supplying": "Hinzufügen",
+    "confirmAndDeposit": "Bestätigen und Einzahlen",
+    "yourPositions": {
+      "yourPositions": "Ihre Positionen",
+      "emptyTitle": "Keine aktiven Positionen",
+      "emptyBody": "Hier werden Ihre aktiven Liquiditätspoolpositionen angezeigt."
+    },
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "Was ist ein Liquiditätspool?",
+        "body": "Ein Liquiditätspool ist ein dezentraler Fondpool, der Vermögenswerte enthält, die den Handel in einem Blockchain-Netzwerk ermöglichen. Es spielt eine entscheidende Rolle im dezentralen Finanzwesen (DeFi), indem es Liquidität für verschiedene Handelspaare bereitstellt."
+      },
+      "how": {
+        "title": "Wie funktionieren Liquiditätspools?",
+        "body": "Liquiditätspools basieren auf dem Prinzip, dass Benutzer ihre Vermögenswerte in einen Smart Contract einzahlen, um einen Pool zu erstellen. Diese Vermögenswerte werden dann verwendet, um einen dezentralen Austausch zu ermöglichen, sodass Benutzer gegen den Pool handeln können. Als Gegenleistung für die Bereitstellung von Liquidität erhalten Nutzer einen Anteil an den von der Plattform generierten Handelsgebühren."
+      },
+      "amm": {
+        "title": "Automatisierte Market Maker (AMMs)",
+        "body": "Viele Liquiditätspools arbeiten als Automatisierte Market Maker (AMMs) und verwenden Algorithmen, um den Preis von Vermögenswerten basierend auf dem Verhältnis der Token im Pool zu bestimmen. Dies ermöglicht einen dezentralen und kontinuierlichen Handel, ohne dass ein herkömmliches Orderbuch erforderlich ist."
+      },
+      "rewards": {
+        "title": "Belohnungen verdienen",
+        "body": "Liquiditätsanbieter erhalten Belohnungen in Form von Handelsgebühren und in einigen Fällen zusätzlicher Governance-Tokens von der Plattform. Diese Belohnungen sind proportional zur Menge der bereitgestellten Liquidität."
+      },
+      "risks": {
+        "title": "Risiken und Überlegungen",
+        "body": "Während Liquiditätspools Ertragsmöglichkeiten bieten, ist es wichtig, sich der damit verbundenen Risiken bewusst zu sein, einschließlich vorübergehender Verluste, Schwachstellen bei intelligenten Verträgen und Marktvolatilität. Benutzer sollten vor der Teilnahme gründliche Recherchen durchführen."
+      }
+    }
   }
 }

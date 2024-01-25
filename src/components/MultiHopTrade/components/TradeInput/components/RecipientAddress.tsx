@@ -155,14 +155,14 @@ export const RecipientAddress = () => {
               onClick={handleFormSubmit}
               mr={2}
               icon={checkIcon}
-            ></IconButton>
+            />
             <IconButton
               color='red.500'
               icon={closeIcon}
               aria-label='Cancel'
               size='xs'
               onClick={handleCancelClick}
-            ></IconButton>
+            />
           </InputRightElement>
         </InputGroup>
         {Boolean(value.length && !isValid) && (

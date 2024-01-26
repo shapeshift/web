@@ -197,7 +197,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               ? getAddress(fromAssetId(assetId).assetReference)
               : '0x0000000000000000000000000000000000000000'
 
-            const memo = `+:${poolAssetId}::ss:29` // FIXME(gomes): make it work for RUNE, but also for asset deposits
+            // TODO(gomes): cleanup before opening me, yoloing this to get this to work initially
+            // We should make this programmatic and abstracted. There is really no magic here - the only diff is we use the *pool* asset (dot) notation vs. the synth asset (slash notation)
+            // but other than that, that's pretty much savers all over again. Similarly, swapper also calls this.
+            // Why would we have to reinvent the wheel?
+            const memo = `+:${poolAssetId}::ss:29`
             const amount = BigInt(amountCryptoBaseUnit.toString())
 
             return { memo, amount, expiry, vault, asset }

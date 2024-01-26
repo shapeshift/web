@@ -71,8 +71,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   // TOOO(gomes): we may be able to handle this better, or not
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
-  // TODO(gomes): we'll probably need this when implementing waitForThorchainUpdate
-  // const [status, setStatus] = useState(TxStatus.Unknown)
+  const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
@@ -135,11 +134,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   useEffect(() => {
     if (!(txId && tx)) return
-    if (tx?.status !== TxStatus.Confirmed) return
+    if (tx?.status !== TxStatus.Confirmed) setStatus(tx.status)
     ;(async () => {
       await mutateAsync({ txId })
+      setStatus(TxStatus.Confirmed)
+      onComplete()
     })()
-  }, [mutateAsync, tx, txId])
+  }, [mutateAsync, onComplete, tx, txId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddress(assetId),
@@ -304,14 +305,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           setTxId(txId)
         }
       })()
-
-      // setStatus(TxStatus.Pending) // TODO(gomes): this should be done automagically using reactivity from the Txid
-      // setTxId('200') // TODO(gomes)
-      // await adapter.broadcastTransaction({
-      // senderAddress: account,
-      // receiverAddress: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146', // FIXME: Thorchain router contract
-      // hex: signedTx,
-      // })
     })()
   }, [
     accountAddress,
@@ -328,13 +321,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
   ])
 
-  useEffect(() => {
-    // TODO(gomes): obviously waitForThorchainUpdate instead of Tx complete but that'll do for now
-    if (tx?.status === TxStatus.Confirmed) {
-      onComplete()
-    }
-  }, [onComplete, tx?.status])
-
   const txIdLink = useMemo(() => `${asset?.explorerTxLink}/${txId}`, [asset?.explorerTxLink, txId])
 
   if (!asset) return null
@@ -350,7 +336,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               {translate('common.seeDetails')}
             </Button>
           )}
-          {tx?.status === TxStatus.Confirmed ? (
+          {status === TxStatus.Confirmed ? (
             <>
               <Center
                 bg='background.success'
@@ -363,7 +349,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               </Center>
             </>
           ) : (
-            <CircularProgress isIndeterminate={tx?.status === TxStatus.Pending} size='24px' />
+            <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
           )}
         </Flex>
       </CardHeader>
@@ -380,7 +366,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             size='lg'
             colorScheme='blue'
             onClick={handleSignTx}
-            isLoading={tx?.status === TxStatus.Pending || isInboundAddressLoading}
+            isLoading={status === TxStatus.Pending || isInboundAddressLoading}
           >
             {translate('common.signTransaction')}
           </Button>

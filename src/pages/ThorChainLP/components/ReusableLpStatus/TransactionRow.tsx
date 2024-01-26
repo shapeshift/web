@@ -92,22 +92,22 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     },
     onSuccess: async () => {
       console.log({ allQueries: queryClient.getQueryCache().getAll() })
-      await queryClient.invalidateQueries({
+      await queryClient.refetchQueries({
         queryKey: [reactQueries.thorchainLp.liquidityMember._def],
         exact: false,
         stale: true,
       })
-      await queryClient.invalidateQueries({
+      await queryClient.refetchQueries({
         queryKey: [reactQueries.thorchainLp.liquidityMembers._def],
         exact: false,
         stale: true,
       })
-      await queryClient.invalidateQueries({
+      await queryClient.refetchQueries({
         queryKey: [reactQueries.thorchainLp.userLpData._def],
         exact: false,
         stale: true,
       })
-      await queryClient.invalidateQueries({
+      await queryClient.refetchQueries({
         queryKey: [reactQueries.thorchainLp.liquidityProviderPosition._def],
         exact: false,
         stale: true,

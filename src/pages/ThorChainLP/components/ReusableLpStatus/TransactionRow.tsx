@@ -21,6 +21,7 @@ import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { isToken } from 'lib/utils'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,
@@ -132,8 +133,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   console.log({ inboundAddressData })
   const handleSignTx = useCallback(() => {
-    if (!asset) return
-    if (!wallet) return
+    if (!(assetId && asset && wallet)) return
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
 
@@ -144,7 +144,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
       const poolAssetId = assetIdToPoolAssetId({ assetId: asset.assetId })
-      const memo = `+:${poolAssetId}::ss:29` // FIXME(gomes): make it work for RUNE, but also for asset deposits
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
       // TODO(gomes): implement me proper, and move me to the right place
@@ -191,20 +190,24 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             chainId: asset.chainId,
           })
 
-          const expiry = BigInt(dayjs().add(15, 'minute').unix())
+          const args = (() => {
+            const expiry = BigInt(dayjs().add(15, 'minute').unix())
+            const vault = getAddress(inboundAddressData.address)
+            const asset = isToken(assetId)
+              ? getAddress(fromAssetId(assetId).assetReference)
+              : '0x0000000000000000000000000000000000000000'
+
+            const memo = `+:${poolAssetId}::ss:29` // FIXME(gomes): make it work for RUNE, but also for asset deposits
+            const amount = BigInt(amountCryptoBaseUnit.toString())
+
+            return { memo, amount, expiry, vault, asset }
+          })()
+          debugger
+
           const data = encodeFunctionData({
             abi: thorContract.abi,
             functionName: 'depositWithExpiry',
-            args: [
-              // vault, TODO(gomes): fetch me programatically per asset
-              '0x64Fc77C58122a7fb66659Dc4D54d8CBb35EafF3b',
-              // TODO(gomes): handle non-native assets here
-              '0x0000000000000000000000000000000000000000',
-              // getAddress(fromAssetId(assetId).assetReference),
-              BigInt(amountCryptoBaseUnit.toString()),
-              memo,
-              expiry,
-            ],
+            args: [args.vault, args.asset, args.amount, args.memo, args.expiry],
           })
 
           const adapter = assertGetEvmChainAdapter(asset.chainId)
@@ -213,7 +216,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             accountNumber: 0, // TODO(gomes) programmatic
             adapter,
             data,
-            value: amountCryptoBaseUnit.toString(),
+            value: isToken(assetId) ? '0' : amountCryptoBaseUnit.toString(),
             to: inboundAddressData.router,
             wallet,
           })
@@ -240,8 +243,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [
     amountCryptoPrecision,
     asset,
+    assetId,
     defaultAssetAccountId,
     defaultRuneAccountId,
+    inboundAddressData?.address,
     inboundAddressData?.router,
     wallet,
   ])

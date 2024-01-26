@@ -177,7 +177,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           const adapter = assertGetThorchainChainAdapter()
           const memo = `+:${thorchainNotationAssetId}::ss:29`
 
-          debugger
           const estimatedFees = await estimateFees({
             cryptoAmount: amountCryptoBaseUnit,
             assetId: asset.assetId,
@@ -187,7 +186,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             accountId,
             contractAddress: undefined,
           })
-          debugger
 
           // LP deposit using THOR is a MsgDeposit tx
           const { txToSign } = await adapter.buildDepositTransaction({
@@ -224,7 +222,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           const args = (() => {
             const expiry = BigInt(dayjs().add(15, 'minute').unix())
             const vault = getAddress(inboundAddressData.address)
-            debugger
             const asset = isToken(fromAssetId(assetId).assetReference)
               ? getAddress(fromAssetId(assetId).assetReference)
               : '0x0000000000000000000000000000000000000000'
@@ -238,7 +235,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
             return { memo, amount, expiry, vault, asset }
           })()
-          debugger
 
           const data = encodeFunctionData({
             abi: thorContract.abi,

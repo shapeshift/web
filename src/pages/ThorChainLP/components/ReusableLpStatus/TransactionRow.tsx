@@ -7,7 +7,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import dayjs from 'dayjs'
-import { utils } from 'ethers/lib/ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -27,7 +26,6 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import {
@@ -135,8 +133,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const handleSignTx = useCallback(() => {
     if (!(assetId && asset && wallet)) return
 
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-
     return (async () => {
       const isRuneTx = asset.assetId === thorchainAssetId
       // TODO(gomes): AccountId should be programmatic obviously, and there is no notion of ROON/Asset here anyway
@@ -146,41 +142,48 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       const poolAssetId = assetIdToPoolAssetId({ assetId: asset.assetId })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
-      // TODO(gomes): implement me proper, and move me to the right place
-      // const estimatedFees = await estimateFees({
-      // cryptoAmount: amountCryptoBaseUnit,
-      // assetId: asset.assetId,
-      // TODO(gomes): this is wrong. This isn't a memo, but should be depositWithExpiry for EVM chains,
-      // and similar calls for others, add isTokenDeposit logic if applicable
-      // memo: supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)
-      // ? utils.hexlify(utils.toUtf8Bytes(memo))
-      // : memo,
-      // to: '0xD37BbE5744D730a1d98d8DC97c42F0Ca46aD7146', // TODO(gomes): router contract
-      // sendMax: false,
-      // accountId,
-      // contractAddress: undefined,
-      // })
-
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here
         if (isRuneTx) {
-          // const adapter = assertGetThorchainChainAdapter()
-          //
+          const adapter = assertGetThorchainChainAdapter()
+          const memo = `+:${poolAssetId}::ss:29`
+
+          debugger
+          const estimatedFees = await estimateFees({
+            cryptoAmount: amountCryptoBaseUnit,
+            assetId: asset.assetId,
+            memo,
+            to: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
+            sendMax: false,
+            accountId,
+            contractAddress: undefined,
+          })
+          debugger
+
           // LP deposit using THOR is a MsgDeposit tx
-          // const { txToSign } = await adapter.buildDepositTransaction({
-          // from: account,
-          // accountNumber: 0, // FIXME
-          // value: amountCryptoBaseUnit,
-          // memo,
-          // chainSpecific: {
-          // gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
-          // .chainSpecific.gasLimit,
-          // fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
-          // },
-          // })
-          //
-          // return { txToSign, adapter }
-          // TODO(gomes): isEvmDeposit here, also handle UTXOs and ATOM, make this a switch
+          const { txToSign } = await adapter.buildDepositTransaction({
+            from: account,
+            accountNumber: 0, // TODO(gomes): implement me
+            value: amountCryptoBaseUnit,
+            memo,
+            chainSpecific: {
+              gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
+                .chainSpecific.gasLimit,
+              fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
+            },
+          })
+
+          const signedTx = await adapter.signTransaction({
+            txToSign,
+            wallet,
+          })
+          const txId = await adapter.broadcastTransaction({
+            senderAddress: account,
+            receiverAddress: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
+            hex: signedTx,
+          })
+
+          setTxId(txId)
         } else {
           if (!inboundAddressData?.router) return
 

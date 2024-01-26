@@ -72,6 +72,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
   const [status, setStatus] = useState(TxStatus.Unknown)
+
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
@@ -99,15 +100,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: async ({ txId: _txId }: { txId: string }) => {
-      console.log('waiting for thorchain update')
       await waitForThorchainUpdate({
         txId: _txId,
         skipOutbound: true, // this is an LP Tx, there is no outbound
       }).promise
-      console.log('thorchain update complete')
     },
     onSuccess: async () => {
-      console.log({ allQueries: queryClient.getQueryCache().getAll() })
       await queryClient.invalidateQueries({
         queryKey: [reactQueries.thorchainLp.liquidityMember._def],
         exact: false,
@@ -128,18 +126,29 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         exact: false,
         stale: true,
       })
-      console.log({ allQueriesAfterInvalidation: queryClient.getQueryCache().getAll() })
+
+      setStatus(TxStatus.Confirmed)
+      onComplete()
     },
   })
 
   useEffect(() => {
     if (!(txId && tx)) return
-    if (tx?.status !== TxStatus.Confirmed) return setStatus(tx.status)
-    ;(async () => {
-      await mutateAsync({ txId })
-      setStatus(TxStatus.Confirmed)
-      onComplete()
-    })()
+
+    if (tx?.status === TxStatus.Pending) {
+      setStatus(tx.status)
+      return
+    }
+
+    if (tx?.status === TxStatus.Confirmed) {
+      // The Tx is confirmed, but we still need to introspect completion from THOR itself
+      // so we set the status as pending in the meantime
+      setStatus(TxStatus.Pending)
+      ;(async () => {
+        await mutateAsync({ txId })
+      })()
+      return
+    }
   }, [mutateAsync, onComplete, tx, txId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
@@ -148,7 +157,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     select: data => data?.unwrap(),
   })
 
-  console.log({ inboundAddressData })
   const handleSignTx = useCallback(() => {
     if (!(assetId && poolAssetId && asset && poolAsset && wallet && inboundAddressData?.address))
       return
@@ -304,7 +312,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           setTxId(txId)
         }
       })()
-    })()
+    })().then(() => {
+      setStatus(TxStatus.Pending)
+    })
   }, [
     accountAddress,
     amountCryptoPrecision,

@@ -4,6 +4,7 @@ import {
   CardFooter,
   Center,
   CircularProgress,
+  CircularProgressLabel,
   Flex,
   Heading,
   HStack,
@@ -89,6 +90,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     return <RawText mx={1}>{translate('common.and')}</RawText>
   }, [pool?.asymSide, translate])
 
+  const stepProgress = useMemo(
+    () => (activeStepIndex / assets.length) * 100,
+    [activeStepIndex, assets.length],
+  )
+
   const renderBody = useMemo(() => {
     if (!(pool && poolAsset && rune)) return null
 
@@ -131,9 +137,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           <CircularProgress
             size='100px'
             thickness={4}
-            isIndeterminate
+            value={stepProgress}
             trackColor='background.surface.raised.base'
-          />
+          >
+            <CircularProgressLabel fontSize='md'>
+              {activeStepIndex} / {assets.length}
+            </CircularProgressLabel>
+          </CircularProgress>
         </Center>
         <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
@@ -142,7 +152,18 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         </Flex>
       </CardBody>
     )
-  }, [poolAsset, assets, confirmedQuote, pool, hStackDivider, isComplete, translate])
+  }, [
+    pool,
+    poolAsset,
+    isComplete,
+    assets,
+    stepProgress,
+    activeStepIndex,
+    translate,
+    hStackDivider,
+    confirmedQuote.runeCryptoLiquidityAmount,
+    confirmedQuote.assetCryptoLiquidityAmount,
+  ])
 
   const assetCards = useMemo(() => {
     return (

@@ -178,6 +178,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               key={_asset.assetId}
               assetId={_asset.assetId}
               poolAssetId={poolAsset?.assetId}
+              accountIds={confirmedQuote.accountIds}
               amountCryptoPrecision={amountCryptoPrecision}
               onComplete={handleComplete}
               isActive={index === activeStepIndex}
@@ -190,6 +191,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     assets,
     confirmedQuote.runeCryptoLiquidityAmount,
     confirmedQuote.assetCryptoLiquidityAmount,
+    confirmedQuote.accountIds,
     poolAsset?.assetId,
     handleComplete,
     activeStepIndex,

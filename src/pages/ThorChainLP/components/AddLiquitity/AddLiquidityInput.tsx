@@ -16,6 +16,7 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
@@ -68,6 +69,8 @@ export type AddLiquidityInputProps = {
   paramOpportunityId?: string
   setConfirmedQuote: (quote: ConfirmedQuote) => void
   confirmedQuote: ConfirmedQuote | null
+  accountIds: Record<AssetId, AccountId>
+  onAccountIdChange: (accountId: AccountId, assetId: AssetId) => void
 }
 
 export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
@@ -76,7 +79,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   paramOpportunityId,
   confirmedQuote,
   setConfirmedQuote,
+  accountIds,
+  onAccountIdChange: handleAccountIdChange,
 }) => {
+  console.log({ accountIds })
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
@@ -155,10 +161,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
   }, [browserHistory])
-
-  const handleAccountIdChange = useCallback(() => {
-    console.info('account change')
-  }, [])
 
   const handleSubmit = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Confirm)
@@ -321,8 +323,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId: activeOpportunityId,
+      accountIds,
     })
   }, [
+    accountIds,
     activeOpportunityId,
     assetCryptoLiquidityAmount,
     assetFiatLiquidityAmount,
@@ -361,7 +365,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               assetId={_asset?.assetId}
               assetIcon={_asset?.icon ?? ''}
               assetSymbol={_asset?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
+              // eslint-disable-next-line react-memo/require-usememo
+              onAccountIdChange={(accountId: AccountId) => {
+                console.log({ accountId, assetId: _asset?.assetId })
+                handleAccountIdChange(accountId, _asset?.assetId)
+              }}
               percentOptions={percentOptions}
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}

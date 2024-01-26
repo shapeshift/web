@@ -1,3 +1,4 @@
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
@@ -55,6 +56,14 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   setConfirmedQuote,
 }) => {
   const location = useLocation()
+  const [accountIds, setAccountIds] = useState<Record<AssetId, AccountId>>({})
+
+  const onAccountIdChange = useCallback(
+    (accountId: AccountId, assetId: AssetId) => {
+      setAccountIds(prev => ({ ...prev, [assetId]: accountId }))
+    },
+    [setAccountIds],
+  )
 
   const renderAddLiquidityInput = useCallback(
     () => (
@@ -64,9 +73,19 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
+        accountIds={accountIds}
+        onAccountIdChange={onAccountIdChange}
       />
     ),
-    [confirmedQuote, headerComponent, opportunityId, paramOpportunityId, setConfirmedQuote],
+    [
+      accountIds,
+      confirmedQuote,
+      headerComponent,
+      onAccountIdChange,
+      opportunityId,
+      paramOpportunityId,
+      setConfirmedQuote,
+    ],
   )
   const renderAddLiquidityConfirm = useCallback(
     () => (confirmedQuote ? <AddLiquidityConfirm confirmedQuote={confirmedQuote} /> : null),

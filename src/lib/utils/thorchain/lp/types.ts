@@ -194,6 +194,7 @@ export type ConfirmedQuote = {
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
+  accountIds: Record<AssetId, AccountId>
 }
 export enum AsymSide {
   Asset = 'asset',

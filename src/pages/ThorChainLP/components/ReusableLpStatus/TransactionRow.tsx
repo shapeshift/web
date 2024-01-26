@@ -51,6 +51,7 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId?: AssetId
+  accountIds: Record<AssetId, AccountId>
   poolAssetId?: AssetId
   amountCryptoPrecision: string
   onComplete: () => void
@@ -64,7 +65,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   onComplete,
   isActive,
+  accountIds,
 }) => {
+  console.log({ accountIds })
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -76,24 +79,19 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  // FIXME: there should be recieved as part of confirmedQuote
-  const defaultAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, asset?.chainId ?? ''),
-  )
-  // TODO(gomes): this is obviously wrong, this component doesn't have the notion of two assets.
-  const defaultRuneAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, asset?.chainId ?? ''),
-  )
-
+  // TODO(gomes): we will need to check for missing AccountId depending on the asymtype
+  const assetAccountId = accountIds[asset?.assetId ?? '']
+  const runeAccountId = accountIds[thorchainAssetId]
+  console.log({ assetAccountId, runeAccountId })
   // TODO(gomes): introspect UTXO from address
   const accountAddress = useMemo(
-    () => defaultAssetAccountId && fromAccountId(defaultAssetAccountId).account,
-    [defaultAssetAccountId],
+    () => assetAccountId && fromAccountId(assetAccountId).account,
+    [assetAccountId],
   )
   const serializedTxIndex = useMemo(() => {
-    if (!(txId && accountAddress && defaultAssetAccountId)) return ''
-    return serializeTxIndex(defaultAssetAccountId, txId, accountAddress)
-  }, [accountAddress, defaultAssetAccountId, txId])
+    if (!(txId && accountAddress && assetAccountId)) return ''
+    return serializeTxIndex(assetAccountId, txId, accountAddress)
+  }, [accountAddress, assetAccountId, txId])
 
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
@@ -169,7 +167,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       )
       const isAtomTx = asset.assetId === cosmosAssetId
       // TODO(gomes): AccountId should be programmatic obviously, and there is no notion of ROON/Asset here anyway
-      const accountId = isRuneTx ? defaultRuneAccountId : defaultAssetAccountId
+      const accountId = isRuneTx ? runeAccountId : assetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
       // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
@@ -320,8 +318,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     amountCryptoPrecision,
     asset,
     assetId,
-    defaultAssetAccountId,
-    defaultRuneAccountId,
+    assetAccountId,
+    runeAccountId,
     inboundAddressData?.address,
     inboundAddressData?.router,
     poolAsset,

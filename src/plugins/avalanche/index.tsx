@@ -31,6 +31,7 @@ export default function register(): Plugins {
                 return new avalanche.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().REACT_APP_AVALANCHE_NODE_URL,
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

@@ -13,7 +13,7 @@ import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput }
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
-import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
+import type { EvmChainId } from '../EvmBaseAdapter'
 import * as bsc from './BscChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -81,7 +81,7 @@ const makeGetAccountMockResponse = (balance: {
 const makeChainAdapterArgs = (overrideArgs?: {
   providers?: { http: unchained.bnbsmartchain.V1Api }
   chainId?: EvmChainId
-}): ChainAdapterArgs<unchained.bnbsmartchain.V1Api> =>
+}): bsc.ChainAdapterArgs =>
   merge(
     {
       providers: {
@@ -89,6 +89,7 @@ const makeChainAdapterArgs = (overrideArgs?: {
         ws: {} as unchained.ws.Client<unchained.bnbsmartchain.Tx>,
       },
       rpcUrl: '',
+      midgardUrl: '',
     },
     overrideArgs,
   )

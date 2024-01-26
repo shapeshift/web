@@ -6,11 +6,15 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 
 import type { ValidAddressResult } from '../../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../../types'
-import type { ChainAdapterArgs } from '../EvmBaseAdapter'
+import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.EthereumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.EthereumMainnet
+
+export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.ethereum.V1Api> {
+  midgardUrl: string
+}
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> {
   static readonly defaultBIP44Params: BIP44Params = {
@@ -19,7 +23,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
     accountNumber: 0,
   }
 
-  constructor(args: ChainAdapterArgs<unchained.ethereum.V1Api>) {
+  constructor(args: ChainAdapterArgs) {
     super({
       assetId: ethAssetId,
       chainId: DEFAULT_CHAIN_ID,
@@ -29,6 +33,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.EthereumMainnet> 
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
         api: args.providers.http,
+        midgardUrl: args.midgardUrl,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

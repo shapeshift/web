@@ -8,12 +8,16 @@ import BigNumber from 'bignumber.js'
 import type { FeeDataEstimate, GetFeeDataInput } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
 import { bn, bnOrZero } from '../../utils/bignumber'
-import type { ChainAdapterArgs } from '../EvmBaseAdapter'
+import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.BnbSmartChainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.BnbSmartChainMainnet
+
+export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.bnbsmartchain.V1Api> {
+  midgardUrl: string
+}
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
@@ -22,7 +26,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
     accountNumber: 0,
   }
 
-  constructor(args: ChainAdapterArgs<unchained.bnbsmartchain.V1Api>) {
+  constructor(args: ChainAdapterArgs) {
     super({
       assetId: bscAssetId,
       chainId: DEFAULT_CHAIN_ID,
@@ -32,6 +36,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
         api: args.providers.http,
+        midgardUrl: args.midgardUrl,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

@@ -134,7 +134,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   useEffect(() => {
     if (!(txId && tx)) return
-    if (tx?.status !== TxStatus.Confirmed) setStatus(tx.status)
+    if (tx?.status !== TxStatus.Confirmed) return setStatus(tx.status)
     ;(async () => {
       await mutateAsync({ txId })
       setStatus(TxStatus.Confirmed)
@@ -224,7 +224,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           const args = (() => {
             const expiry = BigInt(dayjs().add(15, 'minute').unix())
             const vault = getAddress(inboundAddressData.address)
-            const asset = isToken(assetId)
+            debugger
+            const asset = isToken(fromAssetId(assetId).assetReference)
               ? getAddress(fromAssetId(assetId).assetReference)
               : '0x0000000000000000000000000000000000000000'
 
@@ -251,7 +252,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             accountNumber: 0, // TODO(gomes) programmatic
             adapter,
             data,
-            value: isToken(assetId) ? '0' : amountCryptoBaseUnit.toString(),
+            value: isToken(fromAssetId(assetId).assetReference)
+              ? '0'
+              : amountCryptoBaseUnit.toString(),
             to: inboundAddressData.router,
             wallet,
           })

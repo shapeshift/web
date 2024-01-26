@@ -51,23 +51,23 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     return parsedPools.find(pool => pool.opportunityId === confirmedQuote.opportunityId)
   }, [confirmedQuote.opportunityId, parsedPools])
 
-  const asset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
+  const poolAsset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
 
   const assets: Asset[] = useMemo(() => {
-    if (!(pool && asset && baseAsset)) return []
+    if (!(pool && poolAsset && baseAsset)) return []
 
     switch (pool.asymSide) {
       case null:
-        return [baseAsset, asset]
+        return [baseAsset, poolAsset]
       case AsymSide.Rune:
         return [baseAsset]
       case AsymSide.Asset:
-        return [asset]
+        return [poolAsset]
       default:
         assertUnreachable(pool.asymSide)
     }
-  }, [asset, baseAsset, pool])
+  }, [poolAsset, baseAsset, pool])
 
   const handleComplete = useCallback(() => {
     if (activeStepIndex === assets.length) return
@@ -90,7 +90,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   }, [pool?.asymSide, translate])
 
   const renderBody = useMemo(() => {
-    if (!(pool && asset && rune)) return null
+    if (!(pool && poolAsset && rune)) return null
 
     if (isComplete) {
       return (
@@ -142,7 +142,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         </Flex>
       </CardBody>
     )
-  }, [asset, assets, confirmedQuote, pool, hStackDivider, isComplete, translate])
+  }, [poolAsset, assets, confirmedQuote, pool, hStackDivider, isComplete, translate])
 
   const assetCards = useMemo(() => {
     return (
@@ -156,6 +156,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
             <TransactionRow
               key={_asset.assetId}
               assetId={_asset.assetId}
+              poolAssetId={poolAsset?.assetId}
               amountCryptoPrecision={amountCryptoPrecision}
               onComplete={handleComplete}
               isActive={index === activeStepIndex}
@@ -168,11 +169,12 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     assets,
     confirmedQuote.runeCryptoLiquidityAmount,
     confirmedQuote.assetCryptoLiquidityAmount,
+    poolAsset?.assetId,
     handleComplete,
     activeStepIndex,
   ])
 
-  if (!(pool && asset && baseAsset)) return null
+  if (!(pool && poolAsset && baseAsset)) return null
 
   return (
     <SlideTransition>

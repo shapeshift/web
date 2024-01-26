@@ -38,6 +38,7 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId?: AssetId
+  poolAssetId?: AssetId
   amountCryptoPrecision: string
   onComplete: () => void
   isActive?: boolean
@@ -46,13 +47,16 @@ type TransactionRowProps = {
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
+  poolAssetId,
   amountCryptoPrecision,
   onComplete,
   isActive,
 }) => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
+  // TOOO(gomes): we may be able to handle this better, or not
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
   // TODO(gomes): we'll probably need this when implementing waitForThorchainUpdate
   // const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
@@ -131,7 +135,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   console.log({ inboundAddressData })
   const handleSignTx = useCallback(() => {
-    if (!(assetId && asset && wallet)) return
+    if (!(assetId && poolAssetId && asset && poolAsset && wallet)) return
 
     return (async () => {
       const isRuneTx = asset.assetId === thorchainAssetId
@@ -139,14 +143,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       const accountId = isRuneTx ? defaultRuneAccountId : defaultAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
-      const poolAssetId = assetIdToPoolAssetId({ assetId: asset.assetId })
+      // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
+      // Left as-is for this PR to avoid a bigly diff
+      const thorchainNotationAssetId = assetIdToPoolAssetId({
+        assetId: isRuneTx ? poolAsset.assetId : asset.assetId,
+      })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here
         if (isRuneTx) {
           const adapter = assertGetThorchainChainAdapter()
-          const memo = `+:${poolAssetId}::ss:29`
+          const memo = `+:${thorchainNotationAssetId}::ss:29`
 
           debugger
           const estimatedFees = await estimateFees({
@@ -204,7 +212,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             // We should make this programmatic and abstracted. There is really no magic here - the only diff is we use the *pool* asset (dot) notation vs. the synth asset (slash notation)
             // but other than that, that's pretty much savers all over again. Similarly, swapper also calls this.
             // Why would we have to reinvent the wheel?
-            const memo = `+:${poolAssetId}::ss:29`
+            const memo = `+:${thorchainNotationAssetId}::ss:29`
             const amount = BigInt(amountCryptoBaseUnit.toString())
 
             return { memo, amount, expiry, vault, asset }
@@ -255,6 +263,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     defaultRuneAccountId,
     inboundAddressData?.address,
     inboundAddressData?.router,
+    poolAsset,
+    poolAssetId,
     wallet,
   ])
 

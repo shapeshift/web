@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import {
   type AssetId,
   cosmosAssetId,
@@ -40,12 +41,7 @@ import {
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
-import {
-  selectAssetById,
-  selectFirstAccountIdByChainId,
-  selectSelectedCurrency,
-  selectTxById,
-} from 'state/slices/selectors'
+import { selectAssetById, selectSelectedCurrency, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -67,7 +63,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   isActive,
   accountIds,
 }) => {
-  console.log({ accountIds })
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -82,8 +77,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   // TODO(gomes): we will need to check for missing AccountId depending on the asymtype
   const assetAccountId = accountIds[asset?.assetId ?? '']
   const runeAccountId = accountIds[thorchainAssetId]
-  console.log({ assetAccountId, runeAccountId })
   // TODO(gomes): introspect UTXO from address
+  // or actually no, don't - we have *assetAddress* for this.
   const accountAddress = useMemo(
     () => assetAccountId && fromAccountId(assetAccountId).account,
     [assetAccountId],

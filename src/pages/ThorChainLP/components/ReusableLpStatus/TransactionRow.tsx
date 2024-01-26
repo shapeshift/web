@@ -1,6 +1,16 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
-import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION, type FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import {
+  type AssetId,
+  cosmosAssetId,
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+} from '@shapeshiftoss/caip'
+import {
+  CONTRACT_INTERACTION,
+  type FeeDataEstimate,
+  FeeDataKey,
+} from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -15,7 +25,8 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { estimateFees } from 'components/Modals/Send/utils'
+import type { SendInput } from 'components/Modals/Send/Form'
+import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
@@ -26,11 +37,13 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
+  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import {
   selectAssetById,
   selectFirstAccountIdByChainId,
+  selectSelectedCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -54,6 +67,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 }) => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   // TOOO(gomes): we may be able to handle this better, or not
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
@@ -135,10 +149,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   console.log({ inboundAddressData })
   const handleSignTx = useCallback(() => {
-    if (!(assetId && poolAssetId && asset && poolAsset && wallet)) return
+    if (!(assetId && poolAssetId && asset && poolAsset && wallet && inboundAddressData?.address))
+      return
 
     return (async () => {
+      const supportedEvmChainIds = getSupportedEvmChainIds()
       const isRuneTx = asset.assetId === thorchainAssetId
+      const isEvmTx = supportedEvmChainIds.includes(
+        fromAssetId(asset.assetId).chainId as KnownChainIds,
+      )
+      const isAtomTx = asset.assetId === cosmosAssetId
       // TODO(gomes): AccountId should be programmatic obviously, and there is no notion of ROON/Asset here anyway
       const accountId = isRuneTx ? defaultRuneAccountId : defaultAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
@@ -180,7 +200,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
             },
           })
-
           const signedTx = await adapter.signTransaction({
             txToSign,
             wallet,
@@ -192,7 +211,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           })
 
           setTxId(txId)
-        } else {
+        } else if (isEvmTx) {
           if (!inboundAddressData?.router) return
 
           const thorContract = getOrCreateContractByType({
@@ -244,6 +263,45 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           })
 
           setTxId(txid)
+        } else if (isAtomTx) {
+          if (!accountAddress) throw new Error('No accountAddress found')
+
+          const memo = `+:${thorchainNotationAssetId}::ss:29`
+
+          const estimateFeesArgs = {
+            cryptoAmount: amountCryptoPrecision,
+            assetId,
+            to: inboundAddressData.address,
+            from: accountAddress,
+            sendMax: false,
+            memo,
+            accountId,
+            contractAddress: undefined,
+          }
+          const estimatedFees = await estimateFees(estimateFeesArgs)
+          const sendInput: SendInput = {
+            cryptoAmount: amountCryptoPrecision,
+            assetId,
+            to: inboundAddressData.address,
+            from: accountAddress,
+            sendMax: false,
+            accountId,
+            memo,
+            amountFieldError: '',
+            estimatedFees,
+            feeType: FeeDataKey.Fast,
+            fiatAmount: '',
+            fiatSymbol: selectedCurrency,
+            vanityAddress: '',
+            input: inboundAddressData.address,
+          }
+
+          const txId = await handleSend({
+            sendInput,
+            wallet,
+          })
+
+          setTxId(txId)
         }
       })()
 
@@ -256,6 +314,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       // })
     })()
   }, [
+    accountAddress,
     amountCryptoPrecision,
     asset,
     assetId,
@@ -265,6 +324,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     inboundAddressData?.router,
     poolAsset,
     poolAssetId,
+    selectedCurrency,
     wallet,
   ])
 

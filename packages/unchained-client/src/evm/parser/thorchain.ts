@@ -14,8 +14,8 @@ const routerAbi = [
   'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
 ]
 
-const depositRegex = /^[^:]+:[^:]+(?:::[^:]+:[^:]+)?$/
-const withdrawRegex = /^[^:]+:[^:]+:[^:]+$/
+const depositRegex = /^(add|a|\+):([^:]+)(:([^:]+)?)?(:([^:]+)?)?(:([^:]+)?)?$/
+const withdrawRegex = /^(withdraw|wd|-):([^:]+)(:([^:]+)?)?(:([^:]+)?)?$/
 
 export interface ParserArgs {
   chainId: ChainId
@@ -32,6 +32,7 @@ interface SupportedFunctions {
 }
 
 export class Parser implements SubParser<Tx> {
+  private readonly chainId: ChainId
   private readonly thorchainParser: ThorchainParser
   private readonly abiInterface: ethers.utils.Interface
   private readonly supportedFunctions: SupportedFunctions
@@ -46,6 +47,7 @@ export class Parser implements SubParser<Tx> {
       swapInSigHash: this.abiInterface.getSighash('swapIn'),
     }
     this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
+    this.chainId = args.chainId
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
@@ -66,13 +68,17 @@ export class Parser implements SubParser<Tx> {
 
       // input data may be a raw thorchain memo
       const maybeMemo = Buffer.from(tx.inputData.slice(2), 'hex').toString()
-      if ([depositRegex, withdrawRegex].some(regex => regex.test(maybeMemo))) {
+      if ([depositRegex, withdrawRegex].some(regex => regex.test(maybeMemo.toLowerCase()))) {
         return maybeMemo
       }
     })()
 
     if (!memo) return
 
-    return await this.thorchainParser.parse(memo)
+    try {
+      return await this.thorchainParser.parse(memo)
+    } catch (err) {
+      console.error(`failed to parse tx: ${tx.txid} on ${this.chainId}: ${err}`)
+    }
   }
 }

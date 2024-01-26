@@ -133,59 +133,51 @@ export class Parser {
       case 'swap':
       case '=':
       case 's': {
-        return await Promise.resolve({
+        return {
           data: { parser: 'thorchain', method: 'swap', memo, swap: { type: getSwapType(memo) } },
           trade: { dexName: Dex.Thor, type: TradeType.Swap, memo },
-        })
+        }
       }
       case 'add':
       case '+': {
         const [, pool] = memo.split(':')
         const type = getLiquidityType(pool)
-        return await Promise.resolve({
-          data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type } },
-        })
+        return { data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type } } }
       }
       case 'withdraw':
       case '-':
       case 'wd': {
         const [, pool] = memo.split(':')
         const type = getLiquidityType(pool)
-        return await Promise.resolve({
-          data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type } },
-        })
+        return { data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type } } }
       }
       case '$+':
       case 'loan+':
-        return await Promise.resolve({
-          data: { parser: 'thorchain', memo, method: 'loanOpen' },
-        })
+        return { data: { parser: 'thorchain', memo, method: 'loanOpen' } }
       case '$-':
       case 'loan-':
-        return await Promise.resolve({
-          data: { parser: 'thorchain', memo, method: 'loanRepayment' },
-        })
+        return { data: { parser: 'thorchain', memo, method: 'loanRepayment' } }
       case 'out': {
         const extraMetadata = await this.getExtraMetadata(memo)
-        return await Promise.resolve({
-          data: { parser: 'thorchain', memo, ...extraMetadata },
-        })
+        if (!extraMetadata) return
+        return { data: { parser: 'thorchain', memo, ...extraMetadata } }
       }
       case 'refund':
         const extraMetadata = await this.getExtraMetadata(memo)
-        return await Promise.resolve({
-          data: { parser: 'thorchain', memo, ...extraMetadata },
-        })
+        if (!extraMetadata) return
+        return { data: { parser: 'thorchain', memo, ...extraMetadata } }
       default:
         return
     }
   }
 
-  private getExtraMetadata = async (memo: string): Promise<ExtraMetadata> => {
+  private getExtraMetadata = async (memo: string): Promise<ExtraMetadata | undefined> => {
     const [type, txid] = memo.split(':')
     const { data } = await this.axiosMidgard.get<ActionsResponse>(`/actions?txid=${txid}`)
 
     const action = data.actions[data.actions.length - 1]
+
+    if (!action) return
 
     const swapMemo = action.metadata?.swap?.memo ?? ''
     const [swapType] = swapMemo.split(':')

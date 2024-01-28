@@ -41,7 +41,15 @@ import {
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { selectAssetById, selectSelectedCurrency, selectTxById } from 'state/slices/selectors'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectSelectedCurrency,
+  selectTxById,
+} from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
@@ -53,6 +61,7 @@ type TransactionRowProps = {
   onComplete: () => void
   isActive?: boolean
   isLast?: boolean
+  confirmedQuote: ConfirmedQuote
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
@@ -62,6 +71,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   onComplete,
   isActive,
   accountIds,
+  confirmedQuote,
 }) => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
@@ -74,19 +84,49 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  // TODO(gomes): we will need to check for missing AccountId depending on the asymtype
   const assetAccountId = accountIds[asset?.assetId ?? '']
   const runeAccountId = accountIds[thorchainAssetId]
-  // TODO(gomes): introspect UTXO from address
-  // or actually no, don't - we have *assetAddress* for this.
-  const accountAddress = useMemo(
-    () => assetAccountId && fromAccountId(assetAccountId).account,
-    [assetAccountId],
+  const assetAccountNumberFilter = useMemo(
+    () => ({ assetId: asset?.assetId ?? '', accountId: assetAccountId ?? '' }),
+    [asset?.assetId, assetAccountId],
   )
+  const runeAccountNumberFilter = useMemo(
+    () => ({ assetId: thorchainAssetId, accountId: runeAccountId ?? '' }),
+    [runeAccountId],
+  )
+
+  const assetAccountNumber = useAppSelector(s =>
+    selectAccountNumberByAccountId(s, assetAccountNumberFilter),
+  )
+  const runeAccountNumber = useAppSelector(s =>
+    selectAccountNumberByAccountId(s, runeAccountNumberFilter),
+  )
+
+  const { data: userData } = useUserLpData({ assetId: poolAssetId ?? '' })
+  // TODO(gomes): destructure userAddress from this guy.
+  // Test this extensively to ensure we *always* use this whenever possible, and only then default to the first UTXO address
+  // perhaps getThorchainFromAddress could be used for LP too?
+  const foundUserData = useMemo(() => {
+    if (!userData) return undefined
+
+    // TODO(gomes): when routed from the "Your positions" page, we will want to handle multi-account and narrow by AccountId
+    // TODO(gomes): when supporting multi account for this, we will want to either handle default, highest balance account as default,
+    // or, probably better from an architectural standpoint, have each account position be its separate row
+    return userData?.find(data => data.opportunityId === confirmedQuote?.opportunityId)
+  }, [confirmedQuote?.opportunityId, userData])
+
+  const assetAccountAddress = useMemo(() => {
+    if (!asset) return
+
+    // TODO(gomes): default in case there is no position yet
+    if (isUtxoChainId(asset.chainId)) return foundUserData?.assetAddress
+    return assetAccountId && fromAccountId(assetAccountId).account
+  }, [asset, assetAccountId, foundUserData?.assetAddress])
+
   const serializedTxIndex = useMemo(() => {
-    if (!(txId && accountAddress && assetAccountId)) return ''
-    return serializeTxIndex(assetAccountId, txId, accountAddress)
-  }, [accountAddress, assetAccountId, txId])
+    if (!(txId && assetAccountAddress && assetAccountId)) return ''
+    return serializeTxIndex(assetAccountId, txId, assetAccountAddress)
+  }, [assetAccountAddress, assetAccountId, txId])
 
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
@@ -175,6 +215,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here
         if (isRuneTx) {
+          if (!runeAccountNumber) throw new Error(`No account number found for RUNE`)
+
           const adapter = assertGetThorchainChainAdapter()
           const memo = `+:${thorchainNotationAssetId}::ss:29`
 
@@ -191,7 +233,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           // LP deposit using THOR is a MsgDeposit tx
           const { txToSign } = await adapter.buildDepositTransaction({
             from: account,
-            accountNumber: 0, // TODO(gomes): implement me
+            accountNumber: runeAccountNumber,
             value: amountCryptoBaseUnit,
             memo,
             chainSpecific: {
@@ -264,8 +306,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           })
 
           setTxId(txid)
-        } else if (isAtomTx) {
-          if (!accountAddress) throw new Error('No accountAddress found')
+        } else {
+          // ATOM/RUNE - obviously make me a switch case for things to be cleaner
+          if (!assetAccountAddress) throw new Error('No accountAddress found')
 
           const memo = `+:${thorchainNotationAssetId}::ss:29`
 
@@ -273,7 +316,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             cryptoAmount: amountCryptoPrecision,
             assetId,
             to: inboundAddressData.address,
-            from: accountAddress,
+            from: assetAccountAddress,
             sendMax: false,
             memo,
             accountId,
@@ -284,7 +327,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             cryptoAmount: amountCryptoPrecision,
             assetId,
             to: inboundAddressData.address,
-            from: accountAddress,
+            from: assetAccountAddress,
             sendMax: false,
             accountId,
             memo,
@@ -309,18 +352,19 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       setStatus(TxStatus.Pending)
     })
   }, [
-    accountAddress,
-    amountCryptoPrecision,
-    asset,
     assetId,
-    assetAccountId,
-    runeAccountId,
+    poolAssetId,
+    asset,
+    poolAsset,
+    wallet,
     inboundAddressData?.address,
     inboundAddressData?.router,
-    poolAsset,
-    poolAssetId,
+    runeAccountId,
+    assetAccountId,
+    amountCryptoPrecision,
+    runeAccountNumber,
+    assetAccountAddress,
     selectedCurrency,
-    wallet,
   ])
 
   const txIdLink = useMemo(() => `${asset?.explorerTxLink}/${txId}`, [asset?.explorerTxLink, txId])

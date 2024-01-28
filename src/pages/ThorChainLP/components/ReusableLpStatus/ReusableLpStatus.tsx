@@ -182,20 +182,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               amountCryptoPrecision={amountCryptoPrecision}
               onComplete={handleComplete}
               isActive={index === activeStepIndex}
+              confirmedQuote={confirmedQuote}
             />
           )
         })}
       </Stack>
     )
-  }, [
-    assets,
-    confirmedQuote.runeCryptoLiquidityAmount,
-    confirmedQuote.assetCryptoLiquidityAmount,
-    confirmedQuote.accountIds,
-    poolAsset?.assetId,
-    handleComplete,
-    activeStepIndex,
-  ])
+  }, [assets, confirmedQuote, poolAsset?.assetId, handleComplete, activeStepIndex])
 
   if (!(pool && poolAsset && baseAsset)) return null
 

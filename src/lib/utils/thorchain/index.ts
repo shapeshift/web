@@ -141,6 +141,7 @@ export const getThorchainFromAddress = async ({
 }: {
   accountId: AccountId
   assetId: AssetId
+  // TODO(gomes): getThorchainLp maybe, or maybe not?
   getPosition: typeof getThorchainLendingPosition | typeof getThorchainSaversPosition
   accountMetadata: AccountMetadata
   wallet: HDWallet

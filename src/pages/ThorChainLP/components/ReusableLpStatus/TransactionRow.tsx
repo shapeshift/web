@@ -102,7 +102,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectAccountNumberByAccountId(s, runeAccountNumberFilter),
   )
 
-  const { data: userData } = useUserLpData({ assetId: poolAssetId ?? '' })
+  const { data: userData } = useUserLpData({
+    assetId: poolAssetId ?? '',
+    accountId: assetAccountId,
+  })
   // TODO(gomes): destructure userAddress from this guy.
   // Test this extensively to ensure we *always* use this whenever possible, and only then default to the first UTXO address
   // perhaps getThorchainFromAddress could be used for LP too?

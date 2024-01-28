@@ -14,19 +14,19 @@ import { useAppSelector } from 'state/store'
 
 type UseUserLpDataProps = {
   assetId: AssetId
+  accountId?: AccountId
 }
 
 export const useUserLpData = ({
   assetId,
+  accountId,
 }: UseUserLpDataProps): UseQueryResult<UserLpDataPosition[] | null> => {
   const queryClient = useQueryClient()
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
-  const accountIds = [
-    ...useAppSelector(state => selectAccountIdsByAssetId(state, { assetId })),
-    ...thorchainAccountIds,
-  ]
+  const assetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const accountIds = [...(accountId ? [accountId] : assetAccountIds), ...thorchainAccountIds]
 
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))

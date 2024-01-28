@@ -1,7 +1,7 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { orderBy, uniqBy } from 'lodash'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -247,8 +247,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
           transitionTimingFunction='ease-in-out'
           gap={2}
         >
-          {quotes}
-          {fetchingSwappers}
+          <AnimatePresence>
+            <LayoutGroup>
+              {quotes}
+              {fetchingSwappers}
+            </LayoutGroup>
+          </AnimatePresence>
         </Flex>
       </Box>
     )

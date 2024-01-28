@@ -3,7 +3,7 @@ import { Collapse, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-u
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
@@ -52,13 +52,22 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const { isOpen, onToggle } = useDisclosure({
+  const { isOpen, onToggle, onOpen, onClose } = useDisclosure({
     defaultIsOpen: errors.length === 0,
   })
 
   const {
     number: { toPercent },
   } = useLocaleFormatter()
+
+  // ensure the correct collapse state based on subsequent quotes
+  useEffect(() => {
+    if (errors.length === 0) {
+      onOpen()
+    } else {
+      onClose()
+    }
+  }, [errors.length, onClose, onOpen])
 
   const { isTradingActive } = useIsTradingActive()
 
@@ -235,7 +244,9 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     return (
       <Flex gap={2}>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-        {!isLoading && isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
+        <Skeleton isLoaded={!isLoading}>
+          {isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
+        </Skeleton>
       </Flex>
     )
   }, [isDisabled, isLoading, isOpen, onToggle, quote, tag])

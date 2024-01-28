@@ -203,7 +203,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       const isEvmTx = supportedEvmChainIds.includes(
         fromAssetId(asset.assetId).chainId as KnownChainIds,
       )
-      const isAtomTx = asset.assetId === cosmosAssetId
       // TODO(gomes): AccountId should be programmatic obviously, and there is no notion of ROON/Asset here anyway
       const accountId = isRuneTx ? runeAccountId : assetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)

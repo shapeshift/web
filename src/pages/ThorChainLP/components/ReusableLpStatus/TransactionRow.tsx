@@ -1,12 +1,6 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import {
-  type AssetId,
-  cosmosAssetId,
-  fromAccountId,
-  fromAssetId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import {
   CONTRACT_INTERACTION,
   type FeeDataEstimate,
@@ -194,12 +188,22 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   })
 
   const handleSignTx = useCallback(() => {
-    if (!(assetId && poolAssetId && asset && poolAsset && wallet && inboundAddressData?.address))
+    const isRuneTx = asset?.assetId === thorchainAssetId
+
+    if (
+      !(
+        assetId &&
+        poolAssetId &&
+        asset &&
+        poolAsset &&
+        wallet &&
+        (isRuneTx || inboundAddressData?.address)
+      )
+    )
       return
 
     return (async () => {
       const supportedEvmChainIds = getSupportedEvmChainIds()
-      const isRuneTx = asset.assetId === thorchainAssetId
       const isEvmTx = supportedEvmChainIds.includes(
         fromAssetId(asset.assetId).chainId as KnownChainIds,
       )
@@ -214,13 +218,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
+      const otherAssetAddress = (() => {
+        // We don't want to pair an address while depositing in case of asym. Txs
+        if (foundUserData?.isAsymmetric) return ''
+
+        return isRuneTx ? foundUserData?.assetAddress ?? '' : foundUserData?.runeAddress ?? ''
+      })()
+      console.log({ foundUserData, otherAssetAddress })
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here
         if (isRuneTx) {
-          if (!runeAccountNumber) throw new Error(`No account number found for RUNE`)
+          if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
 
           const adapter = assertGetThorchainChainAdapter()
-          const memo = `+:${thorchainNotationAssetId}::ss:29`
+          const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
 
           const estimatedFees = await estimateFees({
             cryptoAmount: amountCryptoBaseUnit,
@@ -275,7 +286,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             // We should make this programmatic and abstracted. There is really no magic here - the only diff is we use the *pool* asset (dot) notation vs. the synth asset (slash notation)
             // but other than that, that's pretty much savers all over again. Similarly, swapper also calls this.
             // Why would we have to reinvent the wheel?
-            const memo = `+:${thorchainNotationAssetId}::ss:29`
+            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
             const amount = BigInt(amountCryptoBaseUnit.toString())
 
             return { memo, amount, expiry, vault, asset }
@@ -309,15 +320,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
           setTxId(txid)
         } else {
+          if (!inboundAddressData) throw new Error('No inboundAddressData found')
           // ATOM/RUNE - obviously make me a switch case for things to be cleaner
           if (!assetAccountAddress) throw new Error('No accountAddress found')
 
-          const memo = `+:${thorchainNotationAssetId}::ss:29`
+          const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
 
           const estimateFeesArgs = {
             cryptoAmount: amountCryptoPrecision,
             assetId,
-            to: inboundAddressData.address,
+            to: inboundAddressData?.address,
             from: assetAccountAddress,
             sendMax: false,
             memo,
@@ -328,7 +340,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           const sendInput: SendInput = {
             cryptoAmount: amountCryptoPrecision,
             assetId,
-            to: inboundAddressData.address,
+            to: inboundAddressData?.address,
             from: assetAccountAddress,
             sendMax: false,
             accountId,
@@ -339,7 +351,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             fiatAmount: '',
             fiatSymbol: selectedCurrency,
             vanityAddress: '',
-            input: inboundAddressData.address,
+            input: inboundAddressData?.address,
           }
 
           const txId = await handleSend({
@@ -354,16 +366,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       setStatus(TxStatus.Pending)
     })
   }, [
+    asset,
     assetId,
     poolAssetId,
-    asset,
     poolAsset,
     wallet,
-    inboundAddressData?.address,
-    inboundAddressData?.router,
+    inboundAddressData,
     runeAccountId,
     assetAccountId,
     amountCryptoPrecision,
+    foundUserData,
     runeAccountNumber,
     assetAccountAddress,
     selectedCurrency,

@@ -11,20 +11,15 @@ import {
   Heading,
   IconButton,
   Stack,
-  useToken,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import type { ColorFormat } from 'react-countdown-circle-timer'
-import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { FadeTransition } from 'components/FadeTransition'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
@@ -119,10 +114,6 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const [themeIndicatorColor, themeTrackColor] = useToken('colors', [
-    'blue.500',
-    'background.surface.raised.base',
-  ])
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [isAnySwapperFetched, setIsAnySwapperFetched] = useState(true)
   const [isQuoteRequestComplete, setIsQuoteRequestComplete] = useState(true)
@@ -573,20 +564,6 @@ export const TradeInput = memo(() => {
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
-  const countdownCircleTimerIcon = useMemo(
-    () => (
-      <CountdownCircleTimer
-        isPlaying
-        duration={20}
-        size={20}
-        strokeWidth={3}
-        trailColor={themeTrackColor as ColorFormat}
-        colors={themeIndicatorColor as ColorFormat}
-      />
-    ),
-    [themeIndicatorColor, themeTrackColor],
-  )
-
   const sellTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
@@ -620,20 +597,7 @@ export const TradeInput = memo(() => {
               <Heading as='h5' fontSize='md'>
                 {translate('navBar.trade')}
               </Heading>
-              <Flex>
-                <AnimatePresence>
-                  {!!sortedQuotes.length && !isLoading && hasUserEnteredAmount && (
-                    <FadeTransition>
-                      <IconButton
-                        variant='ghost'
-                        aria-label={translate('trade.quoteStatus')}
-                        icon={countdownCircleTimerIcon}
-                      />
-                    </FadeTransition>
-                  )}
-                </AnimatePresence>
-                <SlippagePopover />
-              </Flex>
+              <SlippagePopover />
             </Flex>
           </CardHeader>
           <Stack spacing={0}>

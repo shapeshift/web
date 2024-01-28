@@ -247,12 +247,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
           transitionTimingFunction='ease-in-out'
           gap={2}
         >
-          <AnimatePresence>
-            <LayoutGroup>
+          <LayoutGroup>
+            <AnimatePresence>
               {quotes}
               {fetchingSwappers}
-            </LayoutGroup>
-          </AnimatePresence>
+            </AnimatePresence>
+          </LayoutGroup>
         </Flex>
       </Box>
     )

@@ -7,7 +7,6 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
-import { TwirlyToggle } from 'components/MultiHopTrade/components/TwirlyToggle'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -30,6 +29,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
+import { CountdownToggle } from './components/CountdownToggle'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
 
@@ -245,11 +245,11 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
       <Flex gap={2}>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
         <Skeleton isLoaded={!isLoading}>
-          {isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
+          <CountdownToggle isOpen={isOpen} onToggle={onToggle} showToggle={Boolean(quote)} />
         </Skeleton>
       </Flex>
     )
-  }, [isDisabled, isLoading, isOpen, onToggle, quote, tag])
+  }, [isLoading, isOpen, onToggle, quote, tag])
 
   const bodyContent = useMemo(() => {
     return quote ? (

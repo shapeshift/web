@@ -344,7 +344,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       accountIds,
       totalAmountFiat,
       feeBps: feeBps.toFixed(0),
-      feeAmountFiat: feeUsd.toFixed(),
+      feeAmountFiat: feeUsd.toFixed(2),
     })
   }, [
     accountIds,

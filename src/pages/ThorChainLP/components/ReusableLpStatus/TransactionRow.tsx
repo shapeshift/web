@@ -36,7 +36,6 @@ import {
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
-import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import {
   selectAccountNumberByAccountId,
@@ -81,64 +80,62 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const assetAccountId = accountIds[asset?.assetId ?? '']
   const runeAccountId = accountIds[thorchainAssetId]
-  const assetAccountNumberFilter = useMemo(
-    () => ({ assetId: asset?.assetId ?? '', accountId: assetAccountId ?? '' }),
-    [asset?.assetId, assetAccountId],
-  )
   const runeAccountNumberFilter = useMemo(
     () => ({ assetId: thorchainAssetId, accountId: runeAccountId ?? '' }),
     [runeAccountId],
   )
 
-  const assetAccountNumber = useAppSelector(s =>
-    selectAccountNumberByAccountId(s, assetAccountNumberFilter),
-  )
   const runeAccountNumber = useAppSelector(s =>
     selectAccountNumberByAccountId(s, runeAccountNumberFilter),
   )
 
-  const { data: userData } = useUserLpData({
-    assetId: poolAssetId ?? '',
-    accountId: assetAccountId,
-  })
-  // TODO(gomes): destructure userAddress from this guy.
-  // Test this extensively to ensure we *always* use this whenever possible, and only then default to the first UTXO address
-  // perhaps getThorchainFromAddress could be used for LP too?
-  const foundUserData = useMemo(() => {
-    if (!userData) return undefined
-
-    // TODO(gomes): when routed from the "Your positions" page, we will want to handle multi-account and narrow by AccountId
-    // TODO(gomes): when supporting multi account for this, we will want to either handle default, highest balance account as default,
-    // or, probably better from an architectural standpoint, have each account position be its separate row
-    return userData?.find(data => data.opportunityId === confirmedQuote?.opportunityId)
-  }, [confirmedQuote?.opportunityId, userData])
-
-  const accountFilter = useMemo(() => ({ accountId: assetAccountId }), [assetAccountId])
-  const accountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, accountFilter),
+  const assetAccountFilter = useMemo(() => ({ accountId: assetAccountId }), [assetAccountId])
+  const assetAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, assetAccountFilter),
+  )
+  const runeAccountFilter = useMemo(() => ({ accountId: runeAccountId }), [runeAccountId])
+  const runeAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, runeAccountFilter),
   )
 
-  const [accountAddress, setAccountAddress] = useState<string | null>(null)
+  const [accountAssetAddress, setAccountAssetAddress] = useState<string | null>(null)
+  const [otherAssetAddress, setOtherAssetAddress] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!(wallet && asset && confirmedQuote?.opportunityId && accountMetadata)) return
+    if (!(wallet && asset && confirmedQuote?.opportunityId && assetAccountMetadata)) return
     const accountId = asset?.assetId === thorchainAssetId ? runeAccountId : assetAccountId
-    // TODO(gomes): double check this works both sides
+    const otherAssetAccountId = asset?.assetId === thorchainAssetId ? assetAccountId : runeAccountId
     const assetId = asset?.assetId === thorchainAssetId ? thorchainAssetId : poolAssetId
+    const otherAssetAssetId = asset?.assetId === thorchainAssetId ? assetId : thorchainAssetId
+    const otherAssetAccountMetadata =
+      asset?.assetId === thorchainAssetId ? assetAccountMetadata : runeAccountMetadata
+
     if (!assetId) return
     ;(async () => {
-      const _accountAddress = await getThorchainFromAddress({
+      const _accountAssetAddress = await getThorchainFromAddress({
         accountId,
         assetId,
         opportunityId: confirmedQuote.opportunityId,
         wallet,
-        accountMetadata,
+        accountMetadata: assetAccountMetadata,
         getPosition: getThorchainLpPosition,
       })
-      setAccountAddress(_accountAddress)
+      setAccountAssetAddress(_accountAssetAddress)
+
+      if (!otherAssetAccountId || !otherAssetAssetId || !otherAssetAccountMetadata) return
+
+      const _otherAssetAddress = await getThorchainFromAddress({
+        accountId: otherAssetAccountId,
+        assetId: otherAssetAssetId,
+        opportunityId: confirmedQuote.opportunityId,
+        wallet,
+        accountMetadata: otherAssetAccountMetadata,
+        getPosition: getThorchainLpPosition,
+      })
+      setOtherAssetAddress(_otherAssetAddress)
     })()
   }, [
-    accountMetadata,
+    assetAccountMetadata,
     asset,
     assetAccountId,
     assetId,
@@ -146,14 +143,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     poolAssetId,
     runeAccountId,
     wallet,
+    runeAccountMetadata,
   ])
 
-  console.log({ accountAddress })
+  console.log({ accountAddress: accountAssetAddress })
 
   const serializedTxIndex = useMemo(() => {
-    if (!(txId && accountAddress && assetAccountId)) return ''
-    return serializeTxIndex(assetAccountId, txId, accountAddress)
-  }, [accountAddress, assetAccountId, txId])
+    if (!(txId && accountAssetAddress && assetAccountId)) return ''
+    return serializeTxIndex(assetAccountId, txId, accountAssetAddress)
+  }, [accountAssetAddress, assetAccountId, txId])
 
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
@@ -236,11 +234,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
 
     return (async () => {
-      const supportedEvmChainIds = getSupportedEvmChainIds()
-      const isEvmTx = supportedEvmChainIds.includes(
-        fromAssetId(asset.assetId).chainId as KnownChainIds,
-      )
-      // TODO(gomes): AccountId should be programmatic obviously, and there is no notion of ROON/Asset here anyway
       const accountId = isRuneTx ? runeAccountId : assetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
@@ -251,19 +244,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
-      const otherAssetAddress = (() => {
-        // We don't want to pair an address while depositing in case of asym. Txs
-        if (foundUserData?.isAsymmetric) return ''
-
-        // TODO(gomes): this will work for active positions only, use similar accountAddress logic
-        return isRuneTx ? foundUserData?.assetAddress ?? '' : foundUserData?.runeAddress ?? ''
-      })()
-
       // A THOR LP deposit can either be:
       // - a RUNE MsgDeposit message type
       // - an EVM custom Tx, i.e a Tx with calldata
       // - a regular send with a memo (for ATOM and UTXOs)
       const transactionType = (() => {
+        const supportedEvmChainIds = getSupportedEvmChainIds()
         if (asset?.assetId === thorchainAssetId) return 'MsgDeposit'
         if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
           return 'EvmCustomTx'
@@ -278,7 +264,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
 
             const adapter = assertGetThorchainChainAdapter()
-            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
+            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:29`
 
             const estimatedFees = await estimateFees({
               cryptoAmount: amountCryptoBaseUnit,
@@ -336,7 +322,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               // We should make this programmatic and abstracted. There is really no magic here - the only diff is we use the *pool* asset (dot) notation vs. the synth asset (slash notation)
               // but other than that, that's pretty much savers all over again. Similarly, swapper also calls this.
               // Why would we have to reinvent the wheel?
-              const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
+              const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:29`
               const amount = BigInt(amountCryptoBaseUnit.toString())
 
               return { memo, amount, expiry, vault, asset }
@@ -374,15 +360,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           case 'Send': {
             if (!inboundAddressData) throw new Error('No inboundAddressData found')
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
-            if (!accountAddress) throw new Error('No accountAddress found')
+            if (!accountAssetAddress) throw new Error('No accountAddress found')
 
-            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
+            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:29`
 
             const estimateFeesArgs = {
               cryptoAmount: amountCryptoPrecision,
               assetId,
               to: inboundAddressData?.address,
-              from: accountAddress,
+              from: accountAssetAddress,
               sendMax: false,
               memo,
               accountId,
@@ -393,7 +379,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               cryptoAmount: amountCryptoPrecision,
               assetId,
               to: inboundAddressData?.address,
-              from: accountAddress,
+              from: accountAssetAddress,
               sendMax: false,
               accountId,
               memo,
@@ -431,9 +417,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     runeAccountId,
     assetAccountId,
     amountCryptoPrecision,
-    foundUserData,
     runeAccountNumber,
-    accountAddress,
+    otherAssetAddress,
+    accountAssetAddress,
     selectedCurrency,
   ])
 

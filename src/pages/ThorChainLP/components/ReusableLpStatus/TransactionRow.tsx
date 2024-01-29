@@ -26,7 +26,7 @@ import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { isToken } from 'lib/utils'
+import { assertUnreachable, isToken } from 'lib/utils'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,
@@ -258,141 +258,164 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         // TODO(gomes): this will work for active positions only, use similar accountAddress logic
         return isRuneTx ? foundUserData?.assetAddress ?? '' : foundUserData?.runeAddress ?? ''
       })()
+
+      // A THOR LP deposit can either be:
+      // - a RUNE MsgDeposit message type
+      // - an EVM custom Tx, i.e a Tx with calldata
+      // - a regular send with a memo (for ATOM and UTXOs)
+      const transactionType = (() => {
+        if (asset?.assetId === thorchainAssetId) return 'MsgDeposit'
+        if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
+          return 'EvmCustomTx'
+        }
+        return 'Send'
+      })()
+
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here
-        if (isRuneTx) {
-          if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
+        switch (transactionType) {
+          case 'MsgDeposit': {
+            if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
 
-          const adapter = assertGetThorchainChainAdapter()
-          const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
-
-          const estimatedFees = await estimateFees({
-            cryptoAmount: amountCryptoBaseUnit,
-            assetId: asset.assetId,
-            memo,
-            to: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
-            sendMax: false,
-            accountId,
-            contractAddress: undefined,
-          })
-
-          // LP deposit using THOR is a MsgDeposit tx
-          const { txToSign } = await adapter.buildDepositTransaction({
-            from: account,
-            accountNumber: runeAccountNumber,
-            value: amountCryptoBaseUnit,
-            memo,
-            chainSpecific: {
-              gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
-                .chainSpecific.gasLimit,
-              fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
-            },
-          })
-          const signedTx = await adapter.signTransaction({
-            txToSign,
-            wallet,
-          })
-          const txId = await adapter.broadcastTransaction({
-            senderAddress: account,
-            receiverAddress: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
-            hex: signedTx,
-          })
-
-          setTxId(txId)
-        } else if (isEvmTx) {
-          if (!inboundAddressData?.router) return
-
-          const thorContract = getOrCreateContractByType({
-            address: inboundAddressData.router,
-            type: ContractType.ThorRouter,
-            chainId: asset.chainId,
-          })
-
-          const args = (() => {
-            const expiry = BigInt(dayjs().add(15, 'minute').unix())
-            const vault = getAddress(inboundAddressData.address)
-            const asset = isToken(fromAssetId(assetId).assetReference)
-              ? getAddress(fromAssetId(assetId).assetReference)
-              : '0x0000000000000000000000000000000000000000'
-
-            // TODO(gomes): cleanup before opening me, yoloing this to get this to work initially
-            // We should make this programmatic and abstracted. There is really no magic here - the only diff is we use the *pool* asset (dot) notation vs. the synth asset (slash notation)
-            // but other than that, that's pretty much savers all over again. Similarly, swapper also calls this.
-            // Why would we have to reinvent the wheel?
+            const adapter = assertGetThorchainChainAdapter()
             const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
-            const amount = BigInt(amountCryptoBaseUnit.toString())
 
-            return { memo, amount, expiry, vault, asset }
-          })()
+            const estimatedFees = await estimateFees({
+              cryptoAmount: amountCryptoBaseUnit,
+              assetId: asset.assetId,
+              memo,
+              to: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
+              sendMax: false,
+              accountId,
+              contractAddress: undefined,
+            })
 
-          const data = encodeFunctionData({
-            abi: thorContract.abi,
-            functionName: 'depositWithExpiry',
-            args: [args.vault, args.asset, args.amount, args.memo, args.expiry],
-          })
+            // LP deposit using THOR is a MsgDeposit tx
+            const { txToSign } = await adapter.buildDepositTransaction({
+              from: account,
+              accountNumber: runeAccountNumber,
+              value: amountCryptoBaseUnit,
+              memo,
+              chainSpecific: {
+                gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
+                  .chainSpecific.gasLimit,
+                fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
+              },
+            })
+            const signedTx = await adapter.signTransaction({
+              txToSign,
+              wallet,
+            })
+            const txId = await adapter.broadcastTransaction({
+              senderAddress: account,
+              receiverAddress: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
+              hex: signedTx,
+            })
 
-          const adapter = assertGetEvmChainAdapter(asset.chainId)
+            setTxId(txId)
 
-          const buildCustomTxInput = await createBuildCustomTxInput({
-            accountNumber: 0, // TODO(gomes) programmatic
-            adapter,
-            data,
-            value: isToken(fromAssetId(assetId).assetReference)
-              ? '0'
-              : amountCryptoBaseUnit.toString(),
-            to: inboundAddressData.router,
-            wallet,
-          })
-
-          // TODO(gomes): fees estimation
-          const txid = await buildAndBroadcast({
-            adapter,
-            buildCustomTxInput,
-            receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-          })
-
-          setTxId(txid)
-        } else {
-          if (!inboundAddressData) throw new Error('No inboundAddressData found')
-          // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
-          if (!accountAddress) throw new Error('No accountAddress found')
-
-          const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
-
-          const estimateFeesArgs = {
-            cryptoAmount: amountCryptoPrecision,
-            assetId,
-            to: inboundAddressData?.address,
-            from: accountAddress,
-            sendMax: false,
-            memo,
-            accountId,
-            contractAddress: undefined,
+            break
           }
-          const estimatedFees = await estimateFees(estimateFeesArgs)
-          const sendInput: SendInput = {
-            cryptoAmount: amountCryptoPrecision,
-            assetId,
-            to: inboundAddressData?.address,
-            from: accountAddress,
-            sendMax: false,
-            accountId,
-            memo,
-            amountFieldError: '',
-            estimatedFees,
-            feeType: FeeDataKey.Fast,
-            fiatAmount: '',
-            fiatSymbol: selectedCurrency,
-            vanityAddress: '',
-            input: inboundAddressData?.address,
+          case 'EvmCustomTx': {
+            if (!inboundAddressData?.router) return
+
+            const thorContract = getOrCreateContractByType({
+              address: inboundAddressData.router,
+              type: ContractType.ThorRouter,
+              chainId: asset.chainId,
+            })
+
+            const args = (() => {
+              const expiry = BigInt(dayjs().add(15, 'minute').unix())
+              const vault = getAddress(inboundAddressData.address)
+              const asset = isToken(fromAssetId(assetId).assetReference)
+                ? getAddress(fromAssetId(assetId).assetReference)
+                : '0x0000000000000000000000000000000000000000'
+
+              // TODO(gomes): cleanup before opening me, yoloing this to get this to work initially
+              // We should make this programmatic and abstracted. There is really no magic here - the only diff is we use the *pool* asset (dot) notation vs. the synth asset (slash notation)
+              // but other than that, that's pretty much savers all over again. Similarly, swapper also calls this.
+              // Why would we have to reinvent the wheel?
+              const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
+              const amount = BigInt(amountCryptoBaseUnit.toString())
+
+              return { memo, amount, expiry, vault, asset }
+            })()
+
+            const data = encodeFunctionData({
+              abi: thorContract.abi,
+              functionName: 'depositWithExpiry',
+              args: [args.vault, args.asset, args.amount, args.memo, args.expiry],
+            })
+
+            const adapter = assertGetEvmChainAdapter(asset.chainId)
+
+            const buildCustomTxInput = await createBuildCustomTxInput({
+              accountNumber: 0, // TODO(gomes) programmatic
+              adapter,
+              data,
+              value: isToken(fromAssetId(assetId).assetReference)
+                ? '0'
+                : amountCryptoBaseUnit.toString(),
+              to: inboundAddressData.router,
+              wallet,
+            })
+
+            // TODO(gomes): fees estimation
+            const txid = await buildAndBroadcast({
+              adapter,
+              buildCustomTxInput,
+              receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+            })
+
+            setTxId(txid)
+            break
           }
+          case 'Send': {
+            if (!inboundAddressData) throw new Error('No inboundAddressData found')
+            // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
+            if (!accountAddress) throw new Error('No accountAddress found')
 
-          const txId = await handleSend({
-            sendInput,
-            wallet,
-          })
+            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress}:ss:29`
 
-          setTxId(txId)
+            const estimateFeesArgs = {
+              cryptoAmount: amountCryptoPrecision,
+              assetId,
+              to: inboundAddressData?.address,
+              from: accountAddress,
+              sendMax: false,
+              memo,
+              accountId,
+              contractAddress: undefined,
+            }
+            const estimatedFees = await estimateFees(estimateFeesArgs)
+            const sendInput: SendInput = {
+              cryptoAmount: amountCryptoPrecision,
+              assetId,
+              to: inboundAddressData?.address,
+              from: accountAddress,
+              sendMax: false,
+              accountId,
+              memo,
+              amountFieldError: '',
+              estimatedFees,
+              feeType: FeeDataKey.Fast,
+              fiatAmount: '',
+              fiatSymbol: selectedCurrency,
+              vanityAddress: '',
+              input: inboundAddressData?.address,
+            }
+
+            const txId = await handleSend({
+              sendInput,
+              wallet,
+            })
+
+            setTxId(txId)
+            break
+          }
+          default:
+            assertUnreachable(transactionType)
         }
       })()
     })().then(() => {

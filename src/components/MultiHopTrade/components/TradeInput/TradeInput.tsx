@@ -480,14 +480,16 @@ export const TradeInput = memo(() => {
       >
         {hasUserEnteredAmount && (
           <>
-            <RateGasRow
-              sellSymbol={sellAsset.symbol}
-              buySymbol={buyAsset.symbol}
-              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-              rate={rate}
-              isLoading={isLoading}
-              isError={didQuoteRequestFail}
-            />
+            {activeQuote ? (
+              <RateGasRow
+                sellSymbol={sellAsset.symbol}
+                buySymbol={buyAsset.symbol}
+                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                rate={rate}
+                isLoading={isLoading}
+                isError={didQuoteRequestFail}
+              />
+            ) : null}
 
             {activeQuote ? (
               <ReceiveSummary

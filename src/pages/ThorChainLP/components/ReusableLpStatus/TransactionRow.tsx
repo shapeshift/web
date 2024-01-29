@@ -35,6 +35,7 @@ import {
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import type { AsymSide, ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import {
@@ -284,7 +285,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               cryptoAmount: amountCryptoBaseUnit,
               assetId: asset.assetId,
               memo,
-              to: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
+              to: THORCHAIN_POOL_MODULE_ADDRESS,
               sendMax: false,
               accountId,
               contractAddress: undefined,
@@ -308,7 +309,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
             const txId = await adapter.broadcastTransaction({
               senderAddress: account,
-              receiverAddress: 'thor1g98cy3n9mmjrpn0sxmn63lztelera37n8n67c0', // PoolModule
+              receiverAddress: THORCHAIN_POOL_MODULE_ADDRESS,
               hex: signedTx,
             })
 

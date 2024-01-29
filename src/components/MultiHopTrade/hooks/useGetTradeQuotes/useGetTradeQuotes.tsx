@@ -289,6 +289,12 @@ export const useGetTradeQuotes = () => {
     )
   }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
 
+  const isAnySwapperFetching = useMemo(() => {
+    return (
+      isDebouncing || isFetchingInput || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
+    )
+  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+
   // true if any debounce, input or swapper is fetching
   const isQuoteRequestIncomplete = useMemo(() => {
     return (
@@ -360,5 +366,6 @@ export const useGetTradeQuotes = () => {
     isQuoteRequestComplete: !isQuoteRequestIncomplete,
     isSwapperFetching,
     didQuoteRequestFail,
+    isAnySwapperFetching,
   }
 }

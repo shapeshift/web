@@ -19,7 +19,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import prettyMilliseconds from 'pretty-ms'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
@@ -31,7 +30,6 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -545,14 +543,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <Row.Value>
             <Skeleton isLoaded={true}>
               <Amount.Fiat value={confirmedQuote?.feeAmountFiat ?? '0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={true}>
-              <RawText fontWeight='bold'>{prettyMilliseconds(0)}</RawText>
             </Skeleton>
           </Row.Value>
         </Row>

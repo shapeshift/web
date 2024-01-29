@@ -35,11 +35,13 @@ import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
 import { isSome } from 'lib/utils'
-import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
+import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -86,6 +88,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
+
+  const votingPower = useAppSelector(selectVotingPower)
+  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const isVotingPowerLoading = useMemo(
+    () => isSnapshotApiQueriesPending && votingPower === undefined,
+    [isSnapshotApiQueriesPending, votingPower],
+  )
 
   const { data: parsedPools } = usePools()
 
@@ -319,6 +328,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       .times(isAsym ? 1 : 2)
       .toFixed()
 
+    const { feeBps, feeUsd } = calculateFees({
+      tradeAmountUsd: bn(totalAmountFiat),
+      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+    })
+
     setConfirmedQuote({
       assetCryptoLiquidityAmount,
       assetFiatLiquidityAmount,
@@ -329,6 +343,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       opportunityId: activeOpportunityId,
       accountIds,
       totalAmountFiat,
+      feeBps: feeBps.toFixed(0),
+      feeAmountFiat: feeUsd.toFixed(),
     })
   }, [
     accountIds,
@@ -343,6 +359,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,
+    votingPower,
   ])
 
   const tradeAssetInputs = useMemo(() => {
@@ -527,7 +544,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <Row.Label>{translate('common.fees')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Fiat value={'0'} />
+              <Amount.Fiat value={confirmedQuote?.feeAmountFiat ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>
@@ -554,7 +571,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           mx={-2}
           size='lg'
           colorScheme='blue'
-          isDisabled={!confirmedQuote}
+          isDisabled={!confirmedQuote || isVotingPowerLoading}
           onClick={handleSubmit}
         >
           {translate('pools.addLiquidity')}

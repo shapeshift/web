@@ -196,6 +196,8 @@ export type ConfirmedQuote = {
   slippageRune: string
   opportunityId: string
   accountIds: Record<AssetId, AccountId>
+  feeBps: string
+  feeAmountFiat: string
 }
 export enum AsymSide {
   Asset = 'asset',

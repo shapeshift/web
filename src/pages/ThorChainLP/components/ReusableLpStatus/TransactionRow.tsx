@@ -108,7 +108,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     const otherAssetAccountId =
       asset?.assetId === thorchainAssetId ? poolAssetAccountId : runeAccountId
     const assetId = asset?.assetId === thorchainAssetId ? thorchainAssetId : poolAssetId
-    const otherAssetAssetId = asset?.assetId === thorchainAssetId ? assetId : thorchainAssetId
+    const otherAssetAssetId = asset?.assetId === thorchainAssetId ? poolAssetId : thorchainAssetId
     const otherAssetAccountMetadata =
       asset?.assetId === thorchainAssetId ? assetAccountMetadata : runeAccountMetadata
 

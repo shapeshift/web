@@ -9,14 +9,12 @@ import {
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { encodeFunctionData, getAddress } from 'viem'
+import { getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -37,6 +35,7 @@ import {
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import type { AsymSide, ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import {
   selectAccountNumberByAccountId,
@@ -321,12 +320,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (!inboundAddressData?.router) return
             if (assetAccountNumber === undefined) return
 
-            const thorContract = getOrCreateContractByType({
-              address: inboundAddressData.router,
-              type: ContractType.ThorRouter,
-              chainId: asset.chainId,
-            })
-
             const args = (() => {
               const expiry = BigInt(dayjs().add(15, 'minute').unix())
               const vault = getAddress(inboundAddressData.address)
@@ -334,20 +327,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                 ? getAddress(fromAssetId(assetId).assetReference)
                 : '0x0000000000000000000000000000000000000000'
 
-              // TODO(gomes): cleanup before opening me, yoloing this to get this to work initially
-              // We should make this programmatic and abstracted. There is really no magic here - the only diff is we use the *pool* asset (dot) notation vs. the synth asset (slash notation)
-              // but other than that, that's pretty much savers all over again. Similarly, swapper also calls this.
-              // Why would we have to reinvent the wheel?
               const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:29`
               const amount = BigInt(amountCryptoBaseUnit.toString())
 
               return { memo, amount, expiry, vault, asset }
             })()
 
-            const data = encodeFunctionData({
-              abi: thorContract.abi,
-              functionName: 'depositWithExpiry',
-              args: [args.vault, args.asset, args.amount, args.memo, args.expiry],
+            const data = depositWithExpiry({
+              vault: args.vault,
+              asset: args.asset,
+              amount: args.amount,
+              memo: args.memo,
+              expiry: args.expiry,
             })
 
             const adapter = assertGetEvmChainAdapter(asset.chainId)

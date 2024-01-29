@@ -80,6 +80,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const assetAccountId = accountIds[asset?.assetId ?? '']
   const runeAccountId = accountIds[thorchainAssetId]
+  const poolAssetAccountId = accountIds[poolAsset?.assetId ?? '']
   const runeAccountNumberFilter = useMemo(
     () => ({ assetId: thorchainAssetId, accountId: runeAccountId ?? '' }),
     [runeAccountId],
@@ -104,7 +105,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   useEffect(() => {
     if (!(wallet && asset && confirmedQuote?.opportunityId && assetAccountMetadata)) return
     const accountId = asset?.assetId === thorchainAssetId ? runeAccountId : assetAccountId
-    const otherAssetAccountId = asset?.assetId === thorchainAssetId ? assetAccountId : runeAccountId
+    const otherAssetAccountId =
+      asset?.assetId === thorchainAssetId ? poolAssetAccountId : runeAccountId
     const assetId = asset?.assetId === thorchainAssetId ? thorchainAssetId : poolAssetId
     const otherAssetAssetId = asset?.assetId === thorchainAssetId ? assetId : thorchainAssetId
     const otherAssetAccountMetadata =
@@ -144,9 +146,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     runeAccountId,
     wallet,
     runeAccountMetadata,
+    poolAssetAccountId,
   ])
-
-  console.log({ accountAddress: accountAssetAddress })
 
   const serializedTxIndex = useMemo(() => {
     if (!(txId && accountAssetAddress && assetAccountId)) return ''

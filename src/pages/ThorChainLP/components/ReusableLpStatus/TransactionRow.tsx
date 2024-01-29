@@ -134,7 +134,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       setAccountAssetAddress(_accountAssetAddress)
 
       // We don't want to set the other asset's address in the memo when doing asym deposits or we'll have bigly problems
-      if (!asymSide) return
+      if (asymSide) return
       if (!otherAssetAccountId || !otherAssetAssetId || !otherAssetAccountMetadata) return
 
       const _otherAssetAddress = await getThorchainFromAddress({

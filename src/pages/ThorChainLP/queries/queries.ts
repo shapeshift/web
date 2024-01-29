@@ -9,9 +9,10 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses } from 'lib/utils/thorchain'
 import { get24hTvlChangePercentage, getAllTimeVolume, getEarnings } from 'lib/utils/thorchain/lp'
-import type {
-  MidgardLiquidityProvider,
-  MidgardLiquidityProvidersList,
+import {
+  AsymSide,
+  type MidgardLiquidityProvider,
+  type MidgardLiquidityProvidersList,
 } from 'lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
@@ -86,43 +87,83 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
     assetId,
   }: {
     accountId: AccountId
+    // TODO(gomes): rename me to poolAssetId to make things clearer and less confusing, this isn't a bug.
+    // since the AccountId may be for one asset but the (pool) AssetId for another
     assetId: AssetId
-  }) => ({
-    // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
-    // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
-    staleTime: 0,
-    enabled: !!accountId && !!assetId,
-    queryKey: ['thorchainLiquidityProviderPosition', { accountId, assetId }],
-    queryFn: async () => {
-      const accountPosition = await (async () => {
-        if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
-          const address = fromAccountId(accountId).account
-          return queryClient.fetchQuery(liquidityMember(address))
-        }
+  }) => {
+    return {
+      // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
+      // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
+      staleTime: 0,
+      enabled: !!accountId && !!assetId,
+      queryKey: ['thorchainLiquidityProviderPosition', { accountId, assetId }],
+      queryFn: async () => {
+        const accountPosition = await (async () => {
+          if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
+            const address = fromAccountId(accountId).account
+            return queryClient.fetchQuery(liquidityMember(address))
+          }
 
-        const allMembers = await queryClient.fetchQuery(liquidityMembers())
+          const allMembers = await queryClient.fetchQuery(liquidityMembers())
 
-        if (!allMembers.length) {
-          throw new Error('No THORChain members found')
-        }
+          if (!allMembers.length) {
+            throw new Error('No THORChain members found')
+          }
 
-        const accountAddresses = await getAccountAddresses(accountId)
-        const foundMember = allMembers.find(member => accountAddresses.includes(member))
-        if (!foundMember) return null
+          const accountAddresses = await getAccountAddresses(accountId)
+          const foundMember = allMembers.find(member => accountAddresses.includes(member))
+          if (!foundMember) return null
 
-        return queryClient.fetchQuery(liquidityMember(foundMember))
-      })()
+          return queryClient.fetchQuery(liquidityMember(foundMember))
+        })()
 
-      if (!accountPosition) return null
+        if (!accountPosition) return null
 
-      const positions = accountPosition.pools
-        .filter(pool => pool.pool === assetIdToPoolAssetId({ assetId }))
-        .map(position => ({ ...position, accountId }))
+        const positions = accountPosition.pools
+          .filter(pool => pool.pool === assetIdToPoolAssetId({ assetId }))
+          .map(position => ({ ...position, accountId }))
 
-      return positions
-    },
-  }),
+        return positions
+      },
+    }
+  },
   userLpData: (assetId: AssetId) => ({
     queryKey: ['thorchainUserLpData', { assetId }],
   }),
 })
+
+// Not a query, but consuming one and living here to avoid circular deps
+export const getThorchainLpPosition = async ({
+  accountId,
+  assetId: poolAssetId,
+  opportunityId,
+}: {
+  accountId: AccountId
+  assetId: AssetId
+  opportunityId?: string
+}) => {
+  if (!opportunityId) throw new Error('opportunityId is required')
+
+  const lpPositions = await queryClient.fetchQuery(
+    thorchainLp.liquidityProviderPosition({ accountId, assetId: poolAssetId }),
+  )
+
+  if (!lpPositions) return null
+
+  const position = lpPositions.find(_position => {
+    const asymSide = (() => {
+      if (_position.runeAddress === '') return AsymSide.Asset
+      if (_position.assetAddress === '') return AsymSide.Rune
+      return null
+    })()
+    const positionOpportunityId = `${poolAssetId}*${asymSide ?? 'sym'}`
+    return positionOpportunityId === opportunityId
+  })
+  if (!position) return null
+
+  return {
+    runeAddress: position.runeAddress,
+    assetAddress: position.assetAddress,
+    opportunityId,
+  }
+}

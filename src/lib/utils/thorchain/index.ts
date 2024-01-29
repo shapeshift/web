@@ -16,6 +16,7 @@ import type {
   ThornodeStatusResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
@@ -135,14 +136,19 @@ export const toThorBaseUnit = ({
 export const getThorchainFromAddress = async ({
   accountId,
   assetId,
+  opportunityId,
   getPosition,
   accountMetadata,
   wallet,
 }: {
   accountId: AccountId
   assetId: AssetId
+  opportunityId?: string
   // TODO(gomes): getThorchainLp maybe, or maybe not?
-  getPosition: typeof getThorchainLendingPosition | typeof getThorchainSaversPosition
+  getPosition:
+    | typeof getThorchainLendingPosition
+    | typeof getThorchainSaversPosition
+    | typeof getThorchainLpPosition
   accountMetadata: AccountMetadata
   wallet: HDWallet
 }): Promise<string> => {
@@ -153,7 +159,9 @@ export const getThorchainFromAddress = async ({
     const position = await getPosition({
       accountId,
       assetId,
+      opportunityId,
     })
+    console.log({ position })
     if (!position) throw new Error(`No position found for assetId: ${assetId}`)
     const address: string = (() => {
       // THORChain lending position

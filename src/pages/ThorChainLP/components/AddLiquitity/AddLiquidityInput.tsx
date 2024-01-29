@@ -82,7 +82,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   accountIds,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  console.log({ accountIds })
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
@@ -315,6 +314,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
       return
 
+    const isAsym = foundPool?.isAsymmetric
+    const totalAmountFiat = bnOrZero(assetFiatLiquidityAmount)
+      .times(isAsym ? 1 : 2)
+      .toFixed()
+
     setConfirmedQuote({
       assetCryptoLiquidityAmount,
       assetFiatLiquidityAmount,
@@ -324,14 +328,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       slippageRune,
       opportunityId: activeOpportunityId,
       accountIds,
+      totalAmountFiat,
     })
   }, [
     accountIds,
     activeOpportunityId,
     assetCryptoLiquidityAmount,
     assetFiatLiquidityAmount,
+    assetMarketData,
+    foundPool?.isAsymmetric,
     runeCryptoLiquidityAmount,
     runeFiatLiquidityAmount,
+    runeMarketData,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,
@@ -367,7 +375,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               assetSymbol={_asset?.symbol ?? ''}
               // eslint-disable-next-line react-memo/require-usememo
               onAccountIdChange={(accountId: AccountId) => {
-                console.log({ accountId, assetId: _asset?.assetId })
                 handleAccountIdChange(accountId, _asset?.assetId)
               }}
               percentOptions={percentOptions}

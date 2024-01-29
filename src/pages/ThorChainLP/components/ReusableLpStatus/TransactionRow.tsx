@@ -22,6 +22,8 @@ import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bn } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
 import { toBaseUnit } from 'lib/math'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isToken } from 'lib/utils'
@@ -37,6 +39,7 @@ import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import type { AsymSide, ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
+import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -72,11 +75,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const votingPower = useAppSelector(selectVotingPower)
+  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const isVotingPowerLoading = useMemo(
+    () => isSnapshotApiQueriesPending && votingPower === undefined,
+    [isSnapshotApiQueriesPending, votingPower],
+  )
   // TOOO(gomes): we may be able to handle this better, or not
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
   const [status, setStatus] = useState(TxStatus.Unknown)
-
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
@@ -235,6 +243,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const handleSignTx = useCallback(() => {
     const isRuneTx = asset?.assetId === thorchainAssetId
 
+    const { feeBps } = calculateFees({
+      tradeAmountUsd: bn(confirmedQuote.totalAmountFiat),
+      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+    })
+
     if (
       !(
         assetId &&
@@ -278,7 +291,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
 
             const adapter = assertGetThorchainChainAdapter()
-            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:29`
+            const memo = `+:${thorchainNotationAssetId}:${
+              otherAssetAddress ?? ''
+            }:ss:${feeBps.toFixed(0)}`
 
             const estimatedFees = await estimateFees({
               cryptoAmount: amountCryptoBaseUnit,
@@ -327,7 +342,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                 ? getAddress(fromAssetId(assetId).assetReference)
                 : '0x0000000000000000000000000000000000000000'
 
-              const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:29`
+              const memo = `+:${thorchainNotationAssetId}:${
+                otherAssetAddress ?? ''
+              }:ss:${feeBps.toFixed(0)}`
               const amount = BigInt(amountCryptoBaseUnit.toString())
 
               return { memo, amount, expiry, vault, asset }
@@ -369,7 +386,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
             if (!accountAssetAddress) throw new Error('No accountAddress found')
 
-            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:29`
+            const memo = `+:${thorchainNotationAssetId}:${
+              otherAssetAddress ?? ''
+            }:ss:${feeBps.toFixed(0)}`
 
             const estimateFeesArgs = {
               cryptoAmount: amountCryptoPrecision,
@@ -416,6 +435,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     })
   }, [
     asset,
+    confirmedQuote.totalAmountFiat,
+    votingPower,
     assetId,
     poolAssetId,
     poolAsset,
@@ -476,7 +497,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             size='lg'
             colorScheme='blue'
             onClick={handleSignTx}
-            isLoading={status === TxStatus.Pending || isInboundAddressLoading}
+            isLoading={
+              status === TxStatus.Pending || isInboundAddressLoading || isVotingPowerLoading
+            }
           >
             {translate('common.signTransaction')}
           </Button>

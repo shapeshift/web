@@ -187,6 +187,7 @@ export type MidgardTvlHistoryResponse = {
 }
 
 export type ConfirmedQuote = {
+  totalAmountFiat: string
   assetCryptoLiquidityAmount: string
   assetFiatLiquidityAmount: string
   runeCryptoLiquidityAmount: string

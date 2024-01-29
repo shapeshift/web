@@ -71,10 +71,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   }, [poolAsset, baseAsset, pool])
 
   const handleComplete = useCallback(() => {
-    if (activeStepIndex === assets.length) return
-
     setActiveStepIndex(activeStepIndex + 1)
-  }, [activeStepIndex, assets.length])
+  }, [activeStepIndex])
 
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown

@@ -170,6 +170,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
     }
 
+    // Avoids this hook's mutate fn running too many times
+    if (status === TxStatus.Confirmed) return
+
     if (tx?.status === TxStatus.Confirmed) {
       // The Tx is confirmed, but we still need to introspect completion from THOR itself
       // so we set the status as pending in the meantime
@@ -179,7 +182,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })()
       return
     }
-  }, [mutateAsync, onComplete, tx, txId])
+  }, [mutateAsync, onComplete, status, tx, txId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddress(assetId),

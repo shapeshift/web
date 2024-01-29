@@ -156,10 +156,12 @@ const thornode = createQueryKeys('thornode', {
 
     return {
       staleTime: 60_000, // 60 seconds to handle pools going to/from live/halt states
-      queryKey: ['thorchainInboundAddress'],
-      queryFn: () => {
+      queryKey: ['thorchainInboundAddress', assetId],
+      queryFn: async () => {
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-        return getInboundAddressDataForChain(daemonUrl, assetId)
+        const data = await getInboundAddressDataForChain(daemonUrl, assetId)
+
+        return data
       },
     }
   },

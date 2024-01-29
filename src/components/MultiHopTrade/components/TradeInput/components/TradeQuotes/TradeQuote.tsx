@@ -30,7 +30,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { CountdownToggle } from './components/CountdownToggle'
+import { CountdownSpinner } from './components/CountdownSpinner'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
 
@@ -269,9 +269,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     return (
       <Flex gap={2} alignItems='center'>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-        <Skeleton isLoaded={!isLoading}>
-          <CountdownToggle />
-        </Skeleton>
+        <CountdownSpinner isLoading={isLoading} />
       </Flex>
     )
   }, [isLoading, tag])

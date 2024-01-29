@@ -35,7 +35,7 @@ import {
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
-import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import type { AsymSide, ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import {
   selectAccountNumberByAccountId,
@@ -56,6 +56,7 @@ type TransactionRowProps = {
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: ConfirmedQuote
+  asymSide?: AsymSide | null
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
@@ -66,6 +67,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   isActive,
   accountIds,
   confirmedQuote,
+  asymSide,
 }) => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
@@ -124,6 +126,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
       setAccountAssetAddress(_accountAssetAddress)
 
+      // We don't want to set the other asset's address in the memo when doing asym deposits or we'll have bigly problems
+      if (!asymSide) return
       if (!otherAssetAccountId || !otherAssetAssetId || !otherAssetAccountMetadata) return
 
       const _otherAssetAddress = await getThorchainFromAddress({
@@ -147,6 +151,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     runeAccountMetadata,
     poolAssetAccountId,
+    asymSide,
   ])
 
   const serializedTxIndex = useMemo(() => {

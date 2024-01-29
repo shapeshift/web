@@ -181,12 +181,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               onComplete={handleComplete}
               isActive={index === activeStepIndex}
               confirmedQuote={confirmedQuote}
+              asymSide={pool?.asymSide}
             />
           )
         })}
       </Stack>
     )
-  }, [assets, confirmedQuote, poolAsset?.assetId, handleComplete, activeStepIndex])
+  }, [assets, confirmedQuote, poolAsset?.assetId, handleComplete, activeStepIndex, pool?.asymSide])
 
   if (!(pool && poolAsset && baseAsset)) return null
 

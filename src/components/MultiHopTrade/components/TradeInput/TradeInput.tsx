@@ -104,6 +104,7 @@ export const TradeInput = memo(() => {
     isQuoteRequestUninitialized,
     isSwapperFetching,
     didQuoteRequestFail,
+    isQuoteRequestIncomplete,
   } = useGetTradeQuotes()
   const {
     state: { wallet },
@@ -268,6 +269,7 @@ export const TradeInput = memo(() => {
   const isLoading = useMemo(
     () =>
       !isAnySwapperFetched ||
+      isQuoteRequestIncomplete ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isAddressByteCodeLoading ||
@@ -277,6 +279,7 @@ export const TradeInput = memo(() => {
       isVotingPowerLoading,
     [
       isAddressByteCodeLoading,
+      isQuoteRequestIncomplete,
       isConfirmationLoading,
       isAnySwapperFetched,
       isSupportedAssetsLoading,

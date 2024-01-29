@@ -14,7 +14,7 @@ import { getTxStatus } from './utils'
 export * from './types'
 export * from './utils'
 
-export interface TransactionParserArgs {
+export interface BaseTransactionParserArgs {
   chainId: ChainId
   assetId: AssetId
   api: Api
@@ -30,7 +30,7 @@ export class BaseTransactionParser<T extends Tx> {
 
   private parsers: SubParser<T>[] = []
 
-  constructor(args: TransactionParserArgs) {
+  constructor(args: BaseTransactionParserArgs) {
     this.chainId = args.chainId
     this.assetId = args.assetId
     this.api = args.api

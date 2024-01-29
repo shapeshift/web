@@ -5,11 +5,15 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ChainAdapterDisplayName } from '../../types'
-import type { ChainAdapterArgs } from '../EvmBaseAdapter'
+import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.AvalancheMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.AvalancheMainnet
+
+export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.avalanche.V1Api> {
+  midgardUrl: string
+}
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
@@ -18,7 +22,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     accountNumber: 0,
   }
 
-  constructor(args: ChainAdapterArgs<unchained.avalanche.V1Api>) {
+  constructor(args: ChainAdapterArgs) {
     super({
       assetId: avalancheAssetId,
       chainId: DEFAULT_CHAIN_ID,
@@ -28,6 +32,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
         rpcUrl: args.rpcUrl,
         api: args.providers.http,
+        midgardUrl: args.midgardUrl,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

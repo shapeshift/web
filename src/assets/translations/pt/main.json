@@ -2,6 +2,7 @@
   "common": {
     "free": "Gratuito",
     "back": "Voltar",
+    "and": "e",
     "balance": "Saldo",
     "next": "Avançar",
     "error": "Erro",
@@ -16,8 +17,10 @@
     "claimable": "Resgatável",
     "approve": "Aprovar",
     "confirm": "Confirmar",
+    "seeDetails": "Veja detalhes",
     "activity": "Atividade",
     "reject": "Rejeitar",
+    "goBack": "Volte",
     "connected": "Conectado",
     "allocation": "Alocação",
     "value": "Valor",
@@ -550,7 +553,8 @@
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo",
-    "lending": "Empréstimo"
+    "lending": "Empréstimo",
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -568,6 +572,7 @@
     "to": "De",
     "from": "Para",
     "trade": "Troca",
+    "swap": "Swap",
     "amount": "Quantia",
     "for": "Por",
     "emptyMessage": "Suas %{status} transações aparecerão aqui.",
@@ -602,6 +607,28 @@
       "thor": {
         "transferOut": "Transferir para fora"
       },
+      "thorchain": {
+        "deposit": "Depósito",
+        "depositRefund": "Devolver o depósito",
+        "loanOpen": "Empréstimo em aberto",
+        "loanOpenRefund": "Devolução do empréstimo em aberto",
+        "loanOut": "Garantia de empréstimo recebida",
+        "loanRepayment": "Pagamento do Empréstimo",
+        "loanRepaymentRefund": "Devolução do pagamento do empréstimo",
+        "out": "Outbound recebido",
+        "swapOut": "Swap recebido",
+        "swapRefund": "Pagamento Swap",
+        "transferOut": "Transferência",
+        "withdraw": "Saque solicitado",
+        "withdrawOut": "Saque recebido"
+      },
+      "swap": {
+        "deposit": "Swap",
+        "streamingSwap": "Streaming Swap",
+        "out": "Swap",
+        "refund": "Reembolso",
+        "outbound": "Retirada"
+      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Remover Staking",
@@ -629,13 +656,6 @@
         "begin_unbonding": "Retirar delegação",
         "begin_redelegate": "Redelegar",
         "withdraw_delegator_reward": "Resgatar Recompensa"
-      },
-      "swap": {
-        "deposit": "Swap",
-        "streamingSwap": "Streaming Swap",
-        "out": "Swap",
-        "refund": "Reembolso",
-        "outbound": "Retirada"
       },
       "ibc": {
         "transfer": "Enviado",
@@ -749,50 +769,22 @@
     },
     "errors": {
       "title": "Algo de errado aconteceu.",
-      "sellAssetMiddleSentence": "vender ativo",
-      "buyAssetMiddleSentence": "comprar ativo",
-      "notEnoughEth": "Saldo ETH insuficiente para a efetivar Taxa da Rede.",
       "amountTooSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
       "amountTooSmallUnknownMinimum": "Quantia muito baixa",
       "sellAmountDoesNotCoverFee": "Quantidade muito pequena. O valor de venda para este par é menor do que a taxa.",
-      "negativeMax": "Não há fundos suficientes para efetivr a taxa de mineração. Taxa de mineração %{estimatedMinerFee}",
-      "invalidMax": "Montante inválido. O valor máximo de negociação para este par é %{maxLimit}.",
       "insufficientFunds": "Saldo insuficiente para efetivar as taxas da rede.",
       "transactionRejected": "O usuário rejeitou a transação",
-      "broadcastFailed": "Ocorreu um erro ao transmitir a transação",
-      "insufficientFundsForLimit": "Saldo insuficiente. O valor mínimo de negociação para este par é %{minLimit}",
-      "insufficientFundsForAmount": "Saldo insuficiente. Seu saldo de %{symbol} é menor do que o selecionado",
       "insufficientFundsForProtocolFee": "Insuficiente %{symbol} na %{chainName} para taxas",
-      "invalidTradePair": "Par de Negociação Inválido: %{sellAssetName} e %{buyAssetName}",
-      "invalidTradePairBtnText": "Par de Negociação Inválido",
       "unsupportedTradePair": "Par Não Suportado",
-      "noLiquidityError": "Não há liquidez suficiente disponível",
-      "overMaxSlippage": "A operação ultrapassa em %{slippagePercentage}% a margem de Slippage da negociação. Reduza o valor para obter melhor cotação",
-      "balanceToLow": "Saldo muito baixo. O valor mínimo de negociação para este par é %{minLimit}",
-      "dexTradeFailed": "Falha na negociação, tokens devolvidos",
-      "quoteFailed": "Ocorreu um erro ao obter uma cotação para sua negociação.",
+      "noRouteFound": "Nenhuma rota encontrada para este par e quantidade",
       "quoteExpired": "Pedido expirado, tente novamente",
-      "failedQuoteExecuted": "Não é possível executar uma cotação que falhou uma vez",
-      "sellAssetRequired": "Não é possível executar uma cotação sem um ativo para vender",
-      "sellAmountRequired": "Não é possível executar uma cotação sem inserir o valor de venda",
-      "depositAddressRequired": "Não é possível executar uma cotação ETH sem um endereço DEX",
-      "sellAssetNetworkAndSymbolRequired": "Informe a rede e o símbolo para executar a cotação",
-      "hdwalletInvalidConfig": "Ocorreu um erro de comunicação com sua carteira de hardware",
-      "allowanceRequiredFailed": "Ocorreu um erro ao aprovar a permissão necessária para negociar.",
-      "checkApprovalNeededFailed": "Ocorreu um erro ao verificar a aprovação da sua negociação.",
-      "approveInfiniteFailed": "Ocorreu um erro ao aprovar sua negociação.",
-      "buildTradeFailed": "Ocorreu um erro ao criar sua negociação.",
-      "grantAllowanceFailed": "Ocorreu um erro ao conceder permissão.",
-      "minMaxError": "Ocorreu um erro ao obter o valor mínimo / máximo da negociação",
-      "executeTradeFailed": "Ocorreu um erro ao executar sua negociação.",
-      "unsupportedPair": "Este par de negociação não é suportado atualmente.",
-      "unsupportedChain": "Esta rede não é suportada atualmente.",
-      "rateError": "Ocorreu um erro ao obter as taxas de negociação",
+      "quoteUnsupportedChain": "Rede não suportada",
+      "quoteCrossChainNotSupported": "Cross chain não suportada",
+      "networkFeeEstimateFailed": "Falha ao estimar a taxa de rede",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} não é suportado pela carteira",
-      "sellAssetNotSupportedByWallet": "Vender o ativo não suportado pela carteira",
-      "intermediaryAssetNotSupportedByWallet": "Intermediário não suportado pela carteira",
-      "noReceiveAddress": "Nenhum endereço recebido para %{assetSymbol}",
-      "tradingNotActive": "Negociações temporariamente pausadas para %{assetSymbol}",
+      "intermediaryAssetNotSupportedByWallet": "Ativo intermediário %{assetSymbol}.%{chainSymbol} não suportado pela carteira",
+      "noReceiveAddress": "Nenhum endereço de recebimento para %{assetSymbol} em %{chainName}",
+      "tradingNotActiveForChain": "As negociações foram temporariamente interrompidas em %{chainName}",
       "tradingNotActiveNoAssetSymbol": "Negociações temporariamente pausadas para esta rota",
       "signing": {
         "failed": "Erro ao assinar a transação",
@@ -1757,6 +1749,7 @@
       "Send": "Enviar",
       "Receive": "Recebido",
       "Trade": "Negociar",
+      "Swap": "Swap",
       "Refund": "Reembolso"
     },
     "assets": "Bens",
@@ -2186,5 +2179,68 @@
     "breakdownBody": "Abaixo está um detalhamento de suas taxas de trades e o desconto graças ao seu Poder FOX. Saiba quanto você pode economizar na aba de simulação.",
     "tradeFee": "Taxa de Trade",
     "totalTradeFee": "Taxa Total do Trade"
+  },
+  "pools": {
+    "pools": "Pools",
+    "pool": "Pool",
+    "tvl": "TVL",
+    "volume24h": "Volume 24H",
+    "volume7d": "Volume 7D",
+    "balance": "Saldo",
+    "unclaimedFees": "Taxas não resgatadas",
+    "poolShare": "Participação na pool",
+    "yourPosition": "Sua posição",
+    "poolInformation": "Informações da Pool",
+    "poolsBody": "Forneça liquidez e ganhe taxas nas negociações nessa pool.",
+    "availablePools": "Pools Disponíveis",
+    "addLiquidity": "Adicionar Liquidez",
+    "removeLiquidity": "Remover Liquidez",
+    "initialPricesAndPoolShare": "Preços Iniciais e Participação na Pool",
+    "pricePerAsset": "%{from} por %{to}",
+    "symAlert": "Seu %{from} será dividido em uma exposição de 50:50 para %{to} e %{from} ao entrar na pool.",
+    "shareOfPool": "Participação na pool",
+    "assetDepositAmount": "%{asset} Valor do depósito",
+    "totalLiquidity": "Liquidez Total",
+    "totalVolume": "Volume total",
+    "fees24h": "Taxas em 24H",
+    "estimatedTime": "Tempo estimado",
+    "liquidityValue": "Valor da Liquidez",
+    "selectPair": "Selecione o Par",
+    "depositAmounts": "Valores de depósito",
+    "awaitingConfirmation": "Aguardando confirmação",
+    "transactionSubmitted": "Transação enviada",
+    "waitingForConfirmation": "Aguardando confirmação",
+    "totalTokensLocked": "Total de tokens bloqueados",
+    "chainFee": "Taxa da %{chain}",
+    "supplying": "Depositando",
+    "confirmAndDeposit": "Confirmar e depositar",
+    "yourPositions": {
+      "yourPositions": "Suas posições",
+      "emptyTitle": "Nenhuma posição ativa",
+      "emptyBody": "Suas posições ativas na pool de liquidez aparecerão aqui."
+    },
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "O que é um pool de liquidez?",
+        "body": "Um pool de liquidez é um pool de fundos descentralizados que contém ativos usados ​​para facilitar a negociação em uma blockchain. Desempenha um papel crucial nas finanças descentralizadas (DeFi), fornecendo liquidez para vários pares de negociação."
+      },
+      "how": {
+        "title": "Como funcionam as pools de liquidez?",
+        "body": "As pools de liquidez funcionam com base no princípio de os usuários depositarem seus ativos em um contrato inteligente para criar um pool. Esses ativos são então utilizados para permitir trocas descentralizadas, permitindo que os usuários negociem contra a pool. Em troca do fornecimento de liquidez, os usuários recebem uma parcela das taxas de negociação geradas pela plataforma."
+      },
+      "amm": {
+        "title": "Formadores de Mercados Automatizados (AMMs)",
+        "body": "Muitos pools de liquidez operam como formadores de mercado automatizados (AMMs), usando algoritmos para determinar o preço dos ativos com base na proporção de tokens no pool. Isto permite negociações descentralizadas e contínuas sem a necessidade de um order book tradicional."
+      },
+      "rewards": {
+        "title": "Ganhando recompensas",
+        "body": "Os provedores de liquidez ganham recompensas na forma de taxas de negociação e, em alguns casos, tokens de governança adicionais da plataforma. Essas recompensas são proporcionais à quantidade de liquidez fornecida."
+      },
+      "risks": {
+        "title": "Riscos e Considerações",
+        "body": "Embora as pools de liquidez ofereçam oportunidades de ganhos, é importante estar ciente dos riscos envolvidos, incluindo perdas impermanentes, vulnerabilidades de contratos inteligentes e volatilidade do mercado. Os usuários devem realizar uma pesquisa completa antes de participar."
+      }
+    }
   }
 }

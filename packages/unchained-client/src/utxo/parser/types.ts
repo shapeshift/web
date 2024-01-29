@@ -1,7 +1,7 @@
 import type { utxo } from '@shapeshiftoss/common-api'
 
+import type * as thorchain from '../../parser/thorchain'
 import type { StandardTx } from '../../types'
-import type * as thorchain from './thorchain'
 
 export type Tx = utxo.Tx
 

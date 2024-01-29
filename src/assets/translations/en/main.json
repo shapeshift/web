@@ -805,6 +805,7 @@
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
     "numHops": "This trade includes %{numHops} hops",
+    "percentageDifferenceTooltip": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
     "toContinue": "to continue.",

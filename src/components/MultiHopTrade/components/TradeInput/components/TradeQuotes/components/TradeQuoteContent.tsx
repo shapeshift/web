@@ -1,4 +1,4 @@
-import { CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
+import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
@@ -55,6 +55,10 @@ export const TradeQuoteContent = ({
     return parsedValue !== 0
   }, [quoteDifferenceDecimalPercentage, toPercent])
 
+  const percentageDifferenceTooltipText = useMemo(() => {
+    return translate('trade.percentageDifferenceTooltip', { buyAssetSymbol: buyAsset.symbol })
+  }, [buyAsset, translate])
+
   return (
     <>
       <CardBody py={2} px={4} display='flex' alignItems='center' justifyContent='space-between'>
@@ -63,19 +67,23 @@ export const TradeQuoteContent = ({
             <Skeleton isLoaded={!isLoading}>
               <Amount.Crypto
                 value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-                symbol={buyAsset?.symbol ?? ''}
+                symbol={buyAsset.symbol}
                 fontSize='xl'
                 lineHeight={1}
               />
             </Skeleton>
             {!isBest && hasAmountWithPositiveReceive && shouldRenderPercentageDiff && (
               <Skeleton isLoaded={!isLoading}>
-                <Amount.Percent
-                  value={quoteDifferenceDecimalPercentage ?? 0}
-                  prefix='('
-                  suffix=')'
-                  autoColor
-                />
+                <Tooltip label={percentageDifferenceTooltipText}>
+                  <Box>
+                    <Amount.Percent
+                      value={quoteDifferenceDecimalPercentage ?? 0}
+                      prefix='('
+                      suffix=')'
+                      autoColor
+                    />
+                  </Box>
+                </Tooltip>
               </Skeleton>
             )}
           </Flex>

@@ -91,6 +91,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const runeAccountNumber = useAppSelector(s =>
     selectAccountNumberByAccountId(s, runeAccountNumberFilter),
   )
+  const assetAccountNumberFilter = useMemo(
+    () => ({ assetId: asset?.assetId ?? '', accountId: assetAccountId ?? '' }),
+    [assetAccountId, asset?.assetId],
+  )
+
+  const assetAccountNumber = useAppSelector(s =>
+    selectAccountNumberByAccountId(s, assetAccountNumberFilter),
+  )
 
   const assetAccountFilter = useMemo(() => ({ accountId: assetAccountId }), [assetAccountId])
   const assetAccountMetadata = useAppSelector(state =>
@@ -310,6 +318,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           }
           case 'EvmCustomTx': {
             if (!inboundAddressData?.router) return
+            if (assetAccountNumber === undefined) return
 
             const thorContract = getOrCreateContractByType({
               address: inboundAddressData.router,
@@ -343,7 +352,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             const adapter = assertGetEvmChainAdapter(asset.chainId)
 
             const buildCustomTxInput = await createBuildCustomTxInput({
-              accountNumber: 0, // TODO(gomes) programmatic
+              accountNumber: assetAccountNumber,
               adapter,
               data,
               value: isToken(fromAssetId(assetId).assetReference)
@@ -425,6 +434,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     amountCryptoPrecision,
     runeAccountNumber,
     otherAssetAddress,
+    assetAccountNumber,
     accountAssetAddress,
     selectedCurrency,
   ])

@@ -1,9 +1,9 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Collapse, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
+import { Collapse, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
@@ -52,22 +52,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const { isOpen, onToggle, onOpen, onClose } = useDisclosure({
-    defaultIsOpen: errors.length === 0,
-  })
 
   const {
     number: { toPercent },
   } = useLocaleFormatter()
-
-  // ensure the correct collapse state based on subsequent quotes
-  useEffect(() => {
-    if (errors.length === 0) {
-      onOpen()
-    } else {
-      onClose()
-    }
-  }, [errors.length, onClose, onOpen])
 
   const { isTradingActive } = useIsTradingActive()
 
@@ -124,8 +112,13 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
-  }, [dispatch, quoteData])
+    if (!isActive) {
+      dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+    } else if (!isBest) {
+      // don't allow un-selecting of best quote as it gets re-selected in this case
+      dispatch(tradeQuoteSlice.actions.setActiveQuote(undefined))
+    }
+  }, [dispatch, isActive, isBest, quoteData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)
@@ -179,7 +172,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     }
   }, [errors, quote, translate, hasAmountWithPositiveReceive, isAmountEntered, isBest])
 
-  const isDisabled = !quote || errors?.length > 0 || isLoading
+  const isDisabled = !quote || isLoading
   const showSwapperError = ![
     TradeQuoteValidationError.UnknownError,
     SwapperTradeQuoteError.UnknownError,
@@ -245,15 +238,15 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
       <Flex gap={2}>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
         <Skeleton isLoaded={!isLoading}>
-          <CountdownToggle isOpen={isOpen} onToggle={onToggle} showToggle={Boolean(quote)} />
+          <CountdownToggle />
         </Skeleton>
       </Flex>
     )
-  }, [isLoading, isOpen, onToggle, quote, tag])
+  }, [isLoading, tag])
 
   const bodyContent = useMemo(() => {
     return quote ? (
-      <Collapse in={isOpen}>
+      <Collapse in={isBest || isActive}>
         <TradeQuoteContent
           isLoading={isLoading}
           buyAsset={buyAsset}
@@ -272,9 +265,9 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   }, [
     buyAsset,
     hasAmountWithPositiveReceive,
+    isActive,
     isBest,
     isLoading,
-    isOpen,
     networkFeeUserCurrencyPrecision,
     quote,
     quoteDifferenceDecimalPercentage,

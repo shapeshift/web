@@ -118,7 +118,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         : undefined
 
       return quoteList.map((quoteData, i) => {
-        const { swapperName, id, isStale } = quoteData
+        const { swapperName, id, isStale, errors } = quoteData
 
         const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
@@ -132,7 +132,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
                 !isSwapperQuoteAvailable[swapperName] ||
                 isStale
               }
-              isBest={i === 0}
+              isBest={i === 0 && errors.length === 0}
               key={id}
               quoteData={quoteData}
               bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}

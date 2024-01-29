@@ -118,7 +118,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         : undefined
 
       return quoteList.map((quoteData, i) => {
-        const { swapperName, id, isStale, errors } = quoteData
+        const { swapperName, id, errors } = quoteData
 
         const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
@@ -126,11 +126,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
           <MotionBox key={id} layout {...motionBoxProps}>
             <TradeQuote
               isActive={isActive}
-              isLoading={
+              isLoading={false}
+              isRefetching={
                 isLoading ||
                 isSwapperFetching[quoteData.swapperName] ||
-                !isSwapperQuoteAvailable[swapperName] ||
-                isStale
+                !isSwapperQuoteAvailable[swapperName]
               }
               isBest={i === 0 && errors.length === 0}
               key={id}
@@ -185,6 +185,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
               <TradeQuote
                 isActive={false}
                 isLoading={true}
+                isRefetching={false}
                 isBest={false}
                 key={id}
                 // eslint doesn't understand useMemo not possible to use inside map

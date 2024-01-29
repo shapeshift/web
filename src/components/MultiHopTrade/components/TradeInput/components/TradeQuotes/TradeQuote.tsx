@@ -41,6 +41,7 @@ type TradeQuoteProps = {
   bestTotalReceiveAmountCryptoPrecision: string | undefined
   bestInputOutputRatio: number | undefined
   isLoading: boolean
+  isRefetching: boolean
 }
 
 export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
@@ -50,6 +51,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   bestTotalReceiveAmountCryptoPrecision,
   bestInputOutputRatio,
   isLoading,
+  isRefetching,
 }) => {
   const { quote, errors, inputOutputRatio } = quoteData
 
@@ -269,10 +271,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     return (
       <Flex gap={2} alignItems='center'>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-        <CountdownSpinner isLoading={isLoading} />
+        <CountdownSpinner isLoading={isLoading || isRefetching} />
       </Flex>
     )
-  }, [isLoading, tag])
+  }, [isLoading, isRefetching, tag])
 
   const bodyContent = useMemo(() => {
     return quote ? (

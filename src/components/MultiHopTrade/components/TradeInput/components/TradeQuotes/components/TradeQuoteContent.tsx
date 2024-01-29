@@ -56,7 +56,9 @@ export const TradeQuoteContent = ({
   }, [quoteDifferenceDecimalPercentage, toPercent])
 
   const percentageDifferenceTooltipText = useMemo(() => {
-    return translate('trade.percentageDifferenceTooltip', { buyAssetSymbol: buyAsset.symbol })
+    return translate('trade.tooltip.amountPercentageDifference', {
+      buyAssetSymbol: buyAsset.symbol,
+    })
   }, [buyAsset, translate])
 
   return (

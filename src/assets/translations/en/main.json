@@ -759,7 +759,9 @@
       "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
-      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct."
+      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct.",
+      "amountPercentageDifference": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
+      "overallPercentageDifference": "This is the percentage difference in the overall amount received after all fees are deducted, compared to the best quote"
     },
     "rates": {
       "tags": {
@@ -803,7 +805,6 @@
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
     "numHops": "This trade includes %{numHops} hops",
-    "percentageDifferenceTooltip": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
     "toContinue": "to continue.",

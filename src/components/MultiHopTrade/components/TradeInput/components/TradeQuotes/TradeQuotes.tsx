@@ -136,6 +136,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
               key={id}
               quoteData={quoteData}
               bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
+              bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
             />
           </MotionBox>
         )
@@ -190,6 +191,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
                 // eslint-disable-next-line react-memo/require-usememo
                 quoteData={quoteData}
                 bestTotalReceiveAmountCryptoPrecision={undefined}
+                bestInputOutputRatio={undefined}
               />
             </MotionBox>
           )

@@ -5,6 +5,7 @@ import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swappe
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
@@ -38,6 +39,7 @@ type TradeQuoteProps = {
   isBest: boolean
   quoteData: ApiQuote
   bestTotalReceiveAmountCryptoPrecision: string | undefined
+  bestInputOutputRatio: number | undefined
   isLoading: boolean
 }
 
@@ -46,9 +48,10 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   isBest,
   quoteData,
   bestTotalReceiveAmountCryptoPrecision,
+  bestInputOutputRatio,
   isLoading,
 }) => {
-  const { quote, errors } = quoteData
+  const { quote, errors, inputOutputRatio } = quoteData
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -124,13 +127,18 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
-  // the difference percentage is on the gross receive amount only
-  const quoteDifferenceDecimalPercentage = useMemo(() => {
+  // the difference percentage is on the receive amount only
+  const quoteAmountDifferenceDecimalPercentage = useMemo(() => {
     if (!quote || !bestTotalReceiveAmountCryptoPrecision) return
     return bn(1)
       .minus(bn(totalReceiveAmountCryptoPrecision).dividedBy(bestTotalReceiveAmountCryptoPrecision))
       .toNumber()
   }, [bestTotalReceiveAmountCryptoPrecision, quote, totalReceiveAmountCryptoPrecision])
+
+  const quoteOverallDifferenceDecimalPercentage = useMemo(() => {
+    if (!quote || !bestInputOutputRatio) return
+    return -bn(1).minus(bn(inputOutputRatio).dividedBy(bestInputOutputRatio)).toNumber()
+  }, [bestInputOutputRatio, inputOutputRatio, quote])
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =
@@ -168,9 +176,33 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
           </Tag>
         )
       default:
-        return <Tag size='sm'>{translate('common.alternative')}</Tag>
+        return (
+          <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
+            <Tag size='sm'>
+              {/* <Flex gap={2}> */}
+              {/* {translate('common.alternative')} */}
+              {quoteOverallDifferenceDecimalPercentage !== undefined && (
+                <Amount.Percent
+                  value={quoteOverallDifferenceDecimalPercentage ?? 0}
+                  // prefix='('
+                  // suffix=')'
+                  autoColor={false}
+                />
+              )}
+              {/* </Flex> */}
+            </Tag>
+          </Tooltip>
+        )
     }
-  }, [errors, quote, translate, hasAmountWithPositiveReceive, isAmountEntered, isBest])
+  }, [
+    errors,
+    quote,
+    translate,
+    hasAmountWithPositiveReceive,
+    isAmountEntered,
+    isBest,
+    quoteOverallDifferenceDecimalPercentage,
+  ])
 
   const isDisabled = !quote || isLoading
   const showSwapperError = ![
@@ -235,7 +267,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const headerContent = useMemo(() => {
     return (
-      <Flex gap={2}>
+      <Flex gap={2} alignItems='center'>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
         <Skeleton isLoaded={!isLoading}>
           <CountdownToggle />
@@ -255,7 +287,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
           totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
           hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
-          quoteDifferenceDecimalPercentage={quoteDifferenceDecimalPercentage}
+          quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
           networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
           slippage={slippage}
@@ -270,7 +302,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     isLoading,
     networkFeeUserCurrencyPrecision,
     quote,
-    quoteDifferenceDecimalPercentage,
+    quoteAmountDifferenceDecimalPercentage,
     slippage,
     totalEstimatedExecutionTimeMs,
     totalReceiveAmountCryptoPrecision,

@@ -106,7 +106,7 @@ export const useUserLpData = ({
     ...reactQueries.thorchainLp.userLpData(assetId),
     staleTime: Infinity,
     queryFn: async ({ queryKey }) => {
-      const [, , assetId] = queryKey
+      const [, , , { assetId }] = queryKey
 
       const allPositions = (
         await Promise.all(

@@ -1,11 +1,13 @@
-import { CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
+import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
+import { useMemo } from 'react'
 import { BsLayers } from 'react-icons/bs'
 import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 export type TradeQuoteContentProps = {
   isLoading: boolean
@@ -15,7 +17,7 @@ export type TradeQuoteContentProps = {
   totalReceiveAmountFiatPrecision: string
   hasAmountWithPositiveReceive: boolean
   totalReceiveAmountCryptoPrecision: string
-  quoteDifferenceDecimalPercentage: number
+  quoteDifferenceDecimalPercentage: number | undefined
   networkFeeUserCurrencyPrecision: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
   slippage: JSX.Element | undefined
@@ -29,12 +31,33 @@ export const TradeQuoteContent = ({
   totalReceiveAmountFiatPrecision,
   hasAmountWithPositiveReceive,
   totalReceiveAmountCryptoPrecision,
-  quoteDifferenceDecimalPercentage,
+  quoteDifferenceDecimalPercentage: maybeQuoteDifferenceDecimalPercentage,
   networkFeeUserCurrencyPrecision,
   totalEstimatedExecutionTimeMs,
   slippage,
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
+
+  const {
+    number: { toPercent },
+  } = useLocaleFormatter()
+
+  const quoteDifferenceDecimalPercentage = useMemo(() => {
+    if (maybeQuoteDifferenceDecimalPercentage === undefined) return
+    return -maybeQuoteDifferenceDecimalPercentage
+  }, [maybeQuoteDifferenceDecimalPercentage])
+
+  // don't render the percentage difference if the parsed value is 0.00%
+  const shouldRenderPercentageDiff = useMemo(() => {
+    if (quoteDifferenceDecimalPercentage === undefined) return false
+    const formattedNumber = toPercent(quoteDifferenceDecimalPercentage)
+    const parsedValue = parseFloat(formattedNumber)
+    return parsedValue !== 0
+  }, [quoteDifferenceDecimalPercentage, toPercent])
+
+  const percentageDifferenceTooltipText = useMemo(() => {
+    return translate('trade.percentageDifferenceTooltip', { buyAssetSymbol: buyAsset.symbol })
+  }, [buyAsset, translate])
 
   return (
     <>
@@ -44,19 +67,23 @@ export const TradeQuoteContent = ({
             <Skeleton isLoaded={!isLoading}>
               <Amount.Crypto
                 value={hasAmountWithPositiveReceive ? totalReceiveAmountCryptoPrecision : '0'}
-                symbol={buyAsset?.symbol ?? ''}
+                symbol={buyAsset.symbol}
                 fontSize='xl'
                 lineHeight={1}
               />
             </Skeleton>
-            {!isBest && hasAmountWithPositiveReceive && quoteDifferenceDecimalPercentage !== 0 && (
+            {!isBest && hasAmountWithPositiveReceive && shouldRenderPercentageDiff && (
               <Skeleton isLoaded={!isLoading}>
-                <Amount.Percent
-                  value={-quoteDifferenceDecimalPercentage}
-                  prefix='('
-                  suffix=')'
-                  autoColor
-                />
+                <Tooltip label={percentageDifferenceTooltipText}>
+                  <Box>
+                    <Amount.Percent
+                      value={quoteDifferenceDecimalPercentage ?? 0}
+                      prefix='('
+                      suffix=')'
+                      autoColor
+                    />
+                  </Box>
+                </Tooltip>
               </Skeleton>
             )}
           </Flex>

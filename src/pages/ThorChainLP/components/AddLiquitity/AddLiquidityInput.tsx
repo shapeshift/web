@@ -397,7 +397,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       setSlippageRune(
         bnOrZero(estimate.slipPercent)
           .div(100)
-          .times(actualRuneFiatLiquidityAmount ?? 0)
+          .times(virtualRuneFiatLiquidityAmount ?? 0)
           .times(2)
           .toFixed(),
       )

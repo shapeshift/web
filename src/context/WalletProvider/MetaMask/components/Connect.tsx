@@ -9,6 +9,7 @@ import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
   checkIsMetaMask,
+  checkIsMetaMaskImpersonator,
   checkisMetaMaskMobileWebView,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -85,11 +86,13 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
         await (async () => {
           const isMetaMask = await checkIsMetaMask(wallet)
-          if (!isMetaMask) return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
+          // Wallets other than MM desktop - including MM impersonators - don't support MM snaps
+          if (!isMetaMask || isMetaMaskImpersonator || isMetaMaskMobileWebView)
+            return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
 
-          // We don't want to show the snaps modal on MM mobile browser, as snaps aren't supported on mobile
-          if (isSnapsEnabled && !isMetaMaskMobileWebView && !isSnapInstalled && showSnapModal) {
+          if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
             return history.push('/metamask/snap/install')
           }
 

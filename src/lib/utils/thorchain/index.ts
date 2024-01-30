@@ -161,7 +161,6 @@ export const getThorchainFromAddress = async ({
       assetId,
       opportunityId,
     })
-    console.log({ position })
     if (!position) throw new Error(`No position found for assetId: ${assetId}`)
     const address: string = (() => {
       // THORChain lending position

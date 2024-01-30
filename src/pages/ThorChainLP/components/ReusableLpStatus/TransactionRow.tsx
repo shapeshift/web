@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
+import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import {
@@ -324,7 +325,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               const vault = getAddress(inboundAddressData.address)
               const asset = isToken(fromAssetId(assetId).assetReference)
                 ? getAddress(fromAssetId(assetId).assetReference)
-                : '0x0000000000000000000000000000000000000000'
+                : // Native EVM assets use the 0 address as the asset address
+                  // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+                  AddressZero
 
               const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
                 confirmedQuote.feeBps

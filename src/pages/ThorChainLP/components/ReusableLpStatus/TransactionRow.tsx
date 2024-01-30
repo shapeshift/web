@@ -158,6 +158,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     runeAccountMetadata,
     poolAssetAccountId,
     asymSide,
+    isRuneTx,
   ])
 
   const serializedTxIndex = useMemo(() => {
@@ -416,11 +417,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       setStatus(TxStatus.Pending)
     })
   }, [
-    asset,
     assetId,
     poolAssetId,
+    asset,
     poolAsset,
     wallet,
+    isRuneTx,
     inboundAddressData,
     runeAccountId,
     assetAccountId,

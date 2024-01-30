@@ -118,7 +118,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         : undefined
 
       return quoteList.map((quoteData, i) => {
-        const { swapperName, id, errors } = quoteData
+        const { swapperName, id, errors, isStale } = quoteData
 
         const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
@@ -126,7 +126,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
           <MotionBox key={id} layout {...motionBoxProps}>
             <TradeQuote
               isActive={isActive}
-              isLoading={false}
+              isLoading={isSwapperFetching[quoteData.swapperName] && isStale}
               isRefetching={
                 isLoading ||
                 isSwapperFetching[quoteData.swapperName] ||

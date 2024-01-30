@@ -81,7 +81,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  const assetAccountId = accountIds[asset?.assetId ?? '']
   const runeAccountId = accountIds[thorchainAssetId]
   const poolAssetAccountId = accountIds[poolAsset?.assetId ?? '']
   const runeAccountNumberFilter = useMemo(
@@ -93,15 +92,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectAccountNumberByAccountId(s, runeAccountNumberFilter),
   )
   const assetAccountNumberFilter = useMemo(
-    () => ({ assetId: asset?.assetId ?? '', accountId: assetAccountId ?? '' }),
-    [assetAccountId, asset?.assetId],
+    () => ({ assetId: asset?.assetId ?? '', accountId: poolAssetAccountId ?? '' }),
+    [poolAssetAccountId, asset?.assetId],
   )
 
   const assetAccountNumber = useAppSelector(s =>
     selectAccountNumberByAccountId(s, assetAccountNumberFilter),
   )
 
-  const assetAccountFilter = useMemo(() => ({ accountId: assetAccountId }), [assetAccountId])
+  const assetAccountFilter = useMemo(
+    () => ({ accountId: poolAssetAccountId }),
+    [poolAssetAccountId],
+  )
   const assetAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, assetAccountFilter),
   )
@@ -115,7 +117,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   useEffect(() => {
     if (!(wallet && asset && confirmedQuote?.opportunityId && assetAccountMetadata)) return
-    const accountId = isRuneTx ? runeAccountId : assetAccountId
+    const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
     const otherAssetAccountId = isRuneTx ? poolAssetAccountId : runeAccountId
     const assetId = isRuneTx ? thorchainAssetId : poolAssetId
     const otherAssetAssetId = isRuneTx ? poolAssetId : thorchainAssetId
@@ -150,22 +152,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [
     assetAccountMetadata,
     asset,
-    assetAccountId,
+    poolAssetAccountId,
     assetId,
     confirmedQuote.opportunityId,
     poolAssetId,
     runeAccountId,
     wallet,
     runeAccountMetadata,
-    poolAssetAccountId,
     asymSide,
     isRuneTx,
   ])
 
-  const serializedTxIndex = useMemo(() => {
-    if (!(txId && accountAssetAddress && assetAccountId)) return ''
-    return serializeTxIndex(assetAccountId, txId, accountAssetAddress)
-  }, [accountAssetAddress, assetAccountId, txId])
+  const [serializedTxIndex, setSerializedTxIndex] = useState<string>('')
+
+  console.log({ serializedTxIndex })
 
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
@@ -246,7 +246,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
 
     return (async () => {
-      const accountId = isRuneTx ? runeAccountId : assetAccountId
+      const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
       // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
@@ -313,6 +313,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
 
             setTxId(txId)
+            setSerializedTxIndex(
+              serializeTxIndex(runeAccountId, txId, account, { memo, parser: 'swap' }),
+            )
 
             break
           }
@@ -365,6 +368,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
 
             setTxId(txid)
+            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, txid, accountAssetAddress!))
+
             break
           }
           case 'Send': {
@@ -410,6 +415,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
 
             setTxId(txId)
+            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, txId, accountAssetAddress!))
+
             break
           }
           default:
@@ -428,7 +435,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     isRuneTx,
     inboundAddressData,
     runeAccountId,
-    assetAccountId,
+    poolAssetAccountId,
     amountCryptoPrecision,
     runeAccountNumber,
     otherAssetAddress,

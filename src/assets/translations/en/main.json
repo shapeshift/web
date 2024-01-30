@@ -618,7 +618,6 @@
         "refund": "Refund",
         "swapOut": "Swap Received",
         "swapRefund": "Swap Refund",
-        "transferOut": "Transfer Out",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"

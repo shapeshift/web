@@ -72,7 +72,6 @@ export const TransactionMethod = ({
       case Method.LoanRepayment:
       case Method.Stake:
       case Method.Transfer:
-      case Method.TransferOut:
         return TransferType.Send
       case Method.BeginUnbonding:
       case Method.ClaimWithdraw:

@@ -51,7 +51,6 @@ export enum Method {
   SwapOut = 'swapOut',
   SwapRefund = 'swapRefund',
   Transfer = 'transfer',
-  TransferOut = 'transferOut',
   Unstake = 'unstake',
   Withdraw = 'withdraw',
   WithdrawDelegatorReward = 'withdraw_delegator_reward',

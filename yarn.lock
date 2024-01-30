@@ -9608,7 +9608,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-core": 1.53.3
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: a8e21c84e12686d46ffd70d25470bd3b22c6c29d40bf113fa7e55afed5ef4a5d5b326f8c5f5a20ab4b8c395e18d11746b5abf183d13235b888a44865d8b6cec7
+  checksum: 0b91dee44b0ac6488d6d54c7537d5f28461e2dda16cb018870743e94dfe2e35c6165a1800bf15e60d721cdd4689595bb695ed4ada668cae9b62a9ce830c11cd8
   languageName: node
   linkType: hard
 
@@ -9648,7 +9648,7 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: b3e188c91fd3f07c333a38bf5ccf2804c7446d1d590c311cb3d674ee1b01dcade2edcf93c7a002e47f160469d909384cdf6b5198e9b9cc48db0211b736c6d5e1
+  checksum: fee0540ff5fb70b09f35f124d4536e588f9223db95b9fb6a68d543b5c0ed7c1fe7a21035e5ff77720189f945d9bac01a1926c0e0abb9c5bcca8ab9f7d2012a9e
   languageName: node
   linkType: hard
 
@@ -9658,7 +9658,7 @@ __metadata:
   dependencies:
     "@shapeshiftoss/hdwallet-core": 1.53.3
     "@shapeshiftoss/hdwallet-keepkey": 1.53.3
-  checksum: 0fc56107488f0ad7bbacee429569d1343e27c104a95959c288131b523af47a9429b36c292d8c71fae757632c9b2b53d7e2880397f100b98191e428b57d614514
+  checksum: 92eb46c6a5702787b4497597ac73570755ce5795f427f4d82aaf395fc747daf67f06cc84077065fd4b812fed1d9cf5ba451fdc3a7dd5890daa885ee0073fd38e
   languageName: node
   linkType: hard
 
@@ -9683,7 +9683,7 @@ __metadata:
     p-lazy: ^3.1.0
     semver: ^7.3.8
     tiny-secp256k1: ^1.1.6
-  checksum: 16f5e4b9f98fa2690ed67567fb6f99b166d2c2b3a5786e2f8ebc5c42ea271fce4d627f38d27d3dc9686f1e98ede6f0099386e7f07b174cb2a20e61254ac2a21c
+  checksum: f30b58d56d628ab420e3fae14f530a948baa52731ba7b56759cd3cc961665976c7115a7ee66a0314989c87e4e52624939ed67cf97c8687476ea8eb12f882c185
   languageName: node
   linkType: hard
 
@@ -9697,7 +9697,7 @@ __metadata:
     "@shapeshiftoss/types": 3.1.3
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: c11882ab09b5aa996a9e5ac09692476b17d93d48b0b039e96dd0cab9d0f41f35f74a29a8e477144143b1fe5f5c483012e09b63167ad13c6bae1b97b5d080e197
+  checksum: 4fc540a8820fe9e8b044c73bdde28b7f6755dc6301145d8e31aaba0ecde0c18b76c80ce8495b0e364cc05be7516e16e2fcefc6ee62a2f161f54c5f3a0d729a9f
   languageName: node
   linkType: hard
 
@@ -9715,7 +9715,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-ledger": 1.53.3
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: e5b7358c10fe9603fed92bff7e00eb38cb34467548346c30ddb6efa39f4f5cc4f4f6be2dba7ed252ecbe99a5b053d7a0d8107e5cfaafa1973fa001d536c4f838
+  checksum: 86157eb7b283ee37ef0d9625ad75a6f7acd58e86f7f71e0dfa8a2a2c99cd830b22a89cb9b59b4764c8b32f80260d023ea322c2bddfb68cd1a1482e23a42be25f
   languageName: node
   linkType: hard
 
@@ -9735,7 +9735,7 @@ __metadata:
     ethereumjs-tx: 1.3.7
     ethereumjs-util: ^6.1.0
     lodash: ^4.17.21
-  checksum: 452a18a75e998451314fb4df81be176a1304977453093d6eada2579617aa0aba69f1b44afa7b6e4110b82aa46bdb8dbeb9649861da75b10cd9c57b78af5336dd
+  checksum: 10ecdf3ff61d6a161eb4ade19832c1292c5e01c91fa52ad87a11975b1b36284722fe0571a7f4d67143faf8c30ab45ef08fff6708ab8cad6173abe091292dc247
   languageName: node
   linkType: hard
 
@@ -9748,7 +9748,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-core": 1.53.3
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: adcd75683f9f6154ae35bf326bb71246efd42db0c3bc365998f2115a5be55d622d1beebc2dbc71dd645efc512bc1f96145d9ffa32080d49ddee066def07a28f0
+  checksum: 0c4e2f19201155218c3faffb9a108bb837408c56391ddd56f8e61d4e8d04e12f46fcf036485017aeb2ea118c3980ca50cc2297b41bd436ef30fe0444730d551a
   languageName: node
   linkType: hard
 
@@ -9765,7 +9765,7 @@ __metadata:
     type-assertions: ^1.1.0
     uuid: ^8.3.2
     web-encoding: ^1.1.0
-  checksum: ba237948cacd256b2b6a82483bea0485057bc870190838f3735c79091be54aef6993c44c672fb6c7948f216f3b7e5998b04ff78c569396ecd95b7e39670c286a
+  checksum: 1768f57cc7cd6b58f22c85d0914fe7afce187a296a8ab72b79f31b164c8c0c4515baad6c237739a75ccd5d56656f60c65aeeb9caaec18cb3b7b95c3eb4629293
   languageName: node
   linkType: hard
 
@@ -9796,7 +9796,7 @@ __metadata:
     tendermint-tx-builder: ^1.0.9
     tiny-secp256k1: ^1.1.6
     web-encoding: ^1.1.0
-  checksum: 9ca8fa405a6c18c22106e4e6721eea290f6197f425eff2f9ab82f8d7ff3004e8345e7b568f3b77e4fa668706ba4de61ed0c087219a821b373770b28c73474270
+  checksum: 42fd593fd80e9fe4d4faede7e8b928e5aadd414e4f8746b4546cef2d0b42a11e648e8ad672b4c0db156a4a94c783ddf947b97fd5d555c55f0bd220407aa5e03f
   languageName: node
   linkType: hard
 
@@ -9843,7 +9843,7 @@ __metadata:
     "@shapeshiftoss/metamask-snaps-types": ^1.0.8
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: 12275f7e75feb83e6a20214dc9c235a75dc69cb704429717f6d949d4033341971057c3008401ba80f2c26a940aa7aeb30ae90fcc4192dfb1e9da33a225a0336a
+  checksum: 7ac6cddd86c2ae55f30252449c7d9b54ef5343067971f1fa66fca1ac0f849583bddbbabd663452a18dcf914bcb5cc0032e8e9d48ef8fcacc706f00b21921d318
   languageName: node
   linkType: hard
 
@@ -9855,7 +9855,7 @@ __metadata:
     "@walletconnect/ethereum-provider": ^2.10.1
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: 222fd090a88175ffc1fb9d01fd8605c1da2cd8840b7534a1f6d202715eee9e2413f96de4b653c55b7f1e02f521b21c9eceb9e855a92030650913107d0759d49b
+  checksum: 96dfd68a1cca47e8365779e19b2aaa4949e608ab8287c70220090d65e6c2097d54685e9ce00f6cce4a8a877038c3870a67bec141ce31f0da9aff675ef2e80428
   languageName: node
   linkType: hard
 
@@ -9865,7 +9865,7 @@ __metadata:
   dependencies:
     "@shapeshiftoss/hdwallet-core": 1.53.3
     lodash: ^4.17.21
-  checksum: 3c48d8332f0ba6a3cfc6937fcceba5180ebf49326b8f78f84460492eeefa9462953615090995feb743abfe65f99991e093c613de3ad8c48d4398ff87657fcac2
+  checksum: d86389201759e5544ba0741d6b824e1438827043279e3147e4b6a0038548ad2fcee2c4ea615e9732bdbf5f01c28ec80d2e4d588c61f5dd26d6e51cad0741981e
   languageName: node
   linkType: hard
 

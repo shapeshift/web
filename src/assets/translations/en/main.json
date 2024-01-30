@@ -619,13 +619,6 @@
         "withdraw": "Withdraw Requested",
         "withdrawOut": "Withdraw Received"
       },
-      "swap": {
-        "deposit": "Swap",
-        "streamingSwap": "Streaming Swap",
-        "out": "Swap",
-        "refund": "Refund",
-        "outbound": "Outbound"
-      },
       "foxy": {
         "stake": "Stake",
         "unstake": "Unstake",

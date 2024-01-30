@@ -129,7 +129,8 @@ export const TradeInput = memo(() => {
 
     return [1]
   }, [sellAsset.assetId])
-  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
   const enableMultiHopTrades = useFeatureFlag('MultiHopTrades')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -229,7 +230,6 @@ export const TradeInput = memo(() => {
     supportedBuyAssets,
     isLoading: isSupportedAssetsLoading,
   } = useSupportedAssets()
-  const activeQuote = useAppSelector(selectActiveQuote)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
   const rate = activeQuote?.steps[0].rate

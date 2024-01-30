@@ -1,24 +1,29 @@
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
-import { bn } from 'lib/bignumber/bignumber'
-import {
-  selectBuyAmountBeforeFeesUserCurrency,
-  selectQuoteSellAmountUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectInputBuyAssetUsdRate, selectInputSellAmountUsd } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const usePriceImpact = () => {
-  const buyAmountBeforeFeesUserCurrency = useAppSelector(selectBuyAmountBeforeFeesUserCurrency)
-  const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
+export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
+  const numSteps = tradeQuote?.steps.length ?? 0
+
+  const sellAmountBeforeFeesUsd = useAppSelector(selectInputSellAmountUsd)
+  const buyAmountBeforeFeesCryptoBaseUnit =
+    tradeQuote?.steps[numSteps - 1].buyAmountBeforeFeesCryptoBaseUnit
+
+  const buyAssetUsdRate = useAppSelector(selectInputBuyAssetUsdRate)
 
   const priceImpactPercentage = useMemo(() => {
-    if (!sellAmountBeforeFeesUserCurrency || !buyAmountBeforeFeesUserCurrency) return bn('0')
-
-    const tradeDifference = bn(sellAmountBeforeFeesUserCurrency).minus(
-      buyAmountBeforeFeesUserCurrency,
+    const buyAmountBeforeFeesUsd = bnOrZero(buyAmountBeforeFeesCryptoBaseUnit).times(
+      buyAssetUsdRate ?? '0',
     )
 
-    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
-  }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
+    if (!sellAmountBeforeFeesUsd || buyAmountBeforeFeesUsd.isZero()) return bn('0')
+
+    const tradeDifference = bn(sellAmountBeforeFeesUsd).minus(buyAmountBeforeFeesUsd)
+
+    return tradeDifference.div(sellAmountBeforeFeesUsd).times(100)
+  }, [buyAmountBeforeFeesCryptoBaseUnit, buyAssetUsdRate, sellAmountBeforeFeesUsd])
 
   const isModeratePriceImpact = useMemo(() => {
     if (!priceImpactPercentage) return false

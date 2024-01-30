@@ -4,10 +4,12 @@ import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { BsLayers } from 'react-icons/bs'
 import { FaGasPump, FaRegClock } from 'react-icons/fa'
+import { MdOfflineBolt } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 
 export type TradeQuoteContentProps = {
   isLoading: boolean
@@ -21,6 +23,8 @@ export type TradeQuoteContentProps = {
   networkFeeUserCurrencyPrecision: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
   slippage: JSX.Element | undefined
+  isModeratePriceImpact: boolean
+  priceImpactDecimalPercentage: BigNumber
 }
 
 export const TradeQuoteContent = ({
@@ -35,6 +39,8 @@ export const TradeQuoteContent = ({
   networkFeeUserCurrencyPrecision,
   totalEstimatedExecutionTimeMs,
   slippage,
+  isModeratePriceImpact,
+  priceImpactDecimalPercentage,
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
 
@@ -118,6 +124,16 @@ export const TradeQuoteContent = ({
               }
             </Flex>
           </Skeleton>
+          {isModeratePriceImpact && (
+            <Skeleton isLoaded={!isLoading}>
+              <Flex gap={2} alignItems='center'>
+                <RawText color='text.subtle'>
+                  <MdOfflineBolt />
+                </RawText>
+                <Amount.Percent value={priceImpactDecimalPercentage.toNumber()} />
+              </Flex>
+            </Skeleton>
+          )}
           {slippage}
           {totalEstimatedExecutionTimeMs !== undefined && totalEstimatedExecutionTimeMs > 0 && (
             <Skeleton isLoaded={!isLoading}>

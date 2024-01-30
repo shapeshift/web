@@ -8,6 +8,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
+import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -63,6 +64,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   } = useLocaleFormatter()
 
   const { isTradingActive } = useIsTradingActive()
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(quote)
 
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -290,6 +292,8 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
         totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
         slippage={slippage}
+        isModeratePriceImpact={isModeratePriceImpact}
+        priceImpactDecimalPercentage={priceImpactPercentage.div(100)}
       />
     ) : null
   }, [
@@ -304,6 +308,8 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     totalEstimatedExecutionTimeMs,
     totalReceiveAmountCryptoPrecision,
     totalReceiveAmountFiatPrecision,
+    isModeratePriceImpact,
+    priceImpactPercentage,
   ])
 
   return showSwapper ? (

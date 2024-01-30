@@ -29,6 +29,7 @@ export default function register(): Plugins {
                 return new thorchain.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Thorchain',
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

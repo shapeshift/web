@@ -19,9 +19,9 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
-import { FaPlus } from 'react-icons/fa6'
+import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -34,13 +34,19 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
+import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
@@ -222,6 +228,49 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = useState<string | undefined>()
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
+
+  const assetBalanceFilter = useMemo(
+    () => ({
+      assetId: asset?.assetId,
+      accountId: accountIds[asset?.assetId ?? ''],
+    }),
+    [asset, accountIds],
+  )
+
+  const assetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, assetBalanceFilter),
+  )
+  const hasEnoughAssetBalance = useMemo(() => {
+    const assetBalanceCryptoPrecision = fromBaseUnit(
+      assetBalanceCryptoBaseUnit,
+      asset?.precision ?? 0,
+    )
+    return bnOrZero(assetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
+  }, [assetBalanceCryptoBaseUnit, asset?.precision, assetCryptoLiquidityAmount])
+
+  const runeBalanceFilter = useMemo(
+    () => ({
+      assetId: rune?.assetId,
+      accountId: accountIds[rune?.assetId ?? ''],
+    }),
+    [rune, accountIds],
+  )
+
+  const runeBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
+  )
+
+  const hasEnoughRuneBalance = useMemo(() => {
+    const runeBalanceCryptoPrecision = fromBaseUnit(runeBalanceCryptoBaseUnit, rune?.precision ?? 0)
+    return bnOrZero(runeCryptoLiquidityAmount).lte(runeBalanceCryptoPrecision)
+  }, [runeBalanceCryptoBaseUnit, rune?.precision, runeCryptoLiquidityAmount])
+
+  console.log({
+    assetBalanceCryptoBaseUnit,
+    runeBalanceCryptoBaseUnit,
+    hasEnoughAssetBalance,
+    hasEnoughRuneBalance,
+  })
 
   const runePerAsset = useMemo(() => {
     if (!assetMarketData || !runeMarketData) return undefined
@@ -561,7 +610,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           mx={-2}
           size='lg'
           colorScheme='blue'
-          isDisabled={!confirmedQuote || isVotingPowerLoading}
+          isDisabled={
+            !confirmedQuote ||
+            isVotingPowerLoading ||
+            !hasEnoughAssetBalance ||
+            !hasEnoughRuneBalance
+          }
           onClick={handleSubmit}
         >
           {translate('pools.addLiquidity')}

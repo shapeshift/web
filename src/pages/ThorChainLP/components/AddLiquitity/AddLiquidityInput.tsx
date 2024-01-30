@@ -144,6 +144,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return parsedPools.find(pool => pool.opportunityId === activeOpportunityId)
   }, [activeOpportunityId, parsedPools])
 
+  const isAsym = useMemo(() => foundPool?.isAsymmetric, [foundPool?.isAsymmetric])
+  const isAsymAssetSide = useMemo(
+    () => foundPool?.asymSide === AsymSide.Asset,
+    [foundPool?.asymSide],
+  )
+  const isAsymRuneSide = useMemo(() => foundPool?.asymSide === AsymSide.Rune, [foundPool?.asymSide])
+
   const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   useEffect(() => {
     if (!_asset) return
@@ -222,10 +229,70 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const assetMarketData = useAppSelector(state => selectMarketDataById(state, asset?.assetId ?? ''))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
 
-  const [assetCryptoLiquidityAmount, setAssetCryptoLiquidityAmount] = useState<string | undefined>()
-  const [assetFiatLiquidityAmount, setAssetFiatLiquidityAmount] = useState<string | undefined>()
-  const [runeCryptoLiquidityAmount, setRuneCryptoLiquidityAmount] = useState<string | undefined>()
-  const [runeFiatLiquidityAmount, setRuneFiatLiquidityAmount] = useState<string | undefined>()
+  // Virtual as in, these are the amounts if depositing symetrically. But a user may deposit asymetrically, so these are not the *actual* amounts
+  // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
+  // while using the *actual* amounts whenever we do things like checking for asset balance
+  const [virtualAssetCryptoLiquidityAmount, setVirtualAssetCryptoLiquidityAmount] = useState<
+    string | undefined
+  >()
+  const [virtualAssetFiatLiquidityAmount, setVirtualAssetFiatLiquidityAmount] = useState<
+    string | undefined
+  >()
+  const [virtualRuneCryptoLiquidityAmount, setVirtualRuneCryptoLiquidityAmount] = useState<
+    string | undefined
+  >()
+  const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
+    string | undefined
+  >()
+
+  const actualAssetCryptoLiquidityAmount = useMemo(() => {
+    if (isAsymAssetSide) {
+      // In asym asset side pool, use the virtual amount as is
+      return virtualAssetCryptoLiquidityAmount
+    } else if (isAsymRuneSide) {
+      // In asym rune side pool, the asset amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual amount as is
+    return virtualAssetCryptoLiquidityAmount
+  }, [isAsymAssetSide, isAsymRuneSide, virtualAssetCryptoLiquidityAmount])
+
+  const actualRuneCryptoLiquidityAmount = useMemo(() => {
+    if (isAsymRuneSide) {
+      // In asym rune side pool, use the virtual amount as is
+      return virtualRuneCryptoLiquidityAmount
+    } else if (isAsymAssetSide) {
+      // In asym asset side pool, the rune amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual amount as is
+    return virtualRuneCryptoLiquidityAmount
+  }, [isAsymRuneSide, isAsymAssetSide, virtualRuneCryptoLiquidityAmount])
+
+  const actualAssetFiatLiquidityAmount = useMemo(() => {
+    if (isAsymAssetSide) {
+      // In asym asset side pool, use the virtual fiat amount as is
+      return virtualAssetFiatLiquidityAmount
+    } else if (isAsymRuneSide) {
+      // In asym rune side pool, the asset fiat amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual fiat amount as is
+    return virtualAssetFiatLiquidityAmount
+  }, [isAsymAssetSide, isAsymRuneSide, virtualAssetFiatLiquidityAmount])
+
+  const actualRuneFiatLiquidityAmount = useMemo(() => {
+    if (isAsymRuneSide) {
+      // In asym rune side pool, use the virtual fiat amount as is
+      return virtualRuneFiatLiquidityAmount
+    } else if (isAsymAssetSide) {
+      // In asym asset side pool, the rune fiat amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual fiat amount as is
+    return virtualRuneFiatLiquidityAmount
+  }, [isAsymRuneSide, isAsymAssetSide, virtualRuneFiatLiquidityAmount])
+
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
@@ -245,8 +312,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetBalanceCryptoBaseUnit,
       asset?.precision ?? 0,
     )
-    return bnOrZero(assetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
-  }, [assetBalanceCryptoBaseUnit, asset?.precision, assetCryptoLiquidityAmount])
+    return bnOrZero(actualAssetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
+  }, [assetBalanceCryptoBaseUnit, asset?.precision, actualAssetCryptoLiquidityAmount])
 
   const runeBalanceFilter = useMemo(
     () => ({
@@ -262,15 +329,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const hasEnoughRuneBalance = useMemo(() => {
     const runeBalanceCryptoPrecision = fromBaseUnit(runeBalanceCryptoBaseUnit, rune?.precision ?? 0)
-    return bnOrZero(runeCryptoLiquidityAmount).lte(runeBalanceCryptoPrecision)
-  }, [runeBalanceCryptoBaseUnit, rune?.precision, runeCryptoLiquidityAmount])
-
-  console.log({
-    assetBalanceCryptoBaseUnit,
-    runeBalanceCryptoBaseUnit,
-    hasEnoughAssetBalance,
-    hasEnoughRuneBalance,
-  })
+    return bnOrZero(actualRuneCryptoLiquidityAmount).lte(runeBalanceCryptoPrecision)
+  }, [runeBalanceCryptoBaseUnit, rune?.precision, actualRuneCryptoLiquidityAmount])
 
   const runePerAsset = useMemo(() => {
     if (!assetMarketData || !runeMarketData) return undefined
@@ -297,15 +357,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         })()
 
         if (isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
-          setRuneCryptoLiquidityAmount(crypto)
-          setRuneFiatLiquidityAmount(fiat)
-          setAssetFiatLiquidityAmount(fiat)
-          setAssetCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+          setVirtualRuneCryptoLiquidityAmount(crypto)
+          setVirtualRuneFiatLiquidityAmount(fiat)
+          setVirtualAssetFiatLiquidityAmount(fiat)
+          setVirtualAssetCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
         } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
-          setAssetCryptoLiquidityAmount(crypto)
-          setAssetFiatLiquidityAmount(fiat)
-          setRuneFiatLiquidityAmount(fiat)
-          setRuneCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+          setVirtualAssetCryptoLiquidityAmount(crypto)
+          setVirtualAssetFiatLiquidityAmount(fiat)
+          setVirtualRuneFiatLiquidityAmount(fiat)
+          setVirtualRuneCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
         }
       }
     },
@@ -314,25 +374,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   useEffect(() => {
     ;(async () => {
-      if (!runeCryptoLiquidityAmount || !assetCryptoLiquidityAmount || !asset) return
-      const isAsym = foundPool?.isAsymmetric
-      const isAsymAssetSide = foundPool?.asymSide === AsymSide.Asset
-      const isAsymRuneSide = foundPool?.asymSide === AsymSide.Rune
-
-      // If the pool is asymmetrical then we are only depositing one asset amount, and the other is zero
-      const runeCryptoLiquidityAmountAdjusted =
-        isAsym && isAsymAssetSide ? 0 : runeCryptoLiquidityAmount
-      const assetCryptoLiquidityAmountAdjusted =
-        isAsym && isAsymRuneSide ? 0 : assetCryptoLiquidityAmount
+      if (!actualRuneCryptoLiquidityAmount || !actualAssetCryptoLiquidityAmount || !asset) return
 
       const runeAmountCryptoThorPrecision = convertPrecision({
-        value: runeCryptoLiquidityAmountAdjusted,
+        value: actualRuneCryptoLiquidityAmount,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
       const assetAmountCryptoThorPrecision = convertPrecision({
-        value: assetCryptoLiquidityAmountAdjusted,
+        value: actualAssetCryptoLiquidityAmount,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
       }).toFixed()
@@ -344,25 +395,34 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       })
 
       setSlippageRune(
-        bnOrZero(estimate.slipPercent).div(100).times(runeCryptoLiquidityAmount).times(2).toFixed(),
+        bnOrZero(estimate.slipPercent)
+          .div(100)
+          .times(actualRuneFiatLiquidityAmount ?? 0)
+          .times(2)
+          .toFixed(),
       )
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
   }, [
+    actualAssetCryptoLiquidityAmount,
+    actualRuneCryptoLiquidityAmount,
+    actualRuneFiatLiquidityAmount,
     asset,
-    assetCryptoLiquidityAmount,
     foundPool?.asymSide,
     foundPool?.isAsymmetric,
-    runeCryptoLiquidityAmount,
+    isAsym,
+    isAsymAssetSide,
+    isAsymRuneSide,
+    virtualRuneFiatLiquidityAmount,
   ])
 
   useEffect(() => {
     if (
       !(
-        assetCryptoLiquidityAmount &&
-        assetFiatLiquidityAmount &&
-        runeCryptoLiquidityAmount &&
-        runeFiatLiquidityAmount &&
+        actualAssetCryptoLiquidityAmount &&
+        actualAssetFiatLiquidityAmount &&
+        actualRuneCryptoLiquidityAmount &&
+        actualRuneFiatLiquidityAmount &&
         shareOfPoolDecimalPercent &&
         slippageRune &&
         activeOpportunityId
@@ -370,8 +430,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
       return
 
-    const isAsym = foundPool?.isAsymmetric
-    const totalAmountFiat = bnOrZero(assetFiatLiquidityAmount)
+    const totalAmountFiat = bnOrZero(actualAssetFiatLiquidityAmount)
       .times(isAsym ? 1 : 2)
       .toFixed()
 
@@ -381,10 +440,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
 
     setConfirmedQuote({
-      assetCryptoLiquidityAmount,
-      assetFiatLiquidityAmount,
-      runeCryptoLiquidityAmount,
-      runeFiatLiquidityAmount,
+      assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
+      assetFiatLiquidityAmount: actualAssetFiatLiquidityAmount,
+      runeCryptoLiquidityAmount: actualRuneCryptoLiquidityAmount,
+      runeFiatLiquidityAmount: actualRuneFiatLiquidityAmount,
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId: activeOpportunityId,
@@ -396,13 +455,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     accountIds,
     activeOpportunityId,
-    assetCryptoLiquidityAmount,
-    assetFiatLiquidityAmount,
-    assetMarketData,
-    foundPool?.isAsymmetric,
-    runeCryptoLiquidityAmount,
-    runeFiatLiquidityAmount,
-    runeMarketData,
+    actualAssetCryptoLiquidityAmount,
+    actualAssetFiatLiquidityAmount,
+    actualRuneCryptoLiquidityAmount,
+    actualRuneFiatLiquidityAmount,
+    isAsym,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,
@@ -429,8 +486,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             marketData,
             isRune,
           )
-          const cryptoAmount = isRune ? runeCryptoLiquidityAmount : assetCryptoLiquidityAmount
-          const fiatAmount = isRune ? runeFiatLiquidityAmount : assetFiatLiquidityAmount
+          const cryptoAmount = isRune
+            ? virtualRuneCryptoLiquidityAmount
+            : virtualAssetCryptoLiquidityAmount
+          const fiatAmount = isRune
+            ? virtualRuneFiatLiquidityAmount
+            : virtualAssetFiatLiquidityAmount
 
           return (
             <TradeAssetInput
@@ -454,8 +515,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [
     asset,
-    assetCryptoLiquidityAmount,
-    assetFiatLiquidityAmount,
     assetMarketData,
     createHandleAddLiquidityInputChange,
     foundPool,
@@ -463,9 +522,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     pairDivider,
     percentOptions,
     rune,
-    runeCryptoLiquidityAmount,
-    runeFiatLiquidityAmount,
     runeMarketData,
+    virtualAssetCryptoLiquidityAmount,
+    virtualAssetFiatLiquidityAmount,
+    virtualRuneCryptoLiquidityAmount,
+    virtualRuneFiatLiquidityAmount,
   ])
 
   const symAlert = useMemo(() => {

@@ -30,6 +30,7 @@ import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
+import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isToken } from 'lib/utils'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
@@ -176,36 +177,28 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
-    mutationFn: async ({ txId: _txId }: { txId: string }) => {
-      await waitForThorchainUpdate({
+    mutationFn: ({ txId: _txId }: { txId: string }) => {
+      return waitForThorchainUpdate({
         txId: _txId,
         skipOutbound: true, // this is an LP Tx, there is no outbound
       }).promise
     },
     onSuccess: async () => {
+      // More paranoia to ensure everything is nice and propagated - this works with debugger but doesn't without it,
+      // indicating we need a bit more of artificial wait to ensure data is replicated across all endpoints
+      await sleep(60_000)
+      // Awaiting here for paranoia since this will actually refresh vs. using the sync version
       await queryClient.invalidateQueries({
-        queryKey: [reactQueries.thorchainLp.liquidityMember._def],
-        exact: false,
-        stale: true,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: [reactQueries.thorchainLp.liquidityMembers._def],
-        exact: false,
-        stale: true,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: [reactQueries.thorchainLp.userLpData._def],
-        exact: false,
-        stale: true,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: [reactQueries.thorchainLp.liquidityProviderPosition._def],
-        exact: false,
-        stale: true,
+        predicate: query => {
+          // Paranoia using a predicate vs. a queryKey here, to ensure queries *actually* get invalidated
+          const shouldInvalidate = query.queryKey[0] === reactQueries.thorchainLp._def[0]
+          return shouldInvalidate
+        },
+        type: 'all',
       })
 
       setStatus(TxStatus.Confirmed)
-      onComplete()
+      return onComplete()
     },
   })
 

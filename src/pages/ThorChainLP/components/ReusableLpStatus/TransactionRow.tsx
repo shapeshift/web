@@ -165,8 +165,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const [serializedTxIndex, setSerializedTxIndex] = useState<string>('')
 
-  console.log({ serializedTxIndex })
-
   const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   const { mutateAsync } = useMutation({

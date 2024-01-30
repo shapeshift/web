@@ -74,6 +74,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   // TOOO(gomes): we may be able to handle this better, or not
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const isRuneTx = useMemo(() => asset?.assetId === thorchainAssetId, [asset?.assetId])
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
@@ -113,13 +114,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   useEffect(() => {
     if (!(wallet && asset && confirmedQuote?.opportunityId && assetAccountMetadata)) return
-    const accountId = asset?.assetId === thorchainAssetId ? runeAccountId : assetAccountId
-    const otherAssetAccountId =
-      asset?.assetId === thorchainAssetId ? poolAssetAccountId : runeAccountId
-    const assetId = asset?.assetId === thorchainAssetId ? thorchainAssetId : poolAssetId
-    const otherAssetAssetId = asset?.assetId === thorchainAssetId ? poolAssetId : thorchainAssetId
-    const otherAssetAccountMetadata =
-      asset?.assetId === thorchainAssetId ? assetAccountMetadata : runeAccountMetadata
+    const accountId = isRuneTx ? runeAccountId : assetAccountId
+    const otherAssetAccountId = isRuneTx ? poolAssetAccountId : runeAccountId
+    const assetId = isRuneTx ? thorchainAssetId : poolAssetId
+    const otherAssetAssetId = isRuneTx ? poolAssetId : thorchainAssetId
+    const otherAssetAccountMetadata = isRuneTx ? assetAccountMetadata : runeAccountMetadata
 
     if (!assetId) return
     ;(async () => {
@@ -232,8 +231,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   })
 
   const handleSignTx = useCallback(() => {
-    const isRuneTx = asset?.assetId === thorchainAssetId
-
     if (
       !(
         assetId &&
@@ -263,7 +260,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       // - a regular send with a memo (for ATOM and UTXOs)
       const transactionType = (() => {
         const supportedEvmChainIds = getSupportedEvmChainIds()
-        if (asset?.assetId === thorchainAssetId) return 'MsgDeposit'
+        if (isRuneTx) return 'MsgDeposit'
         if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
           return 'EvmCustomTx'
         }

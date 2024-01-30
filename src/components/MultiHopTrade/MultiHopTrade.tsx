@@ -114,7 +114,7 @@ const MultiHopRoutes = memo(() => {
 
   return (
     <Suspense>
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <AnimatePresence mode='wait' initial={false}>
         <Switch location={location}>
           <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
             <TradeInput />

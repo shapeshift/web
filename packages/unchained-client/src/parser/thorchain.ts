@@ -112,7 +112,7 @@ export interface ParserArgs {
   midgardUrl: string
 }
 
-const streamingSwapRegex = /:\d+\/\d+\/\d+:/
+const streamingSwapRegex = /:(\d+|(\d+(?:e[+-]?\d+)?))\/\d+\/\d+:/
 
 const getLiquidityType = (pool: string): LiquidityType => (pool.includes('/') ? 'Savers' : 'LP')
 

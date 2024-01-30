@@ -445,7 +445,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectedCurrency,
   ])
 
-  const txIdLink = useMemo(() => `${asset?.explorerTxLink}/${txId}`, [asset?.explorerTxLink, txId])
+  const txIdLink = useMemo(() => `${asset?.explorerTxLink}${txId}`, [asset?.explorerTxLink, txId])
 
   if (!asset) return null
 

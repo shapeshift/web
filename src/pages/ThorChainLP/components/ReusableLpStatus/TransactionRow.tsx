@@ -1,7 +1,13 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import {
+  type AssetId,
+  cosmosChainId,
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+} from '@shapeshiftoss/caip'
 import {
   CONTRACT_INTERACTION,
   type FeeDataEstimate,
@@ -38,6 +44,7 @@ import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import type { AsymSide, ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -264,7 +271,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
           return 'EvmCustomTx'
         }
-        return 'Send'
+        if (
+          isUtxoChainId(fromAssetId(assetId).chainId) ||
+          fromAssetId(assetId).chainId === cosmosChainId
+        )
+          return 'Send'
+
+        throw new Error(`Unsupported ChainId ${fromAssetId(assetId).chainId}`)
       })()
 
       await (async () => {

@@ -40,7 +40,7 @@ const calculateFee = (fee: string): string => {
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 
-export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.cosmos.V1Api> {
+export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.thorchain.V1Api> {
   midgardUrl: string
 }
 

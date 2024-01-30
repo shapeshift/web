@@ -123,7 +123,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
         return (
-          <MotionBox key={`TradeQuote_${id}`} layout {...motionBoxProps}>
+          <MotionBox key={id} layout {...motionBoxProps}>
             <TradeQuote
               isActive={isActive}
               isLoading={isSwapperFetching[quoteData.swapperName] && isStale}

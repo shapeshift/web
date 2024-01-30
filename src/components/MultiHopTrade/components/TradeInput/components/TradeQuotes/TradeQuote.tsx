@@ -1,5 +1,5 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
+import { Collapse, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
@@ -280,25 +280,28 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const bodyContent = useMemo(() => {
     return quote ? (
-      <TradeQuoteContent
-        isLoading={isLoading}
-        buyAsset={buyAsset}
-        isBest={isBest}
-        numHops={quote?.steps.length}
-        totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
-        hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
-        totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
-        quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
-        networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
-        totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
-        slippage={slippage}
-        isModeratePriceImpact={isModeratePriceImpact}
-        priceImpactDecimalPercentage={priceImpactPercentage.div(100)}
-      />
+      <Collapse in={isBest || isActive}>
+        <TradeQuoteContent
+          isLoading={isLoading}
+          buyAsset={buyAsset}
+          isBest={isBest}
+          numHops={quote?.steps.length}
+          totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
+          hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
+          totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
+          quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
+          networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
+          totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
+          slippage={slippage}
+          isModeratePriceImpact={isModeratePriceImpact}
+          priceImpactDecimalPercentage={priceImpactPercentage.div(100)}
+        />
+      </Collapse>
     ) : null
   }, [
     buyAsset,
     hasAmountWithPositiveReceive,
+    isActive,
     isBest,
     isLoading,
     networkFeeUserCurrencyPrecision,

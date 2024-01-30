@@ -139,7 +139,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
             trackColor='background.surface.raised.base'
           >
             <CircularProgressLabel fontSize='md'>
-              {activeStepIndex} / {assets.length}
+              {activeStepIndex + 1} / {assets.length}
             </CircularProgressLabel>
           </CircularProgress>
         </Center>

@@ -585,3 +585,10 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
     return hopIndex === 0 ? swappers.tradeExecution.firstHop : swappers.tradeExecution.secondHop
   },
 )
+
+export const selectTradeQuoteDisplayCache = createDeepEqualOutputSelector(
+  selectTradeQuoteSlice,
+  tradeQuoteSlice => {
+    return tradeQuoteSlice.tradeQuoteDisplayCache
+  },
+)

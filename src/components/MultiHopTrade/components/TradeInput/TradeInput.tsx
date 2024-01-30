@@ -51,6 +51,7 @@ import {
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
@@ -68,7 +69,6 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsUnsafeActiveQuote,
-  selectSortedTradeQuotes,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -103,7 +103,6 @@ export const TradeInput = memo(() => {
     isAnySwapperFetched: _isAnySwapperFetched,
     isQuoteRequestComplete: _isQuoteRequestComplete,
     isQuoteRequestUninitialized,
-    isSwapperFetching,
     didQuoteRequestFail,
     isQuoteRequestIncomplete,
   } = useGetTradeQuotes()
@@ -147,6 +146,7 @@ export const TradeInput = memo(() => {
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
+  const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
 
   // whenever the sell amount changes, set the quote states to fetching
   useEffect(() => {
@@ -231,7 +231,6 @@ export const TradeInput = memo(() => {
     isLoading: isSupportedAssetsLoading,
   } = useSupportedAssets()
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
   const rate = activeQuote?.steps[0].rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(selectVotingPower)
@@ -424,7 +423,7 @@ export const TradeInput = memo(() => {
       !activeQuote ||
       !hasUserEnteredAmount ||
       // don't allow users to execute trades while the quote is being updated
-      isSwapperFetching[activeSwapperName] ||
+      isTradeQuoteApiQueryPending[activeSwapperName] ||
       // don't allow users to proceed until all swappers have an initial result
       (!activeSwapperName && isQuoteRequestIncomplete)
     )
@@ -437,7 +436,7 @@ export const TradeInput = memo(() => {
     activeQuote,
     disableSmartContractSwap,
     activeSwapperName,
-    isSwapperFetching,
+    isTradeQuoteApiQueryPending,
     isQuoteRequestIncomplete,
   ])
 
@@ -662,11 +661,7 @@ export const TradeInput = memo(() => {
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
             >
-              <TradeQuotes
-                sortedQuotes={sortedQuotes}
-                isLoading={isLoading}
-                isSwapperFetching={isSwapperFetching}
-              />
+              <TradeQuotes isLoading={isLoading} />
             </TradeAssetInput>
           </Stack>
           {ConfirmSummary}

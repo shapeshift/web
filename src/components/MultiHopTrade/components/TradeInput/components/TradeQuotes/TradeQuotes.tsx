@@ -2,28 +2,30 @@ import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { orderBy, uniqBy } from 'lodash'
-import { memo, useCallback, useMemo, useRef, useState } from 'react'
+import { orderBy } from 'lodash'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ApiQuote } from 'state/apis/swapper'
+import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import { selectInputSellAmountCryptoPrecision } from 'state/slices/selectors'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMeta,
   selectIsSwapperQuoteAvailable,
+  selectSortedTradeQuotes,
+  selectTradeQuoteDisplayCache,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeQuote } from './TradeQuote'
 
 const MotionBox = motion(Box)
 
 type TradeQuotesProps = {
-  sortedQuotes: ApiQuote[]
   isLoading: boolean
-  isSwapperFetching: Record<SwapperName, boolean>
 }
 
 const arrowDownIcon = <ArrowDownIcon />
@@ -45,219 +47,193 @@ export const sortQuotes = (
   )
 }
 
-export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
-  ({ sortedQuotes, isLoading, isSwapperFetching }) => {
-    const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
-    const translate = useTranslate()
-    const [showAll, setShowAll] = useState(false)
-    const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
-    const quoteListRef = useRef<ApiQuote[]>([])
-    const bottomOverlay = useColorModeValue(
-      'linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.4) 100%)',
-      'linear-gradient(to bottom,  rgba(24,27,30,0) 0%,rgba(24,27,30,0.9) 100%)',
+export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
+  const translate = useTranslate()
+  const dispatch = useAppDispatch()
+  const [showAll, setShowAll] = useState(false)
+  const bottomOverlay = useColorModeValue(
+    'linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.4) 100%)',
+    'linear-gradient(to bottom,  rgba(24,27,30,0) 0%,rgba(24,27,30,0.9) 100%)',
+  )
+
+  const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
+  const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
+  const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperQuoteAvailable)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const tradeQuoteDisplayCache = useAppSelector(selectTradeQuoteDisplayCache)
+  const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
+
+  useEffect(() => {
+    dispatch(
+      tradeQuoteSlice.actions.updateTradeQuoteDisplayCache({
+        isTradeQuoteApiQueryPending,
+        sortedQuotes,
+        isSwapperQuoteAvailable,
+      }),
     )
+  }, [dispatch, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes])
 
-    const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperQuoteAvailable)
-    const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const hasMoreThanOneQuote = useMemo(() => {
+    return sortedQuotes.length > 1
+  }, [sortedQuotes.length])
 
-    const quoteList = useMemo(() => {
-      // nuke the stale quotes when entered amount is 0
-      if (bnOrZero(sellAmountCryptoPrecision).lte(0)) {
-        quoteListRef.current = []
-        return quoteListRef.current
-      }
+  const handleShowAll = useCallback(() => {
+    setShowAll(!showAll)
+  }, [showAll])
 
-      // Mark stale quotes as stale.
-      // Assign the original array index so we can keep loading quotes roughly in their original spot
-      // in the list. This makes loading state less jarring visually because quotes tend to move
-      // around less as results arrive.
-      const staleQuotes = quoteListRef.current
-        .map((quoteData, originalIndex) => {
-          return Object.assign({}, quoteData, { isStale: true, originalIndex })
+  const quotes = useMemo(() => {
+    const bestTotalReceiveAmountCryptoPrecision = bestQuoteData?.quote
+      ? getBuyAmountAfterFeesCryptoPrecision({
+          quote: bestQuoteData.quote,
         })
-        .filter(quoteData => {
-          return (
-            isLoading ||
-            isSwapperFetching[quoteData.swapperName] ||
-            !isSwapperQuoteAvailable[quoteData.swapperName]
-          )
-        })
+      : undefined
 
-      const sortedQuotesWithOriginalIndex = sortedQuotes.map((quoteData, originalIndex) => {
-        return Object.assign({}, quoteData, { isStale: false, originalIndex })
-      })
+    return tradeQuoteDisplayCache.map((quoteData, i) => {
+      const { swapperName, id, errors, isStale } = quoteData
 
-      const allQuotes = uniqBy([...sortedQuotesWithOriginalIndex, ...staleQuotes], 'id')
+      const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
-      const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
-      const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
+      return (
+        <MotionBox key={id} layout {...motionBoxProps}>
+          <TradeQuote
+            isActive={isActive}
+            isLoading={Boolean(isTradeQuoteApiQueryPending[quoteData.swapperName]) && isStale}
+            isRefetching={
+              isLoading ||
+              isTradeQuoteApiQueryPending[quoteData.swapperName] ||
+              !isSwapperQuoteAvailable[swapperName]
+            }
+            isBest={i === 0 && errors.length === 0}
+            key={id}
+            quoteData={quoteData}
+            bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
+            bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
+          />
+        </MotionBox>
+      )
+    })
+  }, [
+    activeQuoteMeta,
+    bestQuoteData,
+    isLoading,
+    isTradeQuoteApiQueryPending,
+    isSwapperQuoteAvailable,
+    tradeQuoteDisplayCache,
+  ])
 
-      quoteListRef.current = [...happyQuotes, ...errorQuotes]
-      return quoteListRef.current
-    }, [
-      isLoading,
-      isSwapperFetching,
-      isSwapperQuoteAvailable,
-      sellAmountCryptoPrecision,
-      sortedQuotes,
-    ])
+  // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
+  // only show these placeholders when quotes aren't already visible in the list
+  const fetchingSwappers = useMemo(() => {
+    if (bnOrZero(sellAmountCryptoPrecision).lte(0)) {
+      return []
+    }
 
-    const hasMoreThanOneQuote = useMemo(() => {
-      return sortedQuotes.length > 1
-    }, [sortedQuotes.length])
-
-    const handleShowAll = useCallback(() => {
-      setShowAll(!showAll)
-    }, [showAll])
-
-    const quotes = useMemo(() => {
-      const bestTotalReceiveAmountCryptoPrecision = bestQuoteData?.quote
-        ? getBuyAmountAfterFeesCryptoPrecision({
-            quote: bestQuoteData.quote,
-          })
-        : undefined
-
-      return quoteList.map((quoteData, i) => {
-        const { swapperName, id, errors, isStale } = quoteData
-
-        const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
-
+    return Object.entries(isSwapperQuoteAvailable)
+      .filter(
+        ([swapperName, isQuoteAvailable]) =>
+          // don't render a loading placeholder for the test swapper
+          swapperName !== SwapperName.Test &&
+          // only render loading placeholders for swappers that are still fetching data
+          (!isQuoteAvailable || isTradeQuoteApiQueryPending[swapperName as SwapperName]) &&
+          // filter out entries that already have a placeholder
+          !tradeQuoteDisplayCache.some(quoteData => quoteData.swapperName === swapperName),
+      )
+      .map(([swapperName, _isQuoteAvailable]) => {
+        // Attempt to match other quote identifiers to MotionBox can animate.
+        // Typically the identifier is the swapper name but not always.
+        const id = swapperName
+        const quoteData = {
+          id,
+          quote: undefined,
+          swapperName: swapperName as SwapperName,
+          inputOutputRatio: 0,
+          errors: [],
+          warnings: [],
+          isStale: true,
+        }
         return (
           <MotionBox key={id} layout {...motionBoxProps}>
             <TradeQuote
-              isActive={isActive}
-              isLoading={isSwapperFetching[quoteData.swapperName] && isStale}
-              isRefetching={
-                isLoading ||
-                isSwapperFetching[quoteData.swapperName] ||
-                !isSwapperQuoteAvailable[swapperName]
-              }
-              isBest={i === 0 && errors.length === 0}
+              isActive={false}
+              isLoading={true}
+              isRefetching={false}
+              isBest={false}
               key={id}
+              // eslint doesn't understand useMemo not possible to use inside map
+              // eslint-disable-next-line react-memo/require-usememo
               quoteData={quoteData}
-              bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
-              bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
+              bestTotalReceiveAmountCryptoPrecision={undefined}
+              bestInputOutputRatio={undefined}
             />
           </MotionBox>
         )
       })
-    }, [
-      activeQuoteMeta,
-      bestQuoteData,
-      isLoading,
-      isSwapperFetching,
-      isSwapperQuoteAvailable,
-      quoteList,
-    ])
+  }, [
+    isTradeQuoteApiQueryPending,
+    isSwapperQuoteAvailable,
+    sellAmountCryptoPrecision,
+    tradeQuoteDisplayCache,
+  ])
 
-    // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
-    // only show these placeholders when quotes aren't already visible in the list
-    const fetchingSwappers = useMemo(() => {
-      if (bnOrZero(sellAmountCryptoPrecision).lte(0)) {
-        return []
-      }
+  const quoteOverlayAfter = useMemo(() => {
+    return {
+      content: '""',
+      position: 'absolute',
+      left: 0,
+      bottom: 0,
+      height: '80px',
+      width: '100%',
+      bg: bottomOverlay,
+      display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
+    }
+  }, [bottomOverlay, hasMoreThanOneQuote, showAll])
 
-      return Object.entries(isSwapperQuoteAvailable)
-        .filter(
-          ([swapperName, isQuoteAvailable]) =>
-            // don't render a loading placeholder for the test swapper
-            swapperName !== SwapperName.Test &&
-            // only render loading placeholders for swappers that are still fetching data
-            (!isQuoteAvailable || isSwapperFetching[swapperName as SwapperName]) &&
-            // filter out entries that already have a placeholder
-            !quoteList.some(quoteData => quoteData.swapperName === swapperName),
-        )
-        .map(([swapperName, _isQuoteAvailable]) => {
-          // Attempt to match other quote identifiers to MotionBox can animate.
-          // Typically the identifier is the swapper name but not always.
-          const id = swapperName
-          const quoteData = {
-            id,
-            quote: undefined,
-            swapperName: swapperName as SwapperName,
-            inputOutputRatio: 0,
-            errors: [],
-            warnings: [],
-            isStale: true,
-          }
-          return (
-            <MotionBox key={id} layout {...motionBoxProps}>
-              <TradeQuote
-                isActive={false}
-                isLoading={true}
-                isRefetching={false}
-                isBest={false}
-                key={id}
-                // eslint doesn't understand useMemo not possible to use inside map
-                // eslint-disable-next-line react-memo/require-usememo
-                quoteData={quoteData}
-                bestTotalReceiveAmountCryptoPrecision={undefined}
-                bestInputOutputRatio={undefined}
-              />
-            </MotionBox>
-          )
-        })
-    }, [isSwapperFetching, isSwapperQuoteAvailable, sellAmountCryptoPrecision, quoteList])
+  return (
+    <Box position='relative' _after={quoteOverlayAfter}>
+      <AnimatePresence>
+        <SlideTransitionY>
+          {hasMoreThanOneQuote && !showAll && (
+            <Button
+              borderRadius='full'
+              position='absolute'
+              left='50%'
+              bottom='1rem'
+              size='sm'
+              transform='translateX(-50%)'
+              onClick={handleShowAll}
+              zIndex={3}
+              backdropFilter='blur(15px)'
+              rightIcon={arrowDownIcon}
+              boxShadow='lg'
+              borderWidth={1}
+            >
+              {translate('common.showAll')}
+            </Button>
+          )}
+        </SlideTransitionY>
+      </AnimatePresence>
 
-    const quoteOverlayAfter = useMemo(() => {
-      return {
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        height: '80px',
-        width: '100%',
-        bg: bottomOverlay,
-        display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
-      }
-    }, [bottomOverlay, hasMoreThanOneQuote, showAll])
-
-    return (
-      <Box position='relative' _after={quoteOverlayAfter}>
-        <AnimatePresence>
-          <SlideTransitionY>
-            {hasMoreThanOneQuote && !showAll && (
-              <Button
-                borderRadius='full'
-                position='absolute'
-                left='50%'
-                bottom='1rem'
-                size='sm'
-                transform='translateX(-50%)'
-                onClick={handleShowAll}
-                zIndex={3}
-                backdropFilter='blur(15px)'
-                rightIcon={arrowDownIcon}
-                boxShadow='lg'
-                borderWidth={1}
-              >
-                {translate('common.showAll')}
-              </Button>
-            )}
-          </SlideTransitionY>
-        </AnimatePresence>
-
-        <Flex
-          flexDir='column'
-          width='full'
-          px={2}
-          pt={0}
-          maxHeight={showAll ? '5000px' : '230px'}
-          overflowY='hidden'
-          pb={4}
-          transitionProperty='max-height'
-          transitionDuration='0.65s'
-          transitionTimingFunction='ease-in-out'
-          gap={2}
-        >
-          <LayoutGroup>
-            <AnimatePresence>
-              {quotes}
-              {fetchingSwappers}
-            </AnimatePresence>
-          </LayoutGroup>
-        </Flex>
-      </Box>
-    )
-  },
-)
+      <Flex
+        flexDir='column'
+        width='full'
+        px={2}
+        pt={0}
+        maxHeight={showAll ? '5000px' : '230px'}
+        overflowY='hidden'
+        pb={4}
+        transitionProperty='max-height'
+        transitionDuration='0.65s'
+        transitionTimingFunction='ease-in-out'
+        gap={2}
+      >
+        <LayoutGroup>
+          <AnimatePresence>
+            {quotes}
+            {fetchingSwappers}
+          </AnimatePresence>
+        </LayoutGroup>
+      </Flex>
+    </Box>
+  )
+})

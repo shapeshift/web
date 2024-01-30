@@ -109,7 +109,6 @@ export const useGetTradeQuotes = () => {
     skipToken,
   )
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
-  const [isFetchingInput, setIsFetchingInput] = useState(false)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const useReceiveAddressArgs = useMemo(
@@ -199,8 +198,6 @@ export const useGetTradeQuotes = () => {
 
     if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
       ;(async () => {
-        setIsFetchingInput(true)
-
         const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
         const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
         const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
@@ -235,8 +232,6 @@ export const useGetTradeQuotes = () => {
         setTradeQuoteInput(updatedTradeQuoteInput)
 
         dispatch(tradeQuoteSlice.actions.clear())
-
-        setIsFetchingInput(false)
       })()
     }
   }, [
@@ -288,19 +283,13 @@ export const useGetTradeQuotes = () => {
   // cease fetching state when at least 1 response is available
   // more quotes will arrive after, which is intentional.
   const isAnySwapperFetched = useMemo(() => {
-    return (
-      !isDebouncing &&
-      !isFetchingInput &&
-      combinedQuoteMeta.some(quoteMeta => !quoteMeta.isFetching)
-    )
-  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+    return !isDebouncing && combinedQuoteMeta.some(quoteMeta => !quoteMeta.isFetching)
+  }, [combinedQuoteMeta, isDebouncing])
 
   // true if any debounce, input or swapper is fetching
   const isQuoteRequestIncomplete = useMemo(() => {
-    return (
-      isDebouncing || isFetchingInput || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
-    )
-  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+    return isDebouncing || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
+  }, [combinedQuoteMeta, isDebouncing])
 
   const isQuoteRequestUninitialized = useMemo(() => {
     return combinedQuoteMeta.every(quoteMeta => quoteMeta.isUninitialized)
@@ -366,5 +355,6 @@ export const useGetTradeQuotes = () => {
     isQuoteRequestComplete: !isQuoteRequestIncomplete,
     isSwapperFetching,
     didQuoteRequestFail,
+    isQuoteRequestIncomplete,
   }
 }

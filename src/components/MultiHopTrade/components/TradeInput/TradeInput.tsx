@@ -105,6 +105,7 @@ export const TradeInput = memo(() => {
     isQuoteRequestUninitialized,
     isSwapperFetching,
     didQuoteRequestFail,
+    isQuoteRequestIncomplete,
   } = useGetTradeQuotes()
   const {
     state: { wallet },
@@ -409,15 +410,23 @@ export const TradeInput = memo(() => {
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
+      // don't allow executing a quote with errors
       quoteHasError ||
+      // don't execute trades while address is validating
       manualReceiveAddressIsValidating ||
       manualReceiveAddressIsValid === false ||
+      // don't execute trades while in loading state
       isLoading ||
-      !hasUserEnteredAmount ||
-      !activeQuote ||
+      // don't execute trades for smart contract addresses where they aren't supported
       disableSmartContractSwap ||
+      // don't allow non-existent quotes to be executed
       !activeSwapperName ||
-      isSwapperFetching[activeSwapperName]
+      !activeQuote ||
+      !hasUserEnteredAmount ||
+      // don't allow users to execute trades while the quote is being updated
+      isSwapperFetching[activeSwapperName] ||
+      // don't allow users to proceed until all swappers have an initial result
+      (!activeSwapperName && isQuoteRequestIncomplete)
     )
   }, [
     quoteHasError,
@@ -429,6 +438,7 @@ export const TradeInput = memo(() => {
     disableSmartContractSwap,
     activeSwapperName,
     isSwapperFetching,
+    isQuoteRequestIncomplete,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {

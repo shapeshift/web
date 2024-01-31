@@ -25,6 +25,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById } from 'state/slices/selectors'
@@ -198,7 +199,13 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
             <TimelineItem>
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('pools.chainFee', { chain: 'ShapeShift' })}</Row.Label>
-                <Row.Value>Free</Row.Value>
+                <Row.Value>
+                  {bn(confirmedQuote.feeAmountFiat).isZero() ? (
+                    'Free'
+                  ) : (
+                    <Amount.Fiat value={confirmedQuote.feeAmountFiat} />
+                  )}
+                </Row.Value>
               </Row>
             </TimelineItem>
             <TimelineItem>

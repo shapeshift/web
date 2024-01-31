@@ -4,6 +4,7 @@ import {
   CardFooter,
   Center,
   CircularProgress,
+  CircularProgressLabel,
   Flex,
   Heading,
   HStack,
@@ -51,23 +52,23 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     return parsedPools.find(pool => pool.opportunityId === confirmedQuote.opportunityId)
   }, [confirmedQuote.opportunityId, parsedPools])
 
-  const asset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
+  const poolAsset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
 
   const assets: Asset[] = useMemo(() => {
-    if (!(pool && asset && baseAsset)) return []
+    if (!(pool && poolAsset && baseAsset)) return []
 
     switch (pool.asymSide) {
       case null:
-        return [baseAsset, asset]
+        return [baseAsset, poolAsset]
       case AsymSide.Rune:
         return [baseAsset]
       case AsymSide.Asset:
-        return [asset]
+        return [poolAsset]
       default:
         assertUnreachable(pool.asymSide)
     }
-  }, [asset, baseAsset, pool])
+  }, [poolAsset, baseAsset, pool])
 
   const handleComplete = useCallback(() => {
     setActiveStepIndex(activeStepIndex + 1)
@@ -76,9 +77,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown
   // If the active step is the same as the length of steps we can assume it is complete.
-  const isComplete = useMemo(() => {
-    return activeStepIndex === assets.length
-  }, [activeStepIndex, assets.length])
+  const isComplete = useMemo(
+    () => activeStepIndex === assets.length,
+    [activeStepIndex, assets.length],
+  )
 
   const hStackDivider = useMemo(() => {
     if (pool?.asymSide) return <></>
@@ -86,8 +88,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     return <RawText mx={1}>{translate('common.and')}</RawText>
   }, [pool?.asymSide, translate])
 
+  const stepProgress = useMemo(
+    () => (activeStepIndex / assets.length) * 100,
+    [activeStepIndex, assets.length],
+  )
+
   const renderBody = useMemo(() => {
-    if (!(pool && asset && rune)) return null
+    if (!(pool && poolAsset && rune)) return null
 
     if (isComplete) {
       return (
@@ -128,9 +135,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           <CircularProgress
             size='100px'
             thickness={4}
-            isIndeterminate
+            value={stepProgress}
             trackColor='background.surface.raised.base'
-          />
+          >
+            <CircularProgressLabel fontSize='md'>
+              {activeStepIndex + 1} / {assets.length}
+            </CircularProgressLabel>
+          </CircularProgress>
         </Center>
         <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
@@ -139,7 +150,18 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         </Flex>
       </CardBody>
     )
-  }, [asset, assets, confirmedQuote, pool, hStackDivider, isComplete, translate])
+  }, [
+    pool,
+    poolAsset,
+    isComplete,
+    assets,
+    stepProgress,
+    activeStepIndex,
+    translate,
+    hStackDivider,
+    confirmedQuote.runeCryptoLiquidityAmount,
+    confirmedQuote.assetCryptoLiquidityAmount,
+  ])
 
   const assetCards = useMemo(() => {
     return (
@@ -153,23 +175,21 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
             <TransactionRow
               key={_asset.assetId}
               assetId={_asset.assetId}
+              poolAssetId={poolAsset?.assetId}
+              accountIds={confirmedQuote.accountIds}
               amountCryptoPrecision={amountCryptoPrecision}
               onComplete={handleComplete}
               isActive={index === activeStepIndex}
+              confirmedQuote={confirmedQuote}
+              asymSide={pool?.asymSide}
             />
           )
         })}
       </Stack>
     )
-  }, [
-    assets,
-    confirmedQuote.runeCryptoLiquidityAmount,
-    confirmedQuote.assetCryptoLiquidityAmount,
-    handleComplete,
-    activeStepIndex,
-  ])
+  }, [assets, confirmedQuote, poolAsset?.assetId, handleComplete, activeStepIndex, pool?.asymSide])
 
-  if (!(pool && asset && baseAsset)) return null
+  if (!(pool && poolAsset && baseAsset)) return null
 
   return (
     <SlideTransition>

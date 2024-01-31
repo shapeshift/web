@@ -16,9 +16,9 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import prettyMilliseconds from 'pretty-ms'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
@@ -30,15 +30,16 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
 import { isSome } from 'lib/utils'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
+import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -68,6 +69,8 @@ export type AddLiquidityInputProps = {
   paramOpportunityId?: string
   setConfirmedQuote: (quote: ConfirmedQuote) => void
   confirmedQuote: ConfirmedQuote | null
+  accountIds: Record<AssetId, AccountId>
+  onAccountIdChange: (accountId: AccountId, assetId: AssetId) => void
 }
 
 export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
@@ -76,11 +79,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   paramOpportunityId,
   confirmedQuote,
   setConfirmedQuote,
+  accountIds,
+  onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
+
+  const votingPower = useAppSelector(selectVotingPower)
+  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const isVotingPowerLoading = useMemo(
+    () => isSnapshotApiQueriesPending && votingPower === undefined,
+    [isSnapshotApiQueriesPending, votingPower],
+  )
 
   const { data: parsedPools } = usePools()
 
@@ -155,10 +167,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
   }, [browserHistory])
-
-  const handleAccountIdChange = useCallback(() => {
-    console.info('account change')
-  }, [])
 
   const handleSubmit = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Confirm)
@@ -313,6 +321,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
       return
 
+    const isAsym = foundPool?.isAsymmetric
+    const totalAmountFiat = bnOrZero(assetFiatLiquidityAmount)
+      .times(isAsym ? 1 : 2)
+      .toFixed()
+
+    const { feeBps, feeUsd } = calculateFees({
+      tradeAmountUsd: bn(totalAmountFiat),
+      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+    })
+
     setConfirmedQuote({
       assetCryptoLiquidityAmount,
       assetFiatLiquidityAmount,
@@ -321,16 +339,25 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId: activeOpportunityId,
+      accountIds,
+      totalAmountFiat,
+      feeBps: feeBps.toFixed(0),
+      feeAmountFiat: feeUsd.toFixed(2),
     })
   }, [
+    accountIds,
     activeOpportunityId,
     assetCryptoLiquidityAmount,
     assetFiatLiquidityAmount,
+    assetMarketData,
+    foundPool?.isAsymmetric,
     runeCryptoLiquidityAmount,
     runeFiatLiquidityAmount,
+    runeMarketData,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,
+    votingPower,
   ])
 
   const tradeAssetInputs = useMemo(() => {
@@ -361,7 +388,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               assetId={_asset?.assetId}
               assetIcon={_asset?.icon ?? ''}
               assetSymbol={_asset?.symbol ?? ''}
-              onAccountIdChange={handleAccountIdChange}
+              // eslint-disable-next-line react-memo/require-usememo
+              onAccountIdChange={(accountId: AccountId) => {
+                handleAccountIdChange(accountId, _asset?.assetId)
+              }}
               percentOptions={percentOptions}
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}
@@ -512,15 +542,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <Row.Label>{translate('common.fees')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Fiat value={'0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={true}>
-              <RawText fontWeight='bold'>{prettyMilliseconds(0)}</RawText>
+              <Amount.Fiat value={confirmedQuote?.feeAmountFiat ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>
@@ -539,7 +561,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           mx={-2}
           size='lg'
           colorScheme='blue'
-          isDisabled={!confirmedQuote}
+          isDisabled={!confirmedQuote || isVotingPowerLoading}
           onClick={handleSubmit}
         >
           {translate('pools.addLiquidity')}

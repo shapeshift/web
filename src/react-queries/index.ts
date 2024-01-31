@@ -1,5 +1,6 @@
-import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
+import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -11,7 +12,14 @@ import type {
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import { isToken } from 'lib/utils'
-import { getErc20Allowance, getSupportedEvmChainIds } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  getApproveContractData,
+  getErc20Allowance,
+  getFees,
+  getSupportedEvmChainIds,
+} from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
@@ -51,6 +59,70 @@ const common = createQueryKeys('common', {
       spender &&
       from &&
       getSupportedEvmChainIds().includes(fromAssetId(assetId).chainId as KnownChainIds),
+  }),
+})
+
+const mutations = createMutationKeys('mutations', {
+  approve: ({
+    assetId,
+    spender,
+    amount,
+    wallet,
+    from,
+  }: {
+    assetId: AssetId | undefined
+    spender: string | undefined
+    amount: string | undefined
+    // TODO(gomes): wallet may not serialize proper here
+    wallet: any
+    from: string | undefined
+  }) => ({
+    // note how we don't add the wallet here because of its non-serializable nature
+    mutationKey: ['approve', { assetId, spender, amount, from }],
+    mutationFn: async () => {
+      debugger
+      if (!assetId) throw new Error('assetId is required')
+      if (!spender) throw new Error('spender is required')
+      if (!amount) throw new Error('amount is required')
+      if (!from) throw new Error('from address is required')
+      if (!wallet) throw new Error('wallet is required')
+
+      const approvalCalldata = getApproveContractData({
+        approvalAmountCryptoBaseUnit: amount,
+        spender,
+        to: fromAssetId(assetId).assetReference,
+        chainId: fromAssetId(assetId).chainId,
+      })
+
+      const adapter = assertGetEvmChainAdapter(fromAssetId(assetId).chainId)
+
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+        adapter,
+        to: fromAssetId(assetId).assetReference,
+        value: '0',
+        data: approvalCalldata,
+        ...(from
+          ? { from, supportsEIP1559: await wallet.ethSupportsEIP1559() }
+          : { accountNumber: 0, wallet }),
+      })
+
+      const buildCustomTxInput = {
+        accountNumber: 0, // TODO
+        data: approvalCalldata,
+        to: fromAssetId(assetId).assetReference,
+        value: '0',
+        wallet,
+        ...fees,
+      }
+
+      const txHash = await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiverAddress: CONTRACT_INTERACTION,
+      })
+
+      return txHash
+    },
   }),
 })
 // Feature-agnostic, abstracts away midgard endpoints
@@ -200,4 +272,4 @@ const thornode = createQueryKeys('thornode', {
     }
   },
 })
-export const reactQueries = mergeQueryKeys(common, midgard, thornode, thorchainLp)
+export const reactQueries = mergeQueryKeys(common, mutations, midgard, thornode, thorchainLp)

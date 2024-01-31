@@ -360,6 +360,5 @@ export const useGetTradeQuotes = () => {
     isQuoteRequestComplete: !isQuoteRequestIncomplete,
     isSwapperFetching,
     didQuoteRequestFail,
-    isQuoteRequestIncomplete,
   }
 }

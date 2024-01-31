@@ -183,7 +183,24 @@ export const useGetTradeQuotes = () => {
   )
 
   useEffect(() => {
+    // Early exit on any invalid state
+    if (
+      bnOrZero(sellAmountCryptoPrecision).isZero() ||
+      !wallet ||
+      !sellAccountId ||
+      !sellAccountMetadata ||
+      !receiveAddress ||
+      isVotingPowerLoading
+    ) {
+      setTradeQuoteInput(skipToken)
+      dispatch(tradeQuoteSlice.actions.clear())
+      dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
+      return
+    }
+
     // Don't update tradeQuoteInput while we're still debouncing
+    // This needs to happen after checking and aborting invalid state to prevent incorrectly
+    // displaying loading state during debouncing
     if (isDebouncing) return
 
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
@@ -191,50 +208,44 @@ export const useGetTradeQuotes = () => {
     // That effectively means we'll unsubscribe to queries, considering them stale
     dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
-    if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-      setTradeQuoteInput(skipToken)
-      dispatch(tradeQuoteSlice.actions.clear())
-      return
-    }
+    // Clear the slice before asynchronously generating the input and running the request.
+    // This is to ensure the initial state change is done synchronously to prevent race conditions
+    // and losing sync on loading state etc.
+    dispatch(tradeQuoteSlice.actions.clear())
+    ;(async () => {
+      const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+      const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
+      const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
-    if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
-      ;(async () => {
-        const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
-        const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
-        const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
+      const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
 
-        const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
+      const { feeBps, feeBpsBeforeDiscount } = calculateFees({
+        tradeAmountUsd,
+        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+      })
 
-        const { feeBps, feeBpsBeforeDiscount } = calculateFees({
-          tradeAmountUsd,
-          foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-        })
+      const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
+      const affiliateBps = feeBps.toFixed(0)
 
-        const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
-        const affiliateBps = feeBps.toFixed(0)
+      const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
+        sellAsset,
+        sellAccountNumber,
+        receiveAccountNumber,
+        sellAccountType: sellAccountMetadata.accountType,
+        buyAsset,
+        wallet,
+        receiveAddress,
+        sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+        allowMultiHop: true,
+        affiliateBps,
+        potentialAffiliateBps,
+        // Pass in the user's slippage preference if it's set, else let the swapper use its default
+        slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
+        pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
+      })
 
-        const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
-          sellAsset,
-          sellAccountNumber,
-          receiveAccountNumber,
-          sellAccountType: sellAccountMetadata.accountType,
-          buyAsset,
-          wallet,
-          receiveAddress,
-          sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-          allowMultiHop: true,
-          affiliateBps,
-          potentialAffiliateBps,
-          // Pass in the user's slippage preference if it's set, else let the swapper use its default
-          slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
-          pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
-        })
-
-        setTradeQuoteInput(updatedTradeQuoteInput)
-
-        dispatch(tradeQuoteSlice.actions.clear())
-      })()
-    }
+      setTradeQuoteInput(updatedTradeQuoteInput)
+    })()
   }, [
     buyAsset,
     dispatch,

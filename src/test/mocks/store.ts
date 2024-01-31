@@ -188,6 +188,7 @@ export const mockStore: ReduxState = {
     tradeExecution: initialTradeExecutionState,
     tradeQuotes: {},
     tradeQuoteDisplayCache: [],
+    isTradeQuoteRequestAborted: false,
   },
   snapshot: {
     votingPower: undefined,

@@ -21,6 +21,7 @@ export type TradeQuoteSliceState = {
   tradeExecution: TradeExecutionMetadata
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
   tradeQuoteDisplayCache: ApiQuote[]
+  isTradeQuoteRequestAborted: boolean // used to conditionally render results and loading state
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -28,6 +29,9 @@ export const tradeQuoteSlice = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
+    setIsTradeQuoteRequestAborted: (state, action: PayloadAction<boolean>) => {
+      state.isTradeQuoteRequestAborted = action.payload
+    },
     upsertTradeQuotes: (
       state,
       action: PayloadAction<{

@@ -592,3 +592,8 @@ export const selectTradeQuoteDisplayCache = createDeepEqualOutputSelector(
     return tradeQuoteSlice.tradeQuoteDisplayCache
   },
 )
+
+export const selectIsTradeQuoteRequestAborted = createSelector(
+  selectTradeQuoteSlice,
+  swappers => swappers.isTradeQuoteRequestAborted,
+)

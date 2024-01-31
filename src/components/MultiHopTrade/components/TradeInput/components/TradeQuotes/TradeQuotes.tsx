@@ -6,14 +6,13 @@ import { orderBy } from 'lodash'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransitionY } from 'components/SlideTransitionY'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ApiQuote } from 'state/apis/swapper'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import { selectInputSellAmountCryptoPrecision } from 'state/slices/selectors'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMeta,
   selectIsSwapperQuoteAvailable,
+  selectIsTradeQuoteRequestAborted,
   selectSortedTradeQuotes,
   selectTradeQuoteDisplayCache,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -56,11 +55,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
     'linear-gradient(to bottom,  rgba(24,27,30,0) 0%,rgba(24,27,30,0.9) 100%)',
   )
 
+  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperQuoteAvailable)
-  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const tradeQuoteDisplayCache = useAppSelector(selectTradeQuoteDisplayCache)
   const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
 
@@ -83,6 +82,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
   }, [showAll])
 
   const quotes = useMemo(() => {
+    if (isTradeQuoteRequestAborted) {
+      return []
+    }
+
     const bestTotalReceiveAmountCryptoPrecision = bestQuoteData?.quote
       ? getBuyAmountAfterFeesCryptoPrecision({
           quote: bestQuoteData.quote,
@@ -114,18 +117,19 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
       )
     })
   }, [
-    activeQuoteMeta,
+    isTradeQuoteRequestAborted,
     bestQuoteData,
-    isLoading,
-    isTradeQuoteApiQueryPending,
-    isSwapperQuoteAvailable,
     tradeQuoteDisplayCache,
+    activeQuoteMeta,
+    isTradeQuoteApiQueryPending,
+    isLoading,
+    isSwapperQuoteAvailable,
   ])
 
   // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
   // only show these placeholders when quotes aren't already visible in the list
   const fetchingSwappers = useMemo(() => {
-    if (bnOrZero(sellAmountCryptoPrecision).lte(0)) {
+    if (isTradeQuoteRequestAborted) {
       return []
     }
 
@@ -170,9 +174,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
         )
       })
   }, [
-    isTradeQuoteApiQueryPending,
+    isTradeQuoteRequestAborted,
     isSwapperQuoteAvailable,
-    sellAmountCryptoPrecision,
+    isTradeQuoteApiQueryPending,
     tradeQuoteDisplayCache,
   ])
 

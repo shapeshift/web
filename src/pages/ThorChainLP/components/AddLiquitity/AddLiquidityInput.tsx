@@ -366,7 +366,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return serializeTxIndex(poolAccountId, approvalTxId, allowanceFromAddress)
   }, [accountIdsByChainId, foundPool?.assetId, approvalTxId, allowanceFromAddress])
 
-  // @ts-ignore this is wrongly typed
   const {
     mutate,
     isPending: isApprovalMutationPending,
@@ -436,6 +435,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [actualAssetCryptoLiquidityAmount, allowanceData, asset, confirmedQuote])
 
   const handleApprove = useCallback(() => mutate(undefined), [mutate])
+
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) {
       handleApprove()

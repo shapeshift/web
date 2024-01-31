@@ -188,11 +188,12 @@ export class Parser {
     const txType = (() => {
       if (swapType) {
         switch (swapType.toLowerCase()) {
-          case '$-':
-          case 'loan-':
           case '$+':
           case 'loan+':
-            return 'loan'
+            return 'loanOpen'
+          case '$-':
+          case 'loan-':
+            return 'loanRepayment'
           default:
             return action.type
         }

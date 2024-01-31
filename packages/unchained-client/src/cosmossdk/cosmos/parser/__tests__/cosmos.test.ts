@@ -10,7 +10,7 @@ import ibc_transfer from './mockData/ibc_transfer'
 import redelegate from './mockData/redelegate'
 import reward from './mockData/reward'
 import standard from './mockData/standard'
-import thorchainLoanOutbound from './mockData/thorchainLoanOutbound'
+import thorchainLoanOpenOutbound from './mockData/thorchainLoanOpenOutbound'
 import thorchainLoanRepayment from './mockData/thorchainLoanRepayment'
 import thorchainLoanRepaymentRefund from './mockData/thorchainLoanRepaymentRefund'
 import thorchainLpDeposit from './mockData/thorchainLpDeposit'
@@ -857,6 +857,40 @@ describe('parseTx', () => {
       expect(actual).toEqual(expected)
     })
 
+    it('should be able to parse loan open outbound', async () => {
+      const { tx, actionsResponse } = thorchainLoanOpenOutbound
+      const address = 'cosmos173xmmmzpalc9h7ynwtn6fl76h78n57e8kp7cp6'
+      const memo = 'OUT:C8ECD3A1C72473C294A63428E6284B2CEEC972BFA7372DF475F381777168D486'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: cosmosChainId,
+        transfers: [
+          {
+            type: TransferType.Receive,
+            from: 'cosmos1vkakp7qxx2sjxnp3hyw592h2yxd530yvkng95e',
+            to: address,
+            assetId: cosmosAssetId,
+            totalValue: '70370080',
+            components: [{ value: '70370080' }],
+          },
+        ],
+        data: { parser: 'thorchain', memo, method: 'loanOpenOut' },
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
     it('should be able to parse loan repayment', async () => {
       const { tx } = thorchainLoanRepayment
       const address = 'cosmos1csjuyfe8tnyn5q5sgm3wxetfqkt9053at78n69'
@@ -920,40 +954,6 @@ describe('parseTx', () => {
           },
         ],
         data: { parser: 'thorchain', memo, method: 'loanRepaymentRefund' },
-      }
-
-      const actual = await txParser.parse(tx, address)
-
-      expect(actual).toEqual(expected)
-    })
-
-    it('should be able to parse loan outbound', async () => {
-      const { tx, actionsResponse } = thorchainLoanOutbound
-      const address = 'cosmos173xmmmzpalc9h7ynwtn6fl76h78n57e8kp7cp6'
-      const memo = 'OUT:C8ECD3A1C72473C294A63428E6284B2CEEC972BFA7372DF475F381777168D486'
-
-      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
-
-      const expected: ParsedTx = {
-        txid: tx.txid,
-        blockHash: tx.blockHash,
-        blockHeight: tx.blockHeight,
-        blockTime: tx.timestamp,
-        confirmations: tx.confirmations,
-        status: TxStatus.Confirmed,
-        address,
-        chainId: cosmosChainId,
-        transfers: [
-          {
-            type: TransferType.Receive,
-            from: 'cosmos1vkakp7qxx2sjxnp3hyw592h2yxd530yvkng95e',
-            to: address,
-            assetId: cosmosAssetId,
-            totalValue: '70370080',
-            components: [{ value: '70370080' }],
-          },
-        ],
-        data: { parser: 'thorchain', memo, method: 'loanOut' },
       }
 
       const actual = await txParser.parse(tx, address)

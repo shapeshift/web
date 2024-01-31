@@ -161,10 +161,11 @@ export const RecipientAddress = () => {
               pointerEvents='auto'
               color='green.500'
               aria-label='Save'
-              disabled={!isValid}
+              isDisabled={!isValid || isValidating}
               size='xs'
               onClick={handleFormSubmit}
               icon={checkIcon}
+              isLoading={isValidating}
             />
             <IconButton
               pointerEvents='auto'
@@ -173,6 +174,7 @@ export const RecipientAddress = () => {
               aria-label='Cancel'
               size='xs'
               onClick={handleCancelClick}
+              isDisabled={isValidating}
             />
           </InputRightElement>
         </InputGroup>

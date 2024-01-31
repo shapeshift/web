@@ -44,7 +44,7 @@ export const validateTradeQuote = async (
     error: SwapErrorRight | undefined
     isTradingActiveOnSellPool: boolean
     isTradingActiveOnBuyPool: boolean
-    // TODO(gomes): this should probably believe in the quote alongside the receiveAddress,
+    // TODO(gomes): this should most likely live in the quote alongside the receiveAddress,
     // summoning @woodenfurniture WRT implications of that, this works for now
     sendAddress: string | undefined
   },

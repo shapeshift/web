@@ -1,9 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { reactQueries } from 'react-queries'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
@@ -15,18 +14,19 @@ import { useAppSelector } from 'state/store'
 
 type UseUserLpDataProps = {
   assetId: AssetId
+  accountId?: AccountId
 }
 
 export const useUserLpData = ({
   assetId,
+  accountId,
 }: UseUserLpDataProps): UseQueryResult<UserLpDataPosition[] | null> => {
+  const queryClient = useQueryClient()
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
-  const accountIds = [
-    ...useAppSelector(state => selectAccountIdsByAssetId(state, { assetId })),
-    ...thorchainAccountIds,
-  ]
+  const assetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+  const accountIds = [...(accountId ? [accountId] : assetAccountIds), ...thorchainAccountIds]
 
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
@@ -106,7 +106,7 @@ export const useUserLpData = ({
     ...reactQueries.thorchainLp.userLpData(assetId),
     staleTime: Infinity,
     queryFn: async ({ queryKey }) => {
-      const [, , assetId] = queryKey
+      const [, , , { assetId }] = queryKey
 
       const allPositions = (
         await Promise.all(

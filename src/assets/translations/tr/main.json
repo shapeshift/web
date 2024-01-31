@@ -2,6 +2,7 @@
   "common": {
     "free": "Uygun",
     "back": "Geri",
+    "and": "ve",
     "balance": "Bakiye",
     "next": "Sonraki",
     "error": "Hata",
@@ -16,8 +17,10 @@
     "claimable": "Toplanabilir",
     "approve": "Onayla",
     "confirm": "Onaylayın",
+    "seeDetails": "Detayları gör",
     "activity": "Aktivite",
     "reject": "İptal",
+    "goBack": "Geri git",
     "connected": "Bağlandı",
     "allocation": "Dağılım",
     "value": "Değer",
@@ -550,7 +553,8 @@
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop",
-    "lending": "Borç Verme"
+    "lending": "Borç Verme",
+    "pools": "Havuzlar"
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -568,6 +572,7 @@
     "to": "İle",
     "from": "İtibaren",
     "trade": "Takas",
+    "swap": "Takas",
     "amount": "Tutar",
     "for": "için",
     "emptyMessage": "%{status} işlemleriniz burada görünecek.",
@@ -602,6 +607,28 @@
       "thor": {
         "transferOut": "Dışa Aktar"
       },
+      "thorchain": {
+        "deposit": "Depozit",
+        "depositRefund": "Depozit İadesi",
+        "loanOpen": "Kredi Aç",
+        "loanOpenRefund": "Açık Kredi İadesi",
+        "loanOut": "Alınan Kredi Teminatı",
+        "loanRepayment": "Kredi Geri Ödeme",
+        "loanRepaymentRefund": "Kredi Geri Ödeme İadesi",
+        "out": "Giden Alınan",
+        "swapOut": "Takas Alındı",
+        "swapRefund": "Takas İadesi",
+        "transferOut": "Dışa Aktar",
+        "withdraw": "Para Çekme Talep Edildi",
+        "withdrawOut": "Para Çekme Alındı"
+      },
+      "swap": {
+        "deposit": "Takas",
+        "streamingSwap": "Takas Yayınlanıyor",
+        "out": "Takas",
+        "refund": "Geri Ödeme",
+        "outbound": "Giden"
+      },
       "foxy": {
         "stake": "Stake Et",
         "unstake": "Stake Kaldır",
@@ -629,13 +656,6 @@
         "begin_unbonding": "Yetkiyi geri al",
         "begin_redelegate": "Yeniden Yetkilendir",
         "withdraw_delegator_reward": "Ödül Talep Et"
-      },
-      "swap": {
-        "deposit": "Takas",
-        "streamingSwap": "Takas Yayınlanıyor",
-        "out": "Takas",
-        "refund": "Geri Ödeme",
-        "outbound": "Giden"
       },
       "ibc": {
         "transfer": "Gönderilen",
@@ -749,50 +769,22 @@
     },
     "errors": {
       "title": "Bir şeyler ters gitti",
-      "sellAssetMiddleSentence": "varlık sat",
-      "buyAssetMiddleSentence": "varlık satın al",
-      "notEnoughEth": "Bu işlemdeki gaz ücreti için yeterli ETH yok.",
       "amountTooSmall": "Minimum: %{minLimit}",
       "amountTooSmallUnknownMinimum": "Tutar çok düşük",
       "sellAmountDoesNotCoverFee": "Ücretten daha düşük satış tutarı",
-      "negativeMax": "Bu işlemde madenci ücreti için yeterli para yok. Tahmini madenci ücreti %{estimatedMinerFee}",
-      "invalidMax": "Geçersiz Tutar. Bu çift için maksimum ticaret miktarı %{maxLimit}'tir.",
       "insufficientFunds": "Madenci ücreti ve miktarı için yetersiz bakiye",
       "transactionRejected": "Kullanıcı işlemi reddetti",
-      "broadcastFailed": "İşlem yayınlanırken bir hata oluştu",
-      "insufficientFundsForLimit": "Yetersiz bakiye. Bu çift için minimum işlem tutarı %{minLimit}",
-      "insufficientFundsForAmount": "Yetersiz bakiye. %{symbol} bakiyeniz seçilen miktardan az",
       "insufficientFundsForProtocolFee": "%{chainName} üzerinde ücretler için yetersiz %{symbol}",
-      "invalidTradePair": "Geçersiz işlem çifti: %{sellAssetName} ve %{buyAssetName}",
-      "invalidTradePairBtnText": "Geçersiz İşlem Çifti",
       "unsupportedTradePair": "Desteklenmeyen Takas Çifti",
-      "noLiquidityError": "Kullanılabilir likidite mevcut değil",
-      "overMaxSlippage": "Bu ticaret, %{slippagePercentage}% üzerinde kaymaya neden olur. Lütfen daha iyi bir fiyat için, daha düşük bir miktar işlem yapın",
-      "balanceToLow": "Bakiye çok düşük. Bu çift için minimum işlem tutarı %{minLimit}",
-      "dexTradeFailed": "İşlem Başarısız Oldu, Jetonlar İade Edildi",
-      "quoteFailed": "İşleminiz için fiyat teklifi alınırken bir hata oluştu.",
+      "noRouteFound": "Bu çift ve miktar için yol bulunamadı",
       "quoteExpired": "Teklifin süresi doldu, tekrar deneyin.",
-      "failedQuoteExecuted": "Başarısız bir fiyat teklifi yürütülemez",
-      "sellAssetRequired": "Satılacak bir varlık olmadan fiyat teklifi yürütülemez",
-      "sellAmountRequired": "Satılacak bir miktar olmadan fiyat teklifi yürütülemez",
-      "depositAddressRequired": "DEX adresi olmadan bir ETH teklifi yürütülemez",
-      "sellAssetNetworkAndSymbolRequired": "Bir fiyat teklifi yürütmek için hem varlık ağı hem de sembol gereklidir",
-      "hdwalletInvalidConfig": "Donanım cüzdanınızla iletişim kurulurken bir hata oluştu",
-      "allowanceRequiredFailed": "İşlem yapmak için gereken ödenek onaylanırken bir hata oluştu.",
-      "checkApprovalNeededFailed": "İşleminizin onayı kontrol edilirken bir hata oluştu.",
-      "approveInfiniteFailed": "İşleminiz onaylanırken bir hata oluştu.",
-      "buildTradeFailed": "İşleminizi oluştururken bir hata oluştu.",
-      "grantAllowanceFailed": "Ödenek verilirken bir hata oluştu.",
-      "minMaxError": "Minimum / maksimum işlem tutarı alınırken bir hata oluştu",
-      "executeTradeFailed": "İşleminiz yürütülürken bir hata oluştu.",
-      "unsupportedPair": "Bu işlem çifti şu anda desteklenmiyor.",
-      "unsupportedChain": "Bu ağ şu anda desteklenmiyor.",
-      "rateError": "Bu çift için fiyat teklifi alamıyoruz",
+      "quoteUnsupportedChain": "Zincir desteklenmiyor",
+      "quoteCrossChainNotSupported": "Çapraz zincir desteklenmiyor",
+      "networkFeeEstimateFailed": "Ağ ücreti tahmin edilemedi",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} cüzdan tarafından desteklenmiyor",
-      "sellAssetNotSupportedByWallet": "Satılmak istenen varlık cüzdan tarafından desteklenmiyor ",
-      "intermediaryAssetNotSupportedByWallet": "Cüzdan tarafından desteklenmeyen aracı",
-      "noReceiveAddress": "%{assetSymbol} için alım adresi yok",
-      "tradingNotActive": "İşlemler %{assetSymbol} için geçici olarak durduruldu",
+      "intermediaryAssetNotSupportedByWallet": "Aracı varlık %{assetSymbol}.%{chainSymbol} cüzdan tarafından desteklenmiyor",
+      "noReceiveAddress": "%{chainName} üzerinde %{assetSymbol} için alma adresi yok",
+      "tradingNotActiveForChain": "%{chainName} üzerinde işlemler geçici olarak durduruldu",
       "tradingNotActiveNoAssetSymbol": "Bu rota için takas geçici olarak durduruldu",
       "signing": {
         "failed": "İşlem imzalanırken bir hata oluştu",
@@ -1757,6 +1749,7 @@
       "Send": "Gönder",
       "Receive": "Al",
       "Trade": "Takas",
+      "Swap": "Takas",
       "Refund": "Geri ödeme"
     },
     "assets": "Varlıklar",
@@ -2186,5 +2179,68 @@
     "breakdownBody": "Aşağıda işlem ücretlerinizin ve uygulanan FOX Power İndiriminin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",
     "tradeFee": "Takas Ücreti",
     "totalTradeFee": "Toplam Takas Ücreti"
+  },
+  "pools": {
+    "pools": "Havuzlar",
+    "pool": "Havuz",
+    "tvl": "TVL",
+    "volume24h": "Hacim 24S",
+    "volume7d": "Hacim 7G",
+    "balance": "Bakiye",
+    "unclaimedFees": "Talep Edilmeyen Ücretler",
+    "poolShare": "Havuz Paylaşımı",
+    "yourPosition": "Pozisyon",
+    "poolInformation": "Havuz Bilgileri",
+    "poolsBody": "Likidite sağlayın ve bu havuzdaki işlemlerden ücret kazanın.",
+    "availablePools": "Uygun Havuzlar",
+    "addLiquidity": "Likidite Ekle",
+    "removeLiquidity": "Likiditeyi Kaldır",
+    "initialPricesAndPoolShare": "Başlangıç ​​Fiyatları ve Havuz Payı",
+    "pricePerAsset": "%{to} başına %{from}",
+    "symAlert": "%{from}'unuz, havuza girdikten sonra hem %{to} hem de %{from}'a 50:50'lik bir maruziyete bölünecek.",
+    "shareOfPool": "Havuz Payı",
+    "assetDepositAmount": "%{asset} Yatırma Tutarı",
+    "totalLiquidity": "Toplam Likidite",
+    "totalVolume": "Toplam Hacim",
+    "fees24h": "Ücretler 24S",
+    "estimatedTime": "Tahmini süresi",
+    "liquidityValue": "Likidite Değeri",
+    "selectPair": "Çift'i Seçin",
+    "depositAmounts": "Mevduat Tutarları",
+    "awaitingConfirmation": "Onay bekleniyor",
+    "transactionSubmitted": "İşlem gönderildi",
+    "waitingForConfirmation": "Onay bekliyor",
+    "totalTokensLocked": "Toplam Kilitli Jetonlar",
+    "chainFee": "%{chain} Ücret",
+    "supplying": "Tedarik",
+    "confirmAndDeposit": "Onayla ve Para Yatır",
+    "yourPositions": {
+      "yourPositions": "Pozisyonlarınız",
+      "emptyTitle": "Aktif pozisyon yok",
+      "emptyBody": "Aktif likidite havuzu pozisyonlarınız burada görünecektir."
+    },
+    "faq": {
+      "title": "SSS",
+      "what": {
+        "title": "Likidite Havuzu Nedir?",
+        "body": "Likidite havuzu, blockchain ağında ticareti kolaylaştırmak için kullanılan varlıkları içeren merkezi olmayan bir fon havuzudur. Çeşitli ticaret çiftlerine likidite sağlayarak merkezi olmayan finansta (DeFi) çok önemli bir rol oynar."
+      },
+      "how": {
+        "title": "Likidite Havuzları nasıl çalışır?",
+        "body": "Likidite havuzları, kullanıcıların bir havuz oluşturmak için varlıklarını akıllı bir sözleşmeye yatırması prensibiyle çalışır. Bu varlıklar daha sonra merkezi olmayan borsaları etkinleştirmek için kullanılır ve kullanıcıların havuza karşı ticaret yapmasına olanak tanır. Kullanıcılar, likidite sağlamanın karşılığında platformun ürettiği işlem ücretlerinden pay alırlar."
+      },
+      "amm": {
+        "title": "Otomatik Piyasa Yapıcılar (AMM'ler)",
+        "body": "Birçok likidite havuzu, havuzdaki tokenlerin oranına göre varlıkların fiyatını belirlemek için algoritmalar kullanan Otomatik Piyasa Yapıcıları (AMM'ler) olarak çalışır. Bu, geleneksel bir sipariş defterine ihtiyaç duymadan merkezi olmayan ve sürekli ticarete olanak tanır."
+      },
+      "rewards": {
+        "title": "Kazanılan Ödüller",
+        "body": "Likidite sağlayıcıları, işlem ücretleri ve bazı durumlarda platformdan ek yönetişim tokenleri şeklinde ödüller kazanır. Bu ödüller sağlanan likidite miktarıyla orantılıdır."
+      },
+      "risks": {
+        "title": "Riskler ve Hususlar",
+        "body": "Likidite havuzları kazanç fırsatları sunarken, kalıcı kayıplar, akıllı sözleşme zayıflıkları ve piyasa dalgalanmaları dahil olmak üzere ilgili risklerin farkında olmak önemlidir. Kullanıcılar katılmadan önce kapsamlı bir araştırma yapmalıdır."
+      }
+    }
   }
 }

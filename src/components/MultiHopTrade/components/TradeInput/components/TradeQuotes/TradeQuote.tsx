@@ -37,7 +37,7 @@ type TradeQuoteProps = {
   isActive: boolean
   isBest: boolean
   quoteData: ApiQuote
-  bestBuyAmountBeforeFeesCryptoBaseUnit: string
+  bestTotalReceiveAmountCryptoPrecision: string | undefined
   isLoading: boolean
 }
 
@@ -45,7 +45,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   isActive,
   isBest,
   quoteData,
-  bestBuyAmountBeforeFeesCryptoBaseUnit,
+  bestTotalReceiveAmountCryptoPrecision,
   isLoading,
 }) => {
   const { quote, errors } = quoteData
@@ -124,13 +124,11 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   // the difference percentage is on the gross receive amount only
   const quoteDifferenceDecimalPercentage = useMemo(() => {
-    if (!quote) return Infinity
-    const lastStep = quote.steps[quote.steps.length - 1]
-    return bn(bestBuyAmountBeforeFeesCryptoBaseUnit)
-      .minus(lastStep.buyAmountBeforeFeesCryptoBaseUnit)
-      .dividedBy(bestBuyAmountBeforeFeesCryptoBaseUnit)
+    if (!quote || !bestTotalReceiveAmountCryptoPrecision) return
+    return bn(1)
+      .minus(bn(totalReceiveAmountCryptoPrecision).dividedBy(bestTotalReceiveAmountCryptoPrecision))
       .toNumber()
-  }, [bestBuyAmountBeforeFeesCryptoBaseUnit, quote])
+  }, [bestTotalReceiveAmountCryptoPrecision, quote, totalReceiveAmountCryptoPrecision])
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =

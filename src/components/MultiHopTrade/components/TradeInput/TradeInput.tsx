@@ -75,6 +75,7 @@ import {
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteRequestErrors,
+  selectTradeQuoteResponseErrors,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -100,7 +101,8 @@ const emptyPercentOptions: number[] = []
 
 export const TradeInput = memo(() => {
   const {
-    isQuoteRequestFetching,
+    isAnySwapperFetched: _isAnySwapperFetched,
+    isQuoteRequestComplete: _isQuoteRequestComplete,
     isQuoteRequestUninitialized,
     isSwapperFetching,
     didQuoteRequestFail,
@@ -118,6 +120,8 @@ export const TradeInput = memo(() => {
     'background.surface.raised.base',
   ])
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
+  const [isAnySwapperFetched, setIsAnySwapperFetched] = useState(true)
+  const [isQuoteRequestComplete, setIsQuoteRequestComplete] = useState(true)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
@@ -143,7 +147,28 @@ export const TradeInput = memo(() => {
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
+  const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
+
+  // whenever the sell amount changes, set the quote states to fetching
+  useEffect(() => {
+    setIsAnySwapperFetched(false)
+    setIsQuoteRequestComplete(false)
+  }, [sellAmountCryptoPrecision])
+
+  // when a quote becomes available, set the quote states to fetched
+  useEffect(() => {
+    if (_isAnySwapperFetched) {
+      setIsAnySwapperFetched(true)
+    }
+  }, [_isAnySwapperFetched])
+
+  // when a quote request is complete, mark it as complete
+  useEffect(() => {
+    if (_isQuoteRequestComplete) {
+      setIsQuoteRequestComplete(true)
+    }
+  }, [_isQuoteRequestComplete])
 
   const hasUserEnteredAmount = useMemo(
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
@@ -152,14 +177,17 @@ export const TradeInput = memo(() => {
 
   const quoteStatusTranslation = useMemo(() => {
     const quoteRequestError = quoteRequestErrors[0]
+    const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case isQuoteRequestFetching:
+      case !isAnySwapperFetched:
         return 'common.loadingText'
-      case isQuoteRequestUninitialized:
+      case !hasUserEnteredAmount || isQuoteRequestUninitialized:
         return 'trade.previewTrade'
       case !!quoteRequestError:
         return getQuoteRequestErrorTranslation(quoteRequestError)
+      case isQuoteRequestComplete && !!quoteResponseError:
+        return getQuoteRequestErrorTranslation(quoteResponseError)
       case !!tradeQuoteError:
         // this should never occur because users shouldn't be able to select an errored quote
         // but just in case
@@ -167,7 +195,15 @@ export const TradeInput = memo(() => {
       default:
         return 'trade.previewTrade'
     }
-  }, [activeQuoteErrors, quoteRequestErrors, isQuoteRequestUninitialized, isQuoteRequestFetching])
+  }, [
+    quoteRequestErrors,
+    quoteResponseErrors,
+    activeQuoteErrors,
+    isAnySwapperFetched,
+    hasUserEnteredAmount,
+    isQuoteRequestUninitialized,
+    isQuoteRequestComplete,
+  ])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
@@ -256,7 +292,7 @@ export const TradeInput = memo(() => {
 
   const isLoading = useMemo(
     () =>
-      isQuoteRequestFetching ||
+      !isAnySwapperFetched ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
@@ -266,7 +302,7 @@ export const TradeInput = memo(() => {
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isQuoteRequestFetching,
+      isAnySwapperFetched,
       isConfirmationLoading,
       isSupportedAssetsLoading,
       isSellAddressByteCodeLoading,
@@ -351,8 +387,6 @@ export const TradeInput = memo(() => {
     wallet,
   ])
 
-  const isSellAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
-
   const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
     () =>
       hasUserEnteredAmount ? (
@@ -374,11 +408,11 @@ export const TradeInput = memo(() => {
   }, [isUnsafeQuote])
 
   const quoteHasError = useMemo(() => {
-    if (isQuoteRequestUninitialized || isQuoteRequestFetching) return false
+    if (isQuoteRequestUninitialized || !isAnySwapperFetched) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
   }, [
     isQuoteRequestUninitialized,
-    isQuoteRequestFetching,
+    isAnySwapperFetched,
     activeQuoteErrors?.length,
     quoteRequestErrors?.length,
   ])
@@ -388,7 +422,7 @@ export const TradeInput = memo(() => {
       quoteHasError ||
       manualReceiveAddressIsValidating ||
       isLoading ||
-      !isSellAmountEntered ||
+      !hasUserEnteredAmount ||
       !activeQuote ||
       disableSmartContractSwap ||
       !activeSwapperName ||
@@ -399,7 +433,7 @@ export const TradeInput = memo(() => {
     activeSwapperName,
     disableSmartContractSwap,
     isLoading,
-    isSellAmountEntered,
+    hasUserEnteredAmount,
     isSwapperFetching,
     manualReceiveAddressIsValidating,
     quoteHasError,
@@ -632,12 +666,14 @@ export const TradeInput = memo(() => {
               assetIcon={buyAsset.icon}
               hideAmounts={true}
               cryptoAmount={
-                isSellAmountEntered
+                hasUserEnteredAmount
                   ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
                   : '0'
               }
               fiatAmount={
-                isSellAmountEntered ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
+                hasUserEnteredAmount
+                  ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
+                  : '0'
               }
               percentOptions={emptyPercentOptions}
               showInputSkeleton={isLoading}

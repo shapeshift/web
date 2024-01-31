@@ -13,7 +13,7 @@ import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput }
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bn } from '../../utils/bignumber'
-import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
+import type { EvmChainId } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
@@ -83,7 +83,7 @@ describe('EthereumChainAdapter', () => {
   const makeChainAdapterArgs = (overrideArgs?: {
     providers?: { http: unchained.ethereum.V1Api }
     chainId?: EvmChainId
-  }): ChainAdapterArgs<unchained.ethereum.V1Api> =>
+  }): ethereum.ChainAdapterArgs =>
     merge(
       {
         providers: {
@@ -91,6 +91,7 @@ describe('EthereumChainAdapter', () => {
           ws: {} as unchained.ws.Client<unchained.ethereum.Tx>,
         },
         rpcUrl: '',
+        midgardUrl: '',
       },
       overrideArgs,
     )

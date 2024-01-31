@@ -2,6 +2,7 @@
   "common": {
     "free": "無料",
     "back": "戻る",
+    "and": "と",
     "balance": "残高",
     "next": "次へ",
     "error": "エラー",
@@ -16,8 +17,10 @@
     "claimable": "獲得可能",
     "approve": "承認する",
     "confirm": "確認する",
+    "seeDetails": "詳細",
     "activity": "アクティビティ",
     "reject": "拒否する",
+    "goBack": "戻る",
     "connected": "接続済み",
     "allocation": "割り当て",
     "value": "価値",
@@ -122,7 +125,7 @@
     "showAll": "すべて表示",
     "showLess": "表示を減らす",
     "yourBalance": "バランス",
-    "signMessage": "署名メッセージ",
+    "signTransaction": "トランザクションに署名する",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -135,7 +138,8 @@
       "sortedAsc": "昇順でソート",
       "sortedDesc": "降順でソート",
       "expandRow": "行を広げる"
-    }
+    },
+    "featureDisabled": "この機能は一時的に無効になっています。"
   },
   "consentBanner": {
     "body": {
@@ -379,7 +383,8 @@
           "tooltip": "入金手数料と収益をカバーするまでの推定時間"
         },
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
-        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません"
+        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
+        "dangerousWithdrawWarning": "THORChainの手数料により、出金された資金が全額失われる可能性があるため、出金は無効になっています。この問題を回避するには、より多くの金額を引き出すことを検討してください。"
       }
     },
     "memoNote": {
@@ -548,7 +553,8 @@
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
     "arkeo": "Arkeoエアドロップ",
-    "lending": "貸し出し"
+    "lending": "貸し出し",
+    "pools": "プール"
   },
   "transactionRow": {
     "send": "送信済み",
@@ -566,6 +572,7 @@
     "to": "に",
     "from": "から",
     "trade": "取引",
+    "swap": "スワップ",
     "amount": "額",
     "for": "のために",
     "emptyMessage": "%{status} トランザクションがここに表示されます。",
@@ -600,6 +607,28 @@
       "thor": {
         "transferOut": "転出"
       },
+      "thorchain": {
+        "deposit": "デポジット",
+        "depositRefund": "デポジットの払い戻し",
+        "loanOpen": "ローンオープン",
+        "loanOpenRefund": "ローンオープンの返金",
+        "loanOut": "融資担保の受領",
+        "loanRepayment": "ローン返済",
+        "loanRepaymentRefund": "ローン返済の返金",
+        "out": "アウトバウンド受信",
+        "swapOut": "スワップを受け取りました",
+        "swapRefund": "スワップの返金",
+        "transferOut": "転出",
+        "withdraw": "出金要求あり",
+        "withdrawOut": "引き出しを受け付けました"
+      },
+      "swap": {
+        "deposit": "スワップ",
+        "streamingSwap": "ストリーミングスワップ",
+        "out": "スワップ",
+        "refund": "返金",
+        "outbound": "アウトバウンド"
+      },
       "foxy": {
         "stake": "ステーク",
         "unstake": "ステークを解除する",
@@ -627,13 +656,6 @@
         "begin_unbonding": "委任を解除",
         "begin_redelegate": "再委任",
         "withdraw_delegator_reward": "報酬を受け取る"
-      },
-      "swap": {
-        "deposit": "スワップ",
-        "streamingSwap": "ストリーミングスワップ",
-        "out": "スワップ",
-        "refund": "返金",
-        "outbound": "アウトバウンド"
       },
       "ibc": {
         "transfer": "送信済み",
@@ -747,50 +769,22 @@
     },
     "errors": {
       "title": "問題が発生しました",
-      "sellAssetMiddleSentence": "アセットを売る",
-      "buyAssetMiddleSentence": "アセットを買う",
-      "notEnoughEth": "このトランザクションのガス代に十分なETHがありません。",
       "amountTooSmall": "最小値: %{minLimit}",
       "amountTooSmallUnknownMinimum": "金額が低すぎます",
       "sellAmountDoesNotCoverFee": "手数料よりも低い金額で売却する",
-      "negativeMax": "この取引のマイナー手数料に十分な資金がありません。推定マイナー手数料 %{estimatedMinerFee}",
-      "invalidMax": "無効な金額です。このペアの最大取引額は %{maxLimit} です。",
       "insufficientFunds": "マイナーの手数料と金額に対して資金が不十分です",
       "transactionRejected": "ユーザーが取引を拒否しました",
-      "broadcastFailed": "トランザクションのブロードキャスト中にエラーが発生しました",
-      "insufficientFundsForLimit": "残高不足です。このペアの最小取引額は %{minLimit} です",
-      "insufficientFundsForAmount": "残高不足です。 %{symbol} 残高が選択した金額未満です",
       "insufficientFundsForProtocolFee": "%{chainName} の %{symbol} が手数料として不十分です",
-      "invalidTradePair": "無効な取引ペア: %{sellAssetName} と %{buyAssetName}",
-      "invalidTradePairBtnText": "無効なトレードペア",
       "unsupportedTradePair": "サポートされていないトレードペア",
-      "noLiquidityError": "十分な流動性が利用できません",
-      "overMaxSlippage": "この取引では、%{slippagePercentage}% を超えるスリッページが発生します。より良い価格でより低い金額で取引してください",
-      "balanceToLow": "残高不足です。このペアの最小取引額は %{minLimit} です",
-      "dexTradeFailed": "取引は失敗し、トークンは返却されました",
-      "quoteFailed": "取引の見積もりを取得中にエラーが発生しました。",
+      "noRouteFound": "このペアと金額のルートは見つかりませんでした",
       "quoteExpired": "見積もりの​​有効期限が切れました。もう一度お試しください。",
-      "failedQuoteExecuted": "失敗した見積を実行できません",
-      "sellAssetRequired": "売却するアセットがないため見積もりを実行できません",
-      "sellAmountRequired": "売却金額がなければ見積もりを実行できません",
-      "depositAddressRequired": "DEXアドレスがないとETH相場を実行できません",
-      "sellAssetNetworkAndSymbolRequired": "見積を実行するにはアセットネットワークとシンボルの両方が必要です",
-      "hdwalletInvalidConfig": "ハードウェアウォレットとの通信でエラーが発生しました",
-      "allowanceRequiredFailed": "取引に必要な許可の承認中にエラーが発生しました。",
-      "checkApprovalNeededFailed": "取引の承認を確認中にエラーが発生しました。",
-      "approveInfiniteFailed": "取引の承認中にエラーが発生しました。",
-      "buildTradeFailed": "取引中にエラーが発生しました。",
-      "grantAllowanceFailed": "許可の付与時にエラーが発生しました。",
-      "minMaxError": "最小/最大取引額の取得でエラーが発生しました",
-      "executeTradeFailed": "取引の実行中にエラーが発生しました。",
-      "unsupportedPair": "この取引ペアは現在サポートされていません。",
-      "unsupportedChain": "このチェーンは現在サポートされていません。",
-      "rateError": "このペアの見積もりを取得できません",
+      "quoteUnsupportedChain": "チェーンはサポートされていません",
+      "quoteCrossChainNotSupported": "クロスチェーンはサポートされていません",
+      "networkFeeEstimateFailed": "ネットワーク手数料の見積もりに失敗しました",
       "assetNotSupportedByWallet": "ウォレットでは%{assetSymbol}.%{chainSymbol}はサポートされていません。",
-      "sellAssetNotSupportedByWallet": "ウォレットでサポートされていないアセットを販売する",
-      "intermediaryAssetNotSupportedByWallet": "仲介者はウォレットでサポートされていません",
-      "noReceiveAddress": "%{assetSymbol} の受信アドレスがありません",
-      "tradingNotActive": "%{assetSymbol} の取引は一時的に停止されました",
+      "intermediaryAssetNotSupportedByWallet": "中間アセット %{assetSymbol}.%{chainSymbol} はウォレットでサポートされていません",
+      "noReceiveAddress": "%{chainName} の %{assetSymbol} の受信アドレスがありません",
+      "tradingNotActiveForChain": "%{chainName} で取引が一時的に停止されました",
       "tradingNotActiveNoAssetSymbol": "このルートの取引は一時的に停止されています",
       "signing": {
         "failed": "トランザクションの署名中にエラーが発生しました",
@@ -818,7 +812,32 @@
     "enableMetaMaskSnap": "マルチチェーンスナップを使用する",
     "approvalGasFee": "承認ガス手数料 %{fee}",
     "approvalFailed": "手当の承認中に問題が発生しました",
-    "swapFailed": "%{tradeType} の実行中に問題が発生しました"
+    "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
+    "doAnotherTrade": "別の取引をする",
+    "showDetails": "詳細",
+    "transactionSuccessful": "トランザクションが成功しました。確認を待っています",
+    "temp": {
+      "tradeSuccess": "取引完了",
+      "tradeComplete": "%{chainName} で %{symbol} を正常に受信しました。"
+    },
+    "hopTitle": {
+      "bridge": "%{swapperName} 経由でブリッジします",
+      "swap": "%{swapperName} 経由で交換"
+    },
+    "transactionFailed": {
+      "bridge": "ブリッジ中に問題が発生しました",
+      "swap": "スワップ中に問題が発生しました"
+    },
+    "transactionTitle": {
+      "bridge": "%{swapperName} を介して %{sellChainName} から %{buyChainName} にブリッジします",
+      "swap": "%{swapperName} 経由で %{sellChainName} でスワップします"
+    },
+    "approvalTitle": "トークン割り当ての承認",
+    "assetSummaryDescription": "%{chainName} の %{amountFiatFormatted}",
+    "quote": {
+      "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません",
+      "slippage": "スリッページ: %{ SlippageFormatted}"
+    }
   },
   "modals": {
     "popup": {
@@ -1327,7 +1346,8 @@
         "header": "エラー",
         "body": "Ledgerウォレットに接続できません"
       },
-      "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。"
+      "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。",
+      "signWarning": "署名する前に、デバイスで %{chain} アプリが開いていることを確認してください。"
     },
     "metaMask": {
       "errors": {
@@ -1729,6 +1749,7 @@
       "Send": "送信",
       "Receive": "受け取る",
       "Trade": "取引",
+      "Swap": "スワップ",
       "Refund": "返金"
     },
     "assets": "アセット",
@@ -2158,5 +2179,68 @@
     "breakdownBody": "以下は、取引手数料の内訳と、適用される対応するFOX割引です。 「シミュレート」タブでどれくらい割引できるかを確認してください。",
     "tradeFee": "取引手数料",
     "totalTradeFee": "合計取引手数料"
+  },
+  "pools": {
+    "pools": "プール",
+    "pool": "プール",
+    "tvl": "TVL",
+    "volume24h": "ボリューム 24時間",
+    "volume7d": "ボリューム 7日間",
+    "balance": "バランス",
+    "unclaimedFees": "未請求料金",
+    "poolShare": "プールシェア",
+    "yourPosition": "あなたのポジション",
+    "poolInformation": "プール情報",
+    "poolsBody": "流動性を提供し、そのプール内の取引で手数料を獲得します。",
+    "availablePools": "利用可能なプール",
+    "addLiquidity": "流動性の追加",
+    "removeLiquidity": "流動性の除去",
+    "initialPricesAndPoolShare": "初期価格とプールシェア",
+    "pricePerAsset": "%{from}/%{to}",
+    "symAlert": "あなたの %{from} は、プールに入ると %{to} と %{from} の両方に 50:50 の割合で公開されます。",
+    "shareOfPool": "プールのシェア",
+    "assetDepositAmount": "%{asset} 入金額",
+    "totalLiquidity": "総流動性",
+    "totalVolume": "トータルボリューム",
+    "fees24h": "手数料 24時間",
+    "estimatedTime": "所要時間",
+    "liquidityValue": "流動性価値",
+    "selectPair": "ペアの選択",
+    "depositAmounts": "入金額",
+    "awaitingConfirmation": "確認待ち",
+    "transactionSubmitted": "トランザクションが送信されました",
+    "waitingForConfirmation": "確認待ち",
+    "totalTokensLocked": "ロックされたトークンの総数",
+    "chainFee": "%{チェーン}手数料",
+    "supplying": "供給する",
+    "confirmAndDeposit": "確認して入金する",
+    "yourPositions": {
+      "yourPositions": "あなたのポジション",
+      "emptyTitle": "アクティブなポジションはありません",
+      "emptyBody": "アクティブな流動性プールのポジションがここに表示されます。"
+    },
+    "faq": {
+      "title": "よくある質問",
+      "what": {
+        "title": "流動性プールとは何ですか?",
+        "body": "流動性プールは、ブロックチェーン ネットワーク上での取引を容易にするために使用される資産を含む分散型資金プールです。さまざまな取引ペアに流動性を提供することで、DeFiにおいて重要な役割を果たします。"
+      },
+      "how": {
+        "title": "流動性プールはどのように機能しますか?",
+        "body": "流動性プールは、ユーザーが自分の資産をスマートコントラクトに預けてプールを作成するという原則に基づいて機能します。これらの資産は分散型取引所を可能にするために利用され、ユーザーがプールに対して取引できるようになります。流動性を提供する代わりに、ユーザーはプラットフォームによって生成される取引手数料の一部を受け取ります。"
+      },
+      "amm": {
+        "title": "自動マーケットメーカー (AMM)",
+        "body": "多くの流動性プールは自動マーケットメーカー (AMM) として機能し、アルゴリズムを使用してプール内のトークンの比率に基づいて資産の価格を決定します。これにより、従来の注文帳を必要とせずに、分散型の継続的な取引が可能になります。"
+      },
+      "rewards": {
+        "title": "報酬を獲得する",
+        "body": "流動性プロバイダーは、取引手数料の形で報酬を獲得し、場合によってはプラットフォームから追加のガバナンストークンを獲得します。これらの報酬は提供される流動性の量に比例します。"
+      },
+      "risks": {
+        "title": "リスクと考慮事項",
+        "body": "流動性プールは収益機会を提供しますが、一時的な損失、スマートコントラクトの脆弱性、市場の変動性など、関連するリスクを認識することが重要です。ユーザーは参加する前に十分な調査を行う必要があります。"
+      }
+    }
   }
 }

@@ -27,6 +27,8 @@ WARNING: If your PR introduces a new on-chain transaction or modifies an existin
 E.g. an upgrade to `hdwallet` or core state management would be considered higher risk, and might require a full regression test. UI or isolated view changes, or something behind a feature flag may have near zero risk. Small bug fixes might require testing isolated to the specific fix.
 ------------------------------------------------------------------------------>
 
+> What protocols, transaction types or contract interactions might be affected by this PR?
+
 ## Testing
 
 <!-----------------------------------------------------------------------------

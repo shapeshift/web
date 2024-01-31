@@ -32,6 +32,7 @@ export default function register(): Plugins {
                 return new bnbsmartchain.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL,
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

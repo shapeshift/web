@@ -31,6 +31,7 @@ export default function register(): Plugins {
                 return new ethereum.ChainAdapter({
                   providers: { http, ws },
                   rpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

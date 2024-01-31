@@ -34,7 +34,7 @@ export const tradeQuoteSlice = createSlice({
       }>,
     ) => {
       const { swapperName, quotesById } = action.payload
-      state.tradeQuotes[swapperName] = quotesById
+      state.tradeQuotes[swapperName] = quotesById ?? {}
     },
     setActiveQuote: (state, action: PayloadAction<ApiQuote | undefined>) => {
       if (action.payload === undefined) {

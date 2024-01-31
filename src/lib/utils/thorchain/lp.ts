@@ -7,15 +7,15 @@ import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 
 import { fromThorBaseUnit } from '.'
-import type {
-  AsymSide,
-  MidgardPool,
-  MidgardPoolStats,
-  MidgardSwapHistoryResponse,
-  MidgardTvlHistoryResponse,
-  PoolShareDetail,
-  ThorchainEarningsHistoryResponse,
-  ThorchainLiquidityProvidersResponseSuccess,
+import type { AsymSide } from './lp/types'
+import {
+  type MidgardPool,
+  type MidgardPoolStats,
+  type MidgardSwapHistoryResponse,
+  type MidgardTvlHistoryResponse,
+  type PoolShareDetail,
+  type ThorchainEarningsHistoryResponse,
+  type ThorchainLiquidityProvidersResponseSuccess,
 } from './lp/types'
 
 const midgardUrl = getConfig().REACT_APP_MIDGARD_URL

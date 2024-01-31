@@ -34,6 +34,7 @@ const txParser = new TransactionParser({
   chainId: bscChainId,
   assetId: bscAssetId,
   api: mockedApi,
+  midgardUrl: '',
 })
 
 describe('parseTx', () => {

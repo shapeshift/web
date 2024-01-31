@@ -1,7 +1,7 @@
-import type { ActionsResponse } from '../../../../parser/thorchain'
+import type { ActionsResponse } from '../../../../../parser/thorchain'
 import type { Tx } from '../../../index'
 
-// NOTE: this is not a real transaction as I was unable to find an actual bitcoin savers refund on chain
+// NOTE: this is not a real transaction
 
 const tx: Tx = {
   txid: 'db19b42a99d5117f8e3b94d4f23e5f02157937f3c4d8371afd0a56b9dbfa084d',

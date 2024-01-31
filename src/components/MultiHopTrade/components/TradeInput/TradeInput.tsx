@@ -58,6 +58,7 @@ import {
   selectInputSellAsset,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
+  selectWalletSupportedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -147,6 +148,7 @@ export const TradeInput = memo(() => {
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
+  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
   // whenever the sell amount changes, set the quote states to fetching
   useEffect(() => {
@@ -599,6 +601,12 @@ export const TradeInput = memo(() => {
     [buyAsset.assetId, handleBuyAssetClick, isSupportedAssetsLoading, setBuyAsset],
   )
 
+  // disable switching assets if the buy asset isn't supported
+  const shouldDisableSwitchAssets = useMemo(() => {
+    const walletSupportsBuyAssetChain = walletSupportedChainIds.includes(buyAsset.chainId)
+    return !walletSupportsBuyAssetChain
+  }, [buyAsset.chainId, walletSupportedChainIds])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
@@ -632,6 +640,7 @@ export const TradeInput = memo(() => {
                 zIndex={1}
                 aria-label={translate('lending.switchAssets')}
                 icon={arrowDownIcon}
+                isDisabled={shouldDisableSwitchAssets}
               />
               <Divider />
             </Flex>

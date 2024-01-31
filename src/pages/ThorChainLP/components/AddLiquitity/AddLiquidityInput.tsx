@@ -359,7 +359,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     mutate,
     isPending: isApprovalMutationPending,
     isSuccess: isApprovalMutationSuccess,
-    status,
   } = useMutation({
     ...reactQueries.mutations.approve({
       assetId: asset?.assetId,

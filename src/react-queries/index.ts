@@ -1,6 +1,7 @@
 import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -69,13 +70,14 @@ const mutations = createMutationKeys('mutations', {
     amount,
     wallet,
     from,
+    accountNumber,
   }: {
     assetId: AssetId | undefined
     spender: string | undefined
     amount: string | undefined
-    // TODO(gomes): wallet may not serialize proper here
-    wallet: any
+    wallet: ETHWallet
     from: string | undefined
+    accountNumber: number | undefined
   }) => ({
     // note how we don't add the wallet here because of its non-serializable nature
     mutationKey: ['approve', { assetId, spender, amount, from }],
@@ -85,6 +87,7 @@ const mutations = createMutationKeys('mutations', {
       if (!amount) throw new Error('amount is required')
       if (!from) throw new Error('from address is required')
       if (!wallet) throw new Error('wallet is required')
+      if (accountNumber === undefined) throw new Error('accountNumber is required')
 
       const approvalCalldata = getApproveContractData({
         approvalAmountCryptoBaseUnit: amount,
@@ -100,13 +103,12 @@ const mutations = createMutationKeys('mutations', {
         to: fromAssetId(assetId).assetReference,
         value: '0',
         data: approvalCalldata,
-        ...(from
-          ? { from, supportsEIP1559: await wallet.ethSupportsEIP1559() }
-          : { accountNumber: 0, wallet }),
+        from,
+        supportsEIP1559: await wallet.ethSupportsEIP1559(),
       })
 
       const buildCustomTxInput = {
-        accountNumber: 0, // TODO
+        accountNumber,
         data: approvalCalldata,
         to: fromAssetId(assetId).assetReference,
         value: '0',

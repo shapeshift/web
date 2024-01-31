@@ -1,5 +1,6 @@
 import { createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
@@ -9,6 +10,8 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import { isToken } from 'lib/utils'
+import { getErc20Allowance, getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
@@ -18,6 +21,38 @@ import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 export const thorchainBlockTimeSeconds = '6.1'
 const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
+const common = createQueryKeys('common', {
+  allowanceCryptoBaseUnit: (
+    assetId: AssetId | undefined,
+    spender: string | undefined,
+    from: string | undefined,
+  ) => ({
+    queryKey: ['allowanceCryptoBaseUnit', assetId, spender, from],
+    queryFn: async () => {
+      if (!assetId) throw new Error('assetId is required')
+      if (!spender) throw new Error('spender is required')
+      if (!from) throw new Error('from address is required')
+
+      if (!isToken(fromAssetId(assetId).assetReference)) return null
+      const supportedEvmChainIds = getSupportedEvmChainIds()
+      if (!supportedEvmChainIds.includes(fromAssetId(assetId).chainId as KnownChainIds)) return null
+
+      const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
+        address: fromAssetId(assetId).assetReference,
+        spender,
+        from,
+        chainId: fromAssetId(assetId).chainId,
+      })
+
+      return allowanceOnChainCryptoBaseUnit
+    },
+    enabled:
+      assetId &&
+      spender &&
+      from &&
+      getSupportedEvmChainIds().includes(fromAssetId(assetId).chainId as KnownChainIds),
+  }),
+})
 // Feature-agnostic, abstracts away midgard endpoints
 const midgard = createQueryKeys('midgard', {
   swapsData: (assetId: AssetId | undefined, timeframe: '24h' | 'previous24h' | '7d') => ({
@@ -152,12 +187,11 @@ const thornode = createQueryKeys('thornode', {
     }
   },
   inboundAddress: (assetId: AssetId | undefined) => {
-    if (!assetId) throw new Error('assetId is required')
-
     return {
       staleTime: 60_000, // 60 seconds to handle pools going to/from live/halt states
       queryKey: ['thorchainInboundAddress', assetId],
       queryFn: async () => {
+        if (!assetId) throw new Error('assetId is required')
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
         const data = await getInboundAddressDataForChain(daemonUrl, assetId)
 
@@ -166,4 +200,4 @@ const thornode = createQueryKeys('thornode', {
     }
   },
 })
-export const reactQueries = mergeQueryKeys(midgard, thornode, thorchainLp)
+export const reactQueries = mergeQueryKeys(common, midgard, thornode, thorchainLp)

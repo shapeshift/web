@@ -1,12 +1,13 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   type AssetId,
   cosmosChainId,
   fromAccountId,
   fromAssetId,
   thorchainAssetId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import {
   CONTRACT_INTERACTION,
@@ -58,7 +59,7 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId?: AssetId
-  accountIds: Record<AssetId, AccountId>
+  accountIdsByChainId: Record<ChainId, AccountId>
   poolAssetId?: AssetId
   amountCryptoPrecision: string
   onComplete: () => void
@@ -74,7 +75,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   onComplete,
   isActive,
-  accountIds,
+  accountIdsByChainId,
   confirmedQuote,
   asymSide,
 }) => {
@@ -89,8 +90,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  const runeAccountId = accountIds[thorchainAssetId]
-  const poolAssetAccountId = accountIds[poolAsset?.assetId ?? '']
+  const runeAccountId = accountIdsByChainId[thorchainChainId]
+  const poolAssetAccountId =
+    accountIdsByChainId[poolAsset?.assetId ? fromAssetId(poolAsset.assetId).chainId : '']
   const runeAccountNumberFilter = useMemo(
     () => ({ assetId: thorchainAssetId, accountId: runeAccountId ?? '' }),
     [runeAccountId],

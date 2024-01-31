@@ -16,13 +16,15 @@ import {
   Stack,
   StackDivider,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -35,7 +37,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { fromBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
+import { isSome, isToken } from 'lib/utils'
+import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
@@ -75,7 +78,7 @@ export type AddLiquidityInputProps = {
   paramOpportunityId?: string
   setConfirmedQuote: (quote: ConfirmedQuote) => void
   confirmedQuote: ConfirmedQuote | null
-  accountIds: Record<AssetId, AccountId>
+  accountIdsByChainId: Record<ChainId, AccountId>
   onAccountIdChange: (accountId: AccountId, assetId: AssetId) => void
 }
 
@@ -85,7 +88,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   paramOpportunityId,
   confirmedQuote,
   setConfirmedQuote,
-  accountIds,
+  accountIdsByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const translate = useTranslate()
@@ -180,10 +183,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
   }, [browserHistory])
-
-  const handleSubmit = useCallback(() => {
-    history.push(AddLiquidityRoutePaths.Confirm)
-  }, [history])
 
   const percentOptions = useMemo(() => [1], [])
 
@@ -299,9 +298,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const assetBalanceFilter = useMemo(
     () => ({
       assetId: asset?.assetId,
-      accountId: accountIds[asset?.assetId ?? ''],
+      accountId: accountIdsByChainId[asset?.assetId ? fromAssetId(asset?.assetId).chainId : ''],
     }),
-    [asset, accountIds],
+    [asset, accountIdsByChainId],
   )
 
   const assetBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -315,12 +314,67 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
   }, [assetBalanceCryptoBaseUnit, asset?.precision, actualAssetCryptoLiquidityAmount])
 
+  const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddress(asset?.assetId),
+    enabled: (() => {
+      if (!asset) return false
+      if (!isToken(fromAssetId(asset.assetId).assetReference)) return false
+      const supportedEvmChainIds = getSupportedEvmChainIds()
+      if (!supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds))
+        return false
+      // TODO(gomes): if assetAmount 0 return false
+      return true
+    })(),
+    select: data => data?.unwrap(),
+  })
+
+  const allowanceFromAddress = useMemo(() => {
+    if (!asset) return
+    if (!isToken(fromAssetId(asset.assetId).assetReference)) return
+    const poolAccountId =
+      accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : '']
+    if (!poolAccountId) return
+    const supportedEvmChainIds = getSupportedEvmChainIds()
+    if (!supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) return
+
+    return fromAccountId(poolAccountId).account
+  }, [accountIdsByChainId, asset, foundPool?.assetId])
+
+  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useQuery({
+    refetchInterval: 30_000,
+    ...reactQueries.common.allowanceCryptoBaseUnit(
+      asset?.assetId,
+      inboundAddressData?.router,
+      allowanceFromAddress,
+    ),
+  })
+
+  const isApprovalRequired = useMemo(() => {
+    if (!confirmedQuote) return false
+    if (!asset) return false
+    if (!isToken(fromAssetId(asset.assetId).assetReference)) return false
+    const supportedEvmChainIds = getSupportedEvmChainIds()
+    if (!supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds))
+      return false
+
+    const allowanceCryptoPrecision = fromBaseUnit(allowanceData ?? '0', asset.precision)
+    return bnOrZero(actualAssetCryptoLiquidityAmount).gt(allowanceCryptoPrecision)
+  }, [actualAssetCryptoLiquidityAmount, allowanceData, asset, confirmedQuote])
+
+  const handleSubmit = useCallback(() => {
+    if (isApprovalRequired) {
+      // TODO(gomes): mutateAsync here and invalidate allowance onSuccess
+      return
+    }
+    history.push(AddLiquidityRoutePaths.Confirm)
+  }, [history, isApprovalRequired])
+
   const runeBalanceFilter = useMemo(
     () => ({
       assetId: rune?.assetId,
-      accountId: accountIds[rune?.assetId ?? ''],
+      accountId: accountIdsByChainId[thorchainChainId],
     }),
-    [rune, accountIds],
+    [rune, accountIdsByChainId],
   )
 
   const runeBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -447,13 +501,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId: activeOpportunityId,
-      accountIds,
+      accountIdsByChainId,
       totalAmountFiat,
       feeBps: feeBps.toFixed(0),
       feeAmountFiat: feeUsd.toFixed(2),
     })
   }, [
-    accountIds,
+    accountIdsByChainId,
     activeOpportunityId,
     actualAssetCryptoLiquidityAmount,
     actualAssetFiatLiquidityAmount,
@@ -597,6 +651,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [asset, parsedPools],
   )
 
+  const confirmCopy = useMemo(() => {
+    if (isApprovalRequired)
+      return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: asset?.symbol ?? '' })
+
+    return translate('pools.addLiquidity')
+  }, [asset?.symbol, isApprovalRequired, translate])
+
   if (!foundPool || !asset || !rune) return null
 
   return (
@@ -677,9 +738,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance
           }
+          isLoading={isVotingPowerLoading || isInboundAddressLoading || isAllowanceDataLoading}
           onClick={handleSubmit}
         >
-          {translate('pools.addLiquidity')}
+          {confirmCopy}
         </Button>
       </CardFooter>
     </SlideTransition>

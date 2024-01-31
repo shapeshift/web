@@ -47,6 +47,7 @@ import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectMarketDataById,
@@ -328,12 +329,23 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       const supportedEvmChainIds = getSupportedEvmChainIds()
       if (!supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds))
         return false
-      // TODO(gomes): if assetAmount 0 return false
+      // We don't need to fetch this in case there is no asset input amount
+      if (bnOrZero(actualAssetCryptoLiquidityAmount).isZero()) return false
       return true
     })(),
     select: data => data?.unwrap(),
   })
 
+  const assetAccountNumberFilter = useMemo(() => {
+    const poolAccountId =
+      accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : '']
+
+    return { assetId: asset?.assetId ?? '', accountId: poolAccountId ?? '' }
+  }, [accountIdsByChainId, foundPool?.assetId, asset?.assetId])
+
+  const assetAccountNumber = useAppSelector(s =>
+    selectAccountNumberByAccountId(s, assetAccountNumberFilter),
+  )
   const allowanceFromAddress = useMemo(() => {
     if (!asset) return
     if (!isToken(fromAssetId(asset.assetId).assetReference)) return
@@ -366,6 +378,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       from: allowanceFromAddress,
       amount: toBaseUnit(actualAssetCryptoLiquidityAmount, asset?.precision ?? 0),
       wallet,
+      accountNumber: assetAccountNumber,
     }),
     onSuccess: (txId: string) => {
       setApprovalTxId(txId)

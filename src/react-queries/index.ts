@@ -1,7 +1,8 @@
 import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -75,7 +76,7 @@ const mutations = createMutationKeys('mutations', {
     assetId: AssetId | undefined
     spender: string | undefined
     amount: string | undefined
-    wallet: ETHWallet
+    wallet: HDWallet | null
     from: string | undefined
     accountNumber: number | undefined
   }) => ({
@@ -104,7 +105,7 @@ const mutations = createMutationKeys('mutations', {
         value: '0',
         data: approvalCalldata,
         from,
-        supportsEIP1559: await wallet.ethSupportsEIP1559(),
+        supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
       })
 
       const buildCustomTxInput = {

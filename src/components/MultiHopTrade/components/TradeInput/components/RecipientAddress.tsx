@@ -154,8 +154,10 @@ export const RecipientAddress = () => {
             pr={2}
             alignItems='center'
             justifyContent='flex-end'
+            pointerEvents='none'
           >
             <IconButton
+              pointerEvents='auto'
               color='green.500'
               aria-label='Save'
               disabled={!isValid}
@@ -164,6 +166,7 @@ export const RecipientAddress = () => {
               icon={checkIcon}
             />
             <IconButton
+              pointerEvents='auto'
               color='red.500'
               icon={closeIcon}
               aria-label='Cancel'

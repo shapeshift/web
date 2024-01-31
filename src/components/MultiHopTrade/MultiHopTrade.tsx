@@ -31,6 +31,12 @@ const TradeConfirm = lazy(() =>
   })),
 )
 
+const TradeQuotes = lazy(() =>
+  import('./components/Quotes/Quotes').then(({ Quotes }) => ({
+    default: Quotes,
+  })),
+)
+
 const TradeInput = lazy(() =>
   import('./components/TradeInput/TradeInput').then(({ TradeInput }) => ({ default: TradeInput })),
 )
@@ -42,6 +48,7 @@ const VerifyAddresses = lazy(() =>
 
 const MultiHopEntries = [
   TradeRoutePaths.Input,
+  TradeRoutePaths.Quotes,
   TradeRoutePaths.Approval,
   TradeRoutePaths.Confirm,
   TradeRoutePaths.VerifyAddresses,
@@ -118,6 +125,9 @@ const MultiHopRoutes = memo(() => {
         <Switch location={location}>
           <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
             <TradeInput />
+          </Route>
+          <Route key={TradeRoutePaths.Quotes} path={TradeRoutePaths.Quotes}>
+            <TradeQuotes />
           </Route>
           <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
             {enableMultiHopTrades ? <MultiHopTradeConfirm /> : <TradeConfirm />}

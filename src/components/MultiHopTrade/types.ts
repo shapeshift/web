@@ -12,6 +12,7 @@ export type StepperStep = {
 
 export enum TradeRoutePaths {
   Input = '/trade/input',
+  Quotes = '/trade/quotes',
   Confirm = '/trade/confirm',
   VerifyAddresses = '/trade/verify-addresses',
   Approval = '/trade/approval',

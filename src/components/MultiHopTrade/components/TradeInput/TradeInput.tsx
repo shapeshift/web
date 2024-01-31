@@ -19,6 +19,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
+import prettyMilliseconds from 'pretty-ms'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ColorFormat } from 'react-countdown-circle-timer'
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
@@ -38,6 +39,7 @@ import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/u
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -62,6 +64,7 @@ import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,
+  selectActiveQuoteTotalEstimatedExecutionTimeMs,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
@@ -91,7 +94,6 @@ const formControlProps = {
   borderRadius: 0,
   background: 'transparent',
   borderWidth: 0,
-  paddingBottom: 0,
 }
 
 const arrowDownIcon = <ArrowDownIcon />
@@ -145,6 +147,9 @@ export const TradeInput = memo(() => {
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
+  const activeQuoteTotalEstimatedExecutionTimeMs = useAppSelector(
+    selectActiveQuoteTotalEstimatedExecutionTimeMs,
+  )
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
@@ -453,17 +458,16 @@ export const TradeInput = memo(() => {
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        bg='background.surface.raised.accent'
-        borderBottomRadius='xl'
-      >
-        {hasUserEnteredAmount && (
-          <>
+      <>
+        <Collapse in={hasUserEnteredAmount}>
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={0}
+            py={0}
+          >
             <RateGasRow
               sellSymbol={sellAsset.symbol}
               buySymbol={buyAsset.symbol}
@@ -471,52 +475,65 @@ export const TradeInput = memo(() => {
               rate={rate}
               isLoading={isLoading}
               isError={didQuoteRequestFail}
-            />
+              swapperName={activeSwapperName}
+            >
+              {activeQuote ? (
+                <ReceiveSummary
+                  isLoading={isLoading}
+                  symbol={buyAsset.symbol}
+                  amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                  amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                  protocolFees={totalProtocolFees}
+                  slippageDecimalPercentage={slippageDecimal}
+                  swapperName={activeSwapperName ?? ''}
+                  defaultIsOpen={true}
+                  swapSource={tradeQuoteStep?.source}
+                />
+              ) : null}
+            </RateGasRow>
 
-            {activeQuote ? (
-              <ReceiveSummary
-                isLoading={isLoading}
-                symbol={buyAsset.symbol}
-                amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                protocolFees={totalProtocolFees}
-                slippageDecimalPercentage={slippageDecimal}
-                swapperName={activeSwapperName ?? ''}
-                defaultIsOpen={true}
-                swapSource={tradeQuoteStep?.source}
-              />
-            ) : null}
             {isModeratePriceImpact && (
               <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
             )}
-          </>
-        )}
+          </CardFooter>
+        </Collapse>
 
-        <ManualAddressEntry />
-        {maybeUnsafeTradeWarning}
-        {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
-          <Button
-            colorScheme='red'
-            size='lg-multiline'
-            mx={-2}
-            onClick={handleAcknowledgeUnsafeQuote}
-          >
-            <Text translation={'defi.modals.saversVaults.understand'} />
-          </Button>
-        ) : (
-          <Button
-            type='submit'
-            colorScheme={quoteHasError ? 'red' : 'blue'}
-            size='lg-multiline'
-            data-test='trade-form-preview-button'
-            isDisabled={shouldDisablePreviewButton}
-            isLoading={isLoading}
-            mx={-2}
-          >
-            <Text translation={quoteStatusTranslation} />
-          </Button>
-        )}
-      </CardFooter>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <ManualAddressEntry />
+
+          {maybeUnsafeTradeWarning}
+          {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
+            <Button
+              colorScheme='red'
+              size='lg-multiline'
+              mx={-2}
+              onClick={handleAcknowledgeUnsafeQuote}
+            >
+              <Text translation={'defi.modals.saversVaults.understand'} />
+            </Button>
+          ) : (
+            <Button
+              type='submit'
+              colorScheme={quoteHasError ? 'red' : 'blue'}
+              size='lg-multiline'
+              data-test='trade-form-preview-button'
+              isDisabled={shouldDisablePreviewButton}
+              isLoading={isLoading}
+              mx={-2}
+            >
+              <Text translation={quoteStatusTranslation} />
+            </Button>
+          )}
+        </CardFooter>
+      </>
     ),
     [
       hasUserEnteredAmount,
@@ -526,12 +543,12 @@ export const TradeInput = memo(() => {
       rate,
       isLoading,
       didQuoteRequestFail,
+      activeSwapperName,
       activeQuote,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       totalProtocolFees,
       slippageDecimal,
-      activeSwapperName,
       tradeQuoteStep?.source,
       isModeratePriceImpact,
       priceImpactPercentage,
@@ -630,6 +647,7 @@ export const TradeInput = memo(() => {
                 borderColor='border.base'
                 zIndex={1}
                 aria-label={translate('lending.switchAssets')}
+                isDisabled={isLoading}
                 icon={arrowDownIcon}
               />
               <Divider />
@@ -640,7 +658,6 @@ export const TradeInput = memo(() => {
               assetId={buyAsset.assetId}
               assetSymbol={buyAsset.symbol}
               assetIcon={buyAsset.icon}
-              hideAmounts={true}
               cryptoAmount={
                 hasUserEnteredAmount
                   ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
@@ -659,11 +676,7 @@ export const TradeInput = memo(() => {
               isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
-            >
-              <Collapse in={!!sortedQuotes.length && hasUserEnteredAmount}>
-                {MaybeRenderedTradeQuotes}
-              </Collapse>
-            </TradeAssetInput>
+            />
           </Stack>
           {ConfirmSummary}
         </Stack>

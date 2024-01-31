@@ -1,14 +1,6 @@
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  CloseIcon,
-  EditIcon,
-  QuestionIcon,
-} from '@chakra-ui/icons'
+import { CheckIcon, CloseIcon, EditIcon, QuestionIcon } from '@chakra-ui/icons'
 import {
   Box,
-  Collapse,
   Divider,
   Flex,
   IconButton,
@@ -19,12 +11,15 @@ import {
   Stack,
   Tooltip,
   useColorModeValue,
-  useDisclosure,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { AmountDisplayMeta, ProtocolFee, SwapSource } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type {
+  AmountDisplayMeta,
+  ProtocolFee,
+  SwapperName,
+  SwapSource,
+} from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -55,6 +50,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { FeeModal } from '../FeeModal/FeeModal'
+import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -103,9 +99,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     ...rest
   }) => {
     const translate = useTranslate()
-    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
     const [showFeeModal, setShowFeeModal] = useState(false)
-    const hoverColor = useColorModeValue('black', 'white')
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
@@ -204,226 +198,214 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
 
     return (
       <>
-        <Row fontSize='sm' fontWeight='medium' alignItems='flex-start' {...rest}>
-          <Row.Label onClick={onToggle} cursor='pointer' _hover={{ color: hoverColor }}>
-            <Stack direction='row' alignItems='center' spacing={1}>
-              <Text translation='trade.expectedAmount' />
-              {isOpen ? <ChevronUpIcon boxSize='16px' /> : <ChevronDownIcon boxSize='16px' />}
-            </Stack>
-          </Row.Label>
-          <Row.Value display='flex' columnGap={2} alignItems='center'>
-            <Stack spacing={0} alignItems='flex-end'>
-              <Skeleton isLoaded={!isLoading}>
-                <Amount.Crypto
-                  value={isAmountPositive ? amountCryptoPrecision : '0'}
-                  symbol={symbol}
-                />
-              </Skeleton>
-              {fiatAmount && (
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat color='text.subtle' value={fiatAmount} prefix='≈' />
-                </Skeleton>
-              )}
-            </Stack>
-          </Row.Value>
-        </Row>
-        <Collapse in={isOpen}>
-          <Stack fontSize='sm' borderTopWidth={1} borderColor='border.base' pt={2}>
+        <Stack fontSize='13px' spacing={3} pt={4} px={6}>
+          <Row alignItems='center'>
+            <Row.Label display='flex' gap={2} alignItems='center'>
+              {translate('trade.protocol')}
+            </Row.Label>
+            <Row.Value display='flex' gap={2} alignItems='center'>
+              <SwapperIcon size='2xs' swapperName={swapperName as SwapperName} />
+              <RawText fontWeight='semibold' color={textColor}>
+                {swapperName}
+              </RawText>
+            </Row.Value>
+          </Row>
+
+          {amountBeforeFeesCryptoPrecision && (
             <Row>
-              <HelperTooltip
-                label={
-                  swapperName === SwapperName.LIFI
-                    ? translate('trade.tooltip.protocolLifi')
-                    : translate('trade.tooltip.protocol')
-                }
-              >
+              <Row.Label>
+                <Text translation='trade.buyAmount' />
+              </Row.Label>
+              <Row.Value color='text.base'>
+                <Skeleton isLoaded={!isLoading}>
+                  <Amount.Crypto
+                    value={amountBeforeFeesCryptoPrecision}
+                    symbol={symbol}
+                    maximumFractionDigits={4}
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          )}
+          {hasProtocolFees && (
+            <Row>
+              <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
                 <Row.Label>
-                  <Text translation='trade.protocol' />
+                  <Text translation='trade.protocolFee' />
                 </Row.Label>
               </HelperTooltip>
-              <Row.Value>
-                <Row.Label>
-                  <RawText fontWeight='semibold' color={textColor}>
-                    {swapperName}
-                  </RawText>
-                </Row.Label>
-              </Row.Value>
-            </Row>
-            {amountBeforeFeesCryptoPrecision && (
-              <Row>
-                <Row.Label>
-                  <Text translation='trade.beforeFees' />
-                </Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Crypto value={amountBeforeFeesCryptoPrecision} symbol={symbol} />
+              <Row.Value color='text.base'>
+                {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
+                  <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
+                    <Amount.Crypto color={redColor} value={amountCryptoPrecision} symbol={symbol} />
                   </Skeleton>
-                </Row.Value>
-              </Row>
-            )}
-            {hasProtocolFees && (
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-                  <Row.Label>
-                    <Text translation='trade.protocolFee' />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
-                    <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
-                      <Amount.Crypto
-                        color={redColor}
-                        value={amountCryptoPrecision}
-                        symbol={symbol}
-                        suffix={
-                          chainName
-                            ? translate('trade.onChainName', {
-                                chainName,
-                              })
-                            : undefined
-                        }
-                      />
-                    </Skeleton>
-                  ))}
-                </Row.Value>
-              </Row>
-            )}
-            <Row>
-              <Row.Label display='flex'>
-                <Text translation={tradeFeeSourceTranslation} />
-                {amountAfterDiscountUserCurrency !== '0' && (
-                  <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
-                )}
-              </Row.Label>
-              <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
-                <Skeleton isLoaded={!isLoading}>
-                  <Flex alignItems='center' gap={2}>
-                    {amountAfterDiscountUserCurrency !== '0' ? (
-                      <>
-                        <Amount.Fiat value={amountAfterDiscountUserCurrency} />
-                        <QuestionIcon />
-                      </>
-                    ) : (
-                      <>
-                        <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                        <QuestionIcon color={greenColor} />
-                      </>
-                    )}
-                  </Flex>
-                </Skeleton>
+                ))}
               </Row.Value>
             </Row>
-            {swapSource !== THORCHAIN_STREAM_SWAP_SOURCE &&
-              swapSource !== THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE && (
-                <>
-                  <Divider borderColor='border.base' />
-                  <Row>
-                    <Row.Label>
-                      <Text translation={minAmountAfterSlippageTranslation} />
-                    </Row.Label>
-                    <Row.Value whiteSpace='nowrap'>
-                      <Stack spacing={0} alignItems='flex-end'>
-                        <Skeleton isLoaded={!isLoading}>
-                          <Amount.Crypto value={amountAfterSlippage} symbol={symbol} />
-                        </Skeleton>
-                        {isAmountPositive &&
-                          hasIntermediaryTransactionOutputs &&
-                          intermediaryTransactionOutputsParsed?.map(
-                            ({ amountCryptoPrecision, symbol, chainName }) => (
-                              <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
-                                <Amount.Crypto
-                                  value={amountCryptoPrecision}
-                                  symbol={symbol}
-                                  prefix={translate('trade.or')}
-                                  suffix={
-                                    chainName
-                                      ? translate('trade.onChainName', {
-                                          chainName,
-                                        })
-                                      : undefined
-                                  }
-                                />
-                              </Skeleton>
-                            ),
-                          )}
-                      </Stack>
-                    </Row.Value>
-                  </Row>
-                </>
+          )}
+          <Row>
+            <Row.Label display='flex'>
+              <Text translation={tradeFeeSourceTranslation} />
+              {amountAfterDiscountUserCurrency !== '0' && (
+                <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
               )}
-
-            {/* TODO(gomes): This should probably be made its own component and <ManualAddressEntry /> removed */}
-            {/* TODO(gomes): we can safely remove this condition when this feature goes live */}
-            {isHolisticRecipientAddressEnabled &&
-              receiveAddress &&
-              (isRecipientAddressEditing ? (
-                <InputGroup size='sm'>
-                  <Input
-                    value={''} // TODO: Controlled input value
-                    onChange={handleInputChange}
-                    autoFocus
-                    placeholder={translate('trade.customRecipientAddressDescription')}
+            </Row.Label>
+            <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+              <Skeleton isLoaded={!isLoading}>
+                <Flex alignItems='center' gap={2}>
+                  {amountAfterDiscountUserCurrency !== '0' ? (
+                    <>
+                      <Amount.Fiat value={amountAfterDiscountUserCurrency} />
+                      <QuestionIcon />
+                    </>
+                  ) : (
+                    <>
+                      <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                      <QuestionIcon color={greenColor} />
+                    </>
+                  )}
+                </Flex>
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Divider borderColor='border.base' />
+          <Row alignItems='flex-start' {...rest}>
+            <Row.Label>
+              <Stack direction='row' alignItems='center' spacing={1}>
+                <Text translation='trade.youReceive' />
+              </Stack>
+            </Row.Label>
+            <Row.Value display='flex' columnGap={2} alignItems='center' color='text.base'>
+              <Stack spacing={0} alignItems='flex-end'>
+                <Skeleton isLoaded={!isLoading}>
+                  <Amount.Crypto
+                    value={isAmountPositive ? amountCryptoPrecision : '0'}
+                    maximumFractionDigits={4}
+                    symbol={symbol}
                   />
-                  <InputRightElement width='4.5rem'>
+                </Skeleton>
+                {fiatAmount && (
+                  <Skeleton isLoaded={!isLoading}>
+                    <Amount.Fiat color='text.subtle' value={fiatAmount} prefix='≈' />
+                  </Skeleton>
+                )}
+              </Stack>
+            </Row.Value>
+          </Row>
+          {swapSource !== THORCHAIN_STREAM_SWAP_SOURCE &&
+            swapSource !== THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE && (
+              <>
+                <Row gap={4}>
+                  <Row.Label>
+                    <Text translation={minAmountAfterSlippageTranslation} />
+                  </Row.Label>
+                  <Row.Value whiteSpace='nowrap' color='text.base'>
+                    <Stack spacing={0} alignItems='flex-end'>
+                      <Skeleton isLoaded={!isLoading}>
+                        <Amount.Crypto
+                          value={amountAfterSlippage}
+                          symbol={symbol}
+                          maximumFractionDigits={4}
+                        />
+                      </Skeleton>
+                      {isAmountPositive &&
+                        hasIntermediaryTransactionOutputs &&
+                        intermediaryTransactionOutputsParsed?.map(
+                          ({ amountCryptoPrecision, symbol, chainName }) => (
+                            <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
+                              <Amount.Crypto
+                                value={amountCryptoPrecision}
+                                symbol={symbol}
+                                prefix={translate('trade.or')}
+                                maximumFractionDigits={4}
+                                suffix={
+                                  chainName
+                                    ? translate('trade.onChainName', {
+                                        chainName,
+                                      })
+                                    : undefined
+                                }
+                              />
+                            </Skeleton>
+                          ),
+                        )}
+                    </Stack>
+                  </Row.Value>
+                </Row>
+              </>
+            )}
+
+          {/* TODO(gomes): This should probably be made its own component and <ManualAddressEntry /> removed */}
+          {/* TODO(gomes): we can safely remove this condition when this feature goes live */}
+          {isHolisticRecipientAddressEnabled &&
+            receiveAddress &&
+            (isRecipientAddressEditing ? (
+              <InputGroup size='sm'>
+                <Input
+                  value={''} // TODO: Controlled input value
+                  onChange={handleInputChange}
+                  autoFocus
+                  placeholder={translate('trade.customRecipientAddressDescription')}
+                />
+                <InputRightElement width='4.5rem'>
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    width='full'
+                    px='2'
+                  >
                     <Box
+                      as='button'
                       display='flex'
                       alignItems='center'
-                      justifyContent='space-between'
-                      width='full'
-                      px='2'
+                      justifyContent='center'
+                      borderRadius='md'
+                      onClick={handleSaveClick}
                     >
-                      <Box
-                        as='button'
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='center'
-                        borderRadius='md'
-                        onClick={handleSaveClick}
-                      >
-                        {checkIcon}
-                      </Box>
-                      <Box
-                        as='button'
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='center'
-                        borderRadius='md'
-                        onClick={handleCancelClick}
-                      >
-                        {closeIcon}
-                      </Box>
+                      {checkIcon}
                     </Box>
-                  </InputRightElement>
-                </InputGroup>
-              ) : (
-                <>
-                  <Divider borderColor='border.base' />
-                  <Row>
-                    <Row.Label>
-                      <Text translation={recipientAddressTranslation} />
-                    </Row.Label>
-                    <Row.Value whiteSpace='nowrap'>
-                      <Stack direction='row' spacing={1} alignItems='center'>
-                        <RawText>{middleEllipsis(receiveAddress)}</RawText>
-                        <Tooltip
-                          label={translate('trade.customRecipientAddressDescription')}
-                          placement='top'
-                          hasArrow
-                        >
-                          <IconButton
-                            aria-label='Edit recipient address'
-                            icon={editIcon}
-                            variant='ghost'
-                            onClick={handleEditRecipientAddressClick}
-                          />
-                        </Tooltip>
-                      </Stack>
-                    </Row.Value>
-                  </Row>
-                </>
-              ))}
-          </Stack>
-        </Collapse>
+                    <Box
+                      as='button'
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='center'
+                      borderRadius='md'
+                      onClick={handleCancelClick}
+                    >
+                      {closeIcon}
+                    </Box>
+                  </Box>
+                </InputRightElement>
+              </InputGroup>
+            ) : (
+              <>
+                <Divider borderColor='border.base' />
+                <Row>
+                  <Row.Label>
+                    <Text translation={recipientAddressTranslation} />
+                  </Row.Label>
+                  <Row.Value whiteSpace='nowrap'>
+                    <Stack direction='row' spacing={1} alignItems='center'>
+                      <RawText>{middleEllipsis(receiveAddress)}</RawText>
+                      <Tooltip
+                        label={translate('trade.customRecipientAddressDescription')}
+                        placement='top'
+                        hasArrow
+                      >
+                        <IconButton
+                          aria-label='Edit recipient address'
+                          icon={editIcon}
+                          variant='ghost'
+                          onClick={handleEditRecipientAddressClick}
+                        />
+                      </Tooltip>
+                    </Stack>
+                  </Row.Value>
+                </Row>
+              </>
+            ))}
+        </Stack>
         <FeeModal isOpen={showFeeModal} onClose={handleFeeModal} />
       </>
     )

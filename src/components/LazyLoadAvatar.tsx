@@ -17,6 +17,7 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
       isLoaded={imageLoaded}
       width='auto'
       height='auto'
+      display='flex'
       borderRadius={borderRadius}
       {...rest}
     >

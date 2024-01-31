@@ -1,3 +1,4 @@
+import type { AvatarProps } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
@@ -9,7 +10,13 @@ import CowIcon from './cow-icon.png'
 import LiFiIcon from './lifi-icon.png'
 import THORChainIcon from './thorchain-icon.png'
 
-export const SwapperIcon = ({ swapperName }: { swapperName: SwapperName }) => {
+export const SwapperIcon = ({
+  swapperName,
+  size = 'xs',
+}: {
+  swapperName: SwapperName
+  size?: AvatarProps['size']
+}) => {
   const icon = useMemo(() => {
     switch (swapperName) {
       case SwapperName.LIFI:
@@ -29,5 +36,5 @@ export const SwapperIcon = ({ swapperName }: { swapperName: SwapperName }) => {
     }
   }, [swapperName])
 
-  return <LazyLoadAvatar size='xs' src={icon} />
+  return <LazyLoadAvatar size={size} src={icon} />
 }

@@ -74,39 +74,64 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
 
   const rightIcon = useMemo(() => (isReadOnly ? undefined : <ChevronDownIcon />), [isReadOnly])
 
+  const renderBody = useMemo(() => {
+    return (
+      <Skeleton
+        display='flex'
+        alignItems='center'
+        borderRadius='full'
+        gap={2}
+        isLoaded={!isLoading && !isRelatedAssetsLoading}
+      >
+        <Button
+          height='40px'
+          justifyContent='flex-end'
+          px={2}
+          py={2}
+          gap={2}
+          size='sm'
+          borderRadius='full'
+          onClick={onAssetClick}
+          flexGrow={0}
+          flexShrink={0}
+          isDisabled={isReadOnly}
+          _disabled={disabledStyle}
+          rightIcon={rightIcon}
+          {...buttonProps}
+        >
+          <Flex alignItems='center' gap={2}>
+            {icon}
+            {asset?.symbol}
+          </Flex>
+        </Button>
+        <Text translation='trade.on' color='text.subtle' fontSize='sm' />
+        <AssetChainDropdown
+          assetIds={data}
+          assetId={assetId}
+          onClick={handleAssetChange}
+          isError={isError}
+          buttonProps={buttonProps}
+        />
+      </Skeleton>
+    )
+  }, [
+    asset?.symbol,
+    assetId,
+    buttonProps,
+    data,
+    handleAssetChange,
+    icon,
+    isError,
+    isLoading,
+    isReadOnly,
+    isRelatedAssetsLoading,
+    onAssetClick,
+    rightIcon,
+  ])
+
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2} {...rest}>
-      <Button
-        height='40px'
-        justifyContent='flex-end'
-        px={2}
-        py={2}
-        gap={2}
-        size='sm'
-        borderRadius='full'
-        onClick={onAssetClick}
-        flexGrow={0}
-        flexShrink={0}
-        isDisabled={isReadOnly}
-        _disabled={disabledStyle}
-        rightIcon={rightIcon}
-        isLoading={isLoading || isRelatedAssetsLoading}
-        {...buttonProps}
-      >
-        <Flex alignItems='center' gap={2}>
-          {icon}
-          {asset?.symbol}
-        </Flex>
-      </Button>
-      <Text translation='trade.on' color='text.subtle' fontSize='sm' />
-      <AssetChainDropdown
-        assetIds={data}
-        assetId={assetId}
-        onClick={handleAssetChange}
-        isLoading={isLoading || isRelatedAssetsLoading}
-        isError={isError}
-        buttonProps={buttonProps}
-      />
+      {renderBody}
     </Flex>
   )
 }

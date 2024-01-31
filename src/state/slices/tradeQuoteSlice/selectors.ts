@@ -191,6 +191,15 @@ export const selectActiveQuoteWarnings: Selector<
   ErrorWithMeta<TradeQuoteWarning>[] | undefined
 > = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.warnings)
 
+export const selectActiveQuoteTotalEstimatedExecutionTimeMs: Selector<
+  ReduxState,
+  number | undefined
+> = createSelector(selectActiveQuote, quote => {
+  return quote?.steps.reduce((acc, step) => {
+    return acc + (step.estimatedExecutionTimeMs ?? 0)
+  }, 0)
+})
+
 /*
   Cross-account trading means trades that are either:
     - Trades between assets on the same chain but different accounts

@@ -8,6 +8,7 @@ import {
   Input,
   Skeleton,
   Stack,
+  Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -81,6 +82,7 @@ export type TradeAmountInputProps = {
   hideAmounts?: boolean
   layout?: 'inline' | 'stacked'
   isAccountSelectionDisabled?: boolean
+  readOnlyTooltip?: string
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -113,6 +115,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     labelPostFix,
     hideAmounts,
     layout = 'stacked',
+    readOnlyTooltip,
   }) => {
     const {
       number: { localeParts },
@@ -215,24 +218,30 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         {labelPostFix}
         <Stack direction='row' alignItems='center' px={6} display={hideAmounts ? 'none' : 'flex'}>
           <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
-            <Skeleton isLoaded={!showInputSkeleton} width='full'>
-              <NumberFormat
-                customInput={CryptoInput}
-                isNumericString={true}
-                disabled={isReadOnly}
-                _disabled={numberFormatDisabled}
-                suffix={isFiat ? localeParts.postfix : ''}
-                prefix={isFiat ? localeParts.prefix : ''}
-                decimalSeparator={localeParts.decimal}
-                inputMode='decimal'
-                thousandSeparator={localeParts.group}
-                value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
-                onValueChange={handleValueChange}
-                onChange={handleOnChange}
-                onBlur={handleOnBlur}
-                onFocus={handleOnFocus}
-              />
-            </Skeleton>
+            <Tooltip
+              placement='auto-start'
+              isDisabled={!readOnlyTooltip || showInputSkeleton}
+              label={readOnlyTooltip}
+            >
+              <Skeleton isLoaded={!showInputSkeleton} width='full'>
+                <NumberFormat
+                  customInput={CryptoInput}
+                  isNumericString={true}
+                  disabled={isReadOnly}
+                  _disabled={numberFormatDisabled}
+                  suffix={isFiat ? localeParts.postfix : ''}
+                  prefix={isFiat ? localeParts.prefix : ''}
+                  decimalSeparator={localeParts.decimal}
+                  inputMode='decimal'
+                  thousandSeparator={localeParts.group}
+                  value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
+                  onValueChange={handleValueChange}
+                  onChange={handleOnChange}
+                  onBlur={handleOnBlur}
+                  onFocus={handleOnFocus}
+                />
+              </Skeleton>
+            </Tooltip>
             {RightComponent && <RightComponent assetId={assetId ?? ''} />}
             {layout === 'inline' && showFiatAmount && !hideAmounts && (
               <Button

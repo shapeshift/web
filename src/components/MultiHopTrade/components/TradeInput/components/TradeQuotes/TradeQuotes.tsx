@@ -1,12 +1,8 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { SwapperName } from '@shapeshiftoss/swapper'
-import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { memo, useMemo } from 'react'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { SlideTransitionY } from 'components/SlideTransitionY'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -23,8 +19,6 @@ type TradeQuotesProps = {
   isLoading: boolean
   isSwapperFetching: Record<SwapperName, boolean>
 }
-
-const arrowDownIcon = <ArrowDownIcon />
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
   ({ sortedQuotes: _sortedQuotes, isLoading, isSwapperFetching }) => {
@@ -55,21 +49,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
     }, [_sortedQuotes, isBuyAssetChainSupported, receiveAddress])
 
     const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
-    const translate = useTranslate()
-    const [showAll, setShowAll] = useState(false)
     const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
-    const bottomOverlay = useColorModeValue(
-      'linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.4) 100%)',
-      'linear-gradient(to bottom,  rgba(24,27,30,0) 0%,rgba(24,27,30,0.9) 100%)',
-    )
-
-    const hasMoreThanOneQuote = useMemo(() => {
-      return sortedQuotes.length > 1
-    }, [sortedQuotes.length])
-
-    const handleShowAll = useCallback(() => {
-      setShowAll(!showAll)
-    }, [showAll])
 
     const quotes = useMemo(() => {
       const bestTotalReceiveAmountCryptoPrecision = bestQuoteData?.quote
@@ -130,51 +110,15 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(
         })
     }, [isSwapperFetching, sortedQuotes])
 
-    const quoteOverlayAfter = useMemo(() => {
-      return {
-        content: '""',
-        position: 'absolute',
-        left: 0,
-        bottom: 0,
-        height: '80px',
-        width: '100%',
-        bg: bottomOverlay,
-        display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
-      }
-    }, [bottomOverlay, hasMoreThanOneQuote, showAll])
-
     return (
-      <Box position='relative' _after={quoteOverlayAfter}>
-        <AnimatePresence>
-          <SlideTransitionY>
-            {hasMoreThanOneQuote && !showAll && (
-              <Button
-                borderRadius='full'
-                position='absolute'
-                left='50%'
-                bottom='1rem'
-                size='sm'
-                transform='translateX(-50%)'
-                onClick={handleShowAll}
-                zIndex={3}
-                backdropFilter='blur(15px)'
-                rightIcon={arrowDownIcon}
-                boxShadow='lg'
-                borderWidth={1}
-              >
-                {translate('common.showAll')}
-              </Button>
-            )}
-          </SlideTransitionY>
-        </AnimatePresence>
-
+      <Box position='relative'>
         <Flex
           flexDir='column'
           width='full'
           px={2}
           pt={0}
-          maxHeight={showAll ? '5000px' : '230px'}
-          overflowY='hidden'
+          maxHeight={'500px'}
+          overflowY='auto'
           pb={4}
           transitionProperty='max-height'
           transitionDuration='0.65s'

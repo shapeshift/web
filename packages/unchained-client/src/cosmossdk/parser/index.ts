@@ -74,11 +74,13 @@ export class BaseTransactionParser<T extends Tx> {
       const assetId = getAssetIdByDenom(value?.denom, this.assetId)
 
       if (!assetId) return
+
+      // attempt to get transaction metadata from the raw messages and events if not already found by a subparser
       if (i === 0 && !parsedTx.data) parsedTx.data = metaData(msg, tx.events[msg.index], assetId)
 
-      const amount = new BigNumber(value?.amount ?? 0)
+      const amount = new BigNumber(value?.amount ?? -1)
 
-      if (from === address && amount.gt(0)) {
+      if (from === address && amount.gte(0)) {
         parsedTx.transfers = aggregateTransfer({
           assetId,
           from,
@@ -86,6 +88,7 @@ export class BaseTransactionParser<T extends Tx> {
           transfers: parsedTx.transfers,
           type: TransferType.Send,
           value: amount.toString(10),
+          allowZeroValue: true,
         })
       }
 

@@ -13,8 +13,13 @@ export class Parser implements SubParser<Tx> {
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    const messageMemo = tx.events['0']?.['message']?.['memo']
-    const memo = messageMemo || tx.memo
+    const messageMemoEvent = Object.values(tx.events).find(event => !!event['message']?.['memo'])
+    const messageMemo = messageMemoEvent?.['message']?.['memo']
+
+    const outboundMemoEvent = Object.values(tx.events).find(event => !!event['outbound']?.['memo'])
+    const outboundMemo = outboundMemoEvent?.['outbound']?.['memo']
+
+    const memo = messageMemo || outboundMemo
 
     if (!memo) return
 

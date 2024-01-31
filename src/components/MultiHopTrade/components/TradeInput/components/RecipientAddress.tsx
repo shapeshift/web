@@ -129,6 +129,7 @@ export const RecipientAddress = () => {
       // We don't need to revalidate here as submit will only be enabled if the form is valid
       const address = values[SendFormFields.Input]
       dispatch(tradeInput.actions.setManualReceiveAddress(address))
+      setIsRecipientAddressEditing(false)
     },
     [dispatch],
   )

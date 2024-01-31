@@ -354,23 +354,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return serializeTxIndex(poolAccountId, approvalTxId, allowanceFromAddress)
   }, [accountIdsByChainId, foundPool?.assetId, approvalTxId, allowanceFromAddress])
 
-  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
-  useEffect(() => {
-    if (!approvalTx) return
-    if (approvalTx.status !== TxStatus.Confirmed) return
-    ;(async () => {
-      await queryClient.invalidateQueries(
-        reactQueries.common.allowanceCryptoBaseUnit(
-          asset?.assetId,
-          inboundAddressData?.router,
-          allowanceFromAddress,
-        ),
-      )
-    })()
-  }, [allowanceFromAddress, approvalTx, asset?.assetId, inboundAddressData?.router, queryClient])
-
   // @ts-ignore this is wrongly typed
-  const { mutateAsync, isLoading: isApprovalPending } = useMutation({
+  const {
+    mutate,
+    isPending: isApprovalMutationPending,
+    isSuccess: isApprovalMutationSuccess,
+    status,
+  } = useMutation({
     ...reactQueries.mutations.approve({
       assetId: asset?.assetId,
       spender: inboundAddressData?.router,
@@ -382,6 +372,35 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       setApprovalTxId(txId)
     },
   })
+
+  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
+  const isApprovalTxPending = useMemo(
+    () =>
+      isApprovalMutationPending ||
+      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
+    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
+  )
+
+  useEffect(() => {
+    if (!approvalTx) return
+    if (isApprovalTxPending) return
+    ;(async () => {
+      await queryClient.invalidateQueries(
+        reactQueries.common.allowanceCryptoBaseUnit(
+          asset?.assetId,
+          inboundAddressData?.router,
+          allowanceFromAddress,
+        ),
+      )
+    })()
+  }, [
+    allowanceFromAddress,
+    approvalTx,
+    asset?.assetId,
+    inboundAddressData?.router,
+    isApprovalTxPending,
+    queryClient,
+  ])
 
   const { data: allowanceData, isLoading: isAllowanceDataLoading } = useQuery({
     refetchInterval: 30_000,
@@ -404,13 +423,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).gt(allowanceCryptoPrecision)
   }, [actualAssetCryptoLiquidityAmount, allowanceData, asset, confirmedQuote])
 
-  console.log({ actualAssetCryptoLiquidityAmount, allowanceData, asset, confirmedQuote })
-
-  const handleApprove = useCallback(async () => {
-    // @ts-ignore this is wrongly typed
-    await mutateAsync()
-  }, [mutateAsync])
-
+  const handleApprove = useCallback(() => mutate(undefined), [mutate])
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) {
       handleApprove()
@@ -786,13 +799,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !confirmedQuote ||
             isVotingPowerLoading ||
             !hasEnoughAssetBalance ||
-            !hasEnoughRuneBalance
+            !hasEnoughRuneBalance ||
+            isApprovalTxPending
           }
           isLoading={
             isVotingPowerLoading ||
             isInboundAddressLoading ||
             isAllowanceDataLoading ||
-            isApprovalPending
+            isApprovalTxPending
           }
           onClick={handleSubmit}
         >

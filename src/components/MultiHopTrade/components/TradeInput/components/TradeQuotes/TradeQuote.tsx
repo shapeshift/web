@@ -181,17 +181,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         return (
           <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
             <Tag size='sm'>
-              {/* <Flex gap={2}> */}
-              {/* {translate('common.alternative')} */}
               {quoteOverallDifferenceDecimalPercentage !== undefined && (
                 <Amount.Percent
                   value={quoteOverallDifferenceDecimalPercentage ?? 0}
-                  // prefix='('
-                  // suffix=')'
                   autoColor={false}
                 />
               )}
-              {/* </Flex> */}
             </Tag>
           </Tooltip>
         )

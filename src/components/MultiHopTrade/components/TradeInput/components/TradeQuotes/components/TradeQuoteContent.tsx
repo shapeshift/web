@@ -1,4 +1,5 @@
 import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
@@ -7,9 +8,9 @@ import { FaGasPump, FaRegClock } from 'react-icons/fa'
 import { MdOfflineBolt } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import type { BigNumber } from 'lib/bignumber/bignumber'
 
 export type TradeQuoteContentProps = {
   isLoading: boolean
@@ -23,8 +24,7 @@ export type TradeQuoteContentProps = {
   networkFeeUserCurrencyPrecision: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
   slippage: JSX.Element | undefined
-  isModeratePriceImpact: boolean
-  priceImpactDecimalPercentage: BigNumber
+  tradeQuote: TradeQuote | undefined
 }
 
 export const TradeQuoteContent = ({
@@ -39,10 +39,11 @@ export const TradeQuoteContent = ({
   networkFeeUserCurrencyPrecision,
   totalEstimatedExecutionTimeMs,
   slippage,
-  isModeratePriceImpact,
-  priceImpactDecimalPercentage,
+  tradeQuote,
 }: TradeQuoteContentProps) => {
   const translate = useTranslate()
+  const { isModeratePriceImpact, isHighPriceImpact, priceImpactPercentage } =
+    usePriceImpact(tradeQuote)
 
   const {
     number: { toPercent },
@@ -66,6 +67,35 @@ export const TradeQuoteContent = ({
       buyAssetSymbol: buyAsset.symbol,
     })
   }, [buyAsset, translate])
+
+  const priceImpactColor = useMemo(() => {
+    switch (true) {
+      case isHighPriceImpact:
+        return 'text.error'
+      case isModeratePriceImpact:
+        return 'text.warning'
+      default:
+        return undefined
+    }
+  }, [isHighPriceImpact, isModeratePriceImpact])
+
+  const priceImpactDecimalPercentage = useMemo(
+    () => priceImpactPercentage.div(100),
+    [priceImpactPercentage],
+  )
+
+  const priceImpactTooltipText = useMemo(() => {
+    const defaultText = translate('trade.tooltip.priceImpactLabel', {
+      priceImpactPercentage: priceImpactPercentage.toFixed(2),
+    })
+    switch (true) {
+      case isHighPriceImpact:
+      case isModeratePriceImpact:
+        return `${defaultText}. ${translate('trade.tooltip.priceImpact')}`
+      default:
+        return defaultText
+    }
+  }, [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentage, translate])
 
   return (
     <>
@@ -124,16 +154,21 @@ export const TradeQuoteContent = ({
               }
             </Flex>
           </Skeleton>
-          {isModeratePriceImpact && (
-            <Skeleton isLoaded={!isLoading}>
+
+          <Skeleton isLoaded={!isLoading}>
+            <Tooltip label={priceImpactTooltipText}>
               <Flex gap={2} alignItems='center'>
                 <RawText color='text.subtle'>
                   <MdOfflineBolt />
                 </RawText>
-                <Amount.Percent value={priceImpactDecimalPercentage.toNumber()} />
+                <Amount.Percent
+                  value={priceImpactDecimalPercentage.toNumber()}
+                  color={priceImpactColor}
+                />
               </Flex>
-            </Skeleton>
-          )}
+            </Tooltip>
+          </Skeleton>
+
           {slippage}
           {totalEstimatedExecutionTimeMs !== undefined && totalEstimatedExecutionTimeMs > 0 && (
             <Skeleton isLoaded={!isLoading}>

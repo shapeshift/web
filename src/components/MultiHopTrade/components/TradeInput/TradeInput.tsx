@@ -58,6 +58,7 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
+  selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -143,6 +144,7 @@ export const TradeInput = memo(() => {
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
+  const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
@@ -421,6 +423,7 @@ export const TradeInput = memo(() => {
     return (
       quoteHasError ||
       manualReceiveAddressIsValidating ||
+      manualReceiveAddressIsValid === false ||
       isLoading ||
       !hasUserEnteredAmount ||
       !activeQuote ||
@@ -429,14 +432,15 @@ export const TradeInput = memo(() => {
       isSwapperFetching[activeSwapperName]
     )
   }, [
-    activeQuote,
-    activeSwapperName,
-    disableSmartContractSwap,
+    quoteHasError,
+    manualReceiveAddressIsValidating,
+    manualReceiveAddressIsValid,
     isLoading,
     hasUserEnteredAmount,
+    activeQuote,
+    disableSmartContractSwap,
+    activeSwapperName,
     isSwapperFetching,
-    manualReceiveAddressIsValidating,
-    quoteHasError,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {

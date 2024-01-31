@@ -70,6 +70,11 @@ export const RecipientAddress = () => {
   useEffect(() => {
     dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))
   }, [dispatch, isValidating])
+  useEffect(() => {
+    if (!value.length) return
+
+    dispatch(tradeInput.actions.setManualReceiveAddressIsValid(isValid))
+  }, [value, isValid, dispatch])
 
   const isCustomRecipientAddress = Boolean(manualReceiveAddress)
   const recipientAddressTranslation: TextPropTypes['translation'] = isCustomRecipientAddress
@@ -113,7 +118,10 @@ export const RecipientAddress = () => {
 
   const handleCancelClick = useCallback(() => {
     setIsRecipientAddressEditing(false)
-  }, [])
+    // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
+    setFormValue(SendFormFields.Input, '')
+    dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))
+  }, [dispatch, setFormValue])
 
   const resetManualReceiveAddress = useCallback(() => {
     // Reset the manual receive address in store

@@ -143,6 +143,11 @@ export const selectManualReceiveAddressIsValidating = createSelector(
   tradeInput => tradeInput.manualReceiveAddressIsValidating,
 )
 
+export const selectManualReceiveAddressIsValid = createSelector(
+  selectTradeInput,
+  tradeInput => tradeInput.manualReceiveAddressIsValid,
+)
+
 export const selectInputSellAmountUsd = createSelector(
   selectInputSellAmountCryptoPrecision,
   selectInputSellAssetUsdRate,

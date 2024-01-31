@@ -66,10 +66,10 @@ const options = [
     value: AsymSide.Asset,
   },
   {
-    value: AsymSide.Rune,
+    value: null,
   },
   {
-    value: null,
+    value: AsymSide.Rune,
   },
 ]
 

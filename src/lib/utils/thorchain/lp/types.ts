@@ -187,6 +187,7 @@ export type MidgardTvlHistoryResponse = {
 }
 
 export type ConfirmedQuote = {
+  totalAmountFiat: string
   assetCryptoLiquidityAmount: string
   assetFiatLiquidityAmount: string
   runeCryptoLiquidityAmount: string
@@ -194,6 +195,9 @@ export type ConfirmedQuote = {
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
+  accountIds: Record<AssetId, AccountId>
+  feeBps: string
+  feeAmountFiat: string
 }
 export enum AsymSide {
   Asset = 'asset',

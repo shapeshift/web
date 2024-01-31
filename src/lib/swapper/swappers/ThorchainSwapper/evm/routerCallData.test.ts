@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-
-import { depositWithExpiry } from './routerCalldata'
+import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 
 const VAULT = '0x78E4E10dCAcB0A8261eB3D5e57fFb98AE8D4dFF1'
 

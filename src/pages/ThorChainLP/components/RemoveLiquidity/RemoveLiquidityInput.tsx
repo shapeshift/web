@@ -19,7 +19,6 @@ import {
 } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import prettyMilliseconds from 'pretty-ms'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +28,6 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { assertUnreachable } from 'lib/utils'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
@@ -281,14 +279,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
           <Row.Value>
             <Skeleton isLoaded={true}>
               <Amount.Fiat value={'0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={true}>
-              <RawText fontWeight='bold'>{prettyMilliseconds(0)}</RawText>
             </Skeleton>
           </Row.Value>
         </Row>

@@ -7,6 +7,7 @@ import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
 import { AddLiquidityInput } from './AddLiquidityInput'
+import { AddLiquiditySweep } from './AddLiquiditySweep'
 import { AddLiquidityStatus } from './AddLiquityStatus'
 import { AddLiquidityRoutePaths } from './types'
 
@@ -16,6 +17,7 @@ const AddLiquidityEntries = [
   AddLiquidityRoutePaths.Input,
   AddLiquidityRoutePaths.Confirm,
   AddLiquidityRoutePaths.Status,
+  AddLiquidityRoutePaths.Sweep,
 ]
 
 export type AddLiquidityProps = {
@@ -101,6 +103,11 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     [confirmedQuote],
   )
 
+  const renderAddLiquiditySweep = useCallback(
+    () => (confirmedQuote ? <AddLiquiditySweep confirmedQuote={confirmedQuote} /> : null),
+    [confirmedQuote],
+  )
+
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
       <Switch location={location}>
@@ -119,6 +126,11 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
             key={AddLiquidityRoutePaths.Status}
             path={AddLiquidityRoutePaths.Status}
             render={renderAddLiquidityStatus}
+          />
+          <Route
+            key={AddLiquidityRoutePaths.Sweep}
+            path={AddLiquidityRoutePaths.Sweep}
+            render={renderAddLiquiditySweep}
           />
         </Suspense>
       </Switch>

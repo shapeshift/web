@@ -7,7 +7,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 type UseIsSweepNeededQueryProps = {
-  assetId: AssetId
+  assetId: AssetId | undefined
   address: string | null
   amountCryptoBaseUnit: string
   txFeeCryptoBaseUnit: string
@@ -17,7 +17,7 @@ type UseIsSweepNeededQueryProps = {
 export type IsSweepNeededQueryKey = [
   'isSweepNeeded',
   {
-    assetId: AssetId
+    assetId: AssetId | undefined
     address: string | null
     amountCryptoBaseUnit: string
     txFeeCryptoBaseUnit: string
@@ -53,6 +53,8 @@ const getIsSweepNeeded = async ({
 
 export const queryFn = async ({ queryKey }: { queryKey: IsSweepNeededQueryKey }) => {
   const { assetId, address, amountCryptoBaseUnit, txFeeCryptoBaseUnit } = queryKey[1]
+
+  if (!assetId) throw new Error('assetId is required')
 
   const isSweepNeeded = await getIsSweepNeeded({
     assetId,

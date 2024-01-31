@@ -41,16 +41,20 @@ import { calculateFees } from 'lib/fees/model'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
+import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
 } from 'state/slices/selectors'
@@ -139,6 +143,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return firstAsymOpportunityId
   }, [parsedPools, opportunityId, paramOpportunityId])
 
+  // TODO(gomes): unify the EVM approval address into this, no need to have similar logic in two places
+  const [accountAssetAddress, setAccountAssetAddress] = useState<string | null>(null)
+  console.log({ accountAssetAddress })
   const [activeOpportunityId, setActiveOpportunityId] = useState(
     opportunityId ?? defaultOpportunityId,
   )
@@ -336,12 +343,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     select: data => data?.unwrap(),
   })
 
-  const assetAccountNumberFilter = useMemo(() => {
-    const poolAccountId =
-      accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : '']
+  const poolAccountId = useMemo(
+    () => accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : ''],
+    [accountIdsByChainId, foundPool?.assetId],
+  )
 
+  const poolAccountMetadataFilter = useMemo(() => ({ accountId: poolAccountId }), [poolAccountId])
+  const poolAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, poolAccountMetadataFilter),
+  )
+
+  const assetAccountNumberFilter = useMemo(() => {
     return { assetId: asset?.assetId ?? '', accountId: poolAccountId ?? '' }
-  }, [accountIdsByChainId, foundPool?.assetId, asset?.assetId])
+  }, [asset?.assetId, poolAccountId])
 
   const assetAccountNumber = useAppSelector(s =>
     selectAccountNumberByAccountId(s, assetAccountNumberFilter),
@@ -349,22 +363,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const allowanceFromAddress = useMemo(() => {
     if (!asset) return
     if (!isToken(fromAssetId(asset.assetId).assetReference)) return
-    const poolAccountId =
-      accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : '']
     if (!poolAccountId) return
     const supportedEvmChainIds = getSupportedEvmChainIds()
     if (!supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) return
 
     return fromAccountId(poolAccountId).account
-  }, [accountIdsByChainId, asset, foundPool?.assetId])
+  }, [asset, poolAccountId])
 
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
   const serializedTxIndex = useMemo(() => {
-    const poolAccountId =
-      accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : '']
     if (!(approvalTxId && allowanceFromAddress && poolAccountId)) return ''
     return serializeTxIndex(poolAccountId, approvalTxId, allowanceFromAddress)
-  }, [accountIdsByChainId, foundPool?.assetId, approvalTxId, allowanceFromAddress])
+  }, [approvalTxId, allowanceFromAddress, poolAccountId])
 
   const {
     mutate,
@@ -434,6 +444,53 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).gt(allowanceCryptoPrecision)
   }, [actualAssetCryptoLiquidityAmount, allowanceData, asset, confirmedQuote])
 
+  useEffect(() => {
+    if (!(wallet && asset && activeOpportunityId && poolAccountMetadata)) return
+    const accountId = poolAccountId
+    const assetId = asset?.assetId
+
+    if (!assetId) return
+    ;(async () => {
+      const _accountAssetAddress = await getThorchainFromAddress({
+        accountId,
+        assetId,
+        opportunityId: activeOpportunityId,
+        wallet,
+        accountMetadata: poolAccountMetadata,
+        getPosition: getThorchainLpPosition,
+      })
+      setAccountAssetAddress(_accountAssetAddress)
+    })()
+  }, [activeOpportunityId, asset, poolAccountId, poolAccountMetadata, wallet])
+
+  const isSweepNeededArgs = useMemo(
+    () => ({
+      assetId: asset?.assetId,
+      address: accountAssetAddress,
+      amountCryptoBaseUnit: toBaseUnit(
+        actualAssetCryptoLiquidityAmount ?? 0,
+        asset?.precision ?? 0,
+      ),
+      txFeeCryptoBaseUnit: '0', // TODO(gomes): implement me and add in enabled
+      // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
+      enabled: Boolean(
+        !!asset?.assetId && bnOrZero(actualAssetCryptoLiquidityAmount).gt(0),
+        // TODO(gomes): we should estimate fees data and hasEnoughBalanceForTxPlusFees at this stage already
+        // &&
+        // isEstimatedFeesDataSuccess &&
+        // hasEnoughBalanceForTxPlusFees
+      ),
+    }),
+    [accountAssetAddress, actualAssetCryptoLiquidityAmount, asset?.assetId, asset?.precision],
+  )
+  const {
+    data: isSweepNeeded,
+    isLoading: isSweepNeededLoading,
+    isSuccess: isSweepNeededSuccess,
+  } = useIsSweepNeededQuery(isSweepNeededArgs)
+
+  console.log({ isSweepNeeded })
+
   const handleApprove = useCallback(() => mutate(undefined), [mutate])
 
   const handleSubmit = useCallback(() => {
@@ -441,8 +498,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       handleApprove()
       return
     }
-    history.push(AddLiquidityRoutePaths.Confirm)
-  }, [handleApprove, history, isApprovalRequired])
+    history.push(isSweepNeeded ? AddLiquidityRoutePaths.Sweep : AddLiquidityRoutePaths.Confirm)
+  }, [handleApprove, history, isApprovalRequired, isSweepNeeded])
 
   const runeBalanceFilter = useMemo(
     () => ({
@@ -812,13 +869,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             isVotingPowerLoading ||
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance ||
-            isApprovalTxPending
+            isApprovalTxPending ||
+            isSweepNeededLoading
           }
           isLoading={
             isVotingPowerLoading ||
             isInboundAddressLoading ||
             isAllowanceDataLoading ||
-            isApprovalTxPending
+            isApprovalTxPending ||
+            isSweepNeededLoading
           }
           onClick={handleSubmit}
         >

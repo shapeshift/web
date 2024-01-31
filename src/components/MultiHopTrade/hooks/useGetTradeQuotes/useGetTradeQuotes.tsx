@@ -192,6 +192,7 @@ export const useGetTradeQuotes = () => {
     dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
     if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
+      setTradeQuoteInput(skipToken)
       dispatch(tradeQuoteSlice.actions.clear())
       return
     }

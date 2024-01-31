@@ -10,9 +10,9 @@ export const depositWithExpiry = ({
 }: {
   vault: string
   asset: string
-  amount: string
+  amount: string | BigInt
   memo: string
-  expiry: number
+  expiry: number | BigInt
 }) => {
   const data = encodeFunctionData({
     abi: routerAbi,

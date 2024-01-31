@@ -18,6 +18,8 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION, type evm } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -34,11 +36,18 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { fromBaseUnit } from 'lib/math'
 import { isSome, isToken } from 'lib/utils'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  getApproveContractData,
+  getFees,
+  getSupportedEvmChainIds,
+} from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
@@ -91,6 +100,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   accountIdsByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
@@ -361,13 +371,69 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).gt(allowanceCryptoPrecision)
   }, [actualAssetCryptoLiquidityAmount, allowanceData, asset, confirmedQuote])
 
+  const handleApprove = useCallback(async () => {
+    if (!asset) throw new Error('asset is undefined')
+    if (!allowanceFromAddress) throw new Error('allowanceFromAddress is undefined')
+    if (!wallet || !supportsETH(wallet)) throw Error('eth wallet required')
+
+    const approvalCalldata = getApproveContractData({
+      approvalAmountCryptoBaseUnit: actualAssetCryptoLiquidityAmount ?? '0',
+      spender: inboundAddressData?.router ?? '',
+      to: fromAssetId(asset.assetId).assetReference,
+      chainId: fromAssetId(asset.assetId).chainId,
+    })
+
+    const adapter = assertGetEvmChainAdapter(fromAssetId(asset.assetId).chainId)
+    const from = allowanceFromAddress
+
+    const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+      adapter,
+      to: fromAssetId(asset.assetId).assetReference,
+      value: '0',
+      data: approvalCalldata,
+      ...(from
+        ? {
+            from,
+            supportsEIP1559: await wallet.ethSupportsEIP1559(),
+          }
+        : // TODO(gomes): implement me
+          { accountNumber: 0, wallet }),
+    })
+
+    const buildCustomTxInput: evm.BuildCustomTxInput = {
+      // TODO(gomes): implement me
+      accountNumber: 0,
+      data: approvalCalldata,
+      to: fromAssetId(asset.assetId).assetReference,
+      value: '0',
+      wallet,
+      ...fees,
+    }
+
+    const txHash = await buildAndBroadcast({
+      adapter,
+      buildCustomTxInput,
+      receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+    })
+
+    console.log({ txHash })
+
+    return
+  }, [
+    actualAssetCryptoLiquidityAmount,
+    allowanceFromAddress,
+    asset,
+    inboundAddressData?.router,
+    wallet,
+  ])
+
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) {
-      // TODO(gomes): mutateAsync here and invalidate allowance onSuccess
+      handleApprove()
       return
     }
     history.push(AddLiquidityRoutePaths.Confirm)
-  }, [history, isApprovalRequired])
+  }, [handleApprove, history, isApprovalRequired])
 
   const runeBalanceFilter = useMemo(
     () => ({
@@ -659,6 +725,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [asset?.symbol, isApprovalRequired, translate])
 
   if (!foundPool || !asset || !rune) return null
+
+  console.log({
+    confirmedQuote,
+    isVotingPowerLoading,
+    hasEnoughAssetBalance,
+    hasEnoughRuneBalance,
+  })
 
   return (
     <SlideTransition>

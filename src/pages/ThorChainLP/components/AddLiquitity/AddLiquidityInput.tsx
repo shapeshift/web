@@ -489,7 +489,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         return THORCHAIN_POOL_MODULE_ADDRESS
       }
       case 'EvmCustomTx': {
-        return inboundAddressData?.router
+        // TODO: this should really be inboundAddressData?.router, but useQuoteEstimatedFeesQuery doesn't yet handle contract calls
+        // for the purpose of naively assuming a send, using the inbound address instead of the router is fine
+        return inboundAddressData?.address
       }
       case 'Send': {
         return inboundAddressData?.address
@@ -498,10 +500,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         assertUnreachable(transactionType as never)
       }
     }
-  }, [asset?.assetId, inboundAddressData?.address, inboundAddressData?.router])
+  }, [asset?.assetId, inboundAddressData?.address])
 
   // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
-  // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but that's fine for now
+  // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
+  // however that's fine for now until accurate fees estimation is implemented
   const {
     data: estimatedFeesData,
     isLoading: isEstimatedFeesDataLoading,

@@ -37,7 +37,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { FeeModal } from '../FeeModal/FeeModal'
+import { FeeModal } from '../../FeeModal/FeeModal'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean

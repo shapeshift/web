@@ -66,10 +66,10 @@ const options = [
     value: AsymSide.Asset,
   },
   {
-    value: AsymSide.Rune,
+    value: 'sym',
   },
   {
-    value: null,
+    value: AsymSide.Rune,
   },
 ]
 
@@ -84,8 +84,8 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
   }, [assetId])
 
   const makeAssetIdsOption = useCallback(
-    (value: AsymSide | null): AssetId[] => {
-      if (value === null) return assetIds
+    (value: AsymSide | 'sym'): AssetId[] => {
+      if (value === 'sym') return assetIds
       if (value === AsymSide.Rune) return [thorchainAssetId]
       if (value === AsymSide.Asset) return [assetId]
 
@@ -96,7 +96,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'depositType',
-    defaultValue: 'one',
+    defaultValue: 'sym',
     onChange: onAsymSideChange,
   })
 
@@ -106,7 +106,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
     return _options.map((option, index) => {
       const radio = getRadioProps({ value: option.value })
 
-      const optionAssetIds = makeAssetIdsOption(option.value)
+      const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
       return (
         <TypeRadio key={`type-${index}`} {...radio}>
           <PoolIcon assetIds={optionAssetIds} size='xs' />

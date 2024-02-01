@@ -199,6 +199,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
         {assets.map(_asset => {
           return (
             <TradeAssetInput
+              key={_asset.assetId}
               assetId={_asset?.assetId}
               assetIcon={_asset?.icon ?? ''}
               assetSymbol={_asset?.symbol ?? ''}

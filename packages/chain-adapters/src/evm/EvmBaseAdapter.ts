@@ -22,7 +22,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import { utils } from 'ethers'
-import { isAddress } from 'viem'
 import { numberToHex } from 'web3-utils'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -539,7 +538,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   // eslint-disable-next-line require-await
   async validateAddress(address: string): Promise<ValidAddressResult> {
-    const isValidAddress = isAddress(address)
+    const isValidAddress = utils.isAddress(address)
     if (isValidAddress) return { valid: true, result: ValidAddressResultType.Valid }
     return { valid: false, result: ValidAddressResultType.Invalid }
   }

@@ -1,15 +1,14 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TradeRoutePaths } from './types'
@@ -49,7 +48,6 @@ const MultiHopEntries = [
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
-  defaultSellAssetId?: AssetId
 } & CardProps
 
 type MatchParams = {
@@ -57,46 +55,32 @@ type MatchParams = {
   assetSubId?: string
 }
 
-export const MultiHopTrade = memo(
-  ({
-    defaultBuyAssetId: _defaultBuyAssetId = foxAssetId,
-    defaultSellAssetId = ethAssetId,
-    ...cardProps
-  }: TradeCardProps) => {
-    // Overrides the defaultBuyAssetId to BTC across all instances of this component, to avoid all consumers programmatically checking for isSnapInstalled
-    const isSnapInstalled = useIsSnapInstalled()
-    const defaultBuyAssetId =
-      _defaultBuyAssetId === foxAssetId && isSnapInstalled ? btcAssetId : _defaultBuyAssetId
-    const dispatch = useAppDispatch()
-    const methods = useForm({ mode: 'onChange' })
-    const { assetSubId, chainId } = useParams<MatchParams>()
+export const MultiHopTrade = memo(({ defaultBuyAssetId, ...cardProps }: TradeCardProps) => {
+  const dispatch = useAppDispatch()
+  const methods = useForm({ mode: 'onChange' })
+  const { assetSubId, chainId } = useParams<MatchParams>()
 
-    const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId))
-    const routeBuyAsset = useAppSelector(state =>
-      selectAssetById(state, `${chainId}/${assetSubId}`),
-    )
-    const defaultSellAsset = useAppSelector(state => selectAssetById(state, defaultSellAssetId))
+  const routeBuyAsset = useAppSelector(state => selectAssetById(state, `${chainId}/${assetSubId}`))
+  const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId ?? ''))
 
-    useEffect(() => {
-      dispatch(tradeInput.actions.clear())
-      if (defaultSellAsset) dispatch(tradeInput.actions.setSellAsset(defaultSellAsset))
-      if (routeBuyAsset) dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
-      else if (defaultBuyAsset) dispatch(tradeInput.actions.setBuyAsset(defaultBuyAsset))
-    }, [defaultBuyAsset, defaultSellAsset, dispatch, routeBuyAsset])
+  useEffect(() => {
+    dispatch(tradeInput.actions.clear())
+    if (routeBuyAsset) dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
+    else if (defaultBuyAsset) dispatch(tradeInput.actions.setBuyAsset(defaultBuyAsset))
+  }, [defaultBuyAsset, defaultBuyAssetId, dispatch, routeBuyAsset])
 
-    return (
-      <Card {...cardProps}>
-        <CardBody px={0} py={0}>
-          <FormProvider {...methods}>
-            <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
-              <MultiHopRoutes />
-            </MemoryRouter>
-          </FormProvider>
-        </CardBody>
-      </Card>
-    )
-  },
-)
+  return (
+    <Card {...cardProps}>
+      <CardBody px={0} py={0}>
+        <FormProvider {...methods}>
+          <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
+            <MultiHopRoutes />
+          </MemoryRouter>
+        </FormProvider>
+      </CardBody>
+    </Card>
+  )
+})
 
 const MultiHopRoutes = memo(() => {
   const location = useLocation()
@@ -105,10 +89,11 @@ const MultiHopRoutes = memo(() => {
 
   useEffect(() => {
     return () => {
-      // Reset the swapper slice to initial state on mount
+      // Reset the trade slices to initial state on unmount
       // Don't move me to one of the trade route components, this needs to be at router-level
       // We only want to clear swapper state when trade components are fully unmounted, not when trade routes change
       dispatch(tradeInput.actions.clear())
+      dispatch(tradeQuoteSlice.actions.clear())
     }
   }, [dispatch])
 

@@ -57,6 +57,9 @@ export const tradeInput = createSlice({
       const isSameAsBuyAsset = asset.assetId === state.buyAsset.assetId
       if (isSameAsBuyAsset) state.buyAsset = state.sellAsset
 
+      // clear the sell amount
+      state.sellAmountCryptoPrecision = '0'
+
       state.sellAsset = action.payload
     },
     setSellAssetAccountNumber: (state, action: PayloadAction<AccountId | undefined>) => {

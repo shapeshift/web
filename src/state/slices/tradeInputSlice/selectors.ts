@@ -166,6 +166,15 @@ export const selectInputSellAmountUsd = createSelector(
   },
 )
 
+export const selectInputSellAmountUserCurrency = createSelector(
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAssetUserCurrencyRate,
+  (sellAmountCryptoPrecision, sellAssetUserCurrencyRate) => {
+    if (!sellAssetUserCurrencyRate) return
+    return bn(sellAmountCryptoPrecision).times(sellAssetUserCurrencyRate).toFixed()
+  },
+)
+
 export const selectSellAssetBalanceFilter = createSelector(
   selectFirstHopSellAccountId,
   selectInputSellAsset,

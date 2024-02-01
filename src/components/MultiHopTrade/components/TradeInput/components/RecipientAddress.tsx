@@ -1,6 +1,5 @@
 import { CheckIcon, CloseIcon, EditIcon } from '@chakra-ui/icons'
 import {
-  Divider,
   FormControl,
   IconButton,
   InputGroup,
@@ -192,35 +191,32 @@ export const RecipientAddress = () => {
       </FormControl>
     </form>
   ) : (
-    <>
-      <Divider borderColor='border.base' />
-      <Row>
-        <Row.Label>
-          <Text translation={recipientAddressTranslation} />
-        </Row.Label>
-        <Row.Value whiteSpace='nowrap'>
-          {isCustomRecipientAddress ? (
-            <Tooltip label={translate('trade.thisIsYourCustomRecipientAddress')} placement='top'>
-              <Tag size='md' colorScheme='blue'>
-                <TagLabel>{middleEllipsis(receiveAddress)}</TagLabel>
-                <TagCloseButton onClick={resetManualReceiveAddress} />
-              </Tag>
+    <Row alignItems='center'>
+      <Row.Label>
+        <Text translation={recipientAddressTranslation} />
+      </Row.Label>
+      <Row.Value whiteSpace='nowrap'>
+        {isCustomRecipientAddress ? (
+          <Tooltip label={translate('trade.thisIsYourCustomRecipientAddress')} placement='top'>
+            <Tag size='md' colorScheme='blue'>
+              <TagLabel>{middleEllipsis(receiveAddress)}</TagLabel>
+              <TagCloseButton onClick={resetManualReceiveAddress} />
+            </Tag>
+          </Tooltip>
+        ) : (
+          <Stack direction='row' spacing={1} alignItems='center'>
+            <RawText>{middleEllipsis(receiveAddress)}</RawText>
+            <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
+              <IconButton
+                aria-label='Edit recipient address'
+                icon={editIcon}
+                variant='ghost'
+                onClick={handleEditRecipientAddressClick}
+              />
             </Tooltip>
-          ) : (
-            <Stack direction='row' spacing={1} alignItems='center'>
-              <RawText>{middleEllipsis(receiveAddress)}</RawText>
-              <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
-                <IconButton
-                  aria-label='Edit recipient address'
-                  icon={editIcon}
-                  variant='ghost'
-                  onClick={handleEditRecipientAddressClick}
-                />
-              </Tooltip>
-            </Stack>
-          )}
-        </Row.Value>
-      </Row>
-    </>
+          </Stack>
+        )}
+      </Row.Value>
+    </Row>
   )
 }

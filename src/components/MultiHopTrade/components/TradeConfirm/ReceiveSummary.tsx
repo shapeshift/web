@@ -38,7 +38,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { FeeModal } from '../FeeModal/FeeModal'
-import { RecipientAddress } from '../TradeInput/components/RecipientAddress'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -290,7 +289,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                   </Row>
                 </>
               )}
-            <RecipientAddress />
           </Stack>
         </Collapse>
         <FeeModal isOpen={showFeeModal} onClose={handleFeeModal} />

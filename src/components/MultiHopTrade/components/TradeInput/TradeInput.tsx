@@ -85,6 +85,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { PriceImpact } from '../PriceImpact'
+import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
@@ -514,6 +515,7 @@ export const TradeInput = memo(() => {
                 swapSource={tradeQuoteStep?.source}
               />
             ) : null}
+            <RecipientAddress />
             {isModeratePriceImpact && (
               <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
             )}

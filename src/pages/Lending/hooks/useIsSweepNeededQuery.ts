@@ -55,10 +55,11 @@ export const queryFn = async ({ queryKey }: { queryKey: IsSweepNeededQueryKey })
   const { assetId, address, amountCryptoBaseUnit, txFeeCryptoBaseUnit } = queryKey[1]
 
   if (!assetId) throw new Error('assetId is required')
+  if (!address) throw new Error('address is required')
 
   const isSweepNeeded = await getIsSweepNeeded({
     assetId,
-    address: address!,
+    address,
     amountCryptoBaseUnit,
     txFeeCryptoBaseUnit,
   })
@@ -80,7 +81,7 @@ export const useIsSweepNeededQuery = ({
   const isSweepNeededQuery = useQuery({
     queryKey: isSweepNeededQueryKey,
     queryFn,
-    enabled: Boolean(enabled && address),
+    enabled: Boolean(enabled && address && assetId),
   })
 
   return isSweepNeededQuery

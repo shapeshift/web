@@ -7,6 +7,7 @@ import { estimateFees } from 'components/Modals/Send/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
+import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,6 +27,13 @@ type UseQuoteEstimatedFeesProps = {
       depositAmountCryptoPrecision?: never
       repaymentAccountId: AccountId
       repaymentAsset: Asset | null
+    }
+  | {
+      confirmedQuote: ConfirmedQuote | null
+      collateralAccountId: AccountId
+      depositAmountCryptoPrecision: string
+      repaymentAccountId?: never
+      repaymentAsset?: never
     }
 )
 
@@ -47,11 +55,16 @@ export const useQuoteEstimatedFeesQuery = ({
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const cryptoAmount = depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision ?? '0'
     const assetId = repaymentAsset?.assetId ?? collateralAssetId
-    const quoteMemo = confirmedQuote?.quoteMemo ?? confirmedQuote?.quoteMemo ?? ''
-    const memo = supportedEvmChainIds.includes(fromAssetId(assetId).chainId as KnownChainIds)
-      ? utils.hexlify(utils.toUtf8Bytes(quoteMemo))
-      : quoteMemo
-    const to = confirmedQuote?.quoteInboundAddress ?? confirmedQuote?.quoteInboundAddress ?? ''
+    const quoteMemo =
+      confirmedQuote && 'quoteMemo' in confirmedQuote ? confirmedQuote.quoteMemo : ''
+    const memo =
+      assetId && supportedEvmChainIds.includes(fromAssetId(assetId).chainId as KnownChainIds)
+        ? utils.hexlify(utils.toUtf8Bytes(quoteMemo))
+        : quoteMemo
+    const to =
+      confirmedQuote && 'quoteInboundAddress' in confirmedQuote
+        ? confirmedQuote.quoteInboundAddress
+        : ''
     const accountId = repaymentAccountId ?? collateralAccountId
 
     return {
@@ -64,14 +77,13 @@ export const useQuoteEstimatedFeesQuery = ({
       contractAddress: undefined,
     } as const
   }, [
-    collateralAccountId,
-    collateralAssetId,
-    confirmedQuote?.quoteInboundAddress,
-    confirmedQuote?.quoteMemo,
-    repaymentAmountCryptoPrecision,
     depositAmountCryptoPrecision,
-    repaymentAccountId,
+    repaymentAmountCryptoPrecision,
     repaymentAsset?.assetId,
+    collateralAssetId,
+    confirmedQuote,
+    repaymentAccountId,
+    collateralAccountId,
   ])
 
   const quoteEstimatedFeesQueryKey = useMemo(
@@ -89,7 +101,7 @@ export const useQuoteEstimatedFeesQuery = ({
         .toString()
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
-    enabled: Boolean(feeAsset && confirmedQuote),
+    enabled: Boolean(feeAsset && confirmedQuote && (collateralAssetId || repaymentAsset)),
     retry: false,
   })
 

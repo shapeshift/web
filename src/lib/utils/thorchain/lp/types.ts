@@ -199,6 +199,7 @@ export type ConfirmedQuote = {
   feeBps: string
   feeAmountFiat: string
   assetAddress: string
+  quoteInboundAddress: string
 }
 export enum AsymSide {
   Asset = 'asset',

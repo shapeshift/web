@@ -54,6 +54,7 @@ const getIsSweepNeeded = async ({
 export const queryFn = async ({ queryKey }: { queryKey: IsSweepNeededQueryKey }) => {
   const { assetId, address, amountCryptoBaseUnit, txFeeCryptoBaseUnit } = queryKey[1]
 
+  debugger
   if (!assetId) throw new Error('assetId is required')
 
   const isSweepNeeded = await getIsSweepNeeded({

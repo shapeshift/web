@@ -17,7 +17,13 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import {
+  cosmosChainId,
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -39,20 +45,23 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { isSome, isToken } from 'lib/utils'
+import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
+import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
+import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
+  selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -318,29 +327,34 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [asset, accountIdsByChainId],
   )
 
-  const assetBalanceCryptoBaseUnit = useAppSelector(state =>
+  const poolAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, assetBalanceFilter),
   )
+  const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, asset?.assetId ?? ''))
+  const poolAssetFeeAssetBalanceFilter = useMemo(
+    () => ({
+      assetId: poolAssetFeeAsset?.assetId,
+      accountId:
+        poolAssetFeeAsset?.assetId &&
+        accountIdsByChainId[fromAssetId(poolAssetFeeAsset.assetId).chainId],
+    }),
+    [poolAssetFeeAsset, accountIdsByChainId],
+  )
+  const poolAssetFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, poolAssetFeeAssetBalanceFilter),
+  )
+
   const hasEnoughAssetBalance = useMemo(() => {
     const assetBalanceCryptoPrecision = fromBaseUnit(
-      assetBalanceCryptoBaseUnit,
+      poolAssetBalanceCryptoBaseUnit,
       asset?.precision ?? 0,
     )
     return bnOrZero(actualAssetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
-  }, [assetBalanceCryptoBaseUnit, asset?.precision, actualAssetCryptoLiquidityAmount])
+  }, [poolAssetBalanceCryptoBaseUnit, asset?.precision, actualAssetCryptoLiquidityAmount])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddress(asset?.assetId),
-    enabled: (() => {
-      if (!asset) return false
-      if (!isToken(fromAssetId(asset.assetId).assetReference)) return false
-      const supportedEvmChainIds = getSupportedEvmChainIds()
-      if (!supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds))
-        return false
-      // We don't need to fetch this in case there is no asset input amount
-      if (bnOrZero(actualAssetCryptoLiquidityAmount).isZero()) return false
-      return true
-    })(),
+    enabled: !!asset,
     select: data => data?.unwrap(),
   })
 
@@ -464,6 +478,91 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })()
   }, [activeOpportunityId, asset, poolAccountId, poolAccountMetadata, wallet])
 
+  const poolAssetInboundAddress = useMemo(() => {
+    const transactionType = (() => {
+      if (!asset?.assetId) return
+
+      const isRuneTx = asset?.assetId === thorchainAssetId
+      if (isRuneTx) return 'MsgDeposit'
+
+      const supportedEvmChainIds = getSupportedEvmChainIds()
+      if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
+        return 'EvmCustomTx'
+      }
+      if (
+        isUtxoChainId(fromAssetId(asset.assetId).chainId) ||
+        fromAssetId(asset.assetId).chainId === cosmosChainId
+      )
+        return 'Send'
+
+      throw new Error(`Unsupported ChainId ${fromAssetId(asset.assetId).chainId}`)
+    })()
+
+    if (!transactionType) return
+
+    switch (transactionType) {
+      case 'MsgDeposit': {
+        return THORCHAIN_POOL_MODULE_ADDRESS
+      }
+      case 'EvmCustomTx': {
+        return inboundAddressData?.router
+      }
+      case 'Send': {
+        return inboundAddressData?.address
+      }
+      default: {
+        assertUnreachable(transactionType as never)
+      }
+    }
+  }, [asset?.assetId, inboundAddressData?.address, inboundAddressData?.router])
+
+  console.log({ poolAssetInboundAddress })
+
+  // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
+  // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but that's fine for now
+  const {
+    data: estimatedFeesData,
+    isLoading: isEstimatedFeesDataLoading,
+    isError: isEstimatedFeesDataError,
+    isSuccess: isEstimatedFeesDataSuccess,
+  } = useQuoteEstimatedFeesQuery({
+    collateralAssetId: asset?.assetId,
+    collateralAccountId: poolAccountId,
+    depositAmountCryptoPrecision: actualAssetCryptoLiquidityAmount ?? '0',
+    confirmedQuote,
+  })
+
+  console.log({ estimatedFeesData })
+
+  const hasEnoughPoolAssetBalanceForTxPlusFees = useMemo(() => {
+    if (!(isEstimatedFeesDataSuccess && asset)) return false
+
+    const amountAvailableCryptoPrecision = fromBaseUnit(
+      poolAssetBalanceCryptoBaseUnit,
+      asset?.precision ?? 0,
+    )
+    // This is a native asset, so we can simply deduct the fees from the value
+    if (!isToken(fromAssetId(asset.assetId).assetReference)) {
+      return bnOrZero(actualAssetCryptoLiquidityAmount)
+        .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, asset?.precision ?? 0))
+        .lte(amountAvailableCryptoPrecision)
+    }
+
+    return (
+      bnOrZero(actualAssetCryptoLiquidityAmount).lte(amountAvailableCryptoPrecision) &&
+      bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
+    )
+  }, [
+    actualAssetCryptoLiquidityAmount,
+    asset,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    isEstimatedFeesDataSuccess,
+    poolAssetBalanceCryptoBaseUnit,
+    poolAssetFeeAssetBalanceCryptoBaseUnit,
+  ])
+
+  console.log({ hasEnoughPoolAssetBalanceForTxPlusFees })
+
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: asset?.assetId,
@@ -474,16 +573,26 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       ),
       txFeeCryptoBaseUnit: '0', // TODO(gomes): implement me and add in enabled
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
+      // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: Boolean(
-        !!asset?.assetId && bnOrZero(actualAssetCryptoLiquidityAmount).gt(0),
-        // TODO(gomes): we should estimate fees data and hasEnoughBalanceForTxPlusFees at this stage already
-        // &&
-        // isEstimatedFeesDataSuccess &&
-        // hasEnoughBalanceForTxPlusFees
+        !!asset?.assetId &&
+          bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
+          isEstimatedFeesDataSuccess &&
+          hasEnoughPoolAssetBalanceForTxPlusFees,
       ),
     }),
-    [accountAssetAddress, actualAssetCryptoLiquidityAmount, asset?.assetId, asset?.precision],
+    [
+      accountAssetAddress,
+      actualAssetCryptoLiquidityAmount,
+      asset?.assetId,
+      asset?.precision,
+      hasEnoughPoolAssetBalanceForTxPlusFees,
+      isEstimatedFeesDataSuccess,
+    ],
   )
+
+  console.log({ hasEnoughPoolAssetBalanceForTxPlusFees })
+
   const {
     data: isSweepNeeded,
     isLoading: isSweepNeededLoading,
@@ -621,7 +730,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         shareOfPoolDecimalPercent &&
         slippageRune &&
         activeOpportunityId &&
-        accountAssetAddress
+        accountAssetAddress &&
+        poolAssetInboundAddress
       )
     )
       return
@@ -648,6 +758,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       feeBps: feeBps.toFixed(0),
       feeAmountFiat: feeUsd.toFixed(2),
       assetAddress: accountAssetAddress,
+      quoteInboundAddress: poolAssetInboundAddress,
     })
   }, [
     accountAssetAddress,
@@ -658,6 +769,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneCryptoLiquidityAmount,
     actualRuneFiatLiquidityAmount,
     isAsym,
+    poolAssetInboundAddress,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,

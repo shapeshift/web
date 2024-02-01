@@ -294,6 +294,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [isAsymRuneSide, isAsymAssetSide, virtualRuneFiatLiquidityAmount])
 
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
+  const [isEstimateLoading, setIsEstimateLoading] = useState(false)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
   const assetBalanceFilter = useMemo(
@@ -388,11 +389,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
+      setIsEstimateLoading(true)
+
       const estimate = await estimateAddThorchainLiquidityPosition({
         runeAmountCryptoThorPrecision,
         assetAmountCryptoThorPrecision,
         assetId: asset.assetId,
       })
+
+      setIsEstimateLoading(false)
 
       setSlippageRune(
         bnOrZero(estimate.slipPercent)
@@ -625,6 +630,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             assetId={asset.assetId}
             runePerAsset={runePerAsset}
             shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+            isLoading={isEstimateLoading}
           />
         </Collapse>
       </Stack>
@@ -640,8 +646,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
-              <Amount.Crypto value={slippageRune ?? 'TODO - loading'} symbol={rune.symbol} />
+            <Skeleton isLoaded={!isEstimateLoading}>
+              <Amount.Crypto value={slippageRune ?? ''} symbol={rune.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>

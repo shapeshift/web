@@ -526,13 +526,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     isError: isEstimatedFeesDataError,
     isSuccess: isEstimatedFeesDataSuccess,
   } = useQuoteEstimatedFeesQuery({
-    collateralAssetId: asset?.assetId,
+    collateralAssetId: asset?.assetId ?? '',
     collateralAccountId: poolAccountId,
     depositAmountCryptoPrecision: actualAssetCryptoLiquidityAmount ?? '0',
     confirmedQuote,
   })
-
-  console.log({ estimatedFeesData })
 
   const hasEnoughPoolAssetBalanceForTxPlusFees = useMemo(() => {
     if (!(isEstimatedFeesDataSuccess && asset)) return false

@@ -35,7 +35,6 @@ export const AddLiquiditySweep: React.FC<AddLiquiditySweepProps> = ({
 
   const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   const assetId = asset?.assetId
-  const fromAddress = '0xgomes'
   const accountId = accountIdsByChainId[assetId ? fromAssetId(assetId).chainId : '']
 
   if (!assetId || !accountId) return null
@@ -52,7 +51,7 @@ export const AddLiquiditySweep: React.FC<AddLiquiditySweepProps> = ({
       <CardBody pt={0}>
         <Sweep
           assetId={assetId}
-          fromAddress={fromAddress}
+          fromAddress={confirmedQuote.assetAddress}
           accountId={accountId}
           onBack={handleBack}
           onSweepSeen={handleSweepSeen}

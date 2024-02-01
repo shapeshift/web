@@ -620,7 +620,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         actualRuneFiatLiquidityAmount &&
         shareOfPoolDecimalPercent &&
         slippageRune &&
-        activeOpportunityId
+        activeOpportunityId &&
+        accountAssetAddress
       )
     )
       return
@@ -646,8 +647,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalAmountFiat,
       feeBps: feeBps.toFixed(0),
       feeAmountFiat: feeUsd.toFixed(2),
+      assetAddress: accountAssetAddress,
     })
   }, [
+    accountAssetAddress,
     accountIdsByChainId,
     activeOpportunityId,
     actualAssetCryptoLiquidityAmount,

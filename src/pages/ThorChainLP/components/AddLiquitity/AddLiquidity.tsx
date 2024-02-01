@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
 import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
@@ -58,6 +58,7 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   confirmedQuote,
   setConfirmedQuote,
 }) => {
+  const history = useHistory()
   const location = useLocation()
   const [accountIdsByChainId, setAccountIdsByChainId] = useState<Record<ChainId, AccountId>>({})
 
@@ -104,8 +105,21 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   )
 
   const renderAddLiquiditySweep = useCallback(
-    () => (confirmedQuote ? <AddLiquiditySweep confirmedQuote={confirmedQuote} /> : null),
-    [confirmedQuote],
+    () =>
+      confirmedQuote ? (
+        <AddLiquiditySweep
+          confirmedQuote={confirmedQuote}
+          // eslint-disable-next-line react-memo/require-usememo
+          onSweepSeen={() => {
+            history.push(AddLiquidityRoutePaths.Confirm)
+          }}
+          // eslint-disable-next-line react-memo/require-usememo
+          onBack={() => {
+            history.push(AddLiquidityRoutePaths.Input)
+          }}
+        />
+      ) : null,
+    [confirmedQuote, history],
   )
 
   return (

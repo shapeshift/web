@@ -198,6 +198,7 @@ export type ConfirmedQuote = {
   accountIdsByChainId: Record<ChainId, AccountId>
   feeBps: string
   feeAmountFiat: string
+  assetAddress: string
 }
 export enum AsymSide {
   Asset = 'asset',

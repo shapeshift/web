@@ -516,8 +516,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     }
   }, [asset?.assetId, inboundAddressData?.address, inboundAddressData?.router])
 
-  console.log({ poolAssetInboundAddress })
-
   // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but that's fine for now
   const {
@@ -559,8 +557,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetFeeAssetBalanceCryptoBaseUnit,
   ])
 
-  console.log({ hasEnoughPoolAssetBalanceForTxPlusFees })
-
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: asset?.assetId,
@@ -589,15 +585,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ],
   )
 
-  console.log({ hasEnoughPoolAssetBalanceForTxPlusFees })
-
-  const {
-    data: isSweepNeeded,
-    isLoading: isSweepNeededLoading,
-    isSuccess: isSweepNeededSuccess,
-  } = useIsSweepNeededQuery(isSweepNeededArgs)
-
-  console.log({ isSweepNeeded })
+  const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
+    useIsSweepNeededQuery(isSweepNeededArgs)
 
   const handleApprove = useCallback(() => mutate(undefined), [mutate])
 
@@ -1006,7 +995,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance ||
             isApprovalTxPending ||
-            isSweepNeededLoading
+            isSweepNeededLoading ||
+            isEstimatedFeesDataError ||
+            isEstimatedFeesDataLoading
           }
           isLoading={
             isVotingPowerLoading ||

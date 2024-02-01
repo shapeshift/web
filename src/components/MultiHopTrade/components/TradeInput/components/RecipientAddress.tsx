@@ -191,7 +191,7 @@ export const RecipientAddress = () => {
       </FormControl>
     </form>
   ) : (
-    <Row alignItems='center'>
+    <Row alignItems='center' fontSize='sm' fontWeight='medium'>
       <Row.Label>
         <Text translation={recipientAddressTranslation} />
       </Row.Label>

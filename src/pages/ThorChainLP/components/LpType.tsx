@@ -96,7 +96,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
 
   const { getRootProps, getRadioProps } = useRadioGroup({
     name: 'depositType',
-    defaultValue: 'one',
+    defaultValue: 'sym',
     onChange: onAsymSideChange,
   })
 

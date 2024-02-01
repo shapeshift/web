@@ -16,8 +16,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMemo } from 'react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { Row } from 'components/Row/Row'
-import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 const width = { width: '100%' }

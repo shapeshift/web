@@ -7,7 +7,10 @@ import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopT
 import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_LONGTAIL_SWAP_SOURCE,
+} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -230,7 +233,9 @@ export const validateTradeQuote = async (
     // This doesn't apply to regular THOR swaps however, which docs have no mention of *destination* having to be an EOA
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?search=smart%20contract
     if (
-      firstHop.source === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE &&
+      [firstHop.source, secondHop.source].some(source =>
+        [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(source),
+      ) &&
       _isSmartContractReceiveAddress !== false
     )
       return true

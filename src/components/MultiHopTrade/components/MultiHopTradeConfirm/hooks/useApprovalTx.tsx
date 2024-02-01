@@ -10,7 +10,7 @@ import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../../hooks/constants'
-import { getApprovalTxData } from '../../../hooks/useAllowanceApproval/helpers'
+import { getApprovalTxData } from './helpers'
 
 export const useApprovalTx = (
   tradeQuoteStep: TradeQuoteStep,

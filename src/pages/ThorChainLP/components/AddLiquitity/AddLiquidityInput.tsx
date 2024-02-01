@@ -300,6 +300,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [isAsymRuneSide, isAsymAssetSide, virtualRuneFiatLiquidityAmount])
 
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
+  const [isSlippageLoading, setIsSlippageLoading] = useState(false)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
   const assetBalanceFilter = useMemo(
@@ -489,12 +490,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           setVirtualRuneCryptoLiquidityAmount(crypto)
           setVirtualRuneFiatLiquidityAmount(fiat)
           setVirtualAssetFiatLiquidityAmount(fiat)
-          setVirtualAssetCryptoLiquidityAmount(bn(crypto).div(bnOrZero(runePerAsset)).toFixed())
+          setVirtualAssetCryptoLiquidityAmount(
+            bnOrZero(crypto).div(bnOrZero(runePerAsset)).toFixed(),
+          )
         } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
           setVirtualAssetCryptoLiquidityAmount(crypto)
           setVirtualAssetFiatLiquidityAmount(fiat)
           setVirtualRuneFiatLiquidityAmount(fiat)
-          setVirtualRuneCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+          setVirtualRuneCryptoLiquidityAmount(
+            bnOrZero(crypto).times(bnOrZero(runePerAsset)).toFixed(),
+          )
         }
       }
     },
@@ -517,11 +522,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
+      setIsSlippageLoading(true)
+
       const estimate = await estimateAddThorchainLiquidityPosition({
         runeAmountCryptoThorPrecision,
         assetAmountCryptoThorPrecision,
         assetId: asset.assetId,
       })
+
+      setIsSlippageLoading(false)
 
       setSlippageRune(
         bnOrZero(estimate.slipPercent)
@@ -624,6 +633,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
           return (
             <TradeAssetInput
+              key={_asset.assetId}
               assetId={_asset?.assetId}
               assetIcon={_asset?.icon ?? ''}
               assetSymbol={_asset?.symbol ?? ''}
@@ -715,15 +725,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     (asymSide: string | null) => {
       if (!(parsedPools && asset)) return
 
-      // The null option gets casted as an empty string by the radio component so we cast it back to null
-      const parsedAsymSide = (asymSide as AsymSide | '') || null
+      const parsedAsymSide = asymSide as AsymSide | 'sym'
+
+      if (parsedAsymSide === 'sym') {
+        setActiveOpportunityId(defaultOpportunityId)
+        return
+      }
+
       const assetPools = parsedPools.filter(pool => pool.assetId === asset.assetId)
       const foundPool = assetPools.find(pool => pool.asymSide === parsedAsymSide)
       if (!foundPool) return
 
       setActiveOpportunityId(foundPool.opportunityId)
     },
-    [asset, parsedPools],
+    [asset, defaultOpportunityId, parsedPools],
   )
 
   const confirmCopy = useMemo(() => {
@@ -734,6 +749,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [asset?.symbol, isApprovalRequired, translate])
 
   if (!foundPool || !asset || !rune) return null
+
+  const hasUserEnteredValue = !!(
+    virtualAssetCryptoLiquidityAmount &&
+    virtualAssetFiatLiquidityAmount &&
+    virtualRuneCryptoLiquidityAmount &&
+    virtualRuneFiatLiquidityAmount
+  )
 
   return (
     <SlideTransition>
@@ -751,11 +773,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           />
           {tradeAssetInputs}
         </Stack>
-        <Collapse in={true}>
+        <Collapse in={hasUserEnteredValue}>
           <PoolSummary
             assetId={asset.assetId}
             runePerAsset={runePerAsset}
             shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+            isLoading={isSlippageLoading}
           />
         </Collapse>
       </Stack>
@@ -771,8 +794,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
-              <Amount.Crypto value={slippageRune ?? 'TODO - loading'} symbol={rune.symbol} />
+            <Skeleton isLoaded={!isSlippageLoading}>
+              <Amount.Crypto value={slippageRune ?? ''} symbol={rune.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>

@@ -186,7 +186,7 @@ export type MidgardTvlHistoryResponse = {
   intervals: MidgardTvlHistoryItem[]
 }
 
-export type ConfirmedQuote = {
+export type LpConfirmedDepositQuote = {
   totalAmountFiat: string
   assetCryptoLiquidityAmount: string
   assetFiatLiquidityAmount: string

@@ -22,6 +22,7 @@ import debounce from 'lodash/debounce'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import type { EstimatedFeesQueryKey } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -59,7 +60,6 @@ import {
   queryFn as isSweepNeededQueryFn,
   useIsSweepNeededQuery,
 } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useQuoteEstimatedFees/types'
 import {
   isAboveDepositDustThreshold,
   makeDaysToBreakEven,

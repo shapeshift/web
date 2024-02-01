@@ -5,13 +5,13 @@ import React, { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransition } from 'components/SlideTransition'
 import { Sweep } from 'components/Sweep'
-import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AddLiquiditySweepProps = {
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: LpConfirmedDepositQuote
   onBack: () => void
   onSweepSeen: () => void
 }

@@ -3,7 +3,7 @@ import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
-import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
 import { AddLiquidityInput } from './AddLiquidityInput'
@@ -31,7 +31,7 @@ export const AddLiquidity: React.FC<AddLiquidityProps> = ({
   headerComponent,
   paramOpportunityId,
 }) => {
-  const [confirmedQuote, setConfirmedQuote] = useState<ConfirmedQuote | null>(null)
+  const [confirmedQuote, setConfirmedQuote] = useState<LpConfirmedDepositQuote | null>(null)
 
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
@@ -47,8 +47,8 @@ export const AddLiquidity: React.FC<AddLiquidityProps> = ({
 }
 
 type AddLiquidityRoutesProps = AddLiquidityProps & {
-  confirmedQuote: ConfirmedQuote | null
-  setConfirmedQuote: (quote: ConfirmedQuote) => void
+  confirmedQuote: LpConfirmedDepositQuote | null
+  setConfirmedQuote: (quote: LpConfirmedDepositQuote) => void
 }
 
 export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({

@@ -32,6 +32,7 @@ import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -50,9 +51,8 @@ import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
-import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -94,8 +94,8 @@ export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
   paramOpportunityId?: string
-  setConfirmedQuote: (quote: ConfirmedQuote) => void
-  confirmedQuote: ConfirmedQuote | null
+  setConfirmedQuote: (quote: LpConfirmedDepositQuote) => void
+  confirmedQuote: LpConfirmedDepositQuote | null
   accountIdsByChainId: Record<ChainId, AccountId>
   onAccountIdChange: (accountId: AccountId, assetId: AssetId) => void
 }
@@ -154,7 +154,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   // TODO(gomes): unify the EVM approval address into this, no need to have similar logic in two places
   const [accountAssetAddress, setAccountAssetAddress] = useState<string | null>(null)
-  console.log({ accountAssetAddress })
   const [activeOpportunityId, setActiveOpportunityId] = useState(
     opportunityId ?? defaultOpportunityId,
   )
@@ -565,14 +564,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         actualAssetCryptoLiquidityAmount ?? 0,
         asset?.precision ?? 0,
       ),
-      txFeeCryptoBaseUnit: '0', // TODO(gomes): implement me and add in enabled
+      // Effectively defined at runtime because of the enabled check below
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit!,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: Boolean(
         !!asset?.assetId &&
           bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
           isEstimatedFeesDataSuccess &&
-          hasEnoughPoolAssetBalanceForTxPlusFees,
+          hasEnoughPoolAssetBalanceForTxPlusFees &&
+          estimatedFeesData,
       ),
     }),
     [
@@ -580,6 +581,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       actualAssetCryptoLiquidityAmount,
       asset?.assetId,
       asset?.precision,
+      estimatedFeesData,
       hasEnoughPoolAssetBalanceForTxPlusFees,
       isEstimatedFeesDataSuccess,
     ],

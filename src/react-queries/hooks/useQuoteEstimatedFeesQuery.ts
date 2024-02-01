@@ -1,15 +1,26 @@
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { utils } from 'ethers'
 import { useMemo } from 'react'
+import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
-import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+export type EstimatedFeesQueryKey = [
+  'estimateFees',
+  {
+    enabled: boolean
+    asset: Asset | undefined
+    assetMarketData: MarketData
+    estimateFeesInput: EstimateFeesInput | undefined
+  },
+]
 
 type UseQuoteEstimatedFeesProps = {
   collateralAssetId: AssetId
@@ -29,7 +40,8 @@ type UseQuoteEstimatedFeesProps = {
       repaymentAsset: Asset | null
     }
   | {
-      confirmedQuote: ConfirmedQuote | null
+      confirmedQuote: LpConfirmedDepositQuote | null
+      // Technically not a collateral, but this avoids weird branching, ternaries or ?? check sfor now
       collateralAccountId: AccountId
       depositAmountCryptoPrecision: string
       repaymentAccountId?: never

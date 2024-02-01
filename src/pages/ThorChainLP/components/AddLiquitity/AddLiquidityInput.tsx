@@ -504,6 +504,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
           return (
             <TradeAssetInput
+              key={_asset.assetId}
               assetId={_asset?.assetId}
               assetIcon={_asset?.icon ?? ''}
               assetSymbol={_asset?.symbol ?? ''}

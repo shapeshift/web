@@ -318,7 +318,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
             setTxId(txId)
             setSerializedTxIndex(
-              serializeTxIndex(runeAccountId, txId, account, { memo, parser: 'swap' }),
+              serializeTxIndex(runeAccountId, txId, account, { memo, parser: 'thorchain' }),
             )
 
             break

@@ -614,6 +614,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   if (!foundPool || !asset || !rune) return null
 
+  const hasUserEnteredValue = !!(
+    virtualAssetCryptoLiquidityAmount &&
+    virtualAssetFiatLiquidityAmount &&
+    virtualRuneCryptoLiquidityAmount &&
+    virtualRuneFiatLiquidityAmount
+  )
+
   return (
     <SlideTransition>
       {renderHeader}
@@ -630,7 +637,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           />
           {tradeAssetInputs}
         </Stack>
-        <Collapse in={true}>
+        <Collapse in={hasUserEnteredValue}>
           <PoolSummary
             assetId={asset.assetId}
             runePerAsset={runePerAsset}

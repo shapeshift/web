@@ -17,13 +17,7 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  cosmosChainId,
-  fromAccountId,
-  fromAssetId,
-  thorchainAssetId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
+import { cosmosChainId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -152,8 +146,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return firstAsymOpportunityId
   }, [parsedPools, opportunityId, paramOpportunityId])
 
-  // TODO(gomes): unify the EVM approval address into this, no need to have similar logic in two places
-  const [accountAssetAddress, setAccountAssetAddress] = useState<string | null>(null)
+  const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
+    undefined,
+  )
   const [activeOpportunityId, setActiveOpportunityId] = useState(
     opportunityId ?? defaultOpportunityId,
   )
@@ -374,21 +369,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const assetAccountNumber = useAppSelector(s =>
     selectAccountNumberByAccountId(s, assetAccountNumberFilter),
   )
-  const allowanceFromAddress = useMemo(() => {
-    if (!asset) return
-    if (!isToken(fromAssetId(asset.assetId).assetReference)) return
-    if (!poolAccountId) return
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    if (!supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) return
-
-    return fromAccountId(poolAccountId).account
-  }, [asset, poolAccountId])
-
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
-  const serializedTxIndex = useMemo(() => {
-    if (!(approvalTxId && allowanceFromAddress && poolAccountId)) return ''
-    return serializeTxIndex(poolAccountId, approvalTxId, allowanceFromAddress)
-  }, [approvalTxId, allowanceFromAddress, poolAccountId])
+  const serializedApprovalTxIndex = useMemo(() => {
+    if (!(approvalTxId && poolAssetAccountAddress && poolAccountId)) return ''
+    return serializeTxIndex(poolAccountId, approvalTxId, poolAssetAccountAddress)
+  }, [approvalTxId, poolAssetAccountAddress, poolAccountId])
 
   const {
     mutate,
@@ -398,7 +383,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ...reactQueries.mutations.approve({
       assetId: asset?.assetId,
       spender: inboundAddressData?.router,
-      from: allowanceFromAddress,
+      from: poolAssetAccountAddress,
       amount: toBaseUnit(actualAssetCryptoLiquidityAmount, asset?.precision ?? 0),
       wallet,
       accountNumber: assetAccountNumber,
@@ -408,7 +393,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     },
   })
 
-  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
+  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
   const isApprovalTxPending = useMemo(
     () =>
       isApprovalMutationPending ||
@@ -424,16 +409,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         reactQueries.common.allowanceCryptoBaseUnit(
           asset?.assetId,
           inboundAddressData?.router,
-          allowanceFromAddress,
+          poolAssetAccountAddress,
         ),
       )
     })()
   }, [
-    allowanceFromAddress,
     approvalTx,
     asset?.assetId,
     inboundAddressData?.router,
     isApprovalTxPending,
+    poolAssetAccountAddress,
     queryClient,
   ])
 
@@ -442,7 +427,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ...reactQueries.common.allowanceCryptoBaseUnit(
       asset?.assetId,
       inboundAddressData?.router,
-      allowanceFromAddress,
+      poolAssetAccountAddress,
     ),
   })
 
@@ -473,7 +458,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         accountMetadata: poolAccountMetadata,
         getPosition: getThorchainLpPosition,
       })
-      setAccountAssetAddress(_accountAssetAddress)
+      setPoolAssetAccountAddress(_accountAssetAddress)
     })()
   }, [activeOpportunityId, asset, poolAccountId, poolAccountMetadata, wallet])
 
@@ -559,7 +544,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: asset?.assetId,
-      address: accountAssetAddress,
+      address: poolAssetAccountAddress ?? null,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetCryptoLiquidityAmount ?? 0,
         asset?.precision ?? 0,
@@ -577,7 +562,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       ),
     }),
     [
-      accountAssetAddress,
+      poolAssetAccountAddress,
       actualAssetCryptoLiquidityAmount,
       asset?.assetId,
       asset?.precision,
@@ -719,7 +704,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         shareOfPoolDecimalPercent &&
         slippageRune &&
         activeOpportunityId &&
-        accountAssetAddress &&
+        poolAssetAccountAddress &&
         poolAssetInboundAddress
       )
     )
@@ -746,11 +731,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalAmountFiat,
       feeBps: feeBps.toFixed(0),
       feeAmountFiat: feeUsd.toFixed(2),
-      assetAddress: accountAssetAddress,
+      assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
     })
   }, [
-    accountAssetAddress,
+    poolAssetAccountAddress,
     accountIdsByChainId,
     activeOpportunityId,
     actualAssetCryptoLiquidityAmount,

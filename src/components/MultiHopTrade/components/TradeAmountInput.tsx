@@ -70,6 +70,7 @@ export type TradeAmountInputProps = {
   showFiatAmount?: boolean
   balance?: string
   fiatBalance?: string
+  fiatDifference?: string
   errors?: FieldError
   percentOptions: number[]
   icons?: string[]
@@ -104,6 +105,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     showFiatAmount = '0',
     balance,
     fiatBalance,
+    fiatDifference,
     errors,
     percentOptions = defaultPercentOptions,
     children,
@@ -270,16 +272,27 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             display={hideAmounts ? 'none' : 'flex'}
           >
             {showFiatAmount && (
-              <Button
-                onClick={toggleIsFiat}
-                size='sm'
-                disabled={showFiatSkeleton}
-                fontWeight='medium'
-                variant='link'
-                color='text.subtle'
-              >
-                <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
-              </Button>
+              <Flex alignItems='center' gap={2}>
+                <Button
+                  onClick={toggleIsFiat}
+                  size='sm'
+                  disabled={showFiatSkeleton}
+                  fontWeight='medium'
+                  variant='link'
+                  color='text.subtle'
+                >
+                  <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
+                </Button>
+                {fiatDifference && (
+                  <Amount.Percent
+                    fontSize='sm'
+                    prefix='('
+                    suffix=')'
+                    autoColor
+                    value={fiatDifference}
+                  />
+                )}
+              </Flex>
             )}
             <Flex alignItems='center' justifyContent='flex-end' gap={2}>
               <PercentOptionsButtonGroup

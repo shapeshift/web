@@ -70,6 +70,8 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsUnsafeActiveQuote,
+  selectQuoteSellAmountUsd,
+  selectQuoteSellAmountUserCurrency,
   selectSortedTradeQuotes,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -143,6 +145,7 @@ export const TradeInput = memo(() => {
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const activeQuoteTotalEstimatedExecutionTimeMs = useAppSelector(
@@ -176,6 +179,13 @@ export const TradeInput = memo(() => {
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
     [sellAmountCryptoPrecision],
   )
+
+  const fiatInputOutputDifference = useMemo(() => {
+    const difference = bnOrZero(buyAmountAfterFeesUserCurrency).minus(
+      bnOrZero(sellAmountUserCurrency),
+    )
+    return difference.div(bnOrZero(buyAmountAfterFeesUserCurrency)).toString()
+  }, [buyAmountAfterFeesUserCurrency, sellAmountUserCurrency])
 
   const quoteStatusTranslation = useMemo(() => {
     const quoteRequestError = quoteRequestErrors[0]
@@ -672,6 +682,7 @@ export const TradeInput = memo(() => {
               isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
+              fiatDifference={fiatInputOutputDifference}
             />
           </Stack>
           {ConfirmSummary}

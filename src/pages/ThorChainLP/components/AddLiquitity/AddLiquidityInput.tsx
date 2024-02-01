@@ -361,12 +361,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           setVirtualRuneCryptoLiquidityAmount(crypto)
           setVirtualRuneFiatLiquidityAmount(fiat)
           setVirtualAssetFiatLiquidityAmount(fiat)
-          setVirtualAssetCryptoLiquidityAmount(bn(crypto).div(bnOrZero(runePerAsset)).toFixed())
+          setVirtualAssetCryptoLiquidityAmount(
+            bnOrZero(crypto).div(bnOrZero(runePerAsset)).toFixed(),
+          )
         } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
           setVirtualAssetCryptoLiquidityAmount(crypto)
           setVirtualAssetFiatLiquidityAmount(fiat)
           setVirtualRuneFiatLiquidityAmount(fiat)
-          setVirtualRuneCryptoLiquidityAmount(bn(crypto).times(bnOrZero(runePerAsset)).toFixed())
+          setVirtualRuneCryptoLiquidityAmount(
+            bnOrZero(crypto).times(bnOrZero(runePerAsset)).toFixed(),
+          )
         }
       }
     },

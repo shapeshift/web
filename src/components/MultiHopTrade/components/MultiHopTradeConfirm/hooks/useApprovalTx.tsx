@@ -9,8 +9,8 @@ import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../constants'
-import { getApprovalTxData } from '../helpers'
+import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../../hooks/constants'
+import { getApprovalTxData } from '../../../hooks/useAllowanceApproval/helpers'
 
 export const useApprovalTx = (
   tradeQuoteStep: TradeQuoteStep,

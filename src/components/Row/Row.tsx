@@ -8,11 +8,12 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Skeleton,
   useMultiStyleConfig,
 } from '@chakra-ui/react'
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
-export type RowProps = { Tooltipbody?: React.FC } & BoxProps &
+export type RowProps = { Tooltipbody?: React.FC; isLoading?: boolean } & BoxProps &
   ThemingProps &
   Pick<ButtonProps, 'colorScheme'>
 
@@ -20,6 +21,7 @@ type RowContextProps = {
   isHovered: boolean
   setIsHovered: (hovered: boolean) => void
   Tooltipbody?: React.FC
+  isLoading?: boolean
 }
 
 const RowContext = createContext<RowContextProps | undefined>(undefined)
@@ -27,11 +29,11 @@ const RowContext = createContext<RowContextProps | undefined>(undefined)
 const [StylesProvider, useStyles] = createStylesContext('Row')
 
 export const Row = (props: RowProps) => {
-  const { size, variant, colorScheme, children, Tooltipbody, ...rest } = props
+  const { size, variant, colorScheme, children, Tooltipbody, isLoading, ...rest } = props
   const styles = useMultiStyleConfig('Row', { size, variant, colorScheme })
   const [isHovered, setIsHovered] = useState(false)
   return (
-    <RowContext.Provider value={{ isHovered, setIsHovered, Tooltipbody }}>
+    <RowContext.Provider value={{ isHovered, setIsHovered, Tooltipbody, isLoading }}>
       <Box __css={styles.row} {...rest}>
         <StylesProvider value={styles}>{children}</StylesProvider>
       </Box>
@@ -82,7 +84,7 @@ const Label = (props: TextProps) => {
 
 const Value = (props: TextProps) => {
   const styles = useStyles()
-  const { isHovered, setIsHovered, Tooltipbody } = useRowContext()
+  const { isHovered, setIsHovered, Tooltipbody, isLoading } = useRowContext()
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true)
@@ -92,25 +94,29 @@ const Value = (props: TextProps) => {
     setIsHovered(false)
   }, [setIsHovered])
 
-  if (!Tooltipbody) return <Box __css={styles.value} {...props} />
-  return (
-    <Popover isOpen={isHovered}>
-      <PopoverTrigger>
-        <Box
-          __css={styles.value}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          {...props}
-        />
-      </PopoverTrigger>
-      <PopoverContent>
-        <PopoverArrow />
-        <PopoverBody>
-          <Tooltipbody />
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
-  )
+  const valueContent = useMemo(() => {
+    if (!Tooltipbody) return <Box __css={styles.value} {...props} />
+    return (
+      <Popover isOpen={isHovered}>
+        <PopoverTrigger>
+          <Box
+            __css={styles.value}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            {...props}
+          />
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverArrow />
+          <PopoverBody>
+            <Tooltipbody />
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
+    )
+  }, [Tooltipbody, handleMouseEnter, handleMouseLeave, isHovered, props, styles.value])
+
+  return <Skeleton isLoaded={!isLoading}>{valueContent}</Skeleton>
 }
 
 Row.Label = Label

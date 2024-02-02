@@ -53,7 +53,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
             <Text translation={'trade.searchingRate'} />
           </Stack>
         )
-      case !rate || isError:
+      case (!rate && !isLoading) || isError:
         return (
           <Stack direction='row' alignItems='center' fontSize='sm' px={6} py={4}>
             <HelperTooltip

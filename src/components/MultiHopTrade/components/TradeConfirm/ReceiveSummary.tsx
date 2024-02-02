@@ -215,37 +215,19 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
           {priceImpact && <PriceImpact impactPercentage={priceImpact.toFixed(2)} />}
           <Divider borderColor='border.base' />
 
-          {amountBeforeFeesCryptoPrecision && (
-            <Row>
-              <Row.Label>
-                <Text translation='trade.buyAmount' />
-              </Row.Label>
-              <Row.Value color='text.base'>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto
-                    value={amountBeforeFeesCryptoPrecision}
-                    symbol={symbol}
-                    maximumFractionDigits={4}
-                  />
-                </Skeleton>
-              </Row.Value>
-            </Row>
-          )}
           {hasProtocolFees && (
-            <Row Tooltipbody={protocolFeeToolTip}>
+            <Row Tooltipbody={protocolFeeToolTip} isLoading={isLoading}>
               <Row.Label>
                 <Text translation='trade.protocolFee' />
               </Row.Label>
               <Row.Value color='text.base'>
-                {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
-                  <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
-                    <Amount.Crypto color={redColor} value={amountCryptoPrecision} symbol={symbol} />
-                  </Skeleton>
+                {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
+                  <Amount.Crypto color={redColor} value={amountCryptoPrecision} symbol={symbol} />
                 ))}
               </Row.Value>
             </Row>
           )}
-          <Row>
+          <Row isLoading={isLoading}>
             <Row.Label display='flex'>
               <Text translation={tradeFeeSourceTranslation} />
               {amountAfterDiscountUserCurrency !== '0' && (
@@ -253,50 +235,24 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               )}
             </Row.Label>
             <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
-              <Skeleton isLoaded={!isLoading}>
-                <Flex alignItems='center' gap={2}>
-                  {amountAfterDiscountUserCurrency !== '0' ? (
-                    <>
-                      <Amount.Fiat value={amountAfterDiscountUserCurrency} />
-                      <QuestionIcon />
-                    </>
-                  ) : (
-                    <>
-                      <Amount.Fiat
-                        value={quoteFeeUsd}
-                        color='text.subtlest'
-                        textDecoration='line-through'
-                      />
-                      <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                      <QuestionIcon color={greenColor} />
-                    </>
-                  )}
-                </Flex>
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Divider borderColor='border.base' />
-          <Row alignItems='flex-start' {...rest}>
-            <Row.Label>
-              <Stack direction='row' alignItems='center' spacing={1}>
-                <Text translation='trade.youReceive' />
-              </Stack>
-            </Row.Label>
-            <Row.Value display='flex' columnGap={2} alignItems='center' color='text.base'>
-              <Stack spacing={0} alignItems='flex-end'>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Crypto
-                    value={isAmountPositive ? amountCryptoPrecision : '0'}
-                    maximumFractionDigits={4}
-                    symbol={symbol}
-                  />
-                </Skeleton>
-                {fiatAmount && (
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Fiat color='text.subtle' value={fiatAmount} prefix='≈' />
-                  </Skeleton>
+              <Flex alignItems='center' gap={2}>
+                {amountAfterDiscountUserCurrency !== '0' ? (
+                  <>
+                    <Amount.Fiat value={amountAfterDiscountUserCurrency} />
+                    <QuestionIcon />
+                  </>
+                ) : (
+                  <>
+                    <Amount.Fiat
+                      value={quoteFeeUsd}
+                      color='text.subtlest'
+                      textDecoration='line-through'
+                    />
+                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                    <QuestionIcon color={greenColor} />
+                  </>
                 )}
-              </Stack>
+              </Flex>
             </Row.Value>
           </Row>
           {/* TODO(gomes): This should probably be made its own component and <ManualAddressEntry /> removed */}

@@ -74,6 +74,9 @@ const TransactionIcon = ({
       return <ArrowDownIcon color={green} />
     case TradeType.Trade:
     case TradeType.Swap:
+    case Method.WithdrawNative:
+    case Method.DepositRefundNative:
+    case Method.LoanRepaymentRefundNative:
       return <FaExchangeAlt />
     case Method.Approve: {
       return assetId && value ? (

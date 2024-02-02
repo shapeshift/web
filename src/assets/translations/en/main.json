@@ -607,24 +607,21 @@
       "thorchain": {
         "deposit": "Deposit",
         "depositRefund": "Deposit Refund",
+        "depositRefundNative": "Deposit + Refund",
         "loanOpen": "Loan Open",
+        "loanOpenOut": "Loan Received",
         "loanOpenRefund": "Loan Open Refund",
-        "loanOut": "Loan Collateral Received",
         "loanRepayment": "Loan Repayment",
+        "loanRepaymentOut": "Loan Collateral Received",
         "loanRepaymentRefund": "Loan Repayment Refund",
+        "loanRepaymentRefundNative": "Loan Repayment + Refund",
         "out": "Outbound Received",
+        "refund": "Refund",
         "swapOut": "Swap Received",
         "swapRefund": "Swap Refund",
-        "transferOut": "Transfer Out",
         "withdraw": "Withdraw Requested",
+        "withdrawNative": "Withdraw",
         "withdrawOut": "Withdraw Received"
-      },
-      "swap": {
-        "deposit": "Swap",
-        "streamingSwap": "Streaming Swap",
-        "out": "Swap",
-        "refund": "Refund",
-        "outbound": "Outbound"
       },
       "foxy": {
         "stake": "Stake",

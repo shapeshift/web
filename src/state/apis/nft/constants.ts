@@ -41,8 +41,15 @@ const nftNameBlacklistRegex = new RegExp(
   NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
   'i',
 )
-export const isSpammyNftText = (nftText: string) =>
-  nftText === '' || nftNameBlacklistRegex.test(nftText)
+export const isSpammyNftText = (nftText: string) => {
+  // TODO(gomes): since we iterate on collection description, NFT name, and NFT symbol running this check,
+  // one of the three with almost always be empty, resulting in it being wrongly flagged as spammy.
+  // We may want to revert this behavior if we can get more granular and only run this in specific cases
+  // const isEmptyText = nftText === ''
+  const isEmptyText = false
+  const isSpammyMatch = nftNameBlacklistRegex.test(nftText)
+  return isEmptyText || isSpammyMatch
+}
 export const isSpammyTokenText = (tokenText: string) =>
   TOKEN_TEXT_REGEX_BLACKLIST.some(regex => regex.test(tokenText))
 const isSpammyDomain = (domain: string) =>

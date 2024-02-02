@@ -139,7 +139,7 @@ export const bnbsmartchain: AssetWithNetworkName = {
   symbol: 'BNB',
   precision: 18,
   color: '#F0B90B',
-  icon: 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1644979850',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/smartchain/info/logo.png',
   explorer: 'https://bscscan.com',
   explorerAddressLink: 'https://bscscan.com/address/',
   explorerTxLink: 'https://bscscan.com/tx/',

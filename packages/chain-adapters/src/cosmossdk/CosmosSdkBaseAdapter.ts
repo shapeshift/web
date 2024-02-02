@@ -80,11 +80,11 @@ export type CosmosSdkChainAdapter = cosmos.ChainAdapter | thorchain.ChainAdapter
 
 type Denom = 'uatom' | 'rune'
 
-export interface ChainAdapterArgs {
+export interface ChainAdapterArgs<T = unchained.cosmossdk.Api> {
   chainId?: CosmosSdkChainId
   coinName: string
   providers: {
-    http: unchained.cosmos.V1Api | unchained.thorchain.V1Api
+    http: T
     ws: unchained.ws.Client<unchained.cosmossdk.Tx>
   }
 }
@@ -104,7 +104,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   protected readonly defaultBIP44Params: BIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
-    http: unchained.cosmos.V1Api | unchained.thorchain.V1Api
+    http: unchained.cosmossdk.Api
     ws: unchained.ws.Client<unchained.cosmossdk.Tx>
   }
 

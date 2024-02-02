@@ -72,7 +72,7 @@ export const TransactionMethod = ({
       case Method.LoanRepayment:
       case Method.Stake:
       case Method.Transfer:
-      case Method.TransferOut:
+      case Method.Withdraw:
         return TransferType.Send
       case Method.BeginUnbonding:
       case Method.ClaimWithdraw:
@@ -80,24 +80,27 @@ export const TransactionMethod = ({
       case Method.Exit:
       case Method.ExitPool:
       case Method.InstantUnstake:
+      case Method.LoanOpenOut:
       case Method.LoanOpenRefund:
-      case Method.LoanOut:
+      case Method.LoanRepaymentOut:
       case Method.LoanRepaymentRefund:
       case Method.Out:
-      case Method.Outbound:
       case Method.RecvPacket:
       case Method.Refund:
       case Method.RemoveLiquidityEth:
       case Method.SwapOut:
       case Method.SwapRefund:
       case Method.Unstake:
-      case Method.Withdraw:
       case Method.WithdrawDelegatorReward:
       case Method.WithdrawOut:
         return TransferType.Receive
       case Method.Approve:
       case Method.Revoke:
         return Method.Approve
+      case Method.DepositRefundNative:
+      case Method.LoanRepaymentRefundNative:
+      case Method.WithdrawNative:
+        return method
       default: {
         const transferTypes = Object.keys(transfersByType)
         if (transferTypes.length === 1) return transferTypes[0] // known single direction

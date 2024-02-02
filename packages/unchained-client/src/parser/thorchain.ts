@@ -112,7 +112,7 @@ export interface ParserArgs {
   midgardUrl: string
 }
 
-const streamingSwapRegex = /:\d+\/\d+\/\d+:/
+const streamingSwapRegex = /:(\d+|(\d+(?:e[+-]?\d+)?))\/\d+\/\d+:/
 
 const getLiquidityType = (pool: string): LiquidityType => (pool.includes('/') ? 'Savers' : 'LP')
 
@@ -188,11 +188,12 @@ export class Parser {
     const txType = (() => {
       if (swapType) {
         switch (swapType.toLowerCase()) {
-          case '$-':
-          case 'loan-':
           case '$+':
           case 'loan+':
-            return 'loan'
+            return 'loanOpen'
+          case '$-':
+          case 'loan-':
+            return 'loanRepayment'
           default:
             return action.type
         }

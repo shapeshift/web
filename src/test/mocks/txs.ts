@@ -360,7 +360,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       },
     ],
     txid: '0xcfea9955795ed8de3f82e8ed0db7256cd08a36390b3a21c17ff2b6dd1f9e8f79',
-    data: { method: 'deposit', parser: 'swap' },
+    data: { method: 'deposit', parser: 'uniV2' },
   }
 
   // Converted yvAAVE tx: yvUNI -> UNI
@@ -391,7 +391,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       },
     ],
     txid: '0xe77a8da0d8a7c613305ccdbf818396bcbda801f1d5b239d441e1386e841f3270',
-    data: { method: 'withdraw', parser: 'swap' },
+    data: { method: 'withdraw', parser: 'uniV2' },
   }
 
   return [deposit, withdraw]

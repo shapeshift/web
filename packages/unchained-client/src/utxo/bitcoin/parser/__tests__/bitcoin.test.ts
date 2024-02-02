@@ -8,9 +8,10 @@ import { TransactionParser } from '../index'
 import standardNoChange from './mockData/standardNoChange'
 import standardWithChange from './mockData/standardWithChange'
 import thorchainLoanOpen from './mockData/thorchainLoanOpen'
+import thorchainLoanOpenOutbound from './mockData/thorchainLoanOpenOutbound'
 import thorchainLoanOpenRefund from './mockData/thorchainLoanOpenRefund'
-import thorchainLoanOutbound from './mockData/thorchainLoanOutbound'
 import thorchainLoanRepayment from './mockData/thorchainLoanRepayment'
+import thorchainLoanRepaymentOutbound from './mockData/thorchainLoanRepaymentOutbound'
 import thorchainLoanRepaymentRefund from './mockData/thorchainLoanRepaymentRefund'
 import thorchainLpDeposit from './mockData/thorchainLpDeposit'
 import thorchainLpOutbound from './mockData/thorchainLpOutbound'
@@ -844,6 +845,40 @@ describe('parseTx', () => {
       expect(actual).toEqual(expected)
     })
 
+    it('should be able to parse loan open outbound', async () => {
+      const { tx, actionsResponse } = thorchainLoanOpenOutbound
+      const address = 'bc1qey0whgq0ef4rxdm2pv63fxrzykpnk8weucpux5'
+      const memo = 'OUT:84D4507377BAE8F7B9297EAE39738854459C8C375D1994BB9AF36E451232C5F5'
+
+      mocks.get.mockImplementationOnce(() => ({ data: actionsResponse }))
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHash: tx.blockHash,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        confirmations: tx.confirmations,
+        status: TxStatus.Confirmed,
+        address,
+        chainId: btcChainId,
+        transfers: [
+          {
+            type: TransferType.Receive,
+            from: 'bc1qnrum37mdlvtay95k5f8hxyk8sy6rvvy60vc9gq',
+            to: address,
+            assetId: btcAssetId,
+            totalValue: '1762711',
+            components: [{ value: '1762711' }],
+          },
+        ],
+        data: { parser: 'thorchain', memo, method: 'loanOpenOut' },
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
     it('should be able to parse loan repayment', async () => {
       const { tx } = thorchainLoanRepayment
       const address = 'bc1q3a2me0crkm0ap27ythdavfa20l2tgw3cs4tf4k'
@@ -888,8 +923,8 @@ describe('parseTx', () => {
       expect(actual).toEqual(expected)
     })
 
-    it('should be able to parse loan outbound', async () => {
-      const { tx, actionsResponse } = thorchainLoanOutbound
+    it('should be able to parse loan repayment outbound', async () => {
+      const { tx, actionsResponse } = thorchainLoanRepaymentOutbound
       const address = 'bc1q269j5rs4rm5tjpvm6adcchhvgmghc4p46250ra'
       const memo = 'OUT:5378E62D1426BA399753583F01E8655C508DE22903352D1CAFA10942222CF7A1'
 
@@ -914,7 +949,7 @@ describe('parseTx', () => {
             components: [{ value: '14954979' }],
           },
         ],
-        data: { parser: 'thorchain', memo, method: 'loanOut' },
+        data: { parser: 'thorchain', memo, method: 'loanRepaymentOut' },
       }
 
       const actual = await txParser.parse(tx, address)

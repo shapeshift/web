@@ -89,27 +89,12 @@ export const metaData = (
         sequence: event['recv_packet']['packet_sequence'],
       }
     case 'deposit':
-      if (event['add_liquidity']) {
-        return {
-          parser: 'lp',
-          method: msg.type,
-          pool: event['add_liquidity']['pool'],
-        }
-      }
+      if (!event['add_liquidity']) return
       return {
-        parser: 'swap',
+        parser: 'lp',
         method: msg.type,
-        memo: event['message']['memo'],
+        pool: event['add_liquidity']['pool'],
       }
-    case 'outbound': {
-      const memo = event['outbound']['memo']
-      const [type] = memo.split(':')
-      return {
-        parser: 'swap',
-        method: type.toLowerCase() || msg.type,
-        memo: event['outbound']['memo'],
-      }
-    }
     case 'send':
       // known message types with no applicable metadata
       return

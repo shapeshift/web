@@ -31,6 +31,7 @@ export default function register(): Plugins {
                 return new cosmos.ChainAdapter({
                   providers: { http, ws },
                   coinName: 'Cosmos',
+                  midgardUrl: getConfig().REACT_APP_MIDGARD_URL,
                 })
               },
             ],

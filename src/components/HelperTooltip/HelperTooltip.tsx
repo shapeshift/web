@@ -11,7 +11,7 @@ export type HelperTooltipProps = {
 
 export const HelperTooltip = ({ children, flexProps, iconProps, ...rest }: HelperTooltipProps) => {
   return (
-    <Tooltip {...rest}>
+    <Tooltip hasArrow {...rest}>
       <Flex alignItems='center' columnGap={2} {...flexProps}>
         {children}
         <QuestionIcon color='text.subtle' {...iconProps} />

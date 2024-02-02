@@ -756,16 +756,21 @@
     "customRecipientAddress": "Custom recipient address",
     "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
     "enterCustomRecipientAddress": "Enter custom recipient address",
+    "receiveAtLeast": "Receive at least",
     "tooltip": {
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
-      "priceImpact": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
+      "priceImpactHigh": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
+      "priceImpact": "The impact your trade has on the market price of this pool.",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
       "protocol": "This is the protocol where your trade is being routed.",
       "protocolLifi": "This is the protocol where your trade is being routed. LI.FI executes a series of intermediary trades under the hood for the best overall combination of price, safety and speed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
-      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct."
+      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct.",
+      "priceImpactDifference": "The estimated difference between the USD values of input and output amounts.",
+      "slippageMin": "If the price moves so that you will receive less than %{amount} %{symbol}, your transaction will be reverted. This is the minimum amount you are guaranteed to receive.",
+      "changeQuote": "Change quote"
     },
     "rates": {
       "tags": {

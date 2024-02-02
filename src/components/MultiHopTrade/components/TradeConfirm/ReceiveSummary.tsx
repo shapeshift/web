@@ -24,7 +24,6 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -32,24 +31,20 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_STREAM_SWAP_SOURCE,
-} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { isSome, middleEllipsis } from 'lib/utils'
 import {
   selectActiveQuoteAffiliateBps,
   selectQuoteAffiliateFeeUserCurrency,
+  selectQuoteFeeAmountUsd,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import {
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from 'state/slices/tradeQuoteSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { FeeModal } from '../FeeModal/FeeModal'
+import { PriceImpact } from '../PriceImpact'
+import { MaxSlippage } from '../ReceiveSummary/MaxSlippage'
 import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
 
 type ReceiveSummaryProps = {
@@ -64,6 +59,7 @@ type ReceiveSummaryProps = {
   swapperName: string
   defaultIsOpen?: boolean
   swapSource?: SwapSource
+  priceImpact?: BigNumber
 } & RowProps
 
 const editIcon = <EditIcon />
@@ -96,6 +92,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     isLoading,
     defaultIsOpen = false,
     swapSource,
+    priceImpact,
     ...rest
   }) => {
     const translate = useTranslate()
@@ -107,8 +104,8 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     // use the fee data from the actual quote in case it varies from the theoretical calculation
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
     const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
+    const quoteFeeUsd = useAppSelector(selectQuoteFeeAmountUsd)
 
-    const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
@@ -147,11 +144,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       [intermediaryTransactionOutputsParsed],
     )
 
-    const amountAfterSlippage = useMemo(() => {
-      const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
-      return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
-    }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
-
     const handleFeeModal = useCallback(() => {
       setShowFeeModal(!showFeeModal)
     }, [showFeeModal])
@@ -177,11 +169,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       console.log(event.target.value)
     }, [])
 
-    const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
-      () => ['trade.minAmountAfterSlippage', { slippage: slippageAsPercentageString }],
-      [slippageAsPercentageString],
-    )
-
     const wallet = useWallet().state.wallet
     const useReceiveAddressArgs = useMemo(
       () => ({
@@ -193,12 +180,16 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
 
     const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
 
+    const protocolFeeToolTip = useCallback(() => {
+      return <Text translation={'trade.tooltip.protocolFee'} />
+    }, [])
+
     // This should never happen but it may
     if (isHolisticRecipientAddressEnabled && !receiveAddress) return null
 
     return (
       <>
-        <Stack fontSize='13px' spacing={3} pt={4} px={6}>
+        <Stack fontSize='13px' spacing={3} py={4} px={6}>
           <Row alignItems='center'>
             <Row.Label display='flex' gap={2} alignItems='center'>
               {translate('trade.protocol')}
@@ -210,6 +201,19 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </RawText>
             </Row.Value>
           </Row>
+
+          <MaxSlippage
+            swapSource={swapSource}
+            isLoading={isLoading}
+            symbol={symbol}
+            amountCryptoPrecision={amountCryptoPrecision}
+            slippageDecimalPercentage={slippageDecimalPercentage}
+            hasIntermediaryTransactionOutputs={hasIntermediaryTransactionOutputs}
+            intermediaryTransactionOutputs={intermediaryTransactionOutputs}
+          />
+
+          {priceImpact && <PriceImpact impactPercentage={priceImpact.toFixed(2)} />}
+          <Divider borderColor='border.base' />
 
           {amountBeforeFeesCryptoPrecision && (
             <Row>
@@ -228,12 +232,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             </Row>
           )}
           {hasProtocolFees && (
-            <Row>
-              <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-                <Row.Label>
-                  <Text translation='trade.protocolFee' />
-                </Row.Label>
-              </HelperTooltip>
+            <Row Tooltipbody={protocolFeeToolTip}>
+              <Row.Label>
+                <Text translation='trade.protocolFee' />
+              </Row.Label>
               <Row.Value color='text.base'>
                 {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
                   <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
@@ -260,6 +262,11 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                     </>
                   ) : (
                     <>
+                      <Amount.Fiat
+                        value={quoteFeeUsd}
+                        color='text.subtlest'
+                        textDecoration='line-through'
+                      />
                       <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
                       <QuestionIcon color={greenColor} />
                     </>
@@ -292,49 +299,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Stack>
             </Row.Value>
           </Row>
-          {swapSource !== THORCHAIN_STREAM_SWAP_SOURCE &&
-            swapSource !== THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE && (
-              <>
-                <Row gap={4}>
-                  <Row.Label>
-                    <Text translation={minAmountAfterSlippageTranslation} />
-                  </Row.Label>
-                  <Row.Value whiteSpace='nowrap' color='text.base'>
-                    <Stack spacing={0} alignItems='flex-end'>
-                      <Skeleton isLoaded={!isLoading}>
-                        <Amount.Crypto
-                          value={amountAfterSlippage}
-                          symbol={symbol}
-                          maximumFractionDigits={4}
-                        />
-                      </Skeleton>
-                      {isAmountPositive &&
-                        hasIntermediaryTransactionOutputs &&
-                        intermediaryTransactionOutputsParsed?.map(
-                          ({ amountCryptoPrecision, symbol, chainName }) => (
-                            <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
-                              <Amount.Crypto
-                                value={amountCryptoPrecision}
-                                symbol={symbol}
-                                prefix={translate('trade.or')}
-                                maximumFractionDigits={4}
-                                suffix={
-                                  chainName
-                                    ? translate('trade.onChainName', {
-                                        chainName,
-                                      })
-                                    : undefined
-                                }
-                              />
-                            </Skeleton>
-                          ),
-                        )}
-                    </Stack>
-                  </Row.Value>
-                </Row>
-              </>
-            )}
-
           {/* TODO(gomes): This should probably be made its own component and <ManualAddressEntry /> removed */}
           {/* TODO(gomes): we can safely remove this condition when this feature goes live */}
           {isHolisticRecipientAddressEnabled &&

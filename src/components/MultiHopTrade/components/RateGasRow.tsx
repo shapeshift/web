@@ -1,6 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Center, Collapse, Divider, Flex, Stack, useDisclosure } from '@chakra-ui/react'
+import { Center, Collapse, Divider, Flex, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { PropsWithChildren } from 'react'
 import { type FC, memo, useCallback } from 'react'
@@ -82,50 +82,55 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
               px={6}
               py={4}
             >
-              <Row fontSize='sm' flex={1}>
-                <Row.Value
-                  fontSize='sm'
-                  display='flex'
-                  alignItems='center'
-                  gap={2}
-                  _hover={rateHover}
-                  onClick={handleRateClick}
-                  zIndex={2}
-                >
-                  <Center
-                    className='quote-icon'
-                    bg='background.surface.raised.base'
-                    borderRadius='md'
-                    borderWidth={1}
-                    p='2px'
-                    borderColor='border.base'
-                    boxShadow='0 1px 2px rgba(0,0,0,.2)'
-                  >
-                    {swapperName && <SwapperIcon size='2xs' swapperName={swapperName} />}
-                  </Center>
-                  <Stack
-                    width='full'
-                    direction='row'
-                    spacing={1}
-                    color='text.link'
-                    className='rate'
-                    borderBottomWidth={1}
-                    borderColor='transparent'
-                  >
-                    <Amount.Crypto
+              <Tooltip hasArrow label={translate('trade.tooltip.changeQuote')} placement='right'>
+                <Flex>
+                  <Row fontSize='sm' flex={1}>
+                    <Row.Value
                       fontSize='sm'
-                      value='1'
-                      symbol={sellSymbol ?? ''}
-                      suffix={sellSymbol ? '=' : ''}
-                    />
-                    <Amount.Crypto
-                      fontSize='sm'
-                      value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
-                      symbol={buySymbol ?? ''}
-                    />
-                  </Stack>
-                </Row.Value>
-              </Row>
+                      display='flex'
+                      alignItems='center'
+                      gap={2}
+                      _hover={rateHover}
+                      onClick={handleRateClick}
+                      zIndex={2}
+                    >
+                      <Center
+                        className='quote-icon'
+                        bg='background.surface.raised.base'
+                        borderRadius='md'
+                        borderWidth={1}
+                        p='2px'
+                        borderColor='border.base'
+                        boxShadow='0 1px 2px rgba(0,0,0,.2)'
+                      >
+                        {swapperName && <SwapperIcon size='2xs' swapperName={swapperName} />}
+                      </Center>
+
+                      <Stack
+                        width='full'
+                        direction='row'
+                        spacing={1}
+                        color='text.link'
+                        className='rate'
+                        borderBottomWidth={1}
+                        borderColor='transparent'
+                      >
+                        <Amount.Crypto
+                          fontSize='sm'
+                          value='1'
+                          symbol={sellSymbol ?? ''}
+                          suffix={sellSymbol ? '=' : ''}
+                        />
+                        <Amount.Crypto
+                          fontSize='sm'
+                          value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
+                          symbol={buySymbol ?? ''}
+                        />
+                      </Stack>
+                    </Row.Value>
+                  </Row>
+                </Flex>
+              </Tooltip>
               <Flex gap={2} alignItems='center'>
                 <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
                   <Row.Label fontSize='sm'>

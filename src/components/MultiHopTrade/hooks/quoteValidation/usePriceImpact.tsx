@@ -17,7 +17,7 @@ export const usePriceImpact = () => {
       buyAmountBeforeFeesUserCurrency,
     )
 
-    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100)
+    return tradeDifference.div(sellAmountBeforeFeesUserCurrency).times(100).abs()
   }, [sellAmountBeforeFeesUserCurrency, buyAmountBeforeFeesUserCurrency])
 
   const isModeratePriceImpact = useMemo(() => {

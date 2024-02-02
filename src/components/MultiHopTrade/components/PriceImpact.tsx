@@ -1,40 +1,43 @@
-import type { FlexProps, IconProps } from '@chakra-ui/react'
-import { Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Text as CText } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useMemo } from 'react'
-import { MdOfflineBolt } from 'react-icons/md'
-import { useTranslate } from 'react-polyglot'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
+import { useCallback, useMemo } from 'react'
 import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { warningSeverity } from 'lib/utils'
 
 interface PriceImpactProps {
   impactPercentage: string
 }
 
-const flexProps: FlexProps = { flexDirection: 'row' }
-
 export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
-  const translate = useTranslate()
-  const redText = useColorModeValue('red.500', 'red.400')
-  const iconProps: IconProps = useMemo(() => ({ color: redText }), [redText])
+  const severity = useMemo(() => {
+    if (!impactPercentage) return 0
+    return warningSeverity(impactPercentage)
+  }, [impactPercentage])
+
+  const priceImpactColor = useMemo(() => {
+    if (!impactPercentage) return undefined
+    if (bnOrZero(impactPercentage).isLessThan(0)) return 'text.success'
+    if (severity < 1) return 'text.base'
+    if (severity < 3) return 'text.warning'
+    return 'text.danger'
+  }, [impactPercentage, severity])
+
+  const toolTipLabel = useCallback(() => {
+    if (severity > 1) {
+      return <Text translation='trade.tooltip.priceImpactHigh' />
+    }
+    return <Text translation='trade.tooltip.priceImpact' />
+  }, [severity])
 
   return (
-    <Row fontSize='sm' flex={1}>
+    <Row flex={1} Tooltipbody={toolTipLabel}>
       <Row.Label display='flex' alignItems='center' gap={1}>
         <Text translation='trade.priceImpact' />
-        <RawText as='span' fontSize='lg' color='gray.500'>
-          <MdOfflineBolt />
-        </RawText>
       </Row.Label>
       <Row.Value>
-        <HelperTooltip
-          label={translate('trade.tooltip.priceImpact')}
-          flexProps={flexProps}
-          iconProps={iconProps}
-        >
-          <CText color={redText}>{impactPercentage} %</CText>
-        </HelperTooltip>
+        <CText color={priceImpactColor}>~ {impactPercentage}%</CText>
       </Row.Value>
     </Row>
   )

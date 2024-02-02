@@ -38,7 +38,6 @@ import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/u
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -63,15 +62,12 @@ import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,
-  selectActiveQuoteTotalEstimatedExecutionTimeMs,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsUnsafeActiveQuote,
-  selectQuoteSellAmountUsd,
-  selectQuoteSellAmountUserCurrency,
   selectSortedTradeQuotes,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -87,7 +83,6 @@ import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { PriceImpact } from '../PriceImpact'
 import { SellAssetInput } from './components/SellAssetInput'
-import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 
@@ -145,12 +140,8 @@ export const TradeInput = memo(() => {
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-  const sellAmountUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
-  const activeQuoteTotalEstimatedExecutionTimeMs = useAppSelector(
-    selectActiveQuoteTotalEstimatedExecutionTimeMs,
-  )
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
@@ -179,13 +170,6 @@ export const TradeInput = memo(() => {
     () => bnOrZero(sellAmountCryptoPrecision).gt(0),
     [sellAmountCryptoPrecision],
   )
-
-  const fiatInputOutputDifference = useMemo(() => {
-    const difference = bnOrZero(buyAmountAfterFeesUserCurrency).minus(
-      bnOrZero(sellAmountUserCurrency),
-    )
-    return difference.div(bnOrZero(buyAmountAfterFeesUserCurrency)).toString()
-  }, [buyAmountAfterFeesUserCurrency, sellAmountUserCurrency])
 
   const quoteStatusTranslation = useMemo(() => {
     const quoteRequestError = quoteRequestErrors[0]
@@ -374,18 +358,6 @@ export const TradeInput = memo(() => {
     wallet,
   ])
 
-  const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
-    () =>
-      hasUserEnteredAmount ? (
-        <TradeQuotes
-          sortedQuotes={sortedQuotes}
-          isLoading={isLoading}
-          isSwapperFetching={isSwapperFetching}
-        />
-      ) : null,
-    [hasUserEnteredAmount, isLoading, sortedQuotes, isSwapperFetching],
-  )
-
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
@@ -494,6 +466,7 @@ export const TradeInput = memo(() => {
                   swapperName={activeSwapperName ?? ''}
                   defaultIsOpen={true}
                   swapSource={tradeQuoteStep?.source}
+                  priceImpact={priceImpactPercentage}
                 />
               ) : null}
             </RateGasRow>
@@ -682,7 +655,7 @@ export const TradeInput = memo(() => {
               isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
-              fiatDifference={fiatInputOutputDifference}
+              priceImpact={priceImpactPercentage.toString()}
             />
           </Stack>
           {ConfirmSummary}

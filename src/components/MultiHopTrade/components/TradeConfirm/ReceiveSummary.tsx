@@ -7,7 +7,6 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Skeleton,
   Stack,
   Tooltip,
   useColorModeValue,
@@ -25,7 +24,7 @@ import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { Row, type RowProps } from 'components/Row/Row'
+import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -60,7 +59,7 @@ type ReceiveSummaryProps = {
   defaultIsOpen?: boolean
   swapSource?: SwapSource
   priceImpact?: BigNumber
-} & RowProps
+}
 
 const editIcon = <EditIcon />
 const checkIcon = <CheckIcon />
@@ -84,16 +83,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     symbol,
     amountCryptoPrecision,
     intermediaryTransactionOutputs,
-    fiatAmount,
-    amountBeforeFeesCryptoPrecision,
     protocolFees,
     slippageDecimalPercentage,
     swapperName,
     isLoading,
-    defaultIsOpen = false,
     swapSource,
     priceImpact,
-    ...rest
   }) => {
     const translate = useTranslate()
     const [showFeeModal, setShowFeeModal] = useState(false)
@@ -105,8 +100,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
     const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
     const quoteFeeUsd = useAppSelector(selectQuoteFeeAmountUsd)
-
-    const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
       return items
@@ -189,7 +182,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
 
     return (
       <>
-        <Stack fontSize='13px' spacing={3} py={4} px={6}>
+        <Stack fontSize='sm' spacing={4} py={4} px={6}>
           <Row alignItems='center'>
             <Row.Label display='flex' gap={2} alignItems='center'>
               {translate('trade.protocol')}
@@ -245,7 +238,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                   <>
                     <Amount.Fiat
                       value={quoteFeeUsd}
-                      color='text.subtlest'
+                      color='text.subtle'
                       textDecoration='line-through'
                     />
                     <Text translation='trade.free' fontWeight='semibold' color={greenColor} />

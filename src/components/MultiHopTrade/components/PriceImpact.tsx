@@ -33,7 +33,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
 
   return (
     <Row flex={1} Tooltipbody={toolTipLabel}>
-      <Row.Label display='flex' alignItems='center' gap={1}>
+      <Row.Label>
         <Text translation='trade.priceImpact' />
       </Row.Label>
       <Row.Value>

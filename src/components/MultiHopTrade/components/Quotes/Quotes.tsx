@@ -12,7 +12,7 @@ import { WithBackButton } from '../WithBackButton'
 
 export const Quotes = () => {
   const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
-  const { isSwapperFetching, isQuoteRequestIncomplete } = useGetTradeQuotes()
+  const { isSwapperFetching, isQuoteRequestUninitialized } = useGetTradeQuotes()
   const history = useHistory()
 
   const handleBack = useCallback(() => {
@@ -30,7 +30,7 @@ export const Quotes = () => {
       </CardHeader>
       <TradeQuotes
         sortedQuotes={sortedQuotes}
-        isLoading={isQuoteRequestIncomplete}
+        isLoading={isQuoteRequestUninitialized}
         isSwapperFetching={isSwapperFetching}
       />
     </SlideTransition>

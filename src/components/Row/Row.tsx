@@ -82,6 +82,11 @@ const Label = (props: TextProps) => {
   )
 }
 
+const popperModifiers = [
+  { name: 'preventOverflow', options: { padding: 20 } },
+  { name: 'flip', options: { fallbackPlacements: ['top', 'bottom'] } },
+]
+
 const Value = (props: TextProps) => {
   const styles = useStyles()
   const { isHovered, setIsHovered, Tooltipbody, isLoading } = useRowContext()
@@ -97,7 +102,7 @@ const Value = (props: TextProps) => {
   const valueContent = useMemo(() => {
     if (!Tooltipbody) return <Box __css={styles.value} {...props} />
     return (
-      <Popover isOpen={isHovered}>
+      <Popover placement='right' isOpen={isHovered} modifiers={popperModifiers}>
         <PopoverTrigger>
           <Box
             __css={styles.value}

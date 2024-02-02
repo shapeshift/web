@@ -23,7 +23,7 @@ import type {
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
 import { bn, calcFee, toAddressNList } from '../../utils'
 import { validateAddress } from '../../utils/validateAddress'
-import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
+import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type {
   CosmosSdkMsgBeginRedelegate,
@@ -42,6 +42,10 @@ export const MIN_FEE = '5000'
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.CosmosMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.CosmosMainnet
 
+export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.cosmos.V1Api> {
+  midgardUrl: string
+}
+
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainnet> {
   static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
@@ -58,6 +62,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       parser: new unchained.cosmos.TransactionParser({
         assetId: cosmosAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
+        midgardUrl: args.midgardUrl,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

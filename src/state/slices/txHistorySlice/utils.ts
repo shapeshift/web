@@ -47,7 +47,7 @@ export const serializeTxIndex = (
   data?: TxDescriptor['data'],
 ): TxIndex => {
   // special case for thorchain transactions sent back in multiple parts
-  if (data && data.parser === 'swap' && address.toLowerCase().startsWith('thor')) {
+  if (data && data.parser === 'thorchain' && address.toLowerCase().startsWith('thor')) {
     return [accountId, txid, address.toLowerCase(), data.memo].join(UNIQUE_TX_ID_DELIMITER)
   }
 
@@ -67,7 +67,7 @@ export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
   // If there are four parts, the fourth is the data, and we know it's a thorchain transaction with a memo
   if (parts.length === 4) {
     result.data = {
-      parser: 'swap',
+      parser: 'thorchain',
       memo: parts[3],
     }
   }

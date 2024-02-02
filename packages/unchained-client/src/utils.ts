@@ -24,13 +24,14 @@ export interface AggregateTransferArgs {
   transfers: Transfer[]
   type: TransferType
   value: string
+  allowZeroValue?: boolean
 }
 
 // keep track of all individual tx components and add up the total value transferred
 export function aggregateTransfer(args: AggregateTransferArgs): Transfer[] {
-  const { assetId, from, id, to, token, transfers, type, value } = args
+  const { allowZeroValue, assetId, from, id, to, token, transfers, type, value } = args
 
-  if (!new BigNumber(value).gt(0)) return transfers
+  if (!allowZeroValue && !new BigNumber(value).gt(0)) return transfers
 
   const index = transfers?.findIndex(
     t => t.type === type && t.assetId === assetId && t.from === from && t.to === to && t.id === id,

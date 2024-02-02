@@ -1,7 +1,10 @@
+import type * as thorchain from '../../parser/thorchain'
 import type { BaseTxMetadata, StandardTx } from '../../types'
 import type * as cosmossdk from '../types'
 
 export type Tx = cosmossdk.Tx
+
+export type TxMetadata = StakingMetadata | IbcMetadata | LpMetadata | thorchain.TxMetadata
 
 export interface StakingMetadata extends BaseTxMetadata {
   parser: 'staking'
@@ -21,18 +24,17 @@ export interface IbcMetadata extends BaseTxMetadata {
   sequence: string
 }
 
-export interface SwapMetadata extends BaseTxMetadata {
-  parser: 'swap'
-  memo?: string
-}
-
 export interface LpMetadata extends BaseTxMetadata {
   parser: 'lp'
   pool: string
 }
 
-export type TxMetadata = StakingMetadata | IbcMetadata | SwapMetadata | LpMetadata
-
 export interface ParsedTx extends StandardTx {
   data?: TxMetadata
+}
+
+export type TxSpecific = Partial<Pick<ParsedTx, 'data' | 'trade' | 'transfers'>>
+
+export interface SubParser<T extends Tx, U = TxSpecific> {
+  parse(tx: T, address: string): Promise<U | undefined>
 }

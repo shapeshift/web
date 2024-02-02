@@ -174,7 +174,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
 
     const protocolFeeToolTip = useCallback(() => {
-      return <Text translation={'trade.tooltip.protocolFee'} />
+      return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />
     }, [])
 
     // This should never happen but it may

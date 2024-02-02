@@ -26,9 +26,9 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
 
   const toolTipLabel = useCallback(() => {
     if (severity > 1) {
-      return <Text translation='trade.tooltip.priceImpactHigh' />
+      return <Text color='text.danger' translation='trade.tooltip.priceImpactHigh' />
     }
-    return <Text translation='trade.tooltip.priceImpact' />
+    return <Text color='text.subtle' translation='trade.tooltip.priceImpact' />
   }, [severity])
 
   return (

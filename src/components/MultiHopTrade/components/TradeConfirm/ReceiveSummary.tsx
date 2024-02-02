@@ -182,7 +182,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
 
     return (
       <>
-        <Stack fontSize='sm' spacing={4} py={4} px={6}>
+        <Stack spacing={4} py={4} px={6} fontSize='sm'>
           <Row alignItems='center'>
             <Row.Label display='flex' gap={2} alignItems='center'>
               {translate('trade.protocol')}

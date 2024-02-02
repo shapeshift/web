@@ -1,4 +1,3 @@
-import { QuestionIcon } from '@chakra-ui/icons'
 import type { BoxProps, ButtonProps, TextProps, ThemingProps } from '@chakra-ui/react'
 import {
   Box,
@@ -12,6 +11,7 @@ import {
   useMultiStyleConfig,
 } from '@chakra-ui/react'
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { FiInfo } from 'react-icons/fi'
 
 export type RowProps = { Tooltipbody?: React.FC; isLoading?: boolean } & BoxProps &
   ThemingProps &
@@ -77,7 +77,11 @@ const Label = (props: TextProps) => {
       {...props}
     >
       {children}
-      {Tooltipbody && <QuestionIcon color='text.subtle' />}
+      {Tooltipbody && (
+        <Box as='span' color='text.subtle'>
+          <FiInfo />
+        </Box>
+      )}
     </Box>
   )
 }

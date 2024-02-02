@@ -79,7 +79,8 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   const divider = useMemo(() => <Divider borderColor='border.base' />, [])
 
   const tooltipBody = useCallback(() => {
-    if (!shouldShowSlippageMinAmount) return null
+    if (!shouldShowSlippageMinAmount)
+      return <Text color='text.subtle' translation='trade.slippageInfo' />
     return (
       <Stack divider={divider}>
         <Row gap={4}>

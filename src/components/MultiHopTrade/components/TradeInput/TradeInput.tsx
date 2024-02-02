@@ -454,6 +454,7 @@ export const TradeInput = memo(() => {
               isLoading={isLoading}
               isError={didQuoteRequestFail}
               swapperName={activeSwapperName}
+              swapSource={tradeQuoteStep?.source}
             >
               {activeQuote ? (
                 <ReceiveSummary

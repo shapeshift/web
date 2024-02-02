@@ -60,6 +60,7 @@ export const RecipientAddress = () => {
   } = useFormContext()
 
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
+  const [isRecipientAddressEditing, setIsRecipientAddressEditing] = useState(false)
 
   // If we have a valid manual receive address, set it in the form
   useEffect(() => {
@@ -70,10 +71,17 @@ export const RecipientAddress = () => {
     dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))
   }, [dispatch, isValidating])
   useEffect(() => {
-    if (!value.length) return
+    if (!isRecipientAddressEditing) return
 
+    // minLength should catch this and make isValid false, but doesn't seem to on mount, even when manually triggering validation.
+    if (!value.length) {
+      dispatch(tradeInput.actions.setManualReceiveAddressIsValid(false))
+      return
+    }
+    // We only want to set this when editing. Failure to do so will catch the initial '' invalid value (because of the minLength: 1)
+    // and prevent continuing with the trade, when there is no manual receive address
     dispatch(tradeInput.actions.setManualReceiveAddressIsValid(isValid))
-  }, [value, isValid, dispatch])
+  }, [isValid, dispatch, isRecipientAddressEditing, value])
 
   const isCustomRecipientAddress = Boolean(manualReceiveAddress)
   const recipientAddressTranslation: TextPropTypes['translation'] = isCustomRecipientAddress
@@ -106,11 +114,11 @@ export const RecipientAddress = () => {
           }
         },
       },
+      minLength: 1,
     }),
     [buyAssetAssetId, buyAssetChainId, dispatch, isYatSupported],
   )
 
-  const [isRecipientAddressEditing, setIsRecipientAddressEditing] = useState(false)
   const handleEditRecipientAddressClick = useCallback(() => {
     setIsRecipientAddressEditing(true)
   }, [])
@@ -125,6 +133,8 @@ export const RecipientAddress = () => {
   const resetManualReceiveAddress = useCallback(() => {
     // Reset the manual receive address in store
     dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
+    // Reset the valid state in store
+    dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))
     // And also the form value itself, to avoid the user going from
     // custom recipient -> cleared custom recipient -> custom recipient where the previously set custom recipient
     // would be displayed, wrongly hinting this is the default wallet address
@@ -168,7 +178,7 @@ export const RecipientAddress = () => {
               pointerEvents='auto'
               color='green.500'
               aria-label='Save'
-              isDisabled={!isValid || isValidating}
+              isDisabled={!isValid || isValidating || !value.length}
               size='xs'
               onClick={handleFormSubmit}
               icon={checkIcon}

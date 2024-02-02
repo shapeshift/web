@@ -50,7 +50,10 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_LONGTAIL_SWAP_SOURCE,
+} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -279,7 +282,9 @@ export const TradeInput = memo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
     if (_isSmartContractSellAddress !== false) return true
     if (
-      tradeQuoteStep?.source === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE &&
+      [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
+        tradeQuoteStep?.source!,
+      ) &&
       _isSmartContractReceiveAddress !== false
     )
       return true

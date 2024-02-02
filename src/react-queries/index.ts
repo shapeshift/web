@@ -43,15 +43,16 @@ const common = createQueryKeys('common', {
       if (!spender) throw new Error('spender is required')
       if (!from) throw new Error('from address is required')
 
-      if (!isToken(fromAssetId(assetId).assetReference)) return null
+      const { chainId, assetReference } = fromAssetId(assetId)
+      if (!isToken(assetReference)) return null
       const supportedEvmChainIds = getSupportedEvmChainIds()
-      if (!supportedEvmChainIds.includes(fromAssetId(assetId).chainId as KnownChainIds)) return null
+      if (!supportedEvmChainIds.includes(chainId as KnownChainIds)) return null
 
       const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-        address: fromAssetId(assetId).assetReference,
+        address: assetReference,
         spender,
         from,
-        chainId: fromAssetId(assetId).chainId,
+        chainId,
       })
 
       return allowanceOnChainCryptoBaseUnit
@@ -90,18 +91,19 @@ const mutations = createMutationKeys('mutations', {
       if (!wallet) throw new Error('wallet is required')
       if (accountNumber === undefined) throw new Error('accountNumber is required')
 
+      const { assetReference, chainId } = fromAssetId(assetId)
       const approvalCalldata = getApproveContractData({
         approvalAmountCryptoBaseUnit: amount,
         spender,
-        to: fromAssetId(assetId).assetReference,
-        chainId: fromAssetId(assetId).chainId,
+        to: assetReference,
+        chainId,
       })
 
-      const adapter = assertGetEvmChainAdapter(fromAssetId(assetId).chainId)
+      const adapter = assertGetEvmChainAdapter(chainId)
 
       const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
         adapter,
-        to: fromAssetId(assetId).assetReference,
+        to: assetReference,
         value: '0',
         data: approvalCalldata,
         from,
@@ -111,7 +113,7 @@ const mutations = createMutationKeys('mutations', {
       const buildCustomTxInput = {
         accountNumber,
         data: approvalCalldata,
-        to: fromAssetId(assetId).assetReference,
+        to: assetReference,
         value: '0',
         wallet,
         ...fees,

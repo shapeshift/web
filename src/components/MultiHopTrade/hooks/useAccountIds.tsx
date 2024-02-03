@@ -45,7 +45,7 @@ export const useAccountIds = (): {
     selectLastHopBuyAccountId(state, { accountId: maybeMatchingBuyAccountId }),
   )
 
-  // Setters - the selectors above only select a *default* value, but eventually onAccountIdChange may fire if the user changes the account
+  // Setters - the selectors above initially select a *default* value, but eventually onAccountIdChange may fire if the user changes the account
 
   const setSellAssetAccountId = useCallback(
     (accountId: AccountId | undefined) =>

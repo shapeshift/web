@@ -4,6 +4,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectAccountIdParamFromFilter } from 'state/selectors'
 
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -106,9 +107,12 @@ export const selectLastHopBuyAccountId = createSelector(
   selectInputBuyAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
-  (tradeInput, buyAsset, accountIdAssetValues, accountIds) => {
+  selectAccountIdParamFromFilter,
+  (tradeInput, buyAsset, accountIdAssetValues, accountIds, maybeMatchingBuyAccountId) => {
     // return the users selection if it exists
     if (tradeInput.buyAssetAccountId) return tradeInput.buyAssetAccountId
+    // an AccountId was found matching the sell asset's account number, return it
+    if (maybeMatchingBuyAccountId) return maybeMatchingBuyAccountId
 
     const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
       accountIdAssetValues,

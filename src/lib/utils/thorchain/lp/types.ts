@@ -1,4 +1,4 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { BN } from 'lib/bignumber/bignumber'
 
 export type ThorNodeLiquidityProvider = {
@@ -195,7 +195,7 @@ export type ConfirmedQuote = {
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
-  accountIds: Record<AssetId, AccountId>
+  accountIdsByChainId: Record<ChainId, AccountId>
   feeBps: string
   feeAmountFiat: string
 }

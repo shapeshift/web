@@ -1,5 +1,6 @@
 import { Center, Image } from '@chakra-ui/react'
 import dayjs from 'dayjs'
+import isBetween from 'dayjs/plugin/isBetween'
 import { AnimatePresence, motion } from 'framer-motion'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -8,6 +9,8 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { useIsAnyApiFetching } from 'hooks/useIsAnyApiFetching/useIsAnyApiFetching'
+
+dayjs.extend(isBetween)
 
 const dogeVariants = {
   hidden: { rotate: 0, opacity: 0 },

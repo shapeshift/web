@@ -1,6 +1,10 @@
+import { Box } from '@chakra-ui/react'
 import { getConfig } from 'config'
+import type { FC } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -8,20 +12,125 @@ import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { Asset } from 'pages/Assets/Asset'
-import { Assets } from 'pages/Assets/Assets'
-import { AssetTxHistory } from 'pages/Assets/AssetTxHistory'
-import { Buy } from 'pages/Buy/Buy'
-import { Dashboard } from 'pages/Dashboard/Dashboard'
-import { StakingVaults } from 'pages/Defi/views/StakingVaults'
-import { Flags } from 'pages/Flags/Flags'
-import { LendingPage } from 'pages/Lending/LendingPage'
-import { PoolsPage } from 'pages/ThorChainLP/PoolsPage'
-import { Trade } from 'pages/Trade/Trade'
-import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
+
+const suspenseSpinnerStyle = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  top: 0,
+  width: '100%',
+  height: '100vh',
+}
+
+function makeSuspsenseful<Props extends {}>(Component: FC<Props>) {
+  return (props: Props) => {
+    const suspenseSpinner = useMemo(
+      () => (
+        <Box style={suspenseSpinnerStyle}>
+          <CircularProgress />
+        </Box>
+      ),
+      [],
+    )
+
+    return (
+      <Suspense fallback={suspenseSpinner}>
+        <Component {...props} />
+      </Suspense>
+    )
+  }
+}
+
+const Dashboard = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
+      default: Dashboard,
+    })),
+  ),
+)
+
+const Asset = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Assets/Asset').then(({ Asset }) => ({
+      default: Asset,
+    })),
+  ),
+)
+
+const Assets = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Assets/Assets').then(({ Assets }) => ({
+      default: Assets,
+    })),
+  ),
+)
+
+const AssetTxHistory = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Assets/AssetTxHistory').then(({ AssetTxHistory }) => ({
+      default: AssetTxHistory,
+    })),
+  ),
+)
+
+const Buy = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Buy/Buy').then(({ Buy }) => ({
+      default: Buy,
+    })),
+  ),
+)
+
+const Flags = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Flags/Flags').then(({ Flags }) => ({
+      default: Flags,
+    })),
+  ),
+)
+
+const StakingVaults = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Defi/views/StakingVaults').then(({ StakingVaults }) => ({
+      default: StakingVaults,
+    })),
+  ),
+)
+
+const LendingPage = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Lending/LendingPage').then(({ LendingPage }) => ({
+      default: LendingPage,
+    })),
+  ),
+)
+
+const PoolsPage = makeSuspsenseful(
+  lazy(() =>
+    import('pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
+      default: PoolsPage,
+    })),
+  ),
+)
+
+const Trade = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Trade/Trade').then(({ Trade }) => ({
+      default: Trade,
+    })),
+  ),
+)
+
+const TransactionHistory = makeSuspsenseful(
+  lazy(() =>
+    import('pages/TransactionHistory/TransactionHistory').then(({ TransactionHistory }) => ({
+      default: TransactionHistory,
+    })),
+  ),
+)
 
 /**
  * WARNING: whenever routes that contain user addresses are edited here, we need

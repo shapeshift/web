@@ -38,7 +38,10 @@ export const useReceiveAddress = ({
 
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
+  // No need to pass a sellAssetAccountId to synchronize the buy account here - by the time this is called, we already have a valid buyAccountId
+  const buyAccountId = useAppSelector(state =>
+    selectLastHopBuyAccountId(state, { accountId: undefined }),
+  )
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )

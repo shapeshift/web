@@ -242,14 +242,18 @@ export const TradeInput = memo(() => {
     [isSnapshotApiQueriesPending, votingPower],
   )
 
-  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
-    useAccountIds()
+  const {
+    sellAssetAccountId: initialSellAssetAccountId,
+    buyAssetAccountId: initialBuyAssetAccountId,
+    setSellAssetAccountId,
+    setBuyAssetAccountId,
+  } = useAccountIds()
 
   const userAddress = useMemo(() => {
-    if (!sellAssetAccountId) return ''
+    if (!initialSellAssetAccountId) return ''
 
-    return fromAccountId(sellAssetAccountId).account
-  }, [sellAssetAccountId])
+    return fromAccountId(initialSellAssetAccountId).account
+  }, [initialSellAssetAccountId])
 
   const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
     useIsSmartContractAddress(userAddress)
@@ -333,7 +337,7 @@ export const TradeInput = memo(() => {
         const isApprovalNeeded = await checkApprovalNeeded(
           tradeQuoteStep,
           wallet,
-          sellAssetAccountId ?? '',
+          initialSellAssetAccountId ?? '',
         )
 
         if (isApprovalNeeded) {
@@ -354,7 +358,7 @@ export const TradeInput = memo(() => {
     enableMultiHopTrades,
     history,
     mixpanel,
-    sellAssetAccountId,
+    initialSellAssetAccountId,
     showErrorToast,
     tradeQuoteStep,
     wallet,
@@ -609,7 +613,7 @@ export const TradeInput = memo(() => {
           </CardHeader>
           <Stack spacing={0}>
             <SellAssetInput
-              accountId={sellAssetAccountId}
+              accountId={initialSellAssetAccountId}
               asset={sellAsset}
               label={translate('trade.payWith')}
               onAccountIdChange={setSellAssetAccountId}
@@ -633,7 +637,7 @@ export const TradeInput = memo(() => {
             </Flex>
             <TradeAssetInput
               isReadOnly={true}
-              accountId={buyAssetAccountId}
+              accountId={initialBuyAssetAccountId}
               assetId={buyAsset.assetId}
               assetSymbol={buyAsset.symbol}
               assetIcon={buyAsset.icon}

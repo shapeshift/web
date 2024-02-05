@@ -124,7 +124,10 @@ export const useGetTradeQuotes = () => {
   const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
+  // No need to pass a sellAssetAccountId to synchronize the buy account here - by the time this is called, we already have a valid buyAccountId
+  const buyAccountId = useAppSelector(state =>
+    selectLastHopBuyAccountId(state, { accountId: undefined }),
+  )
 
   const userslippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 

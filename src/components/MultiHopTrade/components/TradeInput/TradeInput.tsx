@@ -273,6 +273,12 @@ export const TradeInput = memo(() => {
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
+  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress)
+
+  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
+    useIsSmartContractAddress(receiveAddress ?? '')
+
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false

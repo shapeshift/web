@@ -10,6 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { VscFeedback } from 'react-icons/vsc'
 import { useTranslate } from 'react-polyglot'
 import { DiscordIcon } from 'components/Icons/Discord'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
@@ -19,6 +20,7 @@ import { useModal } from 'hooks/useModal/useModal'
 const chatIcon = <ChatIcon />
 const discordIcon = <DiscordIcon />
 const editIcon = <EditIcon />
+const feedbackIcon = <VscFeedback />
 
 export const FeedbackAndSupport = () => {
   const { close, isOpen } = useModal('feedbackSupport')
@@ -65,6 +67,15 @@ export const FeedbackAndSupport = () => {
               // @ts-ignore
               isExternal
               href='https://shapeshift.canny.io/feature-requests'
+            />
+            <MainNavLink
+              leftIcon={feedbackIcon}
+              as={Link}
+              size='sm'
+              label={translate('common.submitFeedback')}
+              // @ts-ignore
+              isExternal
+              href='https://forms.shapeshift.com/'
             />
           </Stack>
         </ModalBody>

@@ -178,7 +178,6 @@ export const mockStore: ReduxState = {
     sellAmountCryptoPrecision: '0',
     manualReceiveAddress: undefined,
     manualReceiveAddressIsValidating: false,
-    manualReceiveAddressIsEditing: false,
     manualReceiveAddressIsValid: undefined,
     slippagePreferencePercentage: undefined,
   },

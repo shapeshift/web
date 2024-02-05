@@ -120,13 +120,11 @@ export const RecipientAddress = () => {
   )
 
   const handleEditRecipientAddressClick = useCallback(() => {
-    dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(true))
     setIsRecipientAddressEditing(true)
-  }, [dispatch])
+  }, [])
 
   const handleCancelClick = useCallback(() => {
     setIsRecipientAddressEditing(false)
-    dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))
     // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
     setFormValue(SendFormFields.Input, '')
     dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))

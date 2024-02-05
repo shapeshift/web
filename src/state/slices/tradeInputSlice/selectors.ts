@@ -147,11 +147,6 @@ export const selectManualReceiveAddressIsValidating = createSelector(
   tradeInput => tradeInput.manualReceiveAddressIsValidating,
 )
 
-export const selectManualReceiveAddressIsEditing = createSelector(
-  selectTradeInput,
-  tradeInput => tradeInput.manualReceiveAddressIsEditing,
-)
-
 export const selectManualReceiveAddressIsValid = createSelector(
   selectTradeInput,
   tradeInput => tradeInput.manualReceiveAddressIsValid,

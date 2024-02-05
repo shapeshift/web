@@ -41,7 +41,7 @@ type UseQuoteEstimatedFeesProps = {
     }
   | {
       confirmedQuote: LpConfirmedDepositQuote | null
-      // Technically not a collateral, but this avoids weird branching, ternaries or ?? check sfor now
+      // Technically not a collateral, but this avoids weird branching, ternaries or ?? checks for now
       collateralAccountId: AccountId
       depositAmountCryptoPrecision: string
       repaymentAccountId?: never

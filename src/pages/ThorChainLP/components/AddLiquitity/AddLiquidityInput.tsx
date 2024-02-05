@@ -561,7 +561,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
           isEstimatedFeesDataSuccess &&
           hasEnoughPoolAssetBalanceForTxPlusFees &&
-          estimatedFeesData,
+          estimatedFeesData?.txFeeCryptoBaseUnit,
       ),
     }),
     [

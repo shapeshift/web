@@ -97,7 +97,7 @@ export const Sweep = ({
     // but we still need to double check that the matching UTXO is seen to ensure coinselect gets fed the right UTXO data
     if (!txId) return
     ;(async () => {
-      await sleep(15_000)
+      await sleep(60_000)
       const utxos = await adapter.getUtxos({
         pubkey: fromAddress,
       })

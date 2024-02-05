@@ -173,15 +173,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
   const isAsymRuneSide = useMemo(() => foundPool?.asymSide === AsymSide.Rune, [foundPool?.asymSide])
 
-  const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const foundPoolAsset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   useEffect(() => {
-    if (!_asset) return
-    setPoolAsset(_asset)
-  }, [_asset])
+    if (!foundPoolAsset) return
+    setPoolAsset(foundPoolAsset)
+  }, [foundPoolAsset])
 
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
-  const [poolAsset, setPoolAsset] = useState<Asset | undefined>(_asset)
+  const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return

@@ -27,7 +27,7 @@ import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
-import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -38,7 +38,7 @@ type ReusableLpConfirmProps = {
   handleBack: () => void
   handleConfirm: () => void
   baseAssetId: AssetId
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: LpConfirmedDepositQuote
 }
 
 const dividerStyle = {

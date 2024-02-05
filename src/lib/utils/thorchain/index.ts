@@ -167,6 +167,8 @@ export const getThorchainFromAddress = async ({
       if ('owner' in position) return position.owner
       // THORChain savers position
       if ('asset_address' in position) return position.asset_address
+      // THORChain LP position. Note we accesss assetAddress, never runeAddress, because of the !isUtxoChainId check above
+      if ('assetAddress' in position) return position.assetAddress
       // For type completeness - if we have a response, we *should* either have an `owner` or `asset_address` property
       return ''
     })()

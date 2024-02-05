@@ -186,7 +186,7 @@ export type MidgardTvlHistoryResponse = {
   intervals: MidgardTvlHistoryItem[]
 }
 
-export type ConfirmedQuote = {
+export type LpConfirmedDepositQuote = {
   totalAmountFiat: string
   assetCryptoLiquidityAmount: string
   assetFiatLiquidityAmount: string
@@ -198,6 +198,8 @@ export type ConfirmedQuote = {
   accountIdsByChainId: Record<ChainId, AccountId>
   feeBps: string
   feeAmountFiat: string
+  assetAddress: string
+  quoteInboundAddress: string
 }
 export enum AsymSide {
   Asset = 'asset',

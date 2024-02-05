@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "Bir Cüzdan Bağlayın",
       "body": "Bir cüzdan bağlayarak, ShapeShift'in Hizmet Şartlarını kabul etmiş ve ShapeShift sorumluluk reddini okuyup anladığınızı kabul etmiş olursunuz.",
-      "footer": "Cüzdanınız yok mu?",
-      "create": "Bir tane yaratın"
+      "footer": "Cüzdanınız yok mu?"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "Tahmini süresi",
     "liquidityValue": "Likidite Değeri",
     "selectPair": "Çift'i Seçin",
-    "depositAmounts": "Mevduat Tutarları",
     "awaitingConfirmation": "Onay bekleniyor",
     "transactionSubmitted": "İşlem gönderildi",
     "waitingForConfirmation": "Onay bekliyor",

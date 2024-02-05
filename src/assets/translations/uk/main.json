@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "Під'єднати гаманець",
       "body": "Під'єднуючи гаманець, ви погоджуєтеся з Умовами надання послуг ShapeShift і підтверджуєте, що прочитали та зрозуміли відмову від відповідальності ShapeShift.",
-      "footer": "Не маєте гаманця?",
-      "create": "Створіть його"
+      "footer": "Не маєте гаманця?"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "Розрахунковий час",
     "liquidityValue": "Вартість ліквідності",
     "selectPair": "Виберіть Пару",
-    "depositAmounts": "Розмір депозиту",
     "awaitingConfirmation": "Очікуємо підтвердження",
     "transactionSubmitted": "Транзакцію надіслано",
     "waitingForConfirmation": "Чекаємо на підтвердження",

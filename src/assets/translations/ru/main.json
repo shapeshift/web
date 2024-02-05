@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "Подключить кошелек",
       "body": "Подключая кошелек, вы соглашаетесь с Условиями предоставления услуг ShapeShift и подтверждаете, что прочитали и понимаете отказ от ответственности ShapeShift.",
-      "footer": "У вас нет кошелька?",
-      "create": "Создайте его"
+      "footer": "У вас нет кошелька?"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "Расчетное время",
     "liquidityValue": "Значение ликвидности",
     "selectPair": "Выбрать пару",
-    "depositAmounts": "Внести депозит",
     "awaitingConfirmation": "Ожидаем подтверждения",
     "transactionSubmitted": "Транзакция отправлена",
     "waitingForConfirmation": "Ждем подтверждения",

@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "Connecter un porte-monnaie",
       "body": "En connectant un porte-monnaie, vous acceptez les conditions d'utilisation de ShapeShift et reconnaissez avoir lu et compris la clause de non-responsabilité de ShapeShift.",
-      "footer": "Vous n'avez pas de porte-monnaie ?",
-      "create": "Créez-en un"
+      "footer": "Vous n'avez pas de porte-monnaie ?"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "Temps estimé",
     "liquidityValue": "Valeur de liquidité",
     "selectPair": "Sélectionner une paire",
-    "depositAmounts": "Montants des dépôts",
     "awaitingConfirmation": "En attente de confirmation",
     "transactionSubmitted": "Transaction soumise",
     "waitingForConfirmation": "En attente de confirmation",

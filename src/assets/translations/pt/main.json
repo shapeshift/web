@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
-      "footer": "Não tem carteira?",
-      "create": "Crie uma"
+      "footer": "Não tem carteira?"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "Tempo estimado",
     "liquidityValue": "Valor da Liquidez",
     "selectPair": "Selecione o Par",
-    "depositAmounts": "Valores de depósito",
     "awaitingConfirmation": "Aguardando confirmação",
     "transactionSubmitted": "Transação enviada",
     "waitingForConfirmation": "Aguardando confirmação",

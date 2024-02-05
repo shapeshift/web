@@ -1609,8 +1609,7 @@
     "selectModal": {
       "header": "连接钱包",
       "body": "连接钱包即表示你同意 ShapeShift 的服务条款，并确认你已阅读并理解 ShapeShift 免责声明。",
-      "footer": "没有钱包？",
-      "create": "创建一个"
+      "footer": "没有钱包？"
     },
     "walletConnectV2": {
       "start": {

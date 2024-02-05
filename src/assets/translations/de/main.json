@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "Verbinden Sie eine Wallet",
       "body": "Indem Sie eine Wallet verbinden, stimmen Sie den Nutzungsbedingungen von ShapeShift zu und bestätigen, dass Sie den Haftungsausschluss von ShapeShift gelesen und verstanden haben.",
-      "footer": "Sie haben keine Wallet?",
-      "create": "Erstelle eine"
+      "footer": "Sie haben keine Wallet?"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "Geschätzte Zeit",
     "liquidityValue": "Liquiditätswert",
     "selectPair": "Paar auswählen",
-    "depositAmounts": "Einzahlungsbeträge",
     "awaitingConfirmation": "Erwarte Bestätigung",
     "transactionSubmitted": "Transaktion übermittelt",
     "waitingForConfirmation": "Auf Bestätigung warten",

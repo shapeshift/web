@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "ウォレットを接続する",
       "body": "ウォレットを接続すると、ShapeShiftの利用規約に同意し、ShapeShiftの免責条項を読み理解したものとみなされます。",
-      "footer": "ウォレットをお持ちではありませんか？",
-      "create": "作成する"
+      "footer": "ウォレットをお持ちではありませんか？"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "所要時間",
     "liquidityValue": "流動性価値",
     "selectPair": "ペアの選択",
-    "depositAmounts": "入金額",
     "awaitingConfirmation": "確認待ち",
     "transactionSubmitted": "トランザクションが送信されました",
     "waitingForConfirmation": "確認待ち",

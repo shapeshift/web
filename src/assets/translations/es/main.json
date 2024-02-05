@@ -1601,8 +1601,7 @@
     "selectModal": {
       "header": "Conectar una billetera",
       "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift.",
-      "footer": "¿No tienes billetera?",
-      "create": "Crea una"
+      "footer": "¿No tienes billetera?"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2205,6 @@
     "estimatedTime": "Tiempo Estimado",
     "liquidityValue": "Valor de Liquidez",
     "selectPair": "Seleccione Par",
-    "depositAmounts": "Montos de Depósito",
     "awaitingConfirmation": "Esperando confirmación",
     "transactionSubmitted": "Transacción enviada",
     "waitingForConfirmation": "Esperando Confirmación",

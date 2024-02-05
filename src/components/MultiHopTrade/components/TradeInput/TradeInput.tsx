@@ -61,6 +61,7 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
+  selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
 } from 'state/slices/selectors'
@@ -148,6 +149,7 @@ export const TradeInput = memo(() => {
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
+  const manualReceiveAddressIsEditing = useAppSelector(selectManualReceiveAddressIsEditing)
   const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
@@ -433,6 +435,7 @@ export const TradeInput = memo(() => {
     return (
       quoteHasError ||
       manualReceiveAddressIsValidating ||
+      manualReceiveAddressIsEditing ||
       manualReceiveAddressIsValid === false ||
       isLoading ||
       !hasUserEnteredAmount ||
@@ -444,6 +447,7 @@ export const TradeInput = memo(() => {
   }, [
     quoteHasError,
     manualReceiveAddressIsValidating,
+    manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
     hasUserEnteredAmount,

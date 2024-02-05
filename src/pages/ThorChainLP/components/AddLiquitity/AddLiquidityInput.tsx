@@ -501,32 +501,48 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     confirmedQuote,
   })
 
-  const hasEnoughPoolAssetBalanceForTxPlusFees = useMemo(() => {
-    if (!(isEstimatedFeesDataSuccess && asset)) return false
+  // Checks if there's enough pool asset balance for the transaction, excluding fees
+  const hasEnoughPoolAssetBalanceForTx = useMemo(() => {
+    if (!asset) return false
 
     const amountAvailableCryptoPrecision = fromBaseUnit(
       poolAssetBalanceCryptoBaseUnit,
-      asset?.precision ?? 0,
+      asset.precision ?? 0,
     )
-    // This is a native asset, so we can simply deduct the fees from the value
+
+    return bnOrZero(actualAssetCryptoLiquidityAmount).lte(amountAvailableCryptoPrecision)
+  }, [actualAssetCryptoLiquidityAmount, asset, poolAssetBalanceCryptoBaseUnit])
+
+  // Checks if there's enough fee asset balance to cover the transaction fees
+  const hasEnoughFeeAssetBalanceForTx = useMemo(() => {
+    if (!isEstimatedFeesDataSuccess || !asset) return false
+
+    const txFeeCryptoPrecision = fromBaseUnit(
+      estimatedFeesData.txFeeCryptoBaseUnit,
+      asset.precision ?? 0,
+    )
+
+    // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
     if (!isToken(fromAssetId(asset.assetId).assetReference)) {
-      return bnOrZero(actualAssetCryptoLiquidityAmount)
-        .plus(fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, asset?.precision ?? 0))
-        .lte(amountAvailableCryptoPrecision)
+      return bnOrZero(txFeeCryptoPrecision).lte(poolAssetBalanceCryptoBaseUnit)
     }
 
-    return (
-      bnOrZero(actualAssetCryptoLiquidityAmount).lte(amountAvailableCryptoPrecision) &&
-      bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
-    )
+    // For tokens, check if the fee asset balance is enough to cover the fees
+    return bnOrZero(txFeeCryptoPrecision).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
   }, [
-    actualAssetCryptoLiquidityAmount,
     asset,
     estimatedFeesData?.txFeeCryptoBaseUnit,
     isEstimatedFeesDataSuccess,
     poolAssetBalanceCryptoBaseUnit,
     poolAssetFeeAssetBalanceCryptoBaseUnit,
   ])
+
+  // Combines the checks for pool asset balance and fee asset balance to ensure both are sufficient
+  const hasEnoughPoolAssetBalanceForTxPlusFees = useMemo(() => {
+    return hasEnoughPoolAssetBalanceForTx && hasEnoughFeeAssetBalanceForTx
+  }, [hasEnoughPoolAssetBalanceForTx, hasEnoughFeeAssetBalanceForTx])
+
+  console.log({ hasEnoughFeeAssetBalanceForTx, hasEnoughPoolAssetBalanceForTx })
 
   const isSweepNeededArgs = useMemo(
     () => ({
@@ -874,12 +890,48 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [asset, defaultOpportunityId, parsedPools],
   )
 
+  const notEnoughFeeAssetError = useMemo(
+    () =>
+      poolAssetFeeAsset &&
+      bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
+      !isEstimatedFeesDataLoading &&
+      hasEnoughFeeAssetBalanceForTx === false,
+    [
+      actualAssetCryptoLiquidityAmount,
+      hasEnoughFeeAssetBalanceForTx,
+      isEstimatedFeesDataLoading,
+      poolAssetFeeAsset,
+    ],
+  )
+
+  const notEnoughPoolAssetError = useMemo(
+    () =>
+      asset &&
+      bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
+      hasEnoughPoolAssetBalanceForTx === false,
+    [actualAssetCryptoLiquidityAmount, asset, hasEnoughPoolAssetBalanceForTx],
+  )
+
   const confirmCopy = useMemo(() => {
-    if (isApprovalRequired)
-      return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: asset?.symbol ?? '' })
+    // Not enough *pool* asset, but possibly enough *fee* asset
+    // Not enough *fee* asset
+    if (poolAssetFeeAsset && notEnoughFeeAssetError)
+      return translate('modals.send.errors.notEnoughNativeToken', {
+        asset: poolAssetFeeAsset.symbol,
+      })
+    if (asset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
+    if (asset && isApprovalRequired)
+      return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: asset.symbol })
 
     return translate('pools.addLiquidity')
-  }, [asset?.symbol, isApprovalRequired, translate])
+  }, [
+    asset,
+    isApprovalRequired,
+    notEnoughFeeAssetError,
+    notEnoughPoolAssetError,
+    poolAssetFeeAsset,
+    translate,
+  ])
 
   if (!foundPool || !asset || !rune) return null
 
@@ -971,14 +1023,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             isApprovalTxPending ||
             isSweepNeededLoading ||
             isEstimatedFeesDataError ||
-            isEstimatedFeesDataLoading
+            isEstimatedFeesDataLoading ||
+            bnOrZero(actualAssetCryptoLiquidityAmount).isZero() ||
+            notEnoughFeeAssetError
           }
           isLoading={
             isVotingPowerLoading ||
             isInboundAddressLoading ||
             isAllowanceDataLoading ||
             isApprovalTxPending ||
-            isSweepNeededLoading
+            isSweepNeededLoading ||
+            isEstimatedFeesDataLoading
           }
           onClick={handleSubmit}
         >

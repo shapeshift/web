@@ -764,8 +764,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             ? virtualRuneFiatLiquidityAmount
             : virtualAssetFiatLiquidityAmount
 
+          const accountId = accountIdsByChainId[asset.chainId]
+
           return (
             <TradeAssetInput
+              accountId={accountId}
               key={_asset.assetId}
               assetId={_asset?.assetId}
               assetIcon={_asset?.icon ?? ''}
@@ -786,6 +789,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       </Stack>
     )
   }, [
+    accountIdsByChainId,
     asset,
     assetMarketData,
     createHandleAddLiquidityInputChange,

@@ -469,6 +469,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })()
   }, [activeOpportunityId, poolAsset, poolAccountId, poolAccountMetadata, wallet])
 
+  // Pool asset fee/balance/sweep data and checks
+
   const poolAssetInboundAddress = useMemo(() => {
     if (!poolAsset) return
     const transactionType = getThorchainLpTransactionType(poolAsset.chainId)
@@ -518,37 +520,40 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).lte(amountAvailableCryptoPrecision)
   }, [actualAssetCryptoLiquidityAmount, poolAsset, poolAssetBalanceCryptoBaseUnit])
 
-  const txFeeCryptoPrecision = useMemo(
+  const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
       fromBaseUnit(estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit ?? 0, poolAsset?.precision ?? 0),
     [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAsset?.precision],
   )
 
   // Checks if there's enough fee asset balance to cover the transaction fees
-  const hasEnoughFeeAssetBalanceForTx = useMemo(() => {
+  const hasEnoughPoolAssetFeeAssetBalanceForTx = useMemo(() => {
     if (!isEstimatedPoolAssetFeesDataSuccess || !poolAsset) return false
 
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
     if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) {
-      return bnOrZero(txFeeCryptoPrecision).lte(poolAssetBalanceCryptoBaseUnit)
+      return bnOrZero(poolAssetTxFeeCryptoPrecision).lte(poolAssetBalanceCryptoBaseUnit)
     }
 
     // For tokens, check if the fee asset balance is enough to cover the fees
-    return bnOrZero(txFeeCryptoPrecision).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
+    return bnOrZero(poolAssetTxFeeCryptoPrecision).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
   }, [
     isEstimatedPoolAssetFeesDataSuccess,
     poolAsset,
-    txFeeCryptoPrecision,
+    poolAssetTxFeeCryptoPrecision,
     poolAssetFeeAssetBalanceCryptoBaseUnit,
     poolAssetBalanceCryptoBaseUnit,
   ])
 
   // Combines the checks for pool asset balance and fee asset balance to ensure both are sufficient
   const hasEnoughPoolAssetBalanceForTxPlusFees = useMemo(() => {
-    return hasEnoughPoolAssetBalanceForTx && hasEnoughFeeAssetBalanceForTx
-  }, [hasEnoughPoolAssetBalanceForTx, hasEnoughFeeAssetBalanceForTx])
+    return hasEnoughPoolAssetBalanceForTx && hasEnoughPoolAssetFeeAssetBalanceForTx
+  }, [hasEnoughPoolAssetBalanceForTx, hasEnoughPoolAssetFeeAssetBalanceForTx])
 
-  console.log({ hasEnoughFeeAssetBalanceForTx, hasEnoughPoolAssetBalanceForTx })
+  console.log({
+    hasEnoughFeeAssetBalanceForTx: hasEnoughPoolAssetFeeAssetBalanceForTx,
+    hasEnoughPoolAssetBalanceForTx,
+  })
 
   const isSweepNeededArgs = useMemo(
     () => ({
@@ -584,16 +589,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
     useIsSweepNeededQuery(isSweepNeededArgs)
 
-  const handleApprove = useCallback(() => mutate(undefined), [mutate])
-
-  const handleSubmit = useCallback(() => {
-    if (isApprovalRequired) {
-      handleApprove()
-      return
-    }
-    history.push(isSweepNeeded ? AddLiquidityRoutePaths.Sweep : AddLiquidityRoutePaths.Confirm)
-  }, [handleApprove, history, isApprovalRequired, isSweepNeeded])
-
+  // Rune balance / gas data and checks
   const runeBalanceFilter = useMemo(
     () => ({
       assetId: rune?.assetId,
@@ -610,6 +606,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const runeBalanceCryptoPrecision = fromBaseUnit(runeBalanceCryptoBaseUnit, rune?.precision ?? 0)
     return bnOrZero(actualRuneCryptoLiquidityAmount).lte(runeBalanceCryptoPrecision)
   }, [runeBalanceCryptoBaseUnit, rune?.precision, actualRuneCryptoLiquidityAmount])
+
+  const handleApprove = useCallback(() => mutate(undefined), [mutate])
+
+  const handleSubmit = useCallback(() => {
+    if (isApprovalRequired) {
+      handleApprove()
+      return
+    }
+    history.push(isSweepNeeded ? AddLiquidityRoutePaths.Sweep : AddLiquidityRoutePaths.Confirm)
+  }, [handleApprove, history, isApprovalRequired, isSweepNeeded])
 
   const runePerAsset = useMemo(() => {
     if (!assetMarketData || !runeMarketData) return undefined
@@ -729,9 +735,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
     })
 
-    const poolAssetGasFeeFiat = bnOrZero(txFeeCryptoPrecision)
+    const poolAssetGasFeeFiat = bnOrZero(poolAssetTxFeeCryptoPrecision)
       .times(assetMarketData.price)
       .toFixed(2)
+
+    // TODO(gomes): this should also work for ROON, and we should add it here
+    const totalGasFeeFiat = poolAssetGasFeeFiat
 
     setConfirmedQuote({
       assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
@@ -747,8 +756,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       feeAmountFiat: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
-      // TODO(gomes): this should also work for ROON
-      totalGasFeeFiat: poolAssetGasFeeFiat,
+      totalGasFeeFiat,
     })
   }, [
     poolAssetAccountAddress,
@@ -764,7 +772,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     shareOfPoolDecimalPercent,
     slippageRune,
     votingPower,
-    txFeeCryptoPrecision,
+    poolAssetTxFeeCryptoPrecision,
     assetMarketData.price,
   ])
 
@@ -910,10 +918,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       poolAssetFeeAsset &&
       bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
       !isEstimatedPoolAssetFeesDataLoading &&
-      hasEnoughFeeAssetBalanceForTx === false,
+      hasEnoughPoolAssetFeeAssetBalanceForTx === false,
     [
       actualAssetCryptoLiquidityAmount,
-      hasEnoughFeeAssetBalanceForTx,
+      hasEnoughPoolAssetFeeAssetBalanceForTx,
       isEstimatedPoolAssetFeesDataLoading,
       poolAssetFeeAsset,
     ],

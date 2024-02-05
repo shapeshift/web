@@ -163,9 +163,11 @@ export const getL1quote = async (
   }
 
   const getRouteBuyAmountBeforeFeesCryptoBaseUnit = (quote: ThornodeQuoteResponseSuccess) => {
-    const buyAmountCryptoThorPrecision = bn(quote.expected_amount_out).plus(quote.fees.total)
+    const buyAmountBeforeFeesCryptoThorPrecision = bn(quote.expected_amount_out).plus(
+      quote.fees.total,
+    )
     return toBaseUnit(
-      fromBaseUnit(buyAmountCryptoThorPrecision, THORCHAIN_FIXED_PRECISION),
+      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, THORCHAIN_FIXED_PRECISION),
       buyAsset.precision,
     )
   }

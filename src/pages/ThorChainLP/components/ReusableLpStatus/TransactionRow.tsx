@@ -1,12 +1,12 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   type AssetId,
-  cosmosChainId,
   fromAccountId,
   fromAssetId,
   thorchainAssetId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import {
   CONTRACT_INTERACTION,
@@ -38,14 +38,13 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
-import type { AsymSide, ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
+import type { AsymSide, LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -58,13 +57,13 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId?: AssetId
-  accountIds: Record<AssetId, AccountId>
+  accountIdsByChainId: Record<ChainId, AccountId>
   poolAssetId?: AssetId
   amountCryptoPrecision: string
   onComplete: () => void
   isActive?: boolean
   isLast?: boolean
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: LpConfirmedDepositQuote
   asymSide?: AsymSide | null
 }
 
@@ -74,7 +73,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   onComplete,
   isActive,
-  accountIds,
+  accountIdsByChainId,
   confirmedQuote,
   asymSide,
 }) => {
@@ -89,8 +88,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  const runeAccountId = accountIds[thorchainAssetId]
-  const poolAssetAccountId = accountIds[poolAsset?.assetId ?? '']
+  const runeAccountId = accountIdsByChainId[thorchainChainId]
+  const poolAssetAccountId =
+    accountIdsByChainId[poolAsset?.assetId ? fromAssetId(poolAsset.assetId).chainId : '']
   const runeAccountNumberFilter = useMemo(
     () => ({ assetId: thorchainAssetId, accountId: runeAccountId ?? '' }),
     [runeAccountId],
@@ -254,24 +254,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
-      // A THOR LP deposit can either be:
-      // - a RUNE MsgDeposit message type
-      // - an EVM custom Tx, i.e a Tx with calldata
-      // - a regular send with a memo (for ATOM and UTXOs)
-      const transactionType = (() => {
-        const supportedEvmChainIds = getSupportedEvmChainIds()
-        if (isRuneTx) return 'MsgDeposit'
-        if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
-          return 'EvmCustomTx'
-        }
-        if (
-          isUtxoChainId(fromAssetId(assetId).chainId) ||
-          fromAssetId(assetId).chainId === cosmosChainId
-        )
-          return 'Send'
-
-        throw new Error(`Unsupported ChainId ${fromAssetId(assetId).chainId}`)
-      })()
+      const transactionType = getThorchainLpTransactionType(asset.chainId)
 
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here

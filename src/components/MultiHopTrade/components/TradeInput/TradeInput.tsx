@@ -257,7 +257,7 @@ export const TradeInput = memo(() => {
     setBuyAssetAccountId,
   } = useAccountIds()
 
-  const sellAddress = useMemo(() => {
+  const userAddress = useMemo(() => {
     if (!initialSellAssetAccountId) return ''
 
     return fromAccountId(initialSellAssetAccountId).account
@@ -272,12 +272,6 @@ export const TradeInput = memo(() => {
 
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
-
-  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(sellAddress)
-
-  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '')
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation

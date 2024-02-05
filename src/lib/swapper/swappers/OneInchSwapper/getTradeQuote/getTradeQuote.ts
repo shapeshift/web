@@ -1,5 +1,9 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { GetEvmTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import type {
+  GetEvmTradeQuoteInput,
+  SingleHopTradeQuoteSteps,
+  TradeQuote,
+} from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
   type SwapErrorRight,
@@ -119,7 +123,7 @@ export async function getTradeQuote(
           },
           source: SwapperName.OneInch,
         },
-      ],
+      ] as SingleHopTradeQuoteSteps,
     })
   } catch (err) {
     return Err(

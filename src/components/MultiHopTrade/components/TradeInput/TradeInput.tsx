@@ -37,6 +37,7 @@ import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
+import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -49,6 +50,10 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_LONGTAIL_SWAP_SOURCE,
+} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -56,6 +61,7 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
+  selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -82,6 +88,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { PriceImpact } from '../PriceImpact'
+import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
 import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
@@ -141,6 +148,7 @@ export const TradeInput = memo(() => {
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
+  const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
@@ -255,35 +263,62 @@ export const TradeInput = memo(() => {
     return fromAccountId(initialSellAssetAccountId).account
   }, [initialSellAssetAccountId])
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+
+  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
     useIsSmartContractAddress(userAddress)
+
+  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
+    useIsSmartContractAddress(receiveAddress ?? '')
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
+    if (_isSmartContractSellAddress !== false) return true
+    if (
+      [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
+        tradeQuoteStep?.source!,
+      ) &&
+      _isSmartContractReceiveAddress !== false
+    )
+      return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, activeSwapperName])
+  }, [
+    _isSmartContractReceiveAddress,
+    _isSmartContractSellAddress,
+    activeSwapperName,
+    tradeQuoteStep?.source,
+  ])
 
   const isLoading = useMemo(
     () =>
       !isAnySwapperFetched ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
-      isAddressByteCodeLoading ||
+      isSellAddressByteCodeLoading ||
+      isReceiveAddressByteCodeLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isAddressByteCodeLoading,
-      isConfirmationLoading,
       isAnySwapperFetched,
+      isConfirmationLoading,
       isSupportedAssetsLoading,
+      isSellAddressByteCodeLoading,
+      isReceiveAddressByteCodeLoading,
       isVotingPowerLoading,
     ],
   )
@@ -398,6 +433,7 @@ export const TradeInput = memo(() => {
     return (
       quoteHasError ||
       manualReceiveAddressIsValidating ||
+      manualReceiveAddressIsValid === false ||
       isLoading ||
       !hasUserEnteredAmount ||
       !activeQuote ||
@@ -406,14 +442,15 @@ export const TradeInput = memo(() => {
       isSwapperFetching[activeSwapperName]
     )
   }, [
-    activeQuote,
-    activeSwapperName,
-    disableSmartContractSwap,
+    quoteHasError,
+    manualReceiveAddressIsValidating,
+    manualReceiveAddressIsValid,
     isLoading,
     hasUserEnteredAmount,
+    activeQuote,
+    disableSmartContractSwap,
+    activeSwapperName,
     isSwapperFetching,
-    manualReceiveAddressIsValidating,
-    quoteHasError,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {
@@ -487,6 +524,7 @@ export const TradeInput = memo(() => {
                 swapSource={tradeQuoteStep?.source}
               />
             ) : null}
+            <RecipientAddress />
             {isModeratePriceImpact && (
               <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
             )}

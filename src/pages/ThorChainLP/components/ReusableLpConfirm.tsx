@@ -14,7 +14,6 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import prettyMilliseconds from 'pretty-ms'
 import React, { useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -269,14 +268,6 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 value={confirmedQuote.slippageRune ?? 'TODO - loading'}
                 symbol={baseAsset.symbol}
               />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={true}>
-              <RawText fontWeight='bold'>{prettyMilliseconds(0)}</RawText>
             </Skeleton>
           </Row.Value>
         </Row>

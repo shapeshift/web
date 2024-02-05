@@ -21,7 +21,7 @@ import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { validateAddress } from '../../utils/validateAddress'
-import type { ChainAdapterArgs } from '../CosmosSdkBaseAdapter'
+import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { ThorchainMsgSend } from '../types'
 import { ThorchainMessageType, type ThorchainMsgDeposit } from '../types'
@@ -40,6 +40,10 @@ const calculateFee = (fee: string): string => {
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 
+export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.thorchain.V1Api> {
+  midgardUrl: string
+}
+
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMainnet> {
   public static readonly defaultBIP44Params: BIP44Params = {
     purpose: 44,
@@ -56,6 +60,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       parser: new unchained.thorchain.TransactionParser({
         assetId: thorchainAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,
+        midgardUrl: args.midgardUrl,
       }),
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,

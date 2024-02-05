@@ -22,7 +22,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
-import { AsymSide, type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -32,7 +32,7 @@ import { TransactionRow } from './TransactionRow'
 type ReusableLpStatusProps = {
   handleBack: () => void
   baseAssetId: AssetId
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: LpConfirmedDepositQuote
 } & PropsWithChildren
 
 export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
@@ -176,7 +176,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               key={_asset.assetId}
               assetId={_asset.assetId}
               poolAssetId={poolAsset?.assetId}
-              accountIds={confirmedQuote.accountIds}
+              accountIdsByChainId={confirmedQuote.accountIdsByChainId}
               amountCryptoPrecision={amountCryptoPrecision}
               onComplete={handleComplete}
               isActive={index === activeStepIndex}

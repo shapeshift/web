@@ -213,7 +213,11 @@ export const nftApi = createApi({
                 const { assetId } = item
                 if (item.collection.isSpam) return
                 if (hasSpammyMedias(item.medias)) return
-                if ([item.collection.description, item.name, item.symbol].some(isSpammyNftText))
+                if (
+                  [item.collection.description, item.collection.name, item.name, item.symbol].some(
+                    isSpammyNftText,
+                  )
+                )
                   return
                 const { assetReference, chainId } = fromAssetId(assetId)
 

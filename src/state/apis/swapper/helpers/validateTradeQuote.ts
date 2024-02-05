@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapErrorRight, SwapSource, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
+import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
 // import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -112,10 +113,12 @@ export const validateTradeQuote = async (
   // This should really never happen but in case it does:
   if (!sendAddress) throw new Error('sendAddress is required')
 
-  const isMultiHopTrade = quote.steps.length > 1
   const firstHop = quote.steps[0]
   const secondHop = quote.steps[1]
-  const lastHop = isMultiHopTrade ? secondHop : firstHop
+
+  const isMultiHopTrade = isMultiHopTradeQuote(quote)
+
+  const lastHop = (isMultiHopTrade ? secondHop : firstHop)!
   const walletSupportedChainIds = selectWalletSupportedChainIds(state)
   const sellAmountCryptoPrecision = selectInputSellAmountCryptoPrecision(state)
   const sellAmountCryptoBaseUnit = firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -125,9 +128,10 @@ export const validateTradeQuote = async (
   const firstHopSellFeeAsset = selectFeeAssetById(state, firstHop.sellAsset.assetId)
 
   // the network fee asset for the second hop in the trade
-  const secondHopSellFeeAsset = isMultiHopTrade
-    ? selectFeeAssetById(state, secondHop.sellAsset.assetId)
-    : undefined
+  const secondHopSellFeeAsset =
+    isMultiHopTrade && secondHop
+      ? selectFeeAssetById(state, secondHop.sellAsset.assetId)
+      : undefined
 
   // this is the account we're selling from - network fees are paid from the sell account for the current hop
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
@@ -155,7 +159,7 @@ export const validateTradeQuote = async (
       : bn(0).toFixed()
 
   const secondHopNetworkFeeCryptoPrecision =
-    networkFeeRequiresBalance && secondHopSellFeeAsset
+    networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
       ? fromBaseUnit(
           bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
           secondHopSellFeeAsset.precision,
@@ -233,7 +237,7 @@ export const validateTradeQuote = async (
     // This doesn't apply to regular THOR swaps however, which docs have no mention of *destination* having to be an EOA
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?search=smart%20contract
     if (
-      [firstHop.source, secondHop.source].some(source =>
+      [firstHop.source, secondHop?.source ?? ('' as SwapSource)].some(source =>
         [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(source),
       ) &&
       _isSmartContractReceiveAddress !== false
@@ -269,13 +273,14 @@ export const validateTradeQuote = async (
           ).getDisplayName(),
         },
       },
-      !walletSupportsIntermediaryAssetChain && {
-        error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
-        meta: {
-          assetSymbol: secondHop.sellAsset.symbol,
-          chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
+      !walletSupportsIntermediaryAssetChain &&
+        secondHop && {
+          error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
+          meta: {
+            assetSymbol: secondHop.sellAsset.symbol,
+            chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
+          },
         },
-      },
       !firstHopHasSufficientBalanceForGas && {
         error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
         meta: {

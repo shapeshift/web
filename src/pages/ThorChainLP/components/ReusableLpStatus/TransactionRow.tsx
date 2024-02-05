@@ -3,7 +3,6 @@ import { AddressZero } from '@ethersproject/constants'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   type AssetId,
-  cosmosChainId,
   fromAccountId,
   fromAssetId,
   thorchainAssetId,
@@ -39,14 +38,13 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
 import type { AsymSide, LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -256,24 +254,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
-      // A THOR LP deposit can either be:
-      // - a RUNE MsgDeposit message type
-      // - an EVM custom Tx, i.e a Tx with calldata
-      // - a regular send with a memo (for ATOM and UTXOs)
-      const transactionType = (() => {
-        const supportedEvmChainIds = getSupportedEvmChainIds()
-        if (isRuneTx) return 'MsgDeposit'
-        if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
-          return 'EvmCustomTx'
-        }
-        if (
-          isUtxoChainId(fromAssetId(assetId).chainId) ||
-          fromAssetId(assetId).chainId === cosmosChainId
-        )
-          return 'Send'
-
-        throw new Error(`Unsupported ChainId ${fromAssetId(assetId).chainId}`)
-      })()
+      const transactionType = getThorchainLpTransactionType(asset.chainId)
 
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here

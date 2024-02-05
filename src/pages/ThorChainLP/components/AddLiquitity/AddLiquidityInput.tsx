@@ -17,7 +17,7 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -44,13 +44,15 @@ import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
-import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
+import {
+  estimateAddThorchainLiquidityPosition,
+  getThorchainLpTransactionType,
+} from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -463,26 +465,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [activeOpportunityId, asset, poolAccountId, poolAccountMetadata, wallet])
 
   const poolAssetInboundAddress = useMemo(() => {
-    const transactionType = (() => {
-      if (!asset?.assetId) return
-
-      const isRuneTx = asset?.assetId === thorchainAssetId
-      if (isRuneTx) return 'MsgDeposit'
-
-      const supportedEvmChainIds = getSupportedEvmChainIds()
-      if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
-        return 'EvmCustomTx'
-      }
-      if (
-        isUtxoChainId(fromAssetId(asset.assetId).chainId) ||
-        fromAssetId(asset.assetId).chainId === cosmosChainId
-      )
-        return 'Send'
-
-      throw new Error(`Unsupported ChainId ${fromAssetId(asset.assetId).chainId}`)
-    })()
-
-    if (!transactionType) return
+    if (!asset) return
+    const transactionType = getThorchainLpTransactionType(asset.chainId)
 
     switch (transactionType) {
       case 'MsgDeposit': {
@@ -500,7 +484,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         assertUnreachable(transactionType as never)
       }
     }
-  }, [asset?.assetId, inboundAddressData?.address])
+  }, [asset, inboundAddressData?.address])
 
   // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,

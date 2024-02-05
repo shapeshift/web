@@ -490,10 +490,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
   // however that's fine for now until accurate fees estimation is implemented
   const {
-    data: estimatedFeesData,
-    isLoading: isEstimatedFeesDataLoading,
-    isError: isEstimatedFeesDataError,
-    isSuccess: isEstimatedFeesDataSuccess,
+    data: estimatedPoolAssetFeesData,
+    isLoading: isEstimatedPoolAssetFeesDataLoading,
+    isError: isEstimatedPoolAssetFeesDataError,
+    isSuccess: isEstimatedPoolAssetFeesDataSuccess,
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId: asset?.assetId ?? '',
     collateralAccountId: poolAccountId,
@@ -515,10 +515,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   // Checks if there's enough fee asset balance to cover the transaction fees
   const hasEnoughFeeAssetBalanceForTx = useMemo(() => {
-    if (!isEstimatedFeesDataSuccess || !asset) return false
+    if (!isEstimatedPoolAssetFeesDataSuccess || !asset) return false
 
     const txFeeCryptoPrecision = fromBaseUnit(
-      estimatedFeesData.txFeeCryptoBaseUnit,
+      estimatedPoolAssetFeesData.txFeeCryptoBaseUnit,
       asset.precision ?? 0,
     )
 
@@ -531,8 +531,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(txFeeCryptoPrecision).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
   }, [
     asset,
-    estimatedFeesData?.txFeeCryptoBaseUnit,
-    isEstimatedFeesDataSuccess,
+    estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
+    isEstimatedPoolAssetFeesDataSuccess,
     poolAssetBalanceCryptoBaseUnit,
     poolAssetFeeAssetBalanceCryptoBaseUnit,
   ])
@@ -553,15 +553,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         asset?.precision ?? 0,
       ),
       // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit!,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: Boolean(
         !!asset?.assetId &&
           bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
-          isEstimatedFeesDataSuccess &&
+          isEstimatedPoolAssetFeesDataSuccess &&
           hasEnoughPoolAssetBalanceForTxPlusFees &&
-          estimatedFeesData?.txFeeCryptoBaseUnit,
+          estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
       ),
     }),
     [
@@ -569,9 +569,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       actualAssetCryptoLiquidityAmount,
       asset?.assetId,
       asset?.precision,
-      estimatedFeesData,
+      estimatedPoolAssetFeesData,
       hasEnoughPoolAssetBalanceForTxPlusFees,
-      isEstimatedFeesDataSuccess,
+      isEstimatedPoolAssetFeesDataSuccess,
     ],
   )
 
@@ -894,12 +894,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     () =>
       poolAssetFeeAsset &&
       bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
-      !isEstimatedFeesDataLoading &&
+      !isEstimatedPoolAssetFeesDataLoading &&
       hasEnoughFeeAssetBalanceForTx === false,
     [
       actualAssetCryptoLiquidityAmount,
       hasEnoughFeeAssetBalanceForTx,
-      isEstimatedFeesDataLoading,
+      isEstimatedPoolAssetFeesDataLoading,
       poolAssetFeeAsset,
     ],
   )
@@ -1022,8 +1022,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !hasEnoughRuneBalance ||
             isApprovalTxPending ||
             isSweepNeededLoading ||
-            isEstimatedFeesDataError ||
-            isEstimatedFeesDataLoading ||
+            isEstimatedPoolAssetFeesDataError ||
+            isEstimatedPoolAssetFeesDataLoading ||
             bnOrZero(actualAssetCryptoLiquidityAmount).isZero() ||
             notEnoughFeeAssetError
           }
@@ -1033,7 +1033,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             isAllowanceDataLoading ||
             isApprovalTxPending ||
             isSweepNeededLoading ||
-            isEstimatedFeesDataLoading
+            isEstimatedPoolAssetFeesDataLoading
           }
           onClick={handleSubmit}
         >

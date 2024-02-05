@@ -1,6 +1,11 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import { Amount as FormatAmount } from 'components/Amount/Amount'
+import { RawText } from 'components/Text'
+import { fromBaseUnit } from 'lib/math'
+import { middleEllipsis } from 'lib/utils'
 
+import { FALLBACK_PRECISION } from './constants'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -10,6 +15,7 @@ import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
+import { TransactionTeaser } from './TransactionTeaser'
 import { getTransfersByType } from './utils'
 
 export const TransactionSend = ({
@@ -25,9 +31,31 @@ export const TransactionSend = ({
     [txDetails.transfers],
   )
 
+  const topLeft = useMemo(() => {
+    return <RawText>Sent to {middleEllipsis(txDetails.transfers[0].to[0])}</RawText>
+  }, [txDetails.transfers])
+
+  const bottomRight = useMemo(() => {
+    const precision = txDetails.transfers[0].asset.precision
+    const amount = fromBaseUnit(txDetails.transfers[0].value, precision ?? FALLBACK_PRECISION)
+    return <FormatAmount.Crypto value={amount} symbol={txDetails.transfers[0].asset.symbol} />
+  }, [txDetails.transfers])
+
+  const bottomleft = useMemo(() => {
+    return <RawText>{txDetails.transfers[0].asset.symbol}</RawText>
+  }, [txDetails.transfers])
+
   return (
     <>
-      <TransactionGenericRow
+      <TransactionTeaser
+        transfersByType={transfersByType}
+        type={txDetails.type}
+        topLeftRegion={topLeft}
+        bottomRightRegion={bottomRight}
+        bottomLeftRegion={bottomleft}
+        status={txDetails.tx.status}
+      />
+      {/* <TransactionGenericRow
         type={txDetails.type}
         status={txDetails.tx.status}
         toggleOpen={toggleOpen}
@@ -39,7 +67,7 @@ export const TransactionSend = ({
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
-      />
+      /> */}
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>

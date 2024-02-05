@@ -52,7 +52,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   const iconSrc = src ?? asset?.icon
 
   return (
-    <Avatar src={iconSrc} icon={icon} border={0} bg='none' {...rest}>
+    <Avatar src={iconSrc} icon={icon} border={0} {...rest}>
       {showNetwork && showNetworkIcon && (
         <Avatar
           boxSize='50%'
@@ -62,7 +62,6 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
           bottom='0'
           border={0}
           icon={icon}
-          bg='none'
           fontSize='inherit'
           src={feeAsset?.networkIcon ?? feeAsset?.icon}
           _before={before}

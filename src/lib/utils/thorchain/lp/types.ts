@@ -198,6 +198,7 @@ export type LpConfirmedDepositQuote = {
   accountIdsByChainId: Record<ChainId, AccountId>
   feeBps: string
   feeAmountFiat: string
+  totalGasFeeFiat: string
   assetAddress: string
   quoteInboundAddress: string
 }

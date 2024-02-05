@@ -518,14 +518,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).lte(amountAvailableCryptoPrecision)
   }, [actualAssetCryptoLiquidityAmount, poolAsset, poolAssetBalanceCryptoBaseUnit])
 
+  const txFeeCryptoPrecision = useMemo(
+    () =>
+      fromBaseUnit(estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit ?? 0, poolAsset?.precision ?? 0),
+    [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAsset?.precision],
+  )
+
   // Checks if there's enough fee asset balance to cover the transaction fees
   const hasEnoughFeeAssetBalanceForTx = useMemo(() => {
     if (!isEstimatedPoolAssetFeesDataSuccess || !poolAsset) return false
-
-    const txFeeCryptoPrecision = fromBaseUnit(
-      estimatedPoolAssetFeesData.txFeeCryptoBaseUnit,
-      poolAsset.precision ?? 0,
-    )
 
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
     if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) {
@@ -535,11 +536,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // For tokens, check if the fee asset balance is enough to cover the fees
     return bnOrZero(txFeeCryptoPrecision).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
   }, [
-    poolAsset,
-    estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
     isEstimatedPoolAssetFeesDataSuccess,
-    poolAssetBalanceCryptoBaseUnit,
+    poolAsset,
+    txFeeCryptoPrecision,
     poolAssetFeeAssetBalanceCryptoBaseUnit,
+    poolAssetBalanceCryptoBaseUnit,
   ])
 
   // Combines the checks for pool asset balance and fee asset balance to ensure both are sufficient
@@ -728,6 +729,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
     })
 
+    const poolAssetGasFeeFiat = bnOrZero(txFeeCryptoPrecision)
+      .times(assetMarketData.price)
+      .toFixed(2)
+
     setConfirmedQuote({
       assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
       assetFiatLiquidityAmount: actualAssetFiatLiquidityAmount,
@@ -742,6 +747,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       feeAmountFiat: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
+      // TODO(gomes): this should also work for ROON
+      totalGasFeeFiat: poolAssetGasFeeFiat,
     })
   }, [
     poolAssetAccountAddress,
@@ -757,6 +764,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     shareOfPoolDecimalPercent,
     slippageRune,
     votingPower,
+    txFeeCryptoPrecision,
+    assetMarketData.price,
   ])
 
   const tradeAssetInputs = useMemo(() => {
@@ -994,7 +1003,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Fiat value={'0'} />
+              <Amount.Fiat value={confirmedQuote?.totalGasFeeFiat ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>

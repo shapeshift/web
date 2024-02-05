@@ -59,8 +59,7 @@ export const StepperStep = ({
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
-  if (!receiveAddress)
-    throw new Error('No receiveAddress at confirm step, something went very wrong')
+  if (!receiveAddress) return null
 
   return (
     <Step style={width}>

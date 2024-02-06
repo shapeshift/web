@@ -78,6 +78,7 @@ export const tradeInput = createSlice({
       const buyAsset = state.sellAsset
       state.sellAsset = state.buyAsset
       state.buyAsset = buyAsset
+      state.sellAmountCryptoPrecision = '0'
     },
     setManualReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
       state.manualReceiveAddress = action.payload

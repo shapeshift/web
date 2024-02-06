@@ -173,15 +173,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
   const isAsymRuneSide = useMemo(() => foundPool?.asymSide === AsymSide.Rune, [foundPool?.asymSide])
 
-  const _asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const foundPoolAsset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
   useEffect(() => {
-    if (!_asset) return
-    setPoolAsset(_asset)
-  }, [_asset])
+    if (!foundPoolAsset) return
+    setPoolAsset(foundPoolAsset)
+  }, [foundPoolAsset])
 
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
-  const [poolAsset, setPoolAsset] = useState<Asset | undefined>(_asset)
+  const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
@@ -874,8 +874,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
           return (
             <TradeAssetInput
-              key={asset.assetId}
               accountId={accountId}
+              key={asset.assetId}
               assetId={asset?.assetId}
               assetIcon={asset?.icon ?? ''}
               assetSymbol={asset?.symbol ?? ''}
@@ -1020,6 +1020,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const errorCopy = useMemo(() => {
+    // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
+    // 1 pool asset balance
+    // 2. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 3. RUNE balance
+    // 4. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
     // Not enough *fee* asset

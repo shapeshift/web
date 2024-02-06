@@ -57,7 +57,6 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   baseAssetId,
   confirmedQuote,
 }) => {
-  console.log({ confirmedQuote })
   const translate = useTranslate()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 

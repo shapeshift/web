@@ -37,7 +37,6 @@ const closeIcon = <CloseIcon />
 
 export const RecipientAddress = () => {
   const translate = useTranslate()
-  const isHolisticRecipientAddressEnabled = useFeatureFlag('HolisticRecipientAddress')
   const isYatFeatureEnabled = useFeatureFlag('Yat')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
@@ -156,7 +155,6 @@ export const RecipientAddress = () => {
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
-  if (!isHolisticRecipientAddressEnabled) return null
   if (!receiveAddress) return null
 
   return isRecipientAddressEditing ? (

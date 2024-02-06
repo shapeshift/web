@@ -570,11 +570,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return hasEnoughPoolAssetBalanceForTx && hasEnoughPoolAssetFeeAssetBalanceForTx
   }, [hasEnoughPoolAssetBalanceForTx, hasEnoughPoolAssetFeeAssetBalanceForTx])
 
-  console.log({
-    hasEnoughFeeAssetBalanceForTx: hasEnoughPoolAssetFeeAssetBalanceForTx,
-    hasEnoughPoolAssetBalanceForTx,
-  })
-
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
@@ -663,12 +658,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     rune,
     runeBalanceCryptoBaseUnit,
   ])
-
-  console.log({
-    estimatedRuneFeesData,
-    isEstimatedRuneFeesDataSuccess,
-    hasEnoughRuneFeeBalanceForTx,
-  })
 
   const poolAssetGasFeeFiat = useMemo(
     () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarktData.price),

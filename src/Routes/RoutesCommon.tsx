@@ -1,10 +1,8 @@
-import { Box } from '@chakra-ui/react'
 import { getConfig } from 'config'
-import type { FC } from 'react'
-import { lazy, Suspense, useMemo } from 'react'
+import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { makeSuspsenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -15,34 +13,6 @@ import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
-
-const suspenseSpinnerStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  top: 0,
-  width: '100%',
-  height: '100vh',
-}
-
-function makeSuspsenseful<Props extends {}>(Component: FC<Props>) {
-  return (props: Props) => {
-    const suspenseSpinner = useMemo(
-      () => (
-        <Box style={suspenseSpinnerStyle}>
-          <CircularProgress />
-        </Box>
-      ),
-      [],
-    )
-
-    return (
-      <Suspense fallback={suspenseSpinner}>
-        <Component {...props} />
-      </Suspense>
-    )
-  }
-}
 
 const Dashboard = makeSuspsenseful(
   lazy(() =>

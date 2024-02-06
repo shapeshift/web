@@ -1,26 +1,146 @@
-import React, { memo } from 'react'
-import { WipeModal } from 'components/Layout/Header/NavBar/KeepKey/Modals/Wipe'
-import { BackupPassphraseModal } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
-import {
-  AssetSearchModal,
-  BuyAssetSearchModal,
-  SellAssetSearchModal,
-} from 'components/Modals/AssetSearch/AssetSearchModal'
-import { FeedbackAndSupport } from 'components/Modals/FeedbackSupport/FeedbackSupport'
-import { FiatRampsModal } from 'components/Modals/FiatRamps/FiatRampsModal'
-import { MobileWelcomeModal } from 'components/Modals/MobileWelcome/MobileWelcomeModal'
-import { NativeOnboarding } from 'components/Modals/NativeOnboarding/NativeOnboarding'
-import { NftModal } from 'components/Modals/Nfts/NftModal'
-import { PopupWindowModal } from 'components/Modals/PopupWindowModal'
-import { QrCodeModal } from 'components/Modals/QrCode/QrCode'
-import { ReceiveModal } from 'components/Modals/Receive/Receive'
-import { SendModal } from 'components/Modals/Send/Send'
-import { SettingsModal } from 'components/Modals/Settings/Settings'
-import { Snaps } from 'components/Modals/Snaps/Snaps'
-import { AddAccountModal } from 'pages/Accounts/AddAccountModal'
+import React, { lazy, memo } from 'react'
+import { makeSuspsenseful } from 'utils/makeSuspenseful'
 
 import { createModalProviderInner } from './ModalContainer'
 import type { Modals } from './types'
+
+const ReceiveModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/Receive/Receive').then(({ ReceiveModal }) => ({
+      default: ReceiveModal,
+    })),
+  ),
+)
+
+const QrCodeModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/QrCode/QrCode').then(({ QrCodeModal }) => ({
+      default: QrCodeModal,
+    })),
+  ),
+)
+
+const SendModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/Send/Send').then(({ SendModal }) => ({
+      default: SendModal,
+    })),
+  ),
+)
+
+const PopupWindowModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/PopupWindowModal').then(({ PopupWindowModal }) => ({
+      default: PopupWindowModal,
+    })),
+  ),
+)
+
+const FiatRampsModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/FiatRamps/FiatRampsModal').then(({ FiatRampsModal }) => ({
+      default: FiatRampsModal,
+    })),
+  ),
+)
+
+const SettingsModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/Settings/Settings').then(({ SettingsModal }) => ({
+      default: SettingsModal,
+    })),
+  ),
+)
+
+const WipeModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Layout/Header/NavBar/KeepKey/Modals/Wipe').then(({ WipeModal }) => ({
+      default: WipeModal,
+    })),
+  ),
+)
+
+const BackupPassphraseModal = makeSuspsenseful(
+  lazy(() =>
+    import(
+      'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
+    ).then(({ BackupPassphraseModal }) => ({
+      default: BackupPassphraseModal,
+    })),
+  ),
+)
+
+const MobileWelcomeModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/MobileWelcome/MobileWelcomeModal').then(({ MobileWelcomeModal }) => ({
+      default: MobileWelcomeModal,
+    })),
+  ),
+)
+
+const AddAccountModal = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Accounts/AddAccountModal').then(({ AddAccountModal }) => ({
+      default: AddAccountModal,
+    })),
+  ),
+)
+
+const AssetSearchModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/AssetSearch/AssetSearchModal').then(({ AssetSearchModal }) => ({
+      default: AssetSearchModal,
+    })),
+  ),
+)
+
+const BuyAssetSearchModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/AssetSearch/AssetSearchModal').then(({ BuyAssetSearchModal }) => ({
+      default: BuyAssetSearchModal,
+    })),
+  ),
+)
+
+const SellAssetSearchModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/AssetSearch/AssetSearchModal').then(({ SellAssetSearchModal }) => ({
+      default: SellAssetSearchModal,
+    })),
+  ),
+)
+
+const NativeOnboarding = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/NativeOnboarding/NativeOnboarding').then(({ NativeOnboarding }) => ({
+      default: NativeOnboarding,
+    })),
+  ),
+)
+
+const NftModal = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/Nfts/NftModal').then(({ NftModal }) => ({
+      default: NftModal,
+    })),
+  ),
+)
+
+const FeedbackAndSupport = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/FeedbackSupport/FeedbackSupport').then(({ FeedbackAndSupport }) => ({
+      default: FeedbackAndSupport,
+    })),
+  ),
+)
+
+const Snaps = makeSuspsenseful(
+  lazy(() =>
+    import('components/Modals/Snaps/Snaps').then(({ Snaps }) => ({
+      default: Snaps,
+    })),
+  ),
+)
 
 const MODALS: Modals = {
   receive: ReceiveModal,

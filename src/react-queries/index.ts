@@ -3,9 +3,11 @@ import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { bn } from 'lib/bignumber/bignumber'
 import type {
   MidgardPoolResponse,
@@ -62,6 +64,20 @@ const common = createQueryKeys('common', {
       spender &&
       from &&
       getSupportedEvmChainIds().includes(fromAssetId(assetId).chainId as KnownChainIds),
+  }),
+  isTradingActive: ({ assetId, swapperName }: { assetId: AssetId; swapperName: SwapperName }) => ({
+    queryKey: ['isTradingActive', assetId, swapperName],
+    queryFn: async () => {
+      const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
+
+      // Do not return things in a monadic way so that we can leverage native react-query error-handling
+      if (maybeIsTradingActive.isErr()) throw maybeIsTradingActive.unwrapErr()
+      return maybeIsTradingActive.unwrap()
+    },
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
   }),
 })
 

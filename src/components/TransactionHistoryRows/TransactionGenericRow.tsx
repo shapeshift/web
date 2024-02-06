@@ -101,7 +101,7 @@ type TransactionGenericRowProps = {
   txid: TxId
   txData?: TxMetadata
   blockTime: number
-  explorerTxLink: string
+  txLink: string
   toggleOpen: () => void
   parentWidth: number
 }
@@ -115,7 +115,7 @@ export const TransactionGenericRow = ({
   txid,
   txData,
   blockTime,
-  explorerTxLink,
+  txLink,
   compactMode = false,
   toggleOpen,
   parentWidth,
@@ -322,7 +322,7 @@ export const TransactionGenericRow = ({
         {isLargerThanLg && (
           <Flex flex={0} flexDir='column'>
             <Flex justifyContent='flex-end' alignItems='center'>
-              <TransactionLink txid={txid} txLink={explorerTxLink} />
+              <TransactionLink txid={txid} txLink={txLink} />
             </Flex>
           </Flex>
         )}

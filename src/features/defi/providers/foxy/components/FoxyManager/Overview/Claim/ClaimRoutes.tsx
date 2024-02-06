@@ -55,7 +55,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ onBack, accountId }) =>
 
   return (
     <SlideTransition>
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <AnimatePresence mode='wait' initial={false}>
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm

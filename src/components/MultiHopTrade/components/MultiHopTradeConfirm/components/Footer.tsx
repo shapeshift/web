@@ -17,6 +17,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
+  selectActiveQuote,
   selectActiveSwapperName,
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
@@ -31,11 +32,12 @@ export const Footer = () => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const swapperName = useAppSelector(selectActiveSwapperName)
+  const activeQuote = useAppSelector(selectActiveQuote)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const tradeExecutionState = useAppSelector(selectTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
-  const { isModeratePriceImpact } = usePriceImpact()
+  const { isModeratePriceImpact } = usePriceImpact(activeQuote)
 
   const handleConfirm = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.confirmTrade())

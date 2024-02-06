@@ -22,7 +22,7 @@ export const MobileWelcomeModal = () => {
         <MemoryRouter>
           <Route>
             {({ location }) => (
-              <AnimatePresence exitBeforeEnter initial={false}>
+              <AnimatePresence mode='wait' initial={false}>
                 <Switch key={location.key} location={location}>
                   <Route path='/success'>
                     <ImportSuccess />

@@ -115,7 +115,7 @@ export const WalletConnectedMenu = ({
   }, [])
 
   return (
-    <AnimatePresence exitBeforeEnter initial={false}>
+    <AnimatePresence mode='wait' initial={false}>
       <Switch location={location} key={location.key}>
         <Route exact path={WalletConnectedRoutes.Connected}>
           <SubMenuContainer>

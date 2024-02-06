@@ -148,7 +148,7 @@ export const WalletViewsSwitch = () => {
             )}
             <ModalCloseButton ml='auto' borderRadius='full' position='static' />
           </Flex>
-          <AnimatePresence exitBeforeEnter initial={false}>
+          <AnimatePresence mode='wait' initial={false}>
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
                 {walletRoutesList}

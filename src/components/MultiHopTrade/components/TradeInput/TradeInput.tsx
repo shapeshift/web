@@ -6,26 +6,20 @@ import {
   Button,
   CardFooter,
   CardHeader,
-  Collapse,
   Divider,
   Flex,
   Heading,
   IconButton,
   Stack,
-  useToken,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import type { ColorFormat } from 'react-countdown-circle-timer'
-import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { FadeTransition } from 'components/FadeTransition'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
@@ -57,12 +51,14 @@ import {
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
+  selectWalletSupportedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -74,7 +70,6 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsUnsafeActiveQuote,
-  selectSortedTradeQuotes,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -109,8 +104,8 @@ export const TradeInput = memo(() => {
     isAnySwapperFetched: _isAnySwapperFetched,
     isQuoteRequestComplete: _isQuoteRequestComplete,
     isQuoteRequestUninitialized,
-    isSwapperFetching,
     didQuoteRequestFail,
+    isQuoteRequestIncomplete,
   } = useGetTradeQuotes()
   const {
     state: { wallet },
@@ -120,10 +115,6 @@ export const TradeInput = memo(() => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const [themeIndicatorColor, themeTrackColor] = useToken('colors', [
-    'blue.500',
-    'background.surface.raised.base',
-  ])
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [isAnySwapperFetched, setIsAnySwapperFetched] = useState(true)
   const [isQuoteRequestComplete, setIsQuoteRequestComplete] = useState(true)
@@ -138,7 +129,8 @@ export const TradeInput = memo(() => {
 
     return [1]
   }, [sellAsset.assetId])
-  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact()
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
   const enableMultiHopTrades = useFeatureFlag('MultiHopTrades')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -155,6 +147,8 @@ export const TradeInput = memo(() => {
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
+  const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
+  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
   // whenever the sell amount changes, set the quote states to fetching
   useEffect(() => {
@@ -238,9 +232,7 @@ export const TradeInput = memo(() => {
     supportedBuyAssets,
     isLoading: isSupportedAssetsLoading,
   } = useSupportedAssets()
-  const activeQuote = useAppSelector(selectActiveQuote)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
   const rate = activeQuote?.steps[0].rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(selectVotingPower)
@@ -399,18 +391,6 @@ export const TradeInput = memo(() => {
     wallet,
   ])
 
-  const MaybeRenderedTradeQuotes: JSX.Element | null = useMemo(
-    () =>
-      hasUserEnteredAmount ? (
-        <TradeQuotes
-          sortedQuotes={sortedQuotes}
-          isLoading={isLoading}
-          isSwapperFetching={isSwapperFetching}
-        />
-      ) : null,
-    [hasUserEnteredAmount, isLoading, sortedQuotes, isSwapperFetching],
-  )
-
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
@@ -431,15 +411,23 @@ export const TradeInput = memo(() => {
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
+      // don't allow executing a quote with errors
       quoteHasError ||
+      // don't execute trades while address is validating
       manualReceiveAddressIsValidating ||
       manualReceiveAddressIsValid === false ||
+      // don't execute trades while in loading state
       isLoading ||
-      !hasUserEnteredAmount ||
-      !activeQuote ||
+      // don't execute trades for smart contract addresses where they aren't supported
       disableSmartContractSwap ||
+      // don't allow non-existent quotes to be executed
       !activeSwapperName ||
-      isSwapperFetching[activeSwapperName]
+      !activeQuote ||
+      !hasUserEnteredAmount ||
+      // don't allow users to execute trades while the quote is being updated
+      isTradeQuoteApiQueryPending[activeSwapperName] ||
+      // don't allow users to proceed until all swappers have an initial result
+      (!activeSwapperName && isQuoteRequestIncomplete)
     )
   }, [
     quoteHasError,
@@ -450,7 +438,8 @@ export const TradeInput = memo(() => {
     activeQuote,
     disableSmartContractSwap,
     activeSwapperName,
-    isSwapperFetching,
+    isTradeQuoteApiQueryPending,
+    isQuoteRequestIncomplete,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {
@@ -502,14 +491,16 @@ export const TradeInput = memo(() => {
       >
         {hasUserEnteredAmount && (
           <>
-            <RateGasRow
-              sellSymbol={sellAsset.symbol}
-              buySymbol={buyAsset.symbol}
-              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-              rate={rate}
-              isLoading={isLoading}
-              isError={didQuoteRequestFail}
-            />
+            {activeQuote ? (
+              <RateGasRow
+                sellSymbol={sellAsset.symbol}
+                buySymbol={buyAsset.symbol}
+                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+                rate={rate}
+                isLoading={isLoading}
+                isError={didQuoteRequestFail}
+              />
+            ) : null}
 
             {activeQuote ? (
               <ReceiveSummary
@@ -525,7 +516,7 @@ export const TradeInput = memo(() => {
               />
             ) : null}
             <RecipientAddress />
-            {isModeratePriceImpact && (
+            {isModeratePriceImpact && priceImpactPercentage && (
               <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
             )}
           </>
@@ -586,20 +577,6 @@ export const TradeInput = memo(() => {
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
-  const countdownCircleTimerIcon = useMemo(
-    () => (
-      <CountdownCircleTimer
-        isPlaying
-        duration={20}
-        size={20}
-        strokeWidth={3}
-        trailColor={themeTrackColor as ColorFormat}
-        colors={themeIndicatorColor as ColorFormat}
-      />
-    ),
-    [themeIndicatorColor, themeTrackColor],
-  )
-
   const sellTradeAssetSelect = useMemo(
     () => (
       <TradeAssetSelect
@@ -624,6 +601,12 @@ export const TradeInput = memo(() => {
     [buyAsset.assetId, handleBuyAssetClick, isSupportedAssetsLoading, setBuyAsset],
   )
 
+  // disable switching assets if the buy asset isn't supported
+  const shouldDisableSwitchAssets = useMemo(() => {
+    const walletSupportsBuyAssetChain = walletSupportedChainIds.includes(buyAsset.chainId)
+    return !walletSupportsBuyAssetChain
+  }, [buyAsset.chainId, walletSupportedChainIds])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <SlideTransition>
@@ -633,20 +616,7 @@ export const TradeInput = memo(() => {
               <Heading as='h5' fontSize='md'>
                 {translate('navBar.trade')}
               </Heading>
-              <Flex>
-                <AnimatePresence>
-                  {!!sortedQuotes.length && !isLoading && hasUserEnteredAmount && (
-                    <FadeTransition>
-                      <IconButton
-                        variant='ghost'
-                        aria-label={translate('trade.quoteStatus')}
-                        icon={countdownCircleTimerIcon}
-                      />
-                    </FadeTransition>
-                  )}
-                </AnimatePresence>
-                <SlippagePopover />
-              </Flex>
+              <SlippagePopover />
             </Flex>
           </CardHeader>
           <Stack spacing={0}>
@@ -670,6 +640,7 @@ export const TradeInput = memo(() => {
                 zIndex={1}
                 aria-label={translate('lending.switchAssets')}
                 icon={arrowDownIcon}
+                isDisabled={shouldDisableSwitchAssets}
               />
               <Divider />
             </Flex>
@@ -699,9 +670,7 @@ export const TradeInput = memo(() => {
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
             >
-              <Collapse in={!!sortedQuotes.length && hasUserEnteredAmount}>
-                {MaybeRenderedTradeQuotes}
-              </Collapse>
+              <TradeQuotes isLoading={isLoading} />
             </TradeAssetInput>
           </Stack>
           {ConfirmSummary}

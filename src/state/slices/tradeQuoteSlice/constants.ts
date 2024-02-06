@@ -23,4 +23,6 @@ export const initialState: TradeQuoteSliceState = {
   activeStep: undefined,
   tradeExecution: initialTradeExecutionState,
   tradeQuotes: {},
+  tradeQuoteDisplayCache: [],
+  isTradeQuoteRequestAborted: false,
 }

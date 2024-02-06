@@ -1,6 +1,6 @@
 // Helper function to convert basis points to percentage
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee } from '@shapeshiftoss/swapper'
+import { type ProtocolFee } from '@shapeshiftoss/swapper'
 import type { MarketData, PartialRecord } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'

@@ -47,7 +47,7 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = ({
         >
           <Skeleton isLoaded={!isLoading}>{previousComponent}</Skeleton>
         </Box>
-        <AnimatePresence exitBeforeEnter>
+        <AnimatePresence mode='wait'>
           {shouldShowNewValue ? (
             <SlideTransitionX key={`${label}-new-value`}>
               <Flex gap={2} alignItems='center'>

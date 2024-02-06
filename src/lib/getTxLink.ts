@@ -8,19 +8,19 @@ import {
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from './swapper/swappers/ThorchainSwapper/constants'
 
-type GetBaseUrl = {
-  name: SwapSource | Dex | undefined
+type GetTxBaseUrl = {
+  name?: Dex | SwapSource
   defaultExplorerBaseUrl: string
   isOrder?: boolean
 }
 
-type GetTxLink = GetBaseUrl &
+type GetTxLink = GetTxBaseUrl &
   ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never })
 
-export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetBaseUrl): string => {
+export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBaseUrl): string => {
   switch (name) {
-    case SwapperName.CowSwap:
     case Dex.CowSwap:
+    case SwapperName.CowSwap:
       return isOrder ? 'https://explorer.cow.fi/orders/' : 'https://explorer.cow.fi/tx/'
     case Dex.Thor:
     case SwapperName.Thorchain:
@@ -38,16 +38,14 @@ export const getTxLink = ({ name, defaultExplorerBaseUrl, txId, tradeId }: GetTx
   const isOrder = !!tradeId
   const baseUrl = getTxBaseUrl({ name, defaultExplorerBaseUrl, isOrder })
 
-  if (
-    [
-      SwapperName.Thorchain,
-      THORCHAIN_STREAM_SWAP_SOURCE,
-      THORCHAIN_LONGTAIL_SWAP_SOURCE,
-      THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-    ].includes(name as SwapSource)
-  ) {
-    return `${baseUrl}${id.replace(/^0x/, '')}`
+  switch (name) {
+    case Dex.Thor:
+    case SwapperName.Thorchain:
+    case THORCHAIN_STREAM_SWAP_SOURCE:
+    case THORCHAIN_LONGTAIL_SWAP_SOURCE:
+    case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
+      return `${baseUrl}${id.replace(/^0x/, '')}`
+    default:
+      return `${baseUrl}${id}`
   }
-
-  return `${baseUrl}${id}`
 }

@@ -56,6 +56,7 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
+  selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
   selectWalletSupportedChainIds,
@@ -140,6 +141,7 @@ export const TradeInput = memo(() => {
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
+  const manualReceiveAddressIsEditing = useAppSelector(selectManualReceiveAddressIsEditing)
   const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
@@ -415,6 +417,7 @@ export const TradeInput = memo(() => {
       quoteHasError ||
       // don't execute trades while address is validating
       manualReceiveAddressIsValidating ||
+      manualReceiveAddressIsEditing ||
       manualReceiveAddressIsValid === false ||
       // don't execute trades while in loading state
       isLoading ||
@@ -432,6 +435,7 @@ export const TradeInput = memo(() => {
   }, [
     quoteHasError,
     manualReceiveAddressIsValidating,
+    manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
     hasUserEnteredAmount,

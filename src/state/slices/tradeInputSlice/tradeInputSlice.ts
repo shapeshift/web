@@ -14,6 +14,7 @@ export type TradeInputState = {
   sellAssetAccountId: AccountId | undefined
   buyAssetAccountId: AccountId | undefined
   sellAmountCryptoPrecision: string
+  isInputtingFiatSellAmount: boolean
   manualReceiveAddress: string | undefined
   manualReceiveAddressIsValidating: boolean
   manualReceiveAddressIsEditing: boolean
@@ -28,6 +29,7 @@ const initialState: TradeInputState = {
   sellAssetAccountId: undefined,
   buyAssetAccountId: undefined,
   sellAmountCryptoPrecision: '0',
+  isInputtingFiatSellAmount: false,
   manualReceiveAddress: undefined,
   manualReceiveAddressIsValidating: false,
   manualReceiveAddressIsValid: undefined,
@@ -91,6 +93,9 @@ export const tradeInput = createSlice({
     },
     setSlippagePreferencePercentage: (state, action: PayloadAction<string | undefined>) => {
       state.slippagePreferencePercentage = action.payload
+    },
+    setIsInputtingFiatSellAmount: (state, action: PayloadAction<boolean>) => {
+      state.isInputtingFiatSellAmount = action.payload
     },
   },
 })

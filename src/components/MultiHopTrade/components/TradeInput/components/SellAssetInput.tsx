@@ -8,6 +8,7 @@ import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import {
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUserCurrency,
+  selectIsInputtingFiatSellAmount,
   selectMarketDataByFilter,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -35,6 +36,7 @@ export const SellAssetInput = memo(
   }: SellAssetInputProps) => {
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
+    const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
 
     const dispatch = useAppDispatch()
 
@@ -65,6 +67,13 @@ export const SellAssetInput = memo(
       [handleSellAssetInputChangeInner, sellAssetUserCurrencyRate],
     )
 
+    const handleIsInputtingFiatSellAmountChange = useCallback(
+      (isInputtingFiatSellAmount: boolean) => {
+        dispatch(tradeInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
+      },
+      [dispatch],
+    )
+
     return (
       <TradeAssetInput
         accountId={accountId}
@@ -73,6 +82,8 @@ export const SellAssetInput = memo(
         assetIcon={asset.icon}
         cryptoAmount={sellAmountCryptoPrecision}
         fiatAmount={sellAmountUserCurrency}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+        handleIsInputtingFiatSellAmountChange={handleIsInputtingFiatSellAmountChange}
         isSendMaxDisabled={false}
         onChange={handleSellAssetInputChange}
         percentOptions={percentOptions}

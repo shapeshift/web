@@ -194,3 +194,8 @@ export const selectSellAssetBalanceCryptoBaseUnit = createSelector(
     }),
   sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
 )
+
+export const selectIsInputtingFiatSellAmount = createSelector(
+  selectTradeInput,
+  tradeInput => tradeInput.isInputtingFiatSellAmount,
+)

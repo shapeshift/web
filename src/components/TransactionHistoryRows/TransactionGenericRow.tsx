@@ -82,6 +82,7 @@ export const TransactionGenericRow = ({
           value={amount}
           symbol={transfersByType.Send[0].asset.symbol}
           maximumFractionDigits={4}
+          prefix='-'
         />
       )
     }

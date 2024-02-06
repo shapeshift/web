@@ -39,6 +39,7 @@ export const TransactionSend = ({
       <FormatAmount.Crypto
         color='text.subtle'
         value={amount}
+        prefix='-'
         symbol={txDetails.transfers[0].asset.symbol}
         maximumFractionDigits={4}
       />

@@ -63,7 +63,14 @@ export const TransactionTrade = ({
     if (!hasReceive || !hasSend) return undefined
     const precision = transfersByType.Send[0].asset.precision
     const amount = fromBaseUnit(transfersByType.Send[0].value, precision ?? FALLBACK_PRECISION)
-    return <Amount.Crypto value={amount} symbol={transfersByType.Send[0].asset.symbol} />
+    return (
+      <Amount.Crypto
+        value={amount}
+        symbol={transfersByType.Send[0].asset.symbol}
+        prefix='-'
+        maximumFractionDigits={4}
+      />
+    )
   }, [hasReceive, hasSend, transfersByType.Send])
 
   const bottomleft = useMemo(() => {

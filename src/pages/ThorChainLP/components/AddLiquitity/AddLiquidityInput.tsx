@@ -536,19 +536,26 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   // Checks if there's enough fee asset balance to cover the transaction fees
   const hasEnoughPoolAssetFeeAssetBalanceForTx = useMemo(() => {
+    if (bnOrZero(actualAssetCryptoLiquidityAmount).isZero()) return true
+
     if (!isEstimatedPoolAssetFeesDataSuccess || !poolAsset) return false
 
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
     if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) {
-      return bnOrZero(poolAssetTxFeeCryptoPrecision).lte(poolAssetBalanceCryptoBaseUnit)
+      return bnOrZero(estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit).lte(
+        poolAssetBalanceCryptoBaseUnit,
+      )
     }
 
     // For tokens, check if the fee asset balance is enough to cover the fees
-    return bnOrZero(poolAssetTxFeeCryptoPrecision).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
+    return bnOrZero(estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit).lte(
+      poolAssetFeeAssetBalanceCryptoBaseUnit,
+    )
   }, [
+    actualAssetCryptoLiquidityAmount,
     isEstimatedPoolAssetFeesDataSuccess,
     poolAsset,
-    poolAssetTxFeeCryptoPrecision,
+    estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
     poolAssetFeeAssetBalanceCryptoBaseUnit,
     poolAssetBalanceCryptoBaseUnit,
   ])
@@ -625,17 +632,26 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     confirmedQuote,
   })
 
-  console.log({
-    estimatedRuneFeesData,
-    isEstimatedRuneFeesDataLoading,
-    isEstimatedRuneFeesDataError,
-    isEstimatedRuneFeesDataSuccess,
-  })
+  const runeTxFeeCryptoPrecision = useMemo(
+    () => fromBaseUnit(estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0, rune?.precision ?? 0),
+    [estimatedRuneFeesData?.txFeeCryptoBaseUnit, rune?.precision],
+  )
 
   const hasEnoughRuneBalance = useMemo(() => {
     const runeBalanceCryptoPrecision = fromBaseUnit(runeBalanceCryptoBaseUnit, rune?.precision ?? 0)
     return bnOrZero(actualRuneCryptoLiquidityAmount).lte(runeBalanceCryptoPrecision)
   }, [runeBalanceCryptoBaseUnit, rune?.precision, actualRuneCryptoLiquidityAmount])
+
+  const hasEnoughRuneFeeBalanceForTx = useMemo(() => {
+    if (bnOrZero(actualRuneCryptoLiquidityAmount).isZero()) return true
+    if (!isEstimatedRuneFeesDataSuccess) return false
+    return bnOrZero(estimatedRuneFeesData?.txFeeCryptoBaseUnit).lte(runeBalanceCryptoBaseUnit)
+  }, [
+    actualRuneCryptoLiquidityAmount,
+    estimatedRuneFeesData?.txFeeCryptoBaseUnit,
+    isEstimatedRuneFeesDataSuccess,
+    runeBalanceCryptoBaseUnit,
+  ])
 
   const handleApprove = useCallback(() => mutate(undefined), [mutate])
 
@@ -765,12 +781,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
     })
 
-    const poolAssetGasFeeFiat = bnOrZero(poolAssetTxFeeCryptoPrecision)
-      .times(poolAssetFeeAssetMarktData.price)
-      .toFixed(2)
+    const poolAssetGasFeeFiat = bnOrZero(poolAssetTxFeeCryptoPrecision).times(
+      poolAssetFeeAssetMarktData.price,
+    )
 
-    // TODO(gomes): this should also work for ROON, and we should add it here
-    const totalGasFeeFiat = poolAssetGasFeeFiat
+    const runeGasFeeFiat = bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price)
+
+    const totalGasFeeFiat = poolAssetGasFeeFiat.plus(runeGasFeeFiat).toFixed(2)
 
     setConfirmedQuote({
       assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
@@ -800,6 +817,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetFeeAssetMarktData.price,
     poolAssetInboundAddress,
     poolAssetTxFeeCryptoPrecision,
+    runeMarketData.price,
+    runeTxFeeCryptoPrecision,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,
@@ -961,12 +980,25 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ],
   )
 
+  const notEnoughRuneFeeError = useMemo(
+    () =>
+      bnOrZero(actualRuneCryptoLiquidityAmount).gt(0) &&
+      !isEstimatedRuneFeesDataLoading &&
+      hasEnoughRuneFeeBalanceForTx === false,
+    [actualRuneCryptoLiquidityAmount, hasEnoughRuneFeeBalanceForTx, isEstimatedRuneFeesDataLoading],
+  )
+
   const notEnoughPoolAssetError = useMemo(
     () =>
       poolAsset &&
       bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
       hasEnoughPoolAssetBalanceForTx === false,
     [actualAssetCryptoLiquidityAmount, poolAsset, hasEnoughPoolAssetBalanceForTx],
+  )
+
+  const notEnoughRuneError = useMemo(
+    () => bnOrZero(actualRuneCryptoLiquidityAmount).gt(0) && hasEnoughRuneBalance === false,
+    [actualRuneCryptoLiquidityAmount, hasEnoughRuneBalance],
   )
 
   const confirmCopy = useMemo(() => {
@@ -976,18 +1008,27 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       return translate('modals.send.errors.notEnoughNativeToken', {
         asset: poolAssetFeeAsset.symbol,
       })
+    if (rune && notEnoughRuneFeeError)
+      return translate('modals.send.errors.notEnoughNativeToken', {
+        asset: rune.symbol,
+      })
+
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
+    if (rune && notEnoughRuneError) return translate('common.insufficientFunds')
     if (poolAsset && isApprovalRequired)
       return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: poolAsset.symbol })
 
     return translate('pools.addLiquidity')
   }, [
-    poolAsset,
-    isApprovalRequired,
-    notEnoughFeeAssetError,
-    notEnoughPoolAssetError,
     poolAssetFeeAsset,
+    notEnoughFeeAssetError,
     translate,
+    rune,
+    notEnoughRuneFeeError,
+    poolAsset,
+    notEnoughPoolAssetError,
+    notEnoughRuneError,
+    isApprovalRequired,
   ])
 
   if (!foundPool || !poolAsset || !rune) return null
@@ -1080,6 +1121,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             isApprovalTxPending ||
             isSweepNeededLoading ||
             isEstimatedPoolAssetFeesDataError ||
+            isEstimatedRuneFeesDataError ||
             isEstimatedPoolAssetFeesDataLoading ||
             bnOrZero(actualAssetCryptoLiquidityAmount).isZero() ||
             notEnoughFeeAssetError

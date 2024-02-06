@@ -40,6 +40,7 @@ export const TransactionSend = ({
         color='text.subtle'
         value={amount}
         symbol={txDetails.transfers[0].asset.symbol}
+        maximumFractionDigits={4}
       />
     )
   }, [txDetails.transfers])

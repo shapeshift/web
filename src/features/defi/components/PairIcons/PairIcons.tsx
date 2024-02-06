@@ -1,6 +1,6 @@
 import type { FlexProps, ThemingProps } from '@chakra-ui/react'
 import { Flex, useColorModeValue } from '@chakra-ui/react'
-import { AssetIcon } from 'components/AssetIcon'
+import { AssetIcon, bottomClipPath, topClipPath } from 'components/AssetIcon'
 
 export const PairIcons = ({
   icons,
@@ -22,7 +22,8 @@ export const PairIcons = ({
           boxSize={iconBoxSize}
           size={iconSize}
           showNetworkIcon={i === 0}
-          ml={i === 0 ? '0' : '-2.5'}
+          clipPath={i === 0 ? topClipPath : bottomClipPath}
+          position={i === 0 ? 'relative' : 'absolute'}
         />
       ))}
     </Flex>

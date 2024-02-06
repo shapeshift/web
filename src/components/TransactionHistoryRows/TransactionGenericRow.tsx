@@ -81,6 +81,7 @@ export const TransactionGenericRow = ({
           color='text.subtle'
           value={amount}
           symbol={transfersByType.Send[0].asset.symbol}
+          maximumFractionDigits={4}
         />
       )
     }
@@ -109,7 +110,13 @@ export const TransactionGenericRow = ({
           <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
             {symbol}
           </RawText>
-          <Amount.Crypto value={amount} symbol={symbol} color='text.success' prefix='+' />
+          <Amount.Crypto
+            value={amount}
+            symbol={symbol}
+            color='text.success'
+            prefix='+'
+            maximumFractionDigits={4}
+          />
         </Flex>
       )
     }
@@ -122,7 +129,12 @@ export const TransactionGenericRow = ({
           <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
             {symbol}
           </RawText>
-          <Amount.Crypto value={amount} symbol={symbol} color='text.subtle' />
+          <Amount.Crypto
+            value={amount}
+            symbol={symbol}
+            color='text.subtle'
+            maximumFractionDigits={4}
+          />
         </Flex>
       )
     }

@@ -45,7 +45,7 @@ const ChainMenuItem: React.FC<{
   const connectedIconColor = useColorModeValue('green.500', 'green.200')
   const connectedChainBgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.50')
   const assetIcon = useMemo(
-    () => <AssetIcon assetId={nativeAssetId} showNetworkIcon width='6' height='auto' />,
+    () => <AssetIcon assetId={nativeAssetId} showNetworkIcon={false} width='6' height='auto' />,
     [nativeAssetId],
   )
   const handleClick = useCallback(() => onClick(ethNetwork), [ethNetwork, onClick])
@@ -155,7 +155,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
           <MenuButton as={Button} iconSpacing={2} px={2} width={menuButtonWidth}>
             <Flex alignItems='center' justifyContent='center'>
               {currentChainNativeAsset ? (
-                <AssetIcon assetId={currentChainNativeAssetId} showNetworkIcon size='xs' />
+                <AssetIcon assetId={currentChainNativeAssetId} showNetworkIcon={false} size='xs' />
               ) : (
                 <WarningIcon color='yellow.300' boxSize='4' />
               )}

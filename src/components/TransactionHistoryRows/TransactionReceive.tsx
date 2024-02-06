@@ -36,11 +36,13 @@ export const TransactionReceive = ({
     const precision = transfersByType.Receive[0].asset.precision
     const amount = fromBaseUnit(transfersByType.Receive[0].value, precision ?? FALLBACK_PRECISION)
     return (
-      <FormatAmount.Crypto
+      <FormatAmount
         color='text.success'
         value={amount}
         prefix='+'
         symbol={transfersByType.Receive[0].asset.symbol}
+        maximumFractionDigits={4}
+        abbreviated={true}
       />
     )
   }, [transfersByType.Receive])

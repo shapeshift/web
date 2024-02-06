@@ -787,7 +787,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         shareOfPoolDecimalPercent &&
         slippageRune &&
         activeOpportunityId &&
-        poolAssetAccountAddress &&
         poolAssetInboundAddress
       )
     )

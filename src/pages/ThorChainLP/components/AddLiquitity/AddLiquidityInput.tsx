@@ -833,9 +833,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             ? virtualRuneFiatLiquidityAmount
             : virtualAssetFiatLiquidityAmount
 
+          const accountId = accountIdsByChainId[asset.chainId]
+
           return (
             <TradeAssetInput
               key={asset.assetId}
+              accountId={accountId}
               assetId={asset?.assetId}
               assetIcon={asset?.icon ?? ''}
               assetSymbol={asset?.symbol ?? ''}
@@ -856,18 +859,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [
     poolAsset,
+    rune,
+    foundPool,
+    pairDivider,
+    runeMarketData,
     poolAssetMarketData,
     createHandleAddLiquidityInputChange,
-    foundPool,
-    handleAccountIdChange,
-    pairDivider,
-    percentOptions,
-    rune,
-    runeMarketData,
-    virtualAssetCryptoLiquidityAmount,
-    virtualAssetFiatLiquidityAmount,
     virtualRuneCryptoLiquidityAmount,
+    virtualAssetCryptoLiquidityAmount,
     virtualRuneFiatLiquidityAmount,
+    virtualAssetFiatLiquidityAmount,
+    accountIdsByChainId,
+    percentOptions,
+    handleAccountIdChange,
   ])
 
   const symAlert = useMemo(() => {

@@ -1001,7 +1001,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [actualRuneCryptoLiquidityAmount, hasEnoughRuneBalance],
   )
 
-  const confirmCopy = useMemo(() => {
+  const errorCopy = useMemo(() => {
     // Not enough *pool* asset, but possibly enough *fee* asset
     // Not enough *fee* asset
     if (poolAssetFeeAsset && notEnoughFeeAssetError)
@@ -1018,18 +1018,22 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (poolAsset && isApprovalRequired)
       return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: poolAsset.symbol })
 
-    return translate('pools.addLiquidity')
+    return null
   }, [
-    poolAssetFeeAsset,
+    isApprovalRequired,
     notEnoughFeeAssetError,
-    translate,
-    rune,
-    notEnoughRuneFeeError,
-    poolAsset,
     notEnoughPoolAssetError,
     notEnoughRuneError,
-    isApprovalRequired,
+    notEnoughRuneFeeError,
+    poolAsset,
+    poolAssetFeeAsset,
+    rune,
+    translate,
   ])
+
+  const confirmCopy = useMemo(() => {
+    return errorCopy ?? translate('pools.addLiquidity')
+  }, [errorCopy, translate])
 
   if (!foundPool || !poolAsset || !rune) return null
 
@@ -1112,7 +1116,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         <Button
           mx={-2}
           size='lg'
-          colorScheme='blue'
+          colorScheme={errorCopy ? 'red' : 'blue'}
           isDisabled={
             !confirmedQuote ||
             isVotingPowerLoading ||

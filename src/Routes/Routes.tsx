@@ -3,6 +3,7 @@ import type { Location } from 'history'
 import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { makeSuspsenseful } from 'utils/makeSuspenseful'
 import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from 'hooks/useQuery/useQuery'
@@ -13,21 +14,33 @@ import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'
 
-const Flags = lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags })))
-const Yat = lazy(() => import('pages/Yat/Yat').then(({ Yat }) => ({ default: Yat })))
-const NotFound = lazy(() =>
-  import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound })),
+const Flags = makeSuspsenseful(
+  lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
 )
-const ConnectWallet = lazy(() =>
-  import('pages/ConnectWallet/ConnectWallet').then(({ ConnectWallet }) => ({
-    default: ConnectWallet,
-  })),
+const Yat = makeSuspsenseful(
+  lazy(() => import('pages/Yat/Yat').then(({ Yat }) => ({ default: Yat }))),
 )
-const TermsOfService = lazy(() =>
-  import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({ default: TermsOfService })),
+const NotFound = makeSuspsenseful(
+  lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
-const PrivacyPolicy = lazy(() =>
-  import('pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
+const ConnectWallet = makeSuspsenseful(
+  lazy(() =>
+    import('pages/ConnectWallet/ConnectWallet').then(({ ConnectWallet }) => ({
+      default: ConnectWallet,
+    })),
+  ),
+)
+const TermsOfService = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
+      default: TermsOfService,
+    })),
+  ),
+)
+const PrivacyPolicy = makeSuspsenseful(
+  lazy(() =>
+    import('pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
+  ),
 )
 
 export const Routes = memo(() => {

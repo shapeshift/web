@@ -1,6 +1,7 @@
-import { Box, CircularProgress } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import type { ComponentProps, FC } from 'react'
 import { Suspense, useMemo } from 'react'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 
 const suspenseSpinnerStyle = {
   display: 'flex',

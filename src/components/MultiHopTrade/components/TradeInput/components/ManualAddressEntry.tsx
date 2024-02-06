@@ -45,14 +45,11 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     isSnapInstalled,
   })
   const activeQuote = useAppSelector(selectActiveQuote)
-  const isHolisticRecipientAddressEnabled = useFeatureFlag('HolisticRecipientAddress')
   const shouldShowManualReceiveAddressInput = useMemo(() => {
-    // Use old "wallet does not support chain" when the flag is off so we always display this
-    if (!isHolisticRecipientAddressEnabled) return !walletSupportsBuyAssetChain
-    // If the flag is on, we want to display this if the wallet doesn't support the buy asset chain,
+    // We want to display the manual address entry if the wallet doesn't support the buy asset chain,
     // but stop displaying it as soon as we have a quote
     return !walletSupportsBuyAssetChain && !activeQuote
-  }, [activeQuote, isHolisticRecipientAddressEnabled, walletSupportsBuyAssetChain])
+  }, [activeQuote, walletSupportsBuyAssetChain])
 
   const useReceiveAddressArgs = useMemo(
     () => ({

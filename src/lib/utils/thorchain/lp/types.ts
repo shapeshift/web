@@ -198,9 +198,12 @@ export type LpConfirmedDepositQuote = {
   accountIdsByChainId: Record<ChainId, AccountId>
   feeBps: string
   feeAmountFiat: string
-  totalGasFeeFiat: string
   assetAddress: string
   quoteInboundAddress: string
+  // For informative purposes only at confirm step - to be recalculated before signing
+  totalGasFeeFiat: string
+  runeGasFeeFiat: string
+  poolAssetGasFeeFiat: string
 }
 export enum AsymSide {
   Asset = 'asset',

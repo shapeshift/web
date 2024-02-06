@@ -670,6 +670,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     hasEnoughRuneFeeBalanceForTx,
   })
 
+  const poolAssetGasFeeFiat = useMemo(
+    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarktData.price),
+    [poolAssetFeeAssetMarktData.price, poolAssetTxFeeCryptoPrecision],
+  )
+
+  const runeGasFeeFiat = useMemo(
+    () => bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price),
+    [runeMarketData.price, runeTxFeeCryptoPrecision],
+  )
+
+  const totalGasFeeFiat = useMemo(
+    () => poolAssetGasFeeFiat.plus(runeGasFeeFiat).toFixed(2),
+    [poolAssetGasFeeFiat, runeGasFeeFiat],
+  )
+
   const handleApprove = useCallback(() => mutate(undefined), [mutate])
 
   const handleSubmit = useCallback(() => {
@@ -798,14 +813,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
     })
 
-    const poolAssetGasFeeFiat = bnOrZero(poolAssetTxFeeCryptoPrecision).times(
-      poolAssetFeeAssetMarktData.price,
-    )
-
-    const runeGasFeeFiat = bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price)
-
-    const totalGasFeeFiat = poolAssetGasFeeFiat.plus(runeGasFeeFiat).toFixed(2)
-
     setConfirmedQuote({
       assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
       assetFiatLiquidityAmount: actualAssetFiatLiquidityAmount,
@@ -820,6 +827,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       feeAmountFiat: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
+      runeGasFeeFiat: runeGasFeeFiat.toFixed(),
+      poolAssetGasFeeFiat: poolAssetGasFeeFiat.toFixed(),
       totalGasFeeFiat,
     })
   }, [
@@ -832,13 +841,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     isAsym,
     poolAssetAccountAddress,
     poolAssetFeeAssetMarktData.price,
+    poolAssetGasFeeFiat,
     poolAssetInboundAddress,
     poolAssetTxFeeCryptoPrecision,
+    runeGasFeeFiat,
     runeMarketData.price,
     runeTxFeeCryptoPrecision,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,
+    totalGasFeeFiat,
     votingPower,
   ])
 
@@ -1034,12 +1046,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         asset: rune.symbol,
       })
 
-    if (poolAsset && isApprovalRequired)
-      return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: poolAsset.symbol })
-
     return null
   }, [
-    isApprovalRequired,
     notEnoughFeeAssetError,
     notEnoughPoolAssetError,
     notEnoughRuneError,
@@ -1051,8 +1059,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   const confirmCopy = useMemo(() => {
-    return errorCopy ?? translate('pools.addLiquidity')
-  }, [errorCopy, translate])
+    if (errorCopy) return errorCopy
+    if (poolAsset && isApprovalRequired)
+      return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: poolAsset.symbol })
+
+    return translate('pools.addLiquidity')
+  }, [errorCopy, isApprovalRequired, poolAsset, translate])
 
   if (!foundPool || !poolAsset || !rune) return null
 
@@ -1109,7 +1121,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              <Amount.Fiat value={confirmedQuote?.totalGasFeeFiat ?? '0'} />
+              <Amount.Fiat value={totalGasFeeFiat} />
             </Skeleton>
           </Row.Value>
         </Row>

@@ -35,7 +35,7 @@ export const TransactionSend = ({
         blockTime={txDetails.tx.blockTime}
         transfersByType={transfersByType}
         fee={txDetails.fee}
-        explorerTxLink={txDetails.explorerTxLink}
+        txLink={txDetails.txLink}
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
@@ -43,7 +43,7 @@ export const TransactionSend = ({
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>
-          <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+          <TransactionId txLink={txDetails.txLink} txid={txDetails.tx.txid} />
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>

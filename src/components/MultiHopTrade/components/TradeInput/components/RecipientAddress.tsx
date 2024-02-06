@@ -37,7 +37,6 @@ const closeIcon = <CloseIcon />
 
 export const RecipientAddress = () => {
   const translate = useTranslate()
-  const isHolisticRecipientAddressEnabled = useFeatureFlag('HolisticRecipientAddress')
   const isYatFeatureEnabled = useFeatureFlag('Yat')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
@@ -120,11 +119,13 @@ export const RecipientAddress = () => {
   )
 
   const handleEditRecipientAddressClick = useCallback(() => {
+    dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(true))
     setIsRecipientAddressEditing(true)
-  }, [])
+  }, [dispatch])
 
   const handleCancelClick = useCallback(() => {
     setIsRecipientAddressEditing(false)
+    dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))
     // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
     setFormValue(SendFormFields.Input, '')
     dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))
@@ -147,13 +148,13 @@ export const RecipientAddress = () => {
       const address = values[SendFormFields.Input]
       dispatch(tradeInput.actions.setManualReceiveAddress(address))
       setIsRecipientAddressEditing(false)
+      dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))
     },
     [dispatch],
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
-  if (!isHolisticRecipientAddressEnabled) return null
   if (!receiveAddress) return null
 
   return isRecipientAddressEditing ? (

@@ -3,7 +3,7 @@ import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
-import { getTxBaseUrl } from 'lib/getTxLink'
+import { getTxLink } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -65,7 +65,7 @@ export interface TxDetails {
   transfers: Transfer[]
   fee?: Fee
   type: TxType
-  explorerTxLink: string
+  txLink: string
 }
 
 export const isSupportedMethod = (tx: Tx) =>
@@ -118,9 +118,10 @@ export const useTxDetails = (txId: string): TxDetails => {
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
 
-  const explorerTxLink = getTxBaseUrl({
+  const txLink = getTxLink({
     name: tx.trade?.dexName,
     defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
+    txId: tx.txid,
   })
 
   return {
@@ -128,6 +129,6 @@ export const useTxDetails = (txId: string): TxDetails => {
     fee,
     transfers,
     type: getTxType(tx, transfers),
-    explorerTxLink,
+    txLink,
   }
 }

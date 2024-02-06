@@ -4,22 +4,17 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 
 const hover = { bg: 'transparent' }
 
-export const TransactionLink = ({
-  explorerTxLink,
-  txid,
-}: {
-  explorerTxLink: string
-  txid: string
-}) => {
+export const TransactionLink = ({ txLink, txid }: { txLink: string; txid: string }) => {
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => e.stopPropagation(),
     [],
   )
+
   return (
     <Button
       as={Link}
       isExternal
-      href={`${explorerTxLink}${txid}`}
+      href={txLink}
       variant='ghost'
       colorScheme='blue'
       bg='transparent'

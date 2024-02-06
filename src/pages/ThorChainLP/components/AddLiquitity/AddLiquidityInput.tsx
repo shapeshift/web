@@ -244,7 +244,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])
 
-  const assetMarketData = useAppSelector(state =>
+  const poolAssetMarketData = useAppSelector(state =>
     selectMarketDataById(state, poolAsset?.assetId ?? ''),
   )
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
@@ -331,6 +331,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
   const poolAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, poolAsset?.assetId ?? ''),
+  )
+  const poolAssetFeeAssetMarktData = useAppSelector(state =>
+    selectMarketDataById(state, poolAssetFeeAsset?.assetId ?? ''),
   )
   const poolAssetFeeAssetBalanceFilter = useMemo(
     () => ({
@@ -522,8 +525,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit ?? 0, poolAsset?.precision ?? 0),
-    [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAsset?.precision],
+      fromBaseUnit(
+        estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit ?? 0,
+        poolAssetFeeAsset?.precision ?? 0,
+      ),
+    [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
   )
 
   // Checks if there's enough fee asset balance to cover the transaction fees
@@ -618,9 +624,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [handleApprove, history, isApprovalRequired, isSweepNeeded])
 
   const runePerAsset = useMemo(() => {
-    if (!assetMarketData || !runeMarketData) return undefined
-    return bn(assetMarketData.price).div(bn(runeMarketData.price)).toFixed()
-  }, [assetMarketData, runeMarketData])
+    if (!poolAssetMarketData || !runeMarketData) return undefined
+    return bn(poolAssetMarketData.price).div(bn(runeMarketData.price)).toFixed()
+  }, [poolAssetMarketData, runeMarketData])
 
   const createHandleAddLiquidityInputChange = useCallback(
     (marketData: MarketData, isRune: boolean) => {
@@ -736,7 +742,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
 
     const poolAssetGasFeeFiat = bnOrZero(poolAssetTxFeeCryptoPrecision)
-      .times(assetMarketData.price)
+      .times(poolAssetFeeAssetMarktData.price)
       .toFixed(2)
 
     // TODO(gomes): this should also work for ROON, and we should add it here
@@ -759,7 +765,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalGasFeeFiat,
     })
   }, [
-    poolAssetAccountAddress,
     accountIdsByChainId,
     activeOpportunityId,
     actualAssetCryptoLiquidityAmount,
@@ -767,13 +772,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneCryptoLiquidityAmount,
     actualRuneFiatLiquidityAmount,
     isAsym,
+    poolAssetAccountAddress,
+    poolAssetFeeAssetMarktData.price,
     poolAssetInboundAddress,
+    poolAssetTxFeeCryptoPrecision,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageRune,
     votingPower,
-    poolAssetTxFeeCryptoPrecision,
-    assetMarketData.price,
   ])
 
   const tradeAssetInputs = useMemo(() => {
@@ -791,7 +797,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       <Stack divider={pairDivider} spacing={0}>
         {assets.map(asset => {
           const isRune = asset.assetId === rune.assetId
-          const marketData = isRune ? runeMarketData : assetMarketData
+          const marketData = isRune ? runeMarketData : poolAssetMarketData
           const handleAddLiquidityInputChange = createHandleAddLiquidityInputChange(
             marketData,
             isRune,
@@ -826,7 +832,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [
     poolAsset,
-    assetMarketData,
+    poolAssetMarketData,
     createHandleAddLiquidityInputChange,
     foundPool,
     handleAccountIdChange,

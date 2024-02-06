@@ -1,5 +1,6 @@
 import { Flex, Stack } from '@chakra-ui/react'
-import type { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import type { TransferType } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
@@ -12,6 +13,7 @@ type TransactionTeaserProps = {
   bottomLeftRegion?: JSX.Element
   bottomRightRegion?: JSX.Element
   status: TxStatus
+  onToggle: () => void
 }
 
 const overFlowText = { p: { maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis' } }
@@ -24,10 +26,15 @@ export const TransactionTeaser: React.FC<TransactionTeaserProps> = ({
   bottomLeftRegion,
   bottomRightRegion,
   status,
+  onToggle,
 }) => {
   return (
-    <Flex gap={4} alignItems='center' px={2} py={2}>
-      <AssetIconWithBadge transfersByType={transfersByType} type={type}>
+    <Flex gap={4} alignItems='center' px={4} py={4} onClick={onToggle} cursor='pointer'>
+      <AssetIconWithBadge
+        transfersByType={transfersByType}
+        type={type}
+        isLoading={status === TxStatus.Pending}
+      >
         <TransactionTypeIcon type={type} status={status} />
       </AssetIconWithBadge>
       <Stack flex={1} spacing={0}>

@@ -19,11 +19,9 @@ import { getTransfersByType } from './utils'
 
 export const TransactionReceive = ({
   txDetails,
-  showDateAndGuide,
   compactMode,
   toggleOpen,
   isOpen,
-  parentWidth,
 }: TransactionRowProps) => {
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Receive]),
@@ -60,6 +58,7 @@ export const TransactionReceive = ({
         topLeftRegion={topLeft}
         bottomLeftRegion={bottomleft}
         bottomRightRegion={bottomRight}
+        onToggle={toggleOpen}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />

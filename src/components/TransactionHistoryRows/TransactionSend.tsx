@@ -13,18 +13,15 @@ import { Status } from './TransactionDetails/Status'
 import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
-import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTransfersByType } from './utils'
 
 export const TransactionSend = ({
   txDetails,
-  showDateAndGuide,
   compactMode,
   isOpen,
   toggleOpen,
-  parentWidth,
 }: TransactionRowProps) => {
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Send]),
@@ -38,7 +35,13 @@ export const TransactionSend = ({
   const bottomRight = useMemo(() => {
     const precision = txDetails.transfers[0].asset.precision
     const amount = fromBaseUnit(txDetails.transfers[0].value, precision ?? FALLBACK_PRECISION)
-    return <FormatAmount.Crypto value={amount} symbol={txDetails.transfers[0].asset.symbol} />
+    return (
+      <FormatAmount.Crypto
+        color='text.subtle'
+        value={amount}
+        symbol={txDetails.transfers[0].asset.symbol}
+      />
+    )
   }, [txDetails.transfers])
 
   const bottomleft = useMemo(() => {
@@ -54,20 +57,8 @@ export const TransactionSend = ({
         bottomRightRegion={bottomRight}
         bottomLeftRegion={bottomleft}
         status={txDetails.tx.status}
+        onToggle={toggleOpen}
       />
-      {/* <TransactionGenericRow
-        type={txDetails.type}
-        status={txDetails.tx.status}
-        toggleOpen={toggleOpen}
-        compactMode={compactMode}
-        blockTime={txDetails.tx.blockTime}
-        transfersByType={transfersByType}
-        fee={txDetails.fee}
-        explorerTxLink={txDetails.explorerTxLink}
-        txid={txDetails.tx.txid}
-        showDateAndGuide={showDateAndGuide}
-        parentWidth={parentWidth}
-      /> */}
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>

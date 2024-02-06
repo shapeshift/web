@@ -1,8 +1,11 @@
-import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { WarningTwoIcon } from '@chakra-ui/icons'
 import type { CenterProps } from '@chakra-ui/react'
-import { Center } from '@chakra-ui/react'
+import { Center, CircularProgress } from '@chakra-ui/react'
 import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { FaStickyNote } from 'react-icons/fa'
+import { ArrowDownBoldIcon } from 'components/Icons/ArrowDownBold'
+import { BadgeCheckIcon } from 'components/Icons/BadgeCheck'
+import { SendIcon } from 'components/Icons/SendIcon'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
 
@@ -11,6 +14,13 @@ const IconWrapper: React.FC<CenterProps> = props => (
 )
 
 export const TransactionTypeIcon = ({ type, status }: { type: string; status: TxStatus }) => {
+  if (status === TxStatus.Pending) {
+    return (
+      <IconWrapper bg='blue.500'>
+        <CircularProgress trackColor='whiteAlpha.50' color='white' isIndeterminate />
+      </IconWrapper>
+    )
+  }
   if (status === TxStatus.Failed)
     return (
       <IconWrapper bg='red.500'>
@@ -22,13 +32,13 @@ export const TransactionTypeIcon = ({ type, status }: { type: string; status: Tx
     case TransferType.Send:
       return (
         <IconWrapper bg='blue.500'>
-          <ArrowUpIcon />
+          <SendIcon />
         </IconWrapper>
       )
     case TransferType.Receive:
       return (
-        <IconWrapper bg='green.500'>
-          <ArrowDownIcon />
+        <IconWrapper bg='green.600'>
+          <ArrowDownBoldIcon />
         </IconWrapper>
       )
     case TradeType.Trade:
@@ -43,8 +53,8 @@ export const TransactionTypeIcon = ({ type, status }: { type: string; status: Tx
       )
     case Method.Approve:
       return (
-        <IconWrapper bg='green.500'>
-          <CheckCircleIcon />
+        <IconWrapper bg='blue.500'>
+          <BadgeCheckIcon />
         </IconWrapper>
       )
     default:

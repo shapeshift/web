@@ -1,35 +1,23 @@
-import { ArrowDownIcon, ArrowUpIcon, CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import type { CenterProps } from '@chakra-ui/react'
-import { Box, Button, Center, Flex, SimpleGrid, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
-import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useMemo } from 'react'
-import { FaArrowRight, FaStickyNote } from 'react-icons/fa'
+import type { TransferType } from '@shapeshiftoss/unchained-client'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
-import { SwapIcon } from 'components/Icons/SwapIcon'
+import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText, Text } from 'components/Text'
-import { TransactionLink } from 'components/TransactionHistoryRows/TransactionLink'
+import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import type { Fee, Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { breakpoints } from 'theme/theme'
 
-import { AssetsTransfers } from './components/AssetsTransfers'
-import { AssetTransfer } from './components/AssetTransfer'
 import { FALLBACK_PRECISION } from './constants'
 import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
 import { getTxMetadataWithAssetId } from './utils'
 
-const buttonPadding = { base: 2, md: 4 }
-const stackDivider = (
-  <Box border={0} color='text.subtle' fontSize='sm'>
-    <FaArrowRight />
-  </Box>
-)
 const dateFormat = 'L LT'
 
 export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
@@ -49,69 +37,6 @@ export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => 
   }
   return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
 }
-
-const IconWrapper: React.FC<CenterProps> = props => (
-  <Center borderRadius='full' boxSize='100%' {...props} />
-)
-
-const TransactionIcon = ({
-  type,
-  status,
-  assetId,
-  value,
-  compactMode,
-}: {
-  type: string
-  status: TxStatus
-  assetId: AssetId | undefined
-  value: string | undefined
-  compactMode: boolean
-}) => {
-  if (status === TxStatus.Failed)
-    return (
-      <IconWrapper bg='red.500'>
-        <WarningTwoIcon />
-      </IconWrapper>
-    )
-
-  switch (type) {
-    case TransferType.Send:
-      return (
-        <IconWrapper bg='blue.500'>
-          <ArrowUpIcon />
-        </IconWrapper>
-      )
-    case TransferType.Receive:
-      return (
-        <IconWrapper bg='green.500'>
-          <ArrowDownIcon />
-        </IconWrapper>
-      )
-    case TradeType.Trade:
-    case TradeType.Swap:
-    case Method.WithdrawNative:
-    case Method.DepositRefundNative:
-    case Method.LoanRepaymentRefundNative:
-      return (
-        <IconWrapper bg='purple.500'>
-          <SwapIcon />
-        </IconWrapper>
-      )
-    case Method.Approve:
-      return (
-        <IconWrapper bg='green.500'>
-          <CheckCircleIcon />
-        </IconWrapper>
-      )
-    default:
-      return (
-        <IconWrapper bg='gray.700'>
-          <FaStickyNote />
-        </IconWrapper>
-      )
-  }
-}
-
 type TransactionGenericRowProps = {
   type: string
   status: TxStatus
@@ -133,38 +58,10 @@ export const TransactionGenericRow = ({
   status,
   title,
   transfersByType,
-  fee,
-  txid,
   txData,
-  blockTime,
-  explorerTxLink,
-  compactMode = false,
   toggleOpen,
-  parentWidth,
 }: TransactionGenericRowProps) => {
-  const {
-    columns,
-    dateFormat,
-    breakPoints: [isLargerThanLg],
-  } = GetTxLayoutFormats({ parentWidth })
-
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
-
-  const transfers = useMemo(() => {
-    return Object.values(transfersByType).map((transfersOfType, index) => {
-      const hasManyTypeTransfers = transfersOfType.length > 1
-
-      return (
-        <React.Fragment key={index}>
-          {hasManyTypeTransfers ? (
-            <AssetsTransfers index={index} compactMode={compactMode} transfers={transfersOfType} />
-          ) : (
-            <AssetTransfer index={index} compactMode={compactMode} transfer={transfersOfType[0]} />
-          )}
-        </React.Fragment>
-      )
-    })
-  }, [compactMode, transfersByType])
 
   const isNft = useMemo(() => {
     return Object.values(transfersByType)
@@ -172,20 +69,11 @@ export const TransactionGenericRow = ({
       .some(transfer => !!transfer.id)
   }, [transfersByType])
 
-  const cryptoValue = useMemo(() => {
-    if (!fee) return '0'
-    return fromBaseUnit(fee.value, fee.asset.precision)
-  }, [fee])
-
-  const fiatValue = useMemo(() => {
-    return bnOrZero(fee?.marketData?.price)
-      .times(cryptoValue)
-      .toString()
-  }, [fee?.marketData?.price, cryptoValue])
-
-  const gridTemplateColumns = useMemo(() => ({ base: '1fr', md: columns }), [columns])
-
   const renderSendInfo = useMemo(() => {
+    if (transfersByType.Send && transfersByType.Send.length > 1) {
+      const assets = transfersByType.Send.map(transfer => transfer.asset.symbol)
+      return <RawText color='text.subtle'>{assets.join('/')}</RawText>
+    }
     if (transfersByType.Send && transfersByType.Receive) {
       const precision = transfersByType.Send[0].asset.precision ?? FALLBACK_PRECISION
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
@@ -197,9 +85,19 @@ export const TransactionGenericRow = ({
         />
       )
     }
-  }, [transfersByType.Receive, transfersByType.Send])
+  }, [transfersByType])
 
   const renderBody = useMemo(() => {
+    if (transfersByType.Receive && transfersByType.Receive.length > 1) {
+      return (
+        <Flex gap={1} alignItems='center' fontWeight='bold'>
+          <Tag size='sm' fontWeight='bold'>
+            {transfersByType.Receive.length}x
+          </Tag>
+          <Text translation='transactionHistory.assets' />
+        </Flex>
+      )
+    }
     if (
       (transfersByType.Send && transfersByType.Receive) ||
       (!transfersByType.Send && transfersByType.Receive)
@@ -208,11 +106,11 @@ export const TransactionGenericRow = ({
       const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
       const symbol = transfersByType.Receive[0].asset.symbol
       return (
-        <Flex justifyContent='space-between'>
+        <Flex justifyContent='space-between' fontWeight='bold' fontSize='lg'>
           <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
             {symbol}
           </RawText>
-          <Amount.Crypto value={amount} symbol={symbol} />
+          <Amount.Crypto value={amount} symbol={symbol} color='text.success' prefix='+' />
         </Flex>
       )
     }
@@ -221,11 +119,11 @@ export const TransactionGenericRow = ({
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
       const symbol = transfersByType.Send[0].asset.symbol
       return (
-        <Flex justifyContent='space-between'>
+        <Flex justifyContent='space-between' fontWeight='bold' fontSize='lg'>
           <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
             {symbol}
           </RawText>
-          <Amount.Crypto value={amount} symbol={symbol} />
+          <Amount.Crypto value={amount} symbol={symbol} color='text.subtle' />
         </Flex>
       )
     }
@@ -237,101 +135,45 @@ export const TransactionGenericRow = ({
       fontWeight='inherit'
       variant='unstyled'
       w='full'
-      p={buttonPadding}
+      p={4}
       onClick={toggleOpen}
     >
-      <SimpleGrid
-        gridTemplateColumns={gridTemplateColumns}
-        textAlign='left'
-        justifyContent='flex-start'
-        alignItems='center'
-        columnGap={4}
-      >
-        <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
-          <Flex alignItems='center' width='full' gap={2}>
-            {/* <AssetIconWithBadge
-              assetId={txMetadataWithAssetId?.assetId}
-              transfersByType={transfersByType}
-              type={type}
-              isLoading={status === TxStatus.Pending}
-              size='md'
-            >
-              <TransactionIcon
-                type={type}
-                status={status}
-                assetId={txMetadataWithAssetId?.assetId}
-                value={txMetadataWithAssetId?.value}
-                compactMode={compactMode}
-              />
-            </AssetIconWithBadge> */}
-            <Stack flex={1} spacing={0}>
-              <Flex
-                alignItems='center'
-                gap={2}
-                flex={1}
-                width='full'
-                justifyContent='space-between'
-              >
-                <Text
-                  fontWeight='bold'
-                  translation={title ? title : `transactionRow.${type.toLowerCase()}`}
-                />
-                {renderSendInfo}
-              </Flex>
-              {/* <TransactionTime blockTime={blockTime} format={dateFormat} /> */}
-              {renderBody}
-              {type === Method.Approve && (
-                <Flex>
-                  <ApprovalAmount
-                    assetId={txMetadataWithAssetId?.assetId ?? ''}
-                    value={txMetadataWithAssetId?.value ?? ''}
-                    parser={txMetadataWithAssetId?.parser}
-                    variant='tag'
-                  />
-                </Flex>
-              )}
-            </Stack>
-          </Flex>
-        </Flex>
-        {/* <Flex flex={2} flexDir='column' width='full'>
-          <Stack
-            direction='row'
-            width='full'
-            alignItems='center'
-            spacing={stackSpacing}
-            justifyContent={stackJustifyContent}
-            fontSize={stackFontSize}
-            divider={stackDivider}
+      <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
+        <Flex alignItems='center' width='full' gap={4}>
+          <AssetIconWithBadge
+            assetId={txMetadataWithAssetId?.assetId}
+            transfersByType={transfersByType}
+            type={type}
+            isLoading={status === TxStatus.Pending}
+            size='md'
           >
-            {transfers}
-          </Stack>
-        </Flex> */}
-        {isLargerThanLg && (
-          <Flex alignItems='flex-start' flex={1} flexDir='column' textAlign='right'>
-            {fee && bnOrZero(fee.value).gt(0) && (
-              <Flex alignItems='flex-end' width='full'>
-                <Box flex={1}>
-                  <Amount.Crypto
-                    color='inherit'
-                    fontWeight='bold'
-                    value={cryptoValue}
-                    symbol={fee.asset.symbol}
-                    maximumFractionDigits={6}
-                  />
-                  <Amount.Fiat color='text.subtle' fontSize='sm' lineHeight='1' value={fiatValue} />
-                </Box>
+            <TransactionTypeIcon type={type} status={status} />
+          </AssetIconWithBadge>
+          <Stack flex={1} spacing={0}>
+            <Flex alignItems='center' gap={2} flex={1} width='full' justifyContent='space-between'>
+              <Text
+                color='text.subtle'
+                translation={title ? title : `transactionRow.${type.toLowerCase()}`}
+              />
+              {renderSendInfo}
+            </Flex>
+            {/* <TransactionTime blockTime={blockTime} format={dateFormat} /> */}
+            {renderBody}
+            {type === Method.Approve && (
+              <Flex justifyContent='space-between' alignItems='center'>
+                <AssetSymbol fontWeight='bold' assetId={txMetadataWithAssetId?.assetId ?? ''} />
+                <ApprovalAmount
+                  assetId={txMetadataWithAssetId?.assetId ?? ''}
+                  value={txMetadataWithAssetId?.value ?? ''}
+                  parser={txMetadataWithAssetId?.parser}
+                  variant='tag'
+                />
               </Flex>
             )}
-          </Flex>
-        )}
-        {isLargerThanLg && (
-          <Flex flex={0} flexDir='column'>
-            <Flex justifyContent='flex-end' alignItems='center'>
-              <TransactionLink txid={txid} explorerTxLink={explorerTxLink} />
-            </Flex>
-          </Flex>
-        )}
-      </SimpleGrid>
+            {isNft && <RawText>NFT</RawText>}
+          </Stack>
+        </Flex>
+      </Flex>
     </Button>
   )
 }

@@ -1,3 +1,5 @@
+import { ChevronRightIcon } from '@chakra-ui/icons'
+import { Center, HStack } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -14,18 +16,17 @@ import { Text } from './TransactionDetails/Text'
 import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
-import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTransfersByType } from './utils'
 
+const dividerStyle = { borderWidth: 0 }
+
 export const TransactionTrade = ({
   txDetails,
-  showDateAndGuide,
   compactMode,
   isOpen,
   toggleOpen,
-  parentWidth,
 }: TransactionRowProps) => {
   const tradeFees = useTradeFees({ txDetails })
 
@@ -34,27 +35,58 @@ export const TransactionTrade = ({
     [txDetails.transfers],
   )
 
+  const divider = useMemo(
+    () => (
+      <Center
+        bg='background.surface.raised.pressed'
+        borderRadius='full'
+        fontSize='md'
+        color='text.subtle'
+        style={dividerStyle}
+      >
+        <ChevronRightIcon />
+      </Center>
+    ),
+    [],
+  )
+
+  const hasSend = transfersByType && transfersByType.Send && transfersByType.Send.length > 0
+  const hasReceive =
+    transfersByType && transfersByType.Receive && transfersByType.Receive.length > 0
+
   const topLeft = useMemo(() => {
+    if (!txDetails.tx.trade?.dexName) return undefined
     return <RawText>Swap with {txDetails.tx.trade?.dexName}</RawText>
   }, [txDetails.tx.trade?.dexName])
 
   const topRight = useMemo(() => {
+    if (!hasReceive || !hasSend) return undefined
     const precision = transfersByType.Send[0].asset.precision
     const amount = fromBaseUnit(transfersByType.Send[0].value, precision ?? FALLBACK_PRECISION)
     return <Amount.Crypto value={amount} symbol={transfersByType.Send[0].asset.symbol} />
-  }, [transfersByType.Send])
+  }, [hasReceive, hasSend, transfersByType.Send])
 
   const bottomleft = useMemo(() => {
-    if (transfersByType.Receive && transfersByType.Receive?.length > 0) {
-      return <RawText>{transfersByType.Receive[0].asset.symbol}</RawText>
+    if (!transfersByType || !transfersByType.Send || transfersByType.Send.length === 0)
+      return undefined
+    if (transfersByType.Receive && transfersByType.Receive.length > 0) {
+      return (
+        <HStack divider={divider}>
+          <RawText>{transfersByType.Send[0].asset.symbol}</RawText>
+          <RawText>{transfersByType.Receive[0].asset.symbol}</RawText>
+        </HStack>
+      )
     } else {
       return <RawText>{transfersByType.Send[0].asset.symbol}</RawText>
     }
-  }, [transfersByType.Receive, transfersByType.Send])
+  }, [divider, transfersByType])
 
   const bottomRight = useMemo(() => {
+    if (!transfersByType || !(transfersByType.Send && transfersByType.Send.length > 0))
+      return undefined
     let dataType = TransferType.Send
-    if (transfersByType.Receive && transfersByType.Receive?.length > 0) {
+
+    if (hasReceive) {
       dataType = TransferType.Receive
     }
     const precision = transfersByType[dataType][0].asset.precision
@@ -64,11 +96,11 @@ export const TransactionTrade = ({
         maximumFractionDigits={4}
         value={amount}
         symbol={transfersByType[dataType][0].asset.symbol}
-        color='text.success'
-        prefix='+'
+        color={hasReceive ? 'text.success' : 'text.subtle'}
+        prefix={hasReceive ? '+' : ''}
       />
     )
-  }, [transfersByType])
+  }, [hasReceive, transfersByType])
 
   return (
     <>
@@ -80,6 +112,7 @@ export const TransactionTrade = ({
         topRightRegion={topRight}
         bottomLeftRegion={bottomleft}
         bottomRightRegion={bottomRight}
+        onToggle={toggleOpen}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />

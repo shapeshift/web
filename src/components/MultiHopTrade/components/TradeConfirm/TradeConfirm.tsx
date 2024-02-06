@@ -230,6 +230,7 @@ export const TradeConfirm = () => {
 
       const shouldContinueTrade =
         !isHighPriceImpact ||
+        !priceImpactPercentage ||
         window.confirm(
           translate('trade.priceImpactWarning', {
             priceImpactPercentage: priceImpactPercentage.toFixed(2),
@@ -518,7 +519,7 @@ export const TradeConfirm = () => {
                 </Row>
               )}
               <Row px={4}>
-                {isModeratePriceImpact && (
+                {isModeratePriceImpact && priceImpactPercentage && (
                   <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
                 )}
               </Row>

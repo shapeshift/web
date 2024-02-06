@@ -516,7 +516,7 @@ export const TradeInput = memo(() => {
               />
             ) : null}
             <RecipientAddress />
-            {isModeratePriceImpact && (
+            {isModeratePriceImpact && priceImpactPercentage && (
               <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
             )}
           </>

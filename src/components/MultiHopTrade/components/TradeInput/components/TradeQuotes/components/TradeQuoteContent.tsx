@@ -80,11 +80,13 @@ export const TradeQuoteContent = ({
   }, [isHighPriceImpact, isModeratePriceImpact])
 
   const priceImpactDecimalPercentage = useMemo(
-    () => priceImpactPercentage.div(100),
+    () => priceImpactPercentage?.div(100),
     [priceImpactPercentage],
   )
 
   const priceImpactTooltipText = useMemo(() => {
+    if (!priceImpactPercentage) return
+
     const defaultText = translate('trade.tooltip.priceImpactLabel', {
       priceImpactPercentage: priceImpactPercentage.toFixed(2),
     })
@@ -155,19 +157,21 @@ export const TradeQuoteContent = ({
             </Flex>
           </Skeleton>
 
-          <Skeleton isLoaded={!isLoading}>
-            <Tooltip label={priceImpactTooltipText}>
-              <Flex gap={2} alignItems='center'>
-                <RawText color='text.subtle'>
-                  <MdOfflineBolt />
-                </RawText>
-                <Amount.Percent
-                  value={priceImpactDecimalPercentage.toNumber()}
-                  color={priceImpactColor}
-                />
-              </Flex>
-            </Tooltip>
-          </Skeleton>
+          {priceImpactDecimalPercentage !== undefined && (
+            <Skeleton isLoaded={!isLoading}>
+              <Tooltip label={priceImpactTooltipText}>
+                <Flex gap={2} alignItems='center'>
+                  <RawText color='text.subtle'>
+                    <MdOfflineBolt />
+                  </RawText>
+                  <Amount.Percent
+                    value={priceImpactDecimalPercentage.toNumber()}
+                    color={priceImpactColor}
+                  />
+                </Flex>
+              </Tooltip>
+            </Skeleton>
+          )}
 
           {slippage}
           {totalEstimatedExecutionTimeMs !== undefined && totalEstimatedExecutionTimeMs > 0 && (

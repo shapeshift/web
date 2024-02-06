@@ -2,38 +2,59 @@ import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import {
-  selectInputBuyAsset,
-  selectInputBuyAssetUsdRate,
-  selectInputSellAmountUsd,
-} from 'state/slices/selectors'
+import { selectUsdRateByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
+  // Avoid using tradeInputSlice selectors here due to inaccurate values during debouncing.
+  // Selectors update instantly, but quotes are refreshed post-request completion, leading to
+  // discrepancies while fetching.
   const numSteps = tradeQuote?.steps.length ?? 0
-  const buyAssetUsdRate = useAppSelector(selectInputBuyAssetUsdRate)
-  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAsset = tradeQuote?.steps[0].sellAsset
+  const buyAsset = tradeQuote?.steps[numSteps - 1].buyAsset
 
-  const sellAmountBeforeFeesUsd = useAppSelector(selectInputSellAmountUsd)
-
-  // price impact calculation must use buyAmountBeforeFees because it relates to the liquidity in
-  // the pool rather than a rate of input versus output
-  const buyAmountBeforeCryptoPrecision = fromBaseUnit(
-    tradeQuote?.steps[numSteps - 1].buyAmountBeforeFeesCryptoBaseUnit ?? '0',
-    buyAsset.precision,
+  const sellAssetUsdRate = useAppSelector(state =>
+    selectUsdRateByAssetId(state, sellAsset?.assetId ?? ''),
   )
 
-  const priceImpactPercentage = useMemo(() => {
-    const buyAmountBeforeFeesUsd = bnOrZero(buyAmountBeforeCryptoPrecision).times(
-      buyAssetUsdRate ?? '0',
+  const buyAssetUsdRate = useAppSelector(state =>
+    selectUsdRateByAssetId(state, buyAsset?.assetId ?? ''),
+  )
+
+  const sellAmountBeforeFeesUsd = useMemo(() => {
+    if (!tradeQuote || !sellAsset || !sellAssetUsdRate) return
+
+    const sellAmountIncludingProtocolFeesCryptoBaseUnit =
+      tradeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit
+
+    const sellAmountIncludingProtocolFeesCryptoPrecision = fromBaseUnit(
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset.precision,
     )
 
-    if (!sellAmountBeforeFeesUsd || buyAmountBeforeFeesUsd.isZero()) return bn('0')
+    return bn(sellAmountIncludingProtocolFeesCryptoPrecision).times(sellAssetUsdRate).toFixed()
+  }, [sellAsset, sellAssetUsdRate, tradeQuote])
+
+  const priceImpactPercentage = useMemo(() => {
+    if (!tradeQuote || !buyAsset || !buyAssetUsdRate || !sellAmountBeforeFeesUsd) return
+
+    // price impact calculation must use buyAmountBeforeFees because it relates to the liquidity in
+    // the pool rather than a rate of input versus output
+    const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+      tradeQuote.steps[numSteps - 1].buyAmountBeforeFeesCryptoBaseUnit,
+      buyAsset.precision,
+    )
+
+    const buyAmountBeforeFeesUsd = bnOrZero(buyAmountBeforeFeesCryptoPrecision).times(
+      buyAssetUsdRate,
+    )
+
+    if (buyAmountBeforeFeesUsd.isZero()) return bn('0')
 
     const tradeDifference = bn(sellAmountBeforeFeesUsd).minus(buyAmountBeforeFeesUsd)
 
     return tradeDifference.div(sellAmountBeforeFeesUsd).times(100)
-  }, [buyAmountBeforeCryptoPrecision, buyAssetUsdRate, sellAmountBeforeFeesUsd])
+  }, [buyAsset, buyAssetUsdRate, numSteps, sellAmountBeforeFeesUsd, tradeQuote])
 
   const isModeratePriceImpact = useMemo(() => {
     if (!priceImpactPercentage) return false

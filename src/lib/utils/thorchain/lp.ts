@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, type AssetId, cosmosChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import { type AssetId, cosmosChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -11,9 +11,8 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 import { getSupportedEvmChainIds } from '../evm'
 import { fromThorBaseUnit } from '.'
-import type { AsymSide } from './lp/types'
+import type { UserLpDataPosition } from './lp/types'
 import {
-  type MidgardPool,
   type MidgardPoolStats,
   type MidgardSwapHistoryResponse,
   type MidgardTvlHistoryResponse,
@@ -312,25 +311,22 @@ export const estimateAddThorchainLiquidityPosition = async ({
 // TODO: add 'percentage' param
 // https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
 export const estimateRemoveThorchainLiquidityPosition = async ({
-  // i.e the result of the liquidityProviderPosition({ accountId, assetId }) query
-  lpPositions,
   assetId,
+  // i.e the result of the liquidityProviderPosition({ accountId, assetId }) query
+  userData,
 }: {
-  accountId: AccountId
   assetId: AssetId
-  assetAmountCryptoThorPrecision: string
-  lpPositions: (MidgardPool & { accountId: AccountId })[]
-  asymSide: AsymSide | null
+  // assetAmountCryptoThorPrecision: string
+  userData: UserLpDataPosition
 }) => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
   // TODO: this is wrong. Expose selectLiquidityPositionsData from useUserLpData , consume this instead of getThorchainLiquidityProviderPosition
   // and get the right position for the user depending on the asymSide
-  const lpPosition = lpPositions?.[0]
-  const liquidityUnitsCryptoThorPrecision = lpPosition?.liquidityUnits
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
-  const poolShare = getPoolShare(bnOrZero(liquidityUnitsCryptoThorPrecision), pool)
+  // This assumes 100% removal. We need to add a percentage param or similar.
+  const poolShare = getPoolShare(bnOrZero(userData.liquidityUnits), pool)
   const slip = getSlipOnLiquidity({
     runeAmountCryptoThorPrecision: poolShare.runeShare.toString(),
     assetAmountCryptoThorPrecision: poolShare.assetShare.toString(),
@@ -347,7 +343,7 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
     poolShareAssetCryptoThorPrecision: poolShare.assetShare.toFixed(),
     poolShareRuneCryptoThorPrecision: poolShare.runeShare.toFixed(),
     poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
-    liquidityUnitsCryptoThorPrecision,
+    liquidityUnitsCryptoThorPrecision: userData.liquidityUnits,
     assetAmountCryptoThorPrecision: poolShare.assetShare.toFixed(),
     runeAmountCryptoThorPrecision: poolShare.runeShare.toFixed(),
     inbound: {

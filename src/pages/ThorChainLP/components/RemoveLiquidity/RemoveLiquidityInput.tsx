@@ -32,8 +32,10 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { estimateRemoveThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
+import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
+import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -91,6 +93,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
     return parsedPools.find(pool => pool.opportunityId === activeOpportunityId)
   }, [activeOpportunityId, parsedPools])
 
+  const { data: userData } = useUserLpData({ assetId: foundPool?.assetId ?? '' })
+
   const isAsym = useMemo(() => foundPool?.isAsymmetric, [foundPool?.isAsymmetric])
   const isAsymAssetSide = useMemo(
     () => foundPool?.asymSide === AsymSide.Asset,
@@ -107,6 +111,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
+  const [poolAssetUserlpData, setPoolAssetUserlpData] = useState<UserLpDataPosition | undefined>()
+
+  useEffect(() => {
+    if (!userData) return
+    const _poolAssetUserlpData: UserLpDataPosition | undefined = userData.find(
+      data => data.assetId === poolAsset?.assetId,
+    )
+    if (!_poolAssetUserlpData) return
+    setPoolAssetUserlpData(_poolAssetUserlpData)
+  }, [foundPoolAsset, poolAsset?.assetId, userData])
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
@@ -232,17 +246,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
     return virtualRuneCryptoLiquidityAmount
   }, [isAsymRuneSide, isAsymAssetSide, virtualRuneCryptoLiquidityAmount])
 
-  const actualAssetFiatLiquidityAmount = useMemo(() => {
-    if (isAsymAssetSide) {
-      // In asym asset side pool, use the virtual fiat amount as is
-      return virtualAssetFiatLiquidityAmount
-    } else if (isAsymRuneSide) {
-      // In asym rune side pool, the asset fiat amount should be zero
-      return '0'
-    }
-    // For symmetrical pools, use the virtual fiat amount as is
-    return virtualAssetFiatLiquidityAmount
-  }, [isAsymAssetSide, isAsymRuneSide, virtualAssetFiatLiquidityAmount])
+  // const actualAssetFiatLiquidityAmount = useMemo(() => {
+  //   if (isAsymAssetSide) {
+  //     // In asym asset side pool, use the virtual fiat amount as is
+  //     return virtualAssetFiatLiquidityAmount
+  //   } else if (isAsymRuneSide) {
+  //     // In asym rune side pool, the asset fiat amount should be zero
+  //     return '0'
+  //   }
+  //   // For symmetrical pools, use the virtual fiat amount as is
+  //   return virtualAssetFiatLiquidityAmount
+  // }, [isAsymAssetSide, isAsymRuneSide, virtualAssetFiatLiquidityAmount])
 
   const actualRuneFiatLiquidityAmount = useMemo(() => {
     if (isAsymRuneSide) {
@@ -305,16 +319,22 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
 
   useEffect(() => {
     ;(async () => {
-      if (!actualRuneCryptoLiquidityAmount || !actualAssetCryptoLiquidityAmount || !poolAsset)
+      if (
+        !actualRuneCryptoLiquidityAmount ||
+        !actualAssetCryptoLiquidityAmount ||
+        !poolAsset ||
+        !userData ||
+        !poolAssetUserlpData
+      )
         return
 
-      const runeAmountCryptoThorPrecision = convertPrecision({
+      const _runeAmountCryptoThorPrecision = convertPrecision({
         value: actualRuneCryptoLiquidityAmount,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
-      const assetAmountCryptoThorPrecision = convertPrecision({
+      const _assetAmountCryptoThorPrecision = convertPrecision({
         value: actualAssetCryptoLiquidityAmount,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
@@ -322,20 +342,22 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
 
       setIsSlippageLoading(true)
 
-      // const estimate = await estimateRemoveThorchainLiquidityPosition({
-      //   lpPositions: [] as (MidgardPool & { accountId: AccountId })[], // FIXME
-      //   assetId: poolAsset.assetId,
-      // })
+      const estimate = await estimateRemoveThorchainLiquidityPosition({
+        userData: poolAssetUserlpData,
+        assetId: poolAsset.assetId,
+      })
+
+      console.log('xxx debug estimate', { estimate })
 
       setIsSlippageLoading(false)
 
-      // setSlippageRune(
-      //   bnOrZero(estimate.slipPercent)
-      //     .div(100)
-      //     .times(virtualRuneFiatLiquidityAmount ?? 0)
-      //     .times(2)
-      //     .toFixed(),
-      // )
+      setSlippageRune(
+        bnOrZero(estimate.slipPercent)
+          .div(100)
+          .times(virtualRuneFiatLiquidityAmount ?? 0)
+          .times(2)
+          .toFixed(),
+      )
     })()
   }, [
     actualAssetCryptoLiquidityAmount,
@@ -348,6 +370,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
     isAsymAssetSide,
     isAsymRuneSide,
     virtualRuneFiatLiquidityAmount,
+    userData,
+    poolAssetUserlpData,
   ])
 
   const tradeAssetInputs = useMemo(() => {
@@ -460,8 +484,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
-              <Amount.Crypto value={'0'} symbol={rune.symbol} />
+            <Skeleton isLoaded={!isSlippageLoading}>
+              <Amount.Crypto value={slippageRune ?? ''} symbol={rune.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>

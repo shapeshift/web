@@ -178,6 +178,7 @@ export const mockStore: ReduxState = {
     sellAmountCryptoPrecision: '0',
     manualReceiveAddress: undefined,
     manualReceiveAddressIsValidating: false,
+    manualReceiveAddressIsValid: undefined,
     slippagePreferencePercentage: undefined,
   },
   tradeQuoteSlice: {
@@ -186,6 +187,8 @@ export const mockStore: ReduxState = {
     activeStep: undefined,
     tradeExecution: initialTradeExecutionState,
     tradeQuotes: {},
+    tradeQuoteDisplayCache: [],
+    isTradeQuoteRequestAborted: false,
   },
   snapshot: {
     votingPower: undefined,

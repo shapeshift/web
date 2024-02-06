@@ -1,6 +1,6 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, MultiHopTradeQuoteSteps } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -136,7 +136,8 @@ export const getLongtailToL1Quote = async (
           input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
         sellAsset: input.sellAsset,
         allowanceContract: ALLOWANCE_CONTRACT,
-      })),
+      })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
+
       isLongtail: true,
       longtailData: {
         longtailToL1ExpectedAmountOut: quotedAmountOut,

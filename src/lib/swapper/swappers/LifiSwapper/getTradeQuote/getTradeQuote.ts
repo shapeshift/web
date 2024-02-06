@@ -2,7 +2,12 @@ import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
 import { LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { GetEvmTradeQuoteInput, SwapSource } from '@shapeshiftoss/swapper'
+import type {
+  GetEvmTradeQuoteInput,
+  MultiHopTradeQuoteSteps,
+  SingleHopTradeQuoteSteps,
+  SwapSource,
+} from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
   type SwapErrorRight,
@@ -134,7 +139,7 @@ export async function getTradeQuote(
     routes.slice(0, 3).map(async selectedLifiRoute => {
       // this corresponds to a "hop", so we could map the below code over selectedLifiRoute.steps to
       // generate a multi-hop quote
-      const steps = await Promise.all(
+      const steps = (await Promise.all(
         selectedLifiRoute.steps.map(async lifiStep => {
           const stepSellAsset = lifiTokenToAsset(lifiStep.action.fromToken, assets)
           const stepChainId = stepSellAsset.chainId
@@ -212,7 +217,7 @@ export async function getTradeQuote(
             estimatedExecutionTimeMs: 1000 * lifiStep.estimate.executionDuration,
           }
         }),
-      )
+      )) as SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 
       // The rate for the entire multi-hop swap
       const netRate = convertPrecision({

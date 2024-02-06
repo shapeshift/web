@@ -20,7 +20,7 @@ export const FoxyManager = () => {
   const [accountId, setAccountId] = useState<AccountId | undefined>()
 
   return (
-    <AnimatePresence exitBeforeEnter initial={false}>
+    <AnimatePresence mode='wait' initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
           <FoxyOverview onAccountIdChange={setAccountId} accountId={accountId} />

@@ -50,7 +50,7 @@ export const NativeOnboarding = () => {
             {({ location }) => (
               <>
                 <ModalBody>
-                  <AnimatePresence exitBeforeEnter initial={false}>
+                  <AnimatePresence mode='wait' initial={false}>
                     <Switch key={location.key} location={location}>
                       {renderRoutes}
                       <Redirect exact from='/' to='/self-custody' />

@@ -120,7 +120,7 @@ export const TransactionMethod = ({
         blockTime={txDetails.tx.blockTime}
         transfersByType={transfersByType}
         fee={txDetails.fee}
-        explorerTxLink={txDetails.explorerTxLink}
+        explorerTxLink={txDetails.txLink}
         txid={txDetails.tx.txid}
         txData={txMetadata}
         showDateAndGuide={showDateAndGuide}
@@ -139,7 +139,7 @@ export const TransactionMethod = ({
                 parser={txMetadataWithAssetId.parser}
               />
             )}
-          <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+          <TransactionId txLink={txDetails.txLink} txid={txDetails.tx.txid} />
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>

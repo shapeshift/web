@@ -322,7 +322,7 @@ export const TransactionGenericRow = ({
         {isLargerThanLg && (
           <Flex flex={0} flexDir='column'>
             <Flex justifyContent='flex-end' alignItems='center'>
-              <TransactionLink txid={txid} explorerTxLink={explorerTxLink} />
+              <TransactionLink txid={txid} txLink={explorerTxLink} />
             </Flex>
           </Flex>
         )}

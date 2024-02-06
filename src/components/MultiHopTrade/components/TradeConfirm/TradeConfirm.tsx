@@ -44,7 +44,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { firstNonZeroDecimal } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -86,7 +86,9 @@ export const TradeConfirm = () => {
   const mixpanel = getMixPanel()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const alertColor = useColorModeValue('yellow.500', 'yellow.200')
-  const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } = usePriceImpact()
+  const tradeQuote = useAppSelector(selectActiveQuote)
+  const { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact } =
+    usePriceImpact(tradeQuote)
   const [hasMixpanelFired, setHasMixpanelFired] = useState(false)
   const {
     handleSubmit,
@@ -121,8 +123,6 @@ export const TradeConfirm = () => {
       if (activeStepOrDefault > 0) dispatch(tradeQuoteSlice.actions.resetActiveStep())
     }
   }, [activeStepOrDefault, dispatch])
-
-  const tradeQuote = useAppSelector(selectActiveQuote)
 
   useEffect(() => {
     if (!tradeQuote) return
@@ -230,6 +230,7 @@ export const TradeConfirm = () => {
 
       const shouldContinueTrade =
         !isHighPriceImpact ||
+        !priceImpactPercentage ||
         window.confirm(
           translate('trade.priceImpactWarning', {
             priceImpactPercentage: priceImpactPercentage.toFixed(2),
@@ -518,8 +519,8 @@ export const TradeConfirm = () => {
                 </Row>
               )}
               <Row px={4}>
-                {isModeratePriceImpact && (
-                  <PriceImpact impactPercentage={bn(priceImpactPercentage).toFixed(2)} />
+                {isModeratePriceImpact && priceImpactPercentage && (
+                  <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
                 )}
               </Row>
               <Row px={4}>

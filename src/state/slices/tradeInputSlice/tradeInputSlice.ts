@@ -16,6 +16,7 @@ export type TradeInputState = {
   sellAmountCryptoPrecision: string
   manualReceiveAddress: string | undefined
   manualReceiveAddressIsValidating: boolean
+  manualReceiveAddressIsValid: boolean | undefined
   slippagePreferencePercentage: string | undefined
 }
 
@@ -28,6 +29,7 @@ const initialState: TradeInputState = {
   sellAmountCryptoPrecision: '0',
   manualReceiveAddress: undefined,
   manualReceiveAddressIsValidating: false,
+  manualReceiveAddressIsValid: undefined,
   slippagePreferencePercentage: undefined,
 }
 
@@ -75,6 +77,9 @@ export const tradeInput = createSlice({
     },
     setManualReceiveAddressIsValidating: (state, action: PayloadAction<boolean>) => {
       state.manualReceiveAddressIsValidating = action.payload
+    },
+    setManualReceiveAddressIsValid(state, action: PayloadAction<boolean | undefined>) {
+      state.manualReceiveAddressIsValid = action.payload
     },
     setSlippagePreferencePercentage: (state, action: PayloadAction<string | undefined>) => {
       state.slippagePreferencePercentage = action.payload

@@ -135,9 +135,8 @@ export type TradeQuoteStep = {
   estimatedExecutionTimeMs: number | undefined
 }
 
-export type TradeQuote = {
+type TradeQuoteBase = {
   id: string
-  steps: TradeQuoteStep[]
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
   receiveAddress: string
   receiveAccountNumber?: number
@@ -146,6 +145,35 @@ export type TradeQuote = {
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
+}
+
+// https://github.com/microsoft/TypeScript/pull/40002
+type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
+  ? R
+  : _TupleOf<T, N, [T, ...R]>
+type TupleOf<T, N extends number> = N extends N
+  ? number extends N
+    ? T[]
+    : _TupleOf<T, N, []>
+  : never
+// A trade quote can *technically* contain one or many steps, depending on the specific swap/swapper
+// However, it *effectively* contains 1 or 2 steps only for now
+// Whenever this changes, MultiHopTradeQuoteSteps should be updated to reflect it, with TupleOf<TradeQuoteStep, n>
+// where n is a sane max number of steps between 3 and 100
+export type SingleHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 1>
+export type MultiHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 2>
+
+export type SingleHopTradeQuote = TradeQuoteBase & {
+  steps: SingleHopTradeQuoteSteps
+}
+export type MultiHopTradeQuote = TradeQuoteBase & {
+  steps: MultiHopTradeQuoteSteps
+}
+
+// Note: don't try to do TradeQuote = SingleHopTradeQuote | MultiHopTradeQuote here, which would be cleaner but you'll have type errors such as
+// "An interface can only extend an object type or intersection of object types with statically known members."
+export type TradeQuote = TradeQuoteBase & {
+  steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }

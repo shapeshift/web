@@ -17,7 +17,7 @@ export const SettingsRouter: FC<SettingsRouterProps> = ({ appHistory }) => {
   const location = useLocation()
 
   return (
-    <AnimatePresence exitBeforeEnter>
+    <AnimatePresence mode='wait'>
       <Switch location={location} key={location.key}>
         <Route path={SettingsRoutes.Index}>
           <SettingsList appHistory={appHistory} />

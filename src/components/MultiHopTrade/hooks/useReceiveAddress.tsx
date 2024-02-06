@@ -34,11 +34,14 @@ export const useReceiveAddress = ({
   // Hooks
   const wallet = useWallet().state.wallet
   // TODO: this should live in redux
-  const [receiveAddress, setReceiveAddress] = useState<string | undefined>(undefined)
+  const [walletReceiveAddress, setWalletReceiveAddress] = useState<string | undefined>(undefined)
 
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
+  // No need to pass a sellAssetAccountId to synchronize the buy account here - by the time this is called, we already have a valid buyAccountId
+  const buyAccountId = useAppSelector(state =>
+    selectLastHopBuyAccountId(state, { accountId: undefined }),
+  )
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )
@@ -76,14 +79,14 @@ export const useReceiveAddress = ({
     ;(async () => {
       try {
         const updatedReceiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        setReceiveAddress(updatedReceiveAddress)
+        setWalletReceiveAddress(updatedReceiveAddress)
       } catch (e) {
         console.error(e)
-        setReceiveAddress(undefined)
+        setWalletReceiveAddress(undefined)
       }
     })()
   }, [buyAsset, getReceiveAddressFromBuyAsset])
 
   // Always use the manual receive address if it is set
-  return manualReceiveAddress || receiveAddress
+  return { manualReceiveAddress, walletReceiveAddress }
 }

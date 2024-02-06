@@ -19,7 +19,7 @@ export const UniV2LpManager = () => {
   const [lpAccountId, setLpAccountId] = useState<AccountId | undefined>()
 
   return (
-    <AnimatePresence exitBeforeEnter initial={false}>
+    <AnimatePresence mode='wait' initial={false}>
       {modal === DefiAction.Overview && (
         <SlideTransition key={DefiAction.Overview}>
           <UniV2Overview accountId={lpAccountId} onAccountIdChange={setLpAccountId} />

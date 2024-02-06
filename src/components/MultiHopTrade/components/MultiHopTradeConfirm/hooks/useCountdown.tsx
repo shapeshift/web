@@ -12,18 +12,19 @@ export const useCountdown = ({
   onCompleted,
 }: UseCountdownProps): {
   timeRemainingMs: number
-  isActive: boolean
   start: () => void
   reset: () => void
 } => {
   const id = useRef<NodeJS.Timeout | null>(null)
   const [timeRemainingMs, setTimeRemainingMs] = useState(initialTimeMs)
-  const [isActive, setIsActive] = useState(autoStart)
 
   const handleDecrement = useCallback(() => {
     setTimeRemainingMs(time => {
       if (time - 1000 <= 0) {
-        if (id.current) clearInterval(id.current)
+        if (id.current) {
+          clearInterval(id.current)
+          id.current = null
+        }
         onCompleted?.()
 
         return 0
@@ -34,29 +35,30 @@ export const useCountdown = ({
   }, [onCompleted])
 
   useEffect(() => {
-    if (isActive) {
-      id.current = setInterval(handleDecrement, 1000)
-    }
-
     return () => {
       if (id.current) clearInterval(id.current)
     }
-  }, [isActive, handleDecrement])
+  }, [handleDecrement])
 
   const start = useCallback((): void => {
-    setIsActive(true)
-  }, [])
+    if (id.current) return
+    id.current = setInterval(handleDecrement, 1000)
+  }, [handleDecrement])
 
   const reset = useCallback(() => {
-    if (id.current) clearInterval(id.current)
-
-    setIsActive(autoStart)
+    if (id.current) {
+      clearInterval(id.current)
+      id.current = null
+    }
     setTimeRemainingMs(initialTimeMs)
-  }, [autoStart, initialTimeMs])
+  }, [initialTimeMs])
+
+  useEffect(() => {
+    if (autoStart) start()
+  }, [autoStart, start])
 
   return {
     timeRemainingMs,
-    isActive,
     start,
     reset,
   }

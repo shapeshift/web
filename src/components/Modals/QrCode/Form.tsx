@@ -137,7 +137,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form onSubmit={methods.handleSubmit(handleFormSend)} onKeyDown={checkKeyDown}>
-        <AnimatePresence exitBeforeEnter initial={false}>
+        <AnimatePresence mode='wait' initial={false}>
           <Switch location={location} key={location.key}>
             <Route path={SendRoutes.Select}>
               <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />

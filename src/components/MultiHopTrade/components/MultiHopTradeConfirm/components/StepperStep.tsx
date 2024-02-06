@@ -9,8 +9,14 @@ import {
   StepIndicator,
   StepSeparator,
   StepTitle,
+  Tag,
   useStyleConfig,
 } from '@chakra-ui/react'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { useMemo } from 'react'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 const width = { width: '100%' }
 
@@ -43,6 +49,18 @@ export const StepperStep = ({
     variant: isError ? 'error' : 'default',
   }) as { indicator: SystemStyleObject }
 
+  const wallet = useWallet().state.wallet
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+
+  if (!receiveAddress) return null
+
   return (
     <Step style={width}>
       <StepIndicator className={isPending ? 'step-pending' : undefined} sx={styles}>
@@ -56,13 +74,20 @@ export const StepperStep = ({
           </SkeletonText>
         </StepTitle>
         {description && (
-          <StepDescription as={Box} {...descriptionProps}>
-            {isLoading ? (
-              <SkeletonText mt={2} noOfLines={1} skeletonHeight={3} isLoaded={!isLoading} />
-            ) : (
-              description
-            )}
-          </StepDescription>
+          <>
+            <StepDescription as={Box} {...descriptionProps}>
+              {isLoading ? (
+                <SkeletonText mt={2} noOfLines={1} skeletonHeight={3} isLoaded={!isLoading} />
+              ) : (
+                description
+              )}
+            </StepDescription>
+            {isLastStep ? (
+              <Tag size='md' colorScheme='blue'>
+                <MiddleEllipsis value={receiveAddress} />
+              </Tag>
+            ) : null}
+          </>
         )}
         {content !== undefined && <Box mt={2}>{content}</Box>}
         {!isLastStep && <Spacer height={6} />}

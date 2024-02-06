@@ -175,7 +175,7 @@ const RepayRoutes = memo(
     )
 
     return (
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <AnimatePresence mode='wait' initial={false}>
         <Switch location={location}>
           <Suspense fallback={suspenseFallback}>
             <Route

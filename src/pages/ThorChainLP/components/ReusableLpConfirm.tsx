@@ -24,7 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById } from 'state/slices/selectors'
@@ -57,6 +57,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   baseAssetId,
   confirmedQuote,
 }) => {
+  console.log({ confirmedQuote })
   const translate = useTranslate()
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
@@ -207,28 +208,26 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 </Row.Value>
               </Row>
             </TimelineItem>
-            <TimelineItem>
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('pools.chainFee', { chain: baseAssetNetwork })}</Row.Label>
-                <Row.Value display='flex' gap={1}>
-                  <Amount.Crypto value='0.02' symbol='RUNE' />
-                  <Flex color='text.subtle'>
-                    <Amount.Fiat value='10.00' prefix='(' suffix=')' />
-                  </Flex>
-                </Row.Value>
-              </Row>
-            </TimelineItem>
-            <TimelineItem>
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('pools.chainFee', { chain: assetNetwork })}</Row.Label>
-                <Row.Value display='flex' gap={1}>
-                  <Amount.Crypto value='0.02' symbol='ETH' />
-                  <Flex color='text.subtle'>
-                    <Amount.Fiat value='10.00' prefix='(' suffix=')' />
-                  </Flex>
-                </Row.Value>
-              </Row>
-            </TimelineItem>
+            {bnOrZero(confirmedQuote.runeGasFeeFiat).gt(0) && (
+              <TimelineItem>
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('pools.chainFee', { chain: baseAssetNetwork })}</Row.Label>
+                  <Row.Value>
+                    <Amount.Fiat value={confirmedQuote.runeGasFeeFiat} />
+                  </Row.Value>
+                </Row>
+              </TimelineItem>
+            )}
+            {bnOrZero(confirmedQuote.poolAssetGasFeeFiat).gt(0) && (
+              <TimelineItem>
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('pools.chainFee', { chain: assetNetwork })}</Row.Label>
+                  <Row.Value>
+                    <Amount.Fiat value={confirmedQuote.poolAssetGasFeeFiat} />
+                  </Row.Value>
+                </Row>
+              </TimelineItem>
+            )}
             <TimelineItem>
               <Row fontSize='sm'>
                 <Row.Label>{translate('pools.shareOfPool')}</Row.Label>

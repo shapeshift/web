@@ -1,7 +1,6 @@
 import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
-import type { TransferType } from '@shapeshiftoss/unchained-client'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
@@ -144,7 +143,6 @@ export const TransactionGenericRow = ({
             assetId={txMetadataWithAssetId?.assetId}
             transfersByType={transfersByType}
             type={type}
-            isLoading={status === TxStatus.Pending}
             size='md'
           >
             <TransactionTypeIcon type={type} status={status} />

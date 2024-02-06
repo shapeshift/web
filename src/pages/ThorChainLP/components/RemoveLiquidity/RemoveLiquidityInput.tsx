@@ -116,11 +116,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   useEffect(() => {
     if (!userData) return
     const _poolAssetUserlpData: UserLpDataPosition | undefined = userData.find(
-      data => data.assetId === poolAsset?.assetId,
+      data => data.opportunityId === activeOpportunityId,
     )
     if (!_poolAssetUserlpData) return
     setPoolAssetUserlpData(_poolAssetUserlpData)
-  }, [foundPoolAsset, poolAsset?.assetId, userData])
+  }, [activeOpportunityId, foundPoolAsset, poolAsset?.assetId, userData])
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
@@ -328,13 +328,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
       )
         return
 
-      const _runeAmountCryptoThorPrecision = convertPrecision({
+      const runeAmountCryptoThorPrecision = convertPrecision({
         value: actualRuneCryptoLiquidityAmount,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
-      const _assetAmountCryptoThorPrecision = convertPrecision({
+      const assetAmountCryptoThorPrecision = convertPrecision({
         value: actualAssetCryptoLiquidityAmount,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
@@ -345,6 +345,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
       const estimate = await estimateRemoveThorchainLiquidityPosition({
         userData: poolAssetUserlpData,
         assetId: poolAsset.assetId,
+        runeAmountCryptoThorPrecision,
+        assetAmountCryptoThorPrecision,
       })
 
       console.log('xxx debug estimate', { estimate })

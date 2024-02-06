@@ -308,25 +308,30 @@ export const estimateAddThorchainLiquidityPosition = async ({
   }
 }
 
-// TODO: add 'percentage' param
 // https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
 export const estimateRemoveThorchainLiquidityPosition = async ({
   assetId,
   // i.e the result of the liquidityProviderPosition({ accountId, assetId }) query
   userData,
+  runeAmountCryptoThorPrecision,
+  assetAmountCryptoThorPrecision,
 }: {
   assetId: AssetId
-  // assetAmountCryptoThorPrecision: string
   userData: UserLpDataPosition
+  runeAmountCryptoThorPrecision: string
+  assetAmountCryptoThorPrecision: string
 }) => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  // TODO: this is wrong. Expose selectLiquidityPositionsData from useUserLpData , consume this instead of getThorchainLiquidityProviderPosition
-  // and get the right position for the user depending on the asymSide
   const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
-  // This assumes 100% removal. We need to add a percentage param or similar.
-  const poolShare = getPoolShare(bnOrZero(userData.liquidityUnits), pool)
+  const liquidityUnitsCryptoThorPrecision = getLiquidityUnits({
+    pool,
+    assetAmountCryptoThorPrecision,
+    runeAmountCryptoThorPrecision,
+  })
+
+  const poolShare = getPoolShare(bnOrZero(liquidityUnitsCryptoThorPrecision), pool)
   const slip = getSlipOnLiquidity({
     runeAmountCryptoThorPrecision: poolShare.runeShare.toString(),
     assetAmountCryptoThorPrecision: poolShare.assetShare.toString(),

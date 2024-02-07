@@ -604,30 +604,24 @@
         "exit": "Retirar de Stake",
         "removeLiquidityETH": "Retirar liquidez"
       },
-      "thor": {
-        "transferOut": "Transferencia afuera"
-      },
       "thorchain": {
         "deposit": "Depositar",
         "depositRefund": "Reembolso de depósito",
+        "depositRefundNative": "Depósito + Reembolso",
         "loanOpen": "Préstamo abierto",
+        "loanOpenOut": "Préstamo Recibido",
         "loanOpenRefund": "Reembolso abierto de préstamo",
-        "loanOut": "Garantía de préstamo recibida",
         "loanRepayment": "Pago de Prestamo",
+        "loanRepaymentOut": "Garantía de Préstamo Recibida",
         "loanRepaymentRefund": "Reembolso del Pago de Préstamo",
+        "loanRepaymentRefundNative": "Pago de préstamo + Reembolso",
         "out": "Saliente Recibido",
+        "refund": "Reembolso",
         "swapOut": "Intercambio Recibido",
         "swapRefund": "Reembolso de intercambio",
-        "transferOut": "Trasferencia",
         "withdraw": "Retiro Solicitado",
+        "withdrawNative": "Retirar",
         "withdrawOut": "Retiro Recibido"
-      },
-      "swap": {
-        "deposit": "Intercambiar",
-        "streamingSwap": "Streaming Swap",
-        "out": "Intercambiar",
-        "refund": "Reembolso",
-        "outbound": "Saliente"
       },
       "foxy": {
         "stake": "Stake",
@@ -751,6 +745,10 @@
     "updatingQuote": "Actualizando cotización...",
     "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
     "manualReceiveAddress": "Dirección de Recepción",
+    "recipientAddress": "Dirección del receptor",
+    "customRecipientAddress": "Dirección de destinatario personalizada",
+    "customRecipientAddressDescription": "Ingrese una dirección de destinatario personalizada para la transacción",
+    "enterCustomRecipientAddress": "Ingrese la dirección del destinatario personalizado",
     "tooltip": {
       "rate": "Esta es la tasa esperada para este intercambio.",
       "noRateAvailable": "Esto a menudo se debe a una liquidez muy limitada o nula en el par comercial.",
@@ -804,6 +802,7 @@
     "onChainName": "en %{chainName}",
     "unknownGas": "(desconocido)",
     "numHops": "Esta operación incluye %{numHops} saltos",
+    "percentageDifferenceTooltip": "Esta es la diferencia porcentual en la cantidad total de %{buyAssetSymbol} que recibirá, en comparación con la mejor cotización.",
     "receiveAddress": "Dirección de recepción",
     "receiveAddressDescription": "No hay dirección %{chainName} en billetera conectada. Introduzca dirección ó",
     "toContinue": "para continuar.",
@@ -1601,7 +1600,11 @@
     "selectModal": {
       "header": "Conectar una billetera",
       "body": "Al conectar una billetera, acepta los Términos de servicio de ShapeShift y reconoce que ha leído y comprende el descargo de responsabilidad de ShapeShift.",
-      "footer": "¿No tienes billetera?"
+      "footer": "¿No tienes billetera?",
+      "create": "Crear",
+      "or": "o",
+      "import": "Importar",
+      "aWallet": "una billetera"
     },
     "walletConnectV2": {
       "start": {
@@ -2205,6 +2208,7 @@
     "estimatedTime": "Tiempo Estimado",
     "liquidityValue": "Valor de Liquidez",
     "selectPair": "Seleccione Par",
+    "depositAmounts": "Monto(s) de Depósito",
     "awaitingConfirmation": "Esperando confirmación",
     "transactionSubmitted": "Transacción enviada",
     "waitingForConfirmation": "Esperando Confirmación",
@@ -2212,6 +2216,7 @@
     "chainFee": "Tarifa %{chain}",
     "supplying": "Agregar",
     "confirmAndDeposit": "Confirmar y Depositar",
+    "removeAmounts": "Eliminar Monto(s)",
     "yourPositions": {
       "yourPositions": "Tus Posiciones",
       "emptyTitle": "No hay posiciones activas",

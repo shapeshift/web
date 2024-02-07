@@ -7,7 +7,6 @@ import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { bn } from 'lib/bignumber/bignumber'
 import type {
   MidgardPoolResponse,
@@ -28,6 +27,7 @@ import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAdd
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
+import { isTradingActive } from 'state/apis/swapper/helpers'
 
 // Current blocktime as per https://thorchain.network/stats
 export const thorchainBlockTimeSeconds = '6.1'

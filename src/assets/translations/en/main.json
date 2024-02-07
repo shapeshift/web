@@ -762,7 +762,9 @@
       "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
       "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct.",
       "amountPercentageDifference": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
-      "overallPercentageDifference": "This is the percentage difference in the overall amount received after all fees are deducted, compared to the best quote"
+      "overallPercentageDifference": "This is the percentage difference in the overall amount received after all fees are deducted, compared to the best quote",
+      "gasFee": "This is the estimated gas fee to complete this trade.",
+      "slippage": "If the price moves so that you will receive less than %{amount}, your transaction will be reverted. This is the minimum amount you are guaranteed to receive."
     },
     "rates": {
       "tags": {

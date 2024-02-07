@@ -98,9 +98,28 @@ export const useQuoteEstimatedFeesQuery = ({
     collateralAccountId,
   ])
 
+  // TODO(gomes): this is wrong, we should use a proper generated query for this
   const quoteEstimatedFeesQueryKey = useMemo(
     () => ['thorchainLendingQuoteEstimatedFees', estimateFeesArgs],
     [estimateFeesArgs],
+  )
+
+  const enabled = useMemo(
+    () =>
+      Boolean(
+        feeAsset &&
+          confirmedQuote &&
+          (collateralAssetId || repaymentAsset) &&
+          bnOrZero(depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision).gt(0),
+      ),
+    [
+      collateralAssetId,
+      confirmedQuote,
+      depositAmountCryptoPrecision,
+      feeAsset,
+      repaymentAmountCryptoPrecision,
+      repaymentAsset,
+    ],
   )
 
   const useQuoteEstimatedFeesQuery = useQuery({
@@ -113,7 +132,7 @@ export const useQuoteEstimatedFeesQuery = ({
         .toString()
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
-    enabled: Boolean(feeAsset && confirmedQuote && (collateralAssetId || repaymentAsset)),
+    enabled,
     retry: false,
   })
 

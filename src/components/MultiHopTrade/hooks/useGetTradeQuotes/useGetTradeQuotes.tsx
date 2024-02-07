@@ -109,7 +109,6 @@ export const useGetTradeQuotes = () => {
     skipToken,
   )
   const [hasFocus, setHasFocus] = useState(document.hasFocus())
-  const [isFetchingInput, setIsFetchingInput] = useState(false)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const useReceiveAddressArgs = useMemo(
@@ -118,13 +117,17 @@ export const useGetTradeQuotes = () => {
     }),
     [wallet],
   )
-  const receiveAddress = useReceiveAddress(useReceiveAddressArgs)
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
   const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
+  // No need to pass a sellAssetAccountId to synchronize the buy account here - by the time this is called, we already have a valid buyAccountId
+  const buyAccountId = useAppSelector(state =>
+    selectLastHopBuyAccountId(state, { accountId: undefined }),
+  )
 
   const userslippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
@@ -180,7 +183,24 @@ export const useGetTradeQuotes = () => {
   )
 
   useEffect(() => {
+    // Early exit on any invalid state
+    if (
+      bnOrZero(sellAmountCryptoPrecision).isZero() ||
+      !wallet ||
+      !sellAccountId ||
+      !sellAccountMetadata ||
+      !receiveAddress ||
+      isVotingPowerLoading
+    ) {
+      setTradeQuoteInput(skipToken)
+      dispatch(tradeQuoteSlice.actions.clear())
+      dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
+      return
+    }
+
     // Don't update tradeQuoteInput while we're still debouncing
+    // This needs to happen after checking and aborting invalid state to prevent incorrectly
+    // displaying loading state during debouncing
     if (isDebouncing) return
 
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
@@ -188,53 +208,44 @@ export const useGetTradeQuotes = () => {
     // That effectively means we'll unsubscribe to queries, considering them stale
     dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
-    if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-      dispatch(tradeQuoteSlice.actions.clear())
-      return
-    }
+    // Clear the slice before asynchronously generating the input and running the request.
+    // This is to ensure the initial state change is done synchronously to prevent race conditions
+    // and losing sync on loading state etc.
+    dispatch(tradeQuoteSlice.actions.clear())
+    ;(async () => {
+      const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+      const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
+      const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
-    if (wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading) {
-      ;(async () => {
-        setIsFetchingInput(true)
+      const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
 
-        const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
-        const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
-        const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
+      const { feeBps, feeBpsBeforeDiscount } = calculateFees({
+        tradeAmountUsd,
+        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+      })
 
-        const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
+      const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
+      const affiliateBps = feeBps.toFixed(0)
 
-        const { feeBps, feeBpsBeforeDiscount } = calculateFees({
-          tradeAmountUsd,
-          foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-        })
+      const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
+        sellAsset,
+        sellAccountNumber,
+        receiveAccountNumber,
+        sellAccountType: sellAccountMetadata.accountType,
+        buyAsset,
+        wallet,
+        receiveAddress,
+        sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+        allowMultiHop: true,
+        affiliateBps,
+        potentialAffiliateBps,
+        // Pass in the user's slippage preference if it's set, else let the swapper use its default
+        slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
+        pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
+      })
 
-        const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
-        const affiliateBps = feeBps.toFixed(0)
-
-        const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
-          sellAsset,
-          sellAccountNumber,
-          receiveAccountNumber,
-          sellAccountType: sellAccountMetadata.accountType,
-          buyAsset,
-          wallet,
-          receiveAddress,
-          sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-          allowMultiHop: true,
-          affiliateBps,
-          potentialAffiliateBps,
-          // Pass in the user's slippage preference if it's set, else let the swapper use its default
-          slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
-          pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
-        })
-
-        setTradeQuoteInput(updatedTradeQuoteInput)
-
-        dispatch(tradeQuoteSlice.actions.clear())
-
-        setIsFetchingInput(false)
-      })()
-    }
+      setTradeQuoteInput(updatedTradeQuoteInput)
+    })()
   }, [
     buyAsset,
     dispatch,
@@ -283,18 +294,14 @@ export const useGetTradeQuotes = () => {
 
   // cease fetching state when at least 1 response is available
   // more quotes will arrive after, which is intentional.
-  const isEverySwapperFetching = useMemo(() => {
-    return (
-      isDebouncing || isFetchingInput || combinedQuoteMeta.every(quoteMeta => quoteMeta.isFetching)
-    )
-  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+  const isAnySwapperFetched = useMemo(() => {
+    return !isDebouncing && combinedQuoteMeta.some(quoteMeta => !quoteMeta.isFetching)
+  }, [combinedQuoteMeta, isDebouncing])
 
   // true if any debounce, input or swapper is fetching
   const isQuoteRequestIncomplete = useMemo(() => {
-    return (
-      isDebouncing || isFetchingInput || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
-    )
-  }, [combinedQuoteMeta, isDebouncing, isFetchingInput])
+    return isDebouncing || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
+  }, [combinedQuoteMeta, isDebouncing])
 
   const isQuoteRequestUninitialized = useMemo(() => {
     return combinedQuoteMeta.every(quoteMeta => quoteMeta.isUninitialized)
@@ -347,18 +354,19 @@ export const useGetTradeQuotes = () => {
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (isEverySwapperFetching) return
+    if (isQuoteRequestIncomplete) return
     if (mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [sortedTradeQuotes, mixpanel, isEverySwapperFetching])
+  }, [sortedTradeQuotes, mixpanel, isQuoteRequestIncomplete])
 
   return {
     isQuoteRequestUninitialized,
-    isAnySwapperFetched: !isEverySwapperFetching,
+    isAnySwapperFetched,
     isQuoteRequestComplete: !isQuoteRequestIncomplete,
     isSwapperFetching,
     didQuoteRequestFail,
+    isQuoteRequestIncomplete,
   }
 }

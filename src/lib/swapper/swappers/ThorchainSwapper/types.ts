@@ -1,3 +1,16 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  avalancheChainId,
+  bchChainId,
+  binanceChainId,
+  bscChainId,
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  ltcChainId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
 export type MidgardPoolResponse = {
@@ -103,7 +116,7 @@ export type MidgardActionsResponse = {
 }
 
 export type InboundAddressResponse = {
-  chain: string
+  chain: ThorchainChain
   pub_key: string
   address: string
   halted: boolean
@@ -145,7 +158,7 @@ type ThorNodeCoinSchema = {
 
 type ThorNodeTxSchema = {
   id: string
-  chain: string
+  chain: ThorchainChain
   from_address: string
   to_address: string
   coins: ThorNodeCoinSchema[]
@@ -157,7 +170,7 @@ export type ThorNodeStatusResponseSuccess = {
   tx?: {
     id: string
     memo: string
-    chain: string
+    chain: ThorchainChain
     from_address: string
     to_address: string
   }
@@ -171,7 +184,7 @@ export type ThorNodeStatusResponseSuccess = {
     inbound_confirmation_counted?: {
       completed: boolean
       counting_start_height?: number
-      chain?: string
+      chain?: ThorchainChain
       external_observed_height?: number
       external_confirmation_delay_height?: number
       remaining_confirmation_seconds?: number
@@ -203,7 +216,7 @@ export type ThorNodeStatusResponseSuccess = {
   }
   out_txs?: ThorNodeTxSchema[]
   planned_out_txs?: {
-    chain: string
+    chain: ThorchainChain
     to_address: string
     coin: ThorNodeCoinSchema
     refund: boolean
@@ -211,3 +224,29 @@ export type ThorNodeStatusResponseSuccess = {
 }
 
 export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeQuoteResponseError
+
+export enum ThorchainChain {
+  BTC = 'BTC',
+  DOGE = 'DOGE',
+  LTC = 'LTC',
+  BCH = 'BCH',
+  ETH = 'ETH',
+  AVAX = 'AVAX',
+  BNB = 'BNB',
+  GAIA = 'GAIA',
+  THOR = 'THOR',
+  BSC = 'BSC',
+}
+
+export const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
+  [ThorchainChain.BTC, btcChainId],
+  [ThorchainChain.DOGE, dogeChainId],
+  [ThorchainChain.LTC, ltcChainId],
+  [ThorchainChain.BCH, bchChainId],
+  [ThorchainChain.ETH, ethChainId],
+  [ThorchainChain.AVAX, avalancheChainId],
+  [ThorchainChain.BNB, binanceChainId],
+  [ThorchainChain.GAIA, cosmosChainId],
+  [ThorchainChain.THOR, thorchainChainId],
+  [ThorchainChain.BSC, bscChainId],
+])

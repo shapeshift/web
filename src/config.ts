@@ -160,7 +160,6 @@ const validators = {
   REACT_APP_FEATURE_THORCHAIN_LP: bool({ default: false }),
   REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),
-  REACT_APP_FEATURE_HOLISTIC_RECIPIENT_ADDRESS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

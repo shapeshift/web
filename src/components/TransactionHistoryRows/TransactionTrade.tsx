@@ -40,7 +40,7 @@ export const TransactionTrade = ({
         blockTime={txDetails.tx.blockTime}
         transfersByType={transfersByType}
         fee={txDetails.fee}
-        explorerTxLink={txDetails.explorerTxLink}
+        txLink={txDetails.txLink}
         txid={txDetails.tx.txid}
         txData={txDetails.tx.data}
         showDateAndGuide={showDateAndGuide}
@@ -49,7 +49,7 @@ export const TransactionTrade = ({
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
         <TxGrid compactMode={compactMode}>
-          <TransactionId explorerTxLink={txDetails.explorerTxLink} txid={txDetails.tx.txid} />
+          <TransactionId txLink={txDetails.txLink} txid={txDetails.tx.txid} />
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>

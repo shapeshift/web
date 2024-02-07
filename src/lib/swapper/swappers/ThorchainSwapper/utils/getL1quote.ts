@@ -128,10 +128,7 @@ export const getL1quote = async (
     return {
       source,
       quote,
-      // don't take affiliate fee into account, this will be displayed as a separate line item
-      expectedAmountOutThorBaseUnit: bnOrZero(quote.expected_amount_out)
-        .plus(bnOrZero(quote.fees.affiliate))
-        .toFixed(),
+      expectedAmountOutThorBaseUnit: bnOrZero(quote.expected_amount_out).toFixed(),
       isStreaming,
       affiliateBps: quote.fees.affiliate === '0' ? '0' : requestedAffiliateBps,
       // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
@@ -165,14 +162,25 @@ export const getL1quote = async (
     return bnOrZero(expectedAmountOutThorBaseUnit).div(sellAmountCryptoThorBaseUnit).toFixed()
   }
 
-  const getRouteBuyAmount = (quote: ThornodeQuoteResponseSuccess) => {
-    const emitAsset = bn(quote.expected_amount_out).plus(quote.fees.outbound)
-    return toBaseUnit(fromBaseUnit(emitAsset, THORCHAIN_FIXED_PRECISION), buyAsset.precision)
+  const getRouteBuyAmountBeforeFeesCryptoBaseUnit = (quote: ThornodeQuoteResponseSuccess) => {
+    const buyAmountBeforeFeesCryptoThorPrecision = bn(quote.expected_amount_out).plus(
+      quote.fees.total,
+    )
+    return toBaseUnit(
+      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, THORCHAIN_FIXED_PRECISION),
+      buyAsset.precision,
+    )
   }
 
   const getProtocolFees = (quote: ThornodeQuoteResponseSuccess) => {
-    const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(quote.fees.outbound)
-
+    // THORChain fees consist of liquidity, outbound, and affiliate fees
+    // For the purpose of displaying protocol fees to the user, we don't need the latter
+    // The reason for that is the affiliate fee is shown as its own "ShapeShift fee" section
+    // Including the affiliate fee here would result in the protocol fee being wrong, as affiliate fees would be
+    // double accounted for both in protocol fees, and affiliate fee
+    const buyAssetTradeFeeBuyAssetCryptoThorPrecision = bnOrZero(quote.fees.total).minus(
+      quote.fees.affiliate,
+    )
     const buyAssetTradeFeeBuyAssetCryptoBaseUnit = convertPrecision({
       value: buyAssetTradeFeeBuyAssetCryptoThorPrecision,
       inputExponent: THORCHAIN_FIXED_PRECISION,
@@ -212,7 +220,8 @@ export const getL1quote = async (
             slippageBps,
           }): Promise<ThorEvmTradeQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
+            const buyAmountBeforeFeesCryptoBaseUnit =
+              getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
 
             const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
@@ -302,7 +311,8 @@ export const getL1quote = async (
             slippageBps,
           }): Promise<ThorTradeUtxoOrCosmosQuote> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
+            const buyAmountBeforeFeesCryptoBaseUnit =
+              getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
 
             const updatedMemo = addSlippageToMemo({
               expectedAmountOutThorBaseUnit,
@@ -398,7 +408,8 @@ export const getL1quote = async (
             slippageBps,
           }): ThorTradeUtxoOrCosmosQuote => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
-            const buyAmountBeforeFeesCryptoBaseUnit = getRouteBuyAmount(quote)
+            const buyAmountBeforeFeesCryptoBaseUnit =
+              getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,

@@ -106,7 +106,7 @@ export const ClaimRoutes = ({
   return (
     <SlideTransition>
       <RouteSteps routes={routes} location={location} pt={4} />
-      <AnimatePresence exitBeforeEnter initial={false}>
+      <AnimatePresence mode='wait' initial={false}>
         <Switch location={location} key={location.key}>
           <Route exact path='/'>
             <ClaimConfirm

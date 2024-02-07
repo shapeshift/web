@@ -4,6 +4,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectAccountIdParamFromFilter } from 'state/selectors'
 
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -106,9 +107,12 @@ export const selectLastHopBuyAccountId = createSelector(
   selectInputBuyAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
-  (tradeInput, buyAsset, accountIdAssetValues, accountIds) => {
+  selectAccountIdParamFromFilter,
+  (tradeInput, buyAsset, accountIdAssetValues, accountIds, maybeMatchingBuyAccountId) => {
     // return the users selection if it exists
     if (tradeInput.buyAssetAccountId) return tradeInput.buyAssetAccountId
+    // an AccountId was found matching the sell asset's account number, return it
+    if (maybeMatchingBuyAccountId) return maybeMatchingBuyAccountId
 
     const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
       accountIdAssetValues,
@@ -143,12 +147,31 @@ export const selectManualReceiveAddressIsValidating = createSelector(
   tradeInput => tradeInput.manualReceiveAddressIsValidating,
 )
 
+export const selectManualReceiveAddressIsEditing = createSelector(
+  selectTradeInput,
+  tradeInput => tradeInput.manualReceiveAddressIsEditing,
+)
+
+export const selectManualReceiveAddressIsValid = createSelector(
+  selectTradeInput,
+  tradeInput => tradeInput.manualReceiveAddressIsValid,
+)
+
 export const selectInputSellAmountUsd = createSelector(
   selectInputSellAmountCryptoPrecision,
   selectInputSellAssetUsdRate,
   (sellAmountCryptoPrecision, sellAssetUsdRate) => {
     if (!sellAssetUsdRate) return
     return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
+  },
+)
+
+export const selectInputSellAmountUserCurrency = createSelector(
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAssetUserCurrencyRate,
+  (sellAmountCryptoPrecision, sellAssetUserCurrencyRate) => {
+    if (!sellAssetUserCurrencyRate) return
+    return bn(sellAmountCryptoPrecision).times(sellAssetUserCurrencyRate).toFixed()
   },
 )
 
@@ -170,4 +193,9 @@ export const selectSellAssetBalanceCryptoBaseUnit = createSelector(
       assetId: selectInputSellAsset(state).assetId,
     }),
   sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
+)
+
+export const selectIsInputtingFiatSellAmount = createSelector(
+  selectTradeInput,
+  tradeInput => tradeInput.isInputtingFiatSellAmount,
 )

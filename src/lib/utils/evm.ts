@@ -144,13 +144,13 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
     maxPriorityFeePerGas,
   } = args
 
-  // eip1559 fees
-  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
-    return bn(gasLimit).times(maxFeePerGas).toString()
-  }
-
   // optimism l1 fee if exists or 0
   const l1Fee = bnOrZero(l1GasPrice).times(bnOrZero(l1GasLimit))
+
+  // eip1559 fees
+  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
+    return bn(gasLimit).times(maxFeePerGas).plus(l1Fee).toString()
+  }
 
   // legacy fees
   return bn(gasLimit).times(gasPrice).plus(l1Fee).toString()

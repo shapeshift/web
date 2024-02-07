@@ -88,7 +88,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
       <Flex alignItems='center' flexDir={flexDirLgRow} flex={1}>
         <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
         <Flex alignItems='center' mr='auto' flex={1}>
-          <AssetIcon assetId={asset.assetId} />
+          <AssetIcon assetId={asset.assetId} boxSize='40px' />
           <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
             <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
               {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}

@@ -94,7 +94,7 @@ export type Fees = evm.Fees & {
   networkFeeCryptoBaseUnit: string
 }
 
-export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
+export const getFeesWithWallet = async (args: GetFeesArgs): Promise<Fees> => {
   const { accountNumber, adapter, wallet, ...rest } = args
 
   const from = await adapter.getAddress({ accountNumber, wallet })
@@ -163,7 +163,7 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
 ): Promise<evm.BuildCustomTxInput> => {
-  const fees = await getFees(args)
+  const fees = await getFeesWithWallet(args)
   return { ...args, ...fees }
 }
 

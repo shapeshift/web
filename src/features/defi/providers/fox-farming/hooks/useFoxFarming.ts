@@ -14,8 +14,8 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getFees,
   getFeesWithoutWallet,
+  getFeesWithWallet,
 } from 'lib/utils/evm'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -151,7 +151,7 @@ export const useFoxFarming = (
       args: [contractAddress, BigInt(MaxUint256.toString())],
     })
 
-    return getFees({
+    return getFeesWithWallet({
       accountNumber,
       adapter,
       data,
@@ -171,7 +171,7 @@ export const useFoxFarming = (
         args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))],
       })
 
-      return getFees({
+      return getFeesWithWallet({
         accountNumber,
         adapter,
         data,
@@ -193,7 +193,7 @@ export const useFoxFarming = (
         ...(isExiting ? {} : { args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))] }),
       })
 
-      return getFees({
+      return getFeesWithWallet({
         accountNumber,
         adapter,
         data,

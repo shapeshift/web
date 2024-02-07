@@ -1,11 +1,13 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount as FormatAmount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 
 import { FALLBACK_PRECISION } from './constants'
+import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -23,14 +25,21 @@ export const TransactionReceive = ({
   toggleOpen,
   isOpen,
 }: TransactionRowProps) => {
+  const translate = useTranslate()
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Receive]),
     [txDetails.transfers],
   )
 
   const topLeft = useMemo(() => {
-    return <RawText>Received from {middleEllipsis(transfersByType.Receive[0].from[0])}</RawText>
-  }, [transfersByType.Receive])
+    return (
+      <RawText>
+        {translate('transactionHistory.receivedFrom', {
+          address: middleEllipsis(transfersByType.Receive[0].from[0]),
+        })}
+      </RawText>
+    )
+  }, [transfersByType.Receive, translate])
 
   const bottomRight = useMemo(() => {
     const precision = transfersByType.Receive[0].asset.precision
@@ -75,6 +84,9 @@ export const TransactionReceive = ({
               precision={txDetails.fee?.asset?.precision ?? 0}
               symbol={txDetails.fee?.asset.symbol ?? ''}
             />
+          </Row>
+          <Row title='date'>
+            <TransactionDate blockTime={txDetails.tx.blockTime} />
           </Row>
         </TxGrid>
       </TransactionDetailsContainer>

@@ -1,11 +1,13 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount as FormatAmount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 
 import { FALLBACK_PRECISION } from './constants'
+import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -23,14 +25,21 @@ export const TransactionSend = ({
   isOpen,
   toggleOpen,
 }: TransactionRowProps) => {
+  const translate = useTranslate()
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Send]),
     [txDetails.transfers],
   )
 
   const topLeft = useMemo(() => {
-    return <RawText>Sent to {middleEllipsis(txDetails.transfers[0].to[0])}</RawText>
-  }, [txDetails.transfers])
+    return (
+      <RawText>
+        {translate('transactionHistory.sentTo', {
+          address: middleEllipsis(txDetails.transfers[0].to[0]),
+        })}
+      </RawText>
+    )
+  }, [translate, txDetails.transfers])
 
   const bottomRight = useMemo(() => {
     const precision = txDetails.transfers[0].asset.precision
@@ -77,6 +86,9 @@ export const TransactionSend = ({
               />
             </Row>
           )}
+          <Row title='date'>
+            <TransactionDate blockTime={txDetails.tx.blockTime} />
+          </Row>
         </TxGrid>
       </TransactionDetailsContainer>
     </>

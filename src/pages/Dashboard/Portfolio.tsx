@@ -127,7 +127,7 @@ export const Portfolio = memo(() => {
       <PortfolioBreakdown />
       <Card variant='dashboard'>
         <CardHeader>
-          <Heading as='h5'>
+          <Heading as='h6'>
             <Text translation='dashboard.portfolio.yourAssets' />
           </Heading>
         </CardHeader>

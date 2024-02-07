@@ -8,6 +8,7 @@ import { fromBaseUnit } from 'lib/math'
 
 import { FALLBACK_PRECISION } from './constants'
 import { useTradeFees } from './hooks'
+import { TransactionDate } from './TransactionDate'
 import { Amount as TransactionAmount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
@@ -152,6 +153,9 @@ export const TransactionTrade = ({
               <Amount.Crypto value={tradeFees.value} symbol={tradeFees.asset.symbol} />
             </Row>
           )}
+          <Row title='date'>
+            <TransactionDate blockTime={txDetails.tx.blockTime} />
+          </Row>
         </TxGrid>
       </TransactionDetailsContainer>
     </>

@@ -5,6 +5,7 @@ import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
 import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
@@ -157,6 +158,9 @@ export const TransactionMethod = ({
               />
             </Row>
           )}
+          <Row title='date'>
+            <TransactionDate blockTime={txDetails.tx.blockTime} />
+          </Row>
         </TxGrid>
       </TransactionDetailsContainer>
     </>

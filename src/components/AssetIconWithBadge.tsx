@@ -1,4 +1,5 @@
 // ImageInSvg.tsx
+import type { AvatarProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
@@ -18,7 +19,7 @@ import {
 const StatusStyle = { svg: { width: '70%', height: '70%' } }
 
 type AssetIconWithBadgeProps = {
-  size?: 'xs' | 'sm' | 'md' | 'lg'
+  size?: AvatarProps['size']
   assetId?: AssetId
   transfersByType: Record<TransferType, Transfer[]>
   type?: string

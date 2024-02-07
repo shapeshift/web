@@ -1,6 +1,6 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
-import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
+import { Box, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -110,20 +110,22 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   return (
     <>
-      <ChainList
-        chainIds={filteredChainIdsByMarketCap}
-        onClick={handleChainClick}
-        activeChain={activeChain}
-      />
-      <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit} {...formProps}>
-        <InputGroup size='lg'>
-          {/* Override zIndex to prevent element displaying on overlay components */}
-          <InputLeftElement pointerEvents='none' zIndex={1}>
-            <SearchIcon color='gray.300' />
-          </InputLeftElement>
-          <Input {...inputProps} />
-        </InputGroup>
-      </Box>
+      <Stack spacing={0} borderBottomWidth={1} borderColor='border.base' mx={-2} px={2}>
+        <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit} {...formProps}>
+          <InputGroup size='lg'>
+            {/* Override zIndex to prevent element displaying on overlay components */}
+            <InputLeftElement pointerEvents='none' zIndex={1}>
+              <SearchIcon color='gray.300' />
+            </InputLeftElement>
+            <Input {...inputProps} />
+          </InputGroup>
+        </Box>
+        <ChainList
+          chainIds={filteredChainIdsByMarketCap}
+          onClick={handleChainClick}
+          activeChain={activeChain}
+        />
+      </Stack>
       {listAssets && (
         <Box flex={1}>
           <AssetList

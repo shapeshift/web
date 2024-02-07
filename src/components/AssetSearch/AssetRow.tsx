@@ -52,7 +52,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
         _focus={focus}
       >
         <Flex gap={4} alignItems='center'>
-          <AssetIcon assetId={asset.assetId} size='md' />
+          <AssetIcon assetId={asset.assetId} size='sm' />
           <Box textAlign='left'>
             <Text
               lineHeight={1}

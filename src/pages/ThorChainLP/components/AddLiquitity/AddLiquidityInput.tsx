@@ -22,7 +22,7 @@ import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BiSolidBoltCircle } from 'react-icons/bi'
+import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -981,6 +981,32 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [poolAsset, foundPool, rune, translate])
 
+  const maybeOpportunityNotSupportedExplainer = useMemo(() => {
+    if (walletSupportsOpportunity) return null
+    if (!poolAsset || !rune) return null
+
+    const translation = (() => {
+      if (!supportsRune && !supportsAsset)
+        return translate('pools.unsupportedNetworksExplainer', {
+          network1: poolAsset.networkName,
+          network2: rune.networkName,
+        })
+      if (!supportsRune)
+        return translate('pools.unsupportedNetworkExplainer', { network: rune.networkName })
+      if (!supportsAsset)
+        return translate('pools.unsupportedNetworkExplainer', { network: poolAsset.networkName })
+    })()
+
+    return (
+      <Alert status='error' mx={-2} width='auto'>
+        <AlertIcon as={BiErrorCircle} />
+        <AlertDescription fontSize='sm' fontWeight='medium'>
+          {translation}
+        </AlertDescription>
+      </Alert>
+    )
+  }, [poolAsset, rune, supportsAsset, supportsRune, translate, walletSupportsOpportunity])
+
   const buyAssetSearch = useModal('buyAssetSearch')
   const handlePoolAssetClick = useCallback(() => {
     buyAssetSearch.open({
@@ -1193,6 +1219,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        {maybeOpportunityNotSupportedExplainer}
         {symAlert}
         <Button
           mx={-2}

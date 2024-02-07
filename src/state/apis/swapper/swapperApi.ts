@@ -155,6 +155,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
                 inputOutputRatio,
                 errors: [{ error: TradeQuoteValidationError.QueryFailed }],
                 warnings: [],
+                isStale: false,
               }
             }
 
@@ -173,6 +174,7 @@ export const swapperApi = swapperApiBase.injectEndpoints({
               inputOutputRatio,
               errors,
               warnings,
+              isStale: false,
             }
           }),
         )

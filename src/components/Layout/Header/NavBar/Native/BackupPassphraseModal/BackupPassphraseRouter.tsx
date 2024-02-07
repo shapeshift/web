@@ -33,7 +33,7 @@ export const BackupPassphraseRouter = () => {
   }, [])
 
   return (
-    <AnimatePresence exitBeforeEnter>
+    <AnimatePresence mode='wait'>
       <Switch location={location} key={location.key}>
         <Route exact path={BackupPassphraseRoutes.Start}>
           <BackupPassphraseStart revocableWallet={revocableWallet} />

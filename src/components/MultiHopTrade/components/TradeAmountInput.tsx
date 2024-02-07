@@ -24,7 +24,6 @@ import { Amount } from 'components/Amount/Amount'
 import { Balance } from 'components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOptionsButtonGroup'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
 
@@ -81,6 +80,8 @@ export type TradeAmountInputProps = {
   hideAmounts?: boolean
   layout?: 'inline' | 'stacked'
   isAccountSelectionDisabled?: boolean
+  isInputtingFiatSellAmount?: boolean
+  handleIsInputtingFiatSellAmountChange?: (isInputtingFiatSellAmount: boolean) => void
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -113,13 +114,14 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     labelPostFix,
     hideAmounts,
     layout = 'stacked',
+    isInputtingFiatSellAmount: isFiat,
+    handleIsInputtingFiatSellAmountChange,
   }) => {
     const {
       number: { localeParts },
     } = useLocaleFormatter()
     const translate = useTranslate()
     const amountRef = useRef<string | null>(null)
-    const [isFiat, toggleIsFiat] = useToggle(false)
     const [isFocused, setIsFocused] = useState(false)
     const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
     const bgColor = useColorModeValue('white', 'gray.850')
@@ -155,6 +157,10 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       amountRef.current = values.value
     }, [])
 
+    const toggleIsFiat = useCallback(() => {
+      handleIsInputtingFiatSellAmountChange?.(!isFiat)
+    }, [handleIsInputtingFiatSellAmountChange, isFiat])
+
     const oppositeCurrency = useMemo(() => {
       return isFiat ? (
         <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} />
@@ -177,7 +183,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       [assetSymbol, balance, fiatBalance, isFiat, translate],
     )
 
-    const handleOnMaxClick = useMemo(() => () => onMaxClick(isFiat), [isFiat, onMaxClick])
+    const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
     return (
       <FormControl

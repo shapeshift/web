@@ -102,7 +102,6 @@ export const mockStore: ReduxState = {
       LedgerWallet: false,
       MultiHopTrades: false,
       ThorchainSwapLongtail: false,
-      HolisticRecipientAddress: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -176,8 +175,11 @@ export const mockStore: ReduxState = {
     sellAssetAccountId: undefined,
     buyAssetAccountId: undefined,
     sellAmountCryptoPrecision: '0',
+    isInputtingFiatSellAmount: false,
     manualReceiveAddress: undefined,
     manualReceiveAddressIsValidating: false,
+    manualReceiveAddressIsEditing: false,
+    manualReceiveAddressIsValid: undefined,
     slippagePreferencePercentage: undefined,
   },
   tradeQuoteSlice: {
@@ -186,6 +188,8 @@ export const mockStore: ReduxState = {
     activeStep: undefined,
     tradeExecution: initialTradeExecutionState,
     tradeQuotes: {},
+    tradeQuoteDisplayCache: [],
+    isTradeQuoteRequestAborted: false,
   },
   snapshot: {
     votingPower: undefined,

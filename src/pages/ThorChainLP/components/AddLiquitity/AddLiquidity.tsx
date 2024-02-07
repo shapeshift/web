@@ -1,11 +1,13 @@
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import type { ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
+import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 
 import { AddLiquidityConfirm } from './AddLiquidityConfirm'
 import { AddLiquidityInput } from './AddLiquidityInput'
+import { AddLiquiditySweep } from './AddLiquiditySweep'
 import { AddLiquidityStatus } from './AddLiquityStatus'
 import { AddLiquidityRoutePaths } from './types'
 
@@ -15,6 +17,7 @@ const AddLiquidityEntries = [
   AddLiquidityRoutePaths.Input,
   AddLiquidityRoutePaths.Confirm,
   AddLiquidityRoutePaths.Status,
+  AddLiquidityRoutePaths.Sweep,
 ]
 
 export type AddLiquidityProps = {
@@ -28,7 +31,7 @@ export const AddLiquidity: React.FC<AddLiquidityProps> = ({
   headerComponent,
   paramOpportunityId,
 }) => {
-  const [confirmedQuote, setConfirmedQuote] = useState<ConfirmedQuote | null>(null)
+  const [confirmedQuote, setConfirmedQuote] = useState<LpConfirmedDepositQuote | null>(null)
 
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
@@ -44,8 +47,8 @@ export const AddLiquidity: React.FC<AddLiquidityProps> = ({
 }
 
 type AddLiquidityRoutesProps = AddLiquidityProps & {
-  confirmedQuote: ConfirmedQuote | null
-  setConfirmedQuote: (quote: ConfirmedQuote) => void
+  confirmedQuote: LpConfirmedDepositQuote | null
+  setConfirmedQuote: (quote: LpConfirmedDepositQuote) => void
 }
 
 export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
@@ -55,14 +58,18 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   confirmedQuote,
   setConfirmedQuote,
 }) => {
+  const history = useHistory()
   const location = useLocation()
-  const [accountIds, setAccountIds] = useState<Record<AssetId, AccountId>>({})
+  const [accountIdsByChainId, setAccountIdsByChainId] = useState<Record<ChainId, AccountId>>({})
 
   const onAccountIdChange = useCallback(
-    (accountId: AccountId, assetId: AssetId) => {
-      setAccountIds(prev => ({ ...prev, [assetId]: accountId }))
+    (accountId: AccountId) => {
+      setAccountIdsByChainId(prev => {
+        const chainId = fromAccountId(accountId).chainId
+        return { ...prev, [chainId]: accountId }
+      })
     },
-    [setAccountIds],
+    [setAccountIdsByChainId],
   )
 
   const renderAddLiquidityInput = useCallback(
@@ -73,12 +80,12 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
-        accountIds={accountIds}
+        accountIdsByChainId={accountIdsByChainId}
         onAccountIdChange={onAccountIdChange}
       />
     ),
     [
-      accountIds,
+      accountIdsByChainId,
       confirmedQuote,
       headerComponent,
       onAccountIdChange,
@@ -97,8 +104,26 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     [confirmedQuote],
   )
 
+  const renderAddLiquiditySweep = useCallback(
+    () =>
+      confirmedQuote ? (
+        <AddLiquiditySweep
+          confirmedQuote={confirmedQuote}
+          // eslint-disable-next-line react-memo/require-usememo
+          onSweepSeen={() => {
+            history.push(AddLiquidityRoutePaths.Confirm)
+          }}
+          // eslint-disable-next-line react-memo/require-usememo
+          onBack={() => {
+            history.push(AddLiquidityRoutePaths.Input)
+          }}
+        />
+      ) : null,
+    [confirmedQuote, history],
+  )
+
   return (
-    <AnimatePresence exitBeforeEnter initial={false}>
+    <AnimatePresence mode='wait' initial={false}>
       <Switch location={location}>
         <Suspense fallback={suspenseFallback}>
           <Route
@@ -115,6 +140,11 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
             key={AddLiquidityRoutePaths.Status}
             path={AddLiquidityRoutePaths.Status}
             render={renderAddLiquidityStatus}
+          />
+          <Route
+            key={AddLiquidityRoutePaths.Sweep}
+            path={AddLiquidityRoutePaths.Sweep}
+            render={renderAddLiquiditySweep}
           />
         </Suspense>
       </Switch>

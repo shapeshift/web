@@ -1,11 +1,16 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { TradeAssetInputProps } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataByFilter } from 'state/slices/selectors'
+import {
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUserCurrency,
+  selectIsInputtingFiatSellAmount,
+  selectMarketDataByFilter,
+} from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -29,8 +34,10 @@ export const SellAssetInput = memo(
     percentOptions,
     ...rest
   }: SellAssetInputProps) => {
-    const [sellAmountUserCurrencyHuman, setSellAmountUserCurrencyHuman] = useState('0')
-    const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
+    const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+    const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
+    const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
+
     const dispatch = useAppDispatch()
 
     const { price: sellAssetUserCurrencyRate } = useAppSelector(state =>
@@ -40,10 +47,7 @@ export const SellAssetInput = memo(
     // this is separated from handleSellAssetInputChange to prevent resetting the input value to 0
     // when the market data changes between keystrokes
     const handleSellAssetInputChangeInner = useCallback(
-      (sellAmountUserCurrencyHuman: string, sellAmountCryptoPrecision: string) => {
-        setSellAmountUserCurrencyHuman(sellAmountUserCurrencyHuman)
-        setSellAmountCryptoPrecision(sellAmountCryptoPrecision)
-
+      (sellAmountCryptoPrecision: string) => {
         dispatch(
           tradeInput.actions.setSellAmountCryptoPrecision(
             positiveOrZero(sellAmountCryptoPrecision).toString(),
@@ -55,32 +59,20 @@ export const SellAssetInput = memo(
 
     const handleSellAssetInputChange = useCallback(
       (value: string, isFiat: boolean | undefined) => {
-        const sellAmountUserCurrencyHuman = isFiat
-          ? value
-          : bnOrZero(value).times(sellAssetUserCurrencyRate).toFixed(2)
         const sellAmountCryptoPrecision = isFiat
           ? bnOrZero(value).div(sellAssetUserCurrencyRate).toFixed()
           : value
-        handleSellAssetInputChangeInner(sellAmountUserCurrencyHuman, sellAmountCryptoPrecision)
+        handleSellAssetInputChangeInner(sellAmountCryptoPrecision)
       },
       [handleSellAssetInputChangeInner, sellAssetUserCurrencyRate],
     )
 
-    // reset the input value to 0 when the asset changes
-    useEffect(() => {
-      handleSellAssetInputChangeInner('0', '0')
-    }, [asset, handleSellAssetInputChangeInner])
-
-    // Allow decimals to be entered in the form of . as the first character
-    const cryptoAmount = useMemo(() => {
-      if (sellAmountCryptoPrecision === '.') return sellAmountCryptoPrecision
-      return positiveOrZero(sellAmountCryptoPrecision).toString()
-    }, [sellAmountCryptoPrecision])
-
-    const fiatAmount = useMemo(() => {
-      if (sellAmountUserCurrencyHuman === '.') return sellAmountUserCurrencyHuman
-      return positiveOrZero(sellAmountUserCurrencyHuman).toString()
-    }, [sellAmountUserCurrencyHuman])
+    const handleIsInputtingFiatSellAmountChange = useCallback(
+      (isInputtingFiatSellAmount: boolean) => {
+        dispatch(tradeInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
+      },
+      [dispatch],
+    )
 
     return (
       <TradeAssetInput
@@ -88,8 +80,10 @@ export const SellAssetInput = memo(
         assetId={asset.assetId}
         assetSymbol={asset.symbol}
         assetIcon={asset.icon}
-        cryptoAmount={cryptoAmount}
-        fiatAmount={fiatAmount}
+        cryptoAmount={sellAmountCryptoPrecision}
+        fiatAmount={sellAmountUserCurrency}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+        handleIsInputtingFiatSellAmountChange={handleIsInputtingFiatSellAmountChange}
         isSendMaxDisabled={false}
         onChange={handleSellAssetInputChange}
         percentOptions={percentOptions}

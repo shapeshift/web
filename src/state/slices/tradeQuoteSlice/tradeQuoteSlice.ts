@@ -2,6 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
+import { orderBy, uniqBy } from 'lodash'
 import type { ApiQuote } from 'state/apis/swapper'
 
 import { initialState, initialTradeExecutionState } from './constants'
@@ -19,6 +20,8 @@ export type TradeQuoteSliceState = {
   confirmedQuote: TradeQuote | undefined // the quote being executed
   tradeExecution: TradeExecutionMetadata
   tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
+  tradeQuoteDisplayCache: ApiQuote[]
+  isTradeQuoteRequestAborted: boolean // used to conditionally render results and loading state
 }
 
 export const tradeQuoteSlice = createSlice({
@@ -26,6 +29,9 @@ export const tradeQuoteSlice = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
+    setIsTradeQuoteRequestAborted: (state, action: PayloadAction<boolean>) => {
+      state.isTradeQuoteRequestAborted = action.payload
+    },
     upsertTradeQuotes: (
       state,
       action: PayloadAction<{
@@ -188,6 +194,52 @@ export const tradeQuoteSlice = createSlice({
       const { hopIndex, streamingSwapMetadata } = action.payload
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
       state.tradeExecution[key].swap.streamingSwap = streamingSwapMetadata
+    },
+    updateTradeQuoteDisplayCache: (
+      state,
+      action: PayloadAction<{
+        isTradeQuoteApiQueryPending: Partial<Record<SwapperName, boolean>>
+        isSwapperQuoteAvailable: Record<SwapperName, boolean>
+        sortedQuotes: ApiQuote[]
+      }>,
+    ) => {
+      const { isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes } = action.payload
+
+      // Mark stale quotes as stale.
+      // Assign the original array index so we can keep loading quotes roughly in their original spot
+      // in the list. This makes loading state less jarring visually because quotes tend to move
+      // around less as results arrive.
+      const staleQuotes = state.tradeQuoteDisplayCache
+        .map((quoteData, originalIndex) => {
+          return Object.assign({}, quoteData, { isStale: true, originalIndex })
+        })
+        .filter(quoteData => {
+          return (
+            isTradeQuoteApiQueryPending[quoteData.swapperName] ||
+            !isSwapperQuoteAvailable[quoteData.swapperName]
+          )
+        })
+
+      const sortedQuotesWithOriginalIndex = sortedQuotes.map((quoteData, originalIndex) => {
+        return Object.assign({}, quoteData, { isStale: false, originalIndex })
+      })
+
+      const allQuotes = uniqBy(sortedQuotesWithOriginalIndex.concat(staleQuotes), 'id')
+
+      const sortQuotes = (
+        unorderedQuotes: ({ originalIndex: number } & ApiQuote)[],
+      ): ApiQuote[] => {
+        return orderBy(
+          unorderedQuotes,
+          ['originalIndex', 'inputOutputRatio', 'swapperName'],
+          ['asc', 'desc', 'asc'],
+        )
+      }
+
+      const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
+      const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
+
+      state.tradeQuoteDisplayCache = happyQuotes.concat(errorQuotes)
     },
   },
 })

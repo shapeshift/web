@@ -25,7 +25,7 @@ export const CosmosManager = () => {
   }, [browserHistory])
 
   return (
-    <AnimatePresence exitBeforeEnter initial={false}>
+    <AnimatePresence mode='wait' initial={false}>
       {modal === DefiAction.GetStarted && (
         <SlideTransition key={DefiAction.Overview}>
           <CosmosLearnMore onClose={handleCancel} />

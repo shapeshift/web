@@ -15,6 +15,7 @@ import noop from 'lodash/noop'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -38,7 +39,6 @@ import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFee
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
-import { useQuoteEstimatedFeesQuery } from 'pages/Lending/hooks/useQuoteEstimatedFees'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,

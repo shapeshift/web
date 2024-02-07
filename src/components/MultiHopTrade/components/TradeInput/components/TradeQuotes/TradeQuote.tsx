@@ -1,13 +1,13 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Collapse, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
+import { Collapse, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
-import { TwirlyToggle } from 'components/MultiHopTrade/components/TwirlyToggle'
 import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -30,6 +30,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
+import { CountdownSpinner } from './components/CountdownSpinner'
 import { TradeQuoteCard } from './components/TradeQuoteCard'
 import { TradeQuoteContent } from './components/TradeQuoteContent'
 
@@ -38,7 +39,9 @@ type TradeQuoteProps = {
   isBest: boolean
   quoteData: ApiQuote
   bestTotalReceiveAmountCryptoPrecision: string | undefined
+  bestInputOutputRatio: number | undefined
   isLoading: boolean
+  isRefetching: boolean
 }
 
 export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
@@ -46,15 +49,14 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   isBest,
   quoteData,
   bestTotalReceiveAmountCryptoPrecision,
+  bestInputOutputRatio,
   isLoading,
+  isRefetching,
 }) => {
-  const { quote, errors } = quoteData
+  const { quote, errors, inputOutputRatio } = quoteData
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const { isOpen, onToggle } = useDisclosure({
-    defaultIsOpen: errors.length === 0,
-  })
 
   const {
     number: { toPercent },
@@ -115,20 +117,30 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   )
 
   const handleQuoteSelection = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
-  }, [dispatch, quoteData])
+    if (!isActive) {
+      dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+    } else if (!isBest) {
+      // don't allow un-selecting of best quote as it gets re-selected in this case
+      dispatch(tradeQuoteSlice.actions.setActiveQuote(undefined))
+    }
+  }, [dispatch, isActive, isBest, quoteData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)
     throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
-  // the difference percentage is on the gross receive amount only
-  const quoteDifferenceDecimalPercentage = useMemo(() => {
+  // the difference percentage is on the receive amount only
+  const quoteAmountDifferenceDecimalPercentage = useMemo(() => {
     if (!quote || !bestTotalReceiveAmountCryptoPrecision) return
     return bn(1)
       .minus(bn(totalReceiveAmountCryptoPrecision).dividedBy(bestTotalReceiveAmountCryptoPrecision))
       .toNumber()
   }, [bestTotalReceiveAmountCryptoPrecision, quote, totalReceiveAmountCryptoPrecision])
+
+  const quoteOverallDifferenceDecimalPercentage = useMemo(() => {
+    if (!quote || !bestInputOutputRatio) return
+    return -bn(1).minus(bn(inputOutputRatio).dividedBy(bestInputOutputRatio)).toNumber()
+  }, [bestInputOutputRatio, inputOutputRatio, quote])
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =
@@ -166,11 +178,30 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
           </Tag>
         )
       default:
-        return <Tag size='sm'>{translate('common.alternative')}</Tag>
+        return (
+          <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
+            <Tag size='sm'>
+              {quoteOverallDifferenceDecimalPercentage !== undefined && (
+                <Amount.Percent
+                  value={quoteOverallDifferenceDecimalPercentage ?? 0}
+                  autoColor={false}
+                />
+              )}
+            </Tag>
+          </Tooltip>
+        )
     }
-  }, [errors, quote, translate, hasAmountWithPositiveReceive, isAmountEntered, isBest])
+  }, [
+    errors,
+    quote,
+    translate,
+    hasAmountWithPositiveReceive,
+    isAmountEntered,
+    isBest,
+    quoteOverallDifferenceDecimalPercentage,
+  ])
 
-  const isDisabled = !quote || errors?.length > 0
+  const isDisabled = !quote || isLoading
   const showSwapperError = ![
     TradeQuoteValidationError.UnknownError,
     SwapperTradeQuoteError.UnknownError,
@@ -233,16 +264,16 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const headerContent = useMemo(() => {
     return (
-      <Flex gap={2}>
+      <Flex gap={2} alignItems='center'>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-        {isDisabled && quote && <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />}
+        <CountdownSpinner isLoading={isLoading || isRefetching} />
       </Flex>
     )
-  }, [isDisabled, isLoading, isOpen, onToggle, quote, tag])
+  }, [isLoading, isRefetching, tag])
 
   const bodyContent = useMemo(() => {
     return quote ? (
-      <Collapse in={isOpen}>
+      <Collapse in={isBest || isActive}>
         <TradeQuoteContent
           isLoading={isLoading}
           buyAsset={buyAsset}
@@ -251,22 +282,23 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
           totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
           hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
-          quoteDifferenceDecimalPercentage={quoteDifferenceDecimalPercentage}
+          quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
           networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
           slippage={slippage}
+          tradeQuote={quote}
         />
       </Collapse>
     ) : null
   }, [
     buyAsset,
     hasAmountWithPositiveReceive,
+    isActive,
     isBest,
     isLoading,
-    isOpen,
     networkFeeUserCurrencyPrecision,
     quote,
-    quoteDifferenceDecimalPercentage,
+    quoteAmountDifferenceDecimalPercentage,
     slippage,
     totalEstimatedExecutionTimeMs,
     totalReceiveAmountCryptoPrecision,

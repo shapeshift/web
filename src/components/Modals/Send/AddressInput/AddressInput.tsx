@@ -42,6 +42,7 @@ export const AddressInput = ({ rules, placeholder, enableQr = false }: AddressIn
         value={value}
         variant='filled'
         data-test='send-address-input'
+        data-1p-ignore
         // Because the InputRightElement is hover the input, we need to let this space free
         pe={10}
         isInvalid={!isValid}

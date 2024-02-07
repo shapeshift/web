@@ -1,12 +1,22 @@
-import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Center,
+  Collapse,
+  Flex,
+  Link,
+  Skeleton,
+} from '@chakra-ui/react'
 import { AddressZero } from '@ethersproject/constants'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   type AssetId,
-  cosmosChainId,
   fromAccountId,
   fromAssetId,
   thorchainAssetId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import {
   CONTRACT_INTERACTION,
@@ -29,7 +39,7 @@ import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isToken } from 'lib/utils'
@@ -38,14 +48,14 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
-import type { AsymSide, ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
+import type { AsymSide, LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
+import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -58,13 +68,13 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId?: AssetId
-  accountIds: Record<AssetId, AccountId>
+  accountIdsByChainId: Record<ChainId, AccountId>
   poolAssetId?: AssetId
   amountCryptoPrecision: string
   onComplete: () => void
   isActive?: boolean
   isLast?: boolean
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: LpConfirmedDepositQuote
   asymSide?: AsymSide | null
 }
 
@@ -74,7 +84,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   onComplete,
   isActive,
-  accountIds,
+  accountIdsByChainId,
   confirmedQuote,
   asymSide,
 }) => {
@@ -89,8 +99,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  const runeAccountId = accountIds[thorchainAssetId]
-  const poolAssetAccountId = accountIds[poolAsset?.assetId ?? '']
+  const runeAccountId = accountIdsByChainId[thorchainChainId]
+  const poolAssetAccountId =
+    accountIdsByChainId[poolAsset?.assetId ? fromAssetId(poolAsset.assetId).chainId : '']
   const runeAccountNumberFilter = useMemo(
     () => ({ assetId: thorchainAssetId, accountId: runeAccountId ?? '' }),
     [runeAccountId],
@@ -230,6 +241,127 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     select: data => data?.unwrap(),
   })
 
+  const estimateFeesArgs = useMemo(() => {
+    if (!assetId || !wallet || !asset || !poolAsset) return undefined
+
+    const thorchainNotationAssetId = assetIdToPoolAssetId({
+      assetId: isRuneTx ? poolAsset.assetId : asset.assetId,
+    })
+    const transactionType = getThorchainLpTransactionType(asset.chainId)
+    const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
+
+    switch (transactionType) {
+      case 'MsgDeposit': {
+        const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
+          confirmedQuote.feeBps
+        }`
+        return {
+          cryptoAmount: toBaseUnit(amountCryptoPrecision, asset.precision),
+          assetId: asset.assetId,
+          memo,
+          to: THORCHAIN_POOL_MODULE_ADDRESS,
+          sendMax: false,
+          accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
+          contractAddress: undefined,
+        }
+      }
+      case 'EvmCustomTx': {
+        if (!inboundAddressData?.router) return undefined
+        const assetAddress = isToken(fromAssetId(assetId).assetReference)
+          ? getAddress(fromAssetId(assetId).assetReference)
+          : AddressZero
+        const amount = BigInt(toBaseUnit(amountCryptoPrecision, asset.precision).toString())
+
+        const args = (() => {
+          const expiry = BigInt(dayjs().add(15, 'minute').unix())
+          const vault = getAddress(inboundAddressData.address)
+          const asset = isToken(fromAssetId(assetId).assetReference)
+            ? getAddress(fromAssetId(assetId).assetReference)
+            : // Native EVM assets use the 0 address as the asset address
+              // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+              AddressZero
+
+          const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
+            confirmedQuote.feeBps
+          }`
+          const amount = BigInt(amountCryptoBaseUnit.toString())
+
+          return { memo, amount, expiry, vault, asset }
+        })()
+
+        const data = depositWithExpiry({
+          vault: args.vault,
+          asset: args.asset,
+          amount: args.amount,
+          memo: args.memo,
+          expiry: args.expiry,
+        })
+
+        return {
+          cryptoAmount: amount.toString(),
+          assetId: asset.assetId,
+          to: inboundAddressData.router,
+          from: accountAssetAddress,
+          sendMax: false,
+          // This is an ERC-20, we abuse the memo field for the actual hex-encoded calldata
+          memo: data,
+          accountId: poolAssetAccountId,
+          contractAddress: assetAddress,
+        }
+      }
+      case 'Send': {
+        if (!inboundAddressData || !accountAssetAddress) return undefined
+        const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
+          confirmedQuote.feeBps
+        }`
+
+        return {
+          cryptoAmount: amountCryptoPrecision,
+          assetId,
+          to: inboundAddressData.address,
+          from: accountAssetAddress,
+          sendMax: false,
+          memo,
+          accountId: poolAssetAccountId,
+          contractAddress: undefined,
+        }
+      }
+      default:
+        return undefined
+    }
+  }, [
+    assetId,
+    wallet,
+    asset,
+    poolAsset,
+    isRuneTx,
+    amountCryptoPrecision,
+    otherAssetAddress,
+    confirmedQuote.feeBps,
+    runeAccountId,
+    poolAssetAccountId,
+    inboundAddressData,
+    accountAssetAddress,
+  ])
+
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useGetEstimatedFeesQuery({
+      cryptoAmount: estimateFeesArgs?.cryptoAmount ?? '0',
+      assetId: estimateFeesArgs?.assetId ?? '',
+      to: estimateFeesArgs?.to ?? '',
+      sendMax: estimateFeesArgs?.sendMax ?? false,
+      memo: estimateFeesArgs?.memo ?? '',
+      accountId: estimateFeesArgs?.accountId ?? '',
+      contractAddress: estimateFeesArgs?.contractAddress ?? '',
+      enabled: !!estimateFeesArgs,
+    })
+
+  const estimatedFeeDataCryptoPrecision = useMemo(() => {
+    if (!estimatedFeesData || !asset) return undefined
+
+    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, asset.precision)
+  }, [asset, estimatedFeesData])
+
   const handleSignTx = useCallback(() => {
     if (
       !(
@@ -254,24 +386,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
-      // A THOR LP deposit can either be:
-      // - a RUNE MsgDeposit message type
-      // - an EVM custom Tx, i.e a Tx with calldata
-      // - a regular send with a memo (for ATOM and UTXOs)
-      const transactionType = (() => {
-        const supportedEvmChainIds = getSupportedEvmChainIds()
-        if (isRuneTx) return 'MsgDeposit'
-        if (supportedEvmChainIds.includes(fromAssetId(asset.assetId).chainId as KnownChainIds)) {
-          return 'EvmCustomTx'
-        }
-        if (
-          isUtxoChainId(fromAssetId(assetId).chainId) ||
-          fromAssetId(assetId).chainId === cosmosChainId
-        )
-          return 'Send'
-
-        throw new Error(`Unsupported ChainId ${fromAssetId(assetId).chainId}`)
-      })()
+      const transactionType = getThorchainLpTransactionType(asset.chainId)
 
       await (async () => {
         // We'll probably need to switch on chainNamespace instead here
@@ -486,7 +601,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           <Row fontSize='sm'>
             <Row.Label>{translate('common.gasFee')}</Row.Label>
             <Row.Value>
-              <Amount.Crypto value='0.02' symbol={asset.symbol} />
+              <Skeleton isLoaded={Boolean(!isEstimatedFeesDataLoading && estimatedFeesData)}>
+                <Amount.Crypto
+                  value={estimatedFeeDataCryptoPrecision ?? '0'}
+                  symbol={asset.symbol}
+                />
+              </Skeleton>
             </Row.Value>
           </Row>
           <Button

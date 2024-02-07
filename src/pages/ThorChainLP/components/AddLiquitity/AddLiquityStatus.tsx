@@ -1,13 +1,13 @@
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router'
-import { type ConfirmedQuote } from 'lib/utils/thorchain/lp/types'
+import { type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 
 import { ReusableLpStatus } from '../ReusableLpStatus/ReusableLpStatus'
 import { AddLiquidityRoutePaths } from './types'
 
 type AddLiquidityStatusProps = {
-  confirmedQuote: ConfirmedQuote
+  confirmedQuote: LpConfirmedDepositQuote
 }
 
 export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) => {

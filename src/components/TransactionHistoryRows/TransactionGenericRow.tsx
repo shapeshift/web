@@ -47,7 +47,7 @@ type TransactionGenericRowProps = {
   txid: TxId
   txData?: TxMetadata
   blockTime: number
-  explorerTxLink: string
+  txLink: string
   toggleOpen: () => void
   parentWidth: number
 }

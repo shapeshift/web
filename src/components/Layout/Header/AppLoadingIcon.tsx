@@ -31,7 +31,7 @@ export const AppLoadingIcon: React.FC = memo(() => {
 
   return (
     <Link to='/' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-      <AnimatePresence exitBeforeEnter initial>
+      <AnimatePresence mode='wait' initial>
         {isHovered && isDogeDayEvent ? (
           <motion.div
             key='doge-flip'

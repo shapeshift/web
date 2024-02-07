@@ -1,11 +1,13 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
+import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -13,11 +15,9 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import {
-  selectInputBuyAsset,
-  selectManualReceiveAddress,
-} from 'state/slices/tradeInputSlice/selectors'
+import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
+import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
@@ -44,11 +44,23 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     wallet,
     isSnapInstalled,
   })
-  const shouldShowManualReceiveAddressInput = !walletSupportsBuyAssetChain
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const shouldShowManualReceiveAddressInput = useMemo(() => {
+    // We want to display the manual address entry if the wallet doesn't support the buy asset chain,
+    // but stop displaying it as soon as we have a quote
+    return !walletSupportsBuyAssetChain && !activeQuote
+  }, [activeQuote, walletSupportsBuyAssetChain])
+
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+  const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
 
   const chainAdapterManager = getChainAdapterManager()
   const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
-  const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   // Trigger re-validation of the manually entered receive address
   useEffect(() => {
@@ -64,7 +76,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   // If we have a valid manual receive address, set it in the form
   useEffect(() => {
     manualReceiveAddress && setFormValue(SendFormFields.Input, manualReceiveAddress)
-  }, [dispatch, manualReceiveAddress, setFormValue])
+  }, [manualReceiveAddress, setFormValue])
 
   useEffect(() => {
     dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))

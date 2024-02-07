@@ -5,7 +5,6 @@ import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButt
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { tradeInput as swappersSlice } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { selectTradeExecutionState } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -33,7 +32,6 @@ export const MultiHopTradeConfirm = memo(() => {
   }, [dispatch, isLoading])
 
   const handleBack = useCallback(() => {
-    dispatch(swappersSlice.actions.clear())
     dispatch(tradeQuoteSlice.actions.clear())
     history.push(TradeRoutePaths.Input)
   }, [dispatch, history])

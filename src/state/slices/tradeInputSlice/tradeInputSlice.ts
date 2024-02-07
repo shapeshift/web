@@ -14,6 +14,7 @@ export type TradeInputState = {
   sellAssetAccountId: AccountId | undefined
   buyAssetAccountId: AccountId | undefined
   sellAmountCryptoPrecision: string
+  isInputtingFiatSellAmount: boolean
   manualReceiveAddress: string | undefined
   manualReceiveAddressIsValidating: boolean
   manualReceiveAddressIsEditing: boolean
@@ -28,6 +29,7 @@ const initialState: TradeInputState = {
   sellAssetAccountId: undefined,
   buyAssetAccountId: undefined,
   sellAmountCryptoPrecision: '0',
+  isInputtingFiatSellAmount: false,
   manualReceiveAddress: undefined,
   manualReceiveAddressIsValidating: false,
   manualReceiveAddressIsValid: undefined,
@@ -57,6 +59,9 @@ export const tradeInput = createSlice({
       const isSameAsBuyAsset = asset.assetId === state.buyAsset.assetId
       if (isSameAsBuyAsset) state.buyAsset = state.sellAsset
 
+      // clear the sell amount
+      state.sellAmountCryptoPrecision = '0'
+
       state.sellAsset = action.payload
     },
     setSellAssetAccountNumber: (state, action: PayloadAction<AccountId | undefined>) => {
@@ -73,6 +78,7 @@ export const tradeInput = createSlice({
       const buyAsset = state.sellAsset
       state.sellAsset = state.buyAsset
       state.buyAsset = buyAsset
+      state.sellAmountCryptoPrecision = '0'
     },
     setManualReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
       state.manualReceiveAddress = action.payload
@@ -88,6 +94,9 @@ export const tradeInput = createSlice({
     },
     setSlippagePreferencePercentage: (state, action: PayloadAction<string | undefined>) => {
       state.slippagePreferencePercentage = action.payload
+    },
+    setIsInputtingFiatSellAmount: (state, action: PayloadAction<boolean>) => {
+      state.isInputtingFiatSellAmount = action.payload
     },
   },
 })

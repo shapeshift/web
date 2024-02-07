@@ -38,7 +38,8 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import type { MidgardActionsResponse, ThornodeStatusResponse } from './types'
+import { type MidgardActionsResponse, type ThornodeStatusResponse } from './types'
+import { checkOutboundTxConfirmations } from './utils/checkOutputTxConfirmations'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
@@ -364,8 +365,22 @@ export const thorchainApi: SwapperApi = {
       const outCoinAsset: string | undefined = thorActionsData.actions[0]?.out[0]?.coins[0]?.asset
       const hasOutboundTx = outCoinAsset !== 'THOR.RUNE'
 
-      const { message, status } = getLatestThorTxStatusMessage(thorTxData, hasOutboundTx)
       const buyTxHash = parseThorBuyTxHash(txHash, thorActionsData)
+
+      // if we have a buyTxHash, check if it's been confirmed on-chain
+      if (hasOutboundTx && buyTxHash) {
+        const outboundTxConfirmations = await checkOutboundTxConfirmations(thorTxData, buyTxHash)
+
+        if (outboundTxConfirmations !== undefined && outboundTxConfirmations > 0) {
+          return {
+            buyTxHash,
+            status: TxStatus.Confirmed,
+            message: undefined,
+          }
+        }
+      }
+
+      const { message, status } = getLatestThorTxStatusMessage(thorTxData, hasOutboundTx)
 
       return {
         buyTxHash,

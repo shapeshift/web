@@ -7,7 +7,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isSome, timeout } from 'lib/utils'
+import { isSome, timeoutMonadic } from 'lib/utils'
 
 import { QUOTE_TIMEOUT_ERROR, QUOTE_TIMEOUT_MS, swappers } from './constants'
 
@@ -24,7 +24,7 @@ export const getTradeQuotes = async (
   if (swapper === undefined) return
 
   try {
-    const quote = await timeout<TradeQuote[], SwapErrorRight>(
+    const quote = await timeoutMonadic<TradeQuote[], SwapErrorRight>(
       swapper.getTradeQuote(getTradeQuoteInput, assetsById),
       QUOTE_TIMEOUT_MS,
       QUOTE_TIMEOUT_ERROR,

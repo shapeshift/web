@@ -218,6 +218,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [isSnapInstalled, poolAsset, poolAssetAccountIds.length, wallet],
   )
 
+  // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
+  // - as a default pool, so we can show some input and not some seemingly broken blank state
+  // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
+  // doesn't support one of the two
+  const walletSupportsOpportunity = useMemo(() => {
+    if (!foundPool) return false
+
+    if (!foundPool.isAsymmetric) return supportsAsset && supportsRune
+    if (foundPool.asymSide === AsymSide.Rune) return supportsRune
+    if (foundPool.asymSide === AsymSide.Asset) return supportsAsset
+  }, [foundPool, supportsAsset, supportsRune])
+
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
     // We only want to run this effect in the standalone AddLiquidity page
@@ -396,7 +408,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddress(poolAsset?.assetId),
-    enabled: !!poolAsset,
+    enabled: !!poolAsset && walletSupportsOpportunity === true,
     select: data => data?.unwrap(),
   })
 
@@ -474,6 +486,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { data: allowanceData, isLoading: isAllowanceDataLoading } = useQuery({
     refetchInterval: 30_000,
+    enabled:
+      poolAsset &&
+      walletSupportsOpportunity === true &&
+      isToken(fromAssetId(poolAsset.assetId).assetReference),
     ...reactQueries.common.allowanceCryptoBaseUnit(
       poolAsset?.assetId,
       inboundAddressData?.router,
@@ -1055,18 +1071,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     () => bnOrZero(actualRuneCryptoLiquidityAmount).gt(0) && hasEnoughRuneBalance === false,
     [actualRuneCryptoLiquidityAmount, hasEnoughRuneBalance],
   )
-
-  // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
-  // - as a default pool, so we can show some input and not some seemingly broken blank state
-  // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
-  // doesn't support one of the two
-  const walletSupportsOpportunity = useMemo(() => {
-    if (!foundPool) return false
-
-    if (!foundPool.isAsymmetric) return supportsAsset && supportsRune
-    if (foundPool.asymSide === AsymSide.Rune) return supportsRune
-    if (foundPool.asymSide === AsymSide.Asset) return supportsAsset
-  }, [foundPool, supportsAsset, supportsRune])
 
   const errorCopy = useMemo(() => {
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e

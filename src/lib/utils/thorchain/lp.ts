@@ -311,7 +311,6 @@ export const estimateAddThorchainLiquidityPosition = async ({
 // https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
 export const estimateRemoveThorchainLiquidityPosition = async ({
   assetId,
-  // i.e the result of the liquidityProviderPosition({ accountId, assetId }) query
   userData,
   runeAmountCryptoThorPrecision,
   assetAmountCryptoThorPrecision,
@@ -332,9 +331,10 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   })
 
   const poolShare = getPoolShare(bnOrZero(liquidityUnitsCryptoThorPrecision), pool)
+
   const slip = getSlipOnLiquidity({
-    runeAmountCryptoThorPrecision: poolShare.runeShare.toString(),
-    assetAmountCryptoThorPrecision: poolShare.assetShare.toString(),
+    runeAmountCryptoThorPrecision,
+    assetAmountCryptoThorPrecision,
     pool,
   })
 

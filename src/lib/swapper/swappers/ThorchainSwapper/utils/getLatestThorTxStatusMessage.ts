@@ -98,9 +98,9 @@ export const getLatestThorTxStatusMessage = (
         if (obj === undefined) continue
         return {
           message: obj.completed
-            ? 'Outbound transaction complete'
+            ? 'Outbound transaction transmitted, waiting on destination chain...'
             : 'Outbound transaction scheduled, waiting on destination chain...',
-          status: obj.completed ? TxStatus.Confirmed : TxStatus.Pending,
+          status: TxStatus.Pending,
         }
       }
       default:

@@ -391,7 +391,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return (async () => {
       // Refetch the trading active state JIT to ensure the pool didn't just become halted
       const { data: isTradingActiveData } = await refetchIsTradingActive()
-      if (!isTradingActiveData) return
+      if (!isTradingActiveData) throw new Error('Pool Halted')
 
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
@@ -570,6 +570,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     isRuneTx,
     inboundAddressData,
+    refetchIsTradingActive,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,
@@ -582,6 +583,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   ])
 
   const txIdLink = useMemo(() => `${asset?.explorerTxLink}${txId}`, [asset?.explorerTxLink, txId])
+
+  const confirmTranslation = useMemo(() => {
+    if (isTradingActive === false) return translate('common.poolHalted')
+
+    return translate('common.signTransaction')
+  }, [isTradingActive, translate])
 
   if (!asset) return null
 
@@ -629,7 +636,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           <Button
             mx={-2}
             size='lg'
-            colorScheme='blue'
+            colorScheme={isTradingActive === false ? 'red' : 'blue'}
             onClick={handleSignTx}
             isDisabled={isTradingActive === false}
             isLoading={
@@ -639,7 +646,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               isTradingActiveRefetching
             }
           >
-            {translate('common.signTransaction')}
+            {confirmTranslation}
           </Button>
         </CardBody>
       </Collapse>

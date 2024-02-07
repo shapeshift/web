@@ -15,6 +15,7 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
+import { bn } from 'lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter, createDefaultStatusResponse, getFees } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -106,7 +107,7 @@ export const lifiApi: SwapperApi = {
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,
-      value: value.toString(),
+      value: bn(value.toString()).toString(),
       from,
       supportsEIP1559: Boolean(supportsEIP1559),
     })

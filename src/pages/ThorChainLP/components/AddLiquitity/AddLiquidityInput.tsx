@@ -196,17 +196,27 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const isSnapInstalled = useIsSnapInstalled()
-  const supportsRune =
-    walletSupportsChain({ chainId: thorchainChainId, wallet, isSnapInstalled }) &&
-    thorchainAccountIds.length > 0
-  const supportsAsset =
-    poolAsset &&
-    walletSupportsChain({
-      chainId: fromAssetId(poolAsset.assetId).chainId,
-      wallet,
-      isSnapInstalled,
-    }) &&
-    poolAssetAccountIds.length > 0
+  const supportsRune = useMemo(
+    () =>
+      Boolean(
+        walletSupportsChain({ chainId: thorchainChainId, wallet, isSnapInstalled }) &&
+          thorchainAccountIds.length > 0,
+      ),
+    [isSnapInstalled, thorchainAccountIds.length, wallet],
+  )
+  const supportsAsset = useMemo(
+    () =>
+      Boolean(
+        poolAsset &&
+          walletSupportsChain({
+            chainId: fromAssetId(poolAsset.assetId).chainId,
+            wallet,
+            isSnapInstalled,
+          }) &&
+          poolAssetAccountIds.length > 0,
+      ),
+    [isSnapInstalled, poolAsset, poolAssetAccountIds.length, wallet],
+  )
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
@@ -1046,13 +1056,27 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [actualRuneCryptoLiquidityAmount, hasEnoughRuneBalance],
   )
 
+  // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
+  // - as a default pool, so we can show some input and not some seemingly broken blank state
+  // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
+  // doesn't support one of the two
+  const walletSupportsOpportunity = useMemo(() => {
+    if (!foundPool) return false
+
+    if (!foundPool.isAsymmetric) return supportsAsset && supportsRune
+    if (foundPool.asymSide === AsymSide.Rune) return supportsRune
+    if (foundPool.asymSide === AsymSide.Asset) return supportsAsset
+  }, [foundPool, supportsAsset, supportsRune])
+
   const errorCopy = useMemo(() => {
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
-    // 1 pool asset balance
-    // 2. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
-    // 3. RUNE balance
-    // 4. RUNE fee balance
+    // 1. Asset unsupported by wallet
+    // 2 pool asset balance
+    // 3. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 4. RUNE balance
+    // 5. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
+    if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
     // Not enough *fee* asset
     if (poolAssetFeeAsset && notEnoughFeeAssetError)
@@ -1077,6 +1101,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetFeeAsset,
     rune,
     translate,
+    walletSupportsOpportunity,
   ])
 
   const confirmCopy = useMemo(() => {
@@ -1183,7 +1208,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               .plus(actualRuneCryptoLiquidityAmount ?? 0)
               .isZero() ||
             notEnoughFeeAssetError ||
-            notEnoughRuneFeeError
+            notEnoughRuneFeeError ||
+            !walletSupportsOpportunity
           }
           isLoading={
             isVotingPowerLoading ||

@@ -1,11 +1,14 @@
 import type { RadioProps } from '@chakra-ui/react'
 import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 
 import { PoolIcon } from './PoolIcon'
@@ -19,6 +22,11 @@ const checked = {
 }
 const hover = {
   borderColor: 'border.hover',
+}
+
+const disabled = {
+  opacity: 0.4,
+  cursor: 'not-allowed',
 }
 
 const TypeLabel: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => {
@@ -53,6 +61,7 @@ const TypeRadio: React.FC<RadioProps> = props => {
         transitionDuration='normal'
         _hover={hover}
         _checked={checked}
+        _disabled={disabled}
         {...checkbox}
       >
         {props.children}
@@ -79,6 +88,9 @@ type DepositTypeProps = {
   defaultOpportunityId?: string
 }
 export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: DepositTypeProps) => {
+  const wallet = useWallet().state.wallet
+  const isSnapInstalled = useIsSnapInstalled()
+
   const assetIds = useMemo(() => {
     return [assetId, thorchainAssetId]
   }, [assetId])
@@ -94,17 +106,40 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
     [assetId, assetIds],
   )
 
+  const defaultValue = useMemo(() => {
+    const walletSupportsRune = walletSupportsChain({
+      chainId: thorchainChainId,
+      wallet,
+      isSnapInstalled,
+    })
+    const walletSupportsAsset = walletSupportsChain({
+      chainId: fromAssetId(assetId).chainId,
+      wallet,
+      isSnapInstalled,
+    })
+
+    if (walletSupportsRune && walletSupportsAsset) return 'sym'
+    if (walletSupportsAsset) return AsymSide.Asset
+    if (walletSupportsRune) return AsymSide.Rune
+  }, [assetId, isSnapInstalled, wallet])
+
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
-    defaultValue: 'sym',
+    defaultValue,
     onChange: onAsymSideChange,
   })
 
-  // Reset the radio state to sym on assetId change, meaning pool change
-  // This is to ensure the radio is synchronized with the actual default sym pool being selected on pool change
   useEffect(() => {
+    if (!defaultValue) {
+      // We've switched to an asset for which none of the a/sym types are supported, make sure the previously selected value is cleared
+      setValue('')
+      return
+    }
+
+    // Reset the radio state to default pool type on assetId change, meaning pool change
+    // This is to ensure the radio is synchronized with the actual default sym pool being selected on pool change
     setValue('sym')
-  }, [assetId, setValue])
+  }, [assetId, defaultValue, setValue])
 
   const radioOptions = useMemo(() => {
     const _options = defaultOpportunityId ? options : []
@@ -113,8 +148,14 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
       const radio = getRadioProps({ value: option.value })
 
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
+      const walletSupportsOption = optionAssetIds.every(assetId => {
+        const { chainId } = fromAssetId(assetId)
+        return walletSupportsChain({ chainId, wallet, isSnapInstalled })
+      })
+
+      const isDisabled = !walletSupportsOption
       return (
-        <TypeRadio key={`type-${index}`} {...radio}>
+        <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
           <PoolIcon assetIds={optionAssetIds} size='xs' />
           <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
             <TypeLabel assetIds={optionAssetIds} />
@@ -127,7 +168,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
         </TypeRadio>
       )
     })
-  }, [defaultOpportunityId, getRadioProps, makeAssetIdsOption])
+  }, [defaultOpportunityId, getRadioProps, isSnapInstalled, makeAssetIdsOption, wallet])
 
   const group = getRootProps()
   return (

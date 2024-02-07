@@ -604,30 +604,24 @@
         "exit": "Retirar",
         "removeLiquidityETH": "Remover liquidez"
       },
-      "thor": {
-        "transferOut": "Transferir para fora"
-      },
       "thorchain": {
         "deposit": "Depósito",
         "depositRefund": "Devolver o depósito",
+        "depositRefundNative": "Depósito + Reembolso",
         "loanOpen": "Empréstimo em aberto",
+        "loanOpenOut": "Empréstimo recebido",
         "loanOpenRefund": "Devolução do empréstimo em aberto",
-        "loanOut": "Garantia de empréstimo recebida",
         "loanRepayment": "Pagamento do Empréstimo",
+        "loanRepaymentOut": "Garantia de empréstimo recebida",
         "loanRepaymentRefund": "Devolução do pagamento do empréstimo",
+        "loanRepaymentRefundNative": "Reembolso + Pagamento do Empréstimo",
         "out": "Outbound recebido",
+        "refund": "Reembolso",
         "swapOut": "Swap recebido",
         "swapRefund": "Pagamento Swap",
-        "transferOut": "Transferência",
         "withdraw": "Saque solicitado",
+        "withdrawNative": "Sacar",
         "withdrawOut": "Saque recebido"
-      },
-      "swap": {
-        "deposit": "Swap",
-        "streamingSwap": "Streaming Swap",
-        "out": "Swap",
-        "refund": "Reembolso",
-        "outbound": "Retirada"
       },
       "foxy": {
         "stake": "Stake",
@@ -751,6 +745,10 @@
     "updatingQuote": "Atualizando dados...",
     "intoAssetSymbolBody": "Você pode continuar com esta negociação, mas o histórico de transações para receber %{assetSymbol} está temporariamente indisponível",
     "manualReceiveAddress": "Endereço de recebimento",
+    "recipientAddress": "Endereço de recebimento",
+    "customRecipientAddress": "Endereço de recebimento personalizado",
+    "customRecipientAddressDescription": "Insira um endereço de recebimento personalizado para este trade",
+    "enterCustomRecipientAddress": "Insira o endereço do destinatário personalizado",
     "tooltip": {
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
@@ -804,6 +802,7 @@
     "onChainName": "na %{chainName}",
     "unknownGas": "(desconhecido)",
     "numHops": "Esta negociação inclui %{numHops} Hops",
+    "percentageDifferenceTooltip": "Esta é a diferença percentual no valor total de %{buyAssetSymbol} que você receberá, em comparação com a melhor cotação",
     "receiveAddress": "Endereço de recebimento",
     "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira manualmente um endereço ou",
     "toContinue": "para continuar.",
@@ -1602,7 +1601,10 @@
       "header": "Conecte sua carteira",
       "body": "Ao conectar sua carteira, você concorda com os Termos de Serviço da ShapeShift e reconhece que leu e entendeu o aviso legal da ShapeShift.",
       "footer": "Não tem carteira?",
-      "create": "Crie uma"
+      "create": "Criar",
+      "or": "ou",
+      "import": "Importar",
+      "aWallet": "uma carteira"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2208,7 @@
     "estimatedTime": "Tempo estimado",
     "liquidityValue": "Valor da Liquidez",
     "selectPair": "Selecione o Par",
-    "depositAmounts": "Valores de depósito",
+    "depositAmounts": "Valor(es) do depósito",
     "awaitingConfirmation": "Aguardando confirmação",
     "transactionSubmitted": "Transação enviada",
     "waitingForConfirmation": "Aguardando confirmação",
@@ -2214,6 +2216,7 @@
     "chainFee": "Taxa da %{chain}",
     "supplying": "Depositando",
     "confirmAndDeposit": "Confirmar e depositar",
+    "removeAmounts": "Remover Valor(es)",
     "yourPositions": {
       "yourPositions": "Suas posições",
       "emptyTitle": "Nenhuma posição ativa",

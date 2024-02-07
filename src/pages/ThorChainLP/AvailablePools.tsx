@@ -114,7 +114,8 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
 export const AvailablePools = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
-  const { data: parsedPools, isLoading } = usePools()
+  const { data: parsedPools, isLoading } = usePools(true)
+
   const renderRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
     return parsedPools?.map(pool => <PoolButton key={pool.opportunityId} pool={pool} />)

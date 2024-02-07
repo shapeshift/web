@@ -1,5 +1,5 @@
 import type { RadioProps } from '@chakra-ui/react'
-import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
+import { Box, Flex, HStack, usePrevious, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -10,6 +10,8 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './PoolIcon'
 
@@ -90,6 +92,14 @@ type DepositTypeProps = {
 export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: DepositTypeProps) => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
+  const previousAssetId = usePrevious(assetId)
+
+  // We may want to @reallybeard oil this component to be nice and skeletony as portfolio is loading
+  // const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
+  const thorchainAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
+  const poolAssetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
 
   const assetIds = useMemo(() => {
     return [assetId, thorchainAssetId]
@@ -106,22 +116,31 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
     [assetId, assetIds],
   )
 
-  const defaultValue = useMemo(() => {
+  const supportsRune = useMemo(() => {
     const walletSupportsRune = walletSupportsChain({
       chainId: thorchainChainId,
       wallet,
       isSnapInstalled,
     })
+
+    return walletSupportsRune && thorchainAccountIds.length > 0
+  }, [isSnapInstalled, thorchainAccountIds.length, wallet])
+
+  const supportsAsset = useMemo(() => {
     const walletSupportsAsset = walletSupportsChain({
       chainId: fromAssetId(assetId).chainId,
       wallet,
       isSnapInstalled,
     })
 
-    if (walletSupportsRune && walletSupportsAsset) return 'sym'
-    if (walletSupportsAsset) return AsymSide.Asset
-    if (walletSupportsRune) return AsymSide.Rune
-  }, [assetId, isSnapInstalled, wallet])
+    return walletSupportsAsset && poolAssetAccountIds.length > 0
+  }, [assetId, isSnapInstalled, poolAssetAccountIds.length, wallet])
+
+  const defaultValue = useMemo(() => {
+    if (supportsRune && supportsAsset) return 'sym'
+    if (supportsAsset) return AsymSide.Asset
+    if (supportsRune) return AsymSide.Rune
+  }, [supportsAsset, supportsRune])
 
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
@@ -138,7 +157,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
 
     // Reset the radio state to default pool type on assetId change, meaning pool change
     // This is to ensure the radio is synchronized with the actual default sym pool being selected on pool change
-    setValue('sym')
+    setValue(defaultValue)
   }, [assetId, defaultValue, setValue])
 
   const radioOptions = useMemo(() => {
@@ -149,8 +168,9 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
 
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
       const walletSupportsOption = optionAssetIds.every(assetId => {
-        const { chainId } = fromAssetId(assetId)
-        return walletSupportsChain({ chainId, wallet, isSnapInstalled })
+        const isRune = assetId === thorchainAssetId
+
+        return isRune ? supportsRune : supportsAsset
       })
 
       const isDisabled = !walletSupportsOption
@@ -168,7 +188,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
         </TypeRadio>
       )
     })
-  }, [defaultOpportunityId, getRadioProps, isSnapInstalled, makeAssetIdsOption, wallet])
+  }, [defaultOpportunityId, getRadioProps, makeAssetIdsOption, supportsAsset, supportsRune])
 
   const group = getRootProps()
   return (

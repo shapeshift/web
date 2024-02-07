@@ -35,8 +35,10 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -54,6 +56,7 @@ import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
+  selectAccountIdsByAssetId,
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
@@ -143,6 +146,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityId) return undefined
     if (paramOpportunityId) return paramOpportunityId
 
+    // TODO(gomes): this should do wallet support the same way as LpType component
     const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
 
     return firstAsymOpportunityId
@@ -183,17 +187,40 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
 
+  const thorchainAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
+  const poolAssetAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: poolAsset?.assetId ?? '' }),
+  )
+
+  const isSnapInstalled = useIsSnapInstalled()
+  const supportsRune =
+    walletSupportsChain({ chainId: thorchainChainId, wallet, isSnapInstalled }) &&
+    thorchainAccountIds.length > 0
+  const supportsAsset =
+    poolAsset &&
+    walletSupportsChain({
+      chainId: fromAssetId(poolAsset.assetId).chainId,
+      wallet,
+      isSnapInstalled,
+    }) &&
+    poolAssetAccountIds.length > 0
+
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
     // We only want to run this effect in the standalone AddLiquidity page
     if (!defaultOpportunityId) return
 
-    const foundOpportunityId = (parsedPools ?? []).find(
-      pool => pool.assetId === poolAsset.assetId && pool.asymSide === null,
-    )?.opportunityId
+    const foundOpportunityId = parsedPools.find(pool => {
+      if (supportsRune && supportsAsset) return pool.asymSide === null
+      if (supportsAsset) return pool.asymSide === AsymSide.Asset
+      if (supportsRune) return pool.asymSide === AsymSide.Rune
+      return false
+    })?.opportunityId
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
-  }, [poolAsset, defaultOpportunityId, parsedPools])
+  }, [poolAsset, defaultOpportunityId, parsedPools, supportsAsset, supportsRune])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)

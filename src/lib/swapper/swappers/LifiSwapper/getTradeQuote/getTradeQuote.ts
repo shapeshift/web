@@ -17,7 +17,6 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
@@ -88,7 +87,7 @@ export async function getTradeQuote(
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
       bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
-      allowSwitchChain: getConfig().REACT_APP_FEATURE_MULTI_HOP_TRADES,
+      allowSwitchChain: true,
       fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
     },
   }

@@ -6,7 +6,7 @@ import { useAllowance } from 'components/MultiHopTrade/components/MultiHopTradeC
 import { bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 
-import { GetAllowanceErr } from '../../../hooks/useAllowanceApproval/helpers'
+import { GetAllowanceErr } from './helpers'
 
 export const useIsApprovalNeeded = (
   tradeQuoteStep: TradeQuoteStep | undefined,

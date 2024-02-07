@@ -819,8 +819,7 @@
     "selectModal": {
       "header": "Hubungkan Dompet",
       "body": "Dengan menghubungkan dompet, Anda menyetujui Persyaratan Layanan ShapeShift dan mengakui bahwa Anda telah membaca dan memahami penafian ShapeShift.",
-      "footer": "Tidak punya dompet?",
-      "create": "Buat Satu"
+      "footer": "Tidak punya dompet?"
     },
     "walletConnect": {
       "errors": {

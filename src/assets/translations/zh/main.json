@@ -2,6 +2,7 @@
   "common": {
     "free": "免费",
     "back": "后退",
+    "and": "和",
     "balance": "余额",
     "next": "下一个",
     "error": "错误",
@@ -16,8 +17,10 @@
     "claimable": "可认领的",
     "approve": "授权",
     "confirm": "确认",
+    "seeDetails": "查看具体信息",
     "activity": "激活",
     "reject": "拒绝",
+    "goBack": "返回",
     "connected": "连接的",
     "allocation": "分配",
     "value": "价值",
@@ -550,7 +553,8 @@
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "买/卖",
     "arkeo": "Arkeo 空投",
-    "lending": "贷款"
+    "lending": "贷款",
+    "pools": "池"
   },
   "transactionRow": {
     "send": "已发送",
@@ -568,6 +572,7 @@
     "to": "到",
     "from": "从",
     "trade": "交易",
+    "swap": "兑换",
     "amount": "数量",
     "for": "对于",
     "emptyMessage": "你的 %{status} 交易将显示在此处。",
@@ -599,8 +604,24 @@
         "exit": "解除质押",
         "removeLiquidityETH": "移除流动性"
       },
-      "thor": {
-        "transferOut": "转出"
+      "thorchain": {
+        "deposit": "充值",
+        "depositRefund": "充值退款",
+        "depositRefundNative": "充值+退款",
+        "loanOpen": "借贷开放",
+        "loanOpenOut": "收到贷款",
+        "loanOpenRefund": "贷款开放退款",
+        "loanRepayment": "偿还借款",
+        "loanRepaymentOut": "收到贷款抵押品",
+        "loanRepaymentRefund": "贷款还款退款",
+        "loanRepaymentRefundNative": "还款+退款",
+        "out": "Outbound 已收到",
+        "refund": "退款",
+        "swapOut": "已收到兑换",
+        "swapRefund": "兑换退款",
+        "withdraw": "请求提现",
+        "withdrawNative": "提现",
+        "withdrawOut": "已收到提现"
       },
       "foxy": {
         "stake": "质押",
@@ -629,13 +650,6 @@
         "begin_unbonding": "取消委托",
         "begin_redelegate": "重新委托",
         "withdraw_delegator_reward": "领取奖励"
-      },
-      "swap": {
-        "deposit": "兑换",
-        "streamingSwap": "Streaming 兑换",
-        "out": "兑换",
-        "refund": "退款",
-        "outbound": "出站"
       },
       "ibc": {
         "transfer": "已发送",
@@ -731,6 +745,10 @@
     "updatingQuote": "正在更新报价...",
     "intoAssetSymbolBody": "你可以继续进行此交易，但接收 %{assetSymbol} 的交易历史记录暂时不可用",
     "manualReceiveAddress": "接收地址",
+    "recipientAddress": "收件人地址",
+    "customRecipientAddress": "自定义收件人地址",
+    "customRecipientAddressDescription": "输入此交易的自定义收件人地址",
+    "enterCustomRecipientAddress": "输入自定义收件人地址",
     "tooltip": {
       "rate": "这是该交易对的预期利率。",
       "noRateAvailable": "这通常是由于交易对的流动性非常有限或没有流动性。",
@@ -749,50 +767,22 @@
     },
     "errors": {
       "title": "出了些问题",
-      "sellAssetMiddleSentence": "出售资产",
-      "buyAssetMiddleSentence": "购买资产",
-      "notEnoughEth": "没有足够的 ETH 来支付此交易的手续费。",
       "amountTooSmall": "最小: %{minLimit}",
       "amountTooSmallUnknownMinimum": "数量太少",
       "sellAmountDoesNotCoverFee": "卖出数量低于手续费",
-      "negativeMax": "资金不足，无法支付本次交易的矿工费。预计矿工费 %{estimatedMinerFee}",
-      "invalidMax": "数量无效。该交易对的最大交易数量为 %{maxLimit} 。",
       "insufficientFunds": "矿工费及金额数量不足",
       "transactionRejected": "用户已拒绝交易",
-      "broadcastFailed": "广播交易时发生错误",
-      "insufficientFundsForLimit": "资金不足。该交易对的最低交易数量为 %{minLimit}",
-      "insufficientFundsForAmount": "资金不足。你的 %{symbol} 余额低于所选数量",
       "insufficientFundsForProtocolFee": "没有足够的 %{symbol} 来支付%{chainName} 上的费用",
-      "invalidTradePair": "无效的交易对：%{sellAssetName} 和 %{buyAssetName}",
-      "invalidTradePairBtnText": "无效的交易对",
       "unsupportedTradePair": "不支持的交易对",
-      "noLiquidityError": "没有足够的流动性",
-      "overMaxSlippage": "此交易将导致超过 %{slippagePercentage}% 的滑点。请以较低的金额数量以获得更好的价格",
-      "balanceToLow": "余额太低。该交易对对的最低交易数量为 %{minLimit}",
-      "dexTradeFailed": "交易失败，代币退回",
-      "quoteFailed": "获取你的交易报价时发生了错误。",
+      "noRouteFound": "没有找到该交易对和数量的路径",
       "quoteExpired": "报价已过期，请重试。",
-      "failedQuoteExecuted": "无法执行失败的报价",
-      "sellAssetRequired": "当没有出售的资产时，无法执行报价",
-      "sellAmountRequired": "当没有要卖的数量时，无法执行报价",
-      "depositAddressRequired": "当没有 DEX 地址时，无法执行 ETH 报价",
-      "sellAssetNetworkAndSymbolRequired": "执行报价需要资产网络和货币符号",
-      "hdwalletInvalidConfig": "与你的硬件钱包通信时发生错误",
-      "allowanceRequiredFailed": "授权交易所需的数量时发生错误。",
-      "checkApprovalNeededFailed": "检查你的交易授权时发生错误。",
-      "approveInfiniteFailed": "授权你的交易时发生错误。",
-      "buildTradeFailed": "创建你的交易时发生错误。",
-      "grantAllowanceFailed": "授权数量时发生错误。",
-      "minMaxError": "获取最小/最大交易数量时发生错误",
-      "executeTradeFailed": "执行你的交易时发生错误。",
-      "unsupportedPair": "目前不支持该交易对。",
-      "unsupportedChain": "目前不支持该链。",
-      "rateError": "我们无法获得这个交易对的报价",
+      "quoteUnsupportedChain": "不支持链",
+      "quoteCrossChainNotSupported": "不支持跨链",
+      "networkFeeEstimateFailed": "无法估算网络费用",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} 不被钱包支持。",
-      "sellAssetNotSupportedByWallet": "出售钱包不支持的资产",
       "intermediaryAssetNotSupportedByWallet": "钱包不支持中间交易",
       "noReceiveAddress": "%{assetSymbol} 没有接收地址",
-      "tradingNotActive": "%{assetSymbol} 的交易暂时停止",
+      "tradingNotActiveForChain": "%{chainName} 上的交易暂时停止",
       "tradingNotActiveNoAssetSymbol": "该交易路径暂时停止",
       "signing": {
         "failed": "签名交易时发生错误",
@@ -812,6 +802,7 @@
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
     "numHops": "此交易包括 %{numHops}  hop",
+    "percentageDifferenceTooltip": "这是您将收到的 %{buyAssetSymbol} 总额与最佳报价相比的百分比差异",
     "receiveAddress": "接收地址",
     "receiveAddressDescription": "从连接的钱包中没有找不到 %{chainName} 地址。请手动输入地址或",
     "toContinue": "来继续。",
@@ -1609,7 +1600,11 @@
     "selectModal": {
       "header": "连接钱包",
       "body": "连接钱包即表示你同意 ShapeShift 的服务条款，并确认你已阅读并理解 ShapeShift 免责声明。",
-      "footer": "没有钱包？"
+      "footer": "没有钱包？",
+      "create": "创建",
+      "or": "或",
+      "import": "导入",
+      "aWallet": "一个钱包"
     },
     "walletConnectV2": {
       "start": {
@@ -1756,6 +1751,7 @@
       "Send": "发送",
       "Receive": "接收",
       "Trade": "交易",
+      "Swap": "兑换",
       "Refund": "退款"
     },
     "assets": "资产",
@@ -2185,5 +2181,69 @@
     "breakdownBody": "以下是你的交易费用和相应的 FOX Power 折扣的明细。了解在“模拟”选项卡上您还可以节省多少费用。",
     "tradeFee": "交易费",
     "totalTradeFee": "总交易费用"
+  },
+  "pools": {
+    "pools": "池",
+    "pool": "池",
+    "tvl": "TVL",
+    "volume24h": "24小时成交量",
+    "volume7d": "1周内成交量",
+    "balance": "余额",
+    "unclaimedFees": "无人认领的费用",
+    "poolShare": "共享池",
+    "yourPosition": "你的仓位",
+    "poolInformation": "池信息",
+    "poolsBody": "提供流动性并赚取该池中交易的费用。",
+    "availablePools": "可用得池",
+    "addLiquidity": "增加流动性",
+    "removeLiquidity": "消除流动性",
+    "initialPricesAndPoolShare": "初始价格和池份额",
+    "pricePerAsset": "%{from} 每 %{to}",
+    "symAlert": "进入池后，你的 %{from} 将按照 50:50 的比例分为 %{to} 和 %{from}。",
+    "shareOfPool": "池份额",
+    "assetDepositAmount": "%{asset} 充值数量",
+    "totalLiquidity": "总流动性",
+    "totalVolume": "总交易量",
+    "fees24h": "24小时收费",
+    "estimatedTime": "预计时间",
+    "liquidityValue": "流动性价值",
+    "selectPair": "选择交易对",
+    "depositAmounts": "充值数量",
+    "awaitingConfirmation": "等待确认",
+    "transactionSubmitted": "交易已提交",
+    "waitingForConfirmation": "等待确认中",
+    "totalTokensLocked": "锁定代币总数",
+    "chainFee": "%{chain} 费用",
+    "supplying": "供应",
+    "confirmAndDeposit": "确认并存款",
+    "removeAmounts": "删除数量",
+    "yourPositions": {
+      "yourPositions": "你得仓位",
+      "emptyTitle": "没有活跃得仓位",
+      "emptyBody": "您的活跃流动资金池仓位将显示在此处。"
+    },
+    "faq": {
+      "title": "常问问题",
+      "what": {
+        "title": "什么是流动性池？",
+        "body": "流动性池是一个去中心化的资金池，其中包含用于促进区块链网络上交易的资产。它通过为各种交易对提供流动性，在去中心化金融（DeFi）中发挥着至关重要的作用。"
+      },
+      "how": {
+        "title": "流动性池如何运作？",
+        "body": "流动性池的工作原理是用户将资产存入智能合约以创建流动性池。然后，这些资产被用来实现去中心化交易，允许用户与矿池进行交易。作为提供流动性的回报，用户将获得平台产生的交易费用的一部分。"
+      },
+      "amm": {
+        "title": "自动做市商 (AMMs)",
+        "body": "许多流动性池以自动做市商（AMMs）的形式运作，使用算法根据池中代币的比例确定资产价格。这允许分散和连续的交易，而不需要传统的订单簿。"
+      },
+      "rewards": {
+        "title": "赚取奖励",
+        "body": "流动性提供者以交易费的形式获得奖励，在某些情况下，还可以从平台获得额外的治理代币。这些奖励与所提供的流动性数量成正比。"
+      },
+      "risks": {
+        "title": "风险和注意事项",
+        "body": "虽然流动性池提供了盈利机会，但重要的是要意识到所涉及的风险，包括无常损失、智能合约漏洞和市场波动。用户在参与之前应进行彻底的研究。"
+      }
+    }
   }
 }

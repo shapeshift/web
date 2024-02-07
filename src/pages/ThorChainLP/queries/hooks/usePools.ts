@@ -17,7 +17,7 @@ export type ParsedPool = MidgardPoolResponse & {
   opportunityId: string
 }
 
-export const usePools = () => {
+export const usePools = (excludeVirtualPools?: boolean) => {
   const assets = useAppSelector(selectAssets)
   const selectPools = useCallback(
     (pools: MidgardPoolResponse[]) => {
@@ -38,6 +38,20 @@ export const usePools = () => {
         const asset = assets[assetId]
         if (!asset) return acc
 
+        const symmetrical = {
+          ...pool,
+          isAsymmetric: false,
+          asymSide: null,
+          assetId,
+          name: `${asset.symbol}/${runeAsset.symbol} LP`,
+          opportunityId: `${assetId}*sym`,
+        }
+
+        if (excludeVirtualPools) {
+          acc.push(symmetrical)
+          return acc
+        }
+
         const runeSym = {
           ...pool,
           isAsymmetric: true,
@@ -56,21 +70,12 @@ export const usePools = () => {
           opportunityId: `${assetId}*${AsymSide.Asset}`,
         }
 
-        const symmetrical = {
-          ...pool,
-          isAsymmetric: false,
-          asymSide: null,
-          assetId,
-          name: `${asset.symbol}/${runeAsset.symbol} LP`,
-          opportunityId: `${assetId}*sym`,
-        }
-
         acc.push(runeSym, assetSym, symmetrical)
 
         return acc
       }, [] as ParsedPool[])
     },
-    [assets],
+    [assets, excludeVirtualPools],
   )
   const pools = useQuery({
     ...reactQueries.midgard.poolsData(),

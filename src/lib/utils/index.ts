@@ -205,7 +205,22 @@ export const isUrl = (x: string) => {
 export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
   maybeSkipToken === skipToken
 
-export const timeout = <Left, Right>(
+export const timeout = <SuccessType, FallbackType>(
+  promise: Promise<SuccessType>,
+  timeoutMs: number,
+  fallbackValue: FallbackType,
+): Promise<SuccessType | FallbackType> => {
+  return Promise.race([
+    promise,
+    new Promise<FallbackType>(resolve =>
+      setTimeout(() => {
+        resolve(fallbackValue)
+      }, timeoutMs),
+    ),
+  ])
+}
+
+export const timeoutMonadic = <Left, Right>(
   promise: Promise<Result<Left, Right>>,
   timeoutMs: number,
   timeoutRight: Right,

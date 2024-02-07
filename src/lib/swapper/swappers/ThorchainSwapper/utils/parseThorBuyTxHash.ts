@@ -13,7 +13,7 @@ export const parseThorBuyTxHash = (
   // swaps into rune aren't double swaps so don't have a second tx (buy tx)
   if (!isDoubleSwap) return sellTxId
 
-  const isEvmCoinAsset = !THORCHAIN_EVM_CHAINS.some(
+  const isEvmCoinAsset = THORCHAIN_EVM_CHAINS.some(
     thorEvmChain => outCoinAsset?.startsWith(thorEvmChain),
   )
 

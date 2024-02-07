@@ -37,7 +37,7 @@ export const AddLiquiditySweep: React.FC<AddLiquiditySweepProps> = ({
   const assetId = asset?.assetId
   const accountId = accountIdsByChainId[assetId ? fromAssetId(assetId).chainId : '']
 
-  if (!assetId || !accountId) return null
+  if (!assetId || !accountId || !confirmedQuote.assetAddress) return null
 
   return (
     <SlideTransition>

@@ -145,7 +145,7 @@ export const RecipientAddress = () => {
   const onSubmit = useCallback(
     (values: FieldValues) => {
       // We don't need to revalidate here as submit will only be enabled if the form is valid
-      const address = values[SendFormFields.Input]
+      const address = values[SendFormFields.Input].trim()
       dispatch(tradeInput.actions.setManualReceiveAddress(address))
       setIsRecipientAddressEditing(false)
       dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))

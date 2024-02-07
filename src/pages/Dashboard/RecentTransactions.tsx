@@ -18,7 +18,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
     return (
       <Card variant='dashboard' {...rest}>
         <CardHeader display='flex' justifyContent='space-between' alignItems='center' mb={4}>
-          <Heading as='h6'>
+          <Heading as='h5'>
             <Text translation={'dashboard.recentTransactions.recentTransactions'} />
           </Heading>
           {viewMoreLink && (

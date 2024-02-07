@@ -92,7 +92,7 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
     >
       <Flex gap={4} alignItems='center'>
         <Box minWidth='58px'>
-          <PoolIcon assetIds={poolAssetIds} size='md' />
+          <PoolIcon assetIds={poolAssetIds} size='sm' />
         </Box>
         <RawText>{pool.name}</RawText>
         <Tag size='sm'>

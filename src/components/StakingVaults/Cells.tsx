@@ -97,11 +97,11 @@ export const AssetCell = ({
         </Popover>
       )}
       <HStack flex={1}>
-        <SkeletonCircle isLoaded={!!asset} mr={2} width='auto' height='auto'>
+        <SkeletonCircle isLoaded={!!asset} mr={2} width='auto'>
           {icons && icons.length > 1 ? (
-            <PairIcons icons={icons} iconSize='md' bg='none' />
+            <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='md' />
+            <AssetIcon assetId={asset.assetId} size='sm' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>

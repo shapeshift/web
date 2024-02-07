@@ -1,5 +1,5 @@
 import type { RadioProps } from '@chakra-ui/react'
-import { Box, Flex, HStack, usePrevious, useRadio, useRadioGroup } from '@chakra-ui/react'
+import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -92,10 +92,7 @@ type DepositTypeProps = {
 export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: DepositTypeProps) => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
-  const previousAssetId = usePrevious(assetId)
 
-  // We may want to @reallybeard oil this component to be nice and skeletony as portfolio is loading
-  // const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )

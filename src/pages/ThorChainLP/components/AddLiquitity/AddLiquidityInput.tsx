@@ -146,7 +146,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityId) return undefined
     if (paramOpportunityId) return paramOpportunityId
 
-    // TODO(gomes): this should do wallet support the same way as LpType component
+    // This may be wrong if the asset doesn't support said opportunity in an asym way, but this is only used to indicate the default pool really
+    // Trying to fix this to be semantically correct will result in circular dependencies madness, don't try this if you value your sanity
     const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
 
     return firstAsymOpportunityId

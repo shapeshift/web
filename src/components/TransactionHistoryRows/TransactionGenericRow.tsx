@@ -62,12 +62,6 @@ export const TransactionGenericRow = ({
 }: TransactionGenericRowProps) => {
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
 
-  const isNft = useMemo(() => {
-    return Object.values(transfersByType)
-      .flat()
-      .some(transfer => !!transfer.id)
-  }, [transfersByType])
-
   const renderSendInfo = useMemo(() => {
     if (transfersByType.Send && transfersByType.Send.length > 1) {
       const assets = transfersByType.Send.map(transfer => transfer.asset.symbol)
@@ -181,7 +175,6 @@ export const TransactionGenericRow = ({
                 />
               </Flex>
             )}
-            {isNft && <RawText>NFT</RawText>}
           </Stack>
         </Flex>
       </Flex>

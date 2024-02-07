@@ -175,6 +175,7 @@ export const mockStore: ReduxState = {
     sellAssetAccountId: undefined,
     buyAssetAccountId: undefined,
     sellAmountCryptoPrecision: '0',
+    isInputtingFiatSellAmount: false,
     manualReceiveAddress: undefined,
     manualReceiveAddressIsValidating: false,
     manualReceiveAddressIsEditing: false,

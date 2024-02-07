@@ -31,7 +31,7 @@ export type EstimateFeesInput = {
   cryptoAmount: string
   assetId: AssetId
   // Optional hex-encoded calldata
-  // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata
+  // for ERC-20s, use me in place of `data`
   memo?: string
   from?: string
   to: string

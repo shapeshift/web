@@ -17,7 +17,8 @@ import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
-import type { TradeSuccessProps } from './TradeSuccess'
+
+export type TradeSuccessProps = { handleBack: () => void; children: JSX.Element }
 
 export const TradeSuccessTemp = ({ handleBack, children }: TradeSuccessProps) => {
   const translate = useTranslate()

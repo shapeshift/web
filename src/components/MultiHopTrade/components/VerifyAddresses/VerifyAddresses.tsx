@@ -20,7 +20,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
-import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
@@ -35,7 +34,6 @@ import {
   selectManualReceiveAddress,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
-import { selectFirstHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithBackButton } from '../WithBackButton'
@@ -54,7 +52,6 @@ export const VerifyAddresses = () => {
 
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
-  const tradeQuoteStep = useAppSelector(selectFirstHop)
 
   const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
 
@@ -94,22 +91,9 @@ export const VerifyAddresses = () => {
     [buyAddress, isAddressVerified],
   )
 
-  const handleContinue = useCallback(async () => {
-    if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
-    if (!wallet) throw Error('missing wallet')
-
-    const isApprovalNeeded = await checkApprovalNeeded(
-      tradeQuoteStep,
-      wallet,
-      sellAssetAccountId ?? '',
-    )
-    if (isApprovalNeeded) {
-      history.push({ pathname: TradeRoutePaths.Approval })
-      return
-    }
-
+  const handleContinue = useCallback(() => {
     history.push({ pathname: TradeRoutePaths.Confirm })
-  }, [history, sellAssetAccountId, tradeQuoteStep, wallet])
+  }, [history])
 
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const fetchAddresses = useCallback(async () => {

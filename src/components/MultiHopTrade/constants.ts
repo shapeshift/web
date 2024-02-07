@@ -1,1 +1,0 @@
-export const DEFAULT_SWAPPER_AFFILIATE_BPS = '30'

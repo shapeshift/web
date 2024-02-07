@@ -9,7 +9,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { assertGetChainAdapter } from 'lib/utils'
-import { getApproveContractData, getErc20Allowance, getFeesWithoutWallet } from 'lib/utils/evm'
+import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
 
 export type GetAllowanceArgs = {
   accountNumber: number
@@ -97,7 +97,7 @@ export const getApprovalTxData = async ({
     chainId: tradeQuoteStep.sellAsset.chainId,
   })
 
-  const { networkFeeCryptoBaseUnit, ...fees } = await getFeesWithoutWallet({
+  const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
     adapter,
     to: assetReference,
     value,

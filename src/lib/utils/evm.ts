@@ -100,10 +100,10 @@ export const getFeesWithWallet = async (args: GetFeesArgs): Promise<Fees> => {
   const from = await adapter.getAddress({ accountNumber, wallet })
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-  return getFeesWithoutWallet({ ...rest, adapter, from, supportsEIP1559 })
+  return getFees({ ...rest, adapter, from, supportsEIP1559 })
 }
 
-export const getFeesWithoutWallet = async (args: GetFeesWithoutWalletArgs): Promise<Fees> => {
+export const getFees = async (args: GetFeesWithoutWalletArgs): Promise<Fees> => {
   const { adapter, data, to, value, from, supportsEIP1559 } = args
 
   const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
@@ -171,7 +171,7 @@ export const createBuildCustomApiTxInput = async (
   args: CreateBuildCustomApiTxInputArgs,
 ): Promise<evm.BuildCustomApiTxInput> => {
   const { accountNumber, from, supportsEIP1559, ...rest } = args
-  const fees = await getFeesWithoutWallet({ ...rest, from, supportsEIP1559 })
+  const fees = await getFees({ ...rest, from, supportsEIP1559 })
   return { ...args, ...fees }
 }
 

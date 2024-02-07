@@ -19,7 +19,7 @@ import {
   buildAndBroadcast,
   getApproveContractData,
   getErc20Allowance,
-  getFeesWithoutWallet,
+  getFees,
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
@@ -101,7 +101,7 @@ const mutations = createMutationKeys('mutations', {
 
       const adapter = assertGetEvmChainAdapter(chainId)
 
-      const { networkFeeCryptoBaseUnit, ...fees } = await getFeesWithoutWallet({
+      const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
         adapter,
         to: assetReference,
         value: '0',

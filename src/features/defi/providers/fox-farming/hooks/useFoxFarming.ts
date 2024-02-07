@@ -14,7 +14,7 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getFeesWithoutWallet,
+  getFees,
   getFeesWithWallet,
 } from 'lib/utils/evm'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
@@ -214,7 +214,7 @@ export const useFoxFarming = (
         functionName: 'getReward',
       })
 
-      return getFeesWithoutWallet({
+      return getFees({
         adapter,
         data,
         from: userAddress,

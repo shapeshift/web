@@ -1,10 +1,10 @@
-import { WarningTwoIcon } from '@chakra-ui/icons'
 import type { CenterProps } from '@chakra-ui/react'
 import { Center, CircularProgress } from '@chakra-ui/react'
 import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { FaStickyNote } from 'react-icons/fa'
 import { ArrowDownBoldIcon } from 'components/Icons/ArrowDownBold'
 import { BadgeCheckIcon } from 'components/Icons/BadgeCheck'
+import { ErrorIcon } from 'components/Icons/ErrorIcon'
 import { SendIcon } from 'components/Icons/SendIcon'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
@@ -24,7 +24,7 @@ export const TransactionTypeIcon = ({ type, status }: { type: string; status: Tx
   if (status === TxStatus.Failed)
     return (
       <IconWrapper bg='red.500'>
-        <WarningTwoIcon />
+        <ErrorIcon />
       </IconWrapper>
     )
 

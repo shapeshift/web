@@ -604,30 +604,24 @@
         "exit": "Зняти зі стейку",
         "removeLiquidityETH": "Вилучити ліквідність"
       },
-      "thor": {
-        "transferOut": "Переведення"
-      },
       "thorchain": {
         "deposit": "Внести",
         "depositRefund": "Повернення депозиту",
+        "depositRefundNative": "Депозит + Повернення",
         "loanOpen": "Кредит відкритий",
+        "loanOpenOut": "Отримана позика",
         "loanOpenRefund": "Повернення відкритого кредиту",
-        "loanOut": "Отримане забезпечення за кредитом",
         "loanRepayment": "Погашення кредиту",
+        "loanRepaymentOut": "Отримане забезпечення за кредитом",
         "loanRepaymentRefund": "Повернення коштів для погашення кредиту",
+        "loanRepaymentRefundNative": "Погашення кредиту + повернення коштів",
         "out": "Отримано вихідних даних",
+        "refund": "Повернення коштів",
         "swapOut": "Обмін прийнято",
         "swapRefund": "Відшкодування за обмін",
-        "transferOut": "Перенести вивід",
         "withdraw": "Запит на виведення коштів",
+        "withdrawNative": "Вивести",
         "withdrawOut": "Надійшло виведення коштів"
-      },
-      "swap": {
-        "deposit": "Обмін",
-        "streamingSwap": "Передача інформації в режимі реального часу",
-        "out": "Обмін",
-        "refund": "Повернення коштів",
-        "outbound": "Вихідні дані"
       },
       "foxy": {
         "stake": "Стейк",
@@ -751,6 +745,10 @@
     "updatingQuote": "Оновлення котирувань...",
     "intoAssetSymbolBody": "Ви можете продовжити цю угоду, але історія транзакцій по отриманню %{assetSymbol} тимчасово недоступна",
     "manualReceiveAddress": "Адреса отримання",
+    "recipientAddress": "Адреса одержувача",
+    "customRecipientAddress": "Користувацька адреса одержувача",
+    "customRecipientAddressDescription": "Введіть спеціальну адресу одержувача для цієї операції",
+    "enterCustomRecipientAddress": "Введіть користувацьку адресу одержувача",
     "tooltip": {
       "rate": "Це очікуваний курс для даної торгової пари.",
       "noRateAvailable": "Часто це пов'язано з дуже обмеженою ліквідністю або її відсутністю по торговій парі.",
@@ -804,6 +802,7 @@
     "onChainName": "на %{chainName}",
     "unknownGas": "(невідомо)",
     "numHops": "Ця торгівля включає %{numHops} hops",
+    "percentageDifferenceTooltip": "Це відсоткова різниця в загальній сумі %{buyAssetSymbol}, яку ви отримаєте, порівняно з найкращою пропозицією",
     "receiveAddress": "Адреса отримувача",
     "receiveAddressDescription": "Не знайдено адресу %{chainName} з підключеного гаманця. Введіть адресу вручну або",
     "toContinue": "щоб продовжити",
@@ -1601,7 +1600,11 @@
     "selectModal": {
       "header": "Під'єднати гаманець",
       "body": "Під'єднуючи гаманець, ви погоджуєтеся з Умовами надання послуг ShapeShift і підтверджуєте, що прочитали та зрозуміли відмову від відповідальності ShapeShift.",
-      "footer": "Не маєте гаманця?"
+      "footer": "Не маєте гаманця?",
+      "create": "Створити",
+      "or": "або",
+      "import": "Імпортувати",
+      "aWallet": "гаманець"
     },
     "walletConnectV2": {
       "start": {
@@ -2205,6 +2208,7 @@
     "estimatedTime": "Розрахунковий час",
     "liquidityValue": "Вартість ліквідності",
     "selectPair": "Виберіть Пару",
+    "depositAmounts": "Внести суму(и)",
     "awaitingConfirmation": "Очікуємо підтвердження",
     "transactionSubmitted": "Транзакцію надіслано",
     "waitingForConfirmation": "Чекаємо на підтвердження",
@@ -2212,6 +2216,7 @@
     "chainFee": "%{chain} комісія",
     "supplying": "Внесення",
     "confirmAndDeposit": "Підтвердити та внести депозит",
+    "removeAmounts": "Вилучити суму(и)",
     "yourPositions": {
       "yourPositions": "Ваші позиції",
       "emptyTitle": "Немає активних позицій",

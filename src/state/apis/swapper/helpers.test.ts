@@ -4,9 +4,10 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { describe, expect, it, vi } from 'vitest'
-import { isTradingActive } from 'components/MultiHopTrade/utils'
 import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
+
+import { isTradingActive } from './helpers'
 
 vi.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
   const actual: typeof getInboundAddressDataForChain = await importActual()

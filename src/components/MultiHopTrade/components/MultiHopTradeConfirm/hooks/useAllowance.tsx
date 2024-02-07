@@ -6,11 +6,11 @@ import { Err, type Result } from '@sniptt/monads'
 import type { QueryFunction } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import type { GetAllowanceArgs } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
+import type { GetAllowanceArgs } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/helpers'
 import {
   getAllowance,
   GetAllowanceErr,
-} from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
+} from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { useEvmBlockNumber } from './useBlockNumber'

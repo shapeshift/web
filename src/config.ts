@@ -158,7 +158,6 @@ const validators = {
   REACT_APP_SNAP_ID: str(),
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LP: bool({ default: false }),
-  REACT_APP_FEATURE_MULTI_HOP_TRADES: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),
 }
 

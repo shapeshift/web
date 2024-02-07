@@ -7,7 +7,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { bn } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { assertGetChainAdapter } from 'lib/utils'
 import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
@@ -66,27 +65,6 @@ export const getAllowance = async ({
   })
 
   return Ok(allowanceOnChainCryptoBaseUnit)
-}
-
-export const checkApprovalNeeded = async (
-  tradeQuoteStep: TradeQuote['steps'][number],
-  wallet: HDWallet,
-  sellAssetAccountId: AccountId,
-) => {
-  const allowanceOnChainCryptoBaseUnit = await getAllowance({
-    accountNumber: tradeQuoteStep.accountNumber,
-    allowanceContract: tradeQuoteStep.allowanceContract,
-    chainId: tradeQuoteStep.sellAsset.chainId,
-    assetId: tradeQuoteStep.sellAsset.assetId,
-    wallet,
-    accountId: sellAssetAccountId,
-  })
-
-  if (allowanceOnChainCryptoBaseUnit.isErr()) return false
-
-  return bn(allowanceOnChainCryptoBaseUnit.unwrap()).lt(
-    tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  )
 }
 
 export const getApprovalTxData = async ({

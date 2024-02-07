@@ -9,7 +9,7 @@ import type {
   TradeQuote,
 } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads/build'
-import { checkEvmSwapStatus } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, checkEvmSwapStatus, getFees } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { fetchFromZrx } from './utils/fetchFromZrx'
@@ -29,6 +29,7 @@ export const zrxApi: SwapperApi = {
     chainId,
     from,
     tradeQuote,
+    supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
@@ -49,8 +50,16 @@ export const zrxApi: SwapperApi = {
 
     if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()
 
-    // TODO: pull all gas values from our node so we can use eip-1559
-    const { value, to, gasPrice, gas, data } = zrxQuoteResponse.unwrap()
+    const { value, to, data } = zrxQuoteResponse.unwrap()
+
+    const feeData = await getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data: data.toString(),
+      to,
+      value: value.toString(),
+      from,
+      supportsEIP1559: Boolean(supportsEIP1559),
+    })
 
     return {
       to,
@@ -58,8 +67,7 @@ export const zrxApi: SwapperApi = {
       value,
       data,
       chainId: Number(fromChainId(chainId).chainReference),
-      gasLimit: gas,
-      gasPrice,
+      ...feeData,
     }
   },
 

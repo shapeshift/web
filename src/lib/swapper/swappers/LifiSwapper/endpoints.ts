@@ -89,6 +89,7 @@ export const lifiApi: SwapperApi = {
       throw Error('undefined transactionRequest')
     }
 
+    // TODO: pull all gas values from our node rather than lifi
     const { gasLimit, gasPrice, to, value, data, maxFeePerGas, maxPriorityFeePerGas } =
       transactionRequest
 

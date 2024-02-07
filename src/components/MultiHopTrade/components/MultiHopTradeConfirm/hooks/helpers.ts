@@ -9,7 +9,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { assertGetChainAdapter } from 'lib/utils'
-import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
+import { getApproveContractData, getErc20Allowance, getFeesWithoutWallet } from 'lib/utils/evm'
 
 export type GetAllowanceArgs = {
   accountNumber: number
@@ -73,12 +73,14 @@ export const getApprovalTxData = async ({
   wallet,
   isExactAllowance,
   from,
+  supportsEIP1559,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
   adapter: EvmChainAdapter
   wallet: ETHWallet
   isExactAllowance: boolean
-  from?: string
+  from: string
+  supportsEIP1559: boolean
 }): Promise<{ buildCustomTxInput: evm.BuildCustomTxInput; networkFeeCryptoBaseUnit: string }> => {
   const approvalAmountCryptoBaseUnit = isExactAllowance
     ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -95,17 +97,13 @@ export const getApprovalTxData = async ({
     chainId: tradeQuoteStep.sellAsset.chainId,
   })
 
-  const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+  const { networkFeeCryptoBaseUnit, ...fees } = await getFeesWithoutWallet({
     adapter,
     to: assetReference,
     value,
     data,
-    ...(from
-      ? {
-          from,
-          supportsEIP1559: await wallet.ethSupportsEIP1559(),
-        }
-      : { accountNumber: tradeQuoteStep.accountNumber, wallet }),
+    from,
+    supportsEIP1559,
   })
 
   return {

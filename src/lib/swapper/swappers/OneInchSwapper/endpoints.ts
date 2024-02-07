@@ -44,6 +44,7 @@ export const oneInchApi: SwapperApi = {
 
     const { receiveAddress, affiliateBps } = tradeQuote
 
+    // TODO: pull all gas values from our node so we can use eip-1559
     const {
       tx: { value, to, gasPrice, gas, data },
     } = await fetchOneInchSwap({

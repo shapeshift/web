@@ -49,6 +49,7 @@ export const zrxApi: SwapperApi = {
 
     if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()
 
+    // TODO: pull all gas values from our node so we can use eip-1559
     const { value, to, gasPrice, gas, data } = zrxQuoteResponse.unwrap()
 
     return {

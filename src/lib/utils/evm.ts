@@ -71,25 +71,23 @@ type GetErc20AllowanceArgs = {
   chainId: ChainId
 }
 
+type GetFeesWithoutWalletArgs = {
+  adapter: EvmChainAdapter
+  data: string
+  to: string
+  value: string
+  from: string
+  supportsEIP1559: boolean
+}
+
 type GetFeesArgs = {
   adapter: EvmChainAdapter
   data: string
   to: string
   value: string
-} & (
-  | {
-      from: string
-      supportsEIP1559: boolean
-      accountNumber?: never
-      wallet?: never
-    }
-  | {
-      from?: never
-      supportsEIP1559?: never
-      accountNumber: number
-      wallet: HDWallet
-    }
-)
+  accountNumber: number
+  wallet: HDWallet
+}
 
 export type Fees = evm.Fees & {
   gasLimit: string
@@ -97,13 +95,22 @@ export type Fees = evm.Fees & {
 }
 
 export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
-  const { accountNumber, adapter, data, to, value, from, supportsEIP1559, wallet } = args
+  const { accountNumber, adapter, wallet, ...rest } = args
+
+  const from = await adapter.getAddress({ accountNumber, wallet })
+  const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+
+  return getFeesWithoutWallet({ ...rest, adapter, from, supportsEIP1559 })
+}
+
+export const getFeesWithoutWallet = async (args: GetFeesWithoutWalletArgs): Promise<Fees> => {
+  const { adapter, data, to, value, from, supportsEIP1559 } = args
 
   const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
     to,
     value,
     chainSpecific: {
-      from: from ?? (await adapter.getAddress({ accountNumber, wallet })),
+      from,
       data,
     },
   }
@@ -112,17 +119,14 @@ export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
     average: { chainSpecific: feeData },
   } = await adapter.getFeeData(getFeeDataInput)
 
-  const _supportsEIP1559 =
-    supportsEIP1559 ?? (supportsETH(wallet) && (await wallet.ethSupportsEIP1559()))
-
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
     ...feeData,
-    supportsEIP1559: _supportsEIP1559,
+    supportsEIP1559,
   })
 
   const { gasLimit, gasPrice, maxFeePerGas, maxPriorityFeePerGas } = feeData
 
-  if (_supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
+  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
     return { networkFeeCryptoBaseUnit, gasLimit, maxFeePerGas, maxPriorityFeePerGas }
   }
 
@@ -167,7 +171,7 @@ export const createBuildCustomApiTxInput = async (
   args: CreateBuildCustomApiTxInputArgs,
 ): Promise<evm.BuildCustomApiTxInput> => {
   const { accountNumber, from, supportsEIP1559, ...rest } = args
-  const fees = await getFees({ ...rest, from, supportsEIP1559 })
+  const fees = await getFeesWithoutWallet({ ...rest, from, supportsEIP1559 })
   return { ...args, ...fees }
 }
 

@@ -27,16 +27,18 @@ export const useApprovalTx = (
 
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
-  // This accidentally works since all EVM chains share the same address, so there's no need
-  // to call adapter.getAddress() later down the call stack
-  const from = sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined
-
   useEffect(() => {
     poll({
       fn: async () => {
         const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
 
         if (!wallet || !supportsETH(wallet)) throw Error('eth wallet required')
+        if (!sellAssetAccountId) throw Error('sellAssetAccountId required')
+
+        // This accidentally works since all EVM chains share the same address, so there's no need
+        // to call adapter.getAddress() later down the call stack
+        const from = fromAccountId(sellAssetAccountId).account
+        const supportsEIP1559 = await wallet.ethSupportsEIP1559()
 
         const { buildCustomTxInput, networkFeeCryptoBaseUnit } = await getApprovalTxData({
           tradeQuoteStep,
@@ -44,6 +46,7 @@ export const useApprovalTx = (
           wallet,
           isExactAllowance,
           from,
+          supportsEIP1559,
         })
 
         setApprovalNetworkFeeCryptoBaseUnit(networkFeeCryptoBaseUnit)
@@ -54,7 +57,7 @@ export const useApprovalTx = (
       interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
-  }, [from, isExactAllowance, poll, tradeQuoteStep, wallet])
+  }, [sellAssetAccountId, isExactAllowance, poll, tradeQuoteStep, wallet])
 
   return {
     approvalNetworkFeeCryptoBaseUnit,

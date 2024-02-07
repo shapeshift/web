@@ -15,6 +15,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
   getFees,
+  getFeesWithoutWallet,
 } from 'lib/utils/evm'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -213,7 +214,7 @@ export const useFoxFarming = (
         functionName: 'getReward',
       })
 
-      return getFees({
+      return getFeesWithoutWallet({
         adapter,
         data,
         from: userAddress,

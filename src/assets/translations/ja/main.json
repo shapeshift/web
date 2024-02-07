@@ -604,30 +604,24 @@
         "exit": "ステークを解除する",
         "removeLiquidityETH": "流動性を取り除く"
       },
-      "thor": {
-        "transferOut": "転出"
-      },
       "thorchain": {
         "deposit": "デポジット",
         "depositRefund": "デポジットの払い戻し",
+        "depositRefundNative": "デポジット+返金",
         "loanOpen": "ローンオープン",
+        "loanOpenOut": "融資を受けました",
         "loanOpenRefund": "ローンオープンの返金",
-        "loanOut": "融資担保の受領",
         "loanRepayment": "ローン返済",
+        "loanRepaymentOut": "融資担保の受領",
         "loanRepaymentRefund": "ローン返済の返金",
+        "loanRepaymentRefundNative": "ローン返済＋返金",
         "out": "アウトバウンド受信",
+        "refund": "返金",
         "swapOut": "スワップを受け取りました",
         "swapRefund": "スワップの返金",
-        "transferOut": "転出",
         "withdraw": "出金要求あり",
+        "withdrawNative": "撤回する",
         "withdrawOut": "引き出しを受け付けました"
-      },
-      "swap": {
-        "deposit": "スワップ",
-        "streamingSwap": "ストリーミングスワップ",
-        "out": "スワップ",
-        "refund": "返金",
-        "outbound": "アウトバウンド"
       },
       "foxy": {
         "stake": "ステーク",
@@ -751,6 +745,10 @@
     "updatingQuote": "見積を更新しています...",
     "intoAssetSymbolBody": "この取引は続行できますが、%{assetSymbol} を受け取るための取引履歴は一時的に利用できなくなります",
     "manualReceiveAddress": "受信アドレス",
+    "recipientAddress": "受信者のアドレス",
+    "customRecipientAddress": "カスタム受信者アドレス",
+    "customRecipientAddressDescription": "この取引のカスタム受信者アドレスを入力してください",
+    "enterCustomRecipientAddress": "カスタム受信者アドレスを入力してください",
     "tooltip": {
       "rate": "この取引ペアの予想レートです。",
       "noRateAvailable": "多くの場合、取引ペアの流動性が非常に限られているか、まったくないことが原因です。",
@@ -804,6 +802,7 @@
     "onChainName": "%{chainName} で",
     "unknownGas": "(unknown)",
     "numHops": "このトレードには %{numHops} ホップが含まれます",
+    "percentageDifferenceTooltip": "これは、最良の見積もりと比較した、お客様が受け取る %{buyAssetSymbol} の合計額の差のパーセンテージです。",
     "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力するか、",
     "toContinue": "続ける。",
@@ -1601,7 +1600,11 @@
     "selectModal": {
       "header": "ウォレットを接続する",
       "body": "ウォレットを接続すると、ShapeShiftの利用規約に同意し、ShapeShiftの免責条項を読み理解したものとみなされます。",
-      "footer": "ウォレットをお持ちではありませんか？"
+      "footer": "ウォレットをお持ちではありませんか？",
+      "create": "作成する",
+      "or": "または",
+      "import": "インポート",
+      "aWallet": "ウォレット"
     },
     "walletConnectV2": {
       "start": {
@@ -2205,6 +2208,7 @@
     "estimatedTime": "所要時間",
     "liquidityValue": "流動性価値",
     "selectPair": "ペアの選択",
+    "depositAmounts": "入金額",
     "awaitingConfirmation": "確認待ち",
     "transactionSubmitted": "トランザクションが送信されました",
     "waitingForConfirmation": "確認待ち",
@@ -2212,6 +2216,7 @@
     "chainFee": "%{チェーン}手数料",
     "supplying": "供給する",
     "confirmAndDeposit": "確認して入金する",
+    "removeAmounts": "削除額",
     "yourPositions": {
       "yourPositions": "あなたのポジション",
       "emptyTitle": "アクティブなポジションはありません",

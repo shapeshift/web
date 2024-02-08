@@ -130,12 +130,21 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [accountId, defaultAccountId, highestBalanceAccountId],
   )
 
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery(
-    reactQueries.common.isTradingActive({
+  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
+    ...reactQueries.common.isTradingActive({
       assetId,
       swapperName: SwapperName.Thorchain,
     }),
-  )
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    enabled: Boolean(assetId),
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+  })
 
   useEffect(() => {
     if (!maybeAccountId) return

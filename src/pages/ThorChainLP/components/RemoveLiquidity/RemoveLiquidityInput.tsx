@@ -111,29 +111,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
-  const [poolAssetUserlpData, setPoolAssetUserlpData] = useState<UserLpDataPosition | undefined>()
+  const [userlpData, setUserlpData] = useState<UserLpDataPosition | undefined>()
   const [percentageSelection, setPercentageSelection] = useState<number>(50)
 
   useEffect(() => {
     if (!userData) return
-    const _poolAssetUserlpData: UserLpDataPosition | undefined = userData.find(
+    const _UserlpData: UserLpDataPosition | undefined = userData.find(
       data => data.opportunityId === activeOpportunityId,
     )
-    if (!_poolAssetUserlpData) return
-    setPoolAssetUserlpData(_poolAssetUserlpData)
+    if (!_UserlpData) return
+    setUserlpData(_UserlpData)
   }, [activeOpportunityId, foundPoolAsset, poolAsset?.assetId, userData])
-
-  useEffect(() => {
-    if (!(poolAsset && parsedPools)) return
-    // We only want to run this effect in the standalone RemoveLiquidity page
-    if (!defaultOpportunityId) return
-
-    const foundOpportunityId = (parsedPools ?? []).find(
-      pool => pool.assetId === poolAsset.assetId && pool.asymSide === null,
-    )?.opportunityId
-    if (!foundOpportunityId) return
-    setActiveOpportunityId(foundOpportunityId)
-  }, [poolAsset, defaultOpportunityId, parsedPools])
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -155,14 +143,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   )
 
   useEffect(() => {
-    if (!poolAssetUserlpData) return
+    if (!userlpData) return
 
     const {
       underlyingAssetAmountCryptoPrecision,
       underlyingAssetValueFiatUserCurrency,
       underlyingRuneAmountCryptoPrecision,
       underlyingRuneValueFiatUserCurrency,
-    } = poolAssetUserlpData
+    } = userlpData
 
     setVirtualRuneCryptoLiquidityAmount(
       bnOrZero(underlyingRuneAmountCryptoPrecision)
@@ -188,7 +176,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
         .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
         .toFixed(),
     )
-  }, [isAsymAssetSide, isAsymRuneSide, percentageSelection, poolAssetUserlpData])
+  }, [isAsymAssetSide, isAsymRuneSide, percentageSelection, userlpData])
 
   const handlePercentageClick = useCallback((percentage: number) => {
     return () => {
@@ -362,7 +350,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
         !actualAssetCryptoLiquidityAmount ||
         !poolAsset ||
         !userData ||
-        !poolAssetUserlpData
+        !userlpData
       )
         return
 
@@ -381,7 +369,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
       setIsSlippageLoading(true)
 
       const estimate = await estimateRemoveThorchainLiquidityPosition({
-        userData: poolAssetUserlpData,
+        userData: userlpData,
         assetId: poolAsset.assetId,
         runeAmountCryptoThorPrecision,
         assetAmountCryptoThorPrecision,
@@ -411,7 +399,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
     isAsymRuneSide,
     virtualRuneFiatLiquidityAmount,
     userData,
-    poolAssetUserlpData,
+    userlpData,
   ])
 
   const tradeAssetInputs = useMemo(() => {

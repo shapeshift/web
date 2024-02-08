@@ -477,6 +477,8 @@ export const TradeInput = memo(() => {
                 rate={rate}
                 isLoading={isLoading}
                 isError={didQuoteRequestFail}
+                swapperName={activeSwapperName}
+                swapSource={tradeQuoteStep?.source}
               />
             ) : null}
 
@@ -628,7 +630,6 @@ export const TradeInput = memo(() => {
               assetId={buyAsset.assetId}
               assetSymbol={buyAsset.symbol}
               assetIcon={buyAsset.icon}
-              hideAmounts={true}
               cryptoAmount={
                 hasUserEnteredAmount
                   ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
@@ -647,6 +648,7 @@ export const TradeInput = memo(() => {
               isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
               formControlProps={formControlProps}
               labelPostFix={buyTradeAssetSelect}
+              priceImpact={priceImpactPercentage?.toString()}
             >
               <TradeQuotes isLoading={isLoading} />
             </TradeAssetInput>

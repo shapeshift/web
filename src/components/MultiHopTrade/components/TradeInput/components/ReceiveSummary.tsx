@@ -9,8 +9,12 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { type AssetId } from '@shapeshiftoss/caip'
-import type { AmountDisplayMeta, ProtocolFee, SwapSource } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type {
+  AmountDisplayMeta,
+  ProtocolFee,
+  SwapperName,
+  SwapSource,
+} from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -20,6 +24,7 @@ import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
@@ -30,6 +35,7 @@ import { isSome } from 'lib/utils'
 import {
   selectActiveQuoteAffiliateBps,
   selectQuoteAffiliateFeeUserCurrency,
+  selectQuoteFeeAmountUsd,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import {
   convertDecimalPercentageToBasisPoints,
@@ -38,6 +44,9 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { FeeModal } from '../../FeeModal/FeeModal'
+import { PriceImpact } from '../../PriceImpact'
+import { MaxSlippage } from './MaxSlippage'
+import { SwapperIcon } from './SwapperIcon/SwapperIcon'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
@@ -51,6 +60,7 @@ type ReceiveSummaryProps = {
   swapperName: string
   defaultIsOpen?: boolean
   swapSource?: SwapSource
+  priceImpact?: BigNumber
 } & RowProps
 
 const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
@@ -73,6 +83,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     isLoading,
     defaultIsOpen = false,
     swapSource,
+    priceImpact,
     ...rest
   }) => {
     const translate = useTranslate()
@@ -86,6 +97,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     // use the fee data from the actual quote in case it varies from the theoretical calculation
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
     const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
+    const quoteFeeUsd = useAppSelector(selectQuoteFeeAmountUsd)
 
     const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
     const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
@@ -140,157 +152,79 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       [slippageAsPercentageString],
     )
 
+    const protocolFeeToolTip = useCallback(() => {
+      return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />
+    }, [])
+
     return (
       <>
-        <Row fontSize='sm' fontWeight='medium' alignItems='flex-start' {...rest}>
-          <Row.Label onClick={onToggle} cursor='pointer' _hover={{ color: hoverColor }}>
-            <Stack direction='row' alignItems='center' spacing={1}>
-              <Text translation='trade.expectedAmount' />
-              {isOpen ? <ChevronUpIcon boxSize='16px' /> : <ChevronDownIcon boxSize='16px' />}
-            </Stack>
-          </Row.Label>
-          <Row.Value display='flex' columnGap={2} alignItems='center'>
-            <Stack spacing={0} alignItems='flex-end'>
-              <Skeleton isLoaded={!isLoading}>
-                <Amount.Crypto
-                  value={isAmountPositive ? amountCryptoPrecision : '0'}
-                  symbol={symbol}
-                />
-              </Skeleton>
-              {fiatAmount && (
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat color='text.subtle' value={fiatAmount} prefix='≈' />
-                </Skeleton>
-              )}
-            </Stack>
-          </Row.Value>
-        </Row>
-        <Collapse in={isOpen}>
-          <Stack fontSize='sm' borderTopWidth={1} borderColor='border.base' pt={2}>
-            <Row>
-              <HelperTooltip
-                label={
-                  swapperName === SwapperName.LIFI
-                    ? translate('trade.tooltip.protocolLifi')
-                    : translate('trade.tooltip.protocol')
-                }
-              >
-                <Row.Label>
-                  <Text translation='trade.protocol' />
-                </Row.Label>
-              </HelperTooltip>
-              <Row.Value>
-                <Row.Label>
-                  <RawText fontWeight='semibold' color={textColor}>
-                    {swapperName}
-                  </RawText>
-                </Row.Label>
-              </Row.Value>
-            </Row>
-            {amountBeforeFeesCryptoPrecision && (
-              <Row>
-                <Row.Label>
-                  <Text translation='trade.beforeFees' />
-                </Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={!isLoading}>
-                    <Amount.Crypto value={amountBeforeFeesCryptoPrecision} symbol={symbol} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            )}
-            {hasProtocolFees && (
-              <Row>
-                <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-                  <Row.Label>
-                    <Text translation='trade.protocolFee' />
-                  </Row.Label>
-                </HelperTooltip>
-                <Row.Value>
-                  {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol, chainName }) => (
-                    <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
-                      <Amount.Crypto
-                        color={redColor}
-                        value={amountCryptoPrecision}
-                        symbol={symbol}
-                        suffix={
-                          chainName
-                            ? translate('trade.onChainName', {
-                                chainName,
-                              })
-                            : undefined
-                        }
-                      />
-                    </Skeleton>
-                  ))}
-                </Row.Value>
-              </Row>
-            )}
-            <Row>
-              <Row.Label display='flex'>
-                <Text translation={tradeFeeSourceTranslation} />
-                {amountAfterDiscountUserCurrency !== '0' && (
-                  <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
-                )}
+        <Stack spacing={4} py={4} fontSize='sm'>
+          <Row alignItems='center'>
+            <Row.Label display='flex' gap={2} alignItems='center'>
+              {translate('trade.protocol')}
+            </Row.Label>
+            <Row.Value display='flex' gap={2} alignItems='center'>
+              <SwapperIcon size='2xs' swapperName={swapperName as SwapperName} />
+              <RawText fontWeight='semibold' color={textColor}>
+                {swapperName}
+              </RawText>
+            </Row.Value>
+          </Row>
+
+          <MaxSlippage
+            swapSource={swapSource}
+            isLoading={isLoading}
+            symbol={symbol}
+            amountCryptoPrecision={amountCryptoPrecision}
+            slippageDecimalPercentage={slippageDecimalPercentage}
+            hasIntermediaryTransactionOutputs={hasIntermediaryTransactionOutputs}
+            intermediaryTransactionOutputs={intermediaryTransactionOutputs}
+          />
+
+          {priceImpact && <PriceImpact impactPercentage={priceImpact.toFixed(2)} />}
+          <Divider borderColor='border.base' />
+
+          {hasProtocolFees && (
+            <Row Tooltipbody={protocolFeeToolTip} isLoading={isLoading}>
+              <Row.Label>
+                <Text translation='trade.protocolFee' />
               </Row.Label>
-              <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
-                <Skeleton isLoaded={!isLoading}>
-                  <Flex alignItems='center' gap={2}>
-                    {amountAfterDiscountUserCurrency !== '0' ? (
-                      <>
-                        <Amount.Fiat value={amountAfterDiscountUserCurrency} />
-                        <QuestionIcon />
-                      </>
-                    ) : (
-                      <>
-                        <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                        <QuestionIcon color={greenColor} />
-                      </>
-                    )}
-                  </Flex>
-                </Skeleton>
+              <Row.Value color='text.base'>
+                {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
+                  <Amount.Crypto color={redColor} value={amountCryptoPrecision} symbol={symbol} />
+                ))}
               </Row.Value>
             </Row>
-            {swapSource !== THORCHAIN_STREAM_SWAP_SOURCE &&
-              swapSource !== THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE && (
-                <>
-                  <Divider borderColor='border.base' />
-                  <Row>
-                    <Row.Label>
-                      <Text translation={minAmountAfterSlippageTranslation} />
-                    </Row.Label>
-                    <Row.Value whiteSpace='nowrap'>
-                      <Stack spacing={0} alignItems='flex-end'>
-                        <Skeleton isLoaded={!isLoading}>
-                          <Amount.Crypto value={amountAfterSlippage} symbol={symbol} />
-                        </Skeleton>
-                        {isAmountPositive &&
-                          hasIntermediaryTransactionOutputs &&
-                          intermediaryTransactionOutputsParsed?.map(
-                            ({ amountCryptoPrecision, symbol, chainName }) => (
-                              <Skeleton isLoaded={!isLoading} key={`${symbol}_${chainName}`}>
-                                <Amount.Crypto
-                                  value={amountCryptoPrecision}
-                                  symbol={symbol}
-                                  prefix={translate('trade.or')}
-                                  suffix={
-                                    chainName
-                                      ? translate('trade.onChainName', {
-                                          chainName,
-                                        })
-                                      : undefined
-                                  }
-                                />
-                              </Skeleton>
-                            ),
-                          )}
-                      </Stack>
-                    </Row.Value>
-                  </Row>
-                </>
+          )}
+          <Row isLoading={isLoading}>
+            <Row.Label display='flex'>
+              <Text translation={tradeFeeSourceTranslation} />
+              {amountAfterDiscountUserCurrency !== '0' && (
+                <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
               )}
-          </Stack>
-        </Collapse>
+            </Row.Label>
+            <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+              <Flex alignItems='center' gap={2}>
+                {amountAfterDiscountUserCurrency !== '0' ? (
+                  <>
+                    <Amount.Fiat value={amountAfterDiscountUserCurrency} />
+                    <QuestionIcon />
+                  </>
+                ) : (
+                  <>
+                    <Amount.Fiat
+                      value={quoteFeeUsd}
+                      color='text.subtle'
+                      textDecoration='line-through'
+                    />
+                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                    <QuestionIcon color={greenColor} />
+                  </>
+                )}
+              </Flex>
+            </Row.Value>
+          </Row>
+        </Stack>
         <FeeModal isOpen={showFeeModal} onClose={handleFeeModal} />
       </>
     )

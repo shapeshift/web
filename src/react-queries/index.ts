@@ -82,14 +82,6 @@ const common = createQueryKeys('common', {
       if (maybeIsTradingActive.isErr()) throw maybeIsTradingActive.unwrapErr()
       return maybeIsTradingActive.unwrap()
     },
-    enabled: Boolean(assetId),
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
   }),
 })
 

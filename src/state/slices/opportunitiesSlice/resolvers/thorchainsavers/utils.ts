@@ -176,7 +176,6 @@ export const getMaybeThorchainSaversDepositQuote = async ({
 
   return Ok({
     ...quoteData,
-    memo: `${quoteData.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`,
   })
 }
 

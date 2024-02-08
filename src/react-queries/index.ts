@@ -59,11 +59,6 @@ const common = createQueryKeys('common', {
 
       return allowanceOnChainCryptoBaseUnit
     },
-    enabled:
-      assetId &&
-      spender &&
-      from &&
-      getSupportedEvmChainIds().includes(fromAssetId(assetId).chainId as KnownChainIds),
   }),
   isTradingActive: ({
     assetId,

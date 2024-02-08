@@ -458,6 +458,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       inboundAddressData?.router,
       poolAssetAccountAddress,
     ),
+    enabled: Boolean(
+      poolAsset?.assetId &&
+        inboundAddressData?.router &&
+        poolAssetAccountAddress &&
+        getSupportedEvmChainIds().includes(
+          fromAssetId(poolAsset?.assetId).chainId as KnownChainIds,
+        ),
+    ),
   })
 
   const isApprovalRequired = useMemo(() => {

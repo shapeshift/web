@@ -757,6 +757,7 @@
     "receiveAtLeast": "Receive at least",
     "avilableQuotes": "Available Quotes",
     "tooltip": {
+      "changeQuote": "Change quote",
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
       "priceImpactLabel": "Price impact: %{priceImpactPercentage}%",

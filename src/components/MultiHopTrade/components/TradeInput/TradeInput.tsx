@@ -35,7 +35,9 @@ import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { transitionStyle } from 'components/MultiHopTrade/MultiHopTrade'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -87,6 +89,7 @@ import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { QuoteList } from '../QuoteList/QuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
+import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 
@@ -294,6 +297,13 @@ export const TradeInput = memo(() => {
     activeSwapperName,
     tradeQuoteStep?.source,
   ])
+
+  const isRefetching = useMemo(() => {
+    if (activeSwapperName) {
+      return isTradeQuoteApiQueryPending[activeSwapperName] ?? false
+    }
+    return false
+  }, [activeSwapperName, isTradeQuoteApiQueryPending])
 
   const isLoading = useMemo(
     () =>
@@ -597,7 +607,7 @@ export const TradeInput = memo(() => {
   }, [buyAsset.chainId, walletSupportedChainIds])
 
   return (
-    <Flex alignItems='flex-start' width='full' justifyContent='center' gap={4}>
+    <SlideTransition style={transitionStyle}>
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Card width='full' maxWidth='500px' transition='all 5s ease-out'>
           <AnimatePresence mode='wait'>
@@ -613,7 +623,10 @@ export const TradeInput = memo(() => {
                       <Heading as='h5' fontSize='md'>
                         {translate('navBar.trade')}
                       </Heading>
-                      <SlippagePopover />
+                      <Flex gap={2} alignItems='center'>
+                        {activeQuote && <CountdownSpinner isLoading={isLoading || isRefetching} />}
+                        <SlippagePopover />
+                      </Flex>
                     </Flex>
                   </CardHeader>
                   <Stack spacing={0}>
@@ -675,6 +688,6 @@ export const TradeInput = memo(() => {
           </AnimatePresence>
         </Card>
       </MessageOverlay>
-    </Flex>
+    </SlideTransition>
   )
 })

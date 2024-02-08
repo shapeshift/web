@@ -1,6 +1,6 @@
 import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Center, Collapse, Flex, Stack, useDisclosure } from '@chakra-ui/react'
+import { Box, Center, Collapse, Flex, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { AnimatePresence } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
@@ -92,6 +92,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
         </AnimatePresence>
       )
     }, [swapSource, swapperName])
+
     switch (true) {
       case isLoading:
         return (
@@ -123,41 +124,45 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
             fontSize='sm'
           >
             <Flex alignItems='center' justifyContent='space-between' px={6} py={4} width='full'>
-              <Row fontSize='sm' flex={1}>
-                <Row.Value
-                  fontSize='sm'
-                  display='flex'
-                  alignItems='center'
-                  gap={2}
-                  _hover={rateHover}
-                  onClick={onRateClick}
-                >
-                  {swapperIcons}
-                  <Stack
-                    width='full'
-                    direction='row'
-                    spacing={1}
-                    color='text.link'
-                    className='rate'
-                    borderBottomWidth={1}
-                    borderColor='transparent'
-                    alignItems='center'
-                  >
-                    <Amount.Crypto
+              <Tooltip label={translate('trade.tooltip.changeQuote')}>
+                <Box>
+                  <Row fontSize='sm' flex={1}>
+                    <Row.Value
                       fontSize='sm'
-                      value='1'
-                      symbol={sellSymbol ?? ''}
-                      suffix={sellSymbol ? '=' : ''}
-                    />
-                    <Amount.Crypto
-                      fontSize='sm'
-                      value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
-                      symbol={buySymbol ?? ''}
-                    />
-                    <ArrowUpDownIcon />
-                  </Stack>
-                </Row.Value>
-              </Row>
+                      display='flex'
+                      alignItems='center'
+                      gap={2}
+                      _hover={rateHover}
+                      onClick={onRateClick}
+                    >
+                      {swapperIcons}
+                      <Stack
+                        width='full'
+                        direction='row'
+                        spacing={1}
+                        color='text.link'
+                        className='rate'
+                        borderBottomWidth={1}
+                        borderColor='transparent'
+                        alignItems='center'
+                      >
+                        <Amount.Crypto
+                          fontSize='sm'
+                          value='1'
+                          symbol={sellSymbol ?? ''}
+                          suffix={sellSymbol ? '=' : ''}
+                        />
+                        <Amount.Crypto
+                          fontSize='sm'
+                          value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
+                          symbol={buySymbol ?? ''}
+                        />
+                        <ArrowUpDownIcon />
+                      </Stack>
+                    </Row.Value>
+                  </Row>
+                </Box>
+              </Tooltip>
               <Flex gap={1} alignItems='center' cursor='pointer' onClick={onToggle}>
                 <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
                   <Row.Label fontSize='sm'>

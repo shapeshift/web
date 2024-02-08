@@ -154,7 +154,22 @@ const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
 export const selectActiveQuoteMeta: Selector<
   ReduxState,
   { swapperName: SwapperName; identifier: string } | undefined
-> = createSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.activeQuoteMeta)
+> = createSelector(
+  selectTradeQuoteSlice,
+  selectSortedTradeQuotes,
+  (tradeQuoteSlice, sortedQuotes) => {
+    const bestQuote = sortedQuotes[0]
+    const bestQuoteMeta = bestQuote
+      ? { swapperName: bestQuote.swapperName, identifier: bestQuote.id }
+      : undefined
+    // Return the "best" quote even if it has errors, provided there is a quote to display data for
+    // this allows users to explore trades that aren't necessarily actionable. The UI will prevent
+    // executing these downstream.
+    const isSelectable = bestQuote?.quote !== undefined
+    const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
+    return tradeQuoteSlice.activeQuoteMeta ?? defaultQuoteMeta
+  },
+)
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectActiveQuoteMeta, selectTradeQuotes, (activeQuoteMeta, tradeQuotes) => {

@@ -7,6 +7,8 @@ import {
   Card,
   CardFooter,
   CardHeader,
+  CircularProgress,
+  CircularProgressLabel,
   Divider,
   Flex,
   Heading,
@@ -307,7 +309,7 @@ export const TradeInput = memo(() => {
 
   const isLoading = useMemo(
     () =>
-      !isAnySwapperFetched ||
+      !isQuoteRequestComplete ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
@@ -317,7 +319,7 @@ export const TradeInput = memo(() => {
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isAnySwapperFetched,
+      isQuoteRequestComplete,
       isConfirmationLoading,
       isSupportedAssetsLoading,
       isSellAddressByteCodeLoading,
@@ -480,34 +482,30 @@ export const TradeInput = memo(() => {
           py={0}
         >
           {hasUserEnteredAmount && (
-            <>
-              {activeQuote ? (
-                <RateGasRow
-                  sellSymbol={sellAsset.symbol}
-                  buySymbol={buyAsset.symbol}
-                  gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                  rate={rate}
-                  isLoading={isLoading}
-                  isError={didQuoteRequestFail}
-                  swapperName={activeSwapperName}
-                  swapSource={tradeQuoteStep?.source}
-                  onRateClick={onToggle}
-                >
-                  <ReceiveSummary
-                    isLoading={isLoading}
-                    symbol={buyAsset.symbol}
-                    amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                    amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                    protocolFees={totalProtocolFees}
-                    slippageDecimalPercentage={slippageDecimal}
-                    swapperName={activeSwapperName ?? ''}
-                    defaultIsOpen={true}
-                    swapSource={tradeQuoteStep?.source}
-                    priceImpact={priceImpactPercentage}
-                  />
-                </RateGasRow>
-              ) : null}
-            </>
+            <RateGasRow
+              sellSymbol={sellAsset.symbol}
+              buySymbol={buyAsset.symbol}
+              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+              rate={rate}
+              isLoading={isLoading}
+              isError={didQuoteRequestFail}
+              swapperName={activeSwapperName}
+              swapSource={tradeQuoteStep?.source}
+              onRateClick={onToggle}
+            >
+              <ReceiveSummary
+                isLoading={isLoading}
+                symbol={buyAsset.symbol}
+                amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
+                protocolFees={totalProtocolFees}
+                slippageDecimalPercentage={slippageDecimal}
+                swapperName={activeSwapperName ?? ''}
+                defaultIsOpen={true}
+                swapSource={tradeQuoteStep?.source}
+                priceImpact={priceImpactPercentage}
+              />
+            </RateGasRow>
           )}
         </CardFooter>
         <CardFooter
@@ -549,7 +547,6 @@ export const TradeInput = memo(() => {
     ),
     [
       hasUserEnteredAmount,
-      activeQuote,
       sellAsset.symbol,
       buyAsset.symbol,
       totalNetworkFeeFiatPrecision,
@@ -609,84 +606,114 @@ export const TradeInput = memo(() => {
   return (
     <SlideTransition style={transitionStyle}>
       <MessageOverlay show={isKeplr} title={overlayTitle}>
-        <Card width='full' maxWidth='500px' transition='all 5s ease-out'>
-          <AnimatePresence mode='wait'>
-            {isOpen ? (
-              <FadeTransition key='quote-list'>
-                <QuoteList onBack={onToggle} />
-              </FadeTransition>
-            ) : (
-              <FadeTransition key='trade-input'>
-                <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
-                  <CardHeader px={6}>
-                    <Flex alignItems='center' justifyContent='space-between'>
-                      <Heading as='h5' fontSize='md'>
-                        {translate('navBar.trade')}
-                      </Heading>
-                      <Flex gap={2} alignItems='center'>
-                        {activeQuote && <CountdownSpinner isLoading={isLoading || isRefetching} />}
-                        <SlippagePopover />
+        <Flex gap={4}>
+          <Card
+            flex={1}
+            width='full'
+            maxWidth='500px'
+            minWidth='500px'
+            transition='all 5s ease-out'
+          >
+            <AnimatePresence mode='wait'>
+              {isOpen ? (
+                <FadeTransition key='quote-list'>
+                  <QuoteList onBack={onToggle} />
+                </FadeTransition>
+              ) : (
+                <FadeTransition key='trade-input'>
+                  <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
+                    <CardHeader px={6}>
+                      <Flex alignItems='center' justifyContent='space-between'>
+                        <Heading as='h5' fontSize='md'>
+                          {translate('navBar.trade')}
+                        </Heading>
+                        <Flex gap={2} alignItems='center'>
+                          {activeQuote && (
+                            <CountdownSpinner isLoading={isLoading || isRefetching} />
+                          )}
+                          <SlippagePopover />
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  </CardHeader>
-                  <Stack spacing={0}>
-                    <SellAssetInput
-                      accountId={initialSellAssetAccountId}
-                      asset={sellAsset}
-                      label={translate('trade.payWith')}
-                      onAccountIdChange={setSellAssetAccountId}
-                      labelPostFix={sellTradeAssetSelect}
-                      percentOptions={percentOptions}
-                    />
-                    <Flex alignItems='center' justifyContent='center' my={-2}>
-                      <Divider />
-                      <IconButton
-                        onClick={handleSwitchAssets}
-                        isRound
-                        size='sm'
-                        position='relative'
-                        variant='outline'
-                        borderColor='border.base'
-                        zIndex={1}
-                        aria-label={translate('lending.switchAssets')}
-                        icon={arrowDownIcon}
-                        isDisabled={shouldDisableSwitchAssets}
+                    </CardHeader>
+                    <Stack spacing={0}>
+                      <SellAssetInput
+                        accountId={initialSellAssetAccountId}
+                        asset={sellAsset}
+                        label={translate('trade.payWith')}
+                        onAccountIdChange={setSellAssetAccountId}
+                        labelPostFix={sellTradeAssetSelect}
+                        percentOptions={percentOptions}
                       />
-                      <Divider />
-                    </Flex>
-                    <TradeAssetInput
-                      isReadOnly={true}
-                      accountId={initialBuyAssetAccountId}
-                      assetId={buyAsset.assetId}
-                      assetSymbol={buyAsset.symbol}
-                      assetIcon={buyAsset.icon}
-                      cryptoAmount={
-                        hasUserEnteredAmount
-                          ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-                          : '0'
-                      }
-                      fiatAmount={
-                        hasUserEnteredAmount
-                          ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
-                          : '0'
-                      }
-                      percentOptions={emptyPercentOptions}
-                      showInputSkeleton={isLoading}
-                      showFiatSkeleton={isLoading}
-                      label={translate('trade.youGet')}
-                      onAccountIdChange={setBuyAssetAccountId}
-                      isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-                      formControlProps={formControlProps}
-                      labelPostFix={buyTradeAssetSelect}
-                      priceImpact={priceImpactPercentage?.toString()}
-                    />
+                      <Flex alignItems='center' justifyContent='center' my={-2}>
+                        <Divider />
+                        <CircularProgress
+                          color='blue.500'
+                          thickness='4px'
+                          size='34px'
+                          trackColor='transparent'
+                          isIndeterminate={isLoading}
+                          borderRadius='full'
+                        >
+                          <CircularProgressLabel
+                            fontSize='md'
+                            display='flex'
+                            alignItems='center'
+                            justifyContent='center'
+                          >
+                            <IconButton
+                              onClick={handleSwitchAssets}
+                              isRound
+                              size='sm'
+                              position='relative'
+                              variant='outline'
+                              borderColor='border.base'
+                              zIndex={1}
+                              aria-label={translate('lending.switchAssets')}
+                              icon={arrowDownIcon}
+                              isDisabled={shouldDisableSwitchAssets}
+                            />
+                          </CircularProgressLabel>
+                        </CircularProgress>
+
+                        <Divider />
+                      </Flex>
+                      <TradeAssetInput
+                        isReadOnly={true}
+                        accountId={initialBuyAssetAccountId}
+                        assetId={buyAsset.assetId}
+                        assetSymbol={buyAsset.symbol}
+                        assetIcon={buyAsset.icon}
+                        cryptoAmount={
+                          hasUserEnteredAmount
+                            ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
+                            : '0'
+                        }
+                        fiatAmount={
+                          hasUserEnteredAmount
+                            ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
+                            : '0'
+                        }
+                        percentOptions={emptyPercentOptions}
+                        showInputSkeleton={isLoading}
+                        showFiatSkeleton={isLoading}
+                        label={translate('trade.youGet')}
+                        onAccountIdChange={setBuyAssetAccountId}
+                        isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+                        formControlProps={formControlProps}
+                        labelPostFix={buyTradeAssetSelect}
+                        priceImpact={priceImpactPercentage?.toString()}
+                      />
+                    </Stack>
+                    {ConfirmSummary}
                   </Stack>
-                  {ConfirmSummary}
-                </Stack>
-              </FadeTransition>
-            )}
-          </AnimatePresence>
-        </Card>
+                </FadeTransition>
+              )}
+            </AnimatePresence>
+          </Card>
+          <Card minWidth='500px' maxWidth='500px'>
+            <QuoteList onBack={onToggle} />
+          </Card>
+        </Flex>
       </MessageOverlay>
     </SlideTransition>
   )

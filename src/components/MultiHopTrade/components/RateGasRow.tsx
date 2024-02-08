@@ -101,9 +101,9 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
             <Text translation={'trade.searchingRate'} />
           </Stack>
         )
-      case !rate || isError:
+      case !rate:
         return (
-          <Stack direction='row' alignItems='center' fontSize='sm'>
+          <Stack direction='row' alignItems='center' fontSize='sm' px={6} py={4}>
             <HelperTooltip
               label={translate('trade.tooltip.noRateAvailable')}
               flexProps={helpersTooltipFlexProps}

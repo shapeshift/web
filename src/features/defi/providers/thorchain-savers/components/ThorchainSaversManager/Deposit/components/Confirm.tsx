@@ -15,6 +15,7 @@ import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/t
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -28,6 +29,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -58,7 +60,6 @@ import {
 import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 import {
   getMaybeThorchainSaversDepositQuote,
   getThorchainSaversPosition,
@@ -75,7 +76,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
@@ -96,7 +97,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     null,
   )
   const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   // TODO: Allow user to set fee priority
@@ -540,6 +540,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })()
   }, [accountId, accountMetadata, accountType, assetId, bip44Params, chainAdapter, wallet])
 
+  const { data: isTradingActive, refetch: refetchIsTradingActive } = useQuery(
+    reactQueries.common.isTradingActive({
+      assetId,
+      swapperName: SwapperName.Thorchain,
+    }),
+  )
+
   const handleDeposit = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return
     try {
@@ -561,15 +568,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
 
-      const { getIsTradingActive } = swapperApi.endpoints
-      const { data: isTradingActive } = await appDispatch(
-        getIsTradingActive.initiate({
-          assetId,
-          swapperName: SwapperName.Thorchain,
-        }),
-      )
+      // Was the pool active when it was fetched at the time of the component mount
+      if (isTradingActive === false) {
+        throw new Error(`THORChain pool halted for assetId: ${assetId}`)
+      }
 
-      if (!isTradingActive) {
+      // Refetch the trading active state JIT to ensure the pool didn't just become halted
+      const { data: isTradingActiveData } = await refetchIsTradingActive()
+
+      if (!isTradingActiveData) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
@@ -633,7 +640,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainAdapter,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
-    appDispatch,
+    isTradingActive,
+    refetchIsTradingActive,
     protocolFeeCryptoBaseUnit,
     maybeFromUTXOAccountAddress,
     onNext,

@@ -229,11 +229,11 @@ export type CommonGetUnsignedTransactionArgs = {
   chainId: ChainId
   stepIndex: number
   slippageTolerancePercentageDecimal: string
-  supportsEIP1559?: boolean
 }
 
-export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
-export type GetUnsignedEvmMessageArgs = GetUnsignedEvmTransactionArgs
+export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
+  EvmAccountMetadata & { supportsEIP1559: boolean }
+export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs & UtxoAccountMetadata
 export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionArgs &
   CosmosSdkAccountMetadata

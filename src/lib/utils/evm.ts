@@ -4,7 +4,6 @@ import type {
   evm,
   EvmChainAdapter,
   EvmChainId,
-  GetFeeDataInput,
   SignTx,
 } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
@@ -71,20 +70,19 @@ type GetErc20AllowanceArgs = {
   chainId: ChainId
 }
 
-type GetFeesWithoutWalletArgs = {
+type GetFeesCommonArgs = {
   adapter: EvmChainAdapter
   data: string
   to: string
   value: string
+}
+
+type GetFeesArgs = GetFeesCommonArgs & {
   from: string
   supportsEIP1559: boolean
 }
 
-type GetFeesArgs = {
-  adapter: EvmChainAdapter
-  data: string
-  to: string
-  value: string
+type GetFeesWithWalletArgs = GetFeesCommonArgs & {
   accountNumber: number
   wallet: HDWallet
 }
@@ -94,7 +92,7 @@ export type Fees = evm.Fees & {
   networkFeeCryptoBaseUnit: string
 }
 
-export const getFeesWithWallet = async (args: GetFeesArgs): Promise<Fees> => {
+export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fees> => {
   const { accountNumber, adapter, wallet, ...rest } = args
 
   const from = await adapter.getAddress({ accountNumber, wallet })
@@ -103,21 +101,12 @@ export const getFeesWithWallet = async (args: GetFeesArgs): Promise<Fees> => {
   return getFees({ ...rest, adapter, from, supportsEIP1559 })
 }
 
-export const getFees = async (args: GetFeesWithoutWalletArgs): Promise<Fees> => {
+export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
   const { adapter, data, to, value, from, supportsEIP1559 } = args
-
-  const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-    to,
-    value,
-    chainSpecific: {
-      from,
-      data,
-    },
-  }
 
   const {
     average: { chainSpecific: feeData },
-  } = await adapter.getFeeData(getFeeDataInput)
+  } = await adapter.getFeeData({ to, value, chainSpecific: { from, data } })
 
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
     ...feeData,

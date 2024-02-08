@@ -45,7 +45,6 @@ export const oneInchApi: SwapperApi = {
 
     const { receiveAddress, affiliateBps } = tradeQuote
 
-    // TODO: pull all gas values from our node so we can use eip-1559
     const {
       tx: { value, to, data },
     } = await fetchOneInchSwap({
@@ -60,11 +59,11 @@ export const oneInchApi: SwapperApi = {
 
     const feeData = await getFees({
       adapter: assertGetEvmChainAdapter(chainId),
-      data: data.toString(),
+      data,
       to,
-      value: value.toString(),
+      value,
       from,
-      supportsEIP1559: Boolean(supportsEIP1559),
+      supportsEIP1559,
     })
 
     return {

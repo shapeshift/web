@@ -109,7 +109,7 @@ export const lifiApi: SwapperApi = {
       to,
       value: bn(value.toString()).toString(),
       from,
-      supportsEIP1559: Boolean(supportsEIP1559),
+      supportsEIP1559,
     })
 
     return {

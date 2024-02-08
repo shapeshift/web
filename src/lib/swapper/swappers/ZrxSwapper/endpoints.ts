@@ -54,11 +54,11 @@ export const zrxApi: SwapperApi = {
 
     const feeData = await getFees({
       adapter: assertGetEvmChainAdapter(chainId),
-      data: data.toString(),
+      data,
       to,
-      value: value.toString(),
+      value,
       from,
-      supportsEIP1559: Boolean(supportsEIP1559),
+      supportsEIP1559,
     })
 
     return {

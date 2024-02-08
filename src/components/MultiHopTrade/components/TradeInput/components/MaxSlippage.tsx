@@ -9,6 +9,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
@@ -39,6 +40,9 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   symbol,
 }) => {
   const translate = useTranslate()
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
   const shouldShowSlippageMinAmount = useMemo(
     () =>
       swapSource !== THORCHAIN_STREAM_SWAP_SOURCE &&
@@ -48,15 +52,20 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
-  const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['trade.tooltip.slippageMin', { amount: '100', symbol }],
-    [symbol],
-  )
-
   const amountAfterSlippage = useMemo(() => {
     const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
     return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
   }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
+
+  const formattedCryptoAmount = useMemo(
+    () => toCrypto(amountAfterSlippage, symbol),
+    [amountAfterSlippage, symbol, toCrypto],
+  )
+
+  const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
+    () => ['trade.tooltip.slippage', { amount: formattedCryptoAmount }],
+    [formattedCryptoAmount],
+  )
 
   const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
     return items
@@ -80,7 +89,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
 
   const tooltipBody = useCallback(() => {
     if (!shouldShowSlippageMinAmount)
-      return <Text color='text.subtle' translation='trade.slippageInfo' />
+      return <Text color='text.subtle' translation='trade.tooltip.slippage' />
     return (
       <Stack divider={divider}>
         <Row gap={4}>

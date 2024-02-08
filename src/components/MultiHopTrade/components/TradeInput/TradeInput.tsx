@@ -493,6 +493,7 @@ export const TradeInput = memo(() => {
                 swapperName={activeSwapperName ?? ''}
                 defaultIsOpen={true}
                 swapSource={tradeQuoteStep?.source}
+                priceImpact={priceImpactPercentage}
               />
             ) : null}
             <RecipientAddress />

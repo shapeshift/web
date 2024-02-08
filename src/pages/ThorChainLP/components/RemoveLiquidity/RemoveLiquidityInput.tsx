@@ -39,7 +39,6 @@ import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
 import type { RemoveLiquidityProps } from './RemoveLiquidity'
 import { RemoveLiquidityRoutePaths } from './types'
@@ -60,7 +59,6 @@ const dividerStyle = {
 export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   headerComponent,
   opportunityId,
-  paramOpportunityId,
 }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -68,30 +66,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
   const { data: parsedPools } = usePools()
 
-  const defaultOpportunityId = useMemo(() => {
-    if (!parsedPools) return undefined
-    if (opportunityId) return undefined
-    if (paramOpportunityId) return paramOpportunityId
-
-    const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
-
-    return firstAsymOpportunityId
-  }, [parsedPools, opportunityId, paramOpportunityId])
-
-  const [activeOpportunityId, setActiveOpportunityId] = useState(
-    opportunityId ?? defaultOpportunityId,
-  )
-
-  useEffect(() => {
-    if (!(opportunityId || defaultOpportunityId)) return
-
-    setActiveOpportunityId(opportunityId ?? defaultOpportunityId)
-  }, [defaultOpportunityId, opportunityId])
-
   const foundPool = useMemo(() => {
     if (!parsedPools) return undefined
-    return parsedPools.find(pool => pool.opportunityId === activeOpportunityId)
-  }, [activeOpportunityId, parsedPools])
+    return parsedPools.find(pool => pool.opportunityId === opportunityId)
+  }, [opportunityId, parsedPools])
 
   const { data: userData } = useUserLpData({ assetId: foundPool?.assetId ?? '' })
 
@@ -117,11 +95,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   useEffect(() => {
     if (!userData) return
     const _UserlpData: UserLpDataPosition | undefined = userData.find(
-      data => data.opportunityId === activeOpportunityId,
+      data => data.opportunityId === opportunityId,
     )
     if (!_UserlpData) return
     setUserlpData(_UserlpData)
-  }, [activeOpportunityId, foundPoolAsset, poolAsset?.assetId, userData])
+  }, [foundPoolAsset, opportunityId, poolAsset?.assetId, userData])
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -183,21 +161,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
       setPercentageSelection(percentage)
     }
   }, [])
-
-  const handleAsymSideChange = useCallback(
-    (asymSide: string | null) => {
-      if (!(parsedPools && poolAsset)) return
-
-      // The null option gets casted as an empty string by the radio component so we cast it back to null
-      const parsedAsymSide = (asymSide as AsymSide | '') || null
-      const assetPools = parsedPools.filter(pool => pool.assetId === poolAsset.assetId)
-      const foundPool = assetPools.find(pool => pool.asymSide === parsedAsymSide)
-      if (!foundPool) return
-
-      setActiveOpportunityId(foundPool.opportunityId)
-    },
-    [poolAsset, parsedPools],
-  )
 
   const percentOptions = useMemo(() => [], [])
 
@@ -474,11 +437,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.removeAmounts')}
           </FormLabel>
-          <LpType
-            assetId={poolAsset.assetId}
-            onAsymSideChange={handleAsymSideChange}
-            defaultOpportunityId={defaultOpportunityId}
-          />
           <Stack px={6} py={4} spacing={4}>
             <Amount.Percent value={percentageSelection / 100} fontSize='2xl' />
             <Slider value={percentageSelection} onChange={handlePercentageSliderChange}>

@@ -1,4 +1,3 @@
-import { Text as CText } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -20,7 +19,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
     const severity = warningSeverity(impactPercentage)
     if (severity < 1) return 'text.subtle'
     if (severity < 3) return 'text.warning'
-    return 'text.danger'
+    return 'text.error'
   }, [impactPercentage])
 
   const tooltipBody = useCallback(
@@ -34,7 +33,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
         <Text translation='trade.priceImpact' />
       </Row.Label>
       <Row.Value>
-        <CText color={priceImpactColor}>{impactPercentage} %</CText>
+        <RawText color={priceImpactColor}>{impactPercentage} %</RawText>
       </Row.Value>
     </Row>
   )

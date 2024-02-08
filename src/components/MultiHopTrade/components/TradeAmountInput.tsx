@@ -195,7 +195,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       const severity = warningSeverity(priceImpact)
       if (severity < 1) return 'text.subtle'
       if (severity < 3) return 'text.warning'
-      return 'text.danger'
+      return 'text.error'
     }, [priceImpact])
 
     return (

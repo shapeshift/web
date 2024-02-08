@@ -5,6 +5,7 @@ import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 export enum TradeRoutePaths {
   Input = '/trade/input',
   Confirm = '/trade/confirm',
+  Quotes = '/trade/quotes',
   VerifyAddresses = '/trade/verify-addresses',
 }
 

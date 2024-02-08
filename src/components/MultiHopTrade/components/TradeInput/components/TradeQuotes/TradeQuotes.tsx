@@ -1,11 +1,8 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import orderBy from 'lodash/orderBy'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { SlideTransitionY } from 'components/SlideTransitionY'
+import { memo, useEffect, useMemo } from 'react'
 import type { ApiQuote } from 'state/apis/swapper'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
@@ -27,8 +24,6 @@ type TradeQuotesProps = {
   isLoading: boolean
 }
 
-const arrowDownIcon = <ArrowDownIcon />
-
 const motionBoxProps = {
   initial: { opacity: 0, height: 0 },
   animate: { opacity: 1, height: 'auto' },
@@ -47,13 +42,7 @@ export const sortQuotes = (
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
-  const translate = useTranslate()
   const dispatch = useAppDispatch()
-  const [showAll, setShowAll] = useState(false)
-  const bottomOverlay = useColorModeValue(
-    'linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.4) 100%)',
-    'linear-gradient(to bottom,  rgba(24,27,30,0) 0%,rgba(24,27,30,0.9) 100%)',
-  )
 
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
@@ -72,14 +61,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
       }),
     )
   }, [dispatch, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes])
-
-  const hasMoreThanOneQuote = useMemo(() => {
-    return sortedQuotes.length > 1
-  }, [sortedQuotes.length])
-
-  const handleShowAll = useCallback(() => {
-    setShowAll(!showAll)
-  }, [showAll])
 
   const quotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
@@ -178,51 +159,13 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
     tradeQuoteDisplayCache,
   ])
 
-  const quoteOverlayAfter = useMemo(() => {
-    return {
-      content: '""',
-      position: 'absolute',
-      left: 0,
-      bottom: 0,
-      height: '80px',
-      width: '100%',
-      bg: bottomOverlay,
-      display: showAll || !hasMoreThanOneQuote ? 'none' : 'block',
-    }
-  }, [bottomOverlay, hasMoreThanOneQuote, showAll])
-
   return (
-    <Box position='relative' _after={quoteOverlayAfter}>
-      <AnimatePresence>
-        <SlideTransitionY>
-          {hasMoreThanOneQuote && !showAll && (
-            <Button
-              borderRadius='full'
-              position='absolute'
-              left='50%'
-              bottom='1rem'
-              size='sm'
-              transform='translateX(-50%)'
-              onClick={handleShowAll}
-              zIndex={3}
-              backdropFilter='blur(15px)'
-              rightIcon={arrowDownIcon}
-              boxShadow='lg'
-              borderWidth={1}
-            >
-              {translate('common.showAll')}
-            </Button>
-          )}
-        </SlideTransitionY>
-      </AnimatePresence>
-
+    <Box position='relative'>
       <Flex
         flexDir='column'
         width='full'
         px={2}
         pt={0}
-        maxHeight={showAll ? '5000px' : '230px'}
-        overflowY='hidden'
         pb={4}
         transitionProperty='max-height'
         transitionDuration='0.65s'

@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Center, Collapse, Flex, Stack, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
@@ -32,9 +32,15 @@ type RateGasRowProps = {
   isError?: boolean
   swapperName?: SwapperName
   swapSource?: SwapSource
+  onRateClick?: () => void
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
+const rowHover = { bg: 'background.surface.raised.base' }
+const rateHover = {
+  cursor: 'pointer',
+  '.rate': { borderColor: 'text.link' },
+}
 
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({
@@ -46,6 +52,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     isError,
     swapperName,
     swapSource,
+    onRateClick,
     children,
   }) => {
     const translate = useTranslate()
@@ -88,7 +95,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     switch (true) {
       case isLoading:
         return (
-          <Stack direction='row' alignItems='center' fontSize='sm'>
+          <Stack direction='row' alignItems='center' fontSize='sm' px={6} py={4}>
             <CircularProgress size='16px' />
             <Text translation={'trade.searchingRate'} />
           </Stack>
@@ -106,19 +113,36 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
         )
       default:
         return (
-          <Stack direction='row' fontWeight='medium'>
-            <Flex
-              alignItems='center'
-              justifyContent='space-between'
-              px={6}
-              py={4}
-              cursor='pointer'
-              onClick={onToggle}
-            >
+          <Stack
+            fontWeight='medium'
+            spacing={0}
+            _hover={rowHover}
+            bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
+            transitionProperty='common'
+            transitionDuration='normal'
+            fontSize='sm'
+          >
+            <Flex alignItems='center' justifyContent='space-between' px={6} py={4} width='full'>
               <Row fontSize='sm' flex={1}>
-                <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
+                <Row.Value
+                  fontSize='sm'
+                  display='flex'
+                  alignItems='center'
+                  gap={2}
+                  _hover={rateHover}
+                  onClick={onRateClick}
+                >
                   {swapperIcons}
-                  <Stack width='full' direction='row' spacing={1}>
+                  <Stack
+                    width='full'
+                    direction='row'
+                    spacing={1}
+                    color='text.link'
+                    className='rate'
+                    borderBottomWidth={1}
+                    borderColor='transparent'
+                    alignItems='center'
+                  >
                     <Amount.Crypto
                       fontSize='sm'
                       value='1'
@@ -130,10 +154,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                       value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
                       symbol={buySymbol ?? ''}
                     />
+                    <ArrowUpDownIcon />
                   </Stack>
                 </Row.Value>
               </Row>
-              <Flex gap={2} alignItems='center'>
+              <Flex gap={1} alignItems='center' cursor='pointer' onClick={onToggle}>
                 <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
                   <Row.Label fontSize='sm'>
                     <FaGasPump />
@@ -143,9 +168,9 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                   </Row.Value>
                 </Row>
                 {isOpen ? (
-                  <ChevronUpIcon color='text.subtle' />
+                  <ChevronUpIcon color='text.subtle' boxSize='1.25rem' />
                 ) : (
-                  <ChevronDownIcon color='text.subtle' />
+                  <ChevronDownIcon color='text.subtle' boxSize='1.25rem' />
                 )}
               </Flex>
             </Flex>

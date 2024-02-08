@@ -154,6 +154,48 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
     [setPercentageSelection],
   )
 
+  useEffect(() => {
+    if (!poolAssetUserlpData) return
+
+    const {
+      underlyingAssetAmountCryptoPrecision,
+      underlyingAssetValueFiatUserCurrency,
+      underlyingRuneAmountCryptoPrecision,
+      underlyingRuneValueFiatUserCurrency,
+    } = poolAssetUserlpData
+
+    setVirtualRuneCryptoLiquidityAmount(
+      bnOrZero(underlyingRuneAmountCryptoPrecision)
+        .times(percentageSelection / 100)
+        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
+        .toFixed(),
+    )
+    setVirtualRuneFiatLiquidityAmount(
+      bnOrZero(underlyingRuneValueFiatUserCurrency)
+        .times(percentageSelection / 100)
+        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
+        .toFixed(),
+    )
+    setVirtualAssetFiatLiquidityAmount(
+      bnOrZero(underlyingAssetValueFiatUserCurrency)
+        .times(percentageSelection / 100)
+        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
+        .toFixed(),
+    )
+    setVirtualAssetCryptoLiquidityAmount(
+      bnOrZero(underlyingAssetAmountCryptoPrecision)
+        .times(percentageSelection / 100)
+        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
+        .toFixed(),
+    )
+  }, [isAsymAssetSide, isAsymRuneSide, percentageSelection, poolAssetUserlpData])
+
+  const handlePercentageClick = useCallback((percentage: number) => {
+    return () => {
+      setPercentageSelection(percentage)
+    }
+  }, [])
+
   const handleAsymSideChange = useCallback(
     (asymSide: string | null) => {
       if (!(parsedPools && poolAsset)) return
@@ -229,50 +271,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
     string | undefined
   >()
-
-  const handlePercentageClick = useCallback(
-    (percentage: number) => {
-      return () => {
-        if (!poolAssetUserlpData) return
-        setPercentageSelection(percentage)
-        console.info('poolAssetUserlpData', poolAssetUserlpData)
-        console.info('Percentage:', percentage)
-
-        const {
-          underlyingAssetAmountCryptoPrecision,
-          underlyingAssetValueFiatUserCurrency,
-          underlyingRuneAmountCryptoPrecision,
-          underlyingRuneValueFiatUserCurrency,
-        } = poolAssetUserlpData
-
-        setVirtualRuneCryptoLiquidityAmount(
-          bnOrZero(underlyingRuneAmountCryptoPrecision)
-            .times(percentage / 100)
-            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
-            .toFixed(),
-        )
-        setVirtualRuneFiatLiquidityAmount(
-          bnOrZero(underlyingRuneValueFiatUserCurrency)
-            .times(percentage / 100)
-            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
-            .toFixed(),
-        )
-        setVirtualAssetFiatLiquidityAmount(
-          bnOrZero(underlyingAssetValueFiatUserCurrency)
-            .times(percentage / 100)
-            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
-            .toFixed(),
-        )
-        setVirtualAssetCryptoLiquidityAmount(
-          bnOrZero(underlyingAssetAmountCryptoPrecision)
-            .times(percentage / 100)
-            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
-            .toFixed(),
-        )
-      }
-    },
-    [isAsymAssetSide, isAsymRuneSide, poolAssetUserlpData],
-  )
 
   const actualAssetCryptoLiquidityAmount = useMemo(() => {
     if (isAsymAssetSide) {

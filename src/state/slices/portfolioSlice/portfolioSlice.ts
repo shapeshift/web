@@ -73,22 +73,36 @@ export const portfolio = createSlice({
       Object.assign(state.connectedWallet, { supportedChainIds: payload })
     },
     upsertAccountMetadata: {
-      reducer: (draftState, { payload }: { payload: AccountMetadataById }) => {
-        draftState.accountMetadata.byId = merge(draftState.accountMetadata.byId, payload)
+      reducer: (
+        draftState,
+        {
+          payload,
+        }: { payload: { accountMetadataByAccountId: AccountMetadataById; walletId: string } },
+      ) => {
+        // WARNING: don't use the current state.connectedWallet.id here because it's updated async
+        // to this and results in account data corruption
+        const { accountMetadataByAccountId, walletId } = payload
+        draftState.accountMetadata.byId = merge(
+          draftState.accountMetadata.byId,
+          accountMetadataByAccountId,
+        )
         draftState.accountMetadata.ids = Object.keys(draftState.accountMetadata.byId)
 
         if (!draftState.connectedWallet) return // realistically, at this point, we should have a wallet set
-        const existingWalletAccountIds = draftState.wallet.byId[draftState.connectedWallet.id] ?? []
-        const newWalletAccountIds = Object.keys(payload)
+        const existingWalletAccountIds = draftState.wallet.byId[walletId] ?? []
+        const newWalletAccountIds = Object.keys(accountMetadataByAccountId)
         // keep an index of what account ids belong to this wallet
-        draftState.wallet.byId[draftState.connectedWallet.id] = uniq(
+        draftState.wallet.byId[walletId] = uniq(
           existingWalletAccountIds.concat(newWalletAccountIds),
         )
       },
 
       // Use the `prepareAutoBatched` utility to automatically
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
-      prepare: prepareAutoBatched<AccountMetadataById>(),
+      prepare: prepareAutoBatched<{
+        accountMetadataByAccountId: AccountMetadataById
+        walletId: string
+      }>(),
     },
     clearWalletMetadata: {
       reducer: (draftState, { payload }: { payload: WalletId }) => {

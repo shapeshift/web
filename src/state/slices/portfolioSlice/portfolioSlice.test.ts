@@ -248,9 +248,12 @@ describe('portfolioSlice', () => {
         )
         store.dispatch(
           portfolioSlice.actions.upsertAccountMetadata({
-            [ethAccountId]: { bip44Params },
-            [ethAccount2Id]: { bip44Params },
-            [btcAccountId]: { bip44Params },
+            walletId: 'fakeWalletId',
+            accountMetadataByAccountId: {
+              [ethAccountId]: { bip44Params },
+              [ethAccount2Id]: { bip44Params },
+              [btcAccountId]: { bip44Params },
+            },
           }),
         )
 
@@ -298,9 +301,12 @@ describe('portfolioSlice', () => {
         )
         store.dispatch(
           portfolioSlice.actions.upsertAccountMetadata({
-            [ethAccountId]: { bip44Params },
-            [ethAccount2Id]: { bip44Params },
-            [btcAccountId]: { bip44Params },
+            walletId: 'fakeWalletId',
+            accountMetadataByAccountId: {
+              [ethAccountId]: { bip44Params },
+              [ethAccount2Id]: { bip44Params },
+              [btcAccountId]: { bip44Params },
+            },
           }),
         )
 
@@ -350,8 +356,11 @@ describe('portfolioSlice', () => {
       )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
-          [ethAccountId]: { bip44Params },
-          [ethAccount2Id]: { bip44Params },
+          walletId: 'fakeWalletId',
+          accountMetadataByAccountId: {
+            [ethAccountId]: { bip44Params },
+            [ethAccount2Id]: { bip44Params },
+          },
         }),
       )
 
@@ -431,9 +440,12 @@ describe('portfolioSlice', () => {
       )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
-          [btcAccountId]: { bip44Params },
-          [btcAccount2Id]: { bip44Params },
-          [btcAccount3Id]: { bip44Params },
+          walletId: 'fakeWalletId',
+          accountMetadataByAccountId: {
+            [btcAccountId]: { bip44Params },
+            [btcAccount2Id]: { bip44Params },
+            [btcAccount3Id]: { bip44Params },
+          },
         }),
       )
 
@@ -491,8 +503,11 @@ describe('portfolioSlice', () => {
 
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
-          [ethAccountId]: { bip44Params },
-          [ethAccount2Id]: { bip44Params },
+          walletId: 'fakeWalletId',
+          accountMetadataByAccountId: {
+            [ethAccountId]: { bip44Params },
+            [ethAccount2Id]: { bip44Params },
+          },
         }),
       )
 
@@ -550,8 +565,11 @@ describe('portfolioSlice', () => {
       )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
-          [ethAccountId]: { bip44Params },
-          [ethAccount2Id]: { bip44Params },
+          walletId: 'fakeWalletId',
+          accountMetadataByAccountId: {
+            [ethAccountId]: { bip44Params },
+            [ethAccount2Id]: { bip44Params },
+          },
         }),
       )
 
@@ -619,8 +637,11 @@ describe('portfolioSlice', () => {
       )
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
-          [ethAccountId]: { bip44Params },
-          [ethAccount2Id]: { bip44Params },
+          walletId: 'fakeWalletId',
+          accountMetadataByAccountId: {
+            [ethAccountId]: { bip44Params },
+            [ethAccount2Id]: { bip44Params },
+          },
         }),
       )
 

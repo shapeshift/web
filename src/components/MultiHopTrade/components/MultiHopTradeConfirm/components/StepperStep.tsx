@@ -1,6 +1,7 @@
 import type { BoxProps, StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
 import {
   Box,
+  Skeleton,
   SkeletonCircle,
   SkeletonText,
   Spacer,
@@ -33,6 +34,26 @@ export type StepperStepProps = {
   isPending?: boolean
 }
 
+const LastStepTag = () => {
+  const wallet = useWallet().state.wallet
+  const useReceiveAddressArgs = useMemo(
+    () => ({
+      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    }),
+    [wallet],
+  )
+
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+
+  return (
+    <Skeleton isLoaded={!!receiveAddress}>
+      <Tag size='md' colorScheme='blue'>
+        <MiddleEllipsis value={receiveAddress ?? ''} />
+      </Tag>
+    </Skeleton>
+  )
+}
 export const StepperStep = ({
   title,
   stepIndicator,
@@ -48,18 +69,6 @@ export const StepperStep = ({
   const { indicator: styles } = useStyleConfig('Stepper', {
     variant: isError ? 'error' : 'default',
   }) as { indicator: SystemStyleObject }
-
-  const wallet = useWallet().state.wallet
-  const useReceiveAddressArgs = useMemo(
-    () => ({
-      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-    }),
-    [wallet],
-  )
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
-
-  if (!receiveAddress) return null
 
   return (
     <Step style={width}>
@@ -82,11 +91,7 @@ export const StepperStep = ({
                 description
               )}
             </StepDescription>
-            {isLastStep ? (
-              <Tag size='md' colorScheme='blue'>
-                <MiddleEllipsis value={receiveAddress} />
-              </Tag>
-            ) : null}
+            {isLastStep ? <LastStepTag /> : null}
           </>
         )}
         {content !== undefined && <Box mt={2}>{content}</Box>}

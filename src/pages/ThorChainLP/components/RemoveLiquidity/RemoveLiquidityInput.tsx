@@ -112,6 +112,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
   const [poolAssetUserlpData, setPoolAssetUserlpData] = useState<UserLpDataPosition | undefined>()
+  const [percentageSelection, setPercentageSelection] = useState<number>(0.5)
 
   useEffect(() => {
     if (!userData) return
@@ -145,6 +146,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   const handleSubmit = useCallback(() => {
     history.push(RemoveLiquidityRoutePaths.Confirm)
   }, [history])
+
+  const handlePercentageSliderChange = useCallback(
+    (percentage: number) => {
+      setPercentageSelection(percentage)
+    },
+    [setPercentageSelection],
+  )
 
   const handleAsymSideChange = useCallback(
     (asymSide: string | null) => {
@@ -223,9 +231,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   >()
 
   const handlePercentageClick = useCallback(
-    (percentage: string) => {
+    (percentage: number) => {
       return () => {
         if (!poolAssetUserlpData) return
+        setPercentageSelection(percentage)
         console.info('poolAssetUserlpData', poolAssetUserlpData)
         console.info('Percentage:', percentage)
 
@@ -237,16 +246,24 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
         } = poolAssetUserlpData
 
         setVirtualRuneCryptoLiquidityAmount(
-          bnOrZero(underlyingRuneAmountCryptoPrecision).times(percentage).toFixed(),
+          bnOrZero(underlyingRuneAmountCryptoPrecision)
+            .times(percentage / 100)
+            .toFixed(),
         )
         setVirtualRuneFiatLiquidityAmount(
-          bnOrZero(underlyingRuneValueFiatUserCurrency).times(percentage).toFixed(),
+          bnOrZero(underlyingRuneValueFiatUserCurrency)
+            .times(percentage / 100)
+            .toFixed(),
         )
         setVirtualAssetFiatLiquidityAmount(
-          bnOrZero(underlyingAssetValueFiatUserCurrency).times(percentage).toFixed(),
+          bnOrZero(underlyingAssetValueFiatUserCurrency)
+            .times(percentage / 100)
+            .toFixed(),
         )
         setVirtualAssetCryptoLiquidityAmount(
-          bnOrZero(underlyingAssetAmountCryptoPrecision).times(percentage).toFixed(),
+          bnOrZero(underlyingAssetAmountCryptoPrecision)
+            .times(percentage / 100)
+            .toFixed(),
         )
       }
     },
@@ -485,24 +502,24 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
             defaultOpportunityId={defaultOpportunityId}
           />
           <Stack px={6} py={4} spacing={4}>
-            <Amount.Percent value='0.50' fontSize='2xl' />
-            <Slider>
+            <Amount.Percent value={percentageSelection / 100} fontSize='2xl' />
+            <Slider value={percentageSelection} onChange={handlePercentageSliderChange}>
               <SliderTrack>
                 <SliderFilledTrack />
               </SliderTrack>
               <SliderThumb />
             </Slider>
             <ButtonGroup size='sm' justifyContent='space-between'>
-              <Button onClick={handlePercentageClick('0.25')} flex={1}>
+              <Button onClick={handlePercentageClick(25)} flex={1}>
                 25%
               </Button>
-              <Button onClick={handlePercentageClick('0.50')} flex={1}>
+              <Button onClick={handlePercentageClick(50)} flex={1}>
                 50%
               </Button>
-              <Button onClick={handlePercentageClick('0.75')} flex={1}>
+              <Button onClick={handlePercentageClick(75)} flex={1}>
                 75%
               </Button>
-              <Button onClick={handlePercentageClick('1')} flex={1}>
+              <Button onClick={handlePercentageClick(100)} flex={1}>
                 Max
               </Button>
             </ButtonGroup>

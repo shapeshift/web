@@ -45,6 +45,8 @@ export const cowApi: SwapperApi = {
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput)
 
+    console.log({ input, tradeQuoteResult })
+
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })

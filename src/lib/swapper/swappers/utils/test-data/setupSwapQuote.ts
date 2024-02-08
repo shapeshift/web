@@ -13,7 +13,7 @@ export const setupQuote = () => {
     id: 'foobar',
     receiveAddress: '0x1234',
     affiliateBps: undefined,
-    potentialAffiliateBps: undefined,
+    potentialAffiliateBps: '0',
     slippageTolerancePercentageDecimal: '0',
     rate: '1',
     steps: [

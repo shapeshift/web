@@ -2,7 +2,7 @@ import { getConfig } from 'config'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { makeSuspsenseful } from 'utils/makeSuspenseful'
+import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -14,7 +14,7 @@ import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
 
-const Dashboard = makeSuspsenseful(
+const Dashboard = makeSuspenseful(
   lazy(() =>
     import('pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
       default: Dashboard,
@@ -22,7 +22,7 @@ const Dashboard = makeSuspsenseful(
   ),
 )
 
-const Asset = makeSuspsenseful(
+const Asset = makeSuspenseful(
   lazy(() =>
     import('pages/Assets/Asset').then(({ Asset }) => ({
       default: Asset,
@@ -30,7 +30,7 @@ const Asset = makeSuspsenseful(
   ),
 )
 
-const Assets = makeSuspsenseful(
+const Assets = makeSuspenseful(
   lazy(() =>
     import('pages/Assets/Assets').then(({ Assets }) => ({
       default: Assets,
@@ -38,7 +38,7 @@ const Assets = makeSuspsenseful(
   ),
 )
 
-const AssetTxHistory = makeSuspsenseful(
+const AssetTxHistory = makeSuspenseful(
   lazy(() =>
     import('pages/Assets/AssetTxHistory').then(({ AssetTxHistory }) => ({
       default: AssetTxHistory,
@@ -46,7 +46,7 @@ const AssetTxHistory = makeSuspsenseful(
   ),
 )
 
-const Buy = makeSuspsenseful(
+const Buy = makeSuspenseful(
   lazy(() =>
     import('pages/Buy/Buy').then(({ Buy }) => ({
       default: Buy,
@@ -54,7 +54,7 @@ const Buy = makeSuspsenseful(
   ),
 )
 
-const Flags = makeSuspsenseful(
+const Flags = makeSuspenseful(
   lazy(() =>
     import('pages/Flags/Flags').then(({ Flags }) => ({
       default: Flags,
@@ -62,7 +62,7 @@ const Flags = makeSuspsenseful(
   ),
 )
 
-const StakingVaults = makeSuspsenseful(
+const StakingVaults = makeSuspenseful(
   lazy(() =>
     import('pages/Defi/views/StakingVaults').then(({ StakingVaults }) => ({
       default: StakingVaults,
@@ -70,7 +70,7 @@ const StakingVaults = makeSuspsenseful(
   ),
 )
 
-const LendingPage = makeSuspsenseful(
+const LendingPage = makeSuspenseful(
   lazy(() =>
     import('pages/Lending/LendingPage').then(({ LendingPage }) => ({
       default: LendingPage,
@@ -78,7 +78,7 @@ const LendingPage = makeSuspsenseful(
   ),
 )
 
-const PoolsPage = makeSuspsenseful(
+const PoolsPage = makeSuspenseful(
   lazy(() =>
     import('pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
       default: PoolsPage,
@@ -86,7 +86,7 @@ const PoolsPage = makeSuspsenseful(
   ),
 )
 
-const Trade = makeSuspsenseful(
+const Trade = makeSuspenseful(
   lazy(() =>
     import('pages/Trade/Trade').then(({ Trade }) => ({
       default: Trade,
@@ -94,7 +94,7 @@ const Trade = makeSuspsenseful(
   ),
 )
 
-const TransactionHistory = makeSuspsenseful(
+const TransactionHistory = makeSuspenseful(
   lazy(() =>
     import('pages/TransactionHistory/TransactionHistory').then(({ TransactionHistory }) => ({
       default: TransactionHistory,

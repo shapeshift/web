@@ -3,7 +3,7 @@ import type { Location } from 'history'
 import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
-import { makeSuspsenseful } from 'utils/makeSuspenseful'
+import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from 'hooks/useQuery/useQuery'
@@ -14,30 +14,30 @@ import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'
 
-const Flags = makeSuspsenseful(
+const Flags = makeSuspenseful(
   lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
 )
-const Yat = makeSuspsenseful(
+const Yat = makeSuspenseful(
   lazy(() => import('pages/Yat/Yat').then(({ Yat }) => ({ default: Yat }))),
 )
-const NotFound = makeSuspsenseful(
+const NotFound = makeSuspenseful(
   lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
-const ConnectWallet = makeSuspsenseful(
+const ConnectWallet = makeSuspenseful(
   lazy(() =>
     import('pages/ConnectWallet/ConnectWallet').then(({ ConnectWallet }) => ({
       default: ConnectWallet,
     })),
   ),
 )
-const TermsOfService = makeSuspsenseful(
+const TermsOfService = makeSuspenseful(
   lazy(() =>
     import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
       default: TermsOfService,
     })),
   ),
 )
-const PrivacyPolicy = makeSuspsenseful(
+const PrivacyPolicy = makeSuspenseful(
   lazy(() =>
     import('pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
   ),

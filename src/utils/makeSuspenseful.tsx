@@ -12,7 +12,7 @@ const suspenseSpinnerStyle = {
   height: '100vh',
 }
 
-export function makeSuspsenseful<T extends FC<any>>(Component: T) {
+export function makeSuspenseful<T extends FC<any>>(Component: T) {
   return (props: ComponentProps<T>) => {
     const suspenseSpinner = useMemo(
       () => (

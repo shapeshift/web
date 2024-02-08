@@ -12,7 +12,7 @@ export const setupQuote = () => {
   const tradeQuote: TradeQuote = {
     id: 'foobar',
     receiveAddress: '0x1234',
-    affiliateBps: undefined,
+    affiliateBps: '0',
     potentialAffiliateBps: '0',
     slippageTolerancePercentageDecimal: '0',
     rate: '1',

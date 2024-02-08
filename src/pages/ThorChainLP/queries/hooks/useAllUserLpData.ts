@@ -15,6 +15,7 @@ import {
   selectMarketDataById,
   selectPortfolioAccounts,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectWalletId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,6 +33,7 @@ export const useAllUserLpData = ({
   const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const currentWalletId = useAppSelector(selectWalletId)
 
   const { data: availableThornodePools, isSuccess: isAvailableThornodePoolsDataLoaded } = useQuery({
     ...reactQueries.thornode.poolsData(),
@@ -46,12 +48,13 @@ export const useAllUserLpData = ({
       assetIds.map(assetId => {
         const poolAssetId = assetIdToPoolAssetId({ assetId })
         return {
-          ...reactQueries.thorchainLp.userLpData(assetId),
+          ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
           enabled: Boolean(
             isAvailableThornodePoolsDataLoaded &&
               isMidgardPoolsDataLoaded &&
               availableThornodePools?.find(pool => pool.asset === poolAssetId) &&
-              allMidgardPools?.find(pool => pool.asset === poolAssetId),
+              allMidgardPools?.find(pool => pool.asset === poolAssetId) &&
+              currentWalletId,
           ),
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
@@ -140,6 +143,7 @@ export const useAllUserLpData = ({
       }),
     [
       assetIds,
+      currentWalletId,
       isAvailableThornodePoolsDataLoaded,
       isMidgardPoolsDataLoaded,
       availableThornodePools,

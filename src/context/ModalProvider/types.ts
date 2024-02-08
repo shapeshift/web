@@ -12,23 +12,23 @@ import type { SnapsModalProps } from 'components/Modals/Snaps/Snaps'
 import type { CLOSE_MODAL, OPEN_MODAL } from './constants'
 
 export type Modals = {
-  receive: ({ asset, accountId }: ReceivePropsType) => JSX.Element
-  qrCode: ({ assetId, accountId }: QrCodeModalProps) => JSX.Element
-  send: ({ assetId, accountId, input }: SendModalProps) => JSX.Element
+  receive: FC<ReceivePropsType>
+  qrCode: FC<QrCodeModalProps>
+  send: FC<SendModalProps>
   fiatRamps: FC<FiatRampsModalProps>
-  settings: () => JSX.Element
-  keepKeyWipe: () => JSX.Element
+  settings: FC<{}>
+  keepKeyWipe: FC<{}>
   backupNativePassphrase: FC<BackupPassphraseModalProps>
-  mobileWelcomeModal: () => JSX.Element
-  addAccount: () => JSX.Element | null
+  mobileWelcomeModal: FC<{}>
+  addAccount: FC<{}>
   assetSearch: FC<AssetSearchModalProps>
   buyAssetSearch: FC<AssetSearchModalProps>
   sellAssetSearch: FC<AssetSearchModalProps>
-  popup: React.FC<PopupWindowModalProps>
-  nativeOnboard: () => JSX.Element
-  nft: React.FC<NftModalProps>
-  feedbackSupport: () => JSX.Element
-  snaps: React.FC<SnapsModalProps>
+  popup: FC<PopupWindowModalProps>
+  nativeOnboard: FC<{}>
+  nft: FC<NftModalProps>
+  feedbackSupport: FC<{}>
+  snaps: FC<SnapsModalProps>
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

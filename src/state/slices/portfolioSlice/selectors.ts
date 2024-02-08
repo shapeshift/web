@@ -80,21 +80,28 @@ import { findAccountsByAssetId } from './utils'
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.portfolio.accounts.byId,
-  (walletAccountIds, accountsById): PortfolioAccounts['byId'] =>
-    pickBy(accountsById, (_account, accountId: AccountId) => walletAccountIds.includes(accountId)),
+  (walletAccountIds, accountsById): PortfolioAccounts['byId'] => {
+    return pickBy(accountsById, (_account, accountId: AccountId) =>
+      walletAccountIds.includes(accountId),
+    )
+  },
 )
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
   selectPortfolioAccountBalancesBaseUnit,
-  (accountBalancesById): AssetId[] =>
-    Array.from(new Set(Object.values(accountBalancesById).flatMap(Object.keys))),
+  (accountBalancesById): AssetId[] => {
+    return Array.from(new Set(Object.values(accountBalancesById).flatMap(Object.keys)))
+  },
 )
 
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
   selectWalletAccountIds,
-  (accountMetadata, walletAccountIds): AccountMetadataById =>
-    pickBy(accountMetadata, (_, accountId: AccountId) => walletAccountIds.includes(accountId)),
+  (accountMetadata, walletAccountIds): AccountMetadataById => {
+    return pickBy(accountMetadata, (_, accountId: AccountId) =>
+      walletAccountIds.includes(accountId),
+    )
+  },
 )
 
 export const selectPortfolioAccountMetadataByAccountId = createCachedSelector(

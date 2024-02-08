@@ -2,7 +2,7 @@ import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -10,24 +10,10 @@ import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
+import { TradeInput } from './components/TradeInput/TradeInput'
+import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { TradeRoutePaths } from './types'
-
-const MultiHopTradeConfirm = lazy(() =>
-  import('./components/MultiHopTradeConfirm/MultiHopTradeConfirm').then(
-    ({ MultiHopTradeConfirm }) => ({
-      default: MultiHopTradeConfirm,
-    }),
-  ),
-)
-
-const TradeInput = lazy(() =>
-  import('./components/TradeInput/TradeInput').then(({ TradeInput }) => ({ default: TradeInput })),
-)
-const VerifyAddresses = lazy(() =>
-  import('./components/VerifyAddresses/VerifyAddresses').then(({ VerifyAddresses }) => ({
-    default: VerifyAddresses,
-  })),
-)
 
 const MultiHopEntries = [
   TradeRoutePaths.Input,
@@ -86,20 +72,18 @@ const MultiHopRoutes = memo(() => {
   }, [dispatch])
 
   return (
-    <Suspense>
-      <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location}>
-          <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-            <TradeInput />
-          </Route>
-          <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
-            <MultiHopTradeConfirm />
-          </Route>
-          <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
-            <VerifyAddresses />
-          </Route>
-        </Switch>
-      </AnimatePresence>
-    </Suspense>
+    <AnimatePresence mode='wait' initial={false}>
+      <Switch location={location}>
+        <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
+          <TradeInput />
+        </Route>
+        <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
+          <MultiHopTradeConfirm />
+        </Route>
+        <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
+          <VerifyAddresses />
+        </Route>
+      </Switch>
+    </AnimatePresence>
   )
 })

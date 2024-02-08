@@ -112,7 +112,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
   const [poolAssetUserlpData, setPoolAssetUserlpData] = useState<UserLpDataPosition | undefined>()
-  const [percentageSelection, setPercentageSelection] = useState<number>(0.5)
+  const [percentageSelection, setPercentageSelection] = useState<number>(50)
 
   useEffect(() => {
     if (!userData) return
@@ -248,26 +248,30 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
         setVirtualRuneCryptoLiquidityAmount(
           bnOrZero(underlyingRuneAmountCryptoPrecision)
             .times(percentage / 100)
+            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
             .toFixed(),
         )
         setVirtualRuneFiatLiquidityAmount(
           bnOrZero(underlyingRuneValueFiatUserCurrency)
             .times(percentage / 100)
+            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
             .toFixed(),
         )
         setVirtualAssetFiatLiquidityAmount(
           bnOrZero(underlyingAssetValueFiatUserCurrency)
             .times(percentage / 100)
+            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
             .toFixed(),
         )
         setVirtualAssetCryptoLiquidityAmount(
           bnOrZero(underlyingAssetAmountCryptoPrecision)
             .times(percentage / 100)
+            .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
             .toFixed(),
         )
       }
     },
-    [poolAssetUserlpData],
+    [isAsymAssetSide, isAsymRuneSide, poolAssetUserlpData],
   )
 
   const actualAssetCryptoLiquidityAmount = useMemo(() => {

@@ -15,8 +15,7 @@ import {
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useScroll } from 'framer-motion'
-import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -46,6 +45,12 @@ import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
 import { SideNavContent } from './SideNavContent'
 import { TxWindow } from './TxWindow/TxWindow'
+
+const WalletConnectToDappsHeaderButton = lazy(() =>
+  import('plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
+    ({ WalletConnectToDappsHeaderButton }) => ({ default: WalletConnectToDappsHeaderButton }),
+  ),
+)
 
 const paddingBottomProp = { base: '0.5rem', md: 0 }
 const fontSizeProp = { base: 'sm', md: 'md' }
@@ -231,7 +236,9 @@ export const Header = memo(() => {
               <GlobalSeachButton />
               {isLargerThanMd && isDegradedState && <DegradedStateBanner />}
               {isLargerThanMd && isWalletConnectToDappsV2Enabled && (
-                <WalletConnectToDappsHeaderButton />
+                <Suspense>
+                  <WalletConnectToDappsHeaderButton />
+                </Suspense>
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               <TxWindow />

@@ -1,8 +1,7 @@
 import { ChatIcon, CloseIcon, SettingsIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
-import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { memo, useCallback, useMemo } from 'react'
+import { lazy, memo, Suspense, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ArkeoIcon } from 'components/Icons/Arkeo'
@@ -14,6 +13,12 @@ import { ChainMenu } from './NavBar/ChainMenu'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'
 import { UserMenu } from './NavBar/UserMenu'
+
+const WalletConnectToDappsHeaderButton = lazy(() =>
+  import('plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton').then(
+    ({ WalletConnectToDappsHeaderButton }) => ({ default: WalletConnectToDappsHeaderButton }),
+  ),
+)
 
 const spacing = { base: 6, md: 0 }
 
@@ -81,7 +86,9 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           </Flex>
           {isWalletConnectToDappsV2Enabled && (
             <Box width='full'>
-              <WalletConnectToDappsHeaderButton />
+              <Suspense>
+                <WalletConnectToDappsHeaderButton />
+              </Suspense>
             </Box>
           )}
         </Flex>

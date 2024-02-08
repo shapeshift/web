@@ -1,13 +1,5 @@
-import { ChevronDownIcon, ChevronUpIcon, QuestionIcon } from '@chakra-ui/icons'
-import {
-  Collapse,
-  Divider,
-  Flex,
-  Skeleton,
-  Stack,
-  useColorModeValue,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { QuestionIcon } from '@chakra-ui/icons'
+import { Divider, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { type AssetId } from '@shapeshiftoss/caip'
 import type {
   AmountDisplayMeta,
@@ -19,7 +11,6 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -27,20 +18,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_STREAM_SWAP_SOURCE,
-} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { isSome } from 'lib/utils'
 import {
   selectActiveQuoteAffiliateBps,
   selectQuoteAffiliateFeeUserCurrency,
   selectQuoteFeeAmountUsd,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import {
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from 'state/slices/tradeQuoteSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { FeeModal } from '../../FeeModal/FeeModal'
@@ -87,9 +70,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     ...rest
   }) => {
     const translate = useTranslate()
-    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen })
     const [showFeeModal, setShowFeeModal] = useState(false)
-    const hoverColor = useColorModeValue('black', 'white')
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
@@ -98,9 +79,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
     const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
     const quoteFeeUsd = useAppSelector(selectQuoteFeeAmountUsd)
-
-    const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
-    const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
       return items
@@ -138,19 +116,9 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       [intermediaryTransactionOutputsParsed],
     )
 
-    const amountAfterSlippage = useMemo(() => {
-      const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
-      return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
-    }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
-
     const handleFeeModal = useCallback(() => {
       setShowFeeModal(!showFeeModal)
     }, [showFeeModal])
-
-    const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
-      () => ['trade.minAmountAfterSlippage', { slippage: slippageAsPercentageString }],
-      [slippageAsPercentageString],
-    )
 
     const protocolFeeToolTip = useCallback(() => {
       return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />

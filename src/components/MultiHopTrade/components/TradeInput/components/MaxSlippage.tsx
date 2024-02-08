@@ -93,7 +93,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
     return (
       <Stack divider={divider}>
         <Row gap={4}>
-          <Row.Label>
+          <Row.Label color='text.base'>
             <Text translation='trade.receiveAtLeast' />
           </Row.Label>
           <Row.Value whiteSpace='nowrap' color='text.base'>
@@ -129,7 +129,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
             </Stack>
           </Row.Value>
         </Row>
-        <Text color='text.subtle' fontSize='xs' translation={minAmountAfterSlippageTranslation} />
+        <Text color='text.subtle' fontSize='sm' translation={minAmountAfterSlippageTranslation} />
       </Stack>
     )
   }, [

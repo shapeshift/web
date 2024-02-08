@@ -1,7 +1,9 @@
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Center, Stack } from '@chakra-ui/react'
+import { Center, Collapse, Flex, Stack, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { AnimatePresence } from 'framer-motion'
+import type { PropsWithChildren } from 'react'
 import { type FC, memo, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -30,13 +32,24 @@ type RateGasRowProps = {
   isError?: boolean
   swapperName?: SwapperName
   swapSource?: SwapSource
-}
+} & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
 
 export const RateGasRow: FC<RateGasRowProps> = memo(
-  ({ sellSymbol, buySymbol, rate, gasFee, isLoading, isError, swapperName, swapSource }) => {
+  ({
+    sellSymbol,
+    buySymbol,
+    rate,
+    gasFee,
+    isLoading,
+    isError,
+    swapperName,
+    swapSource,
+    children,
+  }) => {
     const translate = useTranslate()
+    const { isOpen, onToggle } = useDisclosure()
     const swapperIcons = useMemo(() => {
       const isStreaming =
         swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
@@ -94,32 +107,49 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
       default:
         return (
           <Stack direction='row' fontWeight='medium'>
-            <Row fontSize='sm' flex={1}>
-              <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
-                {swapperIcons}
-                <Stack width='full' direction='row' spacing={1}>
-                  <Amount.Crypto
-                    fontSize='sm'
-                    value='1'
-                    symbol={sellSymbol ?? ''}
-                    suffix={sellSymbol ? '=' : ''}
-                  />
-                  <Amount.Crypto
-                    fontSize='sm'
-                    value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
-                    symbol={buySymbol ?? ''}
-                  />
-                </Stack>
-              </Row.Value>
-            </Row>
-            <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
-              <Row.Label fontSize='sm'>
-                <FaGasPump />
-              </Row.Label>
-              <Row.Value>
-                <Amount.Fiat fontSize='sm' value={gasFee} />
-              </Row.Value>
-            </Row>
+            <Flex
+              alignItems='center'
+              justifyContent='space-between'
+              px={6}
+              py={4}
+              cursor='pointer'
+              onClick={onToggle}
+            >
+              <Row fontSize='sm' flex={1}>
+                <Row.Value fontSize='sm' display='flex' alignItems='center' gap={2}>
+                  {swapperIcons}
+                  <Stack width='full' direction='row' spacing={1}>
+                    <Amount.Crypto
+                      fontSize='sm'
+                      value='1'
+                      symbol={sellSymbol ?? ''}
+                      suffix={sellSymbol ? '=' : ''}
+                    />
+                    <Amount.Crypto
+                      fontSize='sm'
+                      value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
+                      symbol={buySymbol ?? ''}
+                    />
+                  </Stack>
+                </Row.Value>
+              </Row>
+              <Flex gap={2} alignItems='center'>
+                <Row justifyContent='flex-end' alignItems='center' width='auto' columnGap={2}>
+                  <Row.Label fontSize='sm'>
+                    <FaGasPump />
+                  </Row.Label>
+                  <Row.Value>
+                    <Amount.Fiat fontSize='sm' value={gasFee} />
+                  </Row.Value>
+                </Row>
+                {isOpen ? (
+                  <ChevronUpIcon color='text.subtle' />
+                ) : (
+                  <ChevronDownIcon color='text.subtle' />
+                )}
+              </Flex>
+            </Flex>
+            {children && <Collapse in={isOpen}>{children}</Collapse>}
           </Stack>
         )
     }

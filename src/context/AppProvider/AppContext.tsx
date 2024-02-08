@@ -158,7 +158,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         chainIds = chainIdsWithActivity
       }
 
-      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
+      dispatch(
+        portfolio.actions.upsertAccountMetadata({
+          accountMetadataByAccountId,
+          walletId: await wallet.getDeviceID(),
+        }),
+      )
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 

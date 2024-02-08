@@ -206,7 +206,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   )
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
 
-  // Virtual as in, these are the amounts if depositing symetrically. But a user may deposit asymetrically, so these are not the *actual* amounts
+  // Virtual as in, these are the amounts if removing symetrically. But a user may remove asymetrically, so these are not the *actual* amounts
   // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
   // while using the *actual* amounts whenever we do things like checking for asset balance
   const [virtualAssetCryptoLiquidityAmount, setVirtualAssetCryptoLiquidityAmount] = useState<
@@ -221,6 +221,37 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
   const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
     string | undefined
   >()
+
+  const handlePercentageClick = useCallback(
+    (percentage: string) => {
+      return () => {
+        if (!poolAssetUserlpData) return
+        console.info('poolAssetUserlpData', poolAssetUserlpData)
+        console.info('Percentage:', percentage)
+
+        const {
+          underlyingAssetAmountCryptoPrecision,
+          underlyingAssetValueFiatUserCurrency,
+          underlyingRuneAmountCryptoPrecision,
+          underlyingRuneValueFiatUserCurrency,
+        } = poolAssetUserlpData
+
+        setVirtualRuneCryptoLiquidityAmount(
+          bnOrZero(underlyingRuneAmountCryptoPrecision).times(percentage).toFixed(),
+        )
+        setVirtualRuneFiatLiquidityAmount(
+          bnOrZero(underlyingRuneValueFiatUserCurrency).times(percentage).toFixed(),
+        )
+        setVirtualAssetFiatLiquidityAmount(
+          bnOrZero(underlyingAssetValueFiatUserCurrency).times(percentage).toFixed(),
+        )
+        setVirtualAssetCryptoLiquidityAmount(
+          bnOrZero(underlyingAssetAmountCryptoPrecision).times(percentage).toFixed(),
+        )
+      }
+    },
+    [poolAssetUserlpData],
+  )
 
   const actualAssetCryptoLiquidityAmount = useMemo(() => {
     if (isAsymAssetSide) {
@@ -462,10 +493,18 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
               <SliderThumb />
             </Slider>
             <ButtonGroup size='sm' justifyContent='space-between'>
-              <Button flex={1}>25%</Button>
-              <Button flex={1}>50%</Button>
-              <Button flex={1}>75%</Button>
-              <Button flex={1}>Max</Button>
+              <Button onClick={handlePercentageClick('0.25')} flex={1}>
+                25%
+              </Button>
+              <Button onClick={handlePercentageClick('0.50')} flex={1}>
+                50%
+              </Button>
+              <Button onClick={handlePercentageClick('0.75')} flex={1}>
+                75%
+              </Button>
+              <Button onClick={handlePercentageClick('1')} flex={1}>
+                Max
+              </Button>
             </ButtonGroup>
           </Stack>
           <Divider borderColor='border.base' />

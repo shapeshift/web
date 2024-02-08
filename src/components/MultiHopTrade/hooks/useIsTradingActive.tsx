@@ -1,71 +1,57 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { reactQueries } from 'react-queries'
 import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 import { selectInputBuyAsset, selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
 import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 export const useIsTradingActive = () => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const tradeType = (activeQuote as ThorEvmTradeQuote)?.tradeType
 
-  const [isTradingActiveOnSellPool, setIsTradingActiveOnSellPool] = useState(false)
-  const [isTradingActiveOnBuyPool, setIsTradingActiveOnBuyPool] = useState(false)
-
-  const dispatch = useAppDispatch()
-
   const buyAssetId = useAppSelector(selectInputBuyAsset).assetId
   const sellAssetId = useAppSelector(selectInputSellAsset).assetId
 
-  const { getIsTradingActive } = swapperApi.endpoints
   const swapperName = useAppSelector(selectActiveSwapperName)
 
-  useEffect(() => {
-    ;(async () => {
-      const isTradingActiveOnSellPoolResult =
-        sellAssetId &&
-        swapperName &&
-        (
-          await dispatch(
-            getIsTradingActive.initiate({
-              assetId: sellAssetId,
-              swapperName,
-            }),
-          )
-        ).data
+  const { data: isTradingActiveOnSellPool } = useQuery({
+    ...reactQueries.common.isTradingActive({
+      assetId: sellAssetId,
+      swapperName,
+    }),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+  })
 
-      setIsTradingActiveOnSellPool(!!isTradingActiveOnSellPoolResult)
-    })()
-  }, [dispatch, getIsTradingActive, sellAssetId, swapperName])
-
-  useEffect(() => {
-    ;(async () => {
-      const isTradingActiveOnBuyPoolResult =
-        buyAssetId &&
-        swapperName &&
-        (
-          await dispatch(
-            getIsTradingActive.initiate({
-              assetId: buyAssetId,
-              swapperName,
-            }),
-          )
-        ).data
-
-      setIsTradingActiveOnBuyPool(!!isTradingActiveOnBuyPoolResult)
-    })()
-  }, [buyAssetId, dispatch, getIsTradingActive, swapperName])
+  const { data: isTradingActiveOnBuyPool } = useQuery({
+    ...reactQueries.common.isTradingActive({
+      assetId: buyAssetId,
+      swapperName,
+    }),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Go stale instantly
+    // Never store queries in cache since we always want fresh data
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+  })
 
   return {
     isTradingActiveOnSellPool:
       tradeType === TradeType.L1ToL1 || tradeType === TradeType.L1ToLongTail
-        ? isTradingActiveOnSellPool
+        ? Boolean(isTradingActiveOnSellPool)
         : true,
     isTradingActiveOnBuyPool:
       tradeType === TradeType.L1ToL1 || tradeType === TradeType.LongTailToL1
-        ? isTradingActiveOnBuyPool
+        ? Boolean(isTradingActiveOnBuyPool)
         : true,
-    isTradingActive: isTradingActiveOnSellPool && isTradingActiveOnBuyPool,
+    isTradingActive: Boolean(isTradingActiveOnSellPool && isTradingActiveOnBuyPool),
   }
 }

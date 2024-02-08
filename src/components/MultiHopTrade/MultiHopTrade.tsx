@@ -1,4 +1,3 @@
-import type { CardProps } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect } from 'react'
@@ -10,21 +9,26 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
-import { QuoteList } from './components/QuoteList/QuoteList'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { TradeRoutePaths } from './types'
 
+export const transitionStyle = {
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
 const MultiHopEntries = [
   TradeRoutePaths.Input,
-  TradeRoutePaths.Quotes,
   TradeRoutePaths.Confirm,
   TradeRoutePaths.VerifyAddresses,
 ]
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
-} & CardProps
+}
 
 type MatchParams = {
   chainId?: string
@@ -73,9 +77,6 @@ const MultiHopRoutes = memo(() => {
       <Switch location={location}>
         <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
           <TradeInput />
-        </Route>
-        <Route key={TradeRoutePaths.Quotes} path={TradeRoutePaths.Quotes}>
-          <QuoteList />
         </Route>
         <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
           <MultiHopTradeConfirm />

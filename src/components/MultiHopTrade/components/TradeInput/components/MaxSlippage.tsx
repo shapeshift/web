@@ -15,10 +15,13 @@ import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
+import { selectDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
 import {
   convertDecimalPercentageToBasisPoints,
   subtractBasisPointAmount,
 } from 'state/slices/tradeQuoteSlice/utils'
+import { useAppSelector } from 'state/store'
 
 type MaxSlippageProps = {
   swapSource?: SwapSource
@@ -49,8 +52,26 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
       swapSource !== THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
     [swapSource],
   )
+  const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
+  const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
+
+  const renderSlippageTag = useMemo(() => {
+    if (bnOrZero(defaultSlippagePercentage).eq(bnOrZero(slippageAsPercentageString))) {
+      return (
+        <Tag colorScheme='blue' size='sm'>
+          {translate('trade.slippage.auto')}
+        </Tag>
+      )
+    } else if (bnOrZero(slippageAsPercentageString).eq(bnOrZero(userSlippagePercentage))) {
+      return (
+        <Tag colorScheme='purple' size='sm'>
+          {translate('trade.slippage.custom')}
+        </Tag>
+      )
+    }
+  }, [defaultSlippagePercentage, slippageAsPercentageString, translate, userSlippagePercentage])
 
   const amountAfterSlippage = useMemo(() => {
     const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
@@ -150,9 +171,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
       <Row.Label>{translate('trade.slippage.maxSlippage')}</Row.Label>
       <Row.Value>
         <Flex alignItems='center' gap={2}>
-          <Tag size='sm' colorScheme='blue'>
-            Auto
-          </Tag>
+          {renderSlippageTag}
           <Amount.Percent value={bnOrZero(slippageAsPercentageString).div(100).toString()} />
         </Flex>
       </Row.Value>

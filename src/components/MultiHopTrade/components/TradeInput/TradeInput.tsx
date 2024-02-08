@@ -606,14 +606,8 @@ export const TradeInput = memo(() => {
   return (
     <SlideTransition style={transitionStyle}>
       <MessageOverlay show={isKeplr} title={overlayTitle}>
-        <Flex gap={4}>
-          <Card
-            flex={1}
-            width='full'
-            maxWidth='500px'
-            minWidth='500px'
-            transition='all 5s ease-out'
-          >
+        <Flex gap={4} width='full' justifyContent='center'>
+          <Card flex={1} width='full' maxWidth='500px' transition='all 5s ease-out'>
             <AnimatePresence mode='wait'>
               {isOpen ? (
                 <FadeTransition key='quote-list'>
@@ -710,7 +704,7 @@ export const TradeInput = memo(() => {
               )}
             </AnimatePresence>
           </Card>
-          <Card minWidth='500px' maxWidth='500px'>
+          <Card width='full' maxWidth='500px'>
             <QuoteList onBack={onToggle} />
           </Card>
         </Flex>

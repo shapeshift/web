@@ -41,7 +41,7 @@ export const AddAccountModal = () => {
   const dispatch = useAppDispatch()
 
   const {
-    state: { wallet },
+    state: { wallet, deviceId: walletDeviceId },
   } = useWallet()
 
   const assets = useSelector(selectAssets)
@@ -82,7 +82,12 @@ export const AddAccountModal = () => {
 
       const { getAccount } = portfolioApi.endpoints
       const opts = { forceRefetch: true }
-      dispatch(portfolio.actions.upsertAccountMetadata(accountMetadataByAccountId))
+      dispatch(
+        portfolio.actions.upsertAccountMetadata({
+          accountMetadataByAccountId,
+          walletId: walletDeviceId,
+        }),
+      )
       const accountIds = Object.keys(accountMetadataByAccountId)
       accountIds.forEach(accountId =>
         dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts)),
@@ -99,7 +104,17 @@ export const AddAccountModal = () => {
       })
       close()
     })()
-  }, [assets, close, dispatch, nextAccountNumber, selectedChainId, toast, translate, wallet])
+  }, [
+    assets,
+    close,
+    dispatch,
+    nextAccountNumber,
+    selectedChainId,
+    toast,
+    translate,
+    wallet,
+    walletDeviceId,
+  ])
 
   if (!asset) return null
 

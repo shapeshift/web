@@ -127,7 +127,11 @@ export const LedgerChains = () => {
           acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
 
           const accountMetadata = accountMetadataByAccountId[accountId]
-          const payload = { [accountId]: accountMetadata }
+          const payload = {
+            accountMetadataByAccountId: { [accountId]: accountMetadata },
+            walletId: walletState.deviceId,
+          }
+
           dispatch(portfolio.actions.upsertAccountMetadata(payload))
           dispatch(portfolio.actions.upsertPortfolio(account))
           return acc
@@ -142,7 +146,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, walletState.wallet],
+    [availableChainIds, dispatch, walletState.deviceId, walletState.wallet],
   )
 
   const chainsRows = useMemo(

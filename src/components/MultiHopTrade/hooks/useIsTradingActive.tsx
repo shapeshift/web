@@ -20,6 +20,7 @@ export const useIsTradingActive = () => {
       assetId: sellAssetId,
       swapperName,
     }),
+    enabled: !!swapperName,
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // Go stale instantly
     staleTime: 0,
@@ -35,6 +36,7 @@ export const useIsTradingActive = () => {
       assetId: buyAssetId,
       swapperName,
     }),
+    enabled: !!swapperName,
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // Go stale instantly
     // Never store queries in cache since we always want fresh data

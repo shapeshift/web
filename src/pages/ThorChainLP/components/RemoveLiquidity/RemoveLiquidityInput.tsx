@@ -296,18 +296,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityProps> = ({
     return virtualRuneCryptoLiquidityAmount
   }, [isAsymRuneSide, isAsymAssetSide, virtualRuneCryptoLiquidityAmount])
 
-  // const actualAssetFiatLiquidityAmount = useMemo(() => {
-  //   if (isAsymAssetSide) {
-  //     // In asym asset side pool, use the virtual fiat amount as is
-  //     return virtualAssetFiatLiquidityAmount
-  //   } else if (isAsymRuneSide) {
-  //     // In asym rune side pool, the asset fiat amount should be zero
-  //     return '0'
-  //   }
-  //   // For symmetrical pools, use the virtual fiat amount as is
-  //   return virtualAssetFiatLiquidityAmount
-  // }, [isAsymAssetSide, isAsymRuneSide, virtualAssetFiatLiquidityAmount])
-
   const actualRuneFiatLiquidityAmount = useMemo(() => {
     if (isAsymRuneSide) {
       // In asym rune side pool, use the virtual fiat amount as is

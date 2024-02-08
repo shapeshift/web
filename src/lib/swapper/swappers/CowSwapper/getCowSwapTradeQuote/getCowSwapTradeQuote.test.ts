@@ -115,8 +115,8 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   rate: '14924.80846543344314936607', // 14942 FOX per WETH
   slippageTolerancePercentageDecimal: '0.005',
   steps: [
@@ -148,8 +148,8 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
 const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   rate: '0.00004995640398295996',
   slippageTolerancePercentageDecimal: '0.005',
   steps: [
@@ -181,8 +181,8 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
 const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   rate: '1.0003121775396440882',
   slippageTolerancePercentageDecimal: '0.005',
   steps: [
@@ -214,8 +214,8 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   rate: '14716.04718939437523468382', // 14716 FOX per WETH
   slippageTolerancePercentageDecimal: '0.005',
   steps: [

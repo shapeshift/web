@@ -18,7 +18,6 @@ const AddLiquidityEntries = [
 export type RemoveLiquidityProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
-  paramOpportunityId?: string
 }
 export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
   headerComponent,

@@ -28,6 +28,7 @@ import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
+import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -44,7 +45,11 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import {
+  THOR_PRECISION,
+  THORCHAIN_POOL_MODULE_ADDRESS,
+  thorchainBlockTimeMs,
+} from 'lib/utils/thorchain/constants'
 import {
   estimateAddThorchainLiquidityPosition,
   getThorchainLpTransactionType,
@@ -183,22 +188,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
-
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId: poolAsset?.assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    enabled: Boolean(poolAsset?.assetId),
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-  })
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
@@ -373,11 +362,35 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
   }, [poolAssetBalanceCryptoBaseUnit, poolAsset?.precision, actualAssetCryptoLiquidityAmount])
 
-  const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddress(poolAsset?.assetId),
+  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
     enabled: !!poolAsset,
-    select: data => data?.unwrap(),
+    select: data => selectInboundAddressData(data, poolAsset?.assetId),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
   })
+
+  const { data: mimir, isLoading: isMimirLoading } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+  })
+
+  const isTradingActive = useMemo(() => {
+    if (isMimirLoading || !mimir) return
+
+    return selectIsTradingActive({
+      assetId: poolAsset?.assetId,
+      inboundAddressResponse: inboundAddressesData,
+      swapperName: SwapperName.Thorchain,
+      mimir,
+    })
+  }, [inboundAddressesData, isMimirLoading, mimir, poolAsset?.assetId])
 
   const poolAccountId = useMemo(
     () => accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : ''],
@@ -411,7 +424,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   } = useMutation({
     ...reactQueries.mutations.approve({
       assetId: poolAsset?.assetId,
-      spender: inboundAddressData?.router,
+      spender: inboundAddressesData?.router,
       from: poolAssetAccountAddress,
       amount: toBaseUnit(actualAssetCryptoLiquidityAmount, poolAsset?.precision ?? 0),
       wallet,
@@ -437,7 +450,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
           poolAsset?.assetId,
-          inboundAddressData?.router,
+          inboundAddressesData?.router,
           poolAssetAccountAddress,
         ),
       )
@@ -445,7 +458,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     approvalTx,
     poolAsset?.assetId,
-    inboundAddressData?.router,
+    inboundAddressesData?.router,
     isApprovalTxPending,
     poolAssetAccountAddress,
     queryClient,
@@ -455,12 +468,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     refetchInterval: 30_000,
     ...reactQueries.common.allowanceCryptoBaseUnit(
       poolAsset?.assetId,
-      inboundAddressData?.router,
+      inboundAddressesData?.router,
       poolAssetAccountAddress,
     ),
     enabled: Boolean(
       poolAsset?.assetId &&
-        inboundAddressData?.router &&
+        inboundAddressesData?.router &&
         poolAssetAccountAddress &&
         getSupportedEvmChainIds().includes(
           fromAssetId(poolAsset?.assetId).chainId as KnownChainIds,
@@ -512,16 +525,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       case 'EvmCustomTx': {
         // TODO: this should really be inboundAddressData?.router, but useQuoteEstimatedFeesQuery doesn't yet handle contract calls
         // for the purpose of naively assuming a send, using the inbound address instead of the router is fine
-        return inboundAddressData?.address
+        return inboundAddressesData?.address
       }
       case 'Send': {
-        return inboundAddressData?.address
+        return inboundAddressesData?.address
       }
       default: {
         assertUnreachable(transactionType as never)
       }
     }
-  }, [poolAsset, inboundAddressData?.address])
+  }, [poolAsset, inboundAddressesData?.address])
 
   // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
@@ -1195,11 +1208,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           }
           isLoading={
             isVotingPowerLoading ||
-            isInboundAddressLoading ||
+            isInboundAddressesDataLoading ||
             isAllowanceDataLoading ||
             isApprovalTxPending ||
             isSweepNeededLoading ||
-            isTradingActiveLoading ||
+            isInboundAddressesDataLoading ||
             isEstimatedPoolAssetFeesDataLoading
           }
           onClick={handleSubmit}

@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
-import { isTradingActive } from './helpers'
+import { selectIsTradingActive } from './helpers'
 
 vi.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
   const actual: typeof getInboundAddressDataForChain = await importActual()
@@ -24,7 +24,10 @@ describe('isTradingActive', () => {
       Ok({ halted: false }) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
     )
 
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
+    const isTradingActiveResponse = await selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.Thorchain,
+    })
     expect(isTradingActiveResponse.unwrap()).toBe(true)
   })
 
@@ -32,7 +35,10 @@ describe('isTradingActive', () => {
     vi.mocked(getInboundAddressDataForChain).mockResolvedValueOnce(
       Ok({ halted: true }) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
     )
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
+    const isTradingActiveResponse = await selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.Thorchain,
+    })
     expect(isTradingActiveResponse.unwrap()).toBe(false)
   })
 
@@ -40,7 +46,10 @@ describe('isTradingActive', () => {
     vi.mocked(getInboundAddressDataForChain).mockResolvedValueOnce(
       Err(undefined) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
     )
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
+    const isTradingActiveResponse = await selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.Thorchain,
+    })
     expect(isTradingActiveResponse.isErr()).toBe(true)
   })
 
@@ -48,7 +57,10 @@ describe('isTradingActive', () => {
     vi.mocked(getInboundAddressDataForChain).mockResolvedValueOnce(
       Ok({ halted: true }) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
     )
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.CowSwap)
+    const isTradingActiveResponse = await selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.CowSwap,
+    })
     expect(isTradingActiveResponse.unwrap()).toBe(true)
   })
 })

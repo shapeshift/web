@@ -3,11 +3,12 @@ import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type {
+  InboundAddressResponse,
   MidgardPoolResponse,
   ThornodePoolResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
@@ -22,11 +23,9 @@ import {
   getFees,
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
-import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
-import { isTradingActive } from 'state/apis/swapper/helpers'
 
 const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -53,25 +52,6 @@ const common = createQueryKeys('common', {
       })
 
       return allowanceOnChainCryptoBaseUnit
-    },
-  }),
-  isTradingActive: ({
-    assetId,
-    swapperName,
-  }: {
-    assetId: AssetId | undefined
-    swapperName: SwapperName | undefined
-  }) => ({
-    queryKey: ['isTradingActive', assetId, swapperName],
-    queryFn: async () => {
-      if (!assetId) throw new Error('assetId is required')
-      if (!swapperName) throw new Error('swapperName is required')
-
-      const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
-
-      // Do not return things in a monadic way so that we can leverage native react-query error-handling
-      if (maybeIsTradingActive.isErr()) throw maybeIsTradingActive.unwrapErr()
-      return maybeIsTradingActive.unwrap()
     },
   }),
 })
@@ -255,15 +235,25 @@ const thornode = createQueryKeys('thornode', {
       enabled: true,
     }
   },
-  inboundAddress: (assetId: AssetId | undefined) => {
+  inboundAddresses: () => {
     return {
-      queryKey: ['thorchainInboundAddress', assetId],
+      queryKey: ['thorchainInboundAddress'],
       queryFn: async () => {
-        if (!assetId) throw new Error('assetId is required')
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-        const data = await getInboundAddressDataForChain(daemonUrl, assetId)
 
-        return data
+        return (
+          // Get all inbound addresses
+          (
+            await thorService.get<InboundAddressResponse[]>(
+              `${daemonUrl}/lcd/thorchain/inbound_addresses`,
+            )
+          ).andThen(({ data: inboundAddresses }) => {
+            // Exclude halted
+            const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
+
+            return Ok(activeInboundAddresses)
+          })
+        )
       },
     }
   },

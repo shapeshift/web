@@ -3,7 +3,8 @@ import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { thorchainBlockTimeMs, thorchainBlockTimeSeconds } from 'lib/utils/thorchain/constants'
 
 import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 
@@ -12,10 +13,6 @@ type UseLendingPositionDataProps = {
   assetId?: AssetId
 }
 
-// Current blocktime as per https://thorchain.network/stats
-export const thorchainBlockTimeSeconds = '6.1'
-
-const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 export const useRepaymentLockData = ({
   accountId,
   assetId,

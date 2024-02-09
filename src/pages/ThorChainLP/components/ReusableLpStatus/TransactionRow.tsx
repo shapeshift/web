@@ -32,6 +32,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -51,7 +52,7 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import { THORCHAIN_POOL_MODULE_ADDRESS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
 import type { AsymSide, LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
@@ -100,18 +101,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  const {
-    data: isTradingActive,
-    isLoading: isTradingActiveLoading,
-    isRefetching: isTradingActiveRefetching,
-    refetch: refetchIsTradingActive,
-  } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId: poolAssetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    enabled: Boolean(poolAssetId),
+  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
+    enabled: !!poolAssetId,
     // Go stale instantly
     staleTime: 0,
     // Never store queries in cache since we always want fresh data
@@ -119,7 +111,24 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchInterval: 60_000,
+    select: data => selectInboundAddressData(data, poolAsset?.assetId),
   })
+
+  const { data: mimir, isLoading: isMimirLoading } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+  })
+
+  const isTradingActive = useMemo(() => {
+    if (isMimirLoading || !mimir) return
+
+    return selectIsTradingActive({
+      assetId: poolAssetId,
+      inboundAddressResponse: inboundAddressesData,
+      swapperName: SwapperName.Thorchain,
+      mimir,
+    })
+  }, [inboundAddressesData, isMimirLoading, mimir, poolAssetId])
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]
   const poolAssetAccountId =
@@ -258,14 +267,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [mutateAsync, onComplete, status, tx, txId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddress(assetId),
-    enabled: !!assetId,
+    ...reactQueries.thornode.inboundAddresses(),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // We technically don't care about going stale immediately here - halted checks are done JIT at signing time in case the pool went
     // halted by the time the user clicked the confirm button
     // But we still have some sane 60s stale time rather than 0 for paranoia's sake, as a balance of safety and not overfetching
     staleTime: 60_000,
-    select: data => data?.unwrap(),
+    select: data => selectInboundAddressData(data, assetId),
+    enabled: !!assetId,
   })
 
   const estimateFeesArgs = useMemo(() => {
@@ -584,7 +593,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     isRuneTx,
     inboundAddressData,
-    refetchIsTradingActive,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,
@@ -656,8 +664,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             isLoading={
               status === TxStatus.Pending ||
               isInboundAddressLoading ||
-              isTradingActiveLoading ||
-              isTradingActiveRefetching
+              isMimirLoading ||
+              isInboundAddressesDataLoading
             }
           >
             {confirmTranslation}

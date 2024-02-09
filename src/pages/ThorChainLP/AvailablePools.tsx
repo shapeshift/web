@@ -5,10 +5,12 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
+import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
+import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { calculateTVL, getVolume } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -51,12 +53,8 @@ type PoolButtonProps = {
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
 
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId: pool.assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
     // Go stale instantly
     staleTime: 0,
     // Never store queries in cache since we always want fresh data
@@ -64,7 +62,24 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchInterval: 60_000,
+    select: data => selectInboundAddressData(data, pool?.assetId),
   })
+
+  const { data: mimir, isLoading: isMimirLoading } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+  })
+
+  const isTradingActive = useMemo(() => {
+    if (isMimirLoading || !mimir) return
+
+    return selectIsTradingActive({
+      assetId: pool?.assetId,
+      inboundAddressResponse: inboundAddressesData,
+      swapperName: SwapperName.Thorchain,
+      mimir,
+    })
+  }, [inboundAddressesData, isMimirLoading, mimir, pool?.assetId])
 
   const handlePoolClick = useCallback(() => {
     const { opportunityId } = pool
@@ -116,7 +131,7 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         <Tag size='sm'>
           <Amount.Percent value={pool.poolAPY} />
         </Tag>
-        <Skeleton isLoaded={!isTradingActiveLoading}>
+        <Skeleton isLoaded={!isInboundAddressesDataLoading && !isMimirLoading}>
           {isTradingActive === false ? (
             <Tag colorScheme='yellow'>
               <Text translation='common.halted' />

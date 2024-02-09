@@ -7,7 +7,6 @@ import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { bn } from 'lib/bignumber/bignumber'
 import type {
   MidgardPoolResponse,
   ThornodePoolResponse,
@@ -28,10 +27,6 @@ import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 import { isTradingActive } from 'state/apis/swapper/helpers'
-
-// Current blocktime as per https://thorchain.network/stats
-export const thorchainBlockTimeSeconds = '6.1'
-const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
 const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -237,8 +232,6 @@ const thornode = createQueryKeys('thornode', {
   }),
   mimir: () => {
     return {
-      // We use the mimir query to get the repayment maturity block, so need to mark it stale at the end of each THOR block
-      staleTime: thorchainBlockTimeMs,
       queryKey: ['thorchainMimir'],
       queryFn: async () => {
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL

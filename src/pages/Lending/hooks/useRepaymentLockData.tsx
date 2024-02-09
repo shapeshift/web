@@ -2,8 +2,8 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { reactQueries, thorchainBlockTimeSeconds } from 'react-queries'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { reactQueries } from 'react-queries'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
 import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 
@@ -12,6 +12,10 @@ type UseLendingPositionDataProps = {
   assetId?: AssetId
 }
 
+// Current blocktime as per https://thorchain.network/stats
+export const thorchainBlockTimeSeconds = '6.1'
+
+const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 export const useRepaymentLockData = ({
   accountId,
   assetId,
@@ -44,6 +48,9 @@ export const useRepaymentLockData = ({
 
   const repaymentLockData = useQuery({
     ...reactQueries.thornode.mimir(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // We use the mimir query to get the repayment maturity block, so need to mark it stale at the end of each THOR block
+    staleTime: thorchainBlockTimeMs,
     select: mimirData => {
       if (!mimirData || !blockHeight) return null
 

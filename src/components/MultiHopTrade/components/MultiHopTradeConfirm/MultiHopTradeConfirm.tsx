@@ -2,9 +2,8 @@ import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from 
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
-import { transitionStyle } from 'components/MultiHopTrade/MultiHopTrade'
+import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { selectTradeExecutionState } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -69,7 +68,7 @@ export const MultiHopTradeConfirm = memo(() => {
   )
 
   return (
-    <SlideTransition style={transitionStyle}>
+    <TradeSlideTransition>
       <Card
         flex={1}
         borderRadius={cardBorderRadius}
@@ -110,6 +109,6 @@ export const MultiHopTradeConfirm = memo(() => {
           </>
         )}
       </Card>
-    </SlideTransition>
+    </TradeSlideTransition>
   )
 })

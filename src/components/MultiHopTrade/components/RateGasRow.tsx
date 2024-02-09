@@ -1,6 +1,15 @@
 import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Box, Center, Collapse, Flex, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
+import {
+  Box,
+  Center,
+  Collapse,
+  Flex,
+  Stack,
+  Tooltip,
+  useDisclosure,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { AnimatePresence } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
@@ -20,6 +29,7 @@ import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import { breakpoints } from 'theme/theme'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
 
@@ -30,6 +40,7 @@ type RateGasRowProps = {
   gasFee: string
   isLoading?: boolean
   isError?: boolean
+  isCompact?: boolean
   swapperName?: SwapperName
   swapSource?: SwapSource
   onRateClick?: () => void
@@ -49,7 +60,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     rate,
     gasFee,
     isLoading,
-    isError,
+    isCompact,
     swapperName,
     swapSource,
     onRateClick,
@@ -57,6 +68,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
+    const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints['lg']})`, { ssr: false })
+    const allowSelectQuote = useMemo(
+      () => isCompact || isSmallerThanLg,
+      [isCompact, isSmallerThanLg],
+    )
     const swapperIcons = useMemo(() => {
       const isStreaming =
         swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
@@ -124,7 +140,10 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
             fontSize='sm'
           >
             <Flex alignItems='center' justifyContent='space-between' px={6} py={4} width='full'>
-              <Tooltip label={translate('trade.tooltip.changeQuote')}>
+              <Tooltip
+                isDisabled={!allowSelectQuote}
+                label={translate('trade.tooltip.changeQuote')}
+              >
                 <Box>
                   <Row fontSize='sm' flex={1}>
                     <Row.Value
@@ -132,7 +151,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                       display='flex'
                       alignItems='center'
                       gap={2}
-                      _hover={rateHover}
+                      _hover={allowSelectQuote ? rateHover : {}}
                       onClick={onRateClick}
                     >
                       {swapperIcons}
@@ -140,7 +159,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         width='full'
                         direction='row'
                         spacing={1}
-                        color='text.link'
+                        color={allowSelectQuote ? 'text.link' : 'text.base'}
                         className='rate'
                         borderBottomWidth={1}
                         borderColor='transparent'
@@ -157,7 +176,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                           value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
                           symbol={buySymbol ?? ''}
                         />
-                        <ArrowUpDownIcon />
+                        {allowSelectQuote && <ArrowUpDownIcon />}
                       </Stack>
                     </Row.Value>
                   </Row>

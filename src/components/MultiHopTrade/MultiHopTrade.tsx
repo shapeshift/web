@@ -13,13 +13,6 @@ import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { TradeRoutePaths } from './types'
 
-export const transitionStyle = {
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
 const MultiHopEntries = [
   TradeRoutePaths.Input,
   TradeRoutePaths.Confirm,
@@ -28,6 +21,7 @@ const MultiHopEntries = [
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
+  isCompact?: boolean
 }
 
 type MatchParams = {
@@ -35,7 +29,7 @@ type MatchParams = {
   assetSubId?: string
 }
 
-export const MultiHopTrade = memo(({ defaultBuyAssetId }: TradeCardProps) => {
+export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardProps) => {
   const dispatch = useAppDispatch()
   const methods = useForm({ mode: 'onChange' })
   const { assetSubId, chainId } = useParams<MatchParams>()
@@ -52,13 +46,17 @@ export const MultiHopTrade = memo(({ defaultBuyAssetId }: TradeCardProps) => {
   return (
     <FormProvider {...methods}>
       <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
-        <MultiHopRoutes />
+        <MultiHopRoutes isCompact={isCompact} />
       </MemoryRouter>
     </FormProvider>
   )
 })
 
-const MultiHopRoutes = memo(() => {
+type MultiHopRoutesProps = {
+  isCompact?: boolean
+}
+
+const MultiHopRoutes = memo(({ isCompact }: MultiHopRoutesProps) => {
   const location = useLocation()
   const dispatch = useAppDispatch()
 
@@ -76,7 +74,7 @@ const MultiHopRoutes = memo(() => {
     <AnimatePresence mode='wait' initial={false}>
       <Switch location={location}>
         <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-          <TradeInput />
+          <TradeInput isCompact={isCompact} />
         </Route>
         <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
           <MultiHopTradeConfirm />

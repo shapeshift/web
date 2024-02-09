@@ -37,9 +37,8 @@ import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { transitionStyle } from 'components/MultiHopTrade/MultiHopTrade'
+import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -101,10 +100,16 @@ const formControlProps = {
   borderWidth: 0,
 }
 
+const quoteListDisplay = { base: 'none', lg: 'flex' }
+
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
-export const TradeInput = memo(() => {
+type TradeInputProps = {
+  isCompact?: boolean
+}
+
+export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
     isAnySwapperFetched: _isAnySwapperFetched,
     isQuoteRequestComplete: _isQuoteRequestComplete,
@@ -492,6 +497,7 @@ export const TradeInput = memo(() => {
               swapperName={activeSwapperName}
               swapSource={tradeQuoteStep?.source}
               onRateClick={onToggle}
+              isCompact={isCompact}
             >
               <ReceiveSummary
                 isLoading={isLoading}
@@ -556,6 +562,7 @@ export const TradeInput = memo(() => {
       activeSwapperName,
       tradeQuoteStep?.source,
       onToggle,
+      isCompact,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       totalProtocolFees,
@@ -604,9 +611,9 @@ export const TradeInput = memo(() => {
   }, [buyAsset.chainId, walletSupportedChainIds])
 
   return (
-    <SlideTransition style={transitionStyle}>
+    <TradeSlideTransition>
       <MessageOverlay show={isKeplr} title={overlayTitle}>
-        <Flex gap={4} width='full' justifyContent='center'>
+        <Flex width='full' justifyContent='center'>
           <Card flex={1} width='full' maxWidth='500px' transition='all 5s ease-out'>
             <AnimatePresence mode='wait'>
               {isOpen ? (
@@ -704,11 +711,24 @@ export const TradeInput = memo(() => {
               )}
             </AnimatePresence>
           </Card>
-          <Card width='full' maxWidth='500px'>
-            <QuoteList onBack={onToggle} />
-          </Card>
+          {!isCompact && (
+            <Card
+              width='0'
+              flexShrink={1}
+              maxWidth='500px'
+              display={quoteListDisplay}
+              flexGrow={hasUserEnteredAmount ? 1 : 0}
+              flexBasis='auto'
+              overflow='hidden'
+              opacity={hasUserEnteredAmount ? 1 : 0}
+              transition='opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, flex-grow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
+              ml={hasUserEnteredAmount ? 4 : 0}
+            >
+              <QuoteList onBack={onToggle} />
+            </Card>
+          )}
         </Flex>
       </MessageOverlay>
-    </SlideTransition>
+    </TradeSlideTransition>
   )
 })

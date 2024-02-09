@@ -1,7 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { reactQueries } from 'react-queries'
+import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import {
   getSupportedBuyAssetIds,
@@ -11,6 +13,7 @@ import {
 import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getEnabledSwappers } from 'lib/swapper/utils'
+import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
@@ -109,10 +112,28 @@ export const swapperApi = swapperApiBase.injectEndpoints({
               }
 
               const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
-                [sellAsset.assetId, buyAsset.assetId].map(assetId => {
-                  return queryClient.fetchQuery(
-                    reactQueries.common.isTradingActive({ assetId, swapperName }),
-                  )
+                [sellAsset.assetId, buyAsset.assetId].map(async assetId => {
+                  const inboundAddresses = await queryClient.fetchQuery({
+                    ...reactQueries.thornode.inboundAddresses(),
+                    // Go stale instantly
+                    staleTime: 0,
+                    // Never store queries in cache since we always want fresh data
+                    gcTime: 0,
+                  })
+
+                  const inboundAddressResponse = selectInboundAddressData(inboundAddresses, assetId)
+
+                  const mimir = await queryClient.fetchQuery({
+                    ...reactQueries.thornode.mimir(),
+                    staleTime: thorchainBlockTimeMs,
+                  })
+
+                  return selectIsTradingActive({
+                    assetId,
+                    inboundAddressResponse,
+                    swapperName: SwapperName.Thorchain,
+                    mimir,
+                  })
                 }),
               )
               return {

@@ -148,9 +148,6 @@ const mutations = createMutationKeys('mutations', {
 // Feature-agnostic, abstracts away midgard endpoints
 const midgard = createQueryKeys('midgard', {
   swapsData: (assetId: AssetId | undefined, timeframe: '24h' | 'previous24h' | '7d') => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    enabled: !!assetId,
     queryKey: ['midgardSwapsData', assetId ?? '', timeframe],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')

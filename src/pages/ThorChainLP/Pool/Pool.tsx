@@ -144,15 +144,24 @@ export const Pool = () => {
 
   const { data: volume24h } = useQuery({
     ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
+    enabled: !!foundPool?.assetId,
     select: data => getVolume(runeMarketData.price, data),
   })
 
   const { data: swapDataPrevious24h } = useQuery({
     ...reactQueries.midgard.swapsData(foundPool?.assetId, 'previous24h'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
+    enabled: !!foundPool?.assetId,
   })
 
   const { data: swapData24h } = useQuery({
     ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
+    enabled: !!foundPool?.assetId,
   })
 
   const fees24h = useMemo(() => {

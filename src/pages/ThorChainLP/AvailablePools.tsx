@@ -89,6 +89,8 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
   const { data: volume7D, isLoading: isVolume7DLoading } = useQuery({
     ...reactQueries.midgard.swapsData(pool.assetId, '7d'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
     select: data => getVolume(runeMarketData.price, data),
   })
 

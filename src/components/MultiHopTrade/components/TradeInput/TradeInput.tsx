@@ -100,7 +100,7 @@ const formControlProps = {
   borderWidth: 0,
 }
 
-const quoteListDisplay = { base: 'none', lg: 'flex' }
+const quoteListDisplay = { base: 'none', xl: 'flex' }
 
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
@@ -713,15 +713,14 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
           </Card>
           {!isCompact && (
             <Card
-              width='0'
+              width={hasUserEnteredAmount ? '500px' : '0px'}
               flexShrink={1}
               maxWidth='500px'
               display={quoteListDisplay}
-              flexGrow={hasUserEnteredAmount ? 1 : 0}
               flexBasis='auto'
               overflow='hidden'
               opacity={hasUserEnteredAmount ? 1 : 0}
-              transition='opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, flex-grow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
+              transition='opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
               ml={hasUserEnteredAmount ? 4 : 0}
             >
               <QuoteList isLoading={isLoading} />

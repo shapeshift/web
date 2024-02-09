@@ -68,10 +68,10 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-    const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints['lg']})`, { ssr: false })
+    const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints['xl']})`, { ssr: false })
     const allowSelectQuote = useMemo(
-      () => isCompact || isSmallerThanLg,
-      [isCompact, isSmallerThanLg],
+      () => isCompact || isSmallerThanXl,
+      [isCompact, isSmallerThanXl],
     )
     const swapperIcons = useMemo(() => {
       const isStreaming =

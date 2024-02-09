@@ -155,7 +155,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               </Row.Label>
               <Row.Value color='text.base'>
                 {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
-                  <Amount.Crypto color={redColor} value={amountCryptoPrecision} symbol={symbol} />
+                  <Amount.Crypto
+                    key={`${amountCryptoPrecision}`}
+                    color={redColor}
+                    value={amountCryptoPrecision}
+                    symbol={symbol}
+                  />
                 ))}
               </Row.Value>
             </Row>

@@ -184,9 +184,6 @@ const midgard = createQueryKeys('midgard', {
     },
   }),
   poolData: (assetId: AssetId | undefined) => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    enabled: !!assetId,
     queryKey: ['midgardPoolData', assetId],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')

@@ -37,6 +37,9 @@ export const useUserLpData = ({
 
   const { data: midgardPoolData } = useQuery({
     ...reactQueries.midgard.poolData(assetId),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // 60 seconds staleTime since this is used to get the current position value
+    staleTime: 60_000,
   })
 
   const selectLiquidityPositionsData = (
@@ -104,7 +107,8 @@ export const useUserLpData = ({
 
   const liquidityPoolPositionData = useQuery({
     ...reactQueries.thorchainLp.userLpData(assetId),
-    staleTime: Infinity,
+    // 60 seconds staleTime since this is used to get the current position value
+    staleTime: 60_000,
     queryFn: async ({ queryKey }) => {
       const [, , , { assetId }] = queryKey
 

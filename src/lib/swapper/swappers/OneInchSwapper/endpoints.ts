@@ -11,7 +11,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
-import { checkEvmSwapStatus } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, checkEvmSwapStatus, getFees } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchOneInchSwap } from './utils/fetchOneInchSwap'
@@ -38,6 +38,7 @@ export const oneInchApi: SwapperApi = {
     slippageTolerancePercentageDecimal,
     stepIndex,
     tradeQuote,
+    supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
@@ -45,7 +46,7 @@ export const oneInchApi: SwapperApi = {
     const { receiveAddress, affiliateBps } = tradeQuote
 
     const {
-      tx: { value, to, gasPrice, gas, data },
+      tx: { value, to, data },
     } = await fetchOneInchSwap({
       affiliateBps,
       buyAsset,
@@ -56,14 +57,22 @@ export const oneInchApi: SwapperApi = {
       sendAddress: from,
     })
 
+    const feeData = await getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data,
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+
     return {
       chainId: Number(fromChainId(chainId).chainReference),
       data,
       from,
-      gasLimit: gas,
-      gasPrice,
       to,
       value,
+      ...feeData,
     }
   },
 

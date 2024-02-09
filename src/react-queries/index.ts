@@ -196,8 +196,6 @@ const midgard = createQueryKeys('midgard', {
     },
   }),
   poolsData: () => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
     queryKey: ['midgardPoolsData'],
     queryFn: async () => {
       const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(

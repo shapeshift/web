@@ -73,7 +73,6 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
       if (!assetId) throw new Error('assetId is required')
       return getAllTimeVolume(assetId, runePrice)
     },
-    enabled: !!assetId && !!runePrice,
   }),
   liquidityMembers,
   liquidityMember,

@@ -29,6 +29,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import {
   calculateEarnings,
@@ -221,6 +222,7 @@ export const Position = () => {
 
   const { data: allTimeVolume } = useQuery({
     ...reactQueries.thorchainLp.allTimeVolume(foundPool?.assetId, runeMarketData.price),
+    enabled: Boolean(!!foundPool?.assetId && !!bnOrZero(runeMarketData.price).gt(0)),
   })
 
   const { data: thornodePoolData } = useQuery({

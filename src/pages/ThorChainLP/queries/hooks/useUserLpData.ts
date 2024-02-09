@@ -33,13 +33,19 @@ export const useUserLpData = ({
 
   const { data: thornodePoolData } = useQuery({
     ...reactQueries.thornode.poolData(assetId),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // 0 seconds garbage collect and stale times since this is used to get the current position value, we want this to always be cached-then-fresh
+    staleTime: 0,
+    gcTime: 0,
+    enabled: !!assetId,
   })
 
   const { data: midgardPoolData } = useQuery({
     ...reactQueries.midgard.poolData(assetId),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    // 60 seconds staleTime since this is used to get the current position value
-    staleTime: 60_000,
+    // 0 seconds garbage collect and stale times since this is used to get the current position value, we want this to always be cached-then-fresh
+    staleTime: 0,
+    gcTime: 0,
   })
 
   const selectLiquidityPositionsData = (

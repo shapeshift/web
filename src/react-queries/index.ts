@@ -209,9 +209,6 @@ const midgard = createQueryKeys('midgard', {
 // Feature-agnostic, abstracts away THORNode endpoints
 const thornode = createQueryKeys('thornode', {
   poolData: (assetId: AssetId | undefined) => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    enabled: !!assetId,
     queryKey: ['thornodePoolData', assetId],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')

@@ -30,6 +30,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -58,7 +59,7 @@ import {
   getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import {
   getMaybeThorchainSaversDepositQuote,
@@ -540,13 +541,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })()
   }, [accountId, accountMetadata, accountType, assetId, bip44Params, chainAdapter, wallet])
 
-  const { data: isTradingActive, refetch: refetchIsTradingActive } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    enabled: Boolean(assetId),
+  const { data: inboundAddressesData, refetch: refetchInboundAddressData } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
+    enabled: !!assetId,
     // Go stale instantly
     staleTime: 0,
     // Never store queries in cache since we always want fresh data
@@ -554,7 +551,28 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchInterval: 60_000,
+    select: data => selectInboundAddressData(data, assetId),
   })
+
+  const {
+    data: mimir,
+    isLoading: isMimirLoading,
+    refetch: refetchMimir,
+  } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+  })
+
+  const isTradingActive = useMemo(() => {
+    if (isMimirLoading || !mimir) return
+
+    return selectIsTradingActive({
+      assetId,
+      inboundAddressResponse: inboundAddressesData,
+      swapperName: SwapperName.Thorchain,
+      mimir,
+    })
+  }, [assetId, inboundAddressesData, isMimirLoading, mimir])
 
   const handleDeposit = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return
@@ -583,9 +601,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       }
 
       // Refetch the trading active state JIT to ensure the pool didn't just become halted
-      const { data: isTradingActiveData } = await refetchIsTradingActive()
+      const { data: _inboundAddressesData } = await refetchInboundAddressData()
+      if (!_inboundAddressesData) throw new Error('Pool Halted')
+      const { data: _mimir } = await refetchMimir()
+      if (!_mimir) throw new Error('Failed to fetch mimir')
 
-      if (!isTradingActiveData) {
+      const _isTradingActive = selectIsTradingActive({
+        assetId,
+        inboundAddressResponse: _inboundAddressesData,
+        swapperName: SwapperName.Thorchain,
+        mimir: _mimir,
+      })
+      if (!_isTradingActive) throw new Error('Pool Halted')
+
+      if (!_isTradingActive) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
@@ -650,7 +679,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
     isTradingActive,
-    refetchIsTradingActive,
+    refetchInboundAddressData,
+    refetchMimir,
     protocolFeeCryptoBaseUnit,
     maybeFromUTXOAccountAddress,
     onNext,

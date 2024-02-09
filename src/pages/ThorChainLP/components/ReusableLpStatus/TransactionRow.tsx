@@ -101,7 +101,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
-  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
+  const {
+    data: inboundAddressesData,
+    isLoading: isInboundAddressesDataLoading,
+    refetch: refetchInboundAddressData,
+  } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
     enabled: !!poolAssetId,
     // Go stale instantly
@@ -114,7 +118,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     select: data => selectInboundAddressData(data, poolAsset?.assetId),
   })
 
-  const { data: mimir, isLoading: isMimirLoading } = useQuery({
+  const {
+    data: mimir,
+    isLoading: isMimirLoading,
+    refetch: refetchMimir,
+  } = useQuery({
     ...reactQueries.thornode.mimir(),
     staleTime: thorchainBlockTimeMs,
   })
@@ -413,8 +421,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     return (async () => {
       // Refetch the trading active state JIT to ensure the pool didn't just become halted
-      const { data: isTradingActiveData } = await refetchIsTradingActive()
-      if (!isTradingActiveData) throw new Error('Pool Halted')
+      const { data: _inboundAddressesData } = await refetchInboundAddressData()
+      if (!_inboundAddressesData) throw new Error('Pool Halted')
+      const { data: _mimir } = await refetchMimir()
+      if (!_mimir) throw new Error('Failed to fetch mimir')
+
+      const _isTradingActive = selectIsTradingActive({
+        assetId: poolAssetId,
+        inboundAddressResponse: _inboundAddressesData,
+        swapperName: SwapperName.Thorchain,
+        mimir: _mimir,
+      })
+      if (!_isTradingActive) throw new Error('Pool Halted')
 
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
@@ -593,6 +611,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     isRuneTx,
     inboundAddressData,
+    refetchInboundAddressData,
+    refetchMimir,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,

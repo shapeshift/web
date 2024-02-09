@@ -7,9 +7,10 @@ import { WithBackButton } from '../WithBackButton'
 
 type QuoteListProps = {
   onBack?: () => void
+  isLoading: boolean
 }
 
-export const QuoteList: React.FC<QuoteListProps> = ({ onBack }) => {
+export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading }) => {
   const handleBack = useCallback(() => {
     onBack && onBack()
   }, [onBack])
@@ -23,7 +24,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack }) => {
         </WithBackButton>
       </CardHeader>
       <CardBody px={0} overflowY='auto' height='500px' flex='1 1 auto'>
-        <TradeQuotes isLoading={false} />
+        <TradeQuotes isLoading={isLoading} onBack={handleBack} />
       </CardBody>
     </>
   )

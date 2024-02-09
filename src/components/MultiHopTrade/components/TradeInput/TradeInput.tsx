@@ -618,7 +618,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
             <AnimatePresence mode='wait'>
               {isOpen ? (
                 <FadeTransition key='quote-list'>
-                  <QuoteList onBack={onToggle} />
+                  <QuoteList onBack={onToggle} isLoading={isLoading} />
                 </FadeTransition>
               ) : (
                 <FadeTransition key='trade-input'>
@@ -724,7 +724,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               transition='opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, flex-grow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
               ml={hasUserEnteredAmount ? 4 : 0}
             >
-              <QuoteList onBack={onToggle} />
+              <QuoteList isLoading={isLoading} />
             </Card>
           )}
         </Flex>

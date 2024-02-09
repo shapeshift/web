@@ -22,6 +22,7 @@ const MotionBox = motion(Box)
 
 type TradeQuotesProps = {
   isLoading: boolean
+  onBack?: () => void
 }
 
 const motionBoxProps = {
@@ -41,7 +42,7 @@ export const sortQuotes = (
   )
 }
 
-export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
+export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack }) => {
   const dispatch = useAppDispatch()
 
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
@@ -93,18 +94,21 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
             quoteData={quoteData}
             bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
             bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
+            onBack={onBack}
           />
         </MotionBox>
       )
     })
   }, [
     isTradeQuoteRequestAborted,
-    bestQuoteData,
+    bestQuoteData?.quote,
+    bestQuoteData?.inputOutputRatio,
     tradeQuoteDisplayCache,
     activeQuoteMeta,
     isTradeQuoteApiQueryPending,
     isLoading,
     isSwapperQuoteAvailable,
+    onBack,
   ])
 
   // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
@@ -148,6 +152,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
               quoteData={quoteData}
               bestTotalReceiveAmountCryptoPrecision={undefined}
               bestInputOutputRatio={undefined}
+              onBack={onBack}
             />
           </MotionBox>
         )
@@ -157,6 +162,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
     isSwapperQuoteAvailable,
     isTradeQuoteApiQueryPending,
     tradeQuoteDisplayCache,
+    onBack,
   ])
 
   return (

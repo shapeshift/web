@@ -42,6 +42,7 @@ type TradeQuoteProps = {
   bestInputOutputRatio: number | undefined
   isLoading: boolean
   isRefetching: boolean
+  onBack?: () => void
 }
 
 export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
@@ -52,6 +53,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   bestInputOutputRatio,
   isLoading,
   isRefetching,
+  onBack,
 }) => {
   const { quote, errors, inputOutputRatio } = quoteData
 
@@ -130,11 +132,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const handleQuoteSelection = useCallback(() => {
     if (!isActive) {
       dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+      onBack && onBack()
     } else if (!isBest) {
       // don't allow un-selecting of best quote as it gets re-selected in this case
       dispatch(tradeQuoteSlice.actions.setActiveQuote(undefined))
     }
-  }, [dispatch, isActive, isBest, quoteData])
+  }, [dispatch, isActive, isBest, onBack, quoteData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)

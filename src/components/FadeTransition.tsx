@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 
 import { CircularProgress } from './CircularProgress/CircularProgress'
 
-const transition = { duration: 0.2, ease: [0.43, 0.13, 0.23, 0.96] }
+const transition = { duration: 0.05, ease: [0.43, 0.13, 0.23, 0.96] }
 const pageVariants = {
   initial: { opacity: 0, transition },
   animate: { opacity: 1, transition },

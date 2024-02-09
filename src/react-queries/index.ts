@@ -245,8 +245,6 @@ const thornode = createQueryKeys('thornode', {
   },
   block: () => {
     return {
-      // Mark blockHeight query as stale at the end of each THOR block
-      staleTime: thorchainBlockTimeMs,
       queryKey: ['thorchainBlockHeight'],
       queryFn: async () => {
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL

@@ -24,6 +24,9 @@ export const useRepaymentLockData = ({
   enabled = true,
 }: UseLendingPositionDataProps & QueryObserverOptions) => {
   const { data: blockHeight } = useQuery({
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // We use the block query to get the current height, so we obviously need to mark it stale at the end of each THOR block
+    staleTime: thorchainBlockTimeMs,
     ...reactQueries.thornode.block(),
     select: block => block.header.height,
     enabled,

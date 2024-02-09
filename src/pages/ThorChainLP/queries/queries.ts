@@ -87,10 +87,6 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
     assetId: AssetId
   }) => {
     return {
-      // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
-      // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
-      staleTime: 0,
-      enabled: !!accountId && !!assetId,
       queryKey: ['thorchainLiquidityProviderPosition', { accountId, assetId }],
       queryFn: async () => {
         const accountPosition = await (async () => {
@@ -139,9 +135,13 @@ export const getThorchainLpPosition = async ({
 }) => {
   if (!opportunityId) throw new Error('opportunityId is required')
 
-  const lpPositions = await queryClient.fetchQuery(
-    thorchainLp.liquidityProviderPosition({ accountId, assetId: poolAssetId }),
-  )
+  const lpPositions = await queryClient.fetchQuery({
+    ...thorchainLp.liquidityProviderPosition({ accountId, assetId: poolAssetId }),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
+    // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
+    staleTime: 0,
+  })
 
   if (!lpPositions) return null
 

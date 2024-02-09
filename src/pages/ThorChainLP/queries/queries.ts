@@ -16,6 +16,8 @@ import {
 } from 'lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
+// Note: since this isn't consumes as part of reactQueries queries, but directly as a regular function call within this file,
+// the additional property on top of queryKey and queryFn (i.e staleTime) *is* working
 const liquidityMember = (address: string) => ({
   queryKey: ['thorchainLiquidityMember', { address }] as [string, { address: string }],
   // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
@@ -39,6 +41,8 @@ const liquidityMember = (address: string) => ({
   },
 })
 
+// Note: since this isn't consumes as part of reactQueries queries, but directly as a regular function call within this file,
+// the additional property on top of queryKey and queryFn (i.e staleTime) *is* working
 export const liquidityMembers = () => ({
   queryKey: ['thorchainLiquidityMembers'] as [string],
   // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data

@@ -25,18 +25,16 @@ import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelec
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeConfirm/ReceiveSummary'
 import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
+import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeInput/components/ReceiveSummary'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { checkApprovalNeeded } from 'components/MultiHopTrade/hooks/useAllowanceApproval/helpers'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -132,7 +130,6 @@ export const TradeInput = memo(() => {
   }, [sellAsset.assetId])
   const activeQuote = useAppSelector(selectActiveQuote)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
-  const enableMultiHopTrades = useFeatureFlag('MultiHopTrades')
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -343,7 +340,7 @@ export const TradeInput = memo(() => {
     selectBuyAmountBeforeFeesCryptoPrecision,
   )
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = useCallback(() => {
     setIsConfirmationLoading(true)
     try {
       const eventData = getMixpanelEventData()
@@ -362,36 +359,13 @@ export const TradeInput = memo(() => {
         return
       }
 
-      if (!enableMultiHopTrades) {
-        const isApprovalNeeded = await checkApprovalNeeded(
-          tradeQuoteStep,
-          wallet,
-          initialSellAssetAccountId ?? '',
-        )
-
-        if (isApprovalNeeded) {
-          history.push({ pathname: TradeRoutePaths.Approval })
-          return
-        }
-      }
-
       history.push({ pathname: TradeRoutePaths.Confirm })
     } catch (e) {
       showErrorToast(e)
     }
 
     setIsConfirmationLoading(false)
-  }, [
-    activeQuote,
-    dispatch,
-    enableMultiHopTrades,
-    history,
-    mixpanel,
-    initialSellAssetAccountId,
-    showErrorToast,
-    tradeQuoteStep,
-    wallet,
-  ])
+  }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
 
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,

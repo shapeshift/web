@@ -7,7 +7,6 @@ import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { memo, useCallback, useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
-import { useGetRelatedAssetIdsQuery } from 'state/apis/zerion/zerionApi'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -50,12 +49,6 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
-  const {
-    data,
-    isLoading: isRelatedAssetsLoading,
-    isError,
-  } = useGetRelatedAssetIdsQuery(assetId ?? '')
-
   const handleAssetChange = useCallback(
     (assetId: AssetId) => {
       const asset = assets[assetId]
@@ -90,7 +83,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         isDisabled={isReadOnly}
         _disabled={disabledStyle}
         rightIcon={rightIcon}
-        isLoading={isLoading || isRelatedAssetsLoading}
+        isLoading={isLoading}
         {...buttonProps}
       >
         <Flex alignItems='center' gap={2}>
@@ -100,11 +93,9 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
       </Button>
       <Text translation='trade.on' color='text.subtle' fontSize='sm' />
       <AssetChainDropdown
-        assetIds={data}
         assetId={assetId}
         onClick={handleAssetChange}
-        isLoading={isLoading || isRelatedAssetsLoading}
-        isError={isError}
+        isLoading={isLoading}
         buttonProps={buttonProps}
       />
     </Flex>

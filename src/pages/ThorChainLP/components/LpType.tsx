@@ -2,7 +2,7 @@ import type { RadioProps } from '@chakra-ui/react'
 import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
@@ -94,11 +94,17 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
     [assetId, assetIds],
   )
 
-  const { getRootProps, getRadioProps } = useRadioGroup({
+  const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
     defaultValue: 'sym',
     onChange: onAsymSideChange,
   })
+
+  // Reset the radio state to sym on assetId change, meaning pool change
+  // This is to ensure the radio is synchronized with the actual default sym pool being selected on pool change
+  useEffect(() => {
+    setValue('sym')
+  }, [assetId, setValue])
 
   const radioOptions = useMemo(() => {
     const _options = defaultOpportunityId ? options : []

@@ -2,7 +2,6 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { SwapperName } from '@shapeshiftoss/swapper'
-import { isTradingActive } from 'components/MultiHopTrade/utils'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
@@ -23,6 +22,7 @@ import { selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { apiErrorHandler } from '../utils'
+import { isTradingActive } from './helpers'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
 
 const getIsTradingActiveErrorHandler = apiErrorHandler(

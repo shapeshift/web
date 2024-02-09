@@ -8,6 +8,7 @@ import {
   Flex,
   HStack,
   Stepper,
+  Tooltip,
 } from '@chakra-ui/react'
 import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
@@ -19,6 +20,8 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { fromBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectHopExecutionMetadata,
@@ -53,6 +56,9 @@ export const Hop = ({
   slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
 }) => {
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
   const translate = useTranslate()
   const networkFeeFiatPrecision = useAppSelector(state =>
     selectHopNetworkFeeUserCurrencyPrecision(state, hopIndex),
@@ -71,6 +77,19 @@ export const Hop = ({
   const isError = useMemo(
     () => [approvalTxState, swapTxState].includes(TransactionExecutionState.Failed),
     [approvalTxState, swapTxState],
+  )
+  const buyAmountCryptoPrecision = useMemo(
+    () =>
+      fromBaseUnit(
+        tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit,
+        tradeQuoteStep.buyAsset.precision,
+      ),
+    [tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit, tradeQuoteStep.buyAsset.precision],
+  )
+
+  const buyAmountCryptoFormatted = useMemo(
+    () => toCrypto(buyAmountCryptoPrecision, tradeQuoteStep.buyAsset.symbol),
+    [toCrypto, buyAmountCryptoPrecision, tradeQuoteStep.buyAsset.symbol],
   )
 
   const rightComponent = useMemo(() => {
@@ -202,28 +221,38 @@ export const Hop = ({
       <CardFooter fontSize='sm' pl={8}>
         <HStack width='full' justifyContent='space-between'>
           {/* Hovering over this should render a popover with details */}
-          <Flex alignItems='center' gap={2}>
-            <Flex color='text.subtle'>
-              <FaGasPump />
-            </Flex>
-            <Amount.Fiat value={networkFeeFiatPrecision ?? '0'} display='inline' />
-          </Flex>
-
-          {/* Hovering over this should render a popover with details */}
-          <Flex alignItems='center' gap={2}>
-            <Flex color='text.subtle'>
-              <ProtocolIcon />
-            </Flex>
-            <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
-          </Flex>
-
-          {slippageTolerancePercentageDecimal !== undefined && (
+          <Tooltip label={translate('trade.tooltip.gasFee')}>
             <Flex alignItems='center' gap={2}>
               <Flex color='text.subtle'>
-                <SlippageIcon />
+                <FaGasPump />
               </Flex>
-              <Amount.Percent value={slippageTolerancePercentageDecimal} display='inline' />
+              <Amount.Fiat value={networkFeeFiatPrecision ?? '0'} display='inline' />
             </Flex>
+          </Tooltip>
+
+          {/* Hovering over this should render a popover with details */}
+          <Tooltip label={translate('trade.tooltip.protocolFee')}>
+            <Flex alignItems='center' gap={2}>
+              <Flex color='text.subtle'>
+                <ProtocolIcon />
+              </Flex>
+              <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
+            </Flex>
+          </Tooltip>
+
+          {slippageTolerancePercentageDecimal !== undefined && (
+            <Tooltip
+              label={translate('trade.tooltip.slippage', {
+                amount: buyAmountCryptoFormatted,
+              })}
+            >
+              <Flex alignItems='center' gap={2}>
+                <Flex color='text.subtle'>
+                  <SlippageIcon />
+                </Flex>
+                <Amount.Percent value={slippageTolerancePercentageDecimal} display='inline' />
+              </Flex>
+            </Tooltip>
           )}
         </HStack>
       </CardFooter>

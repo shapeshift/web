@@ -1,23 +1,48 @@
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import type { Location } from 'history'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { ConnectWallet } from 'pages/ConnectWallet/ConnectWallet'
-import { Flags } from 'pages/Flags/Flags'
-import { PrivacyPolicy } from 'pages/Legal/PrivacyPolicy'
-import { TermsOfService } from 'pages/Legal/TermsOfService'
-import { NotFound } from 'pages/NotFound/NotFound'
-import { Yat } from 'pages/Yat/Yat'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'
+
+const Flags = makeSuspenseful(
+  lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
+)
+const Yat = makeSuspenseful(
+  lazy(() => import('pages/Yat/Yat').then(({ Yat }) => ({ default: Yat }))),
+)
+const NotFound = makeSuspenseful(
+  lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
+)
+const ConnectWallet = makeSuspenseful(
+  lazy(() =>
+    import('pages/ConnectWallet/ConnectWallet').then(({ ConnectWallet }) => ({
+      default: ConnectWallet,
+    })),
+  ),
+)
+const TermsOfService = makeSuspenseful(
+  lazy(() =>
+    import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
+      default: TermsOfService,
+    })),
+  ),
+)
+const PrivacyPolicy = makeSuspenseful(
+  lazy(() =>
+    import('pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
+  ),
+)
+
 export const Routes = memo(() => {
   const dispatch = useDispatch()
   const location = useLocation<{ background: Location }>()

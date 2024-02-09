@@ -604,30 +604,24 @@
         "exit": "Отмена стейкинга",
         "removeLiquidityETH": "Извлечь ликвидность"
       },
-      "thor": {
-        "transferOut": "Перевод"
-      },
       "thorchain": {
         "deposit": "Депозит",
         "depositRefund": "Возврат депозита",
+        "depositRefundNative": "Депозит + возврат",
         "loanOpen": "Кредит открыт",
+        "loanOpenOut": "Кредит получен",
         "loanOpenRefund": "Открытый возврат займа",
-        "loanOut": "Получено обеспечение по кредиту",
         "loanRepayment": "Погашение кредита",
+        "loanRepaymentOut": "Получено обеспечение по кредиту",
         "loanRepaymentRefund": "Возврат кредита",
+        "loanRepaymentRefundNative": "Погашение кредита + возврат",
         "out": "Получено исходящих",
+        "refund": "Возврат",
         "swapOut": "Полученный обмен",
         "swapRefund": "Возврат обмена",
-        "transferOut": "Перевод",
         "withdraw": "Вывод Запрошено",
+        "withdrawNative": "Вывести",
         "withdrawOut": "Заявка на вывод средств получена"
-      },
-      "swap": {
-        "deposit": "Обмен",
-        "streamingSwap": "Трансляция обменa",
-        "out": "Обмен",
-        "refund": "Возврат",
-        "outbound": "Исходящий"
       },
       "foxy": {
         "stake": "Стейк",
@@ -751,6 +745,10 @@
     "updatingQuote": "Обновление котировок...",
     "intoAssetSymbolBody": "Вы можете продолжить эту сделку, но история операций по получению %{assetSymbol} временно недоступна",
     "manualReceiveAddress": "Адрес получателя",
+    "recipientAddress": "Адрес получателя",
+    "customRecipientAddress": "Пользовательский адрес получателя",
+    "customRecipientAddressDescription": "Введите пользовательский адрес получателя для этой сделки",
+    "enterCustomRecipientAddress": "Введите пользовательский адрес получателя",
     "tooltip": {
       "rate": "Ожидаемый курс для данной пары",
       "noRateAvailable": "Часто это связано с очень ограниченной или отсутствующей ликвидностью по торговой паре.",
@@ -804,6 +802,7 @@
     "onChainName": "на %{chainName}",
     "unknownGas": "(неизвестно)",
     "numHops": "Эта торговля включает  %{numHops} hops",
+    "percentageDifferenceTooltip": "Это процентная разница в общей сумме %{buyAssetSymbol}, которую вы получите, по сравнению с лучшим предложением",
     "receiveAddress": "Адрес получателя",
     "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную или",
     "toContinue": "для продолжения.",
@@ -1602,7 +1601,10 @@
       "header": "Подключить кошелек",
       "body": "Подключая кошелек, вы соглашаетесь с Условиями предоставления услуг ShapeShift и подтверждаете, что прочитали и понимаете отказ от ответственности ShapeShift.",
       "footer": "У вас нет кошелька?",
-      "create": "Создайте его"
+      "create": "Создать",
+      "or": "или",
+      "import": "Импортировать",
+      "aWallet": "кошелек"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2208,7 @@
     "estimatedTime": "Расчетное время",
     "liquidityValue": "Значение ликвидности",
     "selectPair": "Выбрать пару",
-    "depositAmounts": "Внести депозит",
+    "depositAmounts": "Сумма депозита(ов)",
     "awaitingConfirmation": "Ожидаем подтверждения",
     "transactionSubmitted": "Транзакция отправлена",
     "waitingForConfirmation": "Ждем подтверждения",
@@ -2214,6 +2216,7 @@
     "chainFee": "%{chain} комиссия",
     "supplying": "Предоставить",
     "confirmAndDeposit": "Подтвердить и внести депозит",
+    "removeAmounts": "Сумма(ы) вывода",
     "yourPositions": {
       "yourPositions": "Ваша позиция",
       "emptyTitle": "Нет активных позиций",

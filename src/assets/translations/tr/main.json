@@ -604,30 +604,24 @@
         "exit": "Stake Kaldır",
         "removeLiquidityETH": "Likiditeyi kaldır"
       },
-      "thor": {
-        "transferOut": "Dışa Aktar"
-      },
       "thorchain": {
         "deposit": "Depozit",
         "depositRefund": "Depozit İadesi",
+        "depositRefundNative": "Depozit + Geri Ödeme",
         "loanOpen": "Kredi Aç",
+        "loanOpenOut": "Kredi Alındı",
         "loanOpenRefund": "Açık Kredi İadesi",
-        "loanOut": "Alınan Kredi Teminatı",
         "loanRepayment": "Kredi Geri Ödeme",
+        "loanRepaymentOut": "Alınan Kredi Teminatı",
         "loanRepaymentRefund": "Kredi Geri Ödeme İadesi",
+        "loanRepaymentRefundNative": "Kredi Geri Ödemesi + Geri Ödeme",
         "out": "Giden Alınan",
+        "refund": "Geri Ödeme",
         "swapOut": "Takas Alındı",
         "swapRefund": "Takas İadesi",
-        "transferOut": "Dışa Aktar",
         "withdraw": "Para Çekme Talep Edildi",
+        "withdrawNative": "Çekim",
         "withdrawOut": "Para Çekme Alındı"
-      },
-      "swap": {
-        "deposit": "Takas",
-        "streamingSwap": "Takas Yayınlanıyor",
-        "out": "Takas",
-        "refund": "Geri Ödeme",
-        "outbound": "Giden"
       },
       "foxy": {
         "stake": "Stake Et",
@@ -751,6 +745,10 @@
     "updatingQuote": "Alıntı güncelleniyor...",
     "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
     "manualReceiveAddress": "Alıcı adresi",
+    "recipientAddress": "Alıcı adresi",
+    "customRecipientAddress": "Özel alıcı adresi",
+    "customRecipientAddressDescription": "Bu takas için özel bir alıcı adresi girin",
+    "enterCustomRecipientAddress": "Özel alıcı adresini girin",
     "tooltip": {
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
@@ -804,6 +802,7 @@
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
     "numHops": "Bu takas %{numHops} atlama içerir",
+    "percentageDifferenceTooltip": "Bu, en iyi fiyat teklifiyle karşılaştırıldığında alacağınız toplam %{buyAssetSymbol} tutarındaki yüzde farkıdır",
     "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdanda %{chainName} adresi bulunamadı. Manuel olarak bir adres girin veya",
     "toContinue": "devam edin.",
@@ -1602,7 +1601,10 @@
       "header": "Bir Cüzdan Bağlayın",
       "body": "Bir cüzdan bağlayarak, ShapeShift'in Hizmet Şartlarını kabul etmiş ve ShapeShift sorumluluk reddini okuyup anladığınızı kabul etmiş olursunuz.",
       "footer": "Cüzdanınız yok mu?",
-      "create": "Bir tane yaratın"
+      "create": "Yarat",
+      "or": "veya",
+      "import": "İçe Aktar",
+      "aWallet": "Bir cüzdan"
     },
     "walletConnectV2": {
       "start": {
@@ -2206,7 +2208,7 @@
     "estimatedTime": "Tahmini süresi",
     "liquidityValue": "Likidite Değeri",
     "selectPair": "Çift'i Seçin",
-    "depositAmounts": "Mevduat Tutarları",
+    "depositAmounts": "Yatırma Tutar(lar)",
     "awaitingConfirmation": "Onay bekleniyor",
     "transactionSubmitted": "İşlem gönderildi",
     "waitingForConfirmation": "Onay bekliyor",
@@ -2214,6 +2216,7 @@
     "chainFee": "%{chain} Ücret",
     "supplying": "Tedarik",
     "confirmAndDeposit": "Onayla ve Para Yatır",
+    "removeAmounts": "Tutar(lar) Kaldır",
     "yourPositions": {
       "yourPositions": "Pozisyonlarınız",
       "emptyTitle": "Aktif pozisyon yok",

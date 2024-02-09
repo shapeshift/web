@@ -1,6 +1,7 @@
 import type { GridProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -50,6 +51,13 @@ type PoolButtonProps = {
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
 
+  const { data: isTradingActive } = useQuery(
+    reactQueries.common.isTradingActive({
+      assetId: pool.assetId,
+      swapperName: SwapperName.Thorchain,
+    }),
+  )
+
   const handlePoolClick = useCallback(() => {
     const { opportunityId } = pool
     history.push(generatePath('/pools/poolAccount/:opportunityId', { opportunityId }))
@@ -98,6 +106,11 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         <Tag size='sm'>
           <Amount.Percent value={pool.poolAPY} />
         </Tag>
+        {isTradingActive === false && (
+          <Tag colorScheme='yellow'>
+            <Text translation='common.halted' />
+          </Tag>
+        )}
       </Flex>
       <Skeleton isLoaded={!!tvl}>
         <Amount.Fiat value={tvl} />
@@ -114,7 +127,8 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
 export const AvailablePools = () => {
   const headerComponent = useMemo(() => <PoolsHeader />, [])
-  const { data: parsedPools, isLoading } = usePools()
+  const { data: parsedPools, isLoading } = usePools(true)
+
   const renderRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
     return parsedPools?.map(pool => <PoolButton key={pool.opportunityId} pool={pool} />)

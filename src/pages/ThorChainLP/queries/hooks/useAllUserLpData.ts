@@ -35,6 +35,9 @@ export const useAllUserLpData = ({
 
   const { data: availableThornodePools, isSuccess: isAvailableThornodePoolsDataLoaded } = useQuery({
     ...reactQueries.thornode.poolsData(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Infinity staleTime as we handle halted state JIT
+    staleTime: Infinity,
     select: pools => pools.filter(pool => pool.status === 'Available'),
   })
 

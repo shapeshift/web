@@ -222,9 +222,6 @@ const thornode = createQueryKeys('thornode', {
   }),
   poolsData: () => ({
     queryKey: ['thornodePoolsData'],
-    // Typically 60 second staleTime to handle pools going to live/halt states
-    // This may not be required in your specific consumption, override if needed
-    staleTime: 60_000,
     queryFn: async () => {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
       const poolResponse = await thorService.get<ThornodePoolResponse[]>(

@@ -108,8 +108,10 @@ export const getFeeAssetByAssetId: GetFeeAssetByAssetId = (assetsById, assetId) 
   return assetsById[feeAssetId]
 }
 
-export const makeNftAssetsFromTxs = (txs: Transaction[]): AssetsState => {
-  return txs.reduce<AssetsState>(
+export const makeNftAssetsFromTxs = (
+  txs: Transaction[],
+): Omit<AssetsState, 'relatedAssetIndex'> => {
+  return txs.reduce<Omit<AssetsState, 'relatedAssetIndex'>>(
     (state, tx) => {
       if (fromChainId(tx.chainId).chainNamespace !== CHAIN_NAMESPACE.Evm) return state
 

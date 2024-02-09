@@ -77,7 +77,7 @@ type PortfolioAndAssetsUpsertPayload = {
 const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsertPayload>(
   'nft/upsertPortfolioAndAssets',
   ({ nftsById }, { dispatch }) => {
-    const assetsToUpsert = Object.values(nftsById).reduce<AssetsState>(
+    const assetsToUpsert = Object.values(nftsById).reduce<Omit<AssetsState, 'relatedAssetIndex'>>(
       (acc, nft) => {
         acc.byId[nft.assetId] = makeAsset({
           assetId: nft.assetId,

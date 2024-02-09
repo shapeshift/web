@@ -168,7 +168,9 @@ export const portfolioApi = createApi({
             if (evmChainIds.includes(chainId as EvmChainId)) {
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
-              const assets = (account.chainSpecific.tokens ?? []).reduce<AssetsState>(
+              const assets = (account.chainSpecific.tokens ?? []).reduce<
+                Omit<AssetsState, 'relatedAssetIndex'>
+              >(
                 (prev, token) => {
                   const isSpam = [token.name, token.symbol].some(text => {
                     if (isNft(token.assetId)) return isSpammyNftText(text)

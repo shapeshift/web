@@ -257,7 +257,6 @@ const thornode = createQueryKeys('thornode', {
   },
   inboundAddress: (assetId: AssetId | undefined) => {
     return {
-      staleTime: 60_000, // 60 seconds to handle pools going to/from live/halt states
       queryKey: ['thorchainInboundAddress', assetId],
       queryFn: async () => {
         if (!assetId) throw new Error('assetId is required')

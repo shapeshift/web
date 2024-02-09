@@ -260,6 +260,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddress(assetId),
     enabled: !!assetId,
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // We technically don't care about going stale immediately here - halted checks are done JIT at signing time in case the pool went
+    // halted by the time the user clicked the confirm button
+    // But we still have some sane 60s stale time rather than 0 for paranoia's sake, as a balance of safety and not overfetching
+    staleTime: 60_000,
     select: data => data?.unwrap(),
   })
 

@@ -123,6 +123,7 @@ export type InboundAddressResponse = {
   gas_rate: string
   gas_rate_units: string
   router?: string
+  dust_threshold?: string
   global_trading_paused: boolean
   chain_trading_paused: boolean
   chain_lp_actions_paused: boolean

@@ -612,9 +612,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         swapperName: SwapperName.Thorchain,
         mimir: _mimir,
       })
-      if (!_isTradingActive) throw new Error('Pool Halted')
 
-      if (!_isTradingActive) {
+      if (_isTradingActive === false) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 

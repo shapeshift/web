@@ -30,6 +30,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -38,6 +39,7 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getMaybeThorchainSaversDepositQuote,
@@ -130,13 +132,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [accountId, defaultAccountId, highestBalanceAccountId],
   )
 
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    enabled: Boolean(assetId),
+  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
+    enabled: !!assetId,
     // Go stale instantly
     staleTime: 0,
     // Never store queries in cache since we always want fresh data
@@ -144,7 +142,24 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchInterval: 60_000,
+    select: data => selectInboundAddressData(data, assetId),
   })
+
+  const { data: mimir, isLoading: isMimirLoading } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+  })
+
+  const isTradingActive = useMemo(() => {
+    if (isMimirLoading || !mimir) return
+
+    return selectIsTradingActive({
+      assetId,
+      inboundAddressResponse: inboundAddressesData,
+      swapperName: SwapperName.Thorchain,
+      mimir,
+    })
+  }, [assetId, inboundAddressesData, isMimirLoading, mimir])
 
   useEffect(() => {
     if (!maybeAccountId) return
@@ -366,7 +381,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (!earnOpportunityData || isTradingActiveLoading) {
+  if (!earnOpportunityData || isMimirLoading || isInboundAddressesDataLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />

@@ -66,7 +66,6 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
       if (!assetId) throw new Error('assetId is required')
       return get24hTvlChangePercentage(assetId)
     },
-    enabled: !!assetId,
   }),
   allTimeVolume: (assetId: AssetId | undefined, runePrice: string) => ({
     queryKey: ['thorchainAllTimeVolume', assetId],

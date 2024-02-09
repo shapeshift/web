@@ -216,6 +216,7 @@ export const Position = () => {
 
   const { data: tvl24hChange } = useQuery({
     ...reactQueries.thorchainLp.tvl24hChange(foundPool?.assetId),
+    enabled: !!foundPool?.assetId,
   })
 
   const { data: allTimeVolume } = useQuery({

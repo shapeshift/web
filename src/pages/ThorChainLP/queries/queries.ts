@@ -54,9 +54,6 @@ export const liquidityMembers = () => ({
 
 export const thorchainLp = createQueryKeys('thorchainLp', {
   earnings: (from: string | undefined) => ({
-    enabled: Boolean(from),
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
     queryKey: ['thorchainearnings', from],
     queryFn: () => {
       if (!from) throw new Error('from is required')

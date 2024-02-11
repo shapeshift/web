@@ -10,7 +10,7 @@ import { Text } from 'components/Text'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AssetChainDropdown } from './AssetChainDropdown'
+import { AssetChainDropdown } from './components/AssetChainDropdown'
 
 const disabledStyle = { opacity: 0.5 }
 

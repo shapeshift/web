@@ -19,7 +19,7 @@ import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimate
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
+import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'

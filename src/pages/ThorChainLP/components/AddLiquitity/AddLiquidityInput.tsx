@@ -33,7 +33,7 @@ import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimate
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
+import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection/AssetSelection'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'

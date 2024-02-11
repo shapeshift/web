@@ -1,14 +1,29 @@
 import type { ButtonProps, FlexProps, MenuProps } from '@chakra-ui/react'
-import { Button, Flex, Menu, MenuButton } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Tooltip,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import React, { memo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AutoTruncateText } from 'components/AutoTruncateText'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { IconCircle } from 'components/IconCircle'
+import { GridIcon } from 'components/Icons/GridIcon'
+import {
+  selectAssetChainNameById,
+  selectFeeAssetById,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  selectRelatedAssetIdsInclusive,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-const disabled = { opacity: 1 }
-const hover = { color: 'text.base' }
 
 export type ChainDropdownProps = {
   assetId?: AssetId
@@ -41,51 +56,45 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
   isError,
   ...menuProps
 }) => {
-  // const totalPortfolioUserCurrencyBalance = useAppSelector(
-  //   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-  // )
-  // const translate = useTranslate()
+  const relatedAssetIds = useAppSelector(state =>
+    selectRelatedAssetIdsInclusive(state, assetId ?? ''),
+  )
+  const assetChainName = useAppSelector(state => selectAssetChainNameById(state, assetId ?? ''))
 
-  // const renderChains = useMemo(() => {
-  //   return assetIds?.map(assetId => (
-  //     <MenuItemOption value={assetId} key={assetId}>
-  //       <AssetChainRow assetId={assetId} />
-  //     </MenuItemOption>
-  //   ))
-  // }, [assetIds])
+  const totalPortfolioUserCurrencyBalance = useAppSelector(
+    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  )
+  const translate = useTranslate()
 
-  // const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
+  const renderChains = useMemo(() => {
+    return relatedAssetIds.map(assetId => (
+      <MenuItemOption value={assetId} key={assetId}>
+        <AssetChainRow assetId={assetId} />
+      </MenuItemOption>
+    ))
+  }, [relatedAssetIds])
 
-  // @TODO: figure out how to do this correctly using coingeck data
-  // const isDisabled = useMemo(() => {
-  //   return !assetIds?.length || isLoading || isError
-  // }, [assetIds?.length, isError, isLoading])
+  const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
+
+  const isDisabled = useMemo(() => {
+    return !relatedAssetIds.length || isLoading || isError
+  }, [relatedAssetIds, isError, isLoading])
+
+  const buttonTooltipText = useMemo(() => {
+    if (relatedAssetIds.length || isLoading || isError) return ''
+    return translate('trade.tooltip.noRelatedAssets', { chainName: assetChainName })
+  }, [assetChainName, isError, isLoading, relatedAssetIds.length, translate])
 
   if (!assetId) return null
 
   return (
     <Menu {...menuProps}>
-      <MenuButton
-        as={Button}
-        justifyContent='flex-end'
-        height='auto'
-        pl={2}
-        pr={3}
-        py={2}
-        gap={2}
-        size='sm'
-        borderRadius='full'
-        color='text.base'
-        isDisabled
-        isLoading={isLoading}
-        variant={!isLoading ? 'ghost' : undefined}
-        _disabled={disabled}
-        _hover={hover}
-        {...buttonProps}
-      >
-        <AssetChainRow className='activeChain' assetId={assetId} />
-      </MenuButton>
-      {/* <MenuList zIndex='banner'>
+      <Tooltip label={buttonTooltipText}>
+        <MenuButton as={Button} isDisabled={isDisabled} isLoading={isLoading} {...buttonProps}>
+          <AssetChainRow className='activeChain' assetId={assetId} />
+        </MenuButton>
+      </Tooltip>
+      <MenuList zIndex='banner'>
         <MenuOptionGroup type='radio' value={assetId} onChange={onChange}>
           {showAll && (
             <MenuItemOption value=''>
@@ -100,7 +109,7 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
           )}
           {renderChains}
         </MenuOptionGroup>
-      </MenuList> */}
+      </MenuList>
     </Menu>
   )
 }

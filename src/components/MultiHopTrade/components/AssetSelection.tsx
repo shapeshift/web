@@ -12,7 +12,7 @@ import { useAppSelector } from 'state/store'
 
 import { AssetChainDropdown } from './AssetChainDropdown'
 
-const disabledStyle = { opacity: 1 }
+const disabledStyle = { opacity: 0.5 }
 
 const TradeAssetAwaitingAsset = () => {
   const bgColor = useColorModeValue('white', 'gray.850')
@@ -66,25 +66,32 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   }, [asset?.icons, assetId])
 
   const rightIcon = useMemo(() => (isReadOnly ? undefined : <ChevronDownIcon />), [isReadOnly])
+  const combinedButtonProps = useMemo(() => {
+    return Object.assign(
+      {
+        height: '40px',
+        justifyContent: 'flex-end',
+        px: 2,
+        py: 2,
+        gap: 2,
+        size: 'sm',
+        borderRadius: 'full',
+        rightIcon,
+        _disabled: disabledStyle,
+      },
+      buttonProps,
+    )
+  }, [rightIcon, buttonProps])
 
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2} {...rest}>
       <Button
-        height='40px'
-        justifyContent='flex-end'
-        px={2}
-        py={2}
-        gap={2}
-        size='sm'
-        borderRadius='full'
         onClick={onAssetClick}
         flexGrow={0}
         flexShrink={0}
         isDisabled={isReadOnly}
-        _disabled={disabledStyle}
-        rightIcon={rightIcon}
         isLoading={isLoading}
-        {...buttonProps}
+        {...combinedButtonProps}
       >
         <Flex alignItems='center' gap={2}>
           {icon}
@@ -96,7 +103,7 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
         assetId={assetId}
         onClick={handleAssetChange}
         isLoading={isLoading}
-        buttonProps={buttonProps}
+        buttonProps={combinedButtonProps}
       />
     </Flex>
   )

@@ -8,7 +8,10 @@ import { estimateFees } from 'components/Modals/Send/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
-import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import type {
+  LpConfirmedDepositQuote,
+  LpConfirmedWithdrawalQuote,
+} from 'lib/utils/thorchain/lp/types'
 import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -46,6 +49,14 @@ type UseQuoteEstimatedFeesProps = {
       depositAmountCryptoPrecision: string
       repaymentAccountId?: never
       repaymentAsset?: never
+    }
+  | {
+      confirmedQuote: LpConfirmedWithdrawalQuote | null
+      // Technically not a collateral, but this avoids weird branching, ternaries or ?? checks for now
+      collateralAccountId: AccountId
+      depositAmountCryptoPrecision?: never
+      repaymentAccountId: AccountId
+      repaymentAsset: Asset | null
     }
 )
 

@@ -1,4 +1,4 @@
-import { type AccountId, type ChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import React, { Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
@@ -20,6 +20,7 @@ const AddLiquidityEntries = [
 export type RemoveLiquidityProps = {
   headerComponent: JSX.Element
   opportunityId: string
+  poolAccountId: AccountId
 }
 
 export type RemoveLiquidityRoutesProps = RemoveLiquidityProps & {
@@ -30,6 +31,7 @@ export type RemoveLiquidityRoutesProps = RemoveLiquidityProps & {
 export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
   headerComponent,
   opportunityId,
+  poolAccountId,
 }) => {
   const [confirmedQuote, setConfirmedQuote] = useState<LpConfirmedWithdrawalQuote | null>(null)
 
@@ -40,6 +42,7 @@ export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
         opportunityId={opportunityId}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
+        poolAccountId={poolAccountId}
       />
     </MemoryRouter>
   )
@@ -50,22 +53,9 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   opportunityId,
   confirmedQuote,
   setConfirmedQuote,
+  poolAccountId,
 }) => {
   const location = useLocation()
-
-  const [accountIdsByChainId, setAccountIdsByChainId] = useState<Record<ChainId, AccountId>>({})
-
-  // fixme
-  const _onAccountIdChange = useCallback(
-    (accountId: AccountId) => {
-      setAccountIdsByChainId(prev => {
-        const chainId = fromAccountId(accountId).chainId
-        return { ...prev, [chainId]: accountId }
-      })
-    },
-    [setAccountIdsByChainId],
-  )
-
   const renderRemoveLiquidityInput = useCallback(
     () => (
       <RemoveLiquidityInput
@@ -73,10 +63,10 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
         opportunityId={opportunityId}
         confirmedQuote={confirmedQuote}
         setConfirmedQuote={setConfirmedQuote}
-        accountIdsByChainId={accountIdsByChainId}
+        poolAccountId={poolAccountId}
       />
     ),
-    [accountIdsByChainId, confirmedQuote, headerComponent, opportunityId, setConfirmedQuote],
+    [confirmedQuote, headerComponent, opportunityId, poolAccountId, setConfirmedQuote],
   )
   const renderRemoveLiquidityConfirm = useCallback(() => <RemoveLiquidityConfirm />, [])
   const renderRemoveLiquidityStatus = useCallback(() => <RemoveLiquidityStatus />, [])

@@ -69,7 +69,9 @@ export const useQuoteEstimatedFeesQuery = ({
   confirmedQuote,
 }: UseQuoteEstimatedFeesProps) => {
   const repaymentAmountCryptoPrecision = useMemo(
-    () => (confirmedQuote as LendingQuoteClose)?.repaymentAmountCryptoPrecision,
+    () =>
+      (confirmedQuote as LendingQuoteClose | LpConfirmedWithdrawalQuote)
+        ?.repaymentAmountCryptoPrecision,
     [confirmedQuote],
   )
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))

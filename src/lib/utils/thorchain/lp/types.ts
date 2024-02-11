@@ -216,9 +216,6 @@ export type LpConfirmedWithdrawalQuote = {
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
-  accountIdsByChainId: Record<ChainId, AccountId>
-  // feeBps: string
-  // feeAmountFiat: string
   assetAddress?: string
   quoteInboundAddress: string
   // For informative purposes only at confirm step - to be recalculated before signing

@@ -34,6 +34,7 @@ type UseQuoteEstimatedFeesProps = {
       depositAmountCryptoPrecision: string
       repaymentAccountId?: never
       repaymentAsset?: never
+      repaymentAmountCryptoPrecision?: never
     }
   | {
       confirmedQuote: LendingQuoteClose | null
@@ -41,6 +42,7 @@ type UseQuoteEstimatedFeesProps = {
       depositAmountCryptoPrecision?: never
       repaymentAccountId: AccountId
       repaymentAsset: Asset | null
+      repaymentAmountCryptoPrecision?: never
     }
   | {
       confirmedQuote: LpConfirmedDepositQuote | null
@@ -49,6 +51,7 @@ type UseQuoteEstimatedFeesProps = {
       depositAmountCryptoPrecision: string
       repaymentAccountId?: never
       repaymentAsset?: never
+      repaymentAmountCryptoPrecision?: never
     }
   | {
       confirmedQuote: LpConfirmedWithdrawalQuote | null
@@ -57,6 +60,7 @@ type UseQuoteEstimatedFeesProps = {
       depositAmountCryptoPrecision?: never
       repaymentAccountId: AccountId
       repaymentAsset: Asset | null
+      repaymentAmountCryptoPrecision: string | undefined
     }
 )
 
@@ -67,12 +71,13 @@ export const useQuoteEstimatedFeesQuery = ({
   repaymentAccountId,
   repaymentAsset,
   confirmedQuote,
+  repaymentAmountCryptoPrecision: _repaymentAmountCryptoPrecision,
 }: UseQuoteEstimatedFeesProps) => {
   const repaymentAmountCryptoPrecision = useMemo(
     () =>
-      (confirmedQuote as LendingQuoteClose | LpConfirmedWithdrawalQuote)
-        ?.repaymentAmountCryptoPrecision,
-    [confirmedQuote],
+      _repaymentAmountCryptoPrecision ??
+      (confirmedQuote as LendingQuoteClose)?.repaymentAmountCryptoPrecision,
+    [_repaymentAmountCryptoPrecision, confirmedQuote],
   )
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
   const feeAssetMarketData = useAppSelector(state => selectMarketDataById(state, collateralAssetId))

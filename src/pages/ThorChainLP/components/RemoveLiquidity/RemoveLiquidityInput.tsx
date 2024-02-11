@@ -113,6 +113,76 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [percentageSelection, setPercentageSelection] = useState<number>(50)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
+  // Virtual as in, these are the amounts if removing symetrically. But a user may remove asymetrically, so these are not the *actual* amounts
+  // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
+  // while using the *actual* amounts whenever we do things like checking for asset balance
+  const [virtualAssetCryptoLiquidityAmount, setVirtualAssetCryptoLiquidityAmount] = useState<
+    string | undefined
+  >()
+  const [virtualAssetFiatLiquidityAmount, setVirtualAssetFiatLiquidityAmount] = useState<
+    string | undefined
+  >()
+  const [virtualRuneCryptoLiquidityAmount, setVirtualRuneCryptoLiquidityAmount] = useState<
+    string | undefined
+  >()
+  const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
+    string | undefined
+  >()
+  const [cryptoAssetBalance, setCrytoAssetBalance] = useState<string | undefined>()
+  const [fiatAssetBalance, setFiatAssetBalance] = useState<string | undefined>()
+  const [cryptoRuneBalance, setCrytoRuneBalance] = useState<string | undefined>()
+  const [fiatRuneBalance, setFiatRuneBalance] = useState<string | undefined>()
+  const [slippageRune, setSlippageRune] = useState<string | undefined>()
+  const [isSlippageLoading, setIsSlippageLoading] = useState(false)
+
+  const actualAssetCryptoLiquidityAmount = useMemo(() => {
+    if (isAsymAssetSide) {
+      // In asym asset side pool, use the virtual amount as is
+      return virtualAssetCryptoLiquidityAmount
+    } else if (isAsymRuneSide) {
+      // In asym rune side pool, the asset amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual amount as is
+    return virtualAssetCryptoLiquidityAmount
+  }, [isAsymAssetSide, isAsymRuneSide, virtualAssetCryptoLiquidityAmount])
+
+  const actualRuneCryptoLiquidityAmount = useMemo(() => {
+    if (isAsymRuneSide) {
+      // In asym rune side pool, use the virtual amount as is
+      return virtualRuneCryptoLiquidityAmount
+    } else if (isAsymAssetSide) {
+      // In asym asset side pool, the rune amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual amount as is
+    return virtualRuneCryptoLiquidityAmount
+  }, [isAsymRuneSide, isAsymAssetSide, virtualRuneCryptoLiquidityAmount])
+
+  const actualAssetFiatLiquidityAmount = useMemo(() => {
+    if (isAsymAssetSide) {
+      // In asym asset side pool, use the virtual fiat amount as is
+      return virtualAssetFiatLiquidityAmount
+    } else if (isAsymRuneSide) {
+      // In asym rune side pool, the asset fiat amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual fiat amount as is
+    return virtualAssetFiatLiquidityAmount
+  }, [isAsymAssetSide, isAsymRuneSide, virtualAssetFiatLiquidityAmount])
+
+  const actualRuneFiatLiquidityAmount = useMemo(() => {
+    if (isAsymRuneSide) {
+      // In asym rune side pool, use the virtual fiat amount as is
+      return virtualRuneFiatLiquidityAmount
+    } else if (isAsymAssetSide) {
+      // In asym asset side pool, the rune fiat amount should be zero
+      return '0'
+    }
+    // For symmetrical pools, use the virtual fiat amount as is
+    return virtualRuneFiatLiquidityAmount
+  }, [isAsymRuneSide, isAsymAssetSide, virtualRuneFiatLiquidityAmount])
+
   const poolAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, poolAsset?.assetId ?? ''),
   )
@@ -211,8 +281,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId: thorchainAssetId,
     collateralAccountId: runeAccountId,
-    repaymentAccountId: poolAccountId,
-    repaymentAsset: poolAsset ?? null, // FIXME?
+    repaymentAccountId: runeAccountId,
+    repaymentAsset: poolAsset ?? null,
+    repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
     confirmedQuote,
   })
 
@@ -223,19 +294,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     // isSuccess: isEstimatedPoolAssetFeesDataSuccess,
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId: poolAsset?.assetId ?? '',
-    collateralAccountId: poolAccountId, // I'm blank?
+    collateralAccountId: poolAccountId,
     repaymentAccountId: poolAccountId,
-    repaymentAsset: poolAsset ?? null, // FIXME?
+    repaymentAsset: poolAsset ?? null,
     confirmedQuote,
+    repaymentAmountCryptoPrecision: actualAssetCryptoLiquidityAmount,
   })
 
   console.log('xxx estimatedPoolAssetFeesData', {
-    collateralAssetId: poolAsset?.assetId ?? '',
-    collateralAccountId: poolAccountId, // I'm blank?
-    repaymentAccountId: poolAccountId, // I'm blank?
-    repaymentAsset: poolAsset ?? null, // FIXME?
-    confirmedQuote,
     estimatedPoolAssetFeesData,
+    estimatedRuneFeesData,
   })
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
@@ -334,77 +402,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       </CardHeader>
     )
   }, [backIcon, handleBackClick, headerComponent, translate])
-
-  // Virtual as in, these are the amounts if removing symetrically. But a user may remove asymetrically, so these are not the *actual* amounts
-  // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
-  // while using the *actual* amounts whenever we do things like checking for asset balance
-  const [virtualAssetCryptoLiquidityAmount, setVirtualAssetCryptoLiquidityAmount] = useState<
-    string | undefined
-  >()
-  const [virtualAssetFiatLiquidityAmount, setVirtualAssetFiatLiquidityAmount] = useState<
-    string | undefined
-  >()
-  const [virtualRuneCryptoLiquidityAmount, setVirtualRuneCryptoLiquidityAmount] = useState<
-    string | undefined
-  >()
-  const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
-    string | undefined
-  >()
-  const [cryptoAssetBalance, setCrytoAssetBalance] = useState<string | undefined>()
-  const [fiatAssetBalance, setFiatAssetBalance] = useState<string | undefined>()
-  const [cryptoRuneBalance, setCrytoRuneBalance] = useState<string | undefined>()
-  const [fiatRuneBalance, setFiatRuneBalance] = useState<string | undefined>()
-
-  const actualAssetCryptoLiquidityAmount = useMemo(() => {
-    if (isAsymAssetSide) {
-      // In asym asset side pool, use the virtual amount as is
-      return virtualAssetCryptoLiquidityAmount
-    } else if (isAsymRuneSide) {
-      // In asym rune side pool, the asset amount should be zero
-      return '0'
-    }
-    // For symmetrical pools, use the virtual amount as is
-    return virtualAssetCryptoLiquidityAmount
-  }, [isAsymAssetSide, isAsymRuneSide, virtualAssetCryptoLiquidityAmount])
-
-  const actualRuneCryptoLiquidityAmount = useMemo(() => {
-    if (isAsymRuneSide) {
-      // In asym rune side pool, use the virtual amount as is
-      return virtualRuneCryptoLiquidityAmount
-    } else if (isAsymAssetSide) {
-      // In asym asset side pool, the rune amount should be zero
-      return '0'
-    }
-    // For symmetrical pools, use the virtual amount as is
-    return virtualRuneCryptoLiquidityAmount
-  }, [isAsymRuneSide, isAsymAssetSide, virtualRuneCryptoLiquidityAmount])
-
-  const actualAssetFiatLiquidityAmount = useMemo(() => {
-    if (isAsymAssetSide) {
-      // In asym asset side pool, use the virtual fiat amount as is
-      return virtualAssetFiatLiquidityAmount
-    } else if (isAsymRuneSide) {
-      // In asym rune side pool, the asset fiat amount should be zero
-      return '0'
-    }
-    // For symmetrical pools, use the virtual fiat amount as is
-    return virtualAssetFiatLiquidityAmount
-  }, [isAsymAssetSide, isAsymRuneSide, virtualAssetFiatLiquidityAmount])
-
-  const actualRuneFiatLiquidityAmount = useMemo(() => {
-    if (isAsymRuneSide) {
-      // In asym rune side pool, use the virtual fiat amount as is
-      return virtualRuneFiatLiquidityAmount
-    } else if (isAsymAssetSide) {
-      // In asym asset side pool, the rune fiat amount should be zero
-      return '0'
-    }
-    // For symmetrical pools, use the virtual fiat amount as is
-    return virtualRuneFiatLiquidityAmount
-  }, [isAsymRuneSide, isAsymAssetSide, virtualRuneFiatLiquidityAmount])
-
-  const [slippageRune, setSlippageRune] = useState<string | undefined>()
-  const [isSlippageLoading, setIsSlippageLoading] = useState(false)
 
   const runePerAsset = useMemo(() => {
     if (!assetMarketData || !runeMarketData) return undefined
@@ -529,7 +526,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       .toFixed()
 
     setConfirmedQuote({
-      repaymentAmountCryptoPrecision: '3333', // fixme
       assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
       assetFiatLiquidityAmount: actualAssetFiatLiquidityAmount,
       runeCryptoLiquidityAmount: actualRuneCryptoLiquidityAmount,

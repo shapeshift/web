@@ -207,7 +207,6 @@ export type LpConfirmedDepositQuote = {
 }
 
 export type LpConfirmedWithdrawalQuote = {
-  repaymentAmountCryptoPrecision: string
   totalAmountFiat: string
   assetCryptoLiquidityAmount: string
   assetFiatLiquidityAmount: string

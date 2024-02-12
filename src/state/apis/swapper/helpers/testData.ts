@@ -4,8 +4,8 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 export const lifiQuote: TradeQuote = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
   rate: '51.34579860391078801712',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   slippageTolerancePercentageDecimal: '0',
   steps: [
@@ -135,8 +135,8 @@ export const thorQuote: TradeQuote = {
 export const oneInchQuote: TradeQuote = {
   id: '89654b4f-c90b-4578-bb9f-7c93e7ad227d',
   rate: '51.63754486526613135844',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   slippageTolerancePercentageDecimal: '0',
   steps: [
@@ -184,8 +184,8 @@ export const oneInchQuote: TradeQuote = {
 export const cowQuote: TradeQuote = {
   id: '220858750',
   rate: '51.86127422365727736757',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   slippageTolerancePercentageDecimal: '0',
   steps: [
@@ -250,8 +250,8 @@ export const cowQuote: TradeQuote = {
 export const zrxQuote: TradeQuote = {
   id: 'dfb5f2e6-9cb9-4865-9ef5-6b54d203affa',
   rate: '51.603817692372651273',
-  affiliateBps: undefined,
-  potentialAffiliateBps: undefined,
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   slippageTolerancePercentageDecimal: '0',
   steps: [

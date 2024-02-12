@@ -15,6 +15,7 @@ type GetEvmThorTxInfoArgs = {
 type GetEvmThorTxInfoReturn = Promise<{
   data: string
   router: string
+  vault: string
 }>
 
 export const getThorTxInfo = async ({
@@ -47,5 +48,5 @@ export const getThorTxInfo = async ({
     expiry,
   })
 
-  return { data, router }
+  return { data, router, vault }
 }

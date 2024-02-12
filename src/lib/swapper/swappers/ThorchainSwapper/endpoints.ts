@@ -1,6 +1,5 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
@@ -18,8 +17,7 @@ import {
   type UtxoFeeData,
 } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { cosmossdk, evm, TxStatus } from '@shapeshiftoss/unchained-client'
+import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
 import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
@@ -29,7 +27,7 @@ import { encodeFunctionData, parseAbiItem } from 'viem'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { viemClientByChainId } from 'lib/viem-client'
@@ -75,7 +73,8 @@ export const thorchainApi: SwapperApi = {
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const {
-      router: to,
+      router,
+      vault,
       data,
       steps,
       memo: tcMemo,
@@ -83,71 +82,34 @@ export const thorchainApi: SwapperApi = {
       longtailData,
       slippageTolerancePercentageDecimal,
     } = tradeQuote as ThorEvmTradeQuote
+    const to = router
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
     const value = isNativeEvmAsset(sellAsset.assetId)
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
       : '0'
 
-    const api = (() => {
-      switch (chainId) {
-        case KnownChainIds.EthereumMainnet:
-          return new evm.ethereum.V1Api(
-            new evm.ethereum.Configuration({
-              basePath: getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL,
-            }),
-          )
-        case KnownChainIds.AvalancheMainnet:
-          return new evm.avalanche.V1Api(
-            new evm.avalanche.Configuration({
-              basePath: getConfig().REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL,
-            }),
-          )
-        case KnownChainIds.BnbSmartChainMainnet:
-          return new evm.bnbsmartchain.V1Api(
-            new evm.bnbsmartchain.Configuration({
-              basePath: getConfig().REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
-            }),
-          )
-        default:
-          throw Error(`Unsupported chainId '${chainId}'`)
-      }
-    })()
-
     switch (tradeType) {
       case TradeType.L1ToL1: {
-        const [{ gasLimit }, { average: gasFees }] = await Promise.all([
-          api.estimateGas({ data, from, to, value }),
-          api.getGasFees(),
-        ])
+        const feeData = await getFees({
+          adapter: assertGetEvmChainAdapter(chainId),
+          data,
+          to,
+          value,
+          from,
+          supportsEIP1559,
+        })
 
-        const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
         return {
           chainId: Number(fromChainId(chainId).chainReference),
           data,
           from,
-          gasLimit,
           to,
           value,
-          ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
-            ? { maxFeePerGas, maxPriorityFeePerGas }
-            : { gasPrice }),
+          ...feeData,
         }
       }
       case TradeType.LongTailToL1: {
-        const l1AssetId: AssetId = assertGetEvmChainAdapter(chainId).getFeeAssetId()
-        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-        const maybeInboundAddress = await getInboundAddressDataForChain(daemonUrl, l1AssetId)
-        assert(
-          maybeInboundAddress.isOk() !== false,
-          `no inbound address data found for assetId '${l1AssetId}'`,
-        )
-        const inboundAddress = maybeInboundAddress.unwrap()
-        const tcVault = inboundAddress.address as Address
-        const tcRouter = inboundAddress.router as Address | undefined
-
-        assert(tcRouter !== undefined, `no tcRouter found for assetId '${l1AssetId}'`)
-
         const swapInAbiItem = parseAbiItem(
           'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
         )
@@ -171,8 +133,10 @@ export const thorchainApi: SwapperApi = {
         // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
         assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
 
-        const token: Address = fromAssetId(sellAsset.assetId).assetReference as Address
-        const amount: bigint = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
+        const tcRouter = router as Address
+        const tcVault = vault as Address
+        const token = fromAssetId(sellAsset.assetId).assetReference as Address
+        const amount = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
         const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
         const tenMinutes = BigInt(600)
         const deadline = currentTimestamp + tenMinutes
@@ -184,23 +148,22 @@ export const thorchainApi: SwapperApi = {
           args: params,
         })
 
-        const [{ gasLimit }, { average: gasFees }] = await Promise.all([
-          api.estimateGas({ data: swapInData, from, to, value }),
-          api.getGasFees(),
-        ])
-
-        const { gasPrice, maxPriorityFeePerGas, maxFeePerGas } = gasFees
+        const feeData = await getFees({
+          adapter: assertGetEvmChainAdapter(chainId),
+          data: swapInData,
+          to,
+          value,
+          from,
+          supportsEIP1559,
+        })
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),
           data: swapInData,
           from,
-          gasLimit,
           to,
           value,
-          ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
-            ? { maxFeePerGas, maxPriorityFeePerGas }
-            : { gasPrice }),
+          ...feeData,
         }
       }
       case TradeType.L1ToLongTail:

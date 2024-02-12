@@ -18,7 +18,7 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -105,11 +105,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [foundPoolAsset])
 
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  // const runeAccountId = useMemo(() => accountIdsByChainId[thorchainChainId], [accountIdsByChainId])
-  const runeAccountId = poolAccountId // fixme
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
   const [userlpData, setUserlpData] = useState<UserLpDataPosition | undefined>()
+  const [runeAccountId, setRuneAccountId] = useState<AccountId | undefined>()
   const [percentageSelection, setPercentageSelection] = useState<number>(50)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
@@ -211,8 +211,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     const _UserlpData: UserLpDataPosition | undefined = userData.find(
       data => data.opportunityId === opportunityId,
     )
-    if (!_UserlpData) return
+    const runeAddress = _UserlpData?.runeAddress
+    if (!_UserlpData || !runeAddress) return
     setUserlpData(_UserlpData)
+    const runeAccountId = toAccountId({
+      chainId: thorchainChainId,
+      account: runeAddress,
+    })
+    setRuneAccountId(runeAccountId)
   }, [foundPoolAsset, opportunityId, poolAsset?.assetId, userData])
 
   const handleBackClick = useCallback(() => {
@@ -280,9 +286,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     // isSuccess: isEstimatedRuneFeesDataSuccess,
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId: thorchainAssetId,
-    collateralAccountId: runeAccountId,
-    repaymentAccountId: runeAccountId,
-    repaymentAsset: poolAsset ?? null,
+    collateralAccountId: runeAccountId ?? '', // fixme
+    repaymentAccountId: runeAccountId ?? '', // fixme
+    repaymentAsset: runeAsset ?? null,
     repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
     confirmedQuote,
   })
@@ -293,17 +299,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     // isError: isEstimatedPoolAssetFeesDataError,
     // isSuccess: isEstimatedPoolAssetFeesDataSuccess,
   } = useQuoteEstimatedFeesQuery({
-    collateralAssetId: poolAsset?.assetId ?? '',
+    collateralAssetId: poolAsset?.assetId ?? '', // fixme
     collateralAccountId: poolAccountId,
     repaymentAccountId: poolAccountId,
     repaymentAsset: poolAsset ?? null,
     confirmedQuote,
     repaymentAmountCryptoPrecision: actualAssetCryptoLiquidityAmount,
-  })
-
-  console.log('xxx estimatedPoolAssetFeesData', {
-    estimatedPoolAssetFeesData,
-    estimatedRuneFeesData,
   })
 
   const poolAssetTxFeeCryptoPrecision = useMemo(

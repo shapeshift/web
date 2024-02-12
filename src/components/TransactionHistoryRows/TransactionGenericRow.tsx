@@ -10,7 +10,6 @@ import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
-import { FALLBACK_PRECISION } from './constants'
 import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTxMetadataWithAssetId } from './utils'
@@ -81,7 +80,7 @@ export const TransactionGenericRow = ({
       return <RawText color='text.subtle'>{assets.join('/')}</RawText>
     }
     if (hasSendAndRecieve) {
-      const precision = transfersByType.Send[0].asset.precision ?? FALLBACK_PRECISION
+      const precision = transfersByType.Send[0].asset.precision ?? 0
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
       return (
         <Amount.Crypto
@@ -149,7 +148,7 @@ export const TransactionGenericRow = ({
       )
     }
     if (hasSendAndRecieve || hasOnlyRecieve) {
-      const precision = transfersByType.Receive[0].asset.precision ?? FALLBACK_PRECISION
+      const precision = transfersByType.Receive[0].asset.precision ?? 0
       const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
       const symbol = transfersByType.Receive[0].asset.symbol
       return (
@@ -164,7 +163,7 @@ export const TransactionGenericRow = ({
       )
     }
     if (hasOnlySend) {
-      const precision = transfersByType.Send[0].asset.precision ?? FALLBACK_PRECISION
+      const precision = transfersByType.Send[0].asset.precision ?? 0
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
       const symbol = transfersByType.Send[0].asset.symbol
       return (

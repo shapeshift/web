@@ -6,7 +6,6 @@ import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 
-import { FALLBACK_PRECISION } from './constants'
 import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
@@ -48,8 +47,8 @@ export const TransactionReceive = ({
   }, [transfersByType.Receive, translate])
 
   const bottomRight = useMemo(() => {
-    const precision = transfersByType.Receive[0].asset.precision
-    const amount = fromBaseUnit(transfersByType.Receive[0].value, precision ?? FALLBACK_PRECISION)
+    const precision = transfersByType.Receive[0].asset.precision ?? 0
+    const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
     return (
       <FormatAmount
         color='text.success'

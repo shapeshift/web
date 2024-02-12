@@ -6,7 +6,6 @@ import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 
-import { FALLBACK_PRECISION } from './constants'
 import { useTradeFees } from './hooks'
 import { TransactionDate } from './TransactionDate'
 import { Amount as TransactionAmount } from './TransactionDetails/Amount'
@@ -62,8 +61,8 @@ export const TransactionTrade = ({
 
   const topRight = useMemo(() => {
     if (!hasReceive || !hasSend) return undefined
-    const precision = transfersByType.Send[0].asset.precision
-    const amount = fromBaseUnit(transfersByType.Send[0].value, precision ?? FALLBACK_PRECISION)
+    const precision = transfersByType.Send[0].asset.precision ?? 0
+    const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
     return (
       <Amount.Crypto
         value={amount}
@@ -98,8 +97,8 @@ export const TransactionTrade = ({
     if (hasReceive) {
       dataType = TransferType.Receive
     }
-    const precision = transfersByType[dataType][0].asset.precision
-    const amount = fromBaseUnit(transfersByType[dataType][0].value, precision ?? FALLBACK_PRECISION)
+    const precision = transfersByType[dataType][0].asset.precision ?? 0
+    const amount = fromBaseUnit(transfersByType[dataType][0].value, precision)
     return (
       <Amount.Crypto
         maximumFractionDigits={4}

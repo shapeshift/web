@@ -69,6 +69,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     rate: '144114.94366197183098591549',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+    vault: '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c',
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0',
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: '0.04357',
@@ -106,6 +107,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     rate: '158199.45070422535211267606',
     data: '0x',
     router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+    vault: '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c',
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0',
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: undefined,
@@ -138,7 +140,11 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
 
 describe('getTradeQuote', () => {
   mockedGetThorTxInfo.mockReturnValue(
-    Promise.resolve({ data: '0x', router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976' }),
+    Promise.resolve({
+      data: '0x',
+      router: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+      vault: '0x06828ac8dbf4cc9e5f363ead14629c9b330c0f5c',
+    }),
   )
 
   const { quoteInput } = setupQuote()

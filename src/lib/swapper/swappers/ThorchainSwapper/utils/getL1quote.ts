@@ -231,7 +231,7 @@ export const getL1quote = async (
               affiliateBps,
               isStreaming,
             })
-            const { data, router } = await getEvmThorTxInfo({
+            const { data, router, vault } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
               memo: updatedMemo,
@@ -258,6 +258,7 @@ export const getL1quote = async (
               rate,
               data,
               router,
+              vault,
               tradeType: tradeType ?? TradeType.L1ToL1,
               steps: [
                 {

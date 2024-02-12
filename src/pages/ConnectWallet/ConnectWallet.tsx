@@ -188,7 +188,7 @@ export const ConnectWallet = () => {
                   color='text.subtle'
                   fontSize='lg'
                   textAlign='left'
-                  translation={'connectWalletPage.body2'}
+                  translation={'connectWalletPage.body'}
                 />
               </Stack>
             ) : isSnapEnabled ? (

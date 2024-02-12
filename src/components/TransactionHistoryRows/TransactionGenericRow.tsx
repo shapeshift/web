@@ -62,12 +62,37 @@ export const TransactionGenericRow = ({
 }: TransactionGenericRowProps) => {
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
 
+  const hasManySends = useMemo(
+    () => transfersByType.Send && transfersByType.Send.length > 1,
+    [transfersByType.Send],
+  )
+  const hasSendAndRecieve = useMemo(
+    () =>
+      transfersByType.Send &&
+      transfersByType.Send.length > 0 &&
+      transfersByType.Receive &&
+      transfersByType.Receive.length > 0,
+    [transfersByType.Receive, transfersByType.Send],
+  )
+  const hasManyReceives = useMemo(
+    () => transfersByType.Receive && transfersByType.Receive.length > 1,
+    [transfersByType.Receive],
+  )
+  const hasOnlyRecieve = useMemo(
+    () => !transfersByType.Send && transfersByType.Receive && transfersByType.Receive.length > 0,
+    [transfersByType.Receive, transfersByType.Send],
+  )
+  const hasOnlySend = useMemo(
+    () => transfersByType.Send && transfersByType.Send.length > 0 && !transfersByType.Receive,
+    [transfersByType.Receive, transfersByType.Send],
+  )
+
   const renderSendInfo = useMemo(() => {
-    if (transfersByType.Send && transfersByType.Send.length > 1) {
+    if (hasManySends) {
       const assets = transfersByType.Send.map(transfer => transfer.asset.symbol)
       return <RawText color='text.subtle'>{assets.join('/')}</RawText>
     }
-    if (transfersByType.Send && transfersByType.Receive) {
+    if (hasSendAndRecieve) {
       const precision = transfersByType.Send[0].asset.precision ?? FALLBACK_PRECISION
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
       return (
@@ -80,10 +105,10 @@ export const TransactionGenericRow = ({
         />
       )
     }
-  }, [transfersByType])
+  }, [hasManySends, hasSendAndRecieve, transfersByType.Send])
 
   const renderBody = useMemo(() => {
-    if (transfersByType.Receive && transfersByType.Receive.length > 1) {
+    if (hasManyReceives) {
       return (
         <Flex gap={1} alignItems='center' fontWeight='bold'>
           <Tag size='sm' fontWeight='bold'>
@@ -93,10 +118,7 @@ export const TransactionGenericRow = ({
         </Flex>
       )
     }
-    if (
-      (transfersByType.Send && transfersByType.Receive) ||
-      (!transfersByType.Send && transfersByType.Receive)
-    ) {
+    if (hasSendAndRecieve || hasOnlyRecieve) {
       const precision = transfersByType.Receive[0].asset.precision ?? FALLBACK_PRECISION
       const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
       const symbol = transfersByType.Receive[0].asset.symbol
@@ -115,7 +137,7 @@ export const TransactionGenericRow = ({
         </Flex>
       )
     }
-    if (transfersByType.Send && !transfersByType.Receive) {
+    if (hasOnlySend) {
       const precision = transfersByType.Send[0].asset.precision ?? FALLBACK_PRECISION
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
       const symbol = transfersByType.Send[0].asset.symbol
@@ -133,7 +155,14 @@ export const TransactionGenericRow = ({
         </Flex>
       )
     }
-  }, [transfersByType.Receive, transfersByType.Send])
+  }, [
+    hasManyReceives,
+    hasOnlyRecieve,
+    hasOnlySend,
+    hasSendAndRecieve,
+    transfersByType.Receive,
+    transfersByType.Send,
+  ])
 
   return (
     <Button

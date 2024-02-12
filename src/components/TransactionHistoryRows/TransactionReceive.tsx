@@ -64,7 +64,6 @@ export const TransactionReceive = ({
 
   const bottomleft = useMemo(() => {
     if (isNft) {
-      console.info(transfersByType.Receive[0].token)
       return <RawText>{transfersByType.Receive[0]?.token?.name ?? 'NFT'}</RawText>
     }
     return <RawText>{transfersByType.Receive[0].asset.symbol}</RawText>

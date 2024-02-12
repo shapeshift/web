@@ -15,7 +15,8 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
-import { createDefaultStatusResponse } from 'lib/utils/evm'
+import { bn } from 'lib/bignumber/bignumber'
+import { assertGetEvmChainAdapter, createDefaultStatusResponse, getFees } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getLifi } from './utils/getLifi'
@@ -89,20 +90,11 @@ export const lifiApi: SwapperApi = {
       throw Error('undefined transactionRequest')
     }
 
-    const { gasLimit, gasPrice, to, value, data, maxFeePerGas, maxPriorityFeePerGas } =
-      transactionRequest
+    const { to, value, data } = transactionRequest
 
     // checking values individually to keep type checker happy
-    if (
-      to === undefined ||
-      value === undefined ||
-      data === undefined ||
-      gasLimit === undefined ||
-      gasPrice === undefined
-    ) {
-      const undefinedRequiredValues = [to, value, data, gasLimit, gasPrice].filter(
-        value => value === undefined,
-      )
+    if (to === undefined || value === undefined || data === undefined) {
+      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
 
       throw Error('undefined required values in transactionRequest', {
         cause: {
@@ -111,19 +103,22 @@ export const lifiApi: SwapperApi = {
       })
     }
 
+    const feeData = await getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data: data.toString(),
+      to,
+      value: bn(value.toString()).toString(),
+      from,
+      supportsEIP1559,
+    })
+
     return {
       to,
       from,
       value: value.toString(),
       data: data.toString(),
       chainId: Number(fromChainId(chainId).chainReference),
-      gasLimit: gasLimit.toString(),
-      ...(supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas
-        ? {
-            maxFeePerGas: maxFeePerGas.toString(),
-            maxPriorityFeePerGas: maxPriorityFeePerGas.toString(),
-          }
-        : { gasPrice: gasPrice.toString() }),
+      ...feeData,
     }
   },
 

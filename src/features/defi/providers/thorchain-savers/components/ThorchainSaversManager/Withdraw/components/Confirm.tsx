@@ -855,7 +855,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       headerText='modals.confirm.withdraw.header'
       isDisabled={
-        !hasEnoughBalanceForGas || !userAddress || disableSmartContractWithdraw || !canWithdraw
+        !hasEnoughBalanceForGas ||
+        !userAddress ||
+        disableSmartContractWithdraw ||
+        !canWithdraw ||
+        isTradingActive === false
       }
       loading={quoteLoading || state.loading || !userAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}

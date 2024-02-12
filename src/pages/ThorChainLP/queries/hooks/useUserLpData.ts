@@ -9,7 +9,7 @@ import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/tho
 import type { MidgardPool, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectWalletId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseUserLpDataProps = {
@@ -111,8 +111,9 @@ export const useUserLpData = ({
     return parsedPositions
   }
 
+  const currentWalletId = useAppSelector(selectWalletId)
   const liquidityPoolPositionData = useQuery({
-    ...reactQueries.thorchainLp.userLpData(assetId),
+    ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
     // 60 seconds staleTime since this is used to get the current position value
     staleTime: 60_000,
     queryFn: async ({ queryKey }) => {
@@ -133,7 +134,7 @@ export const useUserLpData = ({
       return allPositions.length ? allPositions : []
     },
     select: selectLiquidityPositionsData,
-    enabled: Boolean(assetId && thornodePoolData),
+    enabled: Boolean(assetId && currentWalletId && thornodePoolData),
   })
 
   return liquidityPoolPositionData

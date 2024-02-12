@@ -73,12 +73,14 @@ export const getApprovalTxData = async ({
   wallet,
   isExactAllowance,
   from,
+  supportsEIP1559,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
   adapter: EvmChainAdapter
   wallet: ETHWallet
   isExactAllowance: boolean
-  from?: string
+  from: string
+  supportsEIP1559: boolean
 }): Promise<{ buildCustomTxInput: evm.BuildCustomTxInput; networkFeeCryptoBaseUnit: string }> => {
   const approvalAmountCryptoBaseUnit = isExactAllowance
     ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -100,12 +102,8 @@ export const getApprovalTxData = async ({
     to: assetReference,
     value,
     data,
-    ...(from
-      ? {
-          from,
-          supportsEIP1559: await wallet.ethSupportsEIP1559(),
-        }
-      : { accountNumber: tradeQuoteStep.accountNumber, wallet }),
+    from,
+    supportsEIP1559,
   })
 
   return {

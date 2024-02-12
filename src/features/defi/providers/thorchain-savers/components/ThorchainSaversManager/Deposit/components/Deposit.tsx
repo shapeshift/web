@@ -44,7 +44,7 @@ import {
   assertGetEvmChainAdapter,
   createBuildCustomTxInput,
   getErc20Allowance,
-  getFees,
+  getFeesWithWallet,
 } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
@@ -494,7 +494,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
           const adapter = assertGetEvmChainAdapter(chainId)
 
-          return getFees({
+          return getFeesWithWallet({
             accountNumber,
             adapter,
             data,

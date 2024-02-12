@@ -26,6 +26,7 @@ type ThorTradeQuoteSpecificMetadata = {
 export type ThorEvmTradeQuote = TradeQuote &
   ThorTradeQuoteSpecificMetadata & {
     router: string
+    vault: string
     data: string
     tradeType: TradeType
   }

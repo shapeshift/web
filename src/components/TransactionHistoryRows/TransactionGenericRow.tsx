@@ -1,41 +1,20 @@
-import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
+import { Flex, Tag } from '@chakra-ui/react'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText, Text } from 'components/Text'
-import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import type { Fee, Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
-import { breakpoints } from 'theme/theme'
 
 import { FALLBACK_PRECISION } from './constants'
 import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
+import { TransactionTeaser } from './TransactionTeaser'
 import { getTxMetadataWithAssetId } from './utils'
 
-const dateFormat = 'L LT'
-
-export const GetTxLayoutFormats = ({ parentWidth }: { parentWidth: number }) => {
-  const isLargerThanSm = parentWidth > parseInt(breakpoints['sm'], 10)
-  const isLargerThanMd = parentWidth > parseInt(breakpoints['md'], 10)
-  const isLargerThanLg = parentWidth > parseInt(breakpoints['lg'], 10)
-  let columns = '1fr'
-
-  if (isLargerThanSm) {
-    columns = '1.5fr 2fr'
-  }
-  if (isLargerThanMd) {
-    columns = '1.5fr 2fr'
-  }
-  if (isLargerThanLg) {
-    columns = '1.5fr 2fr 1fr 1fr'
-  }
-  return { columns, dateFormat, breakPoints: [isLargerThanLg, isLargerThanMd, isLargerThanSm] }
-}
 type TransactionGenericRowProps = {
   type: string
   status: TxStatus
@@ -87,7 +66,16 @@ export const TransactionGenericRow = ({
     [transfersByType.Receive, transfersByType.Send],
   )
 
-  const renderSendInfo = useMemo(() => {
+  const topLeft = useMemo(() => {
+    return (
+      <Text
+        color='text.subtle'
+        translation={title ? title : `transactionRow.${type.toLowerCase()}`}
+      />
+    )
+  }, [title, type])
+
+  const topRight = useMemo(() => {
     if (hasManySends) {
       const assets = transfersByType.Send.map(transfer => transfer.asset.symbol)
       return <RawText color='text.subtle'>{assets.join('/')}</RawText>
@@ -108,7 +96,10 @@ export const TransactionGenericRow = ({
     }
   }, [hasManySends, hasSendAndRecieve, transfersByType.Send])
 
-  const renderBody = useMemo(() => {
+  const bottomLeft = useMemo(() => {
+    if (type === Method.Approve) {
+      return <AssetSymbol fontWeight='bold' assetId={txMetadataWithAssetId?.assetId ?? ''} />
+    }
     if (hasManyReceives) {
       return (
         <Flex gap={1} alignItems='center' fontWeight='bold'>
@@ -120,42 +111,19 @@ export const TransactionGenericRow = ({
       )
     }
     if (hasSendAndRecieve || hasOnlyRecieve) {
-      const precision = transfersByType.Receive[0].asset.precision ?? FALLBACK_PRECISION
-      const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
       const symbol = transfersByType.Receive[0].asset.symbol
       return (
-        <Flex justifyContent='space-between' fontWeight='bold' fontSize='lg'>
-          <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
-            {symbol}
-          </RawText>
-          <Amount.Crypto
-            value={amount}
-            symbol={symbol}
-            color='text.success'
-            prefix='+'
-            maximumFractionDigits={4}
-            whiteSpace='nowrap'
-          />
-        </Flex>
+        <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
+          {symbol}
+        </RawText>
       )
     }
     if (hasOnlySend) {
-      const precision = transfersByType.Send[0].asset.precision ?? FALLBACK_PRECISION
-      const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
       const symbol = transfersByType.Send[0].asset.symbol
       return (
-        <Flex justifyContent='space-between' fontWeight='bold' fontSize='lg'>
-          <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
-            {symbol}
-          </RawText>
-          <Amount.Crypto
-            value={amount}
-            symbol={symbol}
-            color='text.subtle'
-            maximumFractionDigits={4}
-            whiteSpace='nowrap'
-          />
-        </Flex>
+        <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
+          {symbol}
+        </RawText>
       )
     }
   }, [
@@ -165,51 +133,73 @@ export const TransactionGenericRow = ({
     hasSendAndRecieve,
     transfersByType.Receive,
     transfersByType.Send,
+    txMetadataWithAssetId?.assetId,
+    type,
+  ])
+
+  const bottomRight = useMemo(() => {
+    if (type === Method.Approve) {
+      return (
+        <ApprovalAmount
+          assetId={txMetadataWithAssetId?.assetId ?? ''}
+          value={txMetadataWithAssetId?.value ?? ''}
+          parser={txMetadataWithAssetId?.parser}
+          variant='tag'
+        />
+      )
+    }
+    if (hasSendAndRecieve || hasOnlyRecieve) {
+      const precision = transfersByType.Receive[0].asset.precision ?? FALLBACK_PRECISION
+      const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
+      const symbol = transfersByType.Receive[0].asset.symbol
+      return (
+        <Amount.Crypto
+          value={amount}
+          symbol={symbol}
+          color='text.success'
+          prefix='+'
+          maximumFractionDigits={4}
+          whiteSpace='nowrap'
+        />
+      )
+    }
+    if (hasOnlySend) {
+      const precision = transfersByType.Send[0].asset.precision ?? FALLBACK_PRECISION
+      const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
+      const symbol = transfersByType.Send[0].asset.symbol
+      return (
+        <Amount.Crypto
+          value={amount}
+          symbol={symbol}
+          color='text.subtle'
+          maximumFractionDigits={4}
+          whiteSpace='nowrap'
+        />
+      )
+    }
+  }, [
+    hasOnlyRecieve,
+    hasOnlySend,
+    hasSendAndRecieve,
+    transfersByType.Receive,
+    transfersByType.Send,
+    txMetadataWithAssetId?.assetId,
+    txMetadataWithAssetId?.parser,
+    txMetadataWithAssetId?.value,
+    type,
   ])
 
   return (
-    <Button
-      height='auto'
-      fontWeight='inherit'
-      variant='unstyled'
-      w='full'
-      p={4}
-      onClick={toggleOpen}
-    >
-      <Flex alignItems='flex-start' flex={1} flexDir='column' width='full'>
-        <Flex alignItems='center' width='full' gap={4}>
-          <AssetIconWithBadge
-            assetId={txMetadataWithAssetId?.assetId}
-            transfersByType={transfersByType}
-            type={type}
-            size='md'
-          >
-            <TransactionTypeIcon type={type} status={status} />
-          </AssetIconWithBadge>
-          <Stack flex={1} spacing={0}>
-            <Flex alignItems='center' gap={2} flex={1} width='full' justifyContent='space-between'>
-              <Text
-                color='text.subtle'
-                translation={title ? title : `transactionRow.${type.toLowerCase()}`}
-              />
-              {renderSendInfo}
-            </Flex>
-            {/* <TransactionTime blockTime={blockTime} format={dateFormat} /> */}
-            {renderBody}
-            {type === Method.Approve && (
-              <Flex justifyContent='space-between' alignItems='center'>
-                <AssetSymbol fontWeight='bold' assetId={txMetadataWithAssetId?.assetId ?? ''} />
-                <ApprovalAmount
-                  assetId={txMetadataWithAssetId?.assetId ?? ''}
-                  value={txMetadataWithAssetId?.value ?? ''}
-                  parser={txMetadataWithAssetId?.parser}
-                  variant='tag'
-                />
-              </Flex>
-            )}
-          </Stack>
-        </Flex>
-      </Flex>
-    </Button>
+    <TransactionTeaser
+      assetId={txMetadataWithAssetId?.assetId}
+      transfersByType={transfersByType}
+      type={type}
+      topLeftRegion={topLeft}
+      topRightRegion={topRight}
+      bottomRightRegion={bottomRight}
+      bottomLeftRegion={bottomLeft}
+      status={status}
+      onToggle={toggleOpen}
+    />
   )
 }

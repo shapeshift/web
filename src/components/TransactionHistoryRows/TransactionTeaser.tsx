@@ -1,4 +1,5 @@
 import { Flex, Stack } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useRef } from 'react'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
@@ -8,6 +9,7 @@ import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { useIsOverflow } from './utils'
 
 type TransactionTeaserProps = {
+  assetId?: AssetId
   transfersByType: Record<TransferType, Transfer[]>
   type: string
   topLeftRegion?: JSX.Element
@@ -20,7 +22,7 @@ type TransactionTeaserProps = {
 
 const overFlowStyle = {
   WebkitMaskImage: 'linear-gradient(to left, #0000 25%, #000 75%)',
-  WebkitMaskSize: '150%',
+  WebkitMaskSize: '10em',
 }
 
 const leftTextStyle = {
@@ -37,6 +39,7 @@ const rightTextStyle = {
 }
 
 export const TransactionTeaser: React.FC<TransactionTeaserProps> = ({
+  assetId,
   transfersByType,
   type,
   topLeftRegion,
@@ -62,7 +65,7 @@ export const TransactionTeaser: React.FC<TransactionTeaserProps> = ({
 
   return (
     <Flex gap={4} alignItems='center' px={4} py={4} onClick={onToggle} cursor='pointer'>
-      <AssetIconWithBadge transfersByType={transfersByType} type={type}>
+      <AssetIconWithBadge transfersByType={transfersByType} type={type} assetId={assetId}>
         <TransactionTypeIcon type={type} status={status} />
       </AssetIconWithBadge>
       <Stack flex={1} spacing={0} minWidth={0}>

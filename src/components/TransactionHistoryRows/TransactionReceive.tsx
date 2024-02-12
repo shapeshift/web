@@ -31,6 +31,12 @@ export const TransactionReceive = ({
     [txDetails.transfers],
   )
 
+  const isNft = useMemo(() => {
+    return Object.values(transfersByType)
+      .flat()
+      .some(transfer => !!transfer.id)
+  }, [transfersByType])
+
   const topLeft = useMemo(() => {
     return (
       <RawText>
@@ -57,8 +63,11 @@ export const TransactionReceive = ({
   }, [transfersByType.Receive])
 
   const bottomleft = useMemo(() => {
+    if (isNft) {
+      return <RawText>{transfersByType.Receive[0]?.token?.name ?? 'NFT'}</RawText>
+    }
     return <RawText>{transfersByType.Receive[0].asset.symbol}</RawText>
-  }, [transfersByType.Receive])
+  }, [isNft, transfersByType.Receive])
 
   return (
     <>

@@ -1,8 +1,11 @@
 import { Flex, Stack } from '@chakra-ui/react'
 import type { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { useMemo, useRef } from 'react'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
+
+import { useIsOverflow } from './utils'
 
 type TransactionTeaserProps = {
   transfersByType: Record<TransferType, Transfer[]>
@@ -15,7 +18,23 @@ type TransactionTeaserProps = {
   onToggle: () => void
 }
 
-const overFlowText = { p: { maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis' } }
+const overFlowStyle = {
+  WebkitMaskImage: 'linear-gradient(to left, #0000 25%, #000 75%)',
+  WebkitMaskSize: '150%',
+}
+
+const leftTextStyle = {
+  flex: '0 1 auto',
+  overflow: 'hidden',
+  minWidth: 0,
+  order: 1,
+  whiteSpace: 'nowrap',
+}
+const rightTextStyle = {
+  order: 2,
+  flex: '1 0 auto',
+  justifyContent: 'flex-end',
+}
 
 export const TransactionTeaser: React.FC<TransactionTeaserProps> = ({
   transfersByType,
@@ -27,28 +46,53 @@ export const TransactionTeaser: React.FC<TransactionTeaserProps> = ({
   status,
   onToggle,
 }) => {
+  const leftTopContentRef = useRef<HTMLDivElement>(null)
+  const leftBottomContentRef = useRef<HTMLDivElement>(null)
+  const isLeftTopOverflowing = useIsOverflow(leftTopContentRef)
+  const isLeftBottomOverflowing = useIsOverflow(leftBottomContentRef)
+
+  const leftTopStyle = useMemo(
+    () => (isLeftTopOverflowing ? { ...leftTextStyle, ...overFlowStyle } : leftTextStyle),
+    [isLeftTopOverflowing],
+  )
+  const bottomLeftStyle = useMemo(
+    () => (isLeftBottomOverflowing ? { ...leftTextStyle, ...overFlowStyle } : leftTextStyle),
+    [isLeftBottomOverflowing],
+  )
+
   return (
     <Flex gap={4} alignItems='center' px={4} py={4} onClick={onToggle} cursor='pointer'>
       <AssetIconWithBadge transfersByType={transfersByType} type={type}>
         <TransactionTypeIcon type={type} status={status} />
       </AssetIconWithBadge>
-      <Stack flex={1} spacing={0}>
+      <Stack flex={1} spacing={0} minWidth={0}>
         <Flex
           lineHeight='shorter'
           color='text.subtle'
           justifyContent='space-between'
           alignItems='center'
+          minWidth={0}
+          gap={2}
         >
-          {topLeftRegion}
-          {topRightRegion}
+          <Flex ref={leftTopContentRef} sx={leftTopStyle}>
+            {topLeftRegion}
+          </Flex>
+          {topRightRegion && <Flex style={rightTextStyle}>{topRightRegion}</Flex>}
         </Flex>
-        <Flex fontSize='lg' fontWeight='bold' justifyContent='space-between' alignItems='center'>
+        <Flex
+          minWidth={0}
+          fontSize='lg'
+          fontWeight='bold'
+          justifyContent='space-between'
+          alignItems='center'
+          gap={2}
+        >
           {bottomLeftRegion && (
-            <Flex whiteSpace='nowrap' sx={overFlowText}>
+            <Flex ref={leftBottomContentRef} sx={bottomLeftStyle}>
               {bottomLeftRegion}
             </Flex>
           )}
-          {bottomRightRegion}
+          <Flex style={rightTextStyle}>{bottomRightRegion}</Flex>
         </Flex>
       </Stack>
     </Flex>

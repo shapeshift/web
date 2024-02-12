@@ -70,6 +70,7 @@ export const TransactionTrade = ({
         symbol={transfersByType.Send[0].asset.symbol}
         prefix='-'
         maximumFractionDigits={4}
+        whiteSpace='nowrap'
       />
     )
   }, [hasReceive, hasSend, transfersByType.Send])
@@ -106,6 +107,7 @@ export const TransactionTrade = ({
         symbol={transfersByType[dataType][0].asset.symbol}
         color={hasReceive ? 'text.success' : 'text.subtle'}
         prefix={hasReceive ? '+' : ''}
+        whiteSpace='nowrap'
       />
     )
   }, [hasReceive, transfersByType])

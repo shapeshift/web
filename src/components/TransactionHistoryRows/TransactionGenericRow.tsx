@@ -102,6 +102,7 @@ export const TransactionGenericRow = ({
           symbol={transfersByType.Send[0].asset.symbol}
           maximumFractionDigits={4}
           prefix='-'
+          whiteSpace='nowrap'
         />
       )
     }
@@ -133,6 +134,7 @@ export const TransactionGenericRow = ({
             color='text.success'
             prefix='+'
             maximumFractionDigits={4}
+            whiteSpace='nowrap'
           />
         </Flex>
       )
@@ -151,6 +153,7 @@ export const TransactionGenericRow = ({
             symbol={symbol}
             color='text.subtle'
             maximumFractionDigits={4}
+            whiteSpace='nowrap'
           />
         </Flex>
       )

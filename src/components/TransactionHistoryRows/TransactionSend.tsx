@@ -51,6 +51,7 @@ export const TransactionSend = ({
         prefix='-'
         symbol={txDetails.transfers[0].asset.symbol}
         maximumFractionDigits={4}
+        whiteSpace='nowrap'
       />
     )
   }, [txDetails.transfers])

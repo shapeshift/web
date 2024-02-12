@@ -2,6 +2,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import type { TransferType, TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { memoize } from 'lodash'
+import { useLayoutEffect, useState } from 'react'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
@@ -104,4 +105,29 @@ export const makeAmountOrDefault = (
 
   // All above infinite/revoke checks failed, this is an exact approval
   return `${approvedAmount} ${approvedAsset.symbol}`
+}
+
+export const useIsOverflow = (
+  ref: React.RefObject<HTMLElement>,
+  callback?: (isOverflow: boolean) => void,
+): boolean | undefined => {
+  const [isOverflow, setIsOverflow] = useState<boolean | undefined>(undefined)
+
+  useLayoutEffect(() => {
+    const { current } = ref
+
+    const trigger = () => {
+      if (current) {
+        const hasOverflow = current.scrollWidth > current.clientWidth
+        setIsOverflow(hasOverflow)
+        if (callback) callback(hasOverflow)
+      }
+    }
+
+    if (current) {
+      trigger()
+    }
+  }, [callback, ref])
+
+  return isOverflow
 }

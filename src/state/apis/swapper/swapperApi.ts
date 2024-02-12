@@ -25,15 +25,11 @@ import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
-export const swapperApiBase = createApi({
+export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'swapperApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
-  endpoints: () => ({}),
-})
-
-export const swapperApi = swapperApiBase.injectEndpoints({
   endpoints: build => ({
     getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteRequest>({
       queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {

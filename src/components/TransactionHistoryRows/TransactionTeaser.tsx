@@ -21,8 +21,10 @@ type TransactionTeaserProps = {
 }
 
 const overFlowStyle = {
-  WebkitMaskImage: 'linear-gradient(to left, #0000 25%, #000 75%)',
-  WebkitMaskSize: '10em',
+  MaskImage: 'linear-gradient(to left, #0000 8%, #000 75%)',
+  MaskPosition: 'right',
+  WebkitMaskImage: 'linear-gradient(to left, #0000 8%, #000 75%)',
+  WebkitMaskPosition: 'right',
 }
 
 const leftTextStyle = {

@@ -721,7 +721,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       onCancel={handleCancel}
       onConfirm={handleDeposit}
       preFooter={preFooter}
-      isDisabled={!hasEnoughBalanceForGas || !userAddress || disableSmartContractDeposit}
+      isDisabled={
+        !hasEnoughBalanceForGas ||
+        !userAddress ||
+        disableSmartContractDeposit ||
+        isTradingActive === false
+      }
       loading={state.loading || !userAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'

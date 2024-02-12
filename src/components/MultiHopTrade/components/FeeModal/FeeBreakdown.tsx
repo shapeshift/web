@@ -75,12 +75,7 @@ export const FeeBreakdown = () => {
         <Row>
           <Row.Label>{translate('foxDiscounts.currentFoxPower')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Crypto
-              fontSize='sm'
-              value={votingPower ?? '0'}
-              symbol='FOX'
-              maximumFractionDigits={0}
-            />
+            <Amount.Crypto value={votingPower ?? '0'} symbol='FOX' maximumFractionDigits={0} />
           </Row.Value>
         </Row>
         {!isFeeUnsupported && (

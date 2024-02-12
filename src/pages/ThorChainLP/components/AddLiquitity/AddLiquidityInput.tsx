@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -182,6 +183,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
+
+  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery(
+    reactQueries.common.isTradingActive({
+      assetId: poolAsset?.assetId,
+      swapperName: SwapperName.Thorchain,
+    }),
+  )
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
@@ -730,7 +738,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   useEffect(() => {
     ;(async () => {
-      if (!actualRuneCryptoLiquidityAmount || !actualAssetCryptoLiquidityAmount || !poolAsset)
+      if (
+        !actualRuneCryptoLiquidityAmount ||
+        !actualAssetCryptoLiquidityAmount ||
+        !poolAsset ||
+        isTradingActive === false
+      )
         return
 
       const runeAmountCryptoThorPrecision = convertPrecision({
@@ -775,6 +788,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     isAsymAssetSide,
     isAsymRuneSide,
     virtualRuneFiatLiquidityAmount,
+    isTradingActive,
   ])
 
   useEffect(() => {
@@ -955,6 +969,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         <TradeAssetSelect
           assetId={thorchainAssetId}
           onAssetChange={handleAssetChange}
+          isReadOnly
           isLoading={false}
           mb={0}
           buttonProps={buttonProps}
@@ -1020,11 +1035,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const errorCopy = useMemo(() => {
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
-    // 1 pool asset balance
-    // 2. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
-    // 3. RUNE balance
-    // 4. RUNE fee balance
+    // 1. pool halted
+    // 2. pool asset balance
+    // 3. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 4. RUNE balance
+    // 5. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
+    if (isTradingActive === false) return translate('common.poolHalted')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
     // Not enough *fee* asset
     if (poolAssetFeeAsset && notEnoughFeeAssetError)
@@ -1041,6 +1058,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return null
   }, [
+    isTradingActive,
     notEnoughFeeAssetError,
     notEnoughPoolAssetError,
     notEnoughRuneError,
@@ -1142,6 +1160,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           size='lg'
           colorScheme={errorCopy ? 'red' : 'blue'}
           isDisabled={
+            isTradingActive === false ||
             !confirmedQuote ||
             isVotingPowerLoading ||
             !hasEnoughAssetBalance ||
@@ -1163,6 +1182,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             isAllowanceDataLoading ||
             isApprovalTxPending ||
             isSweepNeededLoading ||
+            isTradingActiveLoading ||
             isEstimatedPoolAssetFeesDataLoading
           }
           onClick={handleSubmit}

@@ -14,10 +14,8 @@ import {
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import type { DefiButtonProps } from 'features/defi/components/DefiActionButtons'
 import { Overview } from 'features/defi/components/Overview/Overview'
@@ -29,8 +27,7 @@ import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -39,7 +36,6 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getMaybeThorchainSaversDepositQuote,
@@ -132,34 +128,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [accountId, defaultAccountId, highestBalanceAccountId],
   )
 
-  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddresses(),
-    enabled: !!assetId,
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-    select: data => selectInboundAddressData(data, assetId),
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId,
   })
-
-  const { data: mimir, isLoading: isMimirLoading } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-  })
-
-  const isTradingActive = useMemo(() => {
-    if (isMimirLoading || !mimir) return
-
-    return selectIsTradingActive({
-      assetId,
-      inboundAddressResponse: inboundAddressesData,
-      swapperName: SwapperName.Thorchain,
-      mimir,
-    })
-  }, [assetId, inboundAddressesData, isMimirLoading, mimir])
 
   useEffect(() => {
     if (!maybeAccountId) return
@@ -381,7 +352,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (!earnOpportunityData || isMimirLoading || isInboundAddressesDataLoading) {
+  if (!earnOpportunityData || isTradingActiveLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />

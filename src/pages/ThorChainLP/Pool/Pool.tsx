@@ -14,18 +14,16 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Main } from 'components/Layout/Main'
-import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import {
   calculateTVL,
   get24hSwapChangePercentage,
@@ -104,34 +102,9 @@ export const Pool = () => {
     return parsedPools.find(pool => pool.opportunityId === routeOpportunityId)
   }, [params, parsedPools])
 
-  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddresses(),
-    enabled: !!foundPool,
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-    select: data => selectInboundAddressData(data, foundPool?.assetId),
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: foundPool?.assetId,
   })
-
-  const { data: mimir, isLoading: isMimirLoading } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-  })
-
-  const isTradingActive = useMemo(() => {
-    if (isMimirLoading || !mimir) return
-
-    return selectIsTradingActive({
-      assetId: foundPool?.assetId,
-      inboundAddressResponse: inboundAddressesData,
-      swapperName: SwapperName.Thorchain,
-      mimir,
-    })
-  }, [foundPool?.assetId, inboundAddressesData, isMimirLoading, mimir])
 
   const poolAssetIds = useMemo(() => {
     if (!foundPool) return []
@@ -234,9 +207,7 @@ export const Pool = () => {
                 hasArrow
               >
                 <Button
-                  isDisabled={
-                    isInboundAddressesDataLoading || isMimirLoading || isTradingActive === false
-                  }
+                  isDisabled={isTradingActiveLoading || isTradingActive === false}
                   onClick={handleAddLiquidityClick}
                   leftIcon={addIcon}
                 >

@@ -15,8 +15,6 @@ import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftos
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -30,8 +28,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -59,7 +56,7 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import {
   getThorchainSaversPosition,
@@ -595,38 +592,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return txId
   }, [getWithdrawInput, wallet])
 
-  const { data: inboundAddressesData, refetch: refetchInboundAddressData } = useQuery({
-    ...reactQueries.thornode.inboundAddresses(),
-    enabled: !!assetId,
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-    select: data => selectInboundAddressData(data, assetId),
+  const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
+    assetId,
   })
-
-  const {
-    data: mimir,
-    isLoading: isMimirLoading,
-    refetch: refetchMimir,
-  } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-  })
-
-  const isTradingActive = useMemo(() => {
-    if (isMimirLoading || !mimir) return
-
-    return selectIsTradingActive({
-      assetId,
-      inboundAddressResponse: inboundAddressesData,
-      swapperName: SwapperName.Thorchain,
-      mimir,
-    })
-  }, [assetId, inboundAddressesData, isMimirLoading, mimir])
 
   const handleConfirm = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return
@@ -660,23 +628,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       }
 
       // Was the pool active when it was fetched at the time of the component mount
+      // If it wasn't, it's definitely not going to become active again in the few seconds it takes to go from mount to sign click
       if (isTradingActive === false) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
-      // Refetch the trading active state JIT to ensure the pool didn't just become halted
-      const { data: _inboundAddressesData } = await refetchInboundAddressData()
-      if (!_inboundAddressesData) throw new Error('Pool Halted')
-      const { data: _mimir } = await refetchMimir()
-      if (!_mimir) throw new Error('Failed to fetch mimir')
-
-      const _isTradingActive = selectIsTradingActive({
-        assetId,
-        inboundAddressResponse: _inboundAddressesData,
-        swapperName: SwapperName.Thorchain,
-        mimir: _mimir,
-      })
-
+      const _isTradingActive = await refetchIsTradingActive()
       if (_isTradingActive === false) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
@@ -746,8 +703,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.fiatAmount,
     expiry,
     isTradingActive,
-    refetchInboundAddressData,
-    refetchMimir,
+    refetchIsTradingActive,
     dustAmountCryptoBaseUnit,
     protocolFeeCryptoBaseUnit,
     onNext,

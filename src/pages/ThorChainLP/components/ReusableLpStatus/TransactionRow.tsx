@@ -23,7 +23,6 @@ import {
   type FeeDataEstimate,
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -32,7 +31,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -52,7 +52,7 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { THORCHAIN_POOL_MODULE_ADDRESS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
 import type { AsymSide, LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
@@ -102,41 +102,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const wallet = useWallet().state.wallet
 
   const {
-    data: inboundAddressesData,
-    isLoading: isInboundAddressesDataLoading,
-    refetch: refetchInboundAddressData,
-  } = useQuery({
-    ...reactQueries.thornode.inboundAddresses(),
-    enabled: !!poolAssetId,
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-    select: data => selectInboundAddressData(data, poolAsset?.assetId),
+    isTradingActive,
+    refetch: refetchIsTradingActive,
+    isLoading: isTradingActiveLoading,
+  } = useIsTradingActive({
+    assetId: poolAssetId,
   })
-
-  const {
-    data: mimir,
-    isLoading: isMimirLoading,
-    refetch: refetchMimir,
-  } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-  })
-
-  const isTradingActive = useMemo(() => {
-    if (isMimirLoading || !mimir) return
-
-    return selectIsTradingActive({
-      assetId: poolAssetId,
-      inboundAddressResponse: inboundAddressesData,
-      swapperName: SwapperName.Thorchain,
-      mimir,
-    })
-  }, [inboundAddressesData, isMimirLoading, mimir, poolAssetId])
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]
   const poolAssetAccountId =
@@ -420,18 +391,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
 
     return (async () => {
-      // Refetch the trading active state JIT to ensure the pool didn't just become halted
-      const { data: _inboundAddressesData } = await refetchInboundAddressData()
-      if (!_inboundAddressesData) throw new Error('Pool Halted')
-      const { data: _mimir } = await refetchMimir()
-      if (!_mimir) throw new Error('Failed to fetch mimir')
-
-      const _isTradingActive = selectIsTradingActive({
-        assetId: poolAssetId,
-        inboundAddressResponse: _inboundAddressesData,
-        swapperName: SwapperName.Thorchain,
-        mimir: _mimir,
-      })
+      // Pool just became halted at signing component mount, it's definitely not going to go back to active in just
+      // the few seconds it takes to go from mount to sign click
+      const _isTradingActive = await refetchIsTradingActive()
       if (!_isTradingActive) throw new Error('Pool Halted')
 
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
@@ -611,8 +573,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     isRuneTx,
     inboundAddressData,
-    refetchInboundAddressData,
-    refetchMimir,
+    refetchIsTradingActive,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,
@@ -682,10 +643,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             onClick={handleSignTx}
             isDisabled={isTradingActive === false}
             isLoading={
-              status === TxStatus.Pending ||
-              isInboundAddressLoading ||
-              isMimirLoading ||
-              isInboundAddressesDataLoading
+              status === TxStatus.Pending || isInboundAddressLoading || isTradingActiveLoading
             }
           >
             {confirmTranslation}

@@ -18,7 +18,6 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -27,8 +26,9 @@ import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -45,11 +45,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import {
-  THOR_PRECISION,
-  THORCHAIN_POOL_MODULE_ADDRESS,
-  thorchainBlockTimeMs,
-} from 'lib/utils/thorchain/constants'
+import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
   estimateAddThorchainLiquidityPosition,
   getThorchainLpTransactionType,
@@ -376,21 +372,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     refetchInterval: 60_000,
   })
 
-  const { data: mimir, isLoading: isMimirLoading } = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: poolAsset?.assetId,
   })
-
-  const isTradingActive = useMemo(() => {
-    if (isMimirLoading || !mimir) return
-
-    return selectIsTradingActive({
-      assetId: poolAsset?.assetId,
-      inboundAddressResponse: inboundAddressesData,
-      swapperName: SwapperName.Thorchain,
-      mimir,
-    })
-  }, [inboundAddressesData, isMimirLoading, mimir, poolAsset?.assetId])
 
   const poolAccountId = useMemo(
     () => accountIdsByChainId[foundPool?.assetId ? fromAssetId(foundPool.assetId).chainId : ''],
@@ -1209,6 +1193,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           isLoading={
             isVotingPowerLoading ||
             isInboundAddressesDataLoading ||
+            isTradingActiveLoading ||
             isAllowanceDataLoading ||
             isApprovalTxPending ||
             isSweepNeededLoading ||

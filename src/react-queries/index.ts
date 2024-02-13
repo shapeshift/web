@@ -79,7 +79,8 @@ const common = createQueryKeys('common', {
       const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
 
       // Do not return things in a monadic way so that we can leverage native react-query error-handling
-      if (maybeIsTradingActive.isErr()) throw maybeIsTradingActive.unwrapErr()
+      if (maybeIsTradingActive.isErr()) return false
+
       return maybeIsTradingActive.unwrap()
     },
     enabled: Boolean(assetId),

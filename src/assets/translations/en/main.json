@@ -573,6 +573,7 @@
     "from": "From",
     "trade": "Trade",
     "swap": "Swap",
+    "swapWith": "Swap with %{dex}",
     "amount": "Amount",
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",

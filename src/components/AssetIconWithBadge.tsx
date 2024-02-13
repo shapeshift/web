@@ -1,7 +1,7 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import type { TransferType } from '@shapeshiftoss/unchained-client'
 import type { PropsWithChildren } from 'react'
 import React, { useMemo } from 'react'
 import { LuGlobe } from 'react-icons/lu'
@@ -37,22 +37,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
       .some(transfer => !!transfer.id)
   }, [transfersByType])
   const WebIcon = useMemo(() => <LuGlobe />, [])
-  const txData = useMemo(() => {
-    switch (type) {
-      case TransferType.Send:
-        return transfersByType?.Send ? [...transfersByType.Send] : []
-      case TransferType.Receive:
-        return transfersByType?.Receive ? [...transfersByType.Receive] : []
-      case TradeType.Trade:
-      case TradeType.Swap:
-      case TradeType.Refund:
-        return [...(transfersByType?.Send || []), ...(transfersByType?.Receive || [])]
-      case 'method':
-        return transfersByType?.Contract ? [...transfersByType.Contract] : []
-      default:
-        return []
-    }
-  }, [transfersByType, type])
+  const txData = useMemo(() => Object.values(transfersByType).flat(), [transfersByType])
 
   const renderIcons = useMemo(() => {
     if (!txData) return null
@@ -69,6 +54,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
       if (compareIndex === 2) {
         overideClipPath = bottomClipPath
       }
+      if (txData.length > 2 && compareIndex === 3) return null
       return (
         <AssetIcon
           showNetworkIcon={false}
@@ -95,13 +81,13 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
         />
       )
     }
-    if (type === '') {
+    if (type === '' && txData.length === 0) {
       return (
         <AssetIcon size={size} icon={WebIcon} clipPath={defaultClipPath} color='text.subtlest' />
       )
     }
     return renderIcons
-  }, [WebIcon, assetId, renderIcons, size, type])
+  }, [WebIcon, assetId, renderIcons, size, txData.length, type])
   return (
     <>
       <Center position='relative'>

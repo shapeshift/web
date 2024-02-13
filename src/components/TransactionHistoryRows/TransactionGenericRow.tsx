@@ -40,6 +40,12 @@ export const TransactionGenericRow = ({
 }: TransactionGenericRowProps) => {
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
 
+  const isNft = useMemo(() => {
+    return Object.values(transfersByType)
+      .flat()
+      .some(transfer => !!transfer.id)
+  }, [transfersByType])
+
   const hasManySends = useMemo(() => transfersByType.Send?.length > 1, [transfersByType.Send])
   const hasSendAndRecieve = useMemo(
     () => transfersByType.Send?.length > 0 && transfersByType.Receive?.length > 0,
@@ -59,13 +65,46 @@ export const TransactionGenericRow = ({
   )
 
   const topLeft = useMemo(() => {
+    const renderTag = (() => {
+      if (txData && txData.parser === 'ibc') {
+        return (
+          <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
+            IBC
+          </Tag>
+        )
+      }
+      if (isNft) {
+        return (
+          <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
+            NFT
+          </Tag>
+        )
+      }
+      if (txData && txData.parser === 'thorchain' && txData.liquidity) {
+        return (
+          <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
+            {txData.liquidity.type}
+          </Tag>
+        )
+      }
+      if (txData && txData.parser === 'thorchain' && txData.swap?.type === 'Streaming') {
+        return (
+          <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
+            {txData.swap.type}
+          </Tag>
+        )
+      }
+    })()
     return (
-      <Text
-        color='text.subtle'
-        translation={title ? title : `transactionRow.${type.toLowerCase()}`}
-      />
+      <Flex alignItems='center' gap={2} justifyContent='space-between'>
+        <Text
+          color='text.subtle'
+          translation={title ? title : `transactionRow.${type.toLowerCase()}`}
+        />
+        {renderTag}
+      </Flex>
     )
-  }, [title, type])
+  }, [isNft, title, txData, type])
 
   const topRight = useMemo(() => {
     if (hasManySends) {
@@ -75,11 +114,12 @@ export const TransactionGenericRow = ({
     if (hasSendAndRecieve) {
       const precision = transfersByType.Send[0].asset.precision ?? 0
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
+      const symbol = transfersByType.Send[0].asset.symbol
       return (
         <Amount.Crypto
           color='text.subtle'
           value={amount}
-          symbol={transfersByType.Send[0].asset.symbol}
+          symbol={symbol}
           maximumFractionDigits={4}
           prefix='-'
           whiteSpace='nowrap'
@@ -140,6 +180,9 @@ export const TransactionGenericRow = ({
         />
       )
     }
+    if (hasManyReceives) {
+      return undefined
+    }
     if (hasSendAndRecieve || hasOnlyRecieve) {
       const precision = transfersByType.Receive[0].asset.precision ?? 0
       const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
@@ -170,6 +213,7 @@ export const TransactionGenericRow = ({
       )
     }
   }, [
+    hasManyReceives,
     hasOnlyRecieve,
     hasOnlySend,
     hasSendAndRecieve,

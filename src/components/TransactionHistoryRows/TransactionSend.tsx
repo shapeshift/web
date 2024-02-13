@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,6 +16,7 @@ import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import type { TransactionRowProps } from './TransactionRow'
+import { TransactionTag } from './TransactionTag'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTransfersByType } from './utils'
 
@@ -32,23 +34,27 @@ export const TransactionSend = ({
 
   const topLeft = useMemo(() => {
     return (
-      <RawText>
-        {translate('transactionHistory.sentTo', {
-          address: middleEllipsis(txDetails.transfers[0].to[0]),
-        })}
-      </RawText>
+      <Flex gap={2}>
+        <RawText>
+          {translate('transactionHistory.sentTo', {
+            address: middleEllipsis(txDetails.transfers[0].to[0]),
+          })}
+        </RawText>
+        <TransactionTag txDetails={txDetails} transfersByType={transfersByType} />
+      </Flex>
     )
-  }, [translate, txDetails.transfers])
+  }, [transfersByType, translate, txDetails])
 
   const bottomRight = useMemo(() => {
     const precision = txDetails.transfers[0].asset.precision ?? 0
     const amount = fromBaseUnit(txDetails.transfers[0].value, precision)
+    const symbol = txDetails.transfers[0].asset.symbol
     return (
       <FormatAmount.Crypto
         color='text.subtle'
         value={amount}
         prefix='-'
-        symbol={txDetails.transfers[0].asset.symbol}
+        symbol={symbol}
         maximumFractionDigits={4}
         whiteSpace='nowrap'
       />
@@ -56,7 +62,8 @@ export const TransactionSend = ({
   }, [txDetails.transfers])
 
   const bottomleft = useMemo(() => {
-    return <RawText>{txDetails.transfers[0].asset.symbol}</RawText>
+    const symbol = txDetails.transfers[0].asset.symbol
+    return <RawText>{symbol}</RawText>
   }, [txDetails.transfers])
 
   return (

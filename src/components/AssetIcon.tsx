@@ -52,25 +52,27 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   const iconSrc = src ?? asset?.icon
 
   return (
-    <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
-      {showNetwork && showNetworkIcon && (
+    <Center>
+      <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
+        {showNetwork && showNetworkIcon && (
+          <Avatar
+            position='absolute'
+            left='-8%'
+            top='-8%'
+            boxSize='40%'
+            icon={icon}
+            fontSize='inherit'
+            src={feeAsset?.networkIcon ?? feeAsset?.icon}
+          />
+        )}
         <Avatar
-          position='absolute'
-          left='-8%'
-          top='-8%'
-          boxSize='40%'
+          src={iconSrc}
           icon={icon}
-          fontSize='inherit'
-          src={feeAsset?.networkIcon ?? feeAsset?.icon}
+          border={0}
+          clipPath={showNetwork && showNetworkIcon ? defaultClipPath : ''}
+          {...rest}
         />
-      )}
-      <Avatar
-        src={iconSrc}
-        icon={icon}
-        border={0}
-        clipPath={showNetwork && showNetworkIcon ? defaultClipPath : ''}
-        {...rest}
-      />
+      </Center>
     </Center>
   )
 }

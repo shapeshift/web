@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,6 +16,7 @@ import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import type { TransactionRowProps } from './TransactionRow'
+import { TransactionTag } from './TransactionTag'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTransfersByType } from './utils'
 
@@ -38,13 +40,16 @@ export const TransactionReceive = ({
 
   const topLeft = useMemo(() => {
     return (
-      <RawText>
-        {translate('transactionHistory.receivedFrom', {
-          address: middleEllipsis(transfersByType.Receive[0].from[0]),
-        })}
-      </RawText>
+      <Flex gap={2}>
+        <RawText>
+          {translate('transactionHistory.receivedFrom', {
+            address: middleEllipsis(transfersByType.Receive[0].from[0]),
+          })}
+        </RawText>
+        <TransactionTag txDetails={txDetails} transfersByType={transfersByType} />
+      </Flex>
     )
-  }, [transfersByType.Receive, translate])
+  }, [transfersByType, translate, txDetails])
 
   const bottomRight = useMemo(() => {
     const precision = transfersByType.Receive[0].asset.precision ?? 0

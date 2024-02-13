@@ -1,7 +1,8 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Center, HStack } from '@chakra-ui/react'
+import { Center, Flex, HStack } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
@@ -17,6 +18,7 @@ import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
 import type { TransactionRowProps } from './TransactionRow'
+import { TransactionTag } from './TransactionTag'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTransfersByType } from './utils'
 
@@ -29,6 +31,7 @@ export const TransactionTrade = ({
   toggleOpen,
 }: TransactionRowProps) => {
   const tradeFees = useTradeFees({ txDetails })
+  const translate = useTranslate()
 
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
@@ -55,9 +58,16 @@ export const TransactionTrade = ({
     transfersByType && transfersByType.Receive && transfersByType.Receive.length > 0
 
   const topLeft = useMemo(() => {
-    if (!txDetails.tx.trade?.dexName) return undefined
-    return <RawText>Swap with {txDetails.tx.trade?.dexName}</RawText>
-  }, [txDetails.tx.trade?.dexName])
+    const title = !txDetails.tx.trade?.dexName
+      ? translate('transactionRow.swap')
+      : translate('transactionRow.swapWith', { dex: txDetails.tx.trade?.dexName })
+    return (
+      <Flex>
+        <RawText>{title}</RawText>
+        <TransactionTag txDetails={txDetails} transfersByType={transfersByType} />
+      </Flex>
+    )
+  }, [transfersByType, translate, txDetails])
 
   const topRight = useMemo(() => {
     if (!hasReceive || !hasSend) return undefined

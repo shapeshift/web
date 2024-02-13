@@ -24,6 +24,7 @@ const isSome = <T>(option: T | null | undefined): option is T =>
 
 const getRelatedAssetIds = async (
   assetId: AssetId,
+  assetData: AssetsById,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
   const { chainId, assetReference } = fromAssetId(assetId)
 
@@ -53,11 +54,12 @@ const getRelatedAssetIds = async (
     ? zerionImplementationToMaybeAssetId(primaryImplementation)
     : undefined
 
-  const relatedAssetIds = implementations?.map(zerionImplementationToMaybeAssetId).filter(isSome)
+  const relatedAssetIds = implementations
+    ?.map(zerionImplementationToMaybeAssetId)
+    .filter(isSome)
+    .filter(relatedAssetId => relatedAssetId !== assetId && assetData[relatedAssetId] !== undefined)
 
-  // skip empty result as there is no value adding an empty lookup
-  // skip singleton result as there is no value having a lookup to only itself
-  if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length <= 1) {
+  if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length === 0) {
     return
   }
 
@@ -75,11 +77,11 @@ const processRelatedAssetIds = async (
     return
   }
 
-  const relatedAssetsResult = await getRelatedAssetIds(assetId)
+  const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
 
   // ensure empty results get added so we can use this index to generate distinct asset list
   const { relatedAssetIds, relatedAssetKey } = relatedAssetsResult ?? {
-    relatedAssetIds: [assetId],
+    relatedAssetIds: [],
     relatedAssetKey: assetId,
   }
 

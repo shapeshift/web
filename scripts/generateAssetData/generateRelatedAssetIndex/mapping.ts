@@ -46,7 +46,7 @@ export const zerionImplementationToMaybeAssetId = (
 ): AssetId | undefined => {
   const { chain_id, address: assetReference } = implementation
   const chainId = zerionChainIdToChainId(chain_id as ZerionChainId)
-  if (!chainId) return undefined
+  if (!chainId || !assetReference) return undefined
   const assetNamespace = (() => {
     switch (true) {
       case chainId === bscChainId:

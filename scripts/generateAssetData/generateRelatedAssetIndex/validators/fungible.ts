@@ -13,7 +13,7 @@ const ExternalLinkSchema = z.object({
 
 const ImplementationSchema = z.object({
   chain_id: z.string(),
-  address: z.string(),
+  address: z.string().nullable().optional(),
   decimals: z.number(),
 })
 

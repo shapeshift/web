@@ -14,9 +14,47 @@ import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
+const BATCH_SIZE = 100
 
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
+
+const chunkArray = <T>(array: T[], chunkSize: number) => {
+  const result = []
+  for (let i = 0; i < array.length; i += chunkSize) {
+    const chunk = array.slice(i, i + chunkSize)
+    result.push(chunk)
+  }
+  return result
+}
+
+export const createThrottle = ({
+  capacity,
+  costPerReq,
+  drainPerInterval,
+  intervalMs,
+}: {
+  capacity: number
+  costPerReq: number
+  drainPerInterval: number
+  intervalMs: number
+}) => {
+  let currentLevel = 0
+
+  setInterval(() => {
+    currentLevel = Math.max(0, currentLevel - drainPerInterval)
+  }, intervalMs)
+
+  const throttle = async () => {
+    let isFull = currentLevel + costPerReq >= capacity
+    while (isFull) {
+      await new Promise(resolve => setTimeout(resolve, intervalMs))
+      isFull = currentLevel + costPerReq >= capacity
+    }
+  }
+
+  return throttle
+}
 
 const getRelatedAssetIds = async (
   assetId: AssetId,
@@ -44,6 +82,12 @@ const getRelatedAssetIds = async (
 
   // exit if any request fails
   if (status !== 200) throw Error(`Zerion request failed: ${statusText}`)
+
+  try {
+    zerionFungiblesSchema.parse(res)
+  } catch (e) {
+    console.log(JSON.stringify(res, null, 2))
+  }
 
   const validationResult = zerionFungiblesSchema.parse(res)
   const firstEntry = validationResult.data[0]
@@ -120,10 +164,23 @@ export const generateRelatedAssetIndex = async () => {
   const progressBar = new SingleBar({}, Presets.shades_classic)
   progressBar.start(Object.keys(generatedAssetData).length, 0)
 
+  const throttle = createThrottle({
+    capacity: 150,
+    costPerReq: 1,
+    drainPerInterval: 150,
+    intervalMs: 1000,
+  })
+
   let i = 0
-  for (const assetId of Object.keys(generatedAssetData)) {
-    await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)
-    progressBar.update(i++)
+  for (const batch of chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)) {
+    await Promise.all(
+      batch.map(async assetId => {
+        await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)
+        await throttle()
+      }),
+    )
+    i += BATCH_SIZE
+    progressBar.update(i)
   }
 
   progressBar.stop()

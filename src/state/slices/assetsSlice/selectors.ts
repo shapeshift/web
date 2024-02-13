@@ -24,7 +24,9 @@ export const selectRelatedAssetIds = createSelector(
   (relatedAssetIndex, asset): AssetId[] => {
     const relatedAssetKey = asset?.relatedAssetKey
     if (!relatedAssetKey) return []
-    return relatedAssetIndex[relatedAssetKey]?.filter(assetId => assetId !== asset.assetId) ?? []
+    return [relatedAssetKey]
+      .concat(relatedAssetIndex[relatedAssetKey] ?? [])
+      .filter(assetId => assetId !== asset.assetId)
   },
 )
 

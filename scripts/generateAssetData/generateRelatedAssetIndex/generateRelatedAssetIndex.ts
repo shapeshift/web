@@ -4,6 +4,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AssetsById } from '@shapeshiftoss/types'
 import assert from 'assert'
 import axios from 'axios'
+import axiosRetry from 'axios-retry'
 import { Presets, SingleBar } from 'cli-progress'
 import fs from 'fs'
 import { isNull } from 'lodash'
@@ -15,6 +16,9 @@ import { zerionFungiblesSchema } from './validators/fungible'
 
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 const BATCH_SIZE = 100
+
+const axiosInstance = axios.create()
+axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
 
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
@@ -78,7 +82,7 @@ const getRelatedAssetIds = async (
   const filter = { params: { 'filter[implementation_address]': assetReference } }
   const url = '/fungibles'
   const payload = { ...options, ...filter, url }
-  const { data: res, status, statusText } = await axios.request(payload)
+  const { data: res, status, statusText } = await axiosInstance.request(payload)
 
   // exit if any request fails
   if (status !== 200) throw Error(`Zerion request failed: ${statusText}`)
@@ -108,7 +112,10 @@ const getRelatedAssetIds = async (
   const relatedAssetIds = implementations
     ?.map(zerionImplementationToMaybeAssetId)
     .filter(isSome)
-    .filter(relatedAssetId => relatedAssetId !== assetId && assetData[relatedAssetId] !== undefined)
+    .filter(
+      relatedAssetId =>
+        relatedAssetId !== relatedAssetKey && assetData[relatedAssetId] !== undefined,
+    )
 
   if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length === 0) {
     return
@@ -134,6 +141,11 @@ const processRelatedAssetIds = async (
   const { relatedAssetIds, relatedAssetKey } = relatedAssetsResult ?? {
     relatedAssetIds: [],
     relatedAssetKey: assetId,
+  }
+
+  // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
+  if (relatedAssetIds.length > 0 && assetData[relatedAssetKey] !== undefined) {
+    assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
   }
 
   for (const assetId of relatedAssetIds) {

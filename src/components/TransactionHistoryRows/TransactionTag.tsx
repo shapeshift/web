@@ -8,7 +8,6 @@ type TransactionTagProps = {
   transfersByType: Record<TransferType, Transfer[]>
 }
 export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, transfersByType }) => {
-  console.info(txDetails)
   const txData = useMemo(() => txDetails?.tx.data, [txDetails?.tx.data])
   const isNft = useMemo(() => {
     return Object.values(transfersByType)

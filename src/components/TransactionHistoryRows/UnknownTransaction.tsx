@@ -41,6 +41,7 @@ export const UnknownTransaction = ({
         txid={txDetails.tx.txid}
         showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
+        txDetails={txDetails}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         {txDetails.transfers.length > 0 && (

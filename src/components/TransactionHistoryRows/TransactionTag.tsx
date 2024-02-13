@@ -8,12 +8,14 @@ type TransactionTagProps = {
   transfersByType: Record<TransferType, Transfer[]>
 }
 export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, transfersByType }) => {
-  const txData = useMemo(() => txDetails.tx.data, [txDetails.tx.data])
+  console.info(txDetails)
+  const txData = useMemo(() => txDetails?.tx.data, [txDetails?.tx.data])
   const isNft = useMemo(() => {
     return Object.values(transfersByType)
       .flat()
       .some(transfer => !!transfer.id)
   }, [transfersByType])
+
   if (txData && txData.parser === 'ibc') {
     return (
       <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>

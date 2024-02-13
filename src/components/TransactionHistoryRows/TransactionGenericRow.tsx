@@ -5,12 +5,13 @@ import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText, Text } from 'components/Text'
-import type { Fee, Transfer } from 'hooks/useTxDetails/useTxDetails'
+import type { Fee, Transfer, TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { fromBaseUnit } from 'lib/math'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
 import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
+import { TransactionTag } from './TransactionTag'
 import { TransactionTeaser } from './TransactionTeaser'
 import { getTxMetadataWithAssetId } from './utils'
 
@@ -24,6 +25,7 @@ type TransactionGenericRowProps = {
   fee?: Fee
   txid: TxId
   txData?: TxMetadata
+  txDetails: TxDetails
   blockTime: number
   txLink: string
   toggleOpen: () => void
@@ -36,15 +38,10 @@ export const TransactionGenericRow = ({
   title,
   transfersByType,
   txData,
+  txDetails,
   toggleOpen,
 }: TransactionGenericRowProps) => {
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
-
-  const isNft = useMemo(() => {
-    return Object.values(transfersByType)
-      .flat()
-      .some(transfer => !!transfer.id)
-  }, [transfersByType])
 
   const hasManySends = useMemo(() => transfersByType.Send?.length > 1, [transfersByType.Send])
   const hasSendAndRecieve = useMemo(
@@ -65,46 +62,16 @@ export const TransactionGenericRow = ({
   )
 
   const topLeft = useMemo(() => {
-    const renderTag = (() => {
-      if (txData && txData.parser === 'ibc') {
-        return (
-          <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
-            IBC
-          </Tag>
-        )
-      }
-      if (isNft) {
-        return (
-          <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
-            NFT
-          </Tag>
-        )
-      }
-      if (txData && txData.parser === 'thorchain' && txData.liquidity) {
-        return (
-          <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
-            {txData.liquidity.type}
-          </Tag>
-        )
-      }
-      if (txData && txData.parser === 'thorchain' && txData.swap?.type === 'Streaming') {
-        return (
-          <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
-            {txData.swap.type}
-          </Tag>
-        )
-      }
-    })()
     return (
       <Flex alignItems='center' gap={2} justifyContent='space-between'>
         <Text
           color='text.subtle'
           translation={title ? title : `transactionRow.${type.toLowerCase()}`}
         />
-        {renderTag}
+        <TransactionTag txDetails={txDetails} transfersByType={transfersByType} />
       </Flex>
     )
-  }, [isNft, title, txData, type])
+  }, [title, transfersByType, txDetails, type])
 
   const topRight = useMemo(() => {
     if (hasManySends) {

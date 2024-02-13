@@ -126,6 +126,7 @@ export const TransactionMethod = ({
         txData={txMetadata}
         showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
+        txDetails={txDetails}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />

@@ -38,27 +38,27 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
       .some(transfer => !!transfer.id)
   }, [transfersByType])
   const WebIcon = useMemo(() => <LuGlobe />, [])
-  const txData = useMemo(
+  const transfers = useMemo(
     () => uniqBy(Object.values(transfersByType).flat(), 'assetId'),
     [transfersByType],
   )
 
   const renderIcons = useMemo(() => {
-    if (!txData) return null
+    if (!transfers) return null
 
-    return txData.map((transfer, index) => {
+    return transfers.map((transfer, index) => {
       const compareIndex = index + 1
       let overideClipPath
       if (isNft) {
         overideClipPath = squareClipPath
       }
-      if (txData.length > 1) {
+      if (transfers.length > 1) {
         overideClipPath = topClipPath
       }
       if (compareIndex === 2) {
         overideClipPath = bottomClipPath
       }
-      if (txData.length > 2 && compareIndex === 3) return null
+      if (transfers.length > 2 && compareIndex === 3) return null
       return (
         <AssetIcon
           showNetworkIcon={false}
@@ -73,7 +73,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
         />
       )
     })
-  }, [isNft, size, txData])
+  }, [isNft, size, transfers])
   const renderIcon = useMemo(() => {
     if (assetId) {
       return (
@@ -85,13 +85,13 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
         />
       )
     }
-    if (type === '' && txData.length === 0) {
+    if (type === '' && transfers.length === 0) {
       return (
         <AssetIcon size={size} icon={WebIcon} clipPath={defaultClipPath} color='text.subtlest' />
       )
     }
     return renderIcons
-  }, [WebIcon, assetId, renderIcons, size, txData.length, type])
+  }, [WebIcon, assetId, renderIcons, size, transfers.length, type])
   return (
     <>
       <Center position='relative'>

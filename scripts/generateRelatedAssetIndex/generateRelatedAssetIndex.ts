@@ -3,6 +3,7 @@ import { FEE_ASSET_IDS, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
+import { Presets, SingleBar } from 'cli-progress'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
@@ -28,40 +29,39 @@ const getRelatedAssetIds = async (
 
   if (!isEvmChainId(chainId) || FEE_ASSET_IDS.includes(assetId)) return
 
-  try {
-    const filter = { params: { 'filter[implementation_address]': assetReference } }
-    const url = '/fungibles'
-    const payload = { ...options, ...filter, url }
-    const { data: res } = await axios.request(payload)
-    const validationResult = zerionFungiblesSchema.parse(res)
-    const firstEntry = validationResult.data[0]
+  const filter = { params: { 'filter[implementation_address]': assetReference } }
+  const url = '/fungibles'
+  const payload = { ...options, ...filter, url }
+  const { data: res, status, statusText } = await axios.request(payload)
 
-    if (firstEntry === undefined) return
+  // exit if any request fails
+  if (status !== 200) throw Error(`Zerion request failed: ${statusText}`)
 
-    const implementations = firstEntry.attributes.implementations
-    const primaryImplementationId = firstEntry.id
+  const validationResult = zerionFungiblesSchema.parse(res)
+  const firstEntry = validationResult.data[0]
 
-    const primaryImplementation = implementations?.find(
-      implementation => implementation.address === primaryImplementationId,
-    )
+  if (firstEntry === undefined) return
 
-    const relatedAssetKey = primaryImplementation
-      ? zerionImplementationToMaybeAssetId(primaryImplementation)
-      : undefined
+  const implementations = firstEntry.attributes.implementations
+  const primaryImplementationId = firstEntry.id
 
-    const relatedAssetIds = implementations?.map(zerionImplementationToMaybeAssetId).filter(isSome)
+  const primaryImplementation = implementations?.find(
+    implementation => implementation.address === primaryImplementationId,
+  )
 
-    // skip empty result as there is no value adding an empty lookup
-    // skip singleton result as there is no value having a lookup to only itself
-    if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length <= 1) {
-      return
-    }
+  const relatedAssetKey = primaryImplementation
+    ? zerionImplementationToMaybeAssetId(primaryImplementation)
+    : undefined
 
-    return { relatedAssetIds, relatedAssetKey }
-  } catch (e) {
-    console.error(e)
-    throw e
+  const relatedAssetIds = implementations?.map(zerionImplementationToMaybeAssetId).filter(isSome)
+
+  // skip empty result as there is no value adding an empty lookup
+  // skip singleton result as there is no value having a lookup to only itself
+  if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length <= 1) {
+    return
   }
+
+  return { relatedAssetIds, relatedAssetKey }
 }
 
 const processRelatedAssetIds = async (
@@ -77,9 +77,11 @@ const processRelatedAssetIds = async (
 
   const relatedAssetsResult = await getRelatedAssetIds(assetId)
 
-  if (!relatedAssetsResult) return
-
-  const { relatedAssetIds, relatedAssetKey } = relatedAssetsResult
+  // ensure empty results get added so we can use this index to generate distinct asset list
+  const { relatedAssetIds, relatedAssetKey } = relatedAssetsResult ?? {
+    relatedAssetIds: [assetId],
+    relatedAssetKey: assetId,
+  }
 
   for (const assetId of relatedAssetIds) {
     assetData[assetId].relatedAssetKey = relatedAssetKey
@@ -103,9 +105,19 @@ const generateRelatedAssetIndex = async () => {
   const relatedAssetIndex: Record<AssetId, AssetId[]> = {}
   const assetDataWithRelatedAssetKeys: AssetsById = { ...generatedAssetData }
 
-  for (const assetId of Object.keys(generatedAssetData).slice(0, 50)) {
+  // remove relatedAssetKey from the existing data to ensure the related assets get updated
+  Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
+
+  const progressBar = new SingleBar({}, Presets.shades_classic)
+  progressBar.start(Object.keys(generatedAssetData).length, 0)
+
+  let i = 0
+  for (const assetId of Object.keys(generatedAssetData)) {
     await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)
+    progressBar.update(i++)
   }
+
+  progressBar.stop()
 
   fs.writeFileSync(
     generatedAssetsPath,

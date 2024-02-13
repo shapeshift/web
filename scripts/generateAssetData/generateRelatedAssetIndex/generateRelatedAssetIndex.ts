@@ -28,7 +28,7 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
   return result
 }
 
-export const createThrottle = ({
+const createThrottle = ({
   capacity,
   costPerReq,
   drainPerInterval,
@@ -165,9 +165,9 @@ export const generateRelatedAssetIndex = async () => {
   progressBar.start(Object.keys(generatedAssetData).length, 0)
 
   const throttle = createThrottle({
-    capacity: 150,
+    capacity: 100,
     costPerReq: 1,
-    drainPerInterval: 150,
+    drainPerInterval: 100,
     intervalMs: 1000,
   })
 

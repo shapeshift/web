@@ -59,6 +59,7 @@ export const defaultAsset: Asset = {
 }
 
 export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
+export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
 
 /**
  * utility to create an asset from minimal asset data from external sources at runtime
@@ -104,7 +105,7 @@ export const assets = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertAssets: (state, action: PayloadAction<Omit<AssetsState, 'relatedAssetIndex'>>) => {
+    upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     },
@@ -123,7 +124,7 @@ export const assetApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'assetApi',
   endpoints: build => ({
-    getAssets: build.query<Omit<AssetsState, 'relatedAssetIndex'>, void>({
+    getAssets: build.query<UpsertAssetsPayload, void>({
       // all assets
       queryFn: (_, { getState, dispatch }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
@@ -154,7 +155,7 @@ export const assetApi = createApi({
       },
     }),
     getAssetDescription: build.query<
-      Omit<AssetsState, 'relatedAssetIndex'>,
+      UpsertAssetsPayload,
       { assetId: AssetId | undefined; selectedLocale: string }
     >({
       queryFn: async ({ assetId, selectedLocale }, { getState, dispatch }) => {

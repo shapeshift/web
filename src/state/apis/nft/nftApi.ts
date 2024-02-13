@@ -8,7 +8,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isRejected } from 'lib/utils'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
+import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
 import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -77,7 +77,7 @@ type PortfolioAndAssetsUpsertPayload = {
 const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsertPayload>(
   'nft/upsertPortfolioAndAssets',
   ({ nftsById }, { dispatch }) => {
-    const assetsToUpsert = Object.values(nftsById).reduce<Omit<AssetsState, 'relatedAssetIndex'>>(
+    const assetsToUpsert = Object.values(nftsById).reduce<UpsertAssetsPayload>(
       (acc, nft) => {
         acc.byId[nft.assetId] = makeAsset({
           assetId: nft.assetId,

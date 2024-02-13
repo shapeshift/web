@@ -17,7 +17,7 @@ import {
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 
-import type { AssetsState } from './assetsSlice'
+import type { UpsertAssetsPayload } from './assetsSlice'
 import { makeAsset } from './assetsSlice'
 
 export const chainIdFeeAssetReferenceMap = (
@@ -108,10 +108,8 @@ export const getFeeAssetByAssetId: GetFeeAssetByAssetId = (assetsById, assetId) 
   return assetsById[feeAssetId]
 }
 
-export const makeNftAssetsFromTxs = (
-  txs: Transaction[],
-): Omit<AssetsState, 'relatedAssetIndex'> => {
-  return txs.reduce<Omit<AssetsState, 'relatedAssetIndex'>>(
+export const makeNftAssetsFromTxs = (txs: Transaction[]): UpsertAssetsPayload => {
+  return txs.reduce<UpsertAssetsPayload>(
     (state, tx) => {
       if (fromChainId(tx.chainId).chainNamespace !== CHAIN_NAMESPACE.Evm) return state
 

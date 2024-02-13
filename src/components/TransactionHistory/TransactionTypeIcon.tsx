@@ -1,10 +1,10 @@
 import type { CenterProps } from '@chakra-ui/react'
 import { Center, CircularProgress } from '@chakra-ui/react'
 import { TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { FaStickyNote } from 'react-icons/fa'
 import { ArrowDownBoldIcon } from 'components/Icons/ArrowDownBold'
 import { BadgeCheckIcon } from 'components/Icons/BadgeCheck'
 import { ErrorIcon } from 'components/Icons/ErrorIcon'
+import { GenericTxIcon } from 'components/Icons/GenericTx'
 import { SendIcon } from 'components/Icons/SendIcon'
 import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
@@ -65,8 +65,8 @@ export const TransactionTypeIcon = ({ type, status }: { type: string; status: Tx
       )
     default:
       return (
-        <IconWrapper bg='gray.700'>
-          <FaStickyNote />
+        <IconWrapper bg='blue.500'>
+          <GenericTxIcon />
         </IconWrapper>
       )
   }

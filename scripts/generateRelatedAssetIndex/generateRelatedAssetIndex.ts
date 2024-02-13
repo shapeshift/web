@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { FEE_ASSET_IDS, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AssetsById } from '@shapeshiftoss/types'
+import assert from 'assert'
 import axios from 'axios'
 import { Presets, SingleBar } from 'cli-progress'
 import fs from 'fs'
@@ -12,12 +13,7 @@ import path from 'path'
 import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
-const ZERION_BASE_URL = 'https://zerion.shapeshift.com'
-
-const options = {
-  method: 'GET' as const,
-  baseURL: ZERION_BASE_URL,
-}
+const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
@@ -26,6 +22,17 @@ const getRelatedAssetIds = async (
   assetId: AssetId,
   assetData: AssetsById,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
+  assert(process.env.ZERION_API_KEY !== undefined, 'Missing Zerion API key')
+  const basicAuth = 'Basic ' + Buffer.from(process.env.ZERION_API_KEY + ':').toString('base64')
+
+  const options = {
+    method: 'GET' as const,
+    baseURL: ZERION_BASE_URL,
+    headers: {
+      Authorization: basicAuth,
+    },
+  }
+
   const { chainId, assetReference } = fromAssetId(assetId)
 
   if (!isEvmChainId(chainId) || FEE_ASSET_IDS.includes(assetId)) return

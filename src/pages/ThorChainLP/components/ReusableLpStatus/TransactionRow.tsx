@@ -23,6 +23,7 @@ import {
   type FeeDataEstimate,
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -98,6 +99,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
+
+  const {
+    data: isTradingActive,
+    isLoading: isTradingActiveLoading,
+    isRefetching: isTradingActiveRefetching,
+    refetch: refetchIsTradingActive,
+  } = useQuery(
+    reactQueries.common.isTradingActive({
+      assetId: poolAssetId,
+      swapperName: SwapperName.Thorchain,
+    }),
+  )
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]
   const poolAssetAccountId =
@@ -376,6 +389,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
 
     return (async () => {
+      // Refetch the trading active state JIT to ensure the pool didn't just become halted
+      const { data: isTradingActiveData } = await refetchIsTradingActive()
+      if (!isTradingActiveData) throw new Error('Pool Halted')
+
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
@@ -553,6 +570,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     isRuneTx,
     inboundAddressData,
+    refetchIsTradingActive,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,
@@ -565,6 +583,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   ])
 
   const txIdLink = useMemo(() => `${asset?.explorerTxLink}${txId}`, [asset?.explorerTxLink, txId])
+
+  const confirmTranslation = useMemo(() => {
+    if (isTradingActive === false) return translate('common.poolHalted')
+
+    return translate('common.signTransaction')
+  }, [isTradingActive, translate])
 
   if (!asset) return null
 
@@ -612,11 +636,17 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           <Button
             mx={-2}
             size='lg'
-            colorScheme='blue'
+            colorScheme={isTradingActive === false ? 'red' : 'blue'}
             onClick={handleSignTx}
-            isLoading={status === TxStatus.Pending || isInboundAddressLoading}
+            isDisabled={isTradingActive === false}
+            isLoading={
+              status === TxStatus.Pending ||
+              isInboundAddressLoading ||
+              isTradingActiveLoading ||
+              isTradingActiveRefetching
+            }
           >
-            {translate('common.signTransaction')}
+            {confirmTranslation}
           </Button>
         </CardBody>
       </Collapse>

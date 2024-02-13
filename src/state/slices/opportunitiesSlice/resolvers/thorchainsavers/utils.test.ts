@@ -52,7 +52,7 @@ const btcQuoteResponse = {
   slippage_bps: 2,
 }
 
-const thorchainSaversDepositQuote = Object.assign({}, btcQuoteResponse, { memo: '+:BTC/BTC::ss:0' })
+const thorchainSaversDepositQuote = btcQuoteResponse
 
 const thorchainErrorResponse = {
   error: 'Invalid pool',

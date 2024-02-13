@@ -140,8 +140,8 @@ type TradeQuoteBase = {
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
   receiveAddress: string
   receiveAccountNumber?: number
-  potentialAffiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
-  affiliateBps: string | undefined // undefined if affiliate fees aren't supported by the swapper
+  potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
+  affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
@@ -229,11 +229,11 @@ export type CommonGetUnsignedTransactionArgs = {
   chainId: ChainId
   stepIndex: number
   slippageTolerancePercentageDecimal: string
-  supportsEIP1559?: boolean
 }
 
-export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
-export type GetUnsignedEvmMessageArgs = GetUnsignedEvmTransactionArgs
+export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
+  EvmAccountMetadata & { supportsEIP1559: boolean }
+export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs & UtxoAccountMetadata
 export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionArgs &
   CosmosSdkAccountMetadata

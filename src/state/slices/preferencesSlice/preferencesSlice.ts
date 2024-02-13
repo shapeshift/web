@@ -48,6 +48,7 @@ export type FeatureFlags = {
   ThorchainLP: boolean
   LedgerWallet: boolean
   ThorchainSwapLongtail: boolean
+  ShapeShiftMobileWallet: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -113,6 +114,7 @@ const initialState: Preferences = {
     ThorchainLP: getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
+    ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

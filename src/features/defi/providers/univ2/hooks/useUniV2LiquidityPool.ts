@@ -20,7 +20,7 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getFees,
+  getFeesWithWallet,
 } from 'lib/utils/evm'
 import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
@@ -458,7 +458,7 @@ export const useUniV2LiquidityPool = ({
         ],
       })
 
-      return getFees({
+      return getFeesWithWallet({
         accountNumber,
         adapter,
         data,
@@ -503,7 +503,7 @@ export const useUniV2LiquidityPool = ({
           ],
         })
 
-        return getFees({
+        return getFeesWithWallet({
           accountNumber,
           adapter,
           data,
@@ -530,7 +530,7 @@ export const useUniV2LiquidityPool = ({
           ],
         })
 
-        return getFees({
+        return getFeesWithWallet({
           accountNumber,
           adapter,
           data,
@@ -569,7 +569,7 @@ export const useUniV2LiquidityPool = ({
         asset1ContractAddress,
       })
 
-      return getFees({
+      return getFeesWithWallet({
         accountNumber,
         adapter,
         data,

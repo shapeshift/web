@@ -1,25 +1,10 @@
 import type { ButtonProps, FlexProps, MenuProps } from '@chakra-ui/react'
-import {
-  Button,
-  Flex,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-} from '@chakra-ui/react'
+import { Button, Flex, Menu, MenuButton } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import React, { memo, useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
+import React, { memo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { AutoTruncateText } from 'components/AutoTruncateText'
-import { IconCircle } from 'components/IconCircle'
-import { GridIcon } from 'components/Icons/GridIcon'
-import {
-  selectFeeAssetById,
-  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-} from 'state/slices/selectors'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const disabled = { opacity: 1 }
@@ -28,7 +13,6 @@ const hover = { color: 'text.base' }
 export type ChainDropdownProps = {
   assetId?: AssetId
   onClick: (arg: AssetId) => void
-  assetIds?: AssetId[]
   showAll?: boolean
   includeBalance?: boolean
   buttonProps?: ButtonProps
@@ -48,7 +32,6 @@ const AssetChainRow: React.FC<{ assetId: AssetId } & FlexProps> = memo(({ assetI
 })
 
 export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
-  assetIds,
   assetId,
   onClick,
   showAll,
@@ -58,20 +41,20 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
   isError,
   ...menuProps
 }) => {
-  const totalPortfolioUserCurrencyBalance = useAppSelector(
-    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-  )
-  const translate = useTranslate()
+  // const totalPortfolioUserCurrencyBalance = useAppSelector(
+  //   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  // )
+  // const translate = useTranslate()
 
-  const renderChains = useMemo(() => {
-    return assetIds?.map(assetId => (
-      <MenuItemOption value={assetId} key={assetId}>
-        <AssetChainRow assetId={assetId} />
-      </MenuItemOption>
-    ))
-  }, [assetIds])
+  // const renderChains = useMemo(() => {
+  //   return assetIds?.map(assetId => (
+  //     <MenuItemOption value={assetId} key={assetId}>
+  //       <AssetChainRow assetId={assetId} />
+  //     </MenuItemOption>
+  //   ))
+  // }, [assetIds])
 
-  const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
+  // const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
 
   // @TODO: figure out how to do this correctly using coingeck data
   // const isDisabled = useMemo(() => {
@@ -102,7 +85,7 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
       >
         <AssetChainRow className='activeChain' assetId={assetId} />
       </MenuButton>
-      <MenuList zIndex='banner'>
+      {/* <MenuList zIndex='banner'>
         <MenuOptionGroup type='radio' value={assetId} onChange={onChange}>
           {showAll && (
             <MenuItemOption value=''>
@@ -117,7 +100,7 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
           )}
           {renderChains}
         </MenuOptionGroup>
-      </MenuList>
+      </MenuList> */}
     </Menu>
   )
 }

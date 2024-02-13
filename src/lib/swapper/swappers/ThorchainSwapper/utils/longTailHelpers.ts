@@ -152,13 +152,9 @@ export const getQuotedAmountOutByPool = async (
     Array.from(poolContracts.entries()).map(async ([poolContract, data]) => {
       const { fee, tokenIn, tokenOut } = data
       try {
-        const { result: quotedAmountOut } = await quoterContract.simulate.quoteExactInputSingle([
-          tokenIn,
-          tokenOut,
-          fee,
-          sellAmount,
-          BigInt(0),
-        ])
+        const params = [tokenIn, tokenOut, fee, sellAmount, BigInt(0)] as const
+        const { result: quotedAmountOut } =
+          await quoterContract.simulate.quoteExactInputSingle(params)
         return [poolContract, quotedAmountOut] as [Address, bigint]
       } catch {
         // The pool contract is not supported, that's ok - skip it without logging an error

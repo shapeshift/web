@@ -127,6 +127,8 @@
     "yourBalance": "Your balance",
     "signTransaction": "Sign transaction",
     "halted": "Halted",
+    "poolHalted": "Pool Halted",
+    "available": "Available",
     "carousel": {
       "next": "Next",
       "prev": "Previous",

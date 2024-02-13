@@ -1,7 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { SwapperName } from '@shapeshiftoss/swapper'
+import { reactQueries } from 'react-queries'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
@@ -21,13 +22,7 @@ import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import { apiErrorHandler } from '../utils'
-import { isTradingActive } from './helpers'
 import { validateTradeQuote } from './helpers/validateTradeQuote'
-
-const getIsTradingActiveErrorHandler = apiErrorHandler(
-  'getIsTradingActiveApi: error getting trading status',
-)
 
 export const GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const swapperApiBase = createApi({
@@ -35,22 +30,7 @@ export const swapperApiBase = createApi({
   reducerPath: 'swapperApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
-  endpoints: build => ({
-    getIsTradingActive: build.query<
-      boolean,
-      { assetId: AssetId | undefined; swapperName: SwapperName }
-    >({
-      queryFn: async ({ assetId, swapperName }) => {
-        const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
-        if (maybeIsTradingActive.isErr()) {
-          return getIsTradingActiveErrorHandler(maybeIsTradingActive.unwrapErr())
-        }
-        return {
-          data: maybeIsTradingActive.unwrap(),
-        }
-      },
-    }),
-  }),
+  endpoints: () => ({}),
 })
 
 export const swapperApi = swapperApiBase.injectEndpoints({
@@ -128,17 +108,13 @@ export const swapperApi = swapperApiBase.injectEndpoints({
                 return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
               }
 
-              const [{ data: isTradingActiveOnSellPool }, { data: isTradingActiveOnBuyPool }] =
-                await Promise.all(
-                  [sellAsset.assetId, buyAsset.assetId].map(assetId => {
-                    return dispatch(
-                      swapperApiBase.endpoints.getIsTradingActive.initiate({
-                        assetId,
-                        swapperName,
-                      }),
-                    )
-                  }),
-                )
+              const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
+                [sellAsset.assetId, buyAsset.assetId].map(assetId => {
+                  return queryClient.fetchQuery(
+                    reactQueries.common.isTradingActive({ assetId, swapperName }),
+                  )
+                }),
+              )
               return {
                 isTradingActiveOnSellPool:
                   tradeType === TradeType.LongTailToL1 || isTradingActiveOnSellPool,
@@ -244,5 +220,4 @@ export const swapperApi = swapperApiBase.injectEndpoints({
   }),
 })
 
-export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery, useGetIsTradingActiveQuery } =
-  swapperApi
+export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swapperApi

@@ -65,19 +65,25 @@ const common = createQueryKeys('common', {
       from &&
       getSupportedEvmChainIds().includes(fromAssetId(assetId).chainId as KnownChainIds),
   }),
-  isTradingActive: ({ assetId, swapperName }: { assetId: AssetId; swapperName: SwapperName }) => ({
+  isTradingActive: ({
+    assetId,
+    swapperName,
+  }: {
+    assetId: AssetId | undefined
+    swapperName: SwapperName | undefined
+  }) => ({
     queryKey: ['isTradingActive', assetId, swapperName],
     queryFn: async () => {
+      if (!assetId) throw new Error('assetId is required')
+      if (!swapperName) throw new Error('swapperName is required')
+
       const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
 
       // Do not return things in a monadic way so that we can leverage native react-query error-handling
-      if (maybeIsTradingActive.isErr()) throw maybeIsTradingActive.unwrapErr()
+      if (maybeIsTradingActive.isErr()) return false
+
       return maybeIsTradingActive.unwrap()
     },
-    staleTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
   }),
 })
 

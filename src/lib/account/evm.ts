@@ -1,4 +1,5 @@
 import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   supportsArbitrum,
   supportsArbitrumNova,
@@ -9,6 +10,7 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
@@ -16,6 +18,19 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args
+  // Initializes a cached EVM address, since all EVM ChainIds for a given accountNumber will yield the same address
+  // Unless we do this, Ledger will be spammed, which will make things slow at worst, and possibly break the connect button
+  const ledgerEvmAddress: string | null = await (async () => {
+    if (isLedger(wallet)) {
+      for (const chainId of chainIds) {
+        if (isEvmChainId(chainId)) {
+          const adapter = assertGetEvmChainAdapter(chainId)
+          return await adapter.getAddress({ accountNumber, wallet })
+        }
+      }
+    }
+    return null
+  })()
 
   const result = await (async () => {
     let acc: AccountMetadataById = {}
@@ -56,7 +71,10 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
       }
 
       const bip44Params = adapter.getBIP44Params({ accountNumber })
-      const pubkey = await adapter.getAddress({ accountNumber, wallet })
+      const pubkey =
+        isLedger(wallet) && ledgerEvmAddress
+          ? ledgerEvmAddress
+          : await adapter.getAddress({ accountNumber, wallet })
 
       if (!pubkey) continue
 

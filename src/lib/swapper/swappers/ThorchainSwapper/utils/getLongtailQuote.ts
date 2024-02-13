@@ -35,7 +35,7 @@ export const getLongtailToL1Quote = async (
   const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
 
   /*
-    We only support ETH -> L1 for now.
+    We only support ethereum longtail -> L1 swaps for now.
     We can later add BSC via UniV3, or Avalanche (e.g. via PancakeSwap)
   */
   if (sellAsset.chainId !== ethChainId) {

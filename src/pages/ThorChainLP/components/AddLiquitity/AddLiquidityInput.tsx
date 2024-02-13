@@ -197,10 +197,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const isSnapInstalled = useIsSnapInstalled()
-  const supportsRune =
+  const walletSupportsRune =
     walletSupportsChain({ chainId: thorchainChainId, wallet, isSnapInstalled }) &&
     thorchainAccountIds.length > 0
-  const supportsAsset =
+  const walletSupportsAsset =
     poolAsset &&
     walletSupportsChain({
       chainId: fromAssetId(poolAsset.assetId).chainId,
@@ -222,14 +222,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!defaultOpportunityId) return
 
     const foundOpportunityId = parsedPools.find(pool => {
-      if (supportsRune && supportsAsset) return pool.asymSide === null
-      if (supportsAsset) return pool.asymSide === AsymSide.Asset
-      if (supportsRune) return pool.asymSide === AsymSide.Rune
+      if (walletSupportsRune && walletSupportsAsset) return pool.asymSide === null
+      if (walletSupportsAsset) return pool.asymSide === AsymSide.Asset
+      if (walletSupportsRune) return pool.asymSide === AsymSide.Rune
       return false
     })?.opportunityId
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
-  }, [poolAsset, defaultOpportunityId, parsedPools, supportsAsset, supportsRune])
+  }, [poolAsset, defaultOpportunityId, parsedPools, walletSupportsAsset, walletSupportsRune])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)

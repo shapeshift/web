@@ -51,7 +51,7 @@ type PoolButtonProps = {
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
 
-  const { data: isTradingActive } = useQuery(
+  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery(
     reactQueries.common.isTradingActive({
       assetId: pool.assetId,
       swapperName: SwapperName.Thorchain,
@@ -106,11 +106,17 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         <Tag size='sm'>
           <Amount.Percent value={pool.poolAPY} />
         </Tag>
-        {isTradingActive === false && (
-          <Tag colorScheme='yellow'>
-            <Text translation='common.halted' />
-          </Tag>
-        )}
+        <Skeleton isLoaded={!isTradingActiveLoading}>
+          {isTradingActive === false ? (
+            <Tag colorScheme='yellow'>
+              <Text translation='common.halted' />
+            </Tag>
+          ) : (
+            <Tag colorScheme='green'>
+              <Text translation='common.available' />
+            </Tag>
+          )}
+        </Skeleton>
       </Flex>
       <Skeleton isLoaded={!!tvl}>
         <Amount.Fiat value={tvl} />

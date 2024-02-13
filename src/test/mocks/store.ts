@@ -101,6 +101,7 @@ export const mockStore: ReduxState = {
       ThorchainLP: false,
       LedgerWallet: false,
       ThorchainSwapLongtail: false,
+      ShapeShiftMobileWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

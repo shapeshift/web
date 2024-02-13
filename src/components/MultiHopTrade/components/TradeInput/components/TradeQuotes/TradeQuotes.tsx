@@ -1,6 +1,6 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type { SwapperName } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import orderBy from 'lodash/orderBy'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -136,8 +136,6 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading }) => {
     return Object.entries(isSwapperQuoteAvailable)
       .filter(
         ([swapperName, isQuoteAvailable]) =>
-          // don't render a loading placeholder for the test swapper
-          swapperName !== SwapperName.Test &&
           // only render loading placeholders for swappers that are still fetching data
           (!isQuoteAvailable || isTradeQuoteApiQueryPending[swapperName as SwapperName]) &&
           // filter out entries that already have a placeholder

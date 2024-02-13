@@ -2,6 +2,7 @@ import type { AvatarProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TransferType } from '@shapeshiftoss/unchained-client'
+import uniqBy from 'lodash/uniqBy'
 import type { PropsWithChildren } from 'react'
 import React, { useMemo } from 'react'
 import { LuGlobe } from 'react-icons/lu'
@@ -37,7 +38,10 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
       .some(transfer => !!transfer.id)
   }, [transfersByType])
   const WebIcon = useMemo(() => <LuGlobe />, [])
-  const txData = useMemo(() => Object.values(transfersByType).flat(), [transfersByType])
+  const txData = useMemo(
+    () => uniqBy(Object.values(transfersByType).flat(), 'assetId'),
+    [transfersByType],
+  )
 
   const renderIcons = useMemo(() => {
     if (!txData) return null

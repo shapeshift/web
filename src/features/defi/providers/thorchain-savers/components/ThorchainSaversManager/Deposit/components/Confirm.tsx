@@ -569,6 +569,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
+      // Refetch the trading active state JIT to ensure the pool didn't just become halted
       const _isTradingActive = await refetchIsTradingActive()
       if (_isTradingActive === false) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)

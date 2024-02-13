@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { getWalletCount } from '../mobileMessageHandlers'
 
@@ -15,6 +16,7 @@ const mlProp = [0, 1.5]
 const arrowForwardIcon = <ArrowForwardIcon />
 
 export const MobileStart = ({ history }: RouteComponentProps) => {
+  const isShapeShiftMobileWalletEnabled = useFeatureFlag('ShapeShiftMobileWallet')
   const [hasLocalWallet, setHasLocalWallet] = useState<boolean>(false)
   const translate = useTranslate()
 
@@ -81,19 +83,29 @@ export const MobileStart = ({ history }: RouteComponentProps) => {
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
-          <Divider mt={4} />
-          <Flex direction={directionProp} mt={2} pt={4} justifyContent='center' alignItems='center'>
-            <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
-            <Button
-              variant='link'
-              ml={mlProp}
-              borderTopRadius='none'
-              colorScheme='blue'
-              onClick={handleLogin}
-            >
-              {translate('common.login')}
-            </Button>
-          </Flex>
+          {isShapeShiftMobileWalletEnabled && (
+            <>
+              <Divider mt={4} />
+              <Flex
+                direction={directionProp}
+                mt={2}
+                pt={4}
+                justifyContent='center'
+                alignItems='center'
+              >
+                <Text translation={'walletProvider.shapeShift.legacy.haveMobileWallet'} />
+                <Button
+                  variant='link'
+                  ml={mlProp}
+                  borderTopRadius='none'
+                  colorScheme='blue'
+                  onClick={handleLogin}
+                >
+                  {translate('common.login')}
+                </Button>
+              </Flex>
+            </>
+          )}
         </Stack>
       </ModalBody>
     </>

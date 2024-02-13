@@ -127,6 +127,8 @@
     "yourBalance": "Your balance",
     "signTransaction": "Sign transaction",
     "halted": "Halted",
+    "poolHalted": "Pool Halted",
+    "available": "Available",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -258,7 +260,6 @@
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "Trade, bridge & earn. Private. Community owned. Non-custodial. Decentralized.",
-    "body2": "Welcome to the new ShapeShift. 100% Free. Open Source. Community Owned. Non-Custodial. Private.",
     "header": "Please connect a wallet to get started",
     "cta": "Connect Wallet",
     "viewADemo": "View a Demo",

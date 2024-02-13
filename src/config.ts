@@ -159,6 +159,7 @@ const validators = {
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LP: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),
+  REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

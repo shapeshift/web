@@ -10,9 +10,11 @@ import {
   Heading,
   IconButton,
   Stack,
+  Tooltip,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
@@ -100,6 +102,13 @@ export const Pool = () => {
     return parsedPools.find(pool => pool.opportunityId === routeOpportunityId)
   }, [params, parsedPools])
 
+  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery(
+    reactQueries.common.isTradingActive({
+      assetId: foundPool?.assetId,
+      swapperName: SwapperName.Thorchain,
+    }),
+  )
+
   const poolAssetIds = useMemo(() => {
     if (!foundPool) return []
 
@@ -186,9 +195,19 @@ export const Pool = () => {
           >
             <PairRates assetIds={poolAssetIds} />
             <Flex gap={4}>
-              <Button onClick={handleAddLiquidityClick} leftIcon={addIcon}>
-                {translate('pools.addLiquidity')}
-              </Button>
+              <Tooltip
+                label={translate('defi.modals.saversVaults.haltedTitle')}
+                isDisabled={isTradingActive}
+                hasArrow
+              >
+                <Button
+                  isDisabled={isTradingActiveLoading || isTradingActive === false}
+                  onClick={handleAddLiquidityClick}
+                  leftIcon={addIcon}
+                >
+                  {translate('pools.addLiquidity')}
+                </Button>
+              </Tooltip>
               <Button colorScheme='blue' leftIcon={swapIcon}>
                 {translate('trade.trade')}
               </Button>

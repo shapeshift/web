@@ -203,7 +203,7 @@ export const Pool = () => {
             <Flex gap={4}>
               <Tooltip
                 label={translate('defi.modals.saversVaults.haltedTitle')}
-                isDisabled={isTradingActive === false}
+                isDisabled={isTradingActive === undefined || isTradingActive === true}
                 hasArrow
               >
                 <Button

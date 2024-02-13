@@ -9,6 +9,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import assert from 'assert'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
@@ -21,6 +22,7 @@ import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './bas
 import * as bnbsmartchain from './bnbsmartchain'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
+import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
@@ -163,10 +165,19 @@ const generateAssetData = async () => {
   )
 }
 
-generateAssetData()
-  .then(() => {
+;(async () => {
+  try {
+    // check zerion api key is set before starting, prevents getting through generateAssetData()
+    // and then failing
+    assert(process.env.ZERION_API_KEY !== undefined, 'Missing Zerion API key')
+
+    await generateAssetData()
+    await generateRelatedAssetIndex()
+
     console.info(
       "Done. Don't forget to add a migration to clear assets state so the new assets are loaded.",
     )
-  })
-  .catch(err => console.info(err))
+  } catch (err) {
+    console.info(err)
+  }
+})()

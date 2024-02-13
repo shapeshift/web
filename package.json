@@ -29,7 +29,6 @@
     "generate:color-map": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' ./scripts/generateAssetData/generateColorMap.ts",
     "generate:thor-asset-map": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' ./scripts/generateTradableThorAssetMap/generateTradableThorAssetMap.ts",
     "generate:thor-longtail-tokens": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' ./scripts/generateThorLongtailTokens/generateThorLongtailTokens.ts",
-    "generate:related-asset-index": "ts-node --compilerOptions '{\"module\":\"commonjs\"}' ./scripts/generateRelatedAssetIndex/generateRelatedAssetIndex.ts",
     "local-ci": "yarn lint && yarn type-check && yarn test && yarn build:web",
     "lint": "yarn eslint --cache '*/**/*.{ts,tsx}'",
     "lint:fix": "yarn lint --fix",

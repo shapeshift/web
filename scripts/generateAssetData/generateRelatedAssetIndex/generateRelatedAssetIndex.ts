@@ -98,16 +98,16 @@ const processRelatedAssetIds = async (
   relatedAssetIndex[relatedAssetKey] = relatedAssetIds
 }
 
-const generateRelatedAssetIndex = async () => {
+export const generateRelatedAssetIndex = async () => {
   console.log('generateRelatedAssetIndex() starting')
 
   const generatedAssetsPath = path.join(
     __dirname,
-    '../../src/lib/asset-service/service/generatedAssetData.json',
+    '../../../src/lib/asset-service/service/generatedAssetData.json',
   )
   const relatedAssetIndexPath = path.join(
     __dirname,
-    '../../src/lib/asset-service/service/relatedAssetIndex.json',
+    '../../../src/lib/asset-service/service/relatedAssetIndex.json',
   )
 
   const generatedAssetData: AssetsById = require(generatedAssetsPath)
@@ -139,10 +139,6 @@ const generateRelatedAssetIndex = async () => {
     // beautify the file for github diff.
     JSON.stringify(relatedAssetIndex, null, 2),
   )
-}
 
-generateRelatedAssetIndex()
-  .then(() => {
-    console.info('generateRelatedAssetIndex() done')
-  })
-  .catch(err => console.info(err))
+  console.info('generateRelatedAssetIndex() done')
+}

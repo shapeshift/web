@@ -31,6 +31,8 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     }
     return null
   })()
+    // if this throws for any reason, we don't want to make this whole async function reject
+    .catch(() => null)
 
   const result = await (async () => {
     let acc: AccountMetadataById = {}

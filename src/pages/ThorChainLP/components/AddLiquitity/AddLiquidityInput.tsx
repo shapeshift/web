@@ -36,8 +36,10 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -55,6 +57,7 @@ import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
+  selectAccountIdsByAssetId,
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
@@ -144,6 +147,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityId) return undefined
     if (paramOpportunityId) return paramOpportunityId
 
+    // This may be wrong if the asset doesn't support said opportunity in an asym way, but this is only used to indicate the default pool really
+    // Trying to fix this to be semantically correct will result in circular dependencies madness, don't try this if you value your sanity
     const firstAsymOpportunityId = parsedPools.find(pool => pool.asymSide === null)?.opportunityId
 
     return firstAsymOpportunityId
@@ -184,24 +189,56 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
 
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery(
-    reactQueries.common.isTradingActive({
+  const thorchainAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
+  const poolAssetAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: poolAsset?.assetId ?? '' }),
+  )
+
+  const isSnapInstalled = useIsSnapInstalled()
+  const walletSupportsRune =
+    walletSupportsChain({ chainId: thorchainChainId, wallet, isSnapInstalled }) &&
+    thorchainAccountIds.length > 0
+  const walletSupportsAsset =
+    poolAsset &&
+    walletSupportsChain({
+      chainId: fromAssetId(poolAsset.assetId).chainId,
+      wallet,
+      isSnapInstalled,
+    }) &&
+    poolAssetAccountIds.length > 0
+
+  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
+    ...reactQueries.common.isTradingActive({
       assetId: poolAsset?.assetId,
       swapperName: SwapperName.Thorchain,
     }),
-  )
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    enabled: Boolean(poolAsset?.assetId),
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+  })
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
     // We only want to run this effect in the standalone AddLiquidity page
     if (!defaultOpportunityId) return
 
-    const foundOpportunityId = (parsedPools ?? []).find(
-      pool => pool.assetId === poolAsset.assetId && pool.asymSide === null,
-    )?.opportunityId
+    const foundOpportunityId = parsedPools.find(pool => {
+      if (walletSupportsRune && walletSupportsAsset) return pool.asymSide === null
+      if (walletSupportsAsset) return pool.asymSide === AsymSide.Asset
+      if (walletSupportsRune) return pool.asymSide === AsymSide.Rune
+      return false
+    })?.opportunityId
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
-  }, [poolAsset, defaultOpportunityId, parsedPools])
+  }, [poolAsset, defaultOpportunityId, parsedPools, walletSupportsAsset, walletSupportsRune])
 
   const handleAssetChange = useCallback((asset: Asset) => {
     console.info(asset)

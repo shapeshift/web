@@ -70,26 +70,20 @@ const common = createQueryKeys('common', {
     swapperName,
   }: {
     assetId: AssetId | undefined
-    swapperName: SwapperName
+    swapperName: SwapperName | undefined
   }) => ({
     queryKey: ['isTradingActive', assetId, swapperName],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
+      if (!swapperName) throw new Error('swapperName is required')
 
       const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
 
       // Do not return things in a monadic way so that we can leverage native react-query error-handling
-      if (maybeIsTradingActive.isErr()) throw maybeIsTradingActive.unwrapErr()
+      if (maybeIsTradingActive.isErr()) return false
+
       return maybeIsTradingActive.unwrap()
     },
-    enabled: Boolean(assetId),
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
   }),
 })
 

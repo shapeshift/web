@@ -102,12 +102,21 @@ export const Pool = () => {
     return parsedPools.find(pool => pool.opportunityId === routeOpportunityId)
   }, [params, parsedPools])
 
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery(
-    reactQueries.common.isTradingActive({
+  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
+    ...reactQueries.common.isTradingActive({
       assetId: foundPool?.assetId,
       swapperName: SwapperName.Thorchain,
     }),
-  )
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    enabled: Boolean(foundPool?.assetId),
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+  })
 
   const poolAssetIds = useMemo(() => {
     if (!foundPool) return []

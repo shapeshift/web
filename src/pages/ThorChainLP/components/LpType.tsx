@@ -1,12 +1,17 @@
 import type { RadioProps } from '@chakra-ui/react'
 import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './PoolIcon'
 
@@ -19,6 +24,11 @@ const checked = {
 }
 const hover = {
   borderColor: 'border.hover',
+}
+
+const disabled = {
+  opacity: 0.4,
+  cursor: 'not-allowed',
 }
 
 const TypeLabel: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => {
@@ -53,6 +63,7 @@ const TypeRadio: React.FC<RadioProps> = props => {
         transitionDuration='normal'
         _hover={hover}
         _checked={checked}
+        _disabled={disabled}
         {...checkbox}
       >
         {props.children}
@@ -79,6 +90,14 @@ type DepositTypeProps = {
   defaultOpportunityId?: string
 }
 export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: DepositTypeProps) => {
+  const wallet = useWallet().state.wallet
+  const isSnapInstalled = useIsSnapInstalled()
+
+  const thorchainAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
+  const poolAssetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
+
   const assetIds = useMemo(() => {
     return [assetId, thorchainAssetId]
   }, [assetId])
@@ -94,17 +113,49 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
     [assetId, assetIds],
   )
 
+  const supportsRune = useMemo(() => {
+    const walletSupportsRune = walletSupportsChain({
+      chainId: thorchainChainId,
+      wallet,
+      isSnapInstalled,
+    })
+
+    return walletSupportsRune && thorchainAccountIds.length > 0
+  }, [isSnapInstalled, thorchainAccountIds.length, wallet])
+
+  const supportsAsset = useMemo(() => {
+    const walletSupportsAsset = walletSupportsChain({
+      chainId: fromAssetId(assetId).chainId,
+      wallet,
+      isSnapInstalled,
+    })
+
+    return walletSupportsAsset && poolAssetAccountIds.length > 0
+  }, [assetId, isSnapInstalled, poolAssetAccountIds.length, wallet])
+
+  const defaultValue = useMemo(() => {
+    if (supportsRune && supportsAsset) return 'sym'
+    if (supportsAsset) return AsymSide.Asset
+    if (supportsRune) return AsymSide.Rune
+  }, [supportsAsset, supportsRune])
+
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
-    defaultValue: 'sym',
+    defaultValue,
     onChange: onAsymSideChange,
   })
 
-  // Reset the radio state to sym on assetId change, meaning pool change
-  // This is to ensure the radio is synchronized with the actual default sym pool being selected on pool change
   useEffect(() => {
-    setValue('sym')
-  }, [assetId, setValue])
+    if (!defaultValue) {
+      // We've switched to an asset for which none of the a/sym types are supported, make sure the previously selected value is cleared
+      setValue('')
+      return
+    }
+
+    // Reset the radio state to default pool type on assetId change, meaning pool change
+    // This is to ensure the radio is synchronized with the actual default sym pool being selected on pool change
+    setValue(defaultValue)
+  }, [assetId, defaultValue, setValue])
 
   const radioOptions = useMemo(() => {
     const _options = defaultOpportunityId ? options : []
@@ -113,8 +164,15 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
       const radio = getRadioProps({ value: option.value })
 
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
+      const walletSupportsOption = optionAssetIds.every(assetId => {
+        const isRune = assetId === thorchainAssetId
+
+        return isRune ? supportsRune : supportsAsset
+      })
+
+      const isDisabled = !walletSupportsOption
       return (
-        <TypeRadio key={`type-${index}`} {...radio}>
+        <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
           <PoolIcon assetIds={optionAssetIds} size='xs' />
           <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
             <TypeLabel assetIds={optionAssetIds} />
@@ -127,7 +185,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
         </TypeRadio>
       )
     })
-  }, [defaultOpportunityId, getRadioProps, makeAssetIdsOption])
+  }, [defaultOpportunityId, getRadioProps, makeAssetIdsOption, supportsAsset, supportsRune])
 
   const group = getRootProps()
   return (

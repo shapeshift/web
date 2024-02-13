@@ -2207,6 +2207,8 @@
     "initialPricesAndPoolShare": "Initial Prices and Pool Share",
     "pricePerAsset": "%{from} per %{to}",
     "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
+    "unsupportedNetworkExplainer": "Your wallet does not support %{network}. Please switch to a wallet that supports this network.",
+    "unsupportedNetworksExplainer": "Your wallet does not support %{network1} and %{network2}. Please switch to a wallet that supports these networks.",
     "shareOfPool": "Share of Pool",
     "assetDepositAmount": "%{asset} Deposit Amount",
     "totalLiquidity": "Total Liquidity",

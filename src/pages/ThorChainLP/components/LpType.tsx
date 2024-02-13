@@ -113,31 +113,31 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
     [assetId, assetIds],
   )
 
-  const supportsRune = useMemo(() => {
-    const walletSupportsRune = walletSupportsChain({
+  const walletSupportsRune = useMemo(() => {
+    const _walletSupportsRune = walletSupportsChain({
       chainId: thorchainChainId,
       wallet,
       isSnapInstalled,
     })
 
-    return walletSupportsRune && thorchainAccountIds.length > 0
+    return _walletSupportsRune && thorchainAccountIds.length > 0
   }, [isSnapInstalled, thorchainAccountIds.length, wallet])
 
-  const supportsAsset = useMemo(() => {
-    const walletSupportsAsset = walletSupportsChain({
+  const walletSsupportsAsset = useMemo(() => {
+    const _walletSupportsAsset = walletSupportsChain({
       chainId: fromAssetId(assetId).chainId,
       wallet,
       isSnapInstalled,
     })
 
-    return walletSupportsAsset && poolAssetAccountIds.length > 0
+    return _walletSupportsAsset && poolAssetAccountIds.length > 0
   }, [assetId, isSnapInstalled, poolAssetAccountIds.length, wallet])
 
   const defaultValue = useMemo(() => {
-    if (supportsRune && supportsAsset) return 'sym'
-    if (supportsAsset) return AsymSide.Asset
-    if (supportsRune) return AsymSide.Rune
-  }, [supportsAsset, supportsRune])
+    if (walletSupportsRune && walletSsupportsAsset) return 'sym'
+    if (walletSsupportsAsset) return AsymSide.Asset
+    if (walletSupportsRune) return AsymSide.Rune
+  }, [walletSsupportsAsset, walletSupportsRune])
 
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
@@ -167,7 +167,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
       const walletSupportsOption = optionAssetIds.every(assetId => {
         const isRune = assetId === thorchainAssetId
 
-        return isRune ? supportsRune : supportsAsset
+        return isRune ? walletSupportsRune : walletSsupportsAsset
       })
 
       const isDisabled = !walletSupportsOption
@@ -185,7 +185,13 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
         </TypeRadio>
       )
     })
-  }, [defaultOpportunityId, getRadioProps, makeAssetIdsOption, supportsAsset, supportsRune])
+  }, [
+    defaultOpportunityId,
+    getRadioProps,
+    makeAssetIdsOption,
+    walletSsupportsAsset,
+    walletSupportsRune,
+  ])
 
   const group = getRootProps()
   return (

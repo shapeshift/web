@@ -1073,7 +1073,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     (asymSide: string | null) => {
       if (!(parsedPools && poolAsset)) return
 
-      const parsedAsymSide = asymSide as AsymSide | 'sym'
+      const foundOpportunity = parsedPools
+        // AssetId narrowing predicate
+        .filter(pool => !poolAsset?.assetId || pool.assetId === poolAsset.assetId)
+        .find(pool => {
+          if (walletSupportsRune && walletSupportsAsset && !asymSide) return pool.asymSide === null
+          if (walletSupportsAsset && asymSide === AsymSide.Asset)
+            return pool.asymSide === AsymSide.Asset
+          if (walletSupportsRune && asymSide === AsymSide.Rune)
+            return pool.asymSide === AsymSide.Rune
+          // Default to sym if none is supported so we have something to display
+          return pool.asymSide === null
+        })
+
+      const parsedAsymSide = foundOpportunity?.asymSide as AsymSide | 'sym'
 
       if (parsedAsymSide === 'sym') {
         setActiveOpportunityId(defaultOpportunityId)
@@ -1086,7 +1099,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
       setActiveOpportunityId(foundPool.opportunityId)
     },
-    [poolAsset, defaultOpportunityId, parsedPools],
+    [parsedPools, poolAsset, walletSupportsRune, walletSupportsAsset, defaultOpportunityId],
   )
 
   const notEnoughFeeAssetError = useMemo(

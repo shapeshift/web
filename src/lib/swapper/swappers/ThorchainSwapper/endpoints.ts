@@ -75,6 +75,7 @@ export const thorchainApi: SwapperApi = {
     const {
       router,
       vault,
+      aggregator,
       data,
       steps,
       memo: tcMemo,
@@ -82,7 +83,6 @@ export const thorchainApi: SwapperApi = {
       longtailData,
       slippageTolerancePercentageDecimal,
     } = tradeQuote as ThorEvmTradeQuote
-    const to = router
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
     const value = isNativeEvmAsset(sellAsset.assetId)
@@ -94,7 +94,7 @@ export const thorchainApi: SwapperApi = {
         const feeData = await getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data,
-          to,
+          to: router,
           value,
           from,
           supportsEIP1559,
@@ -104,12 +104,14 @@ export const thorchainApi: SwapperApi = {
           chainId: Number(fromChainId(chainId).chainReference),
           data,
           from,
-          to,
+          to: router,
           value,
           ...feeData,
         }
       }
       case TradeType.LongTailToL1: {
+        assert(aggregator, 'aggregator required for thorchain longtail to l1 swaps')
+
         const swapInAbiItem = parseAbiItem(
           'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
         )
@@ -151,7 +153,7 @@ export const thorchainApi: SwapperApi = {
         const feeData = await getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data: swapInData,
-          to,
+          to: aggregator,
           value,
           from,
           supportsEIP1559,
@@ -161,7 +163,7 @@ export const thorchainApi: SwapperApi = {
           chainId: Number(fromChainId(chainId).chainReference),
           data: swapInData,
           from,
-          to,
+          to: aggregator,
           value,
           ...feeData,
         }

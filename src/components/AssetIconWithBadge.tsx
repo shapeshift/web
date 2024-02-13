@@ -1,4 +1,3 @@
-// ImageInSvg.tsx
 import type { AvatarProps } from '@chakra-ui/react'
 import { Center } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
@@ -58,7 +57,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
   const renderIcons = useMemo(() => {
     if (!txData) return null
 
-    return txData.map((send, index) => {
+    return txData.map((transfer, index) => {
       const compareIndex = index + 1
       let overideClipPath
       if (isNft) {
@@ -73,10 +72,10 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
       return (
         <AssetIcon
           showNetworkIcon={false}
-          key={send.assetId}
-          assetId={send.assetId}
+          key={transfer.assetId}
+          assetId={transfer.assetId}
           clipPath={overideClipPath ? overideClipPath : defaultClipPath}
-          name={send.asset.name}
+          name={transfer.asset.name}
           size={size}
           position={compareIndex === 2 ? 'absolute' : 'static'}
           borderRadius={isNft ? 0 : 'full'}

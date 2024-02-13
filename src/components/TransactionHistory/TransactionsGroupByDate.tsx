@@ -30,27 +30,27 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
       for (let index = 0; index < transactions.length; index++) {
         const transaction = transactions[index]
         const today = dayjs().locale(locale)
-        const providedDate = dayjs(transaction.date * 1000).locale(locale)
-        const diffDays = today.diff(providedDate, 'day')
-        const diffWeeks = today.diff(providedDate, 'week')
-        const diffMonths = today.diff(providedDate, 'month')
-        const diffYears = today.diff(providedDate, 'year')
+        const transactionDate = dayjs(transaction.date * 1000).locale(locale)
+        const diffDays = today.diff(transactionDate, 'day')
+        const diffWeeks = today.diff(transactionDate, 'week')
+        const diffMonths = today.diff(transactionDate, 'month')
+        const diffYears = today.diff(transactionDate, 'year')
 
-        let formattedDate: string
-
-        if (diffDays === 0) {
-          formattedDate = 'Today'
-        } else if (diffDays === 1) {
-          formattedDate = 'Yesterday'
-        } else if (diffWeeks === 0) {
-          formattedDate = 'This Week'
-        } else if (diffMonths === 0) {
-          formattedDate = 'This Month'
-        } else if (diffYears === 0) {
-          formattedDate = providedDate.format('MMMM')
-        } else {
-          formattedDate = providedDate.format('MMMM YYYY')
-        }
+        const formattedDate = (() => {
+          if (diffDays === 0) {
+            return 'Today'
+          } else if (diffDays === 1) {
+            return 'Yesterday'
+          } else if (diffWeeks === 0) {
+            return 'This Week'
+          } else if (diffMonths === 0) {
+            return 'This Month'
+          } else if (diffYears === 0) {
+            return transactionDate.format('MMMM')
+          } else {
+            return transactionDate.format('MMMM YYYY')
+          }
+        })()
         const group = groups.find(g => g.date === formattedDate)
         if (group) {
           group.txIds.push(transaction.txId)

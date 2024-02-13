@@ -4,9 +4,8 @@ import type { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo, useRef } from 'react'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
+import { useIsOverflow } from 'hooks/useIsOverflow'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
-
-import { useIsOverflow } from './utils'
 
 type TransactionTeaserProps = {
   assetId?: AssetId

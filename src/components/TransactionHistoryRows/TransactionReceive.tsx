@@ -50,7 +50,7 @@ export const TransactionReceive = ({
     const precision = transfersByType.Receive[0].asset.precision ?? 0
     const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
     return (
-      <FormatAmount
+      <FormatAmount.Crypto
         color='text.success'
         value={amount}
         prefix='+'
@@ -63,7 +63,7 @@ export const TransactionReceive = ({
 
   const bottomleft = useMemo(() => {
     if (isNft) {
-      return <RawText>{transfersByType.Receive[0]?.token?.name ?? 'NFT'}</RawText>
+      return <RawText>{transfersByType.Receive[0]?.token?.name ?? 'N/A'}</RawText>
     }
     return <RawText>{transfersByType.Receive[0].asset.symbol}</RawText>
   }, [isNft, transfersByType.Receive])

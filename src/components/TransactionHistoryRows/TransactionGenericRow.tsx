@@ -40,28 +40,21 @@ export const TransactionGenericRow = ({
 }: TransactionGenericRowProps) => {
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
 
-  const hasManySends = useMemo(
-    () => transfersByType.Send && transfersByType.Send.length > 1,
-    [transfersByType.Send],
-  )
+  const hasManySends = useMemo(() => transfersByType.Send?.length > 1, [transfersByType.Send])
   const hasSendAndRecieve = useMemo(
-    () =>
-      transfersByType.Send &&
-      transfersByType.Send.length > 0 &&
-      transfersByType.Receive &&
-      transfersByType.Receive.length > 0,
+    () => transfersByType.Send?.length > 0 && transfersByType.Receive?.length > 0,
     [transfersByType.Receive, transfersByType.Send],
   )
   const hasManyReceives = useMemo(
-    () => transfersByType.Receive && transfersByType.Receive.length > 1,
+    () => transfersByType.Receive?.length > 1,
     [transfersByType.Receive],
   )
   const hasOnlyRecieve = useMemo(
-    () => !transfersByType.Send && transfersByType.Receive && transfersByType.Receive.length > 0,
+    () => !transfersByType.Send && transfersByType.Receive?.length > 0,
     [transfersByType.Receive, transfersByType.Send],
   )
   const hasOnlySend = useMemo(
-    () => transfersByType.Send && transfersByType.Send.length > 0 && !transfersByType.Receive,
+    () => transfersByType.Send?.length > 0 && !transfersByType.Receive,
     [transfersByType.Receive, transfersByType.Send],
   )
 

@@ -244,5 +244,4 @@ export const swapperApi = swapperApiBase.injectEndpoints({
   }),
 })
 
-export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery, useGetIsTradingActiveQuery } =
-  swapperApi
+export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swapperApi

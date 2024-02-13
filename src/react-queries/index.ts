@@ -70,11 +70,12 @@ const common = createQueryKeys('common', {
     swapperName,
   }: {
     assetId: AssetId | undefined
-    swapperName: SwapperName
+    swapperName: SwapperName | undefined
   }) => ({
     queryKey: ['isTradingActive', assetId, swapperName],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
+      if (!swapperName) throw new Error('swapperName is required')
 
       const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
 

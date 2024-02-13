@@ -13,6 +13,14 @@ import { useAppSelector } from 'state/store'
 
 const divider = <Divider />
 
+const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: string }) => {
+  return isFree ? (
+    <Text translation='common.free' color='text.success' />
+  ) : (
+    <Amount.Fiat value={amountFiat} />
+  )
+}
+
 export const FeeBreakdown = () => {
   const translate = useTranslate()
   const votingPower = useAppSelector(selectVotingPower)
@@ -29,10 +37,6 @@ export const FeeBreakdown = () => {
     return feeUsdBeforeDiscount.times(userCurrencyToUsdRate).toFixed(2)
   }, [feeUsdBeforeDiscount, userCurrencyToUsdRate])
 
-  const feeDiscountUserCurrency = useMemo(() => {
-    return foxDiscountUsd.times(userCurrencyToUsdRate).toFixed(2)
-  }, [foxDiscountUsd, userCurrencyToUsdRate])
-
   // use the fee from the actual quote in case it varies from the theoretical calculation
   const affiliateFeeAmountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
 
@@ -40,6 +44,14 @@ export const FeeBreakdown = () => {
     () => bnOrZero(affiliateFeeAmountUserCurrency).eq(0),
     [affiliateFeeAmountUserCurrency],
   )
+
+  const isFeeUnsupported = useMemo(() => {
+    return affiliateFeeAmountUserCurrency === '0' && bnOrZero(feeBeforeDiscountUserCurrency).gt(0)
+  }, [affiliateFeeAmountUserCurrency, feeBeforeDiscountUserCurrency])
+
+  const feeDiscountUserCurrency = useMemo(() => {
+    return isFeeUnsupported ? '0.00' : foxDiscountUsd.times(userCurrencyToUsdRate).toFixed(2)
+  }, [foxDiscountUsd, isFeeUnsupported, userCurrencyToUsdRate])
 
   return (
     <Stack spacing={0}>
@@ -51,31 +63,40 @@ export const FeeBreakdown = () => {
         <Row>
           <Row.Label>{translate('foxDiscounts.tradeFee')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Fiat value={feeBeforeDiscountUserCurrency} />
-            <Amount color='text.subtle' fontSize='sm' value={feeBpsBeforeDiscount} suffix='bps' />
-          </Row.Value>
-        </Row>
-        <Row>
-          <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
-          <Row.Value textAlign='right'>
-            <Amount.Fiat value={feeDiscountUserCurrency} />
-            <Amount.Percent
+            <AmountOrFree isFree={isFeeUnsupported} amountFiat={feeBeforeDiscountUserCurrency} />
+            <Amount
+              color='text.subtle'
               fontSize='sm'
-              value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
-              color='text.success'
+              value={isFree ? '0' : feeBpsBeforeDiscount}
+              suffix='bps'
             />
           </Row.Value>
         </Row>
+        <Row>
+          <Row.Label>{translate('foxDiscounts.currentFoxPower')}</Row.Label>
+          <Row.Value textAlign='right'>
+            <Amount.Crypto value={votingPower ?? '0'} symbol='FOX' maximumFractionDigits={0} />
+          </Row.Value>
+        </Row>
+        {!isFeeUnsupported && (
+          <Row>
+            <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
+            <Row.Value textAlign='right'>
+              <Amount.Fiat value={feeDiscountUserCurrency} />
+              <Amount.Percent
+                fontSize='sm'
+                value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
+                color='text.success'
+              />
+            </Row.Value>
+          </Row>
+        )}
       </Stack>
       <Divider />
       <Row px={8} py={4}>
         <Row.Label color='text.base'>{translate('foxDiscounts.totalTradeFee')}</Row.Label>
         <Row.Value fontSize='lg'>
-          {isFree ? (
-            <Text translation='common.free' color='text.success' />
-          ) : (
-            <Amount.Fiat value={affiliateFeeAmountUserCurrency} />
-          )}
+          <AmountOrFree isFree={isFree} amountFiat={affiliateFeeAmountUserCurrency} />
         </Row.Value>
       </Row>
     </Stack>

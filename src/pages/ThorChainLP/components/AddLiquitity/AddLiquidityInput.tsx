@@ -244,12 +244,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // We only want to run this effect in the standalone AddLiquidity page
     if (!defaultOpportunityId) return
 
-    const foundOpportunityId = parsedPools.find(pool => {
-      if (walletSupportsRune && walletSupportsAsset) return pool.asymSide === null
-      if (walletSupportsAsset) return pool.asymSide === AsymSide.Asset
-      if (walletSupportsRune) return pool.asymSide === AsymSide.Rune
-      return false
-    })?.opportunityId
+    const foundOpportunityId = parsedPools
+      // AssetId narrowing predicate
+      .filter(pool => !poolAsset?.assetId || pool.assetId === poolAsset.assetId)
+      .find(pool => {
+        if (walletSupportsRune && walletSupportsAsset) return pool.asymSide === null
+        if (walletSupportsAsset) return pool.asymSide === AsymSide.Asset
+        if (walletSupportsRune) return pool.asymSide === AsymSide.Rune
+        return false
+      })?.opportunityId
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
   }, [poolAsset, defaultOpportunityId, parsedPools, walletSupportsAsset, walletSupportsRune])

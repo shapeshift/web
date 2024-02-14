@@ -3,7 +3,7 @@ import { GetAllowanceErr } from 'components/MultiHopTrade/components/MultiHopTra
 import { assertUnreachable } from 'lib/utils'
 
 export const selectAllowanceCryptoBaseUnit = (data: Result<string, GetAllowanceErr>) => {
-  if (data?.isErr()) {
+  if (data.isErr()) {
     const error = data.unwrapErr()
     // the error type is a GetAllowanceErr enum so we can handle all cases with exhaustiveness
     // checking to prevent returning the wrong value if we add more error cases
@@ -17,6 +17,6 @@ export const selectAllowanceCryptoBaseUnit = (data: Result<string, GetAllowanceE
     }
   }
 
-  const allowanceCryptoBaseUnit = data?.unwrap()
+  const allowanceCryptoBaseUnit = data.unwrap()
   return allowanceCryptoBaseUnit
 }

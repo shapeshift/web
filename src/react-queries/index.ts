@@ -8,6 +8,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -69,7 +70,7 @@ const common = createQueryKeys('common', {
     from: string | undefined,
   ) => ({
     queryKey: ['allowanceCryptoBaseUnit', assetId, spender, from],
-    queryFn: async () => {
+    queryFn: async (): Promise<Result<string, GetAllowanceErr>> => {
       if (!assetId) throw new Error('assetId is required')
       if (!spender) throw new Error('spender is required')
       if (!from) throw new Error('from address is required')
@@ -95,8 +96,6 @@ const common = createQueryKeys('common', {
         chainId,
       })
 
-      // TODO(gomes): now that this is a monad, this should be handled with a selector akin to the one currently living in useIsApprovalNeeded,
-      // obviously without the approval needed logic
       return Ok(allowanceOnChainCryptoBaseUnit)
     },
     enabled:

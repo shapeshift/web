@@ -3,7 +3,7 @@ import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 
-export function useMultiHopTradeAllowance(
+export function useMultiHopTradeStepAllowance(
   tradeQuoteStep: TradeQuoteStep | undefined,
   sellAssetAccountId: AccountId | undefined,
 ) {
@@ -20,8 +20,8 @@ export function useMultiHopTradeAllowance(
   )
   const allowanceQuery = useAllowance({
     assetId,
-    // No need for a wallet getAddress() call here - the account address *is* already available from the AccountId
-    // Yes, this doesn't work for account-based accounts, but if we're not dealing with an EVM chain, we don't need to check for allowance either way.
+    // No need for a wallet call here - the account address *is* already available using fromAccountId()
+    // Yes, this doesn't work for account-based accounts, if we're not dealing with an EVM chain, we don't need to check for allowance either way.
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId)?.account : undefined,
     spender: allowanceContract,
   })

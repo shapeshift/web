@@ -16,7 +16,6 @@ import {
 import type { ThornodePoolResponse } from '@shapeshiftoss/types'
 import { ChainToChainIdMap, KnownChainIds, ThorchainChain } from '@shapeshiftoss/types'
 import { getAddress, isAddress } from 'viem'
-import { assertUnreachable } from 'lib/utils'
 
 import type { AssetIdPair } from '.'
 
@@ -43,7 +42,7 @@ export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | 
     case ThorchainChain.BSC:
       return bscAssetId
     default:
-      assertUnreachable(chain)
+      return undefined
   }
 }
 

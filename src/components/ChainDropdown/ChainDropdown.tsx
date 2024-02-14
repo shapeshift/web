@@ -15,10 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { GridIcon } from 'components/Icons/GridIcon'
-import {
-  selectPortfolioTotalBalanceByChainIdIncludeStaking,
-  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-} from 'state/slices/selectors'
+import { selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainRow } from './ChainRow'
@@ -35,15 +32,6 @@ type ChainDropdownProps = {
 const width = { base: 'full', md: 'auto' }
 
 const chevronDownIcon = <ChevronDownIcon />
-
-const ChainRowWithBalance = ({ chainId }: { chainId: ChainId }) => {
-  const filter = useMemo(() => ({ chainId }), [chainId])
-  const chainFiatBalance = useAppSelector(s =>
-    selectPortfolioTotalBalanceByChainIdIncludeStaking(s, filter),
-  )
-
-  return <ChainRow chainId={chainId} fiatBalance={chainFiatBalance} />
-}
 
 export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   chainIds,
@@ -62,10 +50,10 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (
       <MenuItemOption value={chainId} key={chainId}>
-        <ChainRowWithBalance chainId={chainId} />
+        <ChainRow chainId={chainId} includeBalance={includeBalance} />
       </MenuItemOption>
     ))
-  }, [chainIds])
+  }, [chainIds, includeBalance])
 
   const onChange = useCallback((value: string | string[]) => onClick(value as ChainId), [onClick])
 

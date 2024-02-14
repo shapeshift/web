@@ -5,9 +5,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { reactQueries } from 'react-queries'
 import { selectAllowanceCryptoBaseUnit } from 'react-queries/hooks/selectors'
+import type { GetAllowanceErr } from 'react-queries/types'
 import { bn } from 'lib/bignumber/bignumber'
-
-import type { GetAllowanceErr } from './helpers'
 
 export const useIsApprovalNeeded = (
   tradeQuoteStep: TradeQuoteStep | undefined,

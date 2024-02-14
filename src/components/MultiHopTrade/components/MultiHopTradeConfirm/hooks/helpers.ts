@@ -5,11 +5,6 @@ import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { getApproveContractData, getFees } from 'lib/utils/evm'
 
-export enum GetAllowanceErr {
-  NotEVMChain = 'NotEVMChain',
-  IsFeeAsset = 'IsFeeAsset',
-}
-
 export const getApprovalTxData = async ({
   tradeQuoteStep,
   adapter,

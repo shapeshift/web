@@ -1,5 +1,5 @@
 import type { Result } from '@sniptt/monads'
-import { GetAllowanceErr } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/helpers'
+import { GetAllowanceErr } from 'react-queries/types'
 import { assertUnreachable } from 'lib/utils'
 
 export const selectAllowanceCryptoBaseUnit = (data: Result<string, GetAllowanceErr>) => {

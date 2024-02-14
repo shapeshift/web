@@ -10,7 +10,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { GetAllowanceErr } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/helpers'
 import { bn } from 'lib/bignumber/bignumber'
 import type {
   MidgardPoolResponse,
@@ -32,6 +31,8 @@ import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 import { isTradingActive } from 'state/apis/swapper/helpers'
+
+import { GetAllowanceErr } from './types'
 
 // Current blocktime as per https://thorchain.network/stats
 export const thorchainBlockTimeSeconds = '6.1'

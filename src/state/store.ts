@@ -14,7 +14,6 @@ import { nftApi } from './apis/nft/nftApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
-import { zerionApi } from './apis/zerion/zerionApi'
 import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
@@ -51,7 +50,6 @@ const apiMiddleware = [
   covalentApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
-  zerionApi.middleware,
 ]
 
 const subscriptionMiddleware = createSubscriptionMiddleware()

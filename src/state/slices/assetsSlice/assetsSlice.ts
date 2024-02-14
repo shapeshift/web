@@ -11,7 +11,7 @@ import {
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
-import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
 import { sha256 } from 'lib/utils'
@@ -36,11 +36,13 @@ const getAssetService = () => {
 export type AssetsState = {
   byId: AssetsByIdPartial
   ids: AssetId[]
+  relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
 }
 
 export const initialState: AssetsState = {
   byId: {},
   ids: [],
+  relatedAssetIndex: {},
 }
 
 export const defaultAsset: Asset = {
@@ -57,6 +59,7 @@ export const defaultAsset: Asset = {
 }
 
 export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
+export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
 
 /**
  * utility to create an asset from minimal asset data from external sources at runtime
@@ -102,7 +105,7 @@ export const assets = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertAssets: (state, action: PayloadAction<AssetsState>) => {
+    upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     },
@@ -111,6 +114,9 @@ export const assets = createSlice({
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
     },
+    setRelatedAssetIndex: (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
+      state.relatedAssetIndex = action.payload
+    },
   },
 })
 
@@ -118,11 +124,14 @@ export const assetApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'assetApi',
   endpoints: build => ({
-    getAssets: build.query<AssetsState, void>({
+    getAssets: build.query<UpsertAssetsPayload, void>({
       // all assets
       queryFn: (_, { getState, dispatch }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
         const service = getAssetService()
+
+        dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
+
         const assetsById = Object.entries(service?.assetsById ?? {}).reduce<AssetsByIdPartial>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
@@ -146,7 +155,7 @@ export const assetApi = createApi({
       },
     }),
     getAssetDescription: build.query<
-      AssetsState,
+      UpsertAssetsPayload,
       { assetId: AssetId | undefined; selectedLocale: string }
     >({
       queryFn: async ({ assetId, selectedLocale }, { getState, dispatch }) => {

@@ -11,7 +11,6 @@ import { nft, nftApi } from './apis/nft/nftApi'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
-import { zerionApi } from './apis/zerion/zerionApi'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
@@ -71,7 +70,6 @@ export const apiSlices = {
   covalentApi,
   opportunitiesApi,
   abiApi,
-  zerionApi,
 }
 
 export const apiReducers = {
@@ -89,7 +87,6 @@ export const apiReducers = {
   [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
-  [zerionApi.reducerPath]: zerionApi.reducer,
 }
 
 export const reducer = combineReducers({ ...sliceReducers, ...apiReducers })

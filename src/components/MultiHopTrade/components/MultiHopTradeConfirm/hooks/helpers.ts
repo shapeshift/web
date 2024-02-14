@@ -1,19 +1,9 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { type evm, type EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { type ETHWallet, type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { type ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { getApproveContractData, getFees } from 'lib/utils/evm'
-
-export type GetAllowanceArgs = {
-  accountNumber: number
-  allowanceContract: string
-  chainId: ChainId
-  assetId: AssetId
-  wallet: HDWallet
-  accountId: AccountId
-}
 
 export enum GetAllowanceErr {
   NotEVMChain = 'NotEVMChain',

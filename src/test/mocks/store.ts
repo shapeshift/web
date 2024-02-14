@@ -121,6 +121,7 @@ export const mockStore: ReduxState = {
   assets: {
     byId: {},
     ids: [],
+    relatedAssetIndex: {},
   },
   marketData: {
     crypto: {

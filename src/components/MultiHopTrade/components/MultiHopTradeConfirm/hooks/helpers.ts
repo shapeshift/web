@@ -1,15 +1,10 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { type evm, type EvmChainAdapter, evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { type evm, type EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type ETHWallet, type HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
-import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
-import { assertGetChainAdapter } from 'lib/utils'
-import { getApproveContractData, getErc20Allowance, getFees } from 'lib/utils/evm'
+import { getApproveContractData, getFees } from 'lib/utils/evm'
 
 export type GetAllowanceArgs = {
   accountNumber: number
@@ -23,50 +18,6 @@ export type GetAllowanceArgs = {
 export enum GetAllowanceErr {
   NotEVMChain = 'NotEVMChain',
   IsFeeAsset = 'IsFeeAsset',
-}
-
-// TODO(gomes): delete this boi - getting the from address will now be a concern of the consuming hook
-// all the useAllowance query is concerned about is taking in a from and returning a Maybe monad,
-// it shouldn't have wallety concerns
-export const getAllowance = async ({
-  accountNumber,
-  allowanceContract,
-  chainId,
-  assetId,
-  wallet,
-  accountId,
-}: GetAllowanceArgs): Promise<Result<string, GetAllowanceErr>> => {
-  const adapter = assertGetChainAdapter(chainId)
-
-  if (!wallet) throw new Error('no wallet available')
-
-  // No approval needed for selling a non-EVM asset
-  if (!evmChainIds.includes(chainId as EvmChainId)) {
-    return Err(GetAllowanceErr.NotEVMChain)
-  }
-
-  // No approval needed for selling a fee asset
-  if (assetId === adapter.getFeeAssetId()) {
-    return Err(GetAllowanceErr.IsFeeAsset)
-  }
-
-  const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
-  const from = await adapter.getAddress({
-    wallet,
-    accountNumber,
-    pubKey: fetchUnchainedAddress ? fromAccountId(accountId).account : undefined,
-  })
-
-  const { assetReference: sellAssetContractAddress } = fromAssetId(assetId)
-
-  const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-    address: sellAssetContractAddress,
-    spender: allowanceContract,
-    from,
-    chainId,
-  })
-
-  return Ok(allowanceOnChainCryptoBaseUnit)
 }
 
 export const getApprovalTxData = async ({

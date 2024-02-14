@@ -23,9 +23,13 @@ export type GetAllowanceArgs = {
 export enum GetAllowanceErr {
   NotEVMChain = 'NotEVMChain',
   IsFeeAsset = 'IsFeeAsset',
+  // TODO(gomes): this shouldn't be monadic - we should *not* run the query then
   MissingArgs = 'MissingArgs',
 }
 
+// TODO(gomes): delete this boi - getting the from address will now be a concern of the consuming hook
+// all the useAllowance query is concerned about is taking in a from and returning a Maybe monad,
+// it shouldn't have wallety concerns
 export const getAllowance = async ({
   accountNumber,
   allowanceContract,

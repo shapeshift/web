@@ -1,12 +1,17 @@
 import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
+import { GetAllowanceErr } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/helpers'
 import { bn } from 'lib/bignumber/bignumber'
 import type {
   MidgardPoolResponse,
@@ -14,7 +19,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { isToken } from 'lib/utils'
+import { assertGetChainAdapter } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -34,6 +39,30 @@ export const thorchainBlockTimeSeconds = '6.1'
 const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
 const common = createQueryKeys('common', {
+  accountAddress: ({
+    wallet,
+    accountNumber,
+    accountId,
+  }: {
+    wallet: HDWallet
+    accountNumber: number
+    accountId: AccountId
+  }) => ({
+    // TODO(gomes): turbo derpo dangerous ensure wallet serializes in react-query without circular deps, or consequences :elmothisisfine:
+    queryKey: ['accountAddress', wallet, accountNumber, accountId],
+    queryFn: async () => {
+      const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
+      const { chainId } = fromAccountId(accountId)
+      const adapter = assertGetChainAdapter(chainId)
+      const from = await adapter.getAddress({
+        wallet,
+        accountNumber,
+        pubKey: fetchUnchainedAddress ? fromAccountId(accountId).account : undefined,
+      })
+
+      return from
+    },
+  }),
   allowanceCryptoBaseUnit: (
     assetId: AssetId | undefined,
     spender: string | undefined,
@@ -46,9 +75,18 @@ const common = createQueryKeys('common', {
       if (!from) throw new Error('from address is required')
 
       const { chainId, assetReference } = fromAssetId(assetId)
-      if (!isToken(assetReference)) return null
-      const supportedEvmChainIds = getSupportedEvmChainIds()
-      if (!supportedEvmChainIds.includes(chainId as KnownChainIds)) return null
+
+      if (!evmChainIds.includes(chainId as EvmChainId)) {
+        return Err(GetAllowanceErr.NotEVMChain)
+      }
+
+      // Asserts and makes the query error (i.e isError) if this errors - *not* a monadic error
+      const adapter = assertGetChainAdapter(chainId)
+
+      // No approval needed for selling a fee asset
+      if (assetId === adapter.getFeeAssetId()) {
+        return Err(GetAllowanceErr.IsFeeAsset)
+      }
 
       const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
         address: assetReference,
@@ -57,7 +95,9 @@ const common = createQueryKeys('common', {
         chainId,
       })
 
-      return allowanceOnChainCryptoBaseUnit
+      // TODO(gomes): now that this is a monad, this should be handled with a selector akin to the one currently living in useIsApprovalNeeded,
+      // obviously without the approval needed logic
+      return Ok(allowanceOnChainCryptoBaseUnit)
     },
     enabled:
       assetId &&

@@ -27,6 +27,7 @@ import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -505,17 +506,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     queryClient,
   ])
 
-  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useQuery({
-    refetchInterval: 30_000,
-    enabled:
-      poolAsset &&
-      walletSupportsOpportunity === true &&
-      isToken(fromAssetId(poolAsset.assetId).assetReference),
-    ...reactQueries.common.allowanceCryptoBaseUnit(
-      poolAsset?.assetId,
-      inboundAddressData?.router,
-      poolAssetAccountAddress,
-    ),
+  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
+    assetId: poolAsset?.assetId,
+    spender: inboundAddressData?.router,
+    from: poolAssetAccountAddress,
   })
 
   const isApprovalRequired = useMemo(() => {

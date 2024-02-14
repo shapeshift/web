@@ -2,7 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
-import { useAllowance } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useAllowance'
+import { useMultiHopTradeAllowance } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useAllowance'
 import { bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 
@@ -11,9 +11,8 @@ import { GetAllowanceErr } from './helpers'
 export const useIsApprovalNeeded = (
   tradeQuoteStep: TradeQuoteStep | undefined,
   sellAssetAccountId: AccountId | undefined,
-  watch: boolean,
 ) => {
-  const { isLoading, data } = useAllowance(tradeQuoteStep, sellAssetAccountId, watch)
+  const { isLoading, data } = useMultiHopTradeAllowance(tradeQuoteStep, sellAssetAccountId)
 
   const isApprovalNeeded = useMemo(() => {
     if (tradeQuoteStep === undefined) return undefined

@@ -169,7 +169,10 @@ const generateAssetData = async () => {
   try {
     // check zerion api key is set before starting, prevents getting through generateAssetData()
     // and then failing
-    assert(process.env.ZERION_API_KEY !== undefined, 'Missing Zerion API key')
+    assert(
+      process.env.ZERION_API_KEY !== undefined,
+      'Missing Zerion API key - see readme for instructions',
+    )
 
     await generateAssetData()
     await generateRelatedAssetIndex()

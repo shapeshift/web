@@ -14,6 +14,7 @@ import path from 'path'
 import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
+// NOTE: this must call the zerion api directly rather than our proxy because of rate limiting requirements
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 const BATCH_SIZE = 100
 
@@ -64,7 +65,10 @@ const getRelatedAssetIds = async (
   assetId: AssetId,
   assetData: AssetsById,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
-  assert(process.env.ZERION_API_KEY !== undefined, 'Missing Zerion API key')
+  assert(
+    process.env.ZERION_API_KEY !== undefined,
+    'Missing Zerion API key - see readme for instructions',
+  )
   const basicAuth = 'Basic ' + Buffer.from(process.env.ZERION_API_KEY + ':').toString('base64')
 
   const options = {

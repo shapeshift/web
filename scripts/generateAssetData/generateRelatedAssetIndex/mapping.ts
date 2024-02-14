@@ -5,6 +5,7 @@ import {
   avalancheChainId,
   bscChainId,
   ethChainId,
+  gnosisChainId,
   optimismChainId,
   polygonChainId,
   toAssetId,
@@ -20,11 +21,11 @@ export const ZERION_CHAINS = [
   'optimism',
   'polygon',
   'arbitrum',
+  'xdai',
   // not yet
   // 'aurora',
   // 'fantom',
   // 'solana',
-  // 'xdai',
 ] as const
 
 export type ZerionChainId = (typeof ZERION_CHAINS)[number]
@@ -36,6 +37,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   optimism: optimismChainId,
   polygon: polygonChainId,
   arbitrum: arbitrumChainId,
+  xdai: gnosisChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

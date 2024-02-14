@@ -1,11 +1,9 @@
 import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -40,30 +38,6 @@ export const thorchainBlockTimeSeconds = '6.1'
 const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
 const common = createQueryKeys('common', {
-  accountAddress: ({
-    wallet,
-    accountNumber,
-    accountId,
-  }: {
-    wallet: HDWallet
-    accountNumber: number
-    accountId: AccountId
-  }) => ({
-    // TODO(gomes): turbo derpo dangerous ensure wallet serializes in react-query without circular deps, or consequences :elmothisisfine:
-    queryKey: ['accountAddress', wallet, accountNumber, accountId],
-    queryFn: async () => {
-      const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
-      const { chainId } = fromAccountId(accountId)
-      const adapter = assertGetChainAdapter(chainId)
-      const from = await adapter.getAddress({
-        wallet,
-        accountNumber,
-        pubKey: fetchUnchainedAddress ? fromAccountId(accountId).account : undefined,
-      })
-
-      return from
-    },
-  }),
   allowanceCryptoBaseUnit: (
     assetId: AssetId | undefined,
     spender: string | undefined,

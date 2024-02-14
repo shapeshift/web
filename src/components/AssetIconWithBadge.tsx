@@ -1,11 +1,12 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Center } from '@chakra-ui/react'
+import { Center, Image } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TransferType } from '@shapeshiftoss/unchained-client'
 import uniqBy from 'lodash/uniqBy'
 import type { PropsWithChildren } from 'react'
 import React, { useMemo } from 'react'
 import { LuGlobe } from 'react-icons/lu'
+import FlipShadow from 'assets/flip-shadow.svg'
 import { type Transfer } from 'hooks/useTxDetails/useTxDetails'
 
 import {
@@ -60,17 +61,31 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
       }
       if (transfers.length > 2 && compareIndex === 3) return null
       return (
-        <AssetIcon
-          showNetworkIcon={false}
-          key={transfer.assetId}
-          assetId={transfer.assetId}
-          clipPath={overideClipPath ? overideClipPath : defaultClipPath}
-          name={transfer.asset.name}
-          size={size}
-          position={compareIndex === 2 ? 'absolute' : 'static'}
-          borderRadius={isNft ? 0 : 'full'}
-          left={0}
-        />
+        <>
+          {compareIndex === 2 && (
+            <Image
+              src={FlipShadow}
+              position='absolute'
+              width='100%'
+              height='100%'
+              left={0}
+              top={0}
+              zIndex={2}
+            />
+          )}
+
+          <AssetIcon
+            showNetworkIcon={false}
+            key={transfer.assetId}
+            assetId={transfer.assetId}
+            clipPath={overideClipPath ? overideClipPath : defaultClipPath}
+            name={transfer.asset.name}
+            size={size}
+            position={compareIndex === 2 ? 'absolute' : 'static'}
+            borderRadius={isNft ? 0 : 'full'}
+            left={0}
+          />
+        </>
       )
     })
   }, [isNft, size, transfers])

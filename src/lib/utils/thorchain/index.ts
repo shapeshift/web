@@ -1,7 +1,12 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
+import type {
+  AccountMetadata,
+  Asset,
+  MidgardActionsResponse,
+  ThornodeStatusResponse,
+} from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -11,10 +16,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poll } from 'lib/poll/poll'
-import type {
-  MidgardActionsResponse,
-  ThornodeStatusResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'

@@ -1,4 +1,4 @@
-import type { MidgardActionsResponse } from '../types'
+import type { MidgardActionsResponse } from '@shapeshiftoss/types'
 
 const THORCHAIN_EVM_CHAINS = ['ETH', 'AVAX', 'BSC'] as const
 

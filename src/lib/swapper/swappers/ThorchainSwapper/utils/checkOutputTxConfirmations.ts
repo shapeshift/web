@@ -1,10 +1,9 @@
+import type { ThorNodeStatusResponseSuccess } from '@shapeshiftoss/types'
+import { ThorchainChain } from '@shapeshiftoss/types'
 import type { StandardTx } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { assertUnreachable } from 'lib/utils'
-
-import type { ThorNodeStatusResponseSuccess } from '../types'
-import { ThorchainChain } from '../types'
 
 export const checkOutboundTxConfirmations = async (
   thorTxData: ThorNodeStatusResponseSuccess,

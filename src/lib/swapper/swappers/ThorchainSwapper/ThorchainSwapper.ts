@@ -8,12 +8,12 @@ import type {
   Swapper,
   UtxoTransactionExecutionProps,
 } from '@shapeshiftoss/swapper'
+import type { ThornodePoolResponse } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import {
   buySupportedChainIds,
   sellSupportedChainIds,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import { isSome } from 'lib/utils'

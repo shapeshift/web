@@ -4,14 +4,10 @@ import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SwapperName } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds, MidgardPoolResponse, ThornodePoolResponse } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { bn } from 'lib/bignumber/bignumber'
-import type {
-  MidgardPoolResponse,
-  ThornodePoolResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import { isToken } from 'lib/utils'

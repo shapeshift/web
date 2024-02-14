@@ -1,5 +1,5 @@
 import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, ThornodePoolResponse } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import type { GetContractReturnType, WalletClient } from 'viem'
@@ -7,7 +7,6 @@ import { type Address, getAddress, getContract, type PublicClient } from 'viem'
 
 import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
 import type { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
-import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
 
 export const getWrappedToken = (nativeAsset: Asset): Token => {

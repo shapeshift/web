@@ -1,8 +1,7 @@
+import type { ThorNodeStatusResponseSuccess } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import prettyMilliseconds from 'pretty-ms'
 import { assertUnreachable } from 'lib/utils'
-
-import type { ThorNodeStatusResponseSuccess } from '../types'
 
 export const getLatestThorTxStatusMessage = (
   response: ThorNodeStatusResponseSuccess,

@@ -11,7 +11,8 @@ import {
   ltcChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+
+import type { KnownChainIds } from '.'
 
 export type MidgardPoolResponse = {
   annualPercentageRate: string

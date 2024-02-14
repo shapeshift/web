@@ -1,5 +1,10 @@
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import type {
+  InboundAddressResponse,
+  ThornodePoolResponse,
+  ThornodeQuoteResponseSuccess,
+} from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { omit } from 'lodash'
@@ -8,11 +13,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { ETH, FOX_MAINNET } from '../../utils/test-data/assets'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { getThorTxInfo } from '../evm/utils/getThorTxData'
-import type {
-  InboundAddressResponse,
-  ThornodePoolResponse,
-  ThornodeQuoteResponseSuccess,
-} from '../types'
 import { TradeType } from '../utils/longTailHelpers'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockChainAdapterManager } from '../utils/test-data/setupThorswapDeps'

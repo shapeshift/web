@@ -16,7 +16,11 @@ import {
   type TradeQuote,
   type UtxoFeeData,
 } from '@shapeshiftoss/swapper'
-import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import type {
+  AssetsByIdPartial,
+  MidgardActionsResponse,
+  ThornodeStatusResponse,
+} from '@shapeshiftoss/types'
 import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
 import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
@@ -36,7 +40,6 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { type MidgardActionsResponse, type ThornodeStatusResponse } from './types'
 import { checkOutboundTxConfirmations } from './utils/checkOutputTxConfirmations'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'

@@ -6,17 +6,17 @@ import {
   type SwapErrorRight,
   TradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import type {
+  Asset,
+  ThornodeQuoteResponse,
+  ThornodeQuoteResponseSuccess,
+} from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import qs from 'qs'
 import { baseUnitToPrecision, bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import type {
-  ThornodeQuoteResponse,
-  ThornodeQuoteResponseSuccess,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import {
   THORCHAIN_AFFILIATE_NAME,
   THORCHAIN_FIXED_PRECISION,

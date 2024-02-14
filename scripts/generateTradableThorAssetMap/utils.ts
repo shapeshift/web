@@ -13,10 +13,9 @@ import {
   thorchainAssetId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ThornodePoolResponse } from '@shapeshiftoss/types'
+import { ChainToChainIdMap, KnownChainIds, ThorchainChain } from '@shapeshiftoss/types'
 import { getAddress, isAddress } from 'viem'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { ChainToChainIdMap, ThorchainChain } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assertUnreachable } from 'lib/utils'
 
 import type { AssetIdPair } from '.'

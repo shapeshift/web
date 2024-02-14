@@ -2,45 +2,67 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "esnext",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "skipLibCheck": true,
     "noEmit": true,
-
     /* Type Checking */
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strict": true,
-
     /* Module Resolution Options */
     "baseUrl": "src",
     "moduleResolution": "node",
     "paths": {
-      "@shapeshiftoss/*": ["./packages/$1/src/*"]
+      "@shapeshiftoss/*": [
+        "./packages/$1/src/*"
+      ]
     },
     "resolveJsonModule": true,
-
     /* Interop Constraints */
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-
     /* Language and Environment */
     "allowJs": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "jsx": "react-jsx",
   },
-  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "scripts/generateAssetData",
+  "include": [
+    "src/**/*",
+    "src/**/*.json",
+    "packages/**/*",
+    "packages/**/*.json",
+    "scripts/generateAssetData",
     "scripts/generateTradableThorAssetMap"
   ],
-  "exclude": ["dist", "node_modules", "**/__mocks__", "**/*.js"],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "**/__mocks__",
+    "**/*.js"
+  ],
   "references": [
-    { "path": "./packages/caip" },
-    { "path": "./packages/chain-adapters" },
-    { "path": "./packages/errors" },
-    { "path": "./packages/types" },
-    { "path": "./packages/unchained-client" }
+    {
+      "path": "./packages/caip"
+    },
+    {
+      "path": "./packages/chain-adapters"
+    },
+    {
+      "path": "./packages/errors"
+    },
+    {
+      "path": "./packages/types"
+    },
+    {
+      "path": "./packages/unchained-client"
+    }
   ]
 }

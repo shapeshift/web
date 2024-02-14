@@ -13,6 +13,7 @@ import {
   SwapperName,
   TradeQuoteError,
 } from '@shapeshiftoss/swapper'
+import type { ThornodeQuoteResponseSuccess } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
@@ -38,7 +39,6 @@ import type {
   ThorTradeQuote,
   ThorTradeUtxoOrCosmosQuote,
 } from '../getThorTradeQuote/getTradeQuote'
-import type { ThornodeQuoteResponseSuccess } from '../types'
 import { addSlippageToMemo } from './addSlippageToMemo'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
 import { getQuote } from './getQuote/getQuote'

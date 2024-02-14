@@ -2,7 +2,7 @@ import {
   type InboundAddressResponse,
   ThorchainChain,
   type ThornodePoolResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
+} from '@shapeshiftoss/types'
 
 export const btcThornodePool: ThornodePoolResponse = {
   LP_units: '536055974608843',

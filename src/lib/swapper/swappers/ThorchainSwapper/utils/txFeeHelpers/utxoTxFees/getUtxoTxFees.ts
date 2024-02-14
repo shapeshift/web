@@ -1,9 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput, UtxoBaseAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProtocolFee, QuoteFeeData } from '@shapeshiftoss/swapper'
+import type { ThorUtxoSupportedChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn } from 'lib/bignumber/bignumber'
-import type { ThorUtxoSupportedChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 type GetUtxoTxFeesInput = {
   opReturnData: string

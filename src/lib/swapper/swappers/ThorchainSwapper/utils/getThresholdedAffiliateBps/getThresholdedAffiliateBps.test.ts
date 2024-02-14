@@ -1,3 +1,4 @@
+import type { MidgardPoolResponse } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
@@ -5,7 +6,6 @@ import { bn } from 'lib/bignumber/bignumber'
 import { ETH } from 'lib/swapper/swappers/utils/test-data/assets'
 
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '../../constants'
-import type { MidgardPoolResponse } from '../../types'
 import { thorService } from '../thorService'
 import {
   getExpectedAffiliateFeeSellAssetThorUnit,

@@ -1,10 +1,9 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, MidgardPoolResponse } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { bn, convertPrecision } from 'lib/bignumber/bignumber'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '../../constants'
-import type { MidgardPoolResponse } from '../../types'
 import { THORCHAIN_FIXED_PRECISION } from '../constants'
 import { isRune } from '../isRune/isRune'
 import { assetIdToPoolAssetId } from '../poolAssetHelpers/poolAssetHelpers'

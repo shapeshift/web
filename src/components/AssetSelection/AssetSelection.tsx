@@ -1,32 +1,17 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { ButtonProps, FlexProps } from '@chakra-ui/react'
-import { Button, Flex, Skeleton, SkeletonCircle, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import { memo, useCallback, useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
+import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetChainDropdown } from './components/AssetChainDropdown'
+import { AssetMenuButton } from './components/AssetMenuButton'
 
 const disabledStyle = { opacity: 0.5 }
-
-const TradeAssetAwaitingAsset = () => {
-  const bgColor = useColorModeValue('white', 'gray.850')
-  return (
-    <Stack bgColor={bgColor} py={2} px={4} borderRadius='xl' spacing={0} flex={1}>
-      <Stack direction='row' justifyContent='space-between' alignItems='center'>
-        <Stack direction='row' alignItems='center'>
-          <SkeletonCircle height='32px' />
-          <Skeleton height='21px' width='50px' />
-        </Stack>
-      </Stack>
-    </Stack>
-  )
-}
 
 type TradeAssetSelectProps = {
   assetId?: AssetId
@@ -37,7 +22,7 @@ type TradeAssetSelectProps = {
   buttonProps?: ButtonProps
 } & FlexProps
 
-export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
+export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   onAssetClick,
   onAssetChange,
   assetId,
@@ -47,7 +32,6 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
   ...rest
 }) => {
   const assets = useAppSelector(selectAssets)
-  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const handleAssetChange = useCallback(
     (assetId: AssetId) => {
@@ -57,13 +41,6 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
     },
     [assets, onAssetChange],
   )
-  const icon = useMemo(() => {
-    return asset?.icons ? (
-      <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
-    ) : (
-      <AssetIcon assetId={assetId} size='xs' showNetworkIcon={false} />
-    )
-  }, [asset?.icons, assetId])
 
   const rightIcon = useMemo(() => (isReadOnly ? undefined : <ChevronDownIcon />), [isReadOnly])
   const combinedButtonProps = useMemo(() => {
@@ -85,19 +62,13 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
 
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2} {...rest}>
-      <Button
-        onClick={onAssetClick}
-        flexGrow={0}
-        flexShrink={0}
-        isDisabled={isReadOnly}
+      <AssetMenuButton
+        assetId={assetId}
+        onAssetClick={onAssetClick}
+        buttonProps={combinedButtonProps}
         isLoading={isLoading}
-        {...combinedButtonProps}
-      >
-        <Flex alignItems='center' gap={2}>
-          {icon}
-          {asset?.symbol}
-        </Flex>
-      </Button>
+        isDisabled={Boolean(isReadOnly)}
+      />
       <Text translation='trade.on' color='text.subtle' fontSize='sm' />
       <AssetChainDropdown
         assetId={assetId}
@@ -108,13 +79,3 @@ export const TradeAssetSelectWithAsset: React.FC<TradeAssetSelectProps> = ({
     </Flex>
   )
 }
-
-export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(
-  ({ assetId, ...restAssetInputProps }) => {
-    return assetId ? (
-      <TradeAssetSelectWithAsset assetId={assetId} {...restAssetInputProps} />
-    ) : (
-      <TradeAssetAwaitingAsset />
-    )
-  },
-)

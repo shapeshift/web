@@ -25,6 +25,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AssetRowLoading } from './AssetRowLoading'
+
 export type ChainDropdownProps = {
   assetId?: AssetId
   onClick: (arg: AssetId) => void
@@ -77,21 +79,21 @@ export const AssetChainDropdown: React.FC<ChainDropdownProps> = ({
   const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
 
   const isDisabled = useMemo(() => {
-    return !relatedAssetIds.length || isLoading || isError
+    return relatedAssetIds.length <= 1 || isLoading || isError
   }, [relatedAssetIds, isError, isLoading])
 
   const buttonTooltipText = useMemo(() => {
-    if (relatedAssetIds.length || isLoading || isError) return ''
+    if (relatedAssetIds.length > 1 || isLoading || isError) return ''
     return translate('trade.tooltip.noRelatedAssets', { chainName: assetChainName })
   }, [assetChainName, isError, isLoading, relatedAssetIds.length, translate])
 
-  if (!assetId) return null
+  if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
     <Menu {...menuProps}>
       <Tooltip label={buttonTooltipText}>
         <MenuButton as={Button} isDisabled={isDisabled} isLoading={isLoading} {...buttonProps}>
-          <AssetChainRow className='activeChain' assetId={assetId} />
+          <AssetChainRow assetId={assetId} />
         </MenuButton>
       </Tooltip>
       <MenuList zIndex='banner'>

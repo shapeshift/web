@@ -220,7 +220,6 @@ const thornode = createQueryKeys('thornode', {
         )
         return mimir
       },
-      enabled: true,
     }
   },
   block: () => {
@@ -232,7 +231,6 @@ const thornode = createQueryKeys('thornode', {
 
         return block
       },
-      enabled: true,
     }
   },
   inboundAddresses: () => {

@@ -22,7 +22,7 @@ import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BiSolidBoltCircle } from 'react-icons/bi'
+import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -198,29 +198,55 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const isSnapInstalled = useIsSnapInstalled()
-  const walletSupportsRune =
-    walletSupportsChain({ chainId: thorchainChainId, wallet, isSnapInstalled }) &&
-    thorchainAccountIds.length > 0
-  const walletSupportsAsset =
-    poolAsset &&
-    walletSupportsChain({
-      chainId: fromAssetId(poolAsset.assetId).chainId,
-      wallet,
-      isSnapInstalled,
-    }) &&
-    poolAssetAccountIds.length > 0
+
+  const walletSupportsRune = useMemo(
+    () =>
+      Boolean(
+        walletSupportsChain({ chainId: thorchainChainId, wallet, isSnapInstalled }) &&
+          thorchainAccountIds.length > 0,
+      ),
+    [isSnapInstalled, thorchainAccountIds.length, wallet],
+  )
+  const walletSupportsAsset = useMemo(
+    () =>
+      Boolean(
+        poolAsset &&
+          walletSupportsChain({
+            chainId: fromAssetId(poolAsset.assetId).chainId,
+            wallet,
+            isSnapInstalled,
+          }) &&
+          poolAssetAccountIds.length > 0,
+      ),
+    [isSnapInstalled, poolAsset, poolAssetAccountIds.length, wallet],
+  )
+
+  // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
+  // - as a default pool, so we can show some input and not some seemingly broken blank state
+  // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
+  // doesn't support one of the two
+  const walletSupportsOpportunity = useMemo(() => {
+    if (!foundPool) return false
+
+    if (!foundPool.isAsymmetric) return walletSupportsAsset && walletSupportsRune
+    if (foundPool.asymSide === AsymSide.Rune) return walletSupportsRune
+    if (foundPool.asymSide === AsymSide.Asset) return walletSupportsAsset
+  }, [foundPool, walletSupportsAsset, walletSupportsRune])
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
     // We only want to run this effect in the standalone AddLiquidity page
     if (!defaultOpportunityId) return
 
-    const foundOpportunityId = parsedPools.find(pool => {
-      if (walletSupportsRune && walletSupportsAsset) return pool.asymSide === null
-      if (walletSupportsAsset) return pool.asymSide === AsymSide.Asset
-      if (walletSupportsRune) return pool.asymSide === AsymSide.Rune
-      return false
-    })?.opportunityId
+    const foundOpportunityId = parsedPools
+      // AssetId narrowing predicate
+      .filter(pool => !poolAsset?.assetId || pool.assetId === poolAsset.assetId)
+      .find(pool => {
+        if (walletSupportsRune && walletSupportsAsset) return pool.asymSide === null
+        if (walletSupportsAsset) return pool.asymSide === AsymSide.Asset
+        if (walletSupportsRune) return pool.asymSide === AsymSide.Rune
+        return false
+      })?.opportunityId
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
   }, [poolAsset, defaultOpportunityId, parsedPools, walletSupportsAsset, walletSupportsRune])
@@ -478,18 +504,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { data: allowanceData, isLoading: isAllowanceDataLoading } = useQuery({
     refetchInterval: 30_000,
+    enabled:
+      poolAsset &&
+      walletSupportsOpportunity === true &&
+      isToken(fromAssetId(poolAsset.assetId).assetReference),
     ...reactQueries.common.allowanceCryptoBaseUnit(
       poolAsset?.assetId,
       inboundAddressesData?.router,
       poolAssetAccountAddress,
-    ),
-    enabled: Boolean(
-      poolAsset?.assetId &&
-        inboundAddressesData?.router &&
-        poolAssetAccountAddress &&
-        getSupportedEvmChainIds().includes(
-          fromAssetId(poolAsset?.assetId).chainId as KnownChainIds,
-        ),
     ),
   })
 
@@ -983,6 +1005,39 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [poolAsset, foundPool, rune, translate])
 
+  const maybeOpportunityNotSupportedExplainer = useMemo(() => {
+    if (walletSupportsOpportunity) return null
+    if (!poolAsset || !rune) return null
+
+    const translation = (() => {
+      if (!walletSupportsRune && !walletSupportsAsset)
+        return translate('pools.unsupportedNetworksExplainer', {
+          network1: poolAsset.networkName,
+          network2: rune.networkName,
+        })
+      if (!walletSupportsRune)
+        return translate('pools.unsupportedNetworkExplainer', { network: rune.networkName })
+      if (!walletSupportsAsset)
+        return translate('pools.unsupportedNetworkExplainer', { network: poolAsset.networkName })
+    })()
+
+    return (
+      <Alert status='error' mx={-2} width='auto'>
+        <AlertIcon as={BiErrorCircle} />
+        <AlertDescription fontSize='sm' fontWeight='medium'>
+          {translation}
+        </AlertDescription>
+      </Alert>
+    )
+  }, [
+    poolAsset,
+    rune,
+    translate,
+    walletSupportsAsset,
+    walletSupportsOpportunity,
+    walletSupportsRune,
+  ])
+
   const buyAssetSearch = useModal('buyAssetSearch')
   const handlePoolAssetClick = useCallback(() => {
     buyAssetSearch.open({
@@ -1024,7 +1079,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     (asymSide: string | null) => {
       if (!(parsedPools && poolAsset)) return
 
-      const parsedAsymSide = asymSide as AsymSide | 'sym'
+      const foundOpportunity = parsedPools
+        // AssetId narrowing predicate
+        .filter(pool => !poolAsset?.assetId || pool.assetId === poolAsset.assetId)
+        .find(pool => {
+          if (walletSupportsRune && walletSupportsAsset && !asymSide) return pool.asymSide === null
+          if (walletSupportsAsset && asymSide === AsymSide.Asset)
+            return pool.asymSide === AsymSide.Asset
+          if (walletSupportsRune && asymSide === AsymSide.Rune)
+            return pool.asymSide === AsymSide.Rune
+          // Default to sym if none is supported so we have something to display
+          return pool.asymSide === null
+        })
+
+      const parsedAsymSide = foundOpportunity?.asymSide as AsymSide | 'sym'
 
       if (parsedAsymSide === 'sym') {
         setActiveOpportunityId(defaultOpportunityId)
@@ -1037,7 +1105,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
       setActiveOpportunityId(foundPool.opportunityId)
     },
-    [poolAsset, defaultOpportunityId, parsedPools],
+    [parsedPools, poolAsset, walletSupportsRune, walletSupportsAsset, defaultOpportunityId],
   )
 
   const notEnoughFeeAssetError = useMemo(
@@ -1077,12 +1145,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const errorCopy = useMemo(() => {
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
-    // 1. pool halted
-    // 2. pool asset balance
-    // 3. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
-    // 4. RUNE balance
-    // 5. RUNE fee balance
+    // 1. Asset unsupported by wallet
+    // 2. pool halted
+    // 3. pool asset balance
+    // 4. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 5. RUNE balance
+    // 6. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
+    if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
     // Not enough *fee* asset
@@ -1109,6 +1179,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetFeeAsset,
     rune,
     translate,
+    walletSupportsOpportunity,
   ])
 
   const confirmCopy = useMemo(() => {
@@ -1196,6 +1267,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        {maybeOpportunityNotSupportedExplainer}
         {symAlert}
         <Button
           mx={-2}
@@ -1216,7 +1288,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               .plus(actualRuneCryptoLiquidityAmount ?? 0)
               .isZero() ||
             notEnoughFeeAssetError ||
-            notEnoughRuneFeeError
+            notEnoughRuneFeeError ||
+            !walletSupportsOpportunity
           }
           isLoading={
             isVotingPowerLoading ||

@@ -32,22 +32,24 @@ export const getLongtailToL1Quote = async (
   streamingInterval: number,
   assetsById: AssetsByIdPartial,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+  const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
+
   /*
-    We only support ETH -> L1 for now.
+    We only support ethereum longtail -> L1 swaps for now.
     We can later add BSC via UniV3, or Avalanche (e.g. via PancakeSwap)
   */
-  if (input.sellAsset.chainId !== ethChainId) {
+  if (sellAsset.chainId !== ethChainId) {
     return Err(
       makeSwapErrorRight({
-        message: `[getThorTradeQuote] - Unsupported chainId ${input.sellAsset.chainId}.`,
+        message: `[getThorTradeQuote] - Unsupported chainId ${sellAsset.chainId}.`,
         code: TradeQuoteError.UnsupportedChain,
-        details: { sellAssetChainId: input.sellAsset.chainId },
+        details: { sellAssetChainId: sellAsset.chainId },
       }),
     )
   }
 
   const chainAdapterManager = getChainAdapterManager()
-  const sellChainId = input.sellAsset.chainId
+  const sellChainId = sellAsset.chainId
   const nativeBuyAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
   const nativeBuyAsset = nativeBuyAssetId ? assetsById[nativeBuyAssetId] : undefined
   if (!nativeBuyAsset) {
@@ -64,7 +66,7 @@ export const getLongtailToL1Quote = async (
   const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984' // FIXME: this is only true for Ethereum
   const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
 
-  const tokenA = getTokenFromAsset(input.sellAsset)
+  const tokenA = getTokenFromAsset(sellAsset)
   const tokenB = getWrappedToken(nativeBuyAsset)
 
   const publicClient = viemClientByChainId[sellChainId as EvmChainId]
@@ -92,7 +94,7 @@ export const getLongtailToL1Quote = async (
 
   const quotedAmountOutByPool = await getQuotedAmountOutByPool(
     poolContractData,
-    BigInt(input.sellAmountIncludingProtocolFeesCryptoBaseUnit),
+    BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit),
     quoterContract,
   )
 
@@ -128,16 +130,14 @@ export const getLongtailToL1Quote = async (
   return thorchainQuotes.andThen(quotes => {
     const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
       ...q,
-      router: bestAggregator,
+      aggregator: bestAggregator,
+      // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
       steps: q.steps.map(s => ({
         ...s,
-        // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
-        sellAmountIncludingProtocolFeesCryptoBaseUnit:
-          input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        sellAsset: input.sellAsset,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        sellAsset,
         allowanceContract: ALLOWANCE_CONTRACT,
       })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
-
       isLongtail: true,
       longtailData: {
         longtailToL1ExpectedAmountOut: quotedAmountOut,

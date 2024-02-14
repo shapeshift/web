@@ -92,7 +92,8 @@ export class MarketServiceManager {
       }
 
       // If we don't find any results, then we look for related assets
-      const relatedAssetIds = this.assetService.relatedAssetIndex[assetId] ?? []
+      const { relatedAssetKey } = this.assetService.assetsById[assetId] ?? {}
+      const relatedAssetIds = this.assetService.relatedAssetIndex[relatedAssetKey ?? ''] ?? []
       if (!relatedAssetIds.length) return null
 
       // Loop through related assets and look for market data

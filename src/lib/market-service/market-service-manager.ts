@@ -6,7 +6,7 @@ import type {
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
-import { _getRelatedAssetIds } from 'state/apis/zerion/zerionApi'
+import { AssetService } from 'lib/asset-service'
 
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
@@ -29,6 +29,7 @@ export type MarketServiceManagerArgs = {
 
 export class MarketServiceManager {
   marketProviders: MarketService[]
+  assetService: AssetService
 
   constructor(args: MarketServiceManagerArgs) {
     const { providerUrls } = args
@@ -49,6 +50,8 @@ export class MarketServiceManager {
       // new YearnTokenMarketCapService({ yearnSdk }),
       new FoxyMarketService({ providerUrls }),
     ]
+
+    this.assetService = new AssetService()
   }
 
   async findAll(args: FindAllMarketArgs): Promise<MarketCapResult> {
@@ -89,7 +92,7 @@ export class MarketServiceManager {
       }
 
       // If we don't find any results, then we look for related assets
-      const relatedAssetIds = await _getRelatedAssetIds(assetId)
+      const relatedAssetIds = this.assetService.relatedAssetIndex[assetId] ?? []
       if (!relatedAssetIds.length) return null
 
       // Loop through related assets and look for market data

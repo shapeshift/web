@@ -370,7 +370,7 @@ export class FoxyApi {
     const liquidityReserveContract = this.getLiquidityReserveContract(contractAddress)
 
     try {
-      const data = liquidityReserveContract.encodeFunctionData('removeLiquidity', [
+      const data = await liquidityReserveContract.encodeFunctionData('removeLiquidity', [
         this.normalizeAmount(amountDesired),
       ])
 

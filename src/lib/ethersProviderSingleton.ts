@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { providers } from 'ethers'
+import { JsonRpcProvider, providers } from 'ethers'
 
 import { assertUnreachable } from './utils'
 
@@ -29,13 +29,13 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   }
 }
 
-const ethersProviders: Map<ChainId, providers.StaticJsonRpcProvider> = new Map()
+const ethersProviders: Map<ChainId, JsonRpcProvider> = new Map()
 
 export const getEthersProvider = (
   chainId: EvmChainId = KnownChainIds.EthereumMainnet,
-): providers.StaticJsonRpcProvider => {
+): JsonRpcProvider => {
   if (!ethersProviders.has(chainId)) {
-    const provider = new providers.StaticJsonRpcProvider(rpcUrlByChainId(chainId))
+    const provider = new JsonRpcProvider(rpcUrlByChainId(chainId))
     ethersProviders.set(chainId, provider)
     return provider
   } else {

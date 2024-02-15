@@ -4,7 +4,7 @@ import type { TokenAmount } from '@uniswap/sdk'
 import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
-import { ethers } from 'ethers'
+import { getAddress } from 'ethers'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -131,8 +131,8 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
       token1Decimals = zapperAppBalanceData.tokens?.[1].decimals!
       token0Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[0])!
       token1Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[1])!
-      token0Address = ethers.utils.getAddress(zapperAppBalanceData?.tokens?.[0].address!)
-      token1Address = ethers.utils.getAddress(zapperAppBalanceData?.tokens?.[1].address!)
+      token0Address = getAddress(zapperAppBalanceData?.tokens?.[0].address!)
+      token1Address = getAddress(zapperAppBalanceData?.tokens?.[1].address!)
       apr = bnOrZero(zapperAppBalanceData.dataProps?.apy!).toFixed()
       return {
         token0Decimals,
@@ -191,7 +191,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
     const { assetReference } = fromAssetId(opportunityId)
     // Checksum
-    const contractAddress = ethers.utils.getAddress(assetReference)
+    const contractAddress = getAddress(assetReference)
     const uniV2LPContract = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,

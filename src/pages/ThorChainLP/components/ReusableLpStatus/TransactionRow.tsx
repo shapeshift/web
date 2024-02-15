@@ -9,7 +9,6 @@ import {
   Link,
   Skeleton,
 } from '@chakra-ui/react'
-import { AddressZero } from '@ethersproject/constants'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   type AssetId,
@@ -28,6 +27,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { ZeroAddress } from 'ethers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -287,7 +287,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         if (!inboundAddressData?.router) return undefined
         const assetAddress = isToken(fromAssetId(assetId).assetReference)
           ? getAddress(fromAssetId(assetId).assetReference)
-          : AddressZero
+          : ZeroAddress
         const amount = BigInt(toBaseUnit(amountCryptoPrecision, asset.precision).toString())
 
         const args = (() => {
@@ -297,7 +297,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             ? getAddress(fromAssetId(assetId).assetReference)
             : // Native EVM assets use the 0 address as the asset address
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-              AddressZero
+              ZeroAddress
 
           const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
             confirmedQuote.feeBps
@@ -472,7 +472,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                 ? getAddress(fromAssetId(assetId).assetReference)
                 : // Native EVM assets use the 0 address as the asset address
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                  AddressZero
+                  ZeroAddress
 
               const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
                 confirmedQuote.feeBps

@@ -12,13 +12,13 @@ export interface TxMetadata extends BaseTxMetadata {
 }
 
 export class Parser implements SubParser<Tx> {
-  readonly abiInterface = new ethers.utils.Interface(FOXY_STAKING_ABI)
+  readonly abiInterface = new ethers.Interface(FOXY_STAKING_ABI)
 
   readonly supportedFunctions = {
-    stakeSigHash: this.abiInterface.getSighash('stake(uint256,address)'),
-    unstakeSigHash: this.abiInterface.getSighash('unstake'),
-    instantUnstakeSigHash: this.abiInterface.getSighash('instantUnstake'),
-    claimWithdrawSigHash: this.abiInterface.getSighash('claimWithdraw'),
+    stakeSigHash: this.abiInterface.getFunction('stake(uint256,address)')?.selector,
+    unstakeSigHash: this.abiInterface.getFunction('unstake')?.selector,
+    instantUnstakeSigHash: this.abiInterface.getFunction('instantUnstake')?.selector,
+    claimWithdrawSigHash: this.abiInterface.getFunction('claimWithdraw')?.selector,
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

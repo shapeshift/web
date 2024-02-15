@@ -23,24 +23,24 @@ export interface TxMetadata extends BaseTxMetadata {
 
 export interface ParserArgs {
   chainId: ChainId
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
 }
 
 export class Parser implements SubParser<Tx> {
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
-  readonly abiInterface = new ethers.utils.Interface(UNIV2_ABI)
-  readonly stakingRewardsInterface = new ethers.utils.Interface(UNIV2_STAKING_REWARDS_ABI)
+  readonly abiInterface = new ethers.Interface(UNIV2_ABI)
+  readonly stakingRewardsInterface = new ethers.Interface(UNIV2_STAKING_REWARDS_ABI)
 
   readonly supportedFunctions = {
-    addLiquidityEthSigHash: this.abiInterface.getSighash('addLiquidityETH'),
-    removeLiquidityEthSigHash: this.abiInterface.getSighash('removeLiquidityETH'),
+    addLiquidityEthSigHash: this.abiInterface.getFunction('addLiquidityETH')?.selector,
+    removeLiquidityEthSigHash: this.abiInterface.getFunction('removeLiquidityETH')?.selector,
   }
 
   readonly supportedStakingRewardsFunctions = {
-    stakeSigHash: this.stakingRewardsInterface.getSighash('stake'),
-    exitSigHash: this.stakingRewardsInterface.getSighash('exit'),
+    stakeSigHash: this.stakingRewardsInterface.getFunction('stake')?.selector,
+    exitSigHash: this.stakingRewardsInterface.getFunction('exit')?.selector,
   }
 
   constructor(args: ParserArgs) {
@@ -81,7 +81,7 @@ export class Parser implements SubParser<Tx> {
         },
       }
 
-    const tokenAddress = ethers.utils.getAddress(decoded.args.token.toLowerCase())
+    const tokenAddress = ethers.getAddress(decoded.args.token.toLowerCase())
     const lpTokenAddress = Parser.pairFor(tokenAddress, this.wethContract)
 
     const transfers = await (async () => {
@@ -188,8 +188,8 @@ export class Parser implements SubParser<Tx> {
   private static pairFor(tokenA: string, tokenB: string): string {
     const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
     const factoryContract = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
-    const salt = ethers.utils.solidityKeccak256(['address', 'address'], [token0, token1])
+    const salt = ethers.solidityPackedKeccak256(['address', 'address'], [token0, token1])
     const initCodeHash = '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // https://github.com/Uniswap/v2-periphery/blob/dda62473e2da448bc9cb8f4514dadda4aeede5f4/contracts/libraries/UniswapV2Library.sol#L24
-    return ethers.utils.getCreate2Address(factoryContract, salt, initCodeHash)
+    return ethers.getCreate2Address(factoryContract, salt, initCodeHash)
   }
 }

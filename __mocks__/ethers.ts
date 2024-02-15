@@ -1,21 +1,10 @@
-import {
-  BigNumber,
-  Bytes,
-  BytesLike,
-  ethers,
-  providers,
-  Signature,
-  Signer,
-  UnsignedTransaction,
-  utils,
-} from 'ethers'
+import ethers from 'ethers'
 import { vi } from 'vitest'
 
 const ethersMock = {
   ...ethers,
   providers: {
     JsonRpcProvider: vi.fn(),
-    StaticJsonRpcProvider: vi.fn(),
   },
   Contract: vi.fn().mockImplementation(address => ({
     decimals: () => {
@@ -59,14 +48,4 @@ const ethersMock = {
   })),
 }
 
-export {
-  ethersMock as ethers,
-  BigNumber,
-  Bytes,
-  BytesLike,
-  Signature,
-  Signer,
-  UnsignedTransaction,
-  providers,
-  utils,
-}
+export { ethersMock as ethers }

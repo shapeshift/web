@@ -7,8 +7,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { ethers } from 'ethers'
-import { isHexString } from 'ethers/lib/utils.js'
+import { ethers, isHexString } from 'ethers'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -45,7 +44,7 @@ export const cowSwapper: Swapper = {
     // Passing the signature through split/join to normalize the `v` byte.
     // Some wallets do not pad it with `27`, which causes a signature failure
     // `splitSignature` pads it if needed, and `joinSignature` simply puts it back together
-    const signature = ethers.utils.joinSignature(ethers.utils.splitSignature(signatureOrderDigest))
+    const signature = ethers.Signature.from(ethers.Signature.from(signatureOrderDigest)).serialized
 
     const maybeNetwork = getCowswapNetwork(chainId)
     if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()

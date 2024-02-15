@@ -1,7 +1,6 @@
 import type { LatestAppDataDocVersion } from '@cowprotocol/app-data'
 import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
 import type { OrderClass } from '@cowprotocol/app-data/dist/generatedTypes/v0.9.0'
-import type { TypedDataDomain, TypedDataField } from '@ethersproject/abstract-signer'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { CowSwapOrder } from '@shapeshiftoss/swapper'
@@ -11,8 +10,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
-import { ethers } from 'ethers'
-import { keccak256, toUtf8Bytes } from 'ethers/lib/utils.js'
+import type { TypedDataDomain, TypedDataField } from 'ethers'
+import { keccak256, toUtf8Bytes, TypedDataEncoder } from 'ethers'
 import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
@@ -83,7 +82,7 @@ export const hashTypedData = (
   types: TypedDataTypes,
   data: Record<string, unknown>,
 ): string => {
-  return ethers.utils._TypedDataEncoder.hash(domain, types, data)
+  return TypedDataEncoder.hash(domain, types, data)
 }
 
 /**

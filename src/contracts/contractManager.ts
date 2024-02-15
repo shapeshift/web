@@ -104,7 +104,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
   })
   definedContracts.push({
     contract,
-    address: ethers.utils.getAddress(address),
+    address: ethers.getAddress(address),
   } as unknown as DefinedContract)
   return contract as KnownContractByType<T>
 }
@@ -112,7 +112,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
 export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
   // Checksum
-  const contractAddress = ethers.utils.getAddress(assetReference)
+  const contractAddress = ethers.getAddress(assetReference)
   const pair = getOrCreateContractByType({
     address: contractAddress,
     type: ContractType.UniV2Pair,

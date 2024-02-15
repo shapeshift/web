@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
@@ -16,17 +15,17 @@ export interface TxMetadata extends BaseTxMetadata {
 
 interface ParserArgs {
   chainId: ChainId
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
 }
 
 export class Parser<T extends Tx> implements SubParser<T> {
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
 
   readonly chainId: ChainId
-  readonly abiInterface = new ethers.utils.Interface(ERC20_ABI)
+  readonly abiInterface = new ethers.Interface(ERC20_ABI)
 
   readonly supportedFunctions = {
-    approveSigHash: this.abiInterface.getSighash('approve'),
+    approveSigHash: this.abiInterface.getFunction('approve')?.selector ?? '',
   }
 
   constructor(args: ParserArgs) {
@@ -58,9 +57,11 @@ export class Parser<T extends Tx> implements SubParser<T> {
 
     switch (txSigHash) {
       case this.supportedFunctions.approveSigHash: {
-        const amount = decoded.args.amount as BigNumber
+        const amount = decoded.args.amount as BigInt
         const value = amount.toString()
-        if (amount.isZero()) {
+        // For paranoia's sake, remove me before opening the PR
+        console.log({ amount })
+        if (amount === BigInt(0)) {
           return await Promise.resolve({ data: { ...data, method: 'revoke', value } })
         }
         return await Promise.resolve({ data: { ...data, value: value.toString() } })

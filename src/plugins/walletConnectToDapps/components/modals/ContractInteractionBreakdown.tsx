@@ -1,6 +1,7 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
-import type { ParamType, TransactionDescription } from '@ethersproject/abi'
+import type { ParamType } from '@ethersproject/abi'
 import type { Asset } from '@shapeshiftoss/types'
+import type { TransactionDescription } from 'ethers'
 import startCase from 'lodash/startCase'
 import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyButton'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
@@ -35,13 +36,13 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
 }) => {
   const contractInterface = useGetAbi(request)
 
-  const transaction: TransactionDescription | undefined = useMemo(() => {
-    if (!contractInterface) return undefined
+  const transaction: TransactionDescription | null = useMemo(() => {
+    if (!contractInterface) return null
     try {
       return contractInterface?.parseTransaction({ data: request.data, value: request.value })
     } catch (e) {
       console.error(e)
-      return undefined
+      return null
     }
   }, [contractInterface, request.data, request.value])
 

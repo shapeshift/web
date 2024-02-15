@@ -187,11 +187,11 @@ export const Deposit: React.FC<DepositProps> = ({
         } else {
           const asset0ContractAddress =
             assetId0 !== ethAssetId
-              ? ethers.utils.getAddress(fromAssetId(assetId0).assetReference)
+              ? ethers.getAddress(fromAssetId(assetId0).assetReference)
               : undefined
           const asset1ContractAddress =
             assetId1 !== ethAssetId
-              ? ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
+              ? ethers.getAddress(fromAssetId(assetId1).assetReference)
               : undefined
 
           // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,

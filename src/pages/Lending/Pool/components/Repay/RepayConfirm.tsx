@@ -23,7 +23,7 @@ import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { utils } from 'ethers'
+import { hexlify, toUtf8Bytes } from 'ethers'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -290,7 +290,7 @@ export const RepayConfirm = ({
       memo: supportedEvmChainIds.includes(
         fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
       )
-        ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
+        ? hexlify(toUtf8Bytes(confirmedQuote.quoteMemo))
         : confirmedQuote.quoteMemo,
       to: confirmedQuote.quoteInboundAddress,
       sendMax: false,
@@ -342,7 +342,7 @@ export const RepayConfirm = ({
         memo: supportedEvmChainIds.includes(
           fromAssetId(repaymentAsset?.assetId).chainId as KnownChainIds,
         )
-          ? utils.hexlify(utils.toUtf8Bytes(confirmedQuote.quoteMemo))
+          ? hexlify(toUtf8Bytes(confirmedQuote.quoteMemo))
           : confirmedQuote.quoteMemo,
         amountFieldError: '',
         estimatedFees,

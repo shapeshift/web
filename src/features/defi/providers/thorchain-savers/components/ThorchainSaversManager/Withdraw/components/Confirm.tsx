@@ -9,7 +9,6 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -20,6 +19,7 @@ import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import dayjs from 'dayjs'
+import { ZeroAddress } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -415,7 +415,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           getAddress(quote.inbound_address),
           // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
           // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
-          AddressZero,
+          ZeroAddress,
           BigInt(amount),
           quote.memo,
           BigInt(quote.expiry),

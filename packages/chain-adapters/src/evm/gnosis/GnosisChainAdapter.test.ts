@@ -4,7 +4,6 @@
  * Test GnosisChainAdapter
  * @group unit
  */
-import { AddressZero } from '@ethersproject/constants'
 import { ASSET_REFERENCE, fromChainId, gnosisAssetId, gnosisChainId } from '@shapeshiftoss/caip'
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
@@ -12,6 +11,7 @@ import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
+import { ZeroAddress } from 'ethers'
 import { merge } from 'lodash'
 import { describe, expect, it, vi } from 'vitest'
 import { numberToHex } from 'web3-utils'
@@ -134,7 +134,7 @@ describe('GnosisChainAdapter', () => {
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
-          from: AddressZero,
+          from: ZeroAddress,
           data: '0x',
         },
       }
@@ -460,7 +460,7 @@ describe('GnosisChainAdapter', () => {
       const adapter = new gnosis.ChainAdapter(args)
 
       const wallet = await getWallet()
-      wallet.ethGetAddress = async () => await Promise.resolve(AddressZero)
+      wallet.ethGetAddress = async () => await Promise.resolve(ZeroAddress)
 
       const tx = {
         wallet,
@@ -563,7 +563,7 @@ describe('GnosisChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         accountNumber,
-        to: AddressZero,
+        to: ZeroAddress,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>

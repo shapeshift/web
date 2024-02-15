@@ -60,7 +60,7 @@ type EthereumChainReference =
 export type ConstructorArgs = {
   adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   providerUrl: string
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
   foxyAddresses: FoxyAddressesType
   chainReference?: EthereumChainReference
 }
@@ -84,7 +84,7 @@ const TOKE_IPFS_URL = 'https://ipfs.tokemaklabs.xyz/ipfs'
 
 export class FoxyApi {
   public adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
-  public provider: ethers.providers.StaticJsonRpcProvider
+  public provider: ethers.JsonRpcProvider
   private providerUrl: string
   private foxyStakingContracts: ethers.Contract[]
   private liquidityReserveContracts: ethers.Contract[]
@@ -117,8 +117,8 @@ export class FoxyApi {
    * to exponential notation ('1.6e+21') in javascript.
    * @param amount
    */
-  private normalizeAmount(amount: BigNumber): ethers.BigNumber {
-    return ethers.BigNumber.from(amount.toFixed())
+  private normalizeAmount(amount: BigNumber): BigInt {
+    return BigInt(amount.toFixed())
   }
 
   // TODO(gomes): This is rank and should really belong in web for sanity sake.
@@ -154,7 +154,7 @@ export class FoxyApi {
       if (dryRun) return signedTx
       try {
         if (this.providerUrl.includes('localhost') || this.providerUrl.includes('127.0.0.1')) {
-          const sendSignedTx = await this.provider.sendTransaction(signedTx)
+          const sendSignedTx = await this.provider.broadcastTransaction(signedTx)
           return sendSignedTx?.blockHash ?? ''
         }
         return this.adapter.broadcastTransaction({
@@ -181,7 +181,7 @@ export class FoxyApi {
 
   checksumAddress(address: string): string {
     // ethers always returns checksum addresses from getAddress() calls
-    return ethers.utils.getAddress(address)
+    return ethers.getAddress(address)
   }
 
   private verifyAddresses(addresses: string[]) {
@@ -998,8 +998,6 @@ export class FoxyApi {
     }
     const liquidityReserveContract = this.getLiquidityReserveContract(liquidityReserveAddress)
     try {
-      // ethers BigNumber doesn't support floats, so we have to convert it to a regular bn first
-      // to be able to get a float bignumber.js as an output
       const feeInBasisPoints = bnOrZero((await liquidityReserveContract.fee()).toString())
       return feeInBasisPoints.div(10000) // convert from basis points to decimal percentage
     } catch (e) {
@@ -1048,7 +1046,7 @@ export class FoxyApi {
 
     const coolDownInfo: [amount: string, gons: string, expiry: string] = (
       await stakingContract.coolDownInfo(userAddress)
-    ).map((info: ethers.BigNumber) => info.toString())
+    ).map((info: BigInt) => info.toString())
     const releaseTime = await this.getTimeUntilClaimable(input)
 
     const [amount, gons, expiry] = coolDownInfo

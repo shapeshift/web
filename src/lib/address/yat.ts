@@ -77,7 +77,7 @@ export const resolveYat: ResolveYat = async args => {
     })()
 
     if (!maybeAddress) return ''
-    return ethers.utils.getAddress(maybeAddress)
+    return ethers.getAddress(maybeAddress)
   } catch (e) {
     return ''
   }

@@ -81,16 +81,16 @@ export const useUniV2LiquidityPool = ({
 
   // Checksummed addresses
   const asset0ContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(assetId0OrWeth).assetReference),
+    () => ethers.getAddress(fromAssetId(assetId0OrWeth).assetReference),
     [assetId0OrWeth],
   )
   const asset1ContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(assetId1OrWeth).assetReference),
+    () => ethers.getAddress(fromAssetId(assetId1OrWeth).assetReference),
     [assetId1OrWeth],
   )
 
   const lpContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(lpAssetId).assetReference),
+    () => ethers.getAddress(fromAssetId(lpAssetId).assetReference),
     [lpAssetId],
   )
 
@@ -149,7 +149,7 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidityETH',
           args: [
-            otherAssetContractAddress,
+            getAddress(otherAssetContractAddress),
             BigInt(toBaseUnit(otherAssetAmount, otherAsset.precision)),
             BigInt(amountOtherAssetMin),
             BigInt(amountEthMin),
@@ -166,8 +166,8 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidity',
           args: [
-            asset0ContractAddress,
-            asset1ContractAddress,
+            getAddress(asset0ContractAddress),
+            getAddress(asset1ContractAddress),
             BigInt(toBaseUnit(token0Amount, asset0.precision)),
             BigInt(toBaseUnit(token1Amount, asset1.precision)),
             BigInt(amountAsset0Min),
@@ -494,7 +494,7 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidityETH',
           args: [
-            otherAssetContractAddress,
+            getAddress(otherAssetContractAddress),
             BigInt(toBaseUnit(otherAssetAmount, otherAsset.precision)),
             BigInt(amountOtherAssetMin),
             BigInt(amountEthMin),
@@ -519,8 +519,8 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidity',
           args: [
-            asset0ContractAddress,
-            asset1ContractAddress,
+            getAddress(asset0ContractAddress),
+            getAddress(asset1ContractAddress),
             BigInt(toBaseUnit(token0Amount, asset0.precision)),
             BigInt(toBaseUnit(token1Amount, asset1.precision)),
             BigInt(amountAsset0Min),

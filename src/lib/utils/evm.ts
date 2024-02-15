@@ -220,7 +220,7 @@ export const getApproveContractData = ({
   spender,
   chainId,
 }: GetApproveContractDataArgs): string => {
-  const address = ethers.utils.getAddress(to)
+  const address = ethers.getAddress(to)
   const contract = getOrCreateContractByType({
     address,
     type: ContractType.ERC20,

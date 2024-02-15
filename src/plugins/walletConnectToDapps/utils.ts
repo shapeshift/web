@@ -8,7 +8,7 @@ import type {
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
-import { utils } from 'ethers'
+import { isAddress, isHexString, toBeHex, toUtf8String } from 'ethers'
 import type {
   ConfirmData,
   CosmosSignAminoCallRequestParams,
@@ -26,7 +26,7 @@ import { isSome } from 'lib/utils'
  */
 export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
   try {
-    return utils.isHexString(value) ? utils.toUtf8String(value) : value
+    return isHexString(value) ? toUtf8String(value) : value
   } catch (e) {
     // use raw hex string if unable to convert to utf8 (ex. keccak256)
     return value
@@ -34,7 +34,7 @@ export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
 }
 
 export const convertNumberToHex = (value: number | string): string =>
-  typeof value === 'number' ? utils.hexlify(value) : utils.hexlify(utils.hexlify(parseInt(value)))
+  typeof value === 'number' ? toBeHex(value) : toBeHex(parseInt(value))
 
 export const convertHexToNumber = (value: string): number => parseInt(value, 16)
 
@@ -81,7 +81,7 @@ export const getGasData = (
  * If it is a hex string, it gets converted to utf8 string
  */
 export const getSignParamsMessage = (params: [string, string], toUtf8: boolean) => {
-  const message = params.filter(p => !utils.isAddress(p))[0]
+  const message = params.filter(p => !isAddress(p))[0]
   return toUtf8 ? maybeConvertHexEncodedMessageToUtf8(message) : message
 }
 

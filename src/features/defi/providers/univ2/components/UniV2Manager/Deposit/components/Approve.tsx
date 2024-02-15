@@ -101,11 +101,11 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
   const asset0ContractAddress = useMemo(() => {
     if (assetId0 === ethAssetId) return undefined
-    return ethers.utils.getAddress(fromAssetId(assetId0).assetReference)
+    return ethersgetAddress(fromAssetId(assetId0).assetReference)
   }, [assetId0])
   const asset1ContractAddress = useMemo(() => {
     if (assetId1 === ethAssetId) return undefined
-    return ethers.utils.getAddress(fromAssetId(assetId1).assetReference)
+    return ethers.getAddress(fromAssetId(assetId1).assetReference)
   }, [assetId1])
   const neededApprovals = [
     isApprove0Needed && asset0ContractAddress,

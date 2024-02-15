@@ -93,7 +93,7 @@ export const FoxyDeposit: React.FC<{
         )
           return
         const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(
-          ethers.utils.getAddress(foxyStakingContractAddress),
+          ethers.getAddress(foxyStakingContractAddress),
         )
         dispatch({
           type: FoxyDepositActionType.SET_OPPORTUNITY,

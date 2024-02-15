@@ -75,7 +75,7 @@ export const FoxyWithdraw: React.FC<{
         )
           return
         const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(
-          ethers.utils.getAddress(foxyStakingContractAddress),
+          ethers.getAddress(foxyStakingContractAddress),
         )
         // Get foxy fee for instant sends
         const foxyFeePercentage = await foxyApi.instantUnstakeFee({

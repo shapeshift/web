@@ -5,7 +5,7 @@ import type { TokenAmount } from '@uniswap/sdk'
 import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
-import { ethers } from 'ethers'
+import { getAddress } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
 import { parseAbiItem } from 'viem'
@@ -65,7 +65,7 @@ export const calculateAPRFromToken0 = memoize(
     const { assetReference } = fromAssetId(pairAssetId)
 
     // Checksum
-    const contractAddress = ethers.utils.getAddress(assetReference)
+    const contractAddress = getAddress(assetReference)
     const pair = getOrCreateContractByType({
       address: contractAddress,
       type: ContractType.UniV2Pair,

@@ -35,7 +35,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({ assetId, hideBalan
   if (!feeAsset) return null
 
   return (
-    <Flex alignItems='center' justifyContent='space-between' width='100%' height={12}>
+    <Flex alignItems='center' justifyContent='space-between' width='100%' height={10}>
       <Flex alignItems='center' gap={4}>
         <LazyLoadAvatar src={iconSrc} size='xs' />
         {feeAsset.networkName ?? feeAsset.name}

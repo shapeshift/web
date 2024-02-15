@@ -9,7 +9,11 @@ import { ethereum } from '../baseAssets'
 import { colorMap } from '../colorMap'
 
 const network = 1 // 1 for mainnet
+// This is wrong, but this doesn't matter since yearn is nuked
+// 1. we should not instantiate a provider at module scope, which will make an XHR for nothing when this module gets evaluated
+// 2. we should pass the provider in as a dependency, since it is cached in web
 const provider = new ethers.JsonRpcProvider(process.env.ETHEREUM_NODE_URL)
+// @ts-ignore @yfi/sdk expects an ethers v5 provider, but we're now using v6
 export const yearnSdk = new Yearn(network, { provider })
 
 const explorerData = {

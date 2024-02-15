@@ -614,13 +614,20 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     <TradeSlideTransition>
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex width='full' justifyContent='center'>
-          <Card flex={1} width='full' maxWidth='500px' transition='all 5s ease-out'>
-            <AnimatePresence mode='wait'>
-              {isOpen ? (
-                <FadeTransition key='quote-list'>
-                  <QuoteList onBack={onToggle} isLoading={isLoading} />
-                </FadeTransition>
-              ) : (
+          <AnimatePresence mode='wait'>
+            {isOpen ? (
+              <FadeTransition key='quote-list'>
+                <QuoteList
+                  flex={1}
+                  width='full'
+                  maxWidth='500px'
+                  transition='all 5s ease-out'
+                  onBack={onToggle}
+                  isLoading={isLoading}
+                />
+              </FadeTransition>
+            ) : (
+              <Card flex={1} width='full' maxWidth='500px' transition='all 5s ease-out'>
                 <FadeTransition key='trade-input'>
                   <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
                     <CardHeader px={6}>
@@ -708,9 +715,9 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                     {ConfirmSummary}
                   </Stack>
                 </FadeTransition>
-              )}
-            </AnimatePresence>
-          </Card>
+              </Card>
+            )}
+          </AnimatePresence>
           {!isCompact && (
             <QuoteList
               width={hasUserEnteredAmount ? '500px' : '0px'}

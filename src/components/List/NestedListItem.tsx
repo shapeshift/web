@@ -41,6 +41,7 @@ export const NestedListItem: React.FC<ListItemProps> = props => {
       display: 'block',
       width: 0,
       borderLeftWidth: 2,
+      borderLeftStyle: 'solid',
       borderColor,
     }),
     [borderColor],

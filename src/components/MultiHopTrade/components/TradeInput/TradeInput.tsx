@@ -14,14 +14,14 @@ import {
   Heading,
   IconButton,
   Stack,
-  useDisclosure,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -84,6 +84,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
@@ -99,9 +100,6 @@ const formControlProps = {
   background: 'transparent',
   borderWidth: 0,
 }
-
-const quoteListDisplay = { base: 'none', xl: 'flex' }
-
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
@@ -120,12 +118,15 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
     state: { wallet },
   } = useWallet()
+  const tradeInputRef = useRef<HTMLDivElement | null>(null)
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints.md})`, { ssr: false })
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const { isOpen, onToggle } = useDisclosure()
+  const [isCompactQuoteListOpen, setIsCompactQuoteListOpen] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [isAnySwapperFetched, setIsAnySwapperFetched] = useState(true)
   const [isQuoteRequestComplete, setIsQuoteRequestComplete] = useState(true)
@@ -475,6 +476,22 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }, 100)
   }, [])
 
+  const handleCloseCompactQuoteList = useCallback(
+    () => setIsCompactQuoteListOpen(false),
+    [setIsCompactQuoteListOpen],
+  )
+
+  const handleOpenCompactQuoteList = useCallback(() => {
+    if (!isCompact && !isSmallerThanXl) return
+    setIsCompactQuoteListOpen(true)
+  }, [isCompact, isSmallerThanXl])
+
+  useEffect(() => {
+    if (isCompactQuoteListOpen && !isSmallerThanXl) {
+      setIsCompactQuoteListOpen(false)
+    }
+  }, [isCompactQuoteListOpen, isSmallerThanXl])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <>
@@ -496,8 +513,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               isError={didQuoteRequestFail}
               swapperName={activeSwapperName}
               swapSource={tradeQuoteStep?.source}
-              onRateClick={onToggle}
-              isCompact={isCompact}
+              onRateClick={handleOpenCompactQuoteList}
+              allowSelectQuote={Boolean(isSmallerThanXl || isCompact)}
             >
               <ReceiveSummary
                 isLoading={isLoading}
@@ -561,7 +578,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       didQuoteRequestFail,
       activeSwapperName,
       tradeQuoteStep?.source,
-      onToggle,
+      handleOpenCompactQuoteList,
+      isSmallerThanXl,
       isCompact,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
@@ -615,19 +633,19 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex width='full' justifyContent='center'>
           <AnimatePresence mode='wait'>
-            {isOpen ? (
-              <FadeTransition key='quote-list'>
+            {isCompactQuoteListOpen ? (
+              <FadeTransition key='compact-quote-list'>
                 <QuoteList
                   flex={1}
                   width='full'
                   maxWidth='500px'
-                  transition='all 5s ease-out'
-                  onBack={onToggle}
+                  height={isCompact ? '500px' : 'calc(100vh - 230px)'}
+                  onBack={handleCloseCompactQuoteList}
                   isLoading={isLoading}
                 />
               </FadeTransition>
             ) : (
-              <Card flex={1} width='full' maxWidth='500px' transition='all 5s ease-out'>
+              <Card ref={tradeInputRef} flex={1} width='full' maxWidth='500px'>
                 <FadeTransition key='trade-input'>
                   <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
                     <CardHeader px={6}>
@@ -718,17 +736,17 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               </Card>
             )}
           </AnimatePresence>
-          {!isCompact && (
+          {!isCompact && isLargerThanMd && (
             <QuoteList
-              width={hasUserEnteredAmount ? '500px' : '0px'}
+              width={hasUserEnteredAmount && !isSmallerThanXl ? '500px' : '0px'}
               flexShrink={1}
+              maxHeight={tradeInputRef.current?.offsetHeight ?? '500px'}
               maxWidth='500px'
-              display={quoteListDisplay}
               flexBasis='auto'
               overflow='hidden'
-              opacity={hasUserEnteredAmount ? 1 : 0}
-              transition='opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
-              ml={hasUserEnteredAmount ? 4 : 0}
+              opacity={hasUserEnteredAmount && !isSmallerThanXl ? 1 : 0}
+              transition='opacity 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms, width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
+              ml={hasUserEnteredAmount && !isSmallerThanXl ? 4 : 0}
               isLoading={isLoading}
             />
           )}

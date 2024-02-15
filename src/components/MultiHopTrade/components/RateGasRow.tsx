@@ -1,15 +1,6 @@
 import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import {
-  Box,
-  Center,
-  Collapse,
-  Flex,
-  Stack,
-  Tooltip,
-  useDisclosure,
-  useMediaQuery,
-} from '@chakra-ui/react'
+import { Box, Center, Collapse, Flex, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { AnimatePresence } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
@@ -29,7 +20,6 @@ import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import { breakpoints } from 'theme/theme'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
 
@@ -40,7 +30,7 @@ type RateGasRowProps = {
   gasFee: string
   isLoading?: boolean
   isError?: boolean
-  isCompact?: boolean
+  allowSelectQuote: boolean
   swapperName?: SwapperName
   swapSource?: SwapSource
   onRateClick?: () => void
@@ -60,7 +50,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     rate,
     gasFee,
     isLoading,
-    isCompact,
+    allowSelectQuote,
     swapperName,
     swapSource,
     onRateClick,
@@ -68,11 +58,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-    const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints['xl']})`, { ssr: false })
-    const allowSelectQuote = useMemo(
-      () => isCompact || isSmallerThanXl,
-      [isCompact, isSmallerThanXl],
-    )
+
     const swapperIcons = useMemo(() => {
       const isStreaming =
         swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||

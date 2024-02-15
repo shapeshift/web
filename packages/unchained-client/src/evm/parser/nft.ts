@@ -18,13 +18,13 @@ export interface TxMetadata extends BaseTxMetadata {
 interface ParserArgs {
   chainId: ChainId
   api: Api
-  provider: ethers.providers.JsonRpcBatchProvider
+  provider: ethers.providers.StaticJsonRpcProvider
 }
 
 const supportedTokenTypes = ['ERC721', 'ERC1155', 'BEP721', 'BEP1155']
 
 export class Parser<T extends Tx> implements SubParser<T> {
-  provider: ethers.providers.JsonRpcBatchProvider
+  provider: ethers.providers.StaticJsonRpcProvider
 
   readonly chainId: ChainId
   readonly api: Api

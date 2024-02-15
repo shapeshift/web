@@ -8,7 +8,7 @@ import { Text } from 'components/Text'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AssetChainDropdown } from './components/AssetChainDropdown'
+import { AssetChainDropdown } from './components/AssetChainDropdown/AssetChainDropdown'
 import { AssetMenuButton } from './components/AssetMenuButton'
 
 const disabledStyle = { opacity: 0.5 }
@@ -34,7 +34,8 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   const assets = useAppSelector(selectAssets)
 
   const handleAssetChange = useCallback(
-    (assetId: AssetId) => {
+    (assetId?: AssetId) => {
+      if (!assetId) return
       const asset = assets[assetId]
       if (!asset) return
       onAssetChange(asset)

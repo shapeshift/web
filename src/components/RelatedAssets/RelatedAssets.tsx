@@ -6,8 +6,7 @@ import type { Column, Row } from 'react-table'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
-import { useGetRelatedAssetIdsQuery } from 'state/apis/zerion/zerionApi'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets, selectRelatedAssetIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type RelatedAssetsProps = {
@@ -15,7 +14,7 @@ type RelatedAssetsProps = {
 }
 
 export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
-  const { data, isLoading } = useGetRelatedAssetIdsQuery(assetId)
+  const relatedAssetIds = useAppSelector(state => selectRelatedAssetIds(state, assetId))
   const assets = useAppSelector(selectAssets)
   const history = useHistory()
 
@@ -45,8 +44,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
     [history],
   )
 
-  if (isLoading) return null
-  if (!data?.length) return null
+  if (!relatedAssetIds.length) return null
 
   return (
     <Card variant='dashboard'>
@@ -58,7 +56,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
       <CardBody px={2} pt={0}>
         <ReactTable
           columns={columns}
-          data={data ?? []}
+          data={relatedAssetIds}
           onRowClick={handleRowClick}
           variant='clickable'
         />

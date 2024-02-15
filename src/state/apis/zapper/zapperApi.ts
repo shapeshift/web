@@ -12,7 +12,7 @@ import { toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
+import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
@@ -153,7 +153,7 @@ export const zapperApi = createApi({
         const assets = selectAssets(getState() as ReduxState)
 
         const { assets: zapperAssets, data } = zapperV2AppTokensData.reduce<{
-          assets: AssetsState
+          assets: UpsertAssetsPayload
           data: GetZapperAppTokensOutput
         }>(
           (acc, appTokenData) => {
@@ -430,7 +430,7 @@ export const zapper = createApi({
                   }, []) as unknown as AssetIdsTuple
 
                   // Upsert rewardAssetIds if they don't exist in store
-                  const rewardAssetsToUpsert = rewardTokens.reduce<AssetsState>(
+                  const rewardAssetsToUpsert = rewardTokens.reduce<UpsertAssetsPayload>(
                     (acc, token, i) => {
                       const rewardAssetId = zapperAssetToMaybeAssetId(token)
                       if (!rewardAssetId) return acc
@@ -451,7 +451,7 @@ export const zapper = createApi({
                     { byId: {}, ids: [] },
                   )
 
-                  const maybeTopLevelRewardAssetToUpsert: AssetsState = (() => {
+                  const maybeTopLevelRewardAssetToUpsert: UpsertAssetsPayload = (() => {
                     const rewardAssetId =
                       asset.groupId === 'claimable' ? zapperAssetToMaybeAssetId(asset) : undefined
                     return {
@@ -563,7 +563,7 @@ export const zapper = createApi({
                   // Upsert underlyingAssetIds if they don't exist in store
                   const underlyingAssetsToUpsert = Object.values(
                     underlyingAssetIds,
-                  ).reduce<AssetsState>(
+                  ).reduce<UpsertAssetsPayload>(
                     (acc, underlyingAssetId, i) => {
                       if (assets[underlyingAssetId]) return acc
 

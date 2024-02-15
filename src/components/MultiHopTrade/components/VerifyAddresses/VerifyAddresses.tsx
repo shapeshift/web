@@ -286,7 +286,7 @@ export const VerifyAddresses = () => {
   return (
     <SlideTransition>
       <CardHeader>
-        <WithBackButton handleBack={handleBack}>
+        <WithBackButton onBack={handleBack}>
           <Heading as='h5' textAlign='center'>
             <Text translation='trade.verifyAddresses' />
           </Heading>

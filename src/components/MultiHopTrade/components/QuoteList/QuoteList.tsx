@@ -1,6 +1,5 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
-import { useCallback } from 'react'
 import { Text } from 'components/Text'
 
 import { TradeQuotes } from '../TradeInput/components/TradeQuotes/TradeQuotes'
@@ -12,20 +11,17 @@ type QuoteListProps = {
 } & CardProps
 
 export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, ...cardProps }) => {
-  const handleBack = useCallback(() => {
-    onBack && onBack()
-  }, [onBack])
   return (
     <Card {...cardProps}>
       <CardHeader px={6} pt={4}>
-        <WithBackButton handleBack={handleBack}>
+        <WithBackButton onBack={onBack}>
           <Heading textAlign='center' fontSize='md'>
             <Text translation='trade.availableQuotes' />
           </Heading>
         </WithBackButton>
       </CardHeader>
       <CardBody px={0} overflowY='auto' height='500px' flex='1 1 auto'>
-        <TradeQuotes isLoading={isLoading} onBack={handleBack} />
+        <TradeQuotes isLoading={isLoading} onBack={onBack} />
       </CardBody>
     </Card>
   )

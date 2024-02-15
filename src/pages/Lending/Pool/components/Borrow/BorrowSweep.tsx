@@ -68,7 +68,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
     <SlideTransition>
       <Flex flexDir='column' width='full'>
         <CardHeader>
-          <WithBackButton handleBack={handleBack}>
+          <WithBackButton onBack={handleBack}>
             <Heading as='h5' textAlign='center'>
               <Text translation='Consolidate Funds' />
             </Heading>

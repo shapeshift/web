@@ -471,7 +471,7 @@ export const RepayConfirm = ({
     <SlideTransition>
       <Flex flexDir='column' width='full'>
         <CardHeader>
-          <WithBackButton handleBack={handleBack}>
+          <WithBackButton onBack={handleBack}>
             <Heading as='h5' textAlign='center'>
               <Text translation='Confirm' />
             </Heading>

@@ -77,7 +77,7 @@ export const MultiHopTradeConfirm = memo(() => {
         maxWidth='500px'
       >
         <CardHeader px={6} pt={4}>
-          <WithBackButton handleBack={handleBack}>
+          <WithBackButton onBack={handleBack}>
             <Heading textAlign='center' fontSize='md'>
               <Text
                 translation={

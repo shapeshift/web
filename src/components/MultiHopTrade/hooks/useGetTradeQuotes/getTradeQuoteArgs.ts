@@ -6,7 +6,9 @@ import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { Asset, UtxoAccountType } from '@shapeshiftoss/types'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
-import { assertGetChainAdapter, assertUnreachable } from 'lib/utils'
+import { assertUnreachable } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 export type GetTradeQuoteInputArgs = {
@@ -64,7 +66,7 @@ export const getTradeQuoteArgs = async ({
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
       const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-      const sellAssetChainAdapter = assertGetChainAdapter(sellAsset.chainId)
+      const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
       const sendAddress = await sellAssetChainAdapter.getAddress({
         accountNumber: sellAccountNumber,
         wallet,
@@ -80,7 +82,7 @@ export const getTradeQuoteArgs = async ({
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
-      const sellAssetChainAdapter = assertGetChainAdapter(sellAsset.chainId)
+      const sellAssetChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
       const sendAddress = await sellAssetChainAdapter.getAddress({
         accountNumber: sellAccountNumber,
         wallet,

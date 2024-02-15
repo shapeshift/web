@@ -1,5 +1,6 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
+import { ethers } from 'ethers'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 
@@ -7,6 +8,7 @@ import { FOXY_ASSET_ID, FoxyMarketService } from './foxy'
 import { fox, mockFoxyMarketData } from './foxyMockData'
 
 const foxyMarketService = new FoxyMarketService({
+  provider: new ethers.providers.StaticJsonRpcProvider(''),
   providerUrls: {
     jsonRpcProviderUrl: 'dummy',
     unchainedEthereumHttpUrl: '',

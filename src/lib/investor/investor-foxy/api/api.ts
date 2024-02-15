@@ -60,6 +60,7 @@ type EthereumChainReference =
 export type ConstructorArgs = {
   adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   providerUrl: string
+  provider: ethers.providers.StaticJsonRpcProvider
   foxyAddresses: FoxyAddressesType
   chainReference?: EthereumChainReference
 }
@@ -85,7 +86,6 @@ export class FoxyApi {
   public adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   public provider: ethers.providers.StaticJsonRpcProvider
   private providerUrl: string
-  public jsonRpcProvider: ethers.providers.StaticJsonRpcProvider
   private foxyStakingContracts: ethers.Contract[]
   private liquidityReserveContracts: ethers.Contract[]
   private readonly ethereumChainReference: ChainReference
@@ -96,10 +96,10 @@ export class FoxyApi {
     providerUrl,
     foxyAddresses,
     chainReference = CHAIN_REFERENCE.EthereumMainnet,
+    provider,
   }: ConstructorArgs) {
     this.adapter = adapter
-    this.provider = new ethers.providers.StaticJsonRpcProvider(providerUrl)
-    this.jsonRpcProvider = new ethers.providers.StaticJsonRpcProvider(providerUrl)
+    this.provider = provider
     this.foxyStakingContracts = foxyAddresses.map(
       addresses => new ethers.Contract(addresses.staking, foxyStakingAbi, this.provider),
     )

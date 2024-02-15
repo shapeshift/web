@@ -1,7 +1,6 @@
 import { Box, Divider, Flex, HStack, useColorModeValue } from '@chakra-ui/react'
-import type { ParamType } from '@ethersproject/abi'
 import type { Asset } from '@shapeshiftoss/types'
-import type { TransactionDescription } from 'ethers'
+import type { ParamType, TransactionDescription } from 'ethers'
 import startCase from 'lodash/startCase'
 import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyButton'
 import { ExternalLinkButton } from 'plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
@@ -113,7 +112,7 @@ export const ContractInteractionBreakdown: FC<ContractInteractionBreakdownProps>
           </>
         )}
         {!!transaction &&
-          transaction.functionFragment.inputs.map((input, index) => {
+          transaction.fragment.inputs.map((input, index) => {
             const Wrapper = input.type === 'bytes[]' ? Flex : Fragment
             const wrapperProps =
               input.type === 'bytes[]'

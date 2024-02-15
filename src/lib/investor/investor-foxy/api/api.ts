@@ -10,6 +10,7 @@ import {
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
+import type { TransactionReceipt } from 'ethers'
 import { ethers } from 'ethers'
 import { toLower } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -192,7 +193,9 @@ export class FoxyApi {
 
   private getStakingContract(contractAddress: string): ethers.Contract {
     const stakingContract = this.foxyStakingContracts.find(
-      item => toLower(item.address) === toLower(contractAddress),
+      // This can be string | Addressable, where Addressable is an object containing getAddress()
+      // for ENS names. We can safely narrow it down to a string, as we do not instantiate contracts with an ens name.
+      item => toLower(item.target as string) === toLower(contractAddress),
     )
     if (!stakingContract) throw new Error('Not a valid contract address')
     return stakingContract
@@ -200,7 +203,9 @@ export class FoxyApi {
 
   private getLiquidityReserveContract(liquidityReserveAddress: string): ethers.Contract {
     const liquidityReserveContract = this.liquidityReserveContracts.find(
-      item => toLower(item.address) === toLower(liquidityReserveAddress),
+      // This can be string | Addressable, where Addressable is an object containing getAddress()
+      // for ENS names. We can safely narrow it down to a string, as we do not instantiate contracts with an ens name.
+      item => toLower(item.target as string) === toLower(liquidityReserveAddress),
     )
     if (!liquidityReserveContract) throw new Error('Not a valid reserve contract address')
     return liquidityReserveContract
@@ -211,7 +216,9 @@ export class FoxyApi {
       const opportunities = await Promise.all(
         this.foxyAddresses.map(async addresses => {
           const stakingContract = this.foxyStakingContracts.find(
-            item => toLower(item.address) === toLower(addresses.staking),
+            // This can be string | Addressable, where Addressable is an object containing getAddress()
+            // for ENS names. We can safely narrow it down to a string, as we do not instantiate contracts with an ens name.
+            item => toLower(item.target as string) === toLower(addresses.staking),
           )
           try {
             const expired = await stakingContract?.pauseStaking()
@@ -248,7 +255,7 @@ export class FoxyApi {
     }
   }
 
-  getTxReceipt({ txid }: TxReceipt): Promise<ethers.providers.TransactionReceipt> {
+  getTxReceipt({ txid }: TxReceipt): Promise<TransactionReceipt | null> {
     if (!txid) throw new Error('Must pass txid')
     return this.provider.getTransactionReceipt(txid)
   }

@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { JsonRpcProvider, providers } from 'ethers'
+import { JsonRpcProvider } from 'ethers'
 
 import { assertUnreachable } from './utils'
 

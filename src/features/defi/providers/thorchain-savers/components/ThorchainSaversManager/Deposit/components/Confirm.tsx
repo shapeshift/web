@@ -18,7 +18,7 @@ import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
-import { utils } from 'ethers'
+import { toQuantity, toUtf8Bytes } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -258,7 +258,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         to: quote.inbound_address,
         memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
-          ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
+          ? toQuantity(toUtf8Bytes(memoUtf8))
           : memoUtf8,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
@@ -477,7 +477,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         sendMax: Boolean(state?.deposit.sendMax),
         accountId,
         memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
-          ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
+          ? toQuantity(toUtf8Bytes(memoUtf8))
           : memoUtf8,
         amountFieldError: '',
         estimatedFees,

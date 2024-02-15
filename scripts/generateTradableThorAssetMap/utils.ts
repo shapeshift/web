@@ -29,6 +29,7 @@ import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper
 
 import type { AssetIdPair } from '.'
 
+// When this is updated, also update the instance in the ThorchainSwapper
 enum ThorchainChain {
   BTC = 'BTC',
   DOGE = 'DOGE',

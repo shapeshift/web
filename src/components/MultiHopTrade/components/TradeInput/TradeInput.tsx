@@ -712,7 +712,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
             </AnimatePresence>
           </Card>
           {!isCompact && (
-            <Card
+            <QuoteList
               width={hasUserEnteredAmount ? '500px' : '0px'}
               flexShrink={1}
               maxWidth='500px'
@@ -722,9 +722,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               opacity={hasUserEnteredAmount ? 1 : 0}
               transition='opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
               ml={hasUserEnteredAmount ? 4 : 0}
-            >
-              <QuoteList isLoading={isLoading} />
-            </Card>
+              isLoading={isLoading}
+            />
           )}
         </Flex>
       </MessageOverlay>

@@ -44,7 +44,7 @@ export const TransactionGenericRow = ({
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
 
   const hasManySends = useMemo(() => transfersByType.Send?.length > 1, [transfersByType.Send])
-  const hasSendAndRecieve = useMemo(
+  const hasSendAndReceive = useMemo(
     () => transfersByType.Send?.length > 0 && transfersByType.Receive?.length > 0,
     [transfersByType.Receive, transfersByType.Send],
   )
@@ -52,7 +52,7 @@ export const TransactionGenericRow = ({
     () => transfersByType.Receive?.length > 1,
     [transfersByType.Receive],
   )
-  const hasOnlyRecieve = useMemo(
+  const hasOnlyReceive = useMemo(
     () => !transfersByType.Send && transfersByType.Receive?.length > 0,
     [transfersByType.Receive, transfersByType.Send],
   )
@@ -78,7 +78,7 @@ export const TransactionGenericRow = ({
       const assets = transfersByType.Send.map(transfer => transfer.asset.symbol)
       return <RawText color='text.subtle'>{assets.join('/')}</RawText>
     }
-    if (hasSendAndRecieve) {
+    if (hasSendAndReceive) {
       const precision = transfersByType.Send[0].asset.precision ?? 0
       const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
       const symbol = transfersByType.Send[0].asset.symbol
@@ -93,7 +93,7 @@ export const TransactionGenericRow = ({
         />
       )
     }
-  }, [hasManySends, hasSendAndRecieve, transfersByType.Send])
+  }, [hasManySends, hasSendAndReceive, transfersByType.Send])
 
   const bottomLeft = useMemo(() => {
     if (type === Method.Approve) {
@@ -109,7 +109,7 @@ export const TransactionGenericRow = ({
         </Flex>
       )
     }
-    if (hasSendAndRecieve || hasOnlyRecieve) {
+    if (hasSendAndReceive || hasOnlyReceive) {
       const symbol = transfersByType.Receive[0].asset.symbol
       return (
         <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
@@ -127,9 +127,9 @@ export const TransactionGenericRow = ({
     }
   }, [
     hasManyReceives,
-    hasOnlyRecieve,
+    hasOnlyReceive,
     hasOnlySend,
-    hasSendAndRecieve,
+    hasSendAndReceive,
     transfersByType.Receive,
     transfersByType.Send,
     txMetadataWithAssetId?.assetId,
@@ -150,7 +150,7 @@ export const TransactionGenericRow = ({
     if (hasManyReceives) {
       return undefined
     }
-    if (hasSendAndRecieve || hasOnlyRecieve) {
+    if (hasSendAndReceive || hasOnlyReceive) {
       const precision = transfersByType.Receive[0].asset.precision ?? 0
       const amount = fromBaseUnit(transfersByType.Receive[0].value, precision)
       const symbol = transfersByType.Receive[0].asset.symbol
@@ -181,9 +181,9 @@ export const TransactionGenericRow = ({
     }
   }, [
     hasManyReceives,
-    hasOnlyRecieve,
+    hasOnlyReceive,
     hasOnlySend,
-    hasSendAndRecieve,
+    hasSendAndReceive,
     transfersByType.Receive,
     transfersByType.Send,
     txMetadataWithAssetId?.assetId,

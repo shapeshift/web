@@ -1,6 +1,7 @@
 import { Stack, StackDivider } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { memo, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
@@ -23,6 +24,7 @@ const divider = <StackDivider borderColor='border.base' />
 export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = memo(
   ({ txIds, useCompactMode = false }) => {
     const { setNode, entry } = useResizeObserver()
+    const translate = useTranslate()
     const locale = useAppSelector(selectSelectedLocale)
     const transactions = useAppSelector(state => selectTxDateByIds(state, txIds))
     const txRows = useMemo(() => {
@@ -38,13 +40,13 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
 
         const formattedDate = (() => {
           if (diffDays === 0) {
-            return 'Today'
+            return translate('transactionHistory.today')
           } else if (diffDays === 1) {
-            return 'Yesterday'
+            return translate('transactionHistory.yesterday')
           } else if (diffWeeks === 0) {
-            return 'This Week'
+            return translate('transactionHistory.thisWeek')
           } else if (diffMonths === 0) {
-            return 'This Month'
+            return translate('transactionHistory.thisMonth')
           } else if (diffYears === 0) {
             return transactionDate.format('MMMM')
           } else {
@@ -59,7 +61,7 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
         }
       }
       return groups
-    }, [locale, transactions])
+    }, [locale, transactions, translate])
 
     const renderTxRows = useMemo(() => {
       return txRows.map((group: TransactionGroup) => (

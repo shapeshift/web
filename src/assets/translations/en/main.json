@@ -1780,7 +1780,11 @@
     "from": "From",
     "to": "To",
     "for": "For",
-    "transfers": "Transfers"
+    "transfers": "Transfers",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month"
   },
   "plugins": {
     "foxPage": {

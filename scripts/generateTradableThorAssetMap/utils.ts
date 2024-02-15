@@ -2,24 +2,63 @@ import type { AssetId, AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   avalancheAssetId,
+  avalancheChainId,
   bchAssetId,
+  bchChainId,
   binanceAssetId,
+  binanceChainId,
   bscAssetId,
+  bscChainId,
   btcAssetId,
+  btcChainId,
   cosmosAssetId,
+  cosmosChainId,
   dogeAssetId,
+  dogeChainId,
   ethAssetId,
+  ethChainId,
   ltcAssetId,
+  ltcChainId,
   thorchainAssetId,
+  thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getAddress, isAddress } from 'viem'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { ChainToChainIdMap, ThorchainChain } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { assertUnreachable } from 'lib/utils'
 
 import type { AssetIdPair } from '.'
+
+// When this is updated, also update the instance in the ThorchainSwapper
+enum ThorchainChain {
+  BTC = 'BTC',
+  DOGE = 'DOGE',
+  LTC = 'LTC',
+  BCH = 'BCH',
+  ETH = 'ETH',
+  AVAX = 'AVAX',
+  BNB = 'BNB',
+  GAIA = 'GAIA',
+  THOR = 'THOR',
+  BSC = 'BSC',
+}
+
+const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
+  [ThorchainChain.BTC, btcChainId],
+  [ThorchainChain.DOGE, dogeChainId],
+  [ThorchainChain.LTC, ltcChainId],
+  [ThorchainChain.BCH, bchChainId],
+  [ThorchainChain.ETH, ethChainId],
+  [ThorchainChain.AVAX, avalancheChainId],
+  [ThorchainChain.BNB, binanceChainId],
+  [ThorchainChain.GAIA, cosmosChainId],
+  [ThorchainChain.THOR, thorchainChainId],
+  [ThorchainChain.BSC, bscChainId],
+])
+
+function assertUnreachable(x: never): never {
+  throw Error(`unhandled case: ${x}`)
+}
 
 export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | undefined => {
   switch (chain) {

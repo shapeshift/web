@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { thorchainBlockTimeMs, thorchainBlockTimeSeconds } from 'lib/utils/thorchain/constants'
+import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 
 import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 
@@ -59,7 +59,7 @@ export const useRepaymentLockData = ({
       // If position is not available, return the repayment maturity as specified by the network, currently about 30 days
       if (!position) {
         return bnOrZero(repaymentMaturity)
-          .times(thorchainBlockTimeSeconds)
+          .times(THORCHAIN_BLOCK_TIME_SECONDS)
           .div(60 * 60 * 24)
           .toString()
       }
@@ -68,7 +68,7 @@ export const useRepaymentLockData = ({
       const repaymentBlock = bnOrZero(position.last_open_height).plus(repaymentMaturity)
       return bnOrZero(repaymentBlock)
         .minus(blockHeight)
-        .times(thorchainBlockTimeSeconds)
+        .times(THORCHAIN_BLOCK_TIME_SECONDS)
         .div(60 * 60 * 24)
         .toFixed(1)
     },

@@ -24,7 +24,6 @@ export const useIsTradingActive = ({ assetId }: { assetId: AssetId | undefined }
         // Go stale instantly
         staleTime: 0,
         // Never store queries in cache since we always want fresh data
-        // Never store queries in cache since we always want fresh data
         gcTime: 0,
         refetchOnWindowFocus: true,
         refetchOnMount: true,

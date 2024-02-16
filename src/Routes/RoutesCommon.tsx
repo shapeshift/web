@@ -10,7 +10,6 @@ import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { Trade } from 'pages/Trade/Trade'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
@@ -83,6 +82,14 @@ const PoolsPage = makeSuspenseful(
   lazy(() =>
     import('pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
       default: PoolsPage,
+    })),
+  ),
+)
+
+const Trade = makeSuspenseful(
+  lazy(() =>
+    import('pages/Trade/Trade').then(({ Trade }) => ({
+      default: Trade,
     })),
   ),
 )

@@ -1,3 +1,4 @@
+import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
@@ -13,10 +14,12 @@ export const ApprovalAmount = ({
   assetId,
   value,
   parser,
+  variant = 'row',
 }: {
   assetId: AssetId
   value: string
   parser: TxMetadata['parser'] | undefined
+  variant?: 'row' | 'tag'
 }) => {
   const translate = useTranslate()
 
@@ -26,6 +29,14 @@ export const ApprovalAmount = ({
     () => makeAmountOrDefault(value, approvedAssetMarketData, approvedAsset, parser),
     [parser, approvedAsset, approvedAssetMarketData, value],
   )
+
+  if (variant === 'tag') {
+    return (
+      <Tag>
+        <Text value={translate(amountOrDefault)} />
+      </Tag>
+    )
+  }
 
   return (
     <Row title='approvalAmount'>

@@ -16,7 +16,7 @@ export const TransactionDetailsContainer = ({
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
 
   const stackDirection: StackDirection = useMemo(
-    () => ({ base: 'column-reverse', lg: compactMode ? 'column-reverse' : 'row' }),
+    () => ({ base: 'column', lg: compactMode ? 'column' : 'row' }),
     [compactMode],
   )
 

@@ -1,22 +1,14 @@
+import type { TextProps } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { RawText } from 'components/Text'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const textPaddingX = { base: 2, md: 4 }
-
-export const TransactionDate = ({ blockTime }: { blockTime: number }) => {
+export const TransactionDate = ({ blockTime, ...rest }: { blockTime: number } & TextProps) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
 
   return (
-    <RawText
-      fontWeight='bold'
-      fontSize='sm'
-      color='text.subtle'
-      lineHeight='taller'
-      whiteSpace='nowrap'
-      px={textPaddingX}
-    >
+    <RawText {...rest}>
       {dayjs(blockTime * 1000)
         .locale(selectedLocale)
         .format('LL')}

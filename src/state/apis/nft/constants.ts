@@ -33,17 +33,19 @@ const NFT_NAME_BLACKLIST = [
   "'",
 ]
 
-// This checks for whitespace only, url scheme, domain extension, and any explicit spam text not caught by the previous patterns
+// This checks for whitespace only, url scheme, domain extension, non printable control characters and any explicit spam text not caught by the previous patterns
 const TOKEN_TEXT_REGEX_BLACKLIST = [
-  /\\u[0-9A-Fa-f]{4}/,
-  /\\x[0-9A-Fa-f]+/,
+  // eslint-disable-next-line no-control-regex
+  /[\x00-\x1F\x7F-\x9F]/,
   /^\s*$/,
   /:\/\//,
   /[.,][a-zA-Z]{2,4}/,
   /ETH\.\.\./,
 ]
 
-const NFT_TEXT_REGEX_BLACKLIST = [/\\u[0-9A-Fa-f]{4}/, /\\x[0-9A-Fa-f]+/, /[.,][a-zA-Z]{2,4}/]
+// This checks for domain extension and non printable control characters
+// eslint-disable-next-line no-control-regex
+const NFT_TEXT_REGEX_BLACKLIST = [/[\x00-\x1F\x7F-\x9F]/, /[.,][a-zA-Z]{2,4}/]
 
 // This escapes special characters we may encounter in NFTS, so we can add them to the blacklist
 // e.g "$9999+ free giveaway *limited time only*" would not work without it

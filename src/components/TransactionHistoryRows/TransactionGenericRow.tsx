@@ -1,6 +1,8 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Center, Flex, HStack } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
@@ -69,6 +71,15 @@ export const TransactionGenericRow = ({
     return uniqueAssets.size
   }, [transfersByType.Receive])
 
+  const uniqueAssets = useMemo(() => {
+    const uniqueAssets: Record<AssetId, Asset> = {}
+    for (const transfer of txDetails.transfers) {
+      if (uniqueAssets[transfer.assetId]) continue
+      uniqueAssets[transfer.assetId] = transfer.asset
+    }
+    return Object.values(uniqueAssets)
+  }, [txDetails.transfers])
+
   const hasNoSendAssets = useMemo(() => numSendAssets === 0, [numSendAssets])
   const hasSingleSendAsset = useMemo(() => numSendAssets === 1, [numSendAssets])
   const hasManySendAssets = useMemo(() => numSendAssets > 1, [numSendAssets])
@@ -130,7 +141,7 @@ export const TransactionGenericRow = ({
     }
   }, [hasSingleSendAsset, hasManySendAssets, transfersByType.Send])
 
-  // Title text
+  // title text
   const topLeft = useMemo(() => {
     const text = (() => {
       if (title) return translate(title)
@@ -156,32 +167,30 @@ export const TransactionGenericRow = ({
     )
   }, [title, transfersByType, txDetails, type, translate])
 
-  // Send value (only if there is also a receive)
+  // send value if there is also a receive value
   const topRight = useMemo(() => {
     if (hasNoReceiveAssets) return
     return sendAmount
   }, [hasNoReceiveAssets, sendAmount])
 
-  // Asset(s) label
+  // asset(s) label
   const bottomLeft = useMemo(() => {
     if (type === Method.Approve) {
       return <AssetSymbol fontWeight='bold' assetId={txMetadataWithAssetId?.assetId ?? ''} />
     }
 
-    // no transfers
     if (hasNoTransfers) return
 
     // send only
     if (hasNoReceiveAssets) {
       if (hasSingleSendAsset) {
         const transfer = transfersByType.Send[0]
-        const symbol = isNft ? transfer.token?.name ?? 'N/A' : transfer.asset.symbol
-        return (
-          <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
-            {symbol}
-          </RawText>
-        )
+        const symbol = !isNft
+          ? transfer.asset.symbol
+          : transfer.token?.name || transfer.token?.symbol || 'N/A'
+        return <RawText>{symbol}</RawText>
       }
+
       if (hasManySendAssets) {
         return (
           <RawText>
@@ -195,13 +204,12 @@ export const TransactionGenericRow = ({
     if (hasNoSendAssets) {
       if (hasSingleReceiveAsset) {
         const transfer = transfersByType.Receive[0]
-        const symbol = isNft ? transfer.token?.name ?? 'N/A' : transfer.asset.symbol
-        return (
-          <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
-            {symbol}
-          </RawText>
-        )
+        const symbol = !isNft
+          ? transfer.asset.symbol
+          : transfer.token?.name || transfer.token?.symbol || 'N/A'
+        return <RawText>{symbol}</RawText>
       }
+
       if (hasManyReceiveAssets) {
         return (
           <RawText>
@@ -212,14 +220,10 @@ export const TransactionGenericRow = ({
     }
 
     // send & receive same asset
-    if (
-      hasSingleSendAsset &&
-      hasSingleReceiveAsset &&
-      transfersByType.Send[0].asset.assetId === transfersByType.Receive[0].asset.assetId
-    ) {
+    if (uniqueAssets.length === 1) {
       return (
         <RawText maxWidth='80px' textOverflow='ellipsis' overflow='hidden'>
-          {txDetails.transfers[0].asset.symbol}
+          {uniqueAssets[0].symbol}
         </RawText>
       )
     }
@@ -256,17 +260,15 @@ export const TransactionGenericRow = ({
     hasSingleReceiveAsset,
     hasManyReceiveAssets,
     isNft,
+    uniqueAssets,
     transfersByType.Receive,
     transfersByType.Send,
-    txDetails,
     txMetadataWithAssetId?.assetId,
     type,
     divider,
   ])
 
-  // Approval amount
-  // Receive amount
-  // Send amount (if no receive)
+  // approval amount or receive value or send value if there is no receive value
   const bottomRight = useMemo(() => {
     if (type === Method.Approve) {
       return (

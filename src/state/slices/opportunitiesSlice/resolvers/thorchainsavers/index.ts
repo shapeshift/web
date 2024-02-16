@@ -34,6 +34,9 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 }> => {
   const thorchainPools = await queryClient.fetchQuery({
     ...reactQueries.thornode.poolsData(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Infinity staleTime as we handle halted state JIT
+    staleTime: Infinity,
   })
 
   if (!thorchainPools.length) {
@@ -92,6 +95,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   const thorchainPools = await queryClient.fetchQuery({
     ...reactQueries.thornode.poolsData(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Infinity staleTime as we handle halted state JIT
+    staleTime: Infinity,
   })
 
   if (!thorchainPools.length) {

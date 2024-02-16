@@ -232,7 +232,7 @@ export const TradeInput = memo(() => {
     isLoading: isSupportedAssetsLoading,
   } = useSupportedAssets()
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const rate = activeQuote?.steps[0].rate
+  const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(selectVotingPower)
 

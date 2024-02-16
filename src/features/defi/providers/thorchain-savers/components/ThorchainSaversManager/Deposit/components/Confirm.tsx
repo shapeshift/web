@@ -13,9 +13,7 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -29,7 +27,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -540,20 +538,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })()
   }, [accountId, accountMetadata, accountType, assetId, bip44Params, chainAdapter, wallet])
 
-  const { data: isTradingActive, refetch: refetchIsTradingActive } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    enabled: Boolean(assetId),
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
+  const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
+    assetId,
   })
 
   const handleDeposit = useCallback(async () => {
@@ -578,14 +564,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
 
       // Was the pool active when it was fetched at the time of the component mount
+      // If it wasn't, it's definitely not going to become active again in the few seconds it takes to go from mount to sign click
       if (isTradingActive === false) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
       // Refetch the trading active state JIT to ensure the pool didn't just become halted
-      const { data: isTradingActiveData } = await refetchIsTradingActive()
-
-      if (!isTradingActiveData) {
+      const _isTradingActive = await refetchIsTradingActive()
+      if (_isTradingActive === false) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 

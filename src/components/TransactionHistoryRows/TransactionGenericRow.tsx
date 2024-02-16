@@ -158,7 +158,7 @@ export const TransactionGenericRow = ({
 
   // Send value (only if there is also a receive)
   const topRight = useMemo(() => {
-    if (hasNoReceiveAssets) return undefined
+    if (hasNoReceiveAssets) return
     return sendAmount
   }, [hasNoReceiveAssets, sendAmount])
 

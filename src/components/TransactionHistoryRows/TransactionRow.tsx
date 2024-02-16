@@ -5,9 +5,9 @@ import { TradeType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo, useState } from 'react'
+import { TransactionCommon } from 'components/TransactionHistoryRows/TransactionCommon'
 import { TransactionMethod } from 'components/TransactionHistoryRows/TransactionMethod'
 import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
-import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTransaction'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
@@ -67,7 +67,7 @@ const TransactionType = ({
     case 'method':
       return <TransactionMethod {...props} />
     default:
-      return <UnknownTransaction {...props} />
+      return <TransactionCommon {...props} />
   }
 }
 

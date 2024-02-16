@@ -16,6 +16,8 @@ import {
 } from 'lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
+// Note: since this isn't consumes as part of reactQueries queries, but directly as a regular function call within this file,
+// the additional property on top of queryKey and queryFn (i.e staleTime) *is* working
 const liquidityMember = (address: string) => ({
   queryKey: ['thorchainLiquidityMember', { address }] as [string, { address: string }],
   // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
@@ -39,6 +41,8 @@ const liquidityMember = (address: string) => ({
   },
 })
 
+// Note: since this isn't consumes as part of reactQueries queries, but directly as a regular function call within this file,
+// the additional property on top of queryKey and queryFn (i.e staleTime) *is* working
 export const liquidityMembers = () => ({
   queryKey: ['thorchainLiquidityMembers'] as [string],
   // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
@@ -54,9 +58,6 @@ export const liquidityMembers = () => ({
 
 export const thorchainLp = createQueryKeys('thorchainLp', {
   earnings: (from: string | undefined) => ({
-    enabled: Boolean(from),
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
     queryKey: ['thorchainearnings', from],
     queryFn: () => {
       if (!from) throw new Error('from is required')
@@ -69,7 +70,6 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
       if (!assetId) throw new Error('assetId is required')
       return get24hTvlChangePercentage(assetId)
     },
-    enabled: !!assetId,
   }),
   allTimeVolume: (assetId: AssetId | undefined, runePrice: string) => ({
     queryKey: ['thorchainAllTimeVolume', assetId],
@@ -77,7 +77,6 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
       if (!assetId) throw new Error('assetId is required')
       return getAllTimeVolume(assetId, runePrice)
     },
-    enabled: !!assetId && !!runePrice,
   }),
   liquidityMembers,
   liquidityMember,
@@ -92,10 +91,6 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
     assetId: AssetId
   }) => {
     return {
-      // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
-      // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
-      staleTime: 0,
-      enabled: !!accountId && !!assetId,
       queryKey: ['thorchainLiquidityProviderPosition', { accountId, assetId }],
       queryFn: async () => {
         const accountPosition = await (async () => {
@@ -144,9 +139,13 @@ export const getThorchainLpPosition = async ({
 }) => {
   if (!opportunityId) throw new Error('opportunityId is required')
 
-  const lpPositions = await queryClient.fetchQuery(
-    thorchainLp.liquidityProviderPosition({ accountId, assetId: poolAssetId }),
-  )
+  const lpPositions = await queryClient.fetchQuery({
+    ...thorchainLp.liquidityProviderPosition({ accountId, assetId: poolAssetId }),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Since this isn't a query per se but rather a fetching util deriving from multiple queries, we want data to be considered stale immediately
+    // Note however that the two underlying liquidityMember and liquidityMembers queries in this query *have* an Infinity staleTime themselves
+    staleTime: 0,
+  })
 
   if (!lpPositions) return null
 

@@ -79,6 +79,9 @@ export const usePools = (excludeVirtualPools?: boolean) => {
   )
   const pools = useQuery({
     ...reactQueries.midgard.poolsData(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // 5 minutes, since this is related to pools data, not user data - we can afford to have this stale for longer
+    staleTime: 60_000 * 5,
     // Parses pools with 3 "positions" per pool:
     // - RUNE asym
     // - Asset asym

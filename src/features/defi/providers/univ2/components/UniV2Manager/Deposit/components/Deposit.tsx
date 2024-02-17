@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ethers } from 'ethers'
 import type { DepositValues } from 'features/defi/components/Deposit/PairDeposit'
 import { PairDeposit } from 'features/defi/components/Deposit/PairDeposit'
 import type {
@@ -14,6 +13,7 @@ import qs from 'qs'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { getAddress } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -186,23 +186,23 @@ export const Deposit: React.FC<DepositProps> = ({
           dispatch({ type: UniV2DepositActionType.SET_LOADING, payload: false })
         } else {
           const asset0ContractAddress =
-            assetId0 !== ethAssetId
-              ? ethers.getAddress(fromAssetId(assetId0).assetReference)
-              : undefined
+            assetId0 !== ethAssetId ? getAddress(fromAssetId(assetId0).assetReference) : undefined
           const asset1ContractAddress =
-            assetId1 !== ethAssetId
-              ? ethers.getAddress(fromAssetId(assetId1).assetReference)
-              : undefined
+            assetId1 !== ethAssetId ? getAddress(fromAssetId(assetId1).assetReference) : undefined
 
           // While the naive approach would be to think both assets approve() calls are going to result in the same gas estimation,
           // this is not necesssarly true. Some ERC-20s approve() might have a bit more logic, and thus require more gas.
           // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
           const asset0ApprovalFee =
             asset0ContractAddress &&
-            bnOrZero((await getApproveFees(asset0ContractAddress))?.networkFeeCryptoBaseUnit)
+            bnOrZero(
+              (await getApproveFees(getAddress(asset0ContractAddress)))?.networkFeeCryptoBaseUnit,
+            )
           const asset1ApprovalFee =
             asset1ContractAddress &&
-            bnOrZero((await getApproveFees(asset1ContractAddress))?.networkFeeCryptoBaseUnit)
+            bnOrZero(
+              (await getApproveFees(getAddress(asset1ContractAddress)))?.networkFeeCryptoBaseUnit,
+            )
 
           if (!(asset0ApprovalFee || asset1ApprovalFee)) return
 

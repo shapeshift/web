@@ -659,7 +659,9 @@ export class FoxyApi {
       }
     })()
 
-    const epoch = await (() => {
+    // This was typed as any previously but is now typed as {}
+    // Can we surface the contract types here?
+    const epoch: any = await (() => {
       try {
         return stakingContract.epoch()
       } catch (e) {
@@ -668,7 +670,9 @@ export class FoxyApi {
       }
     })()
 
-    const requestedWithdrawals = await (() => {
+    // This was typed as any previously but is now typed as {}
+    // Can we surface the contract types here?
+    const requestedWithdrawals: any = await (() => {
       try {
         return tokePoolContract.requestedWithdrawals(stakingContract.address)
       } catch (e) {
@@ -677,7 +681,9 @@ export class FoxyApi {
       }
     })()
 
-    const currentCycleIndex = await (() => {
+    // This was typed as any previously but is now typed as {}
+    // Can we surface the contract types here?
+    const currentCycleIndex: any = await (() => {
       try {
         return tokeManagerContract.getCurrentCycleIndex()
       } catch (e) {
@@ -686,7 +692,9 @@ export class FoxyApi {
       }
     })()
 
-    const withdrawalAmount = await (() => {
+    // This was typed as any previously but is now typed as {}
+    // Can we surface the contract types here?
+    const withdrawalAmount: any = await (() => {
       try {
         return stakingContract.withdrawalAmount()
       } catch (e) {
@@ -823,7 +831,7 @@ export class FoxyApi {
     const nextCycleStart = bnOrZero(currentCycleStart).plus(duration)
 
     const blockNumber = await this.provider.getBlockNumber()
-    const timestamp = (await this.provider.getBlock(blockNumber)).timestamp
+    const timestamp = (await this.provider.getBlock(blockNumber))?.timestamp
 
     const isTimeToRequest = bnOrZero(timestamp)
       .plus(timeLeftToRequestWithdrawal)

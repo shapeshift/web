@@ -26,5 +26,8 @@
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.5.1"
+  },
+  "resolutions": {
+    "ethers": "^6.11.1"
   }
 }

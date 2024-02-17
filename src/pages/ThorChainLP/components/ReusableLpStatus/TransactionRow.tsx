@@ -107,6 +107,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     isLoading: isTradingActiveLoading,
   } = useIsTradingActive({
     assetId: poolAssetId,
+    enabled: !txId,
   })
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]
@@ -368,7 +369,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       memo: estimateFeesArgs?.memo ?? '',
       accountId: estimateFeesArgs?.accountId ?? '',
       contractAddress: estimateFeesArgs?.contractAddress ?? '',
-      enabled: !!estimateFeesArgs,
+      enabled: !!estimateFeesArgs && !txId,
     })
 
   const estimatedFeeDataCryptoPrecision = useMemo(() => {

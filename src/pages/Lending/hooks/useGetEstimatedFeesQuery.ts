@@ -25,7 +25,7 @@ export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey })
 export const useGetEstimatedFeesQuery = ({
   enabled,
   ...estimateFeesInput
-}: EstimateFeesInput & { enabled: boolean }) => {
+}: EstimateFeesInput & { enabled: boolean; disableRefetch?: boolean }) => {
   const asset = useAppSelector(state => selectAssetById(state, estimateFeesInput.assetId))
   const assetMarketData = useAppSelector(state =>
     selectMarketDataById(state, estimateFeesInput.assetId),
@@ -49,9 +49,13 @@ export const useGetEstimatedFeesQuery = ({
     staleTime: 30_000,
     queryFn,
     enabled: enabled && Boolean(estimateFeesInput.to && estimateFeesInput.accountId && asset),
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    refetchInterval: 5000,
+    ...(enabled
+      ? {
+          // Ensures fees are refetched at an interval, including when the app is in the background
+          refetchIntervalInBackground: true,
+          refetchInterval: 5000,
+        }
+      : {}),
   })
 
   return getEstimatedFeesQuery

@@ -428,6 +428,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
+    enabled: !!poolAsset,
   })
 
   const poolAccountId = useMemo(

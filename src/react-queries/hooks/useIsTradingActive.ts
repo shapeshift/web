@@ -9,7 +9,13 @@ import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/s
 import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 
-export const useIsTradingActive = ({ assetId }: { assetId: AssetId | undefined }) => {
+export const useIsTradingActive = ({
+  assetId,
+  enabled,
+}: {
+  assetId: AssetId | undefined
+  enabled: boolean
+}) => {
   const [
     {
       data: inboundAddressesData,
@@ -25,9 +31,13 @@ export const useIsTradingActive = ({ assetId }: { assetId: AssetId | undefined }
         staleTime: 0,
         // Never store queries in cache since we always want fresh data
         gcTime: 0,
-        refetchOnWindowFocus: true,
-        refetchOnMount: true,
-        refetchInterval: 60_000,
+        ...(enabled
+          ? {
+              refetchInterval: 60_000,
+              refetchOnWindowFocus: true,
+              refetchOnMount: true,
+            }
+          : {}),
         select: (data: Result<InboundAddressResponse[], SwapErrorRight>) =>
           selectInboundAddressData(data, assetId),
       },
@@ -39,7 +49,7 @@ export const useIsTradingActive = ({ assetId }: { assetId: AssetId | undefined }
   })
 
   const isTradingActive = useMemo(() => {
-    if (isMimirLoading || !mimir) return
+    if (isMimirLoading || !mimir || !assetId) return
 
     return selectIsTradingActive({
       assetId,

@@ -104,6 +104,7 @@ export const Pool = () => {
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: foundPool?.assetId,
+    enabled: !!foundPool,
   })
 
   const poolAssetIds = useMemo(() => {

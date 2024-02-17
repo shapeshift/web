@@ -3,9 +3,7 @@ import { vi } from 'vitest'
 
 const ethersMock = {
   ...ethers,
-  providers: {
-    JsonRpcProvider: vi.fn(),
-  },
+  JsonRpcProvider: vi.fn(),
   Contract: vi.fn().mockImplementation(address => ({
     decimals: () => {
       switch (address as string) {

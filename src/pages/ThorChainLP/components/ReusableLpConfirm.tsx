@@ -17,6 +17,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import React, { useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
@@ -180,6 +181,16 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     pool,
   ])
 
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: pool?.assetId,
+  })
+
+  const confirmCopy = useMemo(() => {
+    if (isTradingActive === false) return translate('common.poolHalted')
+
+    return translate('pools.confirmAndDeposit')
+  }, [isTradingActive, translate])
+
   if (!(pool && asset && baseAsset)) return null
 
   return (
@@ -279,8 +290,15 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Button mx={-2} size='lg' colorScheme='blue' onClick={handleConfirm}>
-          {translate('pools.confirmAndDeposit')}
+        <Button
+          mx={-2}
+          size='lg'
+          colorScheme={isTradingActive === false ? 'red' : 'blue'}
+          onClick={handleConfirm}
+          isDisabled={isTradingActive === false}
+          isLoading={isTradingActiveLoading}
+        >
+          {confirmCopy}
         </Button>
       </CardFooter>
     </SlideTransition>

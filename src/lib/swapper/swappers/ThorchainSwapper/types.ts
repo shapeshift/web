@@ -1,16 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  avalancheChainId,
-  bchChainId,
-  binanceChainId,
-  bscChainId,
-  btcChainId,
-  cosmosChainId,
-  dogeChainId,
-  ethChainId,
-  ltcChainId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
 export type MidgardPoolResponse = {
@@ -123,6 +110,7 @@ export type InboundAddressResponse = {
   gas_rate: string
   gas_rate_units: string
   router?: string
+  dust_threshold?: string
   global_trading_paused: boolean
   chain_trading_paused: boolean
   chain_lp_actions_paused: boolean
@@ -225,6 +213,7 @@ export type ThorNodeStatusResponseSuccess = {
 
 export type ThornodeStatusResponse = ThorNodeStatusResponseSuccess | ThornodeQuoteResponseError
 
+// When this is updated, also update the instance in generateTradableThorAssetMap
 export enum ThorchainChain {
   BTC = 'BTC',
   DOGE = 'DOGE',
@@ -237,16 +226,3 @@ export enum ThorchainChain {
   THOR = 'THOR',
   BSC = 'BSC',
 }
-
-export const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
-  [ThorchainChain.BTC, btcChainId],
-  [ThorchainChain.DOGE, dogeChainId],
-  [ThorchainChain.LTC, ltcChainId],
-  [ThorchainChain.BCH, bchChainId],
-  [ThorchainChain.ETH, ethChainId],
-  [ThorchainChain.AVAX, avalancheChainId],
-  [ThorchainChain.BNB, binanceChainId],
-  [ThorchainChain.GAIA, cosmosChainId],
-  [ThorchainChain.THOR, thorchainChainId],
-  [ThorchainChain.BSC, bscChainId],
-])

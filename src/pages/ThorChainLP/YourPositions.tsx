@@ -92,6 +92,10 @@ const PositionButton = ({
 
   const { data: earnings, isLoading: isEarningsLoading } = useQuery({
     ...reactQueries.thorchainLp.earnings(userPoolData.dateFirstAdded),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // No staleTime, meaning cache-then-fresh (or fresh if now > garbage collection time)
+    // That ensures new active listeners always get fresh earnings data
+    staleTime: 0,
     select: data => {
       if (!data) return null
       const poolAssetId = assetIdToPoolAssetId({ assetId })

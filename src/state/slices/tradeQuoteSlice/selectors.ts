@@ -7,6 +7,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { getEnabledSwappers } from 'lib/swapper/utils'
 import { isSome } from 'lib/utils'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
 import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
@@ -43,6 +44,7 @@ import {
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
+import { selectFeatureFlags } from '../selectors'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 
@@ -55,14 +57,19 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
 // we're treating redux as the source of truth.
 export const selectIsSwapperQuoteAvailable = createDeepEqualOutputSelector(
   selectTradeQuotes,
-  tradeQuotes => {
-    return Object.values(SwapperName).reduce(
-      (acc, swapperName) => {
-        acc[swapperName as SwapperName] = tradeQuotes[swapperName] !== undefined
-        return acc
-      },
-      {} as Record<SwapperName, boolean>,
-    )
+  selectFeatureFlags,
+  (tradeQuotes, featureFlags) => {
+    // all swappers are enabled regardless of cross account trade logic, so we can set it to false here
+    const enabledSwappers = getEnabledSwappers(featureFlags, false)
+    return Object.values(SwapperName)
+      .filter(swapperName => enabledSwappers[swapperName])
+      .reduce(
+        (acc, swapperName) => {
+          acc[swapperName as SwapperName] = tradeQuotes[swapperName] !== undefined
+          return acc
+        },
+        {} as Record<SwapperName, boolean>,
+      )
   },
 )
 

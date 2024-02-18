@@ -15,7 +15,6 @@ import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftos
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -29,6 +28,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -58,7 +58,6 @@ import {
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
-import { swapperApi } from 'state/apis/swapper/swapperApi'
 import {
   getThorchainSaversPosition,
   getThorchainSaversWithdrawQuote,
@@ -79,7 +78,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
@@ -98,7 +97,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     null,
   )
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
-  const appDispatch = useAppDispatch()
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -594,6 +592,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return txId
   }, [getWithdrawInput, wallet])
 
+  const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
+    assetId,
+  })
+
   const handleConfirm = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return
     try {
@@ -625,15 +627,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         return
       }
 
-      const { getIsTradingActive } = swapperApi.endpoints
-      const { data: isTradingActive } = await appDispatch(
-        getIsTradingActive.initiate({
-          assetId,
-          swapperName: SwapperName.Thorchain,
-        }),
-      )
+      // Was the pool active when it was fetched at the time of the component mount
+      // If it wasn't, it's definitely not going to become active again in the few seconds it takes to go from mount to sign click
+      if (isTradingActive === false) {
+        throw new Error(`THORChain pool halted for assetId: ${assetId}`)
+      }
 
-      if (!isTradingActive) {
+      // Refetch the trading active state JIT to ensure the pool didn't just become halted
+      const _isTradingActive = await refetchIsTradingActive()
+      if (_isTradingActive === false) {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
@@ -701,8 +703,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.cryptoAmount,
     state?.withdraw.fiatAmount,
     expiry,
-    appDispatch,
-    getWithdrawInput,
+    isTradingActive,
+    refetchIsTradingActive,
     dustAmountCryptoBaseUnit,
     protocolFeeCryptoBaseUnit,
     onNext,
@@ -710,6 +712,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     toast,
     translate,
     isTokenWithdraw,
+    getWithdrawInput,
     handleMultiTxSend,
     handleCustomTx,
   ])
@@ -809,7 +812,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       headerText='modals.confirm.withdraw.header'
       isDisabled={
-        !hasEnoughBalanceForGas || !userAddress || disableSmartContractWithdraw || !canWithdraw
+        !hasEnoughBalanceForGas ||
+        !userAddress ||
+        disableSmartContractWithdraw ||
+        !canWithdraw ||
+        isTradingActive === false
       }
       loading={quoteLoading || state.loading || !userAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}

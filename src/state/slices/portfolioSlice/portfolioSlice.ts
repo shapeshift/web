@@ -16,7 +16,7 @@ import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
-import type { AssetsState } from '../assetsSlice/assetsSlice'
+import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice, makeAsset } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
@@ -168,7 +168,7 @@ export const portfolioApi = createApi({
             if (evmChainIds.includes(chainId as EvmChainId)) {
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
-              const assets = (account.chainSpecific.tokens ?? []).reduce<AssetsState>(
+              const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
                 (prev, token) => {
                   const isSpam = [token.name, token.symbol].some(text => {
                     if (isNft(token.assetId)) return isSpammyNftText(text)

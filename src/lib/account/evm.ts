@@ -1,4 +1,14 @@
-import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  arbitrumNovaChainId,
+  avalancheChainId,
+  bscChainId,
+  ethChainId,
+  gnosisChainId,
+  optimismChainId,
+  polygonChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
 import {
   supportsArbitrum,
   supportsArbitrumNova,
@@ -17,54 +27,28 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args
 
-  const result = await (async () => {
-    let acc: AccountMetadataById = {}
-    for (const chainId of chainIds) {
-      const { chainReference } = fromChainId(chainId)
-      const adapter = assertGetEvmChainAdapter(chainId)
+  let address = ''
+  const result: AccountMetadataById = {}
+  for (const chainId of chainIds) {
+    if (chainId === ethChainId && !supportsETH(wallet)) continue
+    if (chainId === avalancheChainId && !supportsAvalanche(wallet)) continue
+    if (chainId === optimismChainId && !supportsOptimism(wallet)) continue
+    if (chainId === bscChainId && !supportsBSC(wallet)) continue
+    if (chainId === polygonChainId && !supportsPolygon(wallet)) continue
+    if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
+    if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
+    if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
 
-      if (chainReference === CHAIN_REFERENCE.EthereumMainnet) {
-        if (!supportsETH(wallet)) continue
-      }
+    const adapter = assertGetEvmChainAdapter(chainId)
+    const bip44Params = adapter.getBIP44Params({ accountNumber })
 
-      if (chainReference === CHAIN_REFERENCE.AvalancheCChain) {
-        if (!supportsAvalanche(wallet)) continue
-      }
+    // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
+    address = address || (await adapter.getAddress({ accountNumber, wallet }))
+    if (!address) continue
 
-      if (chainReference === CHAIN_REFERENCE.OptimismMainnet) {
-        if (!supportsOptimism(wallet)) continue
-      }
-
-      if (chainReference === CHAIN_REFERENCE.BnbSmartChainMainnet) {
-        if (!supportsBSC(wallet)) continue
-      }
-
-      if (chainReference === CHAIN_REFERENCE.PolygonMainnet) {
-        if (!supportsPolygon(wallet)) continue
-      }
-
-      if (chainReference === CHAIN_REFERENCE.GnosisMainnet) {
-        if (!supportsGnosis(wallet)) continue
-      }
-
-      if (chainReference === CHAIN_REFERENCE.ArbitrumMainnet) {
-        if (!supportsArbitrum(wallet)) continue
-      }
-
-      if (chainReference === CHAIN_REFERENCE.ArbitrumNovaMainnet) {
-        if (!supportsArbitrumNova(wallet)) continue
-      }
-
-      const bip44Params = adapter.getBIP44Params({ accountNumber })
-      const pubkey = await adapter.getAddress({ accountNumber, wallet })
-
-      if (!pubkey) continue
-
-      const accountId = toAccountId({ chainId, account: pubkey })
-      acc[accountId] = { bip44Params }
-    }
-    return acc
-  })()
+    const accountId = toAccountId({ chainId, account: address })
+    result[accountId] = { bip44Params }
+  }
 
   return result
 }

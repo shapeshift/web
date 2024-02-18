@@ -5,15 +5,17 @@ import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
 import { descriptions } from './descriptions'
-import { localAssetData } from './localAssetData'
+import { localAssetData, relatedAssetIndex } from './localAssetData'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
 
 export class AssetService {
   readonly assetsById: AssetsById
+  readonly relatedAssetIndex: Record<AssetId, AssetId[]>
 
   constructor() {
-    this.assetsById = localAssetData as AssetsById
+    this.assetsById = localAssetData
+    this.relatedAssetIndex = relatedAssetIndex
   }
 
   get assetIds(): AssetId[] {
@@ -22,6 +24,11 @@ export class AssetService {
 
   get assets(): Asset[] {
     return Object.values(this.assetsById)
+  }
+
+  getRelatedAssetIds(assetId: AssetId): AssetId[] {
+    const { relatedAssetKey } = this.assetsById[assetId] ?? {}
+    return this.relatedAssetIndex[relatedAssetKey ?? ''] ?? []
   }
 
   async description(assetId: AssetId, locale = 'en'): Promise<DescriptionData> {

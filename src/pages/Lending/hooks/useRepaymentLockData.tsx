@@ -2,8 +2,9 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { reactQueries, thorchainBlockTimeSeconds } from 'react-queries'
+import { reactQueries } from 'react-queries'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 
 import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 
@@ -20,6 +21,9 @@ export const useRepaymentLockData = ({
   enabled = true,
 }: UseLendingPositionDataProps & QueryObserverOptions) => {
   const { data: blockHeight } = useQuery({
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // We use the block query to get the current height, so we obviously need to mark it stale at the end of each THOR block
+    staleTime: thorchainBlockTimeMs,
     ...reactQueries.thornode.block(),
     select: block => block.header.height,
     enabled,
@@ -44,6 +48,9 @@ export const useRepaymentLockData = ({
 
   const repaymentLockData = useQuery({
     ...reactQueries.thornode.mimir(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // We use the mimir query to get the repayment maturity block, so need to mark it stale at the end of each THOR block
+    staleTime: thorchainBlockTimeMs,
     select: mimirData => {
       if (!mimirData || !blockHeight) return null
 
@@ -52,7 +59,7 @@ export const useRepaymentLockData = ({
       // If position is not available, return the repayment maturity as specified by the network, currently about 30 days
       if (!position) {
         return bnOrZero(repaymentMaturity)
-          .times(thorchainBlockTimeSeconds)
+          .times(THORCHAIN_BLOCK_TIME_SECONDS)
           .div(60 * 60 * 24)
           .toString()
       }
@@ -61,7 +68,7 @@ export const useRepaymentLockData = ({
       const repaymentBlock = bnOrZero(position.last_open_height).plus(repaymentMaturity)
       return bnOrZero(repaymentBlock)
         .minus(blockHeight)
-        .times(thorchainBlockTimeSeconds)
+        .times(THORCHAIN_BLOCK_TIME_SECONDS)
         .div(60 * 60 * 24)
         .toFixed(1)
     },

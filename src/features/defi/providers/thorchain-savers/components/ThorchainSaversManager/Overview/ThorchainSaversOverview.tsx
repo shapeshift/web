@@ -14,7 +14,6 @@ import {
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -28,6 +27,7 @@ import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -36,7 +36,6 @@ import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { useGetIsTradingActiveQuery } from 'state/apis/swapper/swapperApi'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getMaybeThorchainSaversDepositQuote,
@@ -129,11 +128,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [accountId, defaultAccountId, highestBalanceAccountId],
   )
 
-  const { data: isTradingActive, isFetching: isTradingActiveQueryPending } =
-    useGetIsTradingActiveQuery({
-      assetId,
-      swapperName: SwapperName.Thorchain,
-    })
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId,
+  })
 
   useEffect(() => {
     if (!maybeAccountId) return
@@ -272,7 +269,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isFull: opportunityMetadata?.isFull || isHardCapReached,
       hasPendingTxs,
       hasPendingQueries,
-      isHalted: !isTradingActive,
+      isHalted: isTradingActive === false,
     })
   }, [
     earnOpportunityData,
@@ -355,7 +352,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (!earnOpportunityData || isTradingActiveQueryPending) {
+  if (!earnOpportunityData || isTradingActiveLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />

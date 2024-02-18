@@ -174,6 +174,8 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
         label: 'common.deposit',
         icon: <ArrowUpIcon />,
         action: DefiAction.Deposit,
+        isDisabled: true,
+        toolTip: translate('defi.modals.foxyOverview.disabledTitle'),
       },
       {
         label: 'common.withdraw',

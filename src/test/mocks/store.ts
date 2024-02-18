@@ -42,7 +42,6 @@ export const mockStore: ReduxState = {
   snapshotApi: mockApiFactory('snapshotApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
-  zerionApi: mockApiFactory('zerionApi' as const),
   portfolio: {
     accounts: {
       byId: {},
@@ -101,6 +100,7 @@ export const mockStore: ReduxState = {
       ThorchainLP: false,
       LedgerWallet: false,
       ThorchainSwapLongtail: false,
+      ShapeShiftMobileWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -120,6 +120,7 @@ export const mockStore: ReduxState = {
   assets: {
     byId: {},
     ids: [],
+    relatedAssetIndex: {},
   },
   marketData: {
     crypto: {

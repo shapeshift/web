@@ -1,10 +1,10 @@
 import type { GridProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Main } from 'components/Layout/Main'
@@ -51,12 +51,9 @@ type PoolButtonProps = {
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
 
-  const { data: isTradingActive } = useQuery(
-    reactQueries.common.isTradingActive({
-      assetId: pool.assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-  )
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: pool?.assetId,
+  })
 
   const handlePoolClick = useCallback(() => {
     const { opportunityId } = pool
@@ -81,6 +78,8 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
   const { data: volume7D, isLoading: isVolume7DLoading } = useQuery({
     ...reactQueries.midgard.swapsData(pool.assetId, '7d'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
     select: data => getVolume(runeMarketData.price, data),
   })
 
@@ -106,11 +105,17 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         <Tag size='sm'>
           <Amount.Percent value={pool.poolAPY} />
         </Tag>
-        {isTradingActive === false && (
-          <Tag colorScheme='yellow'>
-            <Text translation='common.halted' />
-          </Tag>
-        )}
+        <Skeleton isLoaded={!isTradingActiveLoading}>
+          {isTradingActive === false ? (
+            <Tag colorScheme='yellow'>
+              <Text translation='common.halted' />
+            </Tag>
+          ) : (
+            <Tag colorScheme='green'>
+              <Text translation='common.available' />
+            </Tag>
+          )}
+        </Skeleton>
       </Flex>
       <Skeleton isLoaded={!!tvl}>
         <Amount.Fiat value={tvl} />

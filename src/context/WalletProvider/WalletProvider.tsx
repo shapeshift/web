@@ -182,6 +182,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       store.dispatch(portfolio.actions.setWalletMeta(walletMeta))
       return {
         ...state,
+        deviceId,
         isDemoWallet: Boolean(isDemoWallet),
         wallet,
         connectedType,

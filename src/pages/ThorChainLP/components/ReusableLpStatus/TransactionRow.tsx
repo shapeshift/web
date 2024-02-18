@@ -31,6 +31,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -98,6 +100,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
+
+  const {
+    isTradingActive,
+    refetch: refetchIsTradingActive,
+    isLoading: isTradingActiveLoading,
+  } = useIsTradingActive({
+    assetId: poolAssetId,
+  })
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]
   const poolAssetAccountId =
@@ -236,9 +246,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [mutateAsync, onComplete, status, tx, txId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddress(assetId),
+    ...reactQueries.thornode.inboundAddresses(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // We technically don't care about going stale immediately here - halted checks are done JIT at signing time in case the pool went
+    // halted by the time the user clicked the confirm button
+    // But we still have some sane 60s stale time rather than 0 for paranoia's sake, as a balance of safety and not overfetching
+    staleTime: 60_000,
+    select: data => selectInboundAddressData(data, assetId),
     enabled: !!assetId,
-    select: data => data?.unwrap(),
   })
 
   const estimateFeesArgs = useMemo(() => {
@@ -376,6 +391,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
 
     return (async () => {
+      // Pool just became halted at signing component mount, it's definitely not going to go back to active in just
+      // the few seconds it takes to go from mount to sign click
+      const _isTradingActive = await refetchIsTradingActive()
+      if (!_isTradingActive) throw new Error('Pool Halted')
+
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
@@ -553,6 +573,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     isRuneTx,
     inboundAddressData,
+    refetchIsTradingActive,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,
@@ -565,6 +586,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   ])
 
   const txIdLink = useMemo(() => `${asset?.explorerTxLink}${txId}`, [asset?.explorerTxLink, txId])
+
+  const confirmTranslation = useMemo(() => {
+    if (isTradingActive === false) return translate('common.poolHalted')
+
+    return translate('common.signTransaction')
+  }, [isTradingActive, translate])
 
   if (!asset) return null
 
@@ -612,11 +639,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           <Button
             mx={-2}
             size='lg'
-            colorScheme='blue'
+            colorScheme={isTradingActive === false ? 'red' : 'blue'}
             onClick={handleSignTx}
-            isLoading={status === TxStatus.Pending || isInboundAddressLoading}
+            isDisabled={isTradingActive === false}
+            isLoading={
+              status === TxStatus.Pending || isInboundAddressLoading || isTradingActiveLoading
+            }
           >
-            {translate('common.signTransaction')}
+            {confirmTranslation}
           </Button>
         </CardBody>
       </Collapse>

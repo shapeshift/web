@@ -7,6 +7,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
+  selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
@@ -38,9 +39,10 @@ export const useReceiveAddress = ({
 
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  // No need to pass a sellAssetAccountId to synchronize the buy account here - by the time this is called, we already have a valid buyAccountId
+  const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
+
   const buyAccountId = useAppSelector(state =>
-    selectLastHopBuyAccountId(state, { accountId: undefined }),
+    selectLastHopBuyAccountId(state, { accountId: sellAssetAccountId }),
   )
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),

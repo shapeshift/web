@@ -10,6 +10,7 @@ import {
   Heading,
   IconButton,
   Stack,
+  Tooltip,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
@@ -19,6 +20,7 @@ import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Main } from 'components/Layout/Main'
@@ -100,6 +102,10 @@ export const Pool = () => {
     return parsedPools.find(pool => pool.opportunityId === routeOpportunityId)
   }, [params, parsedPools])
 
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: foundPool?.assetId,
+  })
+
   const poolAssetIds = useMemo(() => {
     if (!foundPool) return []
 
@@ -126,15 +132,24 @@ export const Pool = () => {
 
   const { data: volume24h } = useQuery({
     ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
+    enabled: !!foundPool?.assetId,
     select: data => getVolume(runeMarketData.price, data),
   })
 
   const { data: swapDataPrevious24h } = useQuery({
     ...reactQueries.midgard.swapsData(foundPool?.assetId, 'previous24h'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
+    enabled: !!foundPool?.assetId,
   })
 
   const { data: swapData24h } = useQuery({
     ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
+    enabled: !!foundPool?.assetId,
   })
 
   const fees24h = useMemo(() => {
@@ -186,9 +201,19 @@ export const Pool = () => {
           >
             <PairRates assetIds={poolAssetIds} />
             <Flex gap={4}>
-              <Button onClick={handleAddLiquidityClick} leftIcon={addIcon}>
-                {translate('pools.addLiquidity')}
-              </Button>
+              <Tooltip
+                label={translate('defi.modals.saversVaults.haltedTitle')}
+                isDisabled={isTradingActive === undefined || isTradingActive === true}
+                hasArrow
+              >
+                <Button
+                  isDisabled={isTradingActiveLoading || isTradingActive === false}
+                  onClick={handleAddLiquidityClick}
+                  leftIcon={addIcon}
+                >
+                  {translate('pools.addLiquidity')}
+                </Button>
+              </Tooltip>
               <Button colorScheme='blue' leftIcon={swapIcon}>
                 {translate('trade.trade')}
               </Button>

@@ -10,12 +10,11 @@ import { FarmingABI } from 'contracts/abis/farmingAbi'
 import { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { IUniswapV2Router02 } from 'contracts/abis/IUniswapV2Router02'
 import { THORChain_RouterABI } from 'contracts/abis/THORCHAIN_RouterABI'
-import type { Provider } from 'ethers'
 import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
 import { getContract } from 'viem'
-import { getEthersProvider, getEthersV5Provider } from 'lib/ethersProviderSingleton'
+import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { viemClientByChainId, viemEthMainnetClient } from 'lib/viem-client'
 
 import {

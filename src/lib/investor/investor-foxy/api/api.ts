@@ -674,7 +674,7 @@ export class FoxyApi {
     // Can we surface the contract types here?
     const requestedWithdrawals: any = await (() => {
       try {
-        return tokePoolContract.requestedWithdrawals(stakingContract.address)
+        return tokePoolContract.requestedWithdrawals(stakingContract.target)
       } catch (e) {
         console.error(e, 'failed to get requestedWithdrawals')
         return {}

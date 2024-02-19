@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import noop from 'lodash/noop'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -125,10 +124,6 @@ export const BorrowInput = ({
       assets: borrowAssets,
     })
   }, [borrowAssets, buyAssetSearch, setBorrowAsset])
-
-  const handleAssetChange = useCallback((asset: Asset) => {
-    return console.info(asset)
-  }, [])
 
   const handleDepositInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
@@ -395,13 +390,11 @@ export const BorrowInput = ({
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
-        onAssetClick={noop}
-        onAssetChange={handleAssetChange}
         isReadOnly
         isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [collateralAssetId, handleAssetChange, isLendingSupportedAssetsLoading])
+  }, [collateralAssetId, isLendingSupportedAssetsLoading])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
@@ -409,14 +402,14 @@ export const BorrowInput = ({
         assetId={borrowAsset?.assetId ?? ''}
         assetIds={borrowAssetIds}
         onAssetClick={handleBorrowAssetClick}
-        onAssetChange={handleAssetChange}
+        onAssetChange={setBorrowAsset}
         isLoading={isLendingSupportedAssetsLoading}
       />
     )
   }, [
     borrowAsset?.assetId,
     borrowAssetIds,
-    handleAssetChange,
+    setBorrowAsset,
     handleBorrowAssetClick,
     isLendingSupportedAssetsLoading,
   ])

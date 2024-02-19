@@ -261,10 +261,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     setActiveOpportunityId(foundOpportunityId)
   }, [poolAsset, defaultOpportunityId, parsedPools, walletSupportsAsset, walletSupportsRune])
 
-  const handleAssetChange = useCallback((asset: Asset) => {
-    console.info(asset)
-  }, [])
-
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
   }, [browserHistory])
@@ -1064,14 +1060,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           assetId={poolAsset?.assetId}
           assetIds={poolAssetIds}
           onAssetClick={handlePoolAssetClick}
-          onAssetChange={handleAssetChange}
+          onAssetChange={setPoolAsset}
           isLoading={false}
           mb={0}
           buttonProps={buttonProps}
         />
         <TradeAssetSelect
           assetId={thorchainAssetId}
-          onAssetChange={handleAssetChange}
           isReadOnly
           isLoading={false}
           mb={0}
@@ -1079,14 +1074,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         />
       </Stack>
     )
-  }, [
-    defaultOpportunityId,
-    translate,
-    poolAsset?.assetId,
-    poolAssetIds,
-    handlePoolAssetClick,
-    handleAssetChange,
-  ])
+  }, [defaultOpportunityId, translate, poolAsset?.assetId, poolAssetIds, handlePoolAssetClick])
 
   const handleAsymSideChange = useCallback(
     (asymSide: string | null) => {

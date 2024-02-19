@@ -211,17 +211,13 @@ export const RepayInput = ({
     })
   }, [buyAssetSearch, lendingSupportedAssets, setRepaymentAsset])
 
-  const handleAssetChange = useCallback((asset: Asset) => {
-    return console.info(asset)
-  }, [])
-
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={repaymentAsset?.assetId ?? ''}
         assetIds={lendingSupportedAssetIds}
         onAssetClick={handleRepaymentAssetClick}
-        onAssetChange={handleAssetChange}
+        onAssetChange={setRepaymentAsset}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
@@ -229,7 +225,7 @@ export const RepayInput = ({
       />
     )
   }, [
-    handleAssetChange,
+    setRepaymentAsset,
     handleRepaymentAssetClick,
     isLendingSupportedAssetsLoading,
     lendingSupportedAssetIds,
@@ -240,18 +236,11 @@ export const RepayInput = ({
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
-        onAssetClick={handleRepaymentAssetClick}
-        onAssetChange={handleAssetChange}
         isReadOnly
         isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [
-    collateralAssetId,
-    handleAssetChange,
-    handleRepaymentAssetClick,
-    isLendingSupportedAssetsLoading,
-  ])
+  }, [collateralAssetId, isLendingSupportedAssetsLoading])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 

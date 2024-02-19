@@ -13,15 +13,26 @@ import { AssetMenuButton } from './components/AssetMenuButton'
 
 const disabledStyle = { opacity: 0.5 }
 
-type TradeAssetSelectProps = {
+type TradeAssetSelectBaseProps = {
   assetId?: AssetId
   assetIds?: AssetId[]
-  isReadOnly?: boolean
   isLoading: boolean
-  onAssetClick?: () => void
-  onAssetChange: (asset: Asset) => void
   buttonProps?: ButtonProps
 } & FlexProps
+
+type TradeAssetSelectReadonlyProps = {
+  isReadOnly: true
+  onAssetClick?: undefined
+  onAssetChange?: undefined
+} & TradeAssetSelectBaseProps
+
+type TradeAssetSelectEditableProps = {
+  isReadOnly?: false
+  onAssetClick: () => void
+  onAssetChange: (asset: Asset) => void
+} & TradeAssetSelectBaseProps
+
+type TradeAssetSelectProps = TradeAssetSelectReadonlyProps | TradeAssetSelectEditableProps
 
 export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   onAssetClick,
@@ -40,7 +51,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
       if (!assetId) return
       const asset = assets[assetId]
       if (!asset) return
-      onAssetChange(asset)
+      onAssetChange?.(asset)
     },
     [assets, onAssetChange],
   )

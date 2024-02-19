@@ -35,7 +35,7 @@ type UseLendingQuoteCloseQueryProps = {
 
 const selectLendingCloseQueryData = memoize(
   ({
-    data,
+    data: quote,
     collateralAssetMarketData,
     repaymentAssetMarketData,
     repaymentPercent,
@@ -45,7 +45,6 @@ const selectLendingCloseQueryData = memoize(
     repaymentAssetMarketData: MarketData
     repaymentPercent: number
   }): LendingQuoteClose => {
-    const quote = data
     const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
     const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
@@ -105,8 +104,14 @@ const selectLendingCloseQueryData = memoize(
       bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs),
     ).toNumber()
 
-    const repaymentAmountCryptoPrecision = fromThorBaseUnit(quote.expected_amount_in).toString()
-    const repaymentAmountFiatUserCurrency = fromThorBaseUnit(data.expected_amount_in)
+    // Add a 1% buffer to the expected_amount_in to account for the fact that the amount THOR returns to us *should* guarantee
+    // a collateral refund, but sometimes doesn't
+    const safeExpectedAmountIn = bnOrZero(quote.expected_amount_in)
+      .times(repaymentPercent === 100 ? '1.01' : '1')
+      .toFixed()
+
+    const repaymentAmountCryptoPrecision = fromThorBaseUnit(safeExpectedAmountIn).toString()
+    const repaymentAmountFiatUserCurrency = fromThorBaseUnit(safeExpectedAmountIn)
       .times(repaymentAssetMarketData.price)
       .toString()
     const repaymentAmountFiatUsd = bn(repaymentAmountFiatUserCurrency)

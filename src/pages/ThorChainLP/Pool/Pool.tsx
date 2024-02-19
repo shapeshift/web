@@ -126,6 +126,11 @@ export const Pool = () => {
     )
   }, [foundPool?.opportunityId, history])
 
+  const handleTradeClick = useCallback(() => {
+    if (!foundPool) return
+    history.push(`/trade/${foundPool?.assetId}`)
+  }, [foundPool, history])
+
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
   const assetMarketData = useAppSelector(state =>
     selectMarketDataById(state, foundPool?.assetId ?? ''),
@@ -215,7 +220,12 @@ export const Pool = () => {
                   {translate('pools.addLiquidity')}
                 </Button>
               </Tooltip>
-              <Button colorScheme='blue' leftIcon={swapIcon}>
+              <Button
+                colorScheme='blue'
+                leftIcon={swapIcon}
+                isDisabled={isTradingActiveLoading || isTradingActive === false}
+                onClick={handleTradeClick}
+              >
                 {translate('trade.trade')}
               </Button>
             </Flex>

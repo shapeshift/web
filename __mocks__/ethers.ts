@@ -1,6 +1,8 @@
+import ethers from 'ethers'
 import { vi } from 'vitest'
 
 const ethersMock = {
+  ...ethers,
   JsonRpcProvider: vi.fn(),
   Contract: vi.fn().mockImplementation(address => ({
     decimals: () => {

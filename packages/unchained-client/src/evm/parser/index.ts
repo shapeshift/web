@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
-import ethers, { getAddress, JsonRpcProvider } from 'ethers'
+import { getAddress, JsonRpcProvider } from 'ethers'
 
 import type { Token, TxStatus } from '../../types'
 import { TransferType } from '../../types'
@@ -10,8 +10,6 @@ import { aggregateTransfer, findAsyncSequential } from '../../utils'
 import type { Api } from '..'
 import type { ParsedTx, SubParser, Tx, TxSpecific } from './types'
 import { getTxStatus } from './utils'
-
-console.log({ ethers, JsonRpcProvider })
 
 export * from './types'
 export * from './utils'

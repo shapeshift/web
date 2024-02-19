@@ -9944,7 +9944,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/unchained-client@workspace:^, @shapeshiftoss/unchained-client@workspace:packages/unchained-client":
+"@shapeshiftoss/unchained-client@^10.1.1, @shapeshiftoss/unchained-client@workspace:^, @shapeshiftoss/unchained-client@workspace:packages/unchained-client":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/unchained-client@workspace:packages/unchained-client"
   dependencies:
@@ -9955,6 +9955,23 @@ __metadata:
     ws: ^8.3.0
   languageName: unknown
   linkType: soft
+
+"@shapeshiftoss/unchained-client@npm:10.1.1":
+  version: 10.1.1
+  resolution: "@shapeshiftoss/unchained-client@npm:10.1.1"
+  dependencies:
+    "@yfi/sdk": ^1.0.30
+    bignumber.js: ^9.0.2
+    ethers: ^5.5.3
+    isomorphic-ws: ^4.0.1
+    ws: ^8.3.0
+  peerDependencies:
+    "@shapeshiftoss/caip": ^8.0.0
+    "@shapeshiftoss/logger": ^1.1.2
+    "@shapeshiftoss/types": ^8.1.0
+  checksum: 0cd585a7131a859af175e454f249c8bde50889987733aca9bc0635453b11ca5f9cbe2580bdb2cf630ae88a4c305bc0cf5898f43e7a6c3be0b28784a68896dcf6
+  languageName: node
+  linkType: hard
 
 "@shapeshiftoss/web@workspace:.":
   version: 0.0.0-use.local
@@ -14194,7 +14211,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yfi/sdk@npm:^1.2.0":
+"@yfi/sdk@npm:^1.0.30, @yfi/sdk@npm:^1.2.0":
   version: 1.2.0
   resolution: "@yfi/sdk@npm:1.2.0"
   dependencies:
@@ -21060,7 +21077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers5@npm:ethers@5.7.2, ethers@npm:5.7.2, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.2":
+"ethers5@npm:ethers@5.7.2, ethers@npm:5.7.2, ethers@npm:^5.5.3, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.2":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:

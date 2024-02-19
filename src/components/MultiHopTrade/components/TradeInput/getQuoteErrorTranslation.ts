@@ -48,6 +48,7 @@ export const getQuoteErrorTranslation = (
       case SwapperTradeQuoteError.InternalError:
       case TradeQuoteValidationError.QueryFailed:
       case SwapperTradeQuoteError.QueryFailed:
+      case TradeQuoteValidationError.QuoteSellAmountInvalid:
         return 'trade.errors.quoteError'
       default:
         assertUnreachable(error)

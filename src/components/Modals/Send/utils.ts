@@ -18,7 +18,7 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertGetChainAdapter, isKeepKeyHDWallet, tokenOrUndefined } from 'lib/utils'
+import { assertGetChainAdapter, tokenOrUndefined } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
@@ -141,7 +141,6 @@ export const handleSend = async ({
         chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
       } = fees
       const shouldUseEIP1559Fees =
-        !isKeepKeyHDWallet(wallet) &&
         (await wallet.ethSupportsEIP1559()) &&
         maxFeePerGas !== undefined &&
         maxPriorityFeePerGas !== undefined

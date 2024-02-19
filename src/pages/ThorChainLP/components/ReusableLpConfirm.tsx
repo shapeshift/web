@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import React, { useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa'
@@ -184,6 +185,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
     enabled: !!pool,
+    swapperName: SwapperName.Thorchain,
   })
 
   const confirmCopy = useMemo(() => {

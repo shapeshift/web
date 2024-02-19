@@ -48,7 +48,7 @@ export const AssetTransactionHistory: React.FC<AssetTransactionHistoryProps> = (
 
   return (
     <Card variant='dashboard'>
-      <CardHeader display='flex' justifyContent='space-between' alignItems='center'>
+      <CardHeader display='flex' justifyContent='space-between' alignItems='center' mb={4}>
         <Heading as='h5'>
           {translate(
             useCompactMode

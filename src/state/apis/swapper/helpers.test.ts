@@ -1,13 +1,12 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
-import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
+import { selectIsTradingActive } from 'react-queries/selectors'
 import { describe, expect, it, vi } from 'vitest'
-import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
-
-import { isTradingActive } from './helpers'
+import {
+  type InboundAddressResponse,
+  ThorchainChain,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 
 vi.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActual => {
   const actual: typeof getInboundAddressDataForChain = await importActual()
@@ -18,37 +17,70 @@ vi.mock('lib/utils/thorchain/getInboundAddressDataForChain.ts', async importActu
   }
 })
 
+const mockInboundAddressDataBase = {
+  address: 'bc1q7sxlrlqmlyrzkr4pstkzg2jnhhcre4ly9gtsk6',
+  chain: ThorchainChain.BTC,
+  chain_lp_actions_paused: false,
+  chain_trading_paused: false,
+  dust_threshold: '10000',
+  gas_rate: '46',
+  gas_rate_units: 'satsperbyte',
+  global_trading_paused: false,
+  outbound_fee: '46500',
+  outbound_tx_size: '1000',
+  pub_key: 'thorpub1addwnpepqvy7h72pznr09x0ky2cw85awyeprxekfc787pdwahqv6xfp2qs0qw2s2mpa',
+} as InboundAddressResponse
+
+const mockInboundAddressDataActive: InboundAddressResponse = {
+  ...mockInboundAddressDataBase,
+  halted: false,
+}
+
+const mockInboundAddressDataHalted: InboundAddressResponse = {
+  ...mockInboundAddressDataBase,
+  halted: true,
+}
+
+const mockMimirActive = {
+  HALTTHORCHAIN: 0,
+}
+
 describe('isTradingActive', () => {
-  it('detects an active pool from a valid response', async () => {
-    vi.mocked(getInboundAddressDataForChain).mockResolvedValueOnce(
-      Ok({ halted: false }) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
-    )
+  const isTradingActiveResponse = selectIsTradingActive({
+    assetId: btcAssetId,
+    swapperName: SwapperName.Thorchain,
+    inboundAddressResponse: mockInboundAddressDataActive,
+    mimir: mockMimirActive,
+  })
+  expect(isTradingActiveResponse).toBe(true)
 
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
-    expect(isTradingActiveResponse.unwrap()).toBe(true)
+  it('detects an halted pool from a valid response', () => {
+    const isTradingActiveResponse = selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.Thorchain,
+      inboundAddressResponse: mockInboundAddressDataHalted,
+      mimir: mockMimirActive,
+    })
+    expect(isTradingActiveResponse).toBe(false)
   })
 
-  it('detects an halted pool from a valid response', async () => {
-    vi.mocked(getInboundAddressDataForChain).mockResolvedValueOnce(
-      Ok({ halted: true }) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
-    )
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
-    expect(isTradingActiveResponse.unwrap()).toBe(false)
+  it('assumes a halted pool on invalid response', () => {
+    const isTradingActiveResponse = selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.Thorchain,
+      inboundAddressResponse: undefined,
+      mimir: mockMimirActive,
+    })
+    expect(isTradingActiveResponse).toBe(false)
   })
 
-  it('assumes a halted pool on invalid response', async () => {
-    vi.mocked(getInboundAddressDataForChain).mockResolvedValueOnce(
-      Err(undefined) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
-    )
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.Thorchain)
-    expect(isTradingActiveResponse.isErr()).toBe(true)
-  })
-
-  it('does not look for halted flags unless the SwapperName is Thorchain', async () => {
-    vi.mocked(getInboundAddressDataForChain).mockResolvedValueOnce(
-      Ok({ halted: true }) as unknown as Result<InboundAddressResponse, SwapErrorRight>,
-    )
-    const isTradingActiveResponse = await isTradingActive(btcAssetId, SwapperName.CowSwap)
-    expect(isTradingActiveResponse.unwrap()).toBe(true)
+  it('does not look for halted flags unless the SwapperName is Thorchain', () => {
+    const isTradingActiveResponse = selectIsTradingActive({
+      assetId: btcAssetId,
+      swapperName: SwapperName.CowSwap,
+      inboundAddressResponse: undefined,
+      mimir: mockMimirActive,
+    })
+    expect(isTradingActiveResponse).toBe(true)
   })
 })

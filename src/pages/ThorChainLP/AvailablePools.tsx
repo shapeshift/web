@@ -5,6 +5,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Main } from 'components/Layout/Main'
@@ -51,19 +52,10 @@ type PoolButtonProps = {
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
 
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId: pool.assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: pool?.assetId,
+    enabled: !!pool,
+    swapperName: SwapperName.Thorchain,
   })
 
   const handlePoolClick = useCallback(() => {
@@ -89,6 +81,8 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
   const { data: volume7D, isLoading: isVolume7DLoading } = useQuery({
     ...reactQueries.midgard.swapsData(pool.assetId, '7d'),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    staleTime: Infinity,
     select: data => getVolume(runeMarketData.price, data),
   })
 

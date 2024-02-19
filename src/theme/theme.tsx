@@ -69,7 +69,7 @@ const styles = {
       fontSize: 'lg',
     },
     h6: {
-      fontSize: 'sm',
+      fontSize: 'md',
     },
     '.scroll-container': {
       visibility: 'hidden',

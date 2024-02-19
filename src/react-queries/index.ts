@@ -4,39 +4,30 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { SwapperName } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { bn } from 'lib/bignumber/bignumber'
 import type {
+  InboundAddressResponse,
   MidgardPoolResponse,
   ThornodePoolResponse,
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { assertGetChainAdapter } from 'lib/utils'
+import { assertGetChainAdapter, isKeepKeyHDWallet } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   getApproveContractData,
   getErc20Allowance,
   getFees,
-  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
-import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
-import { isTradingActive } from 'state/apis/swapper/helpers'
 
 import { GetAllowanceErr } from './types'
-
-// Current blocktime as per https://thorchain.network/stats
-export const thorchainBlockTimeSeconds = '6.1'
-const thorchainBlockTimeMs = bn(thorchainBlockTimeSeconds).times(1000).toNumber()
 
 const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -72,31 +63,6 @@ const common = createQueryKeys('common', {
       })
 
       return Ok(allowanceOnChainCryptoBaseUnit)
-    },
-    enabled:
-      assetId &&
-      spender &&
-      from &&
-      getSupportedEvmChainIds().includes(fromAssetId(assetId).chainId as KnownChainIds),
-  }),
-  isTradingActive: ({
-    assetId,
-    swapperName,
-  }: {
-    assetId: AssetId | undefined
-    swapperName: SwapperName | undefined
-  }) => ({
-    queryKey: ['isTradingActive', assetId, swapperName],
-    queryFn: async () => {
-      if (!assetId) throw new Error('assetId is required')
-      if (!swapperName) throw new Error('swapperName is required')
-
-      const maybeIsTradingActive = await isTradingActive(assetId, swapperName)
-
-      // Do not return things in a monadic way so that we can leverage native react-query error-handling
-      if (maybeIsTradingActive.isErr()) return false
-
-      return maybeIsTradingActive.unwrap()
     },
   }),
 })
@@ -143,7 +109,8 @@ const mutations = createMutationKeys('mutations', {
         value: '0',
         data: approvalCalldata,
         from,
-        supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+        supportsEIP1559:
+          !isKeepKeyHDWallet(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
       })
 
       const buildCustomTxInput = {
@@ -168,9 +135,6 @@ const mutations = createMutationKeys('mutations', {
 // Feature-agnostic, abstracts away midgard endpoints
 const midgard = createQueryKeys('midgard', {
   swapsData: (assetId: AssetId | undefined, timeframe: '24h' | 'previous24h' | '7d') => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    enabled: !!assetId,
     queryKey: ['midgardSwapsData', assetId ?? '', timeframe],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
@@ -207,9 +171,6 @@ const midgard = createQueryKeys('midgard', {
     },
   }),
   poolData: (assetId: AssetId | undefined) => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    enabled: !!assetId,
     queryKey: ['midgardPoolData', assetId],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
@@ -222,8 +183,6 @@ const midgard = createQueryKeys('midgard', {
     },
   }),
   poolsData: () => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
     queryKey: ['midgardPoolsData'],
     queryFn: async () => {
       const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
@@ -237,9 +196,6 @@ const midgard = createQueryKeys('midgard', {
 // Feature-agnostic, abstracts away THORNode endpoints
 const thornode = createQueryKeys('thornode', {
   poolData: (assetId: AssetId | undefined) => ({
-    // We may or may not want to revisit this, but this will prevent overfetching for now
-    staleTime: Infinity,
-    enabled: !!assetId,
     queryKey: ['thornodePoolData', assetId],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
@@ -253,9 +209,6 @@ const thornode = createQueryKeys('thornode', {
   }),
   poolsData: () => ({
     queryKey: ['thornodePoolsData'],
-    // Typically 60 second staleTime to handle pools going to live/halt states
-    // This may not be required in your specific consumption, override if needed
-    staleTime: 60_000,
     queryFn: async () => {
       const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
       const poolResponse = await thorService.get<ThornodePoolResponse[]>(
@@ -271,8 +224,6 @@ const thornode = createQueryKeys('thornode', {
   }),
   mimir: () => {
     return {
-      // We use the mimir query to get the repayment maturity block, so need to mark it stale at the end of each THOR block
-      staleTime: thorchainBlockTimeMs,
       queryKey: ['thorchainMimir'],
       queryFn: async () => {
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -281,13 +232,10 @@ const thornode = createQueryKeys('thornode', {
         )
         return mimir
       },
-      enabled: true,
     }
   },
   block: () => {
     return {
-      // Mark blockHeight query as stale at the end of each THOR block
-      staleTime: thorchainBlockTimeMs,
       queryKey: ['thorchainBlockHeight'],
       queryFn: async () => {
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -295,19 +243,27 @@ const thornode = createQueryKeys('thornode', {
 
         return block
       },
-      enabled: true,
     }
   },
-  inboundAddress: (assetId: AssetId | undefined) => {
+  inboundAddresses: () => {
     return {
-      staleTime: 60_000, // 60 seconds to handle pools going to/from live/halt states
-      queryKey: ['thorchainInboundAddress', assetId],
+      queryKey: ['thorchainInboundAddress'],
       queryFn: async () => {
-        if (!assetId) throw new Error('assetId is required')
         const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-        const data = await getInboundAddressDataForChain(daemonUrl, assetId)
 
-        return data
+        return (
+          // Get all inbound addresses
+          (
+            await thorService.get<InboundAddressResponse[]>(
+              `${daemonUrl}/lcd/thorchain/inbound_addresses`,
+            )
+          ).andThen(({ data: inboundAddresses }) => {
+            // Exclude halted
+            const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
+
+            return Ok(activeInboundAddresses)
+          })
+        )
       },
     }
   },

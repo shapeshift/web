@@ -5,10 +5,10 @@ import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swappe
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
-import { useIsTradingActive } from 'components/MultiHopTrade/hooks/useIsTradingActive'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -62,10 +62,21 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     number: { toPercent },
   } = useLocaleFormatter()
 
-  const { isTradingActive } = useIsTradingActive()
-
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
+  const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
+    assetId: buyAsset.assetId,
+    swapperName: quoteData.swapperName,
+    enabled: true,
+  })
+  const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
+    assetId: sellAsset.assetId,
+    swapperName: quoteData.swapperName,
+    enabled: true,
+  })
+
+  const isTradingActive = Boolean(isTradingActiveOnBuyPool && isTradingActiveOnSellPool)
+
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const buyAssetMarketData = useAppSelector(state =>

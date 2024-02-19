@@ -1,15 +1,14 @@
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { Asset, UtxoAccountType } from '@shapeshiftoss/types'
-import {
-  isCosmosSdkSwap,
-  isEvmSwap,
-  isUtxoSwap,
-} from 'components/MultiHopTrade/hooks/useGetTradeQuotes/typeGuards'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
-import { assertGetChainAdapter } from 'lib/utils'
+import { assertUnreachable, isKeepKeyHDWallet } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 export type GetTradeQuoteInputArgs = {
@@ -62,44 +61,66 @@ export const getTradeQuoteArgs = async ({
     slippageTolerancePercentageDecimal,
   }
 
-  if (isEvmSwap(sellAsset.chainId) || isCosmosSdkSwap(sellAsset.chainId)) {
-    const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-    const sellAssetChainAdapter = assertGetChainAdapter(sellAsset.chainId)
-    const sendAddress = await sellAssetChainAdapter.getAddress({
-      accountNumber: sellAccountNumber,
-      wallet,
-      pubKey,
-    })
-    return {
-      ...tradeQuoteInputCommonArgs,
-      chainId: sellAsset.chainId,
-      supportsEIP1559,
-      sendAddress,
-      receiveAccountNumber,
-    }
-  } else if (isUtxoSwap(sellAsset.chainId)) {
-    if (!sellAccountType) {
-      throw Error('missing account type')
-    }
-    const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-    const sendAddress = await sellAssetChainAdapter.getAddress({
-      accountNumber: sellAccountNumber,
-      wallet,
-      accountType: sellAccountType,
-      pubKey,
-    })
+  const { chainNamespace } = fromChainId(sellAsset.chainId)
 
-    const xpub =
-      pubKey ??
-      (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
-    return {
-      ...tradeQuoteInputCommonArgs,
-      chainId: sellAsset.chainId,
-      accountType: sellAccountType,
-      xpub,
-      sendAddress,
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Evm: {
+      const supportsEIP1559 =
+        !isKeepKeyHDWallet(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+      const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
+      const sendAddress = await sellAssetChainAdapter.getAddress({
+        accountNumber: sellAccountNumber,
+        wallet,
+        pubKey,
+      })
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as EvmChainId,
+        supportsEIP1559,
+        sendAddress,
+        receiveAccountNumber,
+      }
     }
+
+    case CHAIN_NAMESPACE.CosmosSdk: {
+      const sellAssetChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
+      const sendAddress = await sellAssetChainAdapter.getAddress({
+        accountNumber: sellAccountNumber,
+        wallet,
+        pubKey,
+      })
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+        receiveAccountNumber,
+      }
+    }
+
+    case CHAIN_NAMESPACE.Utxo: {
+      if (!sellAccountType) {
+        throw Error('missing account type')
+      }
+      const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+      const sendAddress = await sellAssetChainAdapter.getAddress({
+        accountNumber: sellAccountNumber,
+        wallet,
+        accountType: sellAccountType,
+        pubKey,
+      })
+
+      const xpub =
+        pubKey ??
+        (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as UtxoChainId,
+        accountType: sellAccountType,
+        xpub,
+        sendAddress,
+      }
+    }
+    default:
+      assertUnreachable(chainNamespace)
   }
-
-  throw Error('unexpected chain namespace')
 }

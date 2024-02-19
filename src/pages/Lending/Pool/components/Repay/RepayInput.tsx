@@ -41,7 +41,6 @@ import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
-  selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -250,10 +249,6 @@ export const RepayInput = ({
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 
-  const repaymentAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, repaymentAsset?.assetId ?? ''),
-  )
-
   const {
     data: lendingPositionData,
     isLoading: isLendingPositionDataLoading,
@@ -263,22 +258,6 @@ export const RepayInput = ({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
   })
-
-  const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!lendingPositionData?.debtBalanceFiatUserCurrency) return null
-
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
-      .times(lendingPositionData?.debtBalanceFiatUserCurrency)
-      .div(100)
-
-    return proratedCollateralFiatUserCurrency.toFixed()
-  }, [lendingPositionData, repaymentPercent])
-
-  const repaymentAmountCryptoPrecision = useMemo(() => {
-    if (!repaymentAmountFiatUserCurrency) return null
-
-    return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
-  }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
 
   const {
     data: estimatedFeesData,
@@ -320,19 +299,21 @@ export const RepayInput = ({
   const hasEnoughBalanceForTx = useMemo(() => {
     if (!(repaymentFeeAsset && repaymentAsset)) return
 
-    return bnOrZero(repaymentAmountCryptoPrecision).lte(amountAvailableCryptoPrecision)
+    return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
+      amountAvailableCryptoPrecision,
+    )
   }, [
-    amountAvailableCryptoPrecision,
     repaymentFeeAsset,
-    repaymentAmountCryptoPrecision,
     repaymentAsset,
+    lendingQuoteCloseData?.repaymentAmountCryptoPrecision,
+    amountAvailableCryptoPrecision,
   ])
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
     if (!(repaymentFeeAsset && repaymentAsset)) return
 
     if (repaymentFeeAsset.assetId === repaymentAsset.assetId)
-      return bnOrZero(repaymentAmountCryptoPrecision)
+      return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision)
         .plus(
           bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
             bn(10).pow(repaymentAsset.precision ?? '0'),
@@ -341,16 +322,17 @@ export const RepayInput = ({
         .lte(amountAvailableCryptoPrecision)
 
     return (
-      bnOrZero(repaymentAmountCryptoPrecision).lte(amountAvailableCryptoPrecision) &&
-      bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
+      bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
+        amountAvailableCryptoPrecision,
+      ) && bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
     )
   }, [
-    amountAvailableCryptoPrecision,
-    estimatedFeesData?.txFeeCryptoBaseUnit,
     repaymentFeeAsset,
-    feeAssetBalanceCryptoBaseUnit,
-    repaymentAmountCryptoPrecision,
     repaymentAsset,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    amountAvailableCryptoPrecision,
+    lendingQuoteCloseData?.repaymentAmountCryptoPrecision,
+    feeAssetBalanceCryptoBaseUnit,
   ])
 
   const userAddress = useMemo(() => {
@@ -425,12 +407,12 @@ export const RepayInput = ({
         assetId={repaymentAsset?.assetId ?? ''}
         assetSymbol={repaymentAsset?.symbol ?? ''}
         assetIcon={''}
-        cryptoAmount={repaymentAmountCryptoPrecision ?? '0'}
-        fiatAmount={repaymentAmountFiatUserCurrency ?? '0'}
+        cryptoAmount={lendingQuoteCloseData?.repaymentAmountCryptoPrecision ?? '0'}
+        fiatAmount={lendingQuoteCloseData?.repaymentAmountFiatUserCurrency ?? '0'}
         isSendMaxDisabled={false}
         isReadOnly
         percentOptions={percentOptions}
-        showInputSkeleton={false}
+        showInputSkeleton={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
         showFiatSkeleton={false}
         label={translate('lending.repayAmount')}
         onAccountIdChange={handleRepaymentAccountIdChange}
@@ -499,7 +481,7 @@ export const RepayInput = ({
           confirmedQuote={confirmedQuote}
           isLoading={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
           collateralAssetId={collateralAssetId}
-          repayAmountCryptoPrecision={repaymentAmountCryptoPrecision ?? '0'}
+          repayAmountCryptoPrecision={lendingQuoteCloseData?.repaymentAmountCryptoPrecision ?? '0'}
           debtRepaidAmountUserCurrency={
             lendingQuoteCloseData?.quoteDebtRepaidAmountUserCurrency ?? '0'
           }

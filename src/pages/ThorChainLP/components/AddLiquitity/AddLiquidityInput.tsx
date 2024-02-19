@@ -28,7 +28,9 @@ import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
@@ -37,6 +39,7 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -162,6 +165,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     opportunityId ?? defaultOpportunityId,
   )
 
+  const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
+    useIsSmartContractAddress(poolAssetAccountAddress ?? '')
+
   useEffect(() => {
     if (!(opportunityId || defaultOpportunityId)) return
 
@@ -232,22 +238,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (foundPool.asymSide === AsymSide.Rune) return walletSupportsRune
     if (foundPool.asymSide === AsymSide.Asset) return walletSupportsAsset
   }, [foundPool, walletSupportsAsset, walletSupportsRune])
-
-  const { data: isTradingActive, isLoading: isTradingActiveLoading } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId: poolAsset?.assetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    enabled: Boolean(poolAsset?.assetId),
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-  })
 
   useEffect(() => {
     if (!(poolAsset && parsedPools)) return
@@ -428,10 +418,24 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bnOrZero(actualAssetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
   }, [poolAssetBalanceCryptoBaseUnit, poolAsset?.precision, actualAssetCryptoLiquidityAmount])
 
-  const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddress(poolAsset?.assetId),
-    enabled: !!poolAsset && walletSupportsOpportunity === true,
-    select: data => data?.unwrap(),
+  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
+    enabled: !!poolAsset,
+    select: data => selectInboundAddressData(data, poolAsset?.assetId),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
+  })
+
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: poolAsset?.assetId,
+    enabled: !!poolAsset,
+    swapperName: SwapperName.Thorchain,
   })
 
   const poolAccountId = useMemo(
@@ -466,7 +470,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   } = useMutation({
     ...reactQueries.mutations.approve({
       assetId: poolAsset?.assetId,
-      spender: inboundAddressData?.router,
+      spender: inboundAddressesData?.router,
       from: poolAssetAccountAddress,
       amount: toBaseUnit(actualAssetCryptoLiquidityAmount, poolAsset?.precision ?? 0),
       wallet,
@@ -492,7 +496,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
           poolAsset?.assetId,
-          inboundAddressData?.router,
+          inboundAddressesData?.router,
           poolAssetAccountAddress,
         ),
       )
@@ -500,7 +504,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     approvalTx,
     poolAsset?.assetId,
-    inboundAddressData?.router,
+    inboundAddressesData?.router,
     isApprovalTxPending,
     poolAssetAccountAddress,
     queryClient,
@@ -508,7 +512,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
     assetId: poolAsset?.assetId,
-    spender: inboundAddressData?.router,
+    spender: inboundAddressesData?.router,
     from: poolAssetAccountAddress,
   })
 
@@ -556,16 +560,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       case 'EvmCustomTx': {
         // TODO: this should really be inboundAddressData?.router, but useQuoteEstimatedFeesQuery doesn't yet handle contract calls
         // for the purpose of naively assuming a send, using the inbound address instead of the router is fine
-        return inboundAddressData?.address
+        return inboundAddressesData?.address
       }
       case 'Send': {
-        return inboundAddressData?.address
+        return inboundAddressesData?.address
       }
       default: {
         assertUnreachable(transactionType as never)
       }
     }
-  }, [poolAsset, inboundAddressData?.address])
+  }, [poolAsset, inboundAddressesData?.address])
 
   // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
@@ -1144,13 +1148,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
     // 1. Asset unsupported by wallet
     // 2. pool halted
-    // 3. pool asset balance
-    // 4. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
-    // 5. RUNE balance
-    // 6. RUNE fee balance
+    // 3. smart contract deposits disabled
+    // 4. pool asset balance
+    // 5. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 6. RUNE balance
+    // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (isTradingActive === false) return translate('common.poolHalted')
+    if (isSmartContractAccountAddress === true)
+      return translate('trade.errors.smartContractWalletNotSupported')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
     // Not enough *fee* asset
     if (poolAssetFeeAsset && notEnoughFeeAssetError)
@@ -1167,6 +1174,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return null
   }, [
+    isSmartContractAccountAddress,
     isTradingActive,
     notEnoughFeeAssetError,
     notEnoughPoolAssetError,
@@ -1290,11 +1298,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           }
           isLoading={
             isVotingPowerLoading ||
-            isInboundAddressLoading ||
+            isInboundAddressesDataLoading ||
+            isTradingActiveLoading ||
+            isSmartContractAccountAddressLoading ||
             isAllowanceDataLoading ||
             isApprovalTxPending ||
             isSweepNeededLoading ||
-            isTradingActiveLoading ||
+            isInboundAddressesDataLoading ||
             isEstimatedPoolAssetFeesDataLoading
           }
           onClick={handleSubmit}

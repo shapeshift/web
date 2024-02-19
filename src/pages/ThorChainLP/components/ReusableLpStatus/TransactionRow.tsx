@@ -32,6 +32,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -101,24 +103,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const wallet = useWallet().state.wallet
 
   const {
-    data: isTradingActive,
-    isLoading: isTradingActiveLoading,
-    isRefetching: isTradingActiveRefetching,
+    isTradingActive,
     refetch: refetchIsTradingActive,
-  } = useQuery({
-    ...reactQueries.common.isTradingActive({
-      assetId: poolAssetId,
-      swapperName: SwapperName.Thorchain,
-    }),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    enabled: Boolean(poolAssetId),
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
+    isLoading: isTradingActiveLoading,
+  } = useIsTradingActive({
+    assetId: poolAssetId,
+    enabled: !txId,
+    swapperName: SwapperName.Thorchain,
   })
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]
@@ -258,9 +249,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [mutateAsync, onComplete, status, tx, txId])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddress(assetId),
+    ...reactQueries.thornode.inboundAddresses(),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // We technically don't care about going stale immediately here - halted checks are done JIT at signing time in case the pool went
+    // halted by the time the user clicked the confirm button
+    // But we still have some sane 60s stale time rather than 0 for paranoia's sake, as a balance of safety and not overfetching
+    staleTime: 60_000,
+    select: data => selectInboundAddressData(data, assetId),
     enabled: !!assetId,
-    select: data => data?.unwrap(),
   })
 
   const estimateFeesArgs = useMemo(() => {
@@ -375,7 +371,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       memo: estimateFeesArgs?.memo ?? '',
       accountId: estimateFeesArgs?.accountId ?? '',
       contractAddress: estimateFeesArgs?.contractAddress ?? '',
-      enabled: !!estimateFeesArgs,
+      enabled: !!estimateFeesArgs && !txId,
     })
 
   const estimatedFeeDataCryptoPrecision = useMemo(() => {
@@ -398,9 +394,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
 
     return (async () => {
-      // Refetch the trading active state JIT to ensure the pool didn't just become halted
-      const { data: isTradingActiveData } = await refetchIsTradingActive()
-      if (!isTradingActiveData) throw new Error('Pool Halted')
+      // Pool just became halted at signing component mount, it's definitely not going to go back to active in just
+      // the few seconds it takes to go from mount to sign click
+      const _isTradingActive = await refetchIsTradingActive()
+      if (!_isTradingActive) throw new Error('Pool Halted')
 
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
@@ -649,10 +646,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             onClick={handleSignTx}
             isDisabled={isTradingActive === false}
             isLoading={
-              status === TxStatus.Pending ||
-              isInboundAddressLoading ||
-              isTradingActiveLoading ||
-              isTradingActiveRefetching
+              status === TxStatus.Pending || isInboundAddressLoading || isTradingActiveLoading
             }
           >
             {confirmTranslation}

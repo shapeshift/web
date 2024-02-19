@@ -102,9 +102,9 @@ export const swapperApi = createApi({
             const quoteSource = quoteData.quote?.steps[0].source ?? quoteData.swapperName
 
             const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
-              // allow swapper errors to flow through
-              if (error !== undefined) {
-                return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
+              // allow swapper errors to flow through, skip non-thorchain swappers
+              if (error !== undefined || swapperName !== SwapperName.Thorchain) {
+                return { isTradingActiveOnSellPool: true, isTradingActiveOnBuyPool: true }
               }
 
               const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(

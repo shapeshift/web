@@ -1,6 +1,7 @@
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { foxyAddresses, FoxyApi } from 'lib/investor/investor-foxy'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
@@ -19,6 +20,7 @@ export const getFoxyApi = (): FoxyApi => {
     ) as EvmBaseAdapter<KnownChainIds.EthereumMainnet>,
     providerUrl: getConfig()[RPC_PROVIDER_ENV],
     foxyAddresses,
+    provider: getEthersProvider(KnownChainIds.EthereumMainnet),
   })
 
   _foxyApi = foxyApi

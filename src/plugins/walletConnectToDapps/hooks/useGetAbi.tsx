@@ -28,7 +28,7 @@ export const useGetAbi = (
 
   const { to: contractAddress, data } = transactionParams
   const provider = useMemo(
-    () => new ethers.providers.JsonRpcBatchProvider(getConfig().REACT_APP_ETHEREUM_NODE_URL),
+    () => new ethers.providers.StaticJsonRpcProvider(getConfig().REACT_APP_ETHEREUM_NODE_URL),
     [],
   )
 

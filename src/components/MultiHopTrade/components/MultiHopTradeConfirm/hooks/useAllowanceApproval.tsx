@@ -33,7 +33,6 @@ export const useAllowanceApproval = (
   const { isLoading: isApprovalNeededLoading, isApprovalNeeded } = useIsApprovalNeeded(
     tradeQuoteStep,
     sellAssetAccountId,
-    true,
   )
 
   useEffect(() => {

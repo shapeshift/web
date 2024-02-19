@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHop,
@@ -17,30 +16,13 @@ const useIsApprovalInitiallyNeededForHop = (
   tradeQuoteStep: TradeQuoteStep | undefined,
   sellAssetAccountId: AccountId | undefined,
 ) => {
-  const {
-    sellAsset: { chainId },
-  } = useMemo(
-    () =>
-      tradeQuoteStep ?? {
-        sellAsset: { chainId: undefined },
-      },
-    [tradeQuoteStep],
-  )
-  const [watchIsApprovalNeeded, setWatchIsApprovalNeeded] = useState<boolean>(
-    Boolean(chainId && isEvmChainId(chainId)),
-  )
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
 
-  const { isLoading, isApprovalNeeded } = useIsApprovalNeeded(
-    tradeQuoteStep,
-    sellAssetAccountId,
-    watchIsApprovalNeeded,
-  )
+  const { isLoading, isApprovalNeeded } = useIsApprovalNeeded(tradeQuoteStep, sellAssetAccountId)
 
   useEffect(() => {
     // stop polling on first result
     if (!isLoading && isApprovalNeeded !== undefined) {
-      setWatchIsApprovalNeeded(false)
       setIsApprovalInitiallyNeeded(isApprovalNeeded)
     }
   }, [isApprovalNeeded, isLoading])

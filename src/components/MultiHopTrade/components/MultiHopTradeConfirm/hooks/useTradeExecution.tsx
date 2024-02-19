@@ -13,7 +13,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
-import { assertUnreachable, isKeepKeyHDWallet } from 'lib/utils'
+import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
@@ -203,8 +203,7 @@ export const useTradeExecution = (hopIndex: number) => {
         case CHAIN_NAMESPACE.Evm: {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
-          const supportsEIP1559 =
-            !isKeepKeyHDWallet(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+          const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
           const output = await execution.execEvmTransaction({
             swapperName,

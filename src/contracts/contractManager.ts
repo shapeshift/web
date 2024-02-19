@@ -10,10 +10,9 @@ import { FarmingABI } from 'contracts/abis/farmingAbi'
 import { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { IUniswapV2Router02 } from 'contracts/abis/IUniswapV2Router02'
 import { THORChain_RouterABI } from 'contracts/abis/THORCHAIN_RouterABI'
-import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
-import { getContract } from 'viem'
+import { getAddress, getContract } from 'viem'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { viemClientByChainId, viemEthMainnetClient } from 'lib/viem-client'
 
@@ -104,7 +103,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
   })
   definedContracts.push({
     contract,
-    address: ethers.getAddress(address),
+    address: getAddress(address),
   } as unknown as DefinedContract)
   return contract as KnownContractByType<T>
 }
@@ -112,7 +111,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
 export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
   // Checksum
-  const contractAddress = ethers.getAddress(assetReference)
+  const contractAddress = getAddress(assetReference)
   const pair = getOrCreateContractByType({
     address: contractAddress,
     type: ContractType.UniV2Pair,

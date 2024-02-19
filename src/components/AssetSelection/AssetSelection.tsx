@@ -15,6 +15,7 @@ const disabledStyle = { opacity: 0.5 }
 
 type TradeAssetSelectProps = {
   assetId?: AssetId
+  assetIds?: AssetId[]
   isReadOnly?: boolean
   isLoading: boolean
   onAssetClick?: () => void
@@ -26,6 +27,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   onAssetClick,
   onAssetChange,
   assetId,
+  assetIds,
   isReadOnly,
   isLoading,
   buttonProps,
@@ -73,6 +75,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
       <Text translation='trade.on' color='text.subtle' fontSize='sm' />
       <AssetChainDropdown
         assetId={assetId}
+        assetIds={assetIds}
         onClick={handleAssetChange}
         isLoading={isLoading}
         buttonProps={combinedButtonProps}

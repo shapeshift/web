@@ -24,6 +24,7 @@ import { AssetChainRow } from './AssetChainRow'
 
 type AssetChainDropdownProps = {
   assetId?: AssetId
+  assetIds?: AssetId[]
   onClick: (arg: AssetId | undefined) => void
   buttonProps?: ButtonProps
   isLoading?: boolean
@@ -32,6 +33,7 @@ type AssetChainDropdownProps = {
 
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   assetId,
+  assetIds,
   onClick,
   buttonProps,
   isLoading,
@@ -49,8 +51,13 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
     selectRelatedAssetIdsInclusiveSorted(state, assetId ?? ''),
   )
 
+  const filteredRelatedAssetIds = useMemo(() => {
+    if (!assetIds?.length) return relatedAssetIds
+    return relatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
+  }, [assetIds, relatedAssetIds])
+
   const renderChains = useMemo(() => {
-    return relatedAssetIds.map(assetId => {
+    return filteredRelatedAssetIds.map(assetId => {
       const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
 
       return (
@@ -59,19 +66,19 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
         </MenuItemOption>
       )
     })
-  }, [relatedAssetIds, wallet])
+  }, [filteredRelatedAssetIds, wallet])
 
   const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
 
   const isDisabled = useMemo(() => {
-    return relatedAssetIds.length <= 1 || isLoading || isError
-  }, [relatedAssetIds, isError, isLoading])
+    return filteredRelatedAssetIds.length <= 1 || isLoading || isError
+  }, [filteredRelatedAssetIds, isError, isLoading])
 
   const isTooltipDisabled = useMemo(() => {
     // only render the tooltip when there are no other related assets and we're not loading and not
     // errored
-    return relatedAssetIds.length > 1 || isLoading || isError
-  }, [relatedAssetIds, isError, isLoading])
+    return filteredRelatedAssetIds.length > 1 || isLoading || isError
+  }, [filteredRelatedAssetIds, isError, isLoading])
 
   const buttonTooltipText = useMemo(() => {
     return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })

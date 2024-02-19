@@ -102,6 +102,10 @@ export const BorrowInput = ({
   const { data: borrowAssets, isLoading: isLendingSupportedAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
 
+  const borrowAssetIds = useMemo(() => {
+    return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
+  }, [borrowAssets])
+
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
   useEffect(() => {
@@ -403,6 +407,7 @@ export const BorrowInput = ({
     return (
       <TradeAssetSelect
         assetId={borrowAsset?.assetId ?? ''}
+        assetIds={borrowAssetIds}
         onAssetClick={handleBorrowAssetClick}
         onAssetChange={handleAssetChange}
         isLoading={isLendingSupportedAssetsLoading}
@@ -410,6 +415,7 @@ export const BorrowInput = ({
     )
   }, [
     borrowAsset?.assetId,
+    borrowAssetIds,
     handleAssetChange,
     handleBorrowAssetClick,
     isLendingSupportedAssetsLoading,

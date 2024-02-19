@@ -189,6 +189,10 @@ export const RepayInput = ({
   const { data: lendingSupportedAssets, isLoading: isLendingSupportedAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
 
+  const lendingSupportedAssetIds = useMemo(() => {
+    return lendingSupportedAssets?.map(lendingSupportedAsset => lendingSupportedAsset.assetId) ?? []
+  }, [lendingSupportedAssets])
+
   useEffect(() => {
     if (!(lendingSupportedAssets && collateralAsset)) return
     if (repaymentAsset) return
@@ -215,6 +219,7 @@ export const RepayInput = ({
     return (
       <TradeAssetSelect
         assetId={repaymentAsset?.assetId ?? ''}
+        assetIds={lendingSupportedAssetIds}
         onAssetClick={handleRepaymentAssetClick}
         onAssetChange={handleAssetChange}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
@@ -227,6 +232,7 @@ export const RepayInput = ({
     handleAssetChange,
     handleRepaymentAssetClick,
     isLendingSupportedAssetsLoading,
+    lendingSupportedAssetIds,
     repaymentAsset?.assetId,
   ])
 

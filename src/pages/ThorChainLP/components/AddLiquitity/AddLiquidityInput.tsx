@@ -136,6 +136,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return [...new Set(parsedPools.map(pool => assets[pool.assetId]).filter(isSome))]
   }, [assets, parsedPools])
 
+  const poolAssetIds = useMemo(() => {
+    return poolAssets.map(poolAsset => poolAsset.assetId)
+  }, [poolAssets])
+
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
   // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
   // - When a user deposits symetrically, they can then deposit asymetrically, but only on the asset side
@@ -1058,6 +1062,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </FormLabel>
         <TradeAssetSelect
           assetId={poolAsset?.assetId}
+          assetIds={poolAssetIds}
           onAssetClick={handlePoolAssetClick}
           onAssetChange={handleAssetChange}
           isLoading={false}
@@ -1074,7 +1079,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         />
       </Stack>
     )
-  }, [poolAsset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick, translate])
+  }, [
+    defaultOpportunityId,
+    translate,
+    poolAsset?.assetId,
+    poolAssetIds,
+    handlePoolAssetClick,
+    handleAssetChange,
+  ])
 
   const handleAsymSideChange = useCallback(
     (asymSide: string | null) => {

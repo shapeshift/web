@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import ethers from 'ethers'
+import type { JsonRpcProvider } from 'ethers'
+import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'
@@ -23,15 +24,15 @@ export interface TxMetadata extends BaseTxMetadata {
 
 export interface ParserArgs {
   chainId: ChainId
-  provider: ethers.JsonRpcProvider
+  provider: JsonRpcProvider
 }
 
 export class Parser implements SubParser<Tx> {
-  provider: ethers.JsonRpcProvider
+  provider: JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
-  readonly abiInterface = new ethers.Interface(UNIV2_ABI)
-  readonly stakingRewardsInterface = new ethers.Interface(UNIV2_STAKING_REWARDS_ABI)
+  readonly abiInterface = new Interface(UNIV2_ABI)
+  readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI)
 
   readonly supportedFunctions = {
     addLiquidityEthSigHash: this.abiInterface.getFunction('addLiquidityETH')?.selector,
@@ -81,13 +82,13 @@ export class Parser implements SubParser<Tx> {
         },
       }
 
-    const tokenAddress = ethers.getAddress(decoded.args.token.toLowerCase())
+    const tokenAddress = getAddress(decoded.args.token.toLowerCase())
     const lpTokenAddress = Parser.pairFor(tokenAddress, this.wethContract)
 
     const transfers = await (async () => {
       switch (getSigHash(tx.inputData)) {
         case this.supportedFunctions.addLiquidityEthSigHash: {
-          const contract = new ethers.Contract(tokenAddress, ERC20_ABI, this.provider)
+          const contract = new Contract(tokenAddress, ERC20_ABI, this.provider)
           const decimals = await contract.decimals()
           const name = await contract.name()
           const symbol = await contract.symbol()
@@ -112,7 +113,7 @@ export class Parser implements SubParser<Tx> {
           ]
         }
         case this.supportedFunctions.removeLiquidityEthSigHash: {
-          const contract = new ethers.Contract(lpTokenAddress, ERC20_ABI, this.provider)
+          const contract = new Contract(lpTokenAddress, ERC20_ABI, this.provider)
           const decimals = await contract.decimals()
           const name = await contract.name()
           const symbol = await contract.symbol()
@@ -188,8 +189,8 @@ export class Parser implements SubParser<Tx> {
   private static pairFor(tokenA: string, tokenB: string): string {
     const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
     const factoryContract = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
-    const salt = ethers.solidityPackedKeccak256(['address', 'address'], [token0, token1])
+    const salt = solidityPackedKeccak256(['address', 'address'], [token0, token1])
     const initCodeHash = '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // https://github.com/Uniswap/v2-periphery/blob/dda62473e2da448bc9cb8f4514dadda4aeede5f4/contracts/libraries/UniswapV2Library.sol#L24
-    return ethers.getCreate2Address(factoryContract, salt, initCodeHash)
+    return getCreate2Address(factoryContract, salt, initCodeHash)
   }
 }

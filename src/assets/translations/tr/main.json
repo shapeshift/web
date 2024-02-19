@@ -1759,8 +1759,6 @@
     "fee": "Ücret",
     "youSent": "Gönderdiniz",
     "youReceived": "Aldınız",
-    "sentTo": "A gönderildi",
-    "receivedFrom": "'dan alınan",
     "orderRoute": "Sipariş Rotası",
     "status": "Durum",
     "transactionType": "İşlem Tipi",

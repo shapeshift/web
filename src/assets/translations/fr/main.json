@@ -1759,8 +1759,6 @@
     "fee": "Frais",
     "youSent": "Vous avez envoyé",
     "youReceived": "Vous avez reçu",
-    "sentTo": "Envoyé à",
-    "receivedFrom": "Reçu de",
     "orderRoute": "Route de l'ordre",
     "status": "Statut",
     "transactionType": "Type de transaction",

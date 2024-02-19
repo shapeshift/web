@@ -1759,8 +1759,6 @@
     "fee": "Tarifa",
     "youSent": "Enviaste",
     "youReceived": "Usted Recibió",
-    "sentTo": "Enviado a",
-    "receivedFrom": "Recibido de",
     "orderRoute": "Ruta de pedido",
     "status": "Estado",
     "transactionType": "Tipo de Transacción",

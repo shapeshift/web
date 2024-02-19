@@ -1759,8 +1759,6 @@
     "fee": "手数料",
     "youSent": "送った",
     "youReceived": "受け取った",
-    "sentTo": "に送信された",
-    "receivedFrom": "から受け取りました",
     "orderRoute": "注文ルート",
     "status": "ステータス",
     "transactionType": "取引タイプ",

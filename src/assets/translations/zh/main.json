@@ -1759,8 +1759,6 @@
     "fee": "费用",
     "youSent": "你已发送",
     "youReceived": "你已接收",
-    "sentTo": "已发送给",
-    "receivedFrom": "已接收的来自",
     "orderRoute": "下单路径",
     "status": "状态",
     "transactionType": "交易类型",

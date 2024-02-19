@@ -1759,8 +1759,6 @@
     "fee": "Gebühr",
     "youSent": "Sie sandten ",
     "youReceived": "Sie erhielten",
-    "sentTo": "Senden an",
-    "receivedFrom": "Erhalten von",
     "orderRoute": "Bestellroute",
     "status": "Status",
     "transactionType": "Transaktionsart",

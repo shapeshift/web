@@ -1759,8 +1759,6 @@
     "fee": "Комиссия",
     "youSent": "Вы отправили",
     "youReceived": "Вы получили",
-    "sentTo": "Отправлено на",
-    "receivedFrom": "Получено от",
     "orderRoute": "Маршрутизация ордеров",
     "status": "Состояние",
     "transactionType": "Тип транзакции",

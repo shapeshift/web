@@ -49,7 +49,7 @@ export const getEthersProvider = (
 export const getEthersV5Provider = (
   chainId: EvmChainId = KnownChainIds.EthereumMainnet,
 ): ethersV5.providers.JsonRpcProvider => {
-  if (!ethersProviders.has(chainId)) {
+  if (!ethersV5Providers.has(chainId)) {
     const provider = new ethersV5.providers.StaticJsonRpcProvider(rpcUrlByChainId(chainId))
     ethersV5Providers.set(chainId, provider)
     return provider

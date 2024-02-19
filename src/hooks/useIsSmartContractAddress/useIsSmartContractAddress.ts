@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { isAddress } from 'viem'
 import { isSmartContractAddress } from 'lib/address/utils'
 
 export const useIsSmartContractAddress = (address: string) => {
@@ -13,7 +14,7 @@ export const useIsSmartContractAddress = (address: string) => {
       },
     ],
     queryFn: () => isSmartContractAddress(userAddress),
-    enabled: Boolean(userAddress.length),
+    enabled: Boolean(userAddress.length && isAddress(address)),
   })
 
   return query

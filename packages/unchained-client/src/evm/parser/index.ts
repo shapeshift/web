@@ -26,7 +26,7 @@ export class BaseTransactionParser<T extends Tx> {
   assetId: AssetId
 
   protected readonly api: Api
-  protected readonly provider: ethers.providers.JsonRpcBatchProvider
+  protected readonly provider: ethers.providers.StaticJsonRpcProvider
 
   private parsers: SubParser<T>[] = []
 
@@ -34,7 +34,7 @@ export class BaseTransactionParser<T extends Tx> {
     this.chainId = args.chainId
     this.assetId = args.assetId
     this.api = args.api
-    this.provider = new ethers.providers.JsonRpcBatchProvider(args.rpcUrl)
+    this.provider = new ethers.providers.StaticJsonRpcProvider(args.rpcUrl)
   }
 
   /**

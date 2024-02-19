@@ -15,7 +15,7 @@ const ethersMock = {
   ...ethers,
   providers: {
     JsonRpcProvider: vi.fn(),
-    JsonRpcBatchProvider: vi.fn(),
+    StaticJsonRpcProvider: vi.fn(),
   },
   Contract: vi.fn().mockImplementation(address => ({
     decimals: () => {

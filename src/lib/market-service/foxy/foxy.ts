@@ -7,6 +7,7 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import type { ethers } from 'ethers'
 import { foxyAddresses, FoxyApi } from 'lib/investor/investor-foxy'
 
 import type { MarketService } from '../api'
@@ -19,11 +20,19 @@ const FOXY_ASSET_PRECISION = '18'
 
 export class FoxyMarketService extends CoinGeckoMarketService implements MarketService {
   providerUrls: ProviderUrls
+  provider: ethers.providers.StaticJsonRpcProvider
 
-  constructor({ providerUrls }: { providerUrls: ProviderUrls }) {
+  constructor({
+    providerUrls,
+    provider,
+  }: {
+    providerUrls: ProviderUrls
+    provider: ethers.providers.StaticJsonRpcProvider
+  }) {
     super()
 
     this.providerUrls = providerUrls
+    this.provider = provider
   }
 
   async findAll() {
@@ -71,6 +80,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
         adapter: ethChainAdapter,
         providerUrl: this.providerUrls.jsonRpcProviderUrl,
         foxyAddresses,
+        provider: this.provider,
       })
 
       const tokenContractAddress = foxyAddresses[0].foxy

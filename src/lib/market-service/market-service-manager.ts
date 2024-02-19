@@ -6,6 +6,7 @@ import type {
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
+import type { ethers } from 'ethers'
 import { AssetService } from 'lib/asset-service'
 
 // import { Yearn } from '@yfi/sdk'
@@ -25,6 +26,7 @@ export type ProviderUrls = {
 export type MarketServiceManagerArgs = {
   yearnChainReference: 1 | 250 | 1337 | 42161 // from @yfi/sdk
   providerUrls: ProviderUrls
+  provider: ethers.providers.StaticJsonRpcProvider
 }
 
 export class MarketServiceManager {
@@ -32,7 +34,7 @@ export class MarketServiceManager {
   assetService: AssetService
 
   constructor(args: MarketServiceManagerArgs) {
-    const { providerUrls } = args
+    const { providerUrls, provider } = args
 
     // TODO(0xdef1cafe): after chain agnosticism, we need to dependency inject a chainReference here
     // YearnVaultMarketCapService deps
@@ -48,7 +50,7 @@ export class MarketServiceManager {
       // Yearn is currently borked upstream
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
-      new FoxyMarketService({ providerUrls }),
+      new FoxyMarketService({ providerUrls, provider }),
     ]
 
     this.assetService = new AssetService()

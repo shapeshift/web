@@ -37,14 +37,12 @@ const selectLendingCloseQueryData = memoize(
   ({
     data,
     collateralAssetMarketData,
-    repaymentAmountCryptoPrecision,
-    repaymentAmountFiatUserCurrency,
+    repaymentAssetMarketData,
     repaymentPercent,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
     collateralAssetMarketData: MarketData
-    repaymentAmountCryptoPrecision: string | null
-    repaymentAmountFiatUserCurrency: string | null
+    repaymentAssetMarketData: MarketData
     repaymentPercent: number
   }): LendingQuoteClose => {
     const quote = data
@@ -107,9 +105,13 @@ const selectLendingCloseQueryData = memoize(
       bn(quoteOutboundDelayMs).plus(quoteInboundConfirmationMs),
     ).toNumber()
 
-    const repaymentAmountFiatUsd = bnOrZero(repaymentAmountFiatUserCurrency)
-      .div(userCurrencyToUsdRate)
+    const repaymentAmountCryptoPrecision = fromThorBaseUnit(quote.expected_amount_in).toString()
+    const repaymentAmountFiatUserCurrency = fromThorBaseUnit(data.expected_amount_in)
+      .times(repaymentAssetMarketData.price)
       .toString()
+    const repaymentAmountFiatUsd = bn(repaymentAmountFiatUserCurrency)
+      .times(userCurrencyToUsdRate)
+      .toFixed()
 
     return {
       quoteLoanCollateralDecreaseCryptoPrecision,
@@ -142,7 +144,6 @@ export const useLendingQuoteCloseQuery = ({
   repaymentPercent: _repaymentPercent,
   repaymentAccountId: _repaymentAccountId,
   collateralAccountId: _collateralAccountId,
-  enabled = true,
 }: UseLendingQuoteCloseQueryProps & QueryObserverOptions) => {
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: _collateralAssetId,
@@ -197,24 +198,13 @@ export const useLendingQuoteCloseQuery = ({
     selectMarketDataById(state, collateralAssetId),
   )
 
-  const repaymentAmountFiatUserCurrency = useMemo(() => {
-    if (!lendingPositionData) return null
-
-    const proratedCollateralFiatUserCurrency = bnOrZero(repaymentPercent)
-      .times(lendingPositionData?.debtBalanceFiatUserCurrency ?? 0)
-      .div(100)
-
-    return proratedCollateralFiatUserCurrency.toFixed()
-  }, [lendingPositionData, repaymentPercent])
-
-  const repaymentAmountCryptoPrecision = useMemo(() => {
-    if (!repaymentAmountFiatUserCurrency) return null
-
-    return bnOrZero(repaymentAmountFiatUserCurrency).div(repaymentAssetMarketData.price).toFixed()
-  }, [repaymentAmountFiatUserCurrency, repaymentAssetMarketData.price])
-
   const query = useQuery({
-    staleTime: 5_000,
+    // Go stale instantly, and clear garbage collect instantly, as we absolutely want to have the freshest data
+    // because of market-data discrepancies
+    staleTime: 0,
+    gcTime: 0,
+    // Safety first, even if there are already active consumers, remounts should trigger refetches
+    refetchOnMount: true,
     queryKey: lendingQuoteCloseQueryKey,
     queryFn: async ({ queryKey }) => {
       const [, { collateralAssetAddress, repaymentAssetId, collateralAssetId }] = queryKey
@@ -236,24 +226,22 @@ export const useLendingQuoteCloseQuery = ({
       selectLendingCloseQueryData({
         data,
         collateralAssetMarketData,
-        repaymentAmountCryptoPrecision,
-        repaymentAmountFiatUserCurrency,
+        repaymentAssetMarketData,
         repaymentPercent,
       }),
     // Do not refetch if consumers explicitly set enabled to false
     // They do so because the query should never run in the reactive react realm, but only programmatically with the refetch function
-    refetchIntervalInBackground: enabled,
-    refetchInterval: enabled ? 20_000 : undefined,
+    refetchIntervalInBackground: true,
+    refetchInterval: 20_000,
     enabled: Boolean(
-      enabled &&
-        lendingPositionData?.address &&
+      lendingPositionData?.address &&
         bnOrZero(repaymentPercent).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&
         collateralAccountMetadata &&
         repaymentAsset &&
         bnOrZero(repaymentPercent).gt(0) &&
-        repaymentAmountCryptoPrecision,
+        bnOrZero(repaymentPercent).gt(0),
     ),
   })
 

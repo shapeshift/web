@@ -48,6 +48,7 @@ export type LendingDepositQuoteResponse =
   | LendingDepositQuoteResponseError
 
 export type LendingWithdrawQuoteResponseSuccess = BaseQuoteResponse & {
+  expected_amount_in: string
   expected_collateral_withdrawn: string
   expected_debt_repaid: string
 }

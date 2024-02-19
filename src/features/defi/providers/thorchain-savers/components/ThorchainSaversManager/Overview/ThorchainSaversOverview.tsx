@@ -14,6 +14,7 @@ import {
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -131,6 +132,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId,
     enabled: !!assetId,
+    swapperName: SwapperName.Thorchain,
   })
 
   useEffect(() => {

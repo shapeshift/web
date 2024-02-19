@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
@@ -105,6 +106,7 @@ export const Pool = () => {
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: foundPool?.assetId,
     enabled: !!foundPool,
+    swapperName: SwapperName.Thorchain,
   })
 
   const poolAssetIds = useMemo(() => {

@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { reactQueries } from 'react-queries'
 import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -134,7 +133,7 @@ export const swapperApi = createApi({
                   return selectIsTradingActive({
                     assetId,
                     inboundAddressResponse,
-                    swapperName: SwapperName.Thorchain,
+                    swapperName,
                     mimir,
                   })
                 }),

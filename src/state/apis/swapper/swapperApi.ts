@@ -108,6 +108,9 @@ export const swapperApi = createApi({
 
               const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
                 [sellAsset.assetId, buyAsset.assetId].map(async assetId => {
+                  // We only need to fetch inbound_address and mimir for THORChain - this avoids overfetching for other swappers
+                  if (swapperName !== SwapperName.Thorchain) return true
+
                   const inboundAddresses = await queryClient.fetchQuery({
                     ...reactQueries.thornode.inboundAddresses(),
                     // Go stale instantly

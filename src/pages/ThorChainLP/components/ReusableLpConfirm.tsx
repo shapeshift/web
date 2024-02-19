@@ -183,6 +183,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
+    enabled: !!pool,
   })
 
   const confirmCopy = useMemo(() => {

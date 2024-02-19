@@ -66,9 +66,11 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const sellAsset = useAppSelector(selectInputSellAsset)
   const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
     assetId: buyAsset.assetId,
+    enabled: true,
   })
   const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
     assetId: sellAsset.assetId,
+    enabled: true,
   })
 
   const isTradingActive = Boolean(isTradingActiveOnBuyPool && isTradingActiveOnSellPool)

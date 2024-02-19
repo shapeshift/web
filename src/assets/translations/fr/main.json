@@ -126,6 +126,8 @@
     "showLess": "Montrer moins",
     "yourBalance": "Votre solde",
     "signTransaction": "Signer la transaction",
+    "halted": "Arrêté",
+    "poolHalted": "Pool arrêté",
     "carousel": {
       "next": "Suivant",
       "prev": "Précédent",
@@ -257,7 +259,6 @@
     "exploreThe": "Explorez",
     "defiUniverse": "l'Univers DeFi",
     "body": "Échangez, bridgez et gagnez. Privé. Propriété communautaire. Non‑dépositaire. Décentralisé.",
-    "body2": "Bienvenue sur le nouveau ShapeShift. 100% Gratuit. Open‑Source. Propriété communautaire. Non‑dépositaire. Privé.",
     "header": "Veuillez connecter un porte-monnaie pour commencer.",
     "cta": "Connecter un porte-monnaie",
     "viewADemo": "Voir une démo",
@@ -323,7 +324,8 @@
         "foxyBalance": "Solde FOXy",
         "withdrawals": "Retraits",
         "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici.",
-        "availableDate": "disponible %{date}"
+        "availableDate": "disponible %{date}",
+        "disabledTitle": "Les dépôts FOXy sont désactivés"
       },
       "foxFarmingOverview": {
         "header": "Déposer des jetons LP ETH-FOX dans %{opportunity} pour gagner",
@@ -573,6 +575,7 @@
     "from": "De",
     "trade": "Échange",
     "swap": "Échange",
+    "swapWith": "Échanger avec %{dex}",
     "amount": "Montant",
     "for": "pour",
     "emptyMessage": "Vos transactions %{status} apparaîtront ici.",
@@ -748,17 +751,23 @@
     "recipientAddress": "Adresse du destinataire",
     "customRecipientAddress": "Adresse de destinataire personnalisée",
     "customRecipientAddressDescription": "Saisissez une adresse de destinataire personnalisée pour cet échange",
+    "thisIsYourCustomRecipientAddress": "Il s'agit de l'adresse personnalisée du destinataire",
     "enterCustomRecipientAddress": "Saisissez l'adresse de destinataire personnalisée",
     "tooltip": {
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
+      "priceImpactLabel": "Impact sur le prix : %{priceImpactPercentage} %",
       "priceImpact": "Un échange de cette taille peut avoir un impact élevé sur le prix compte tenu de la liquidité actuelle du pool. Il peut y avoir une grande différence entre la valeur de votre jeton d'entrée et ce que vous recevrez pour le jeton de sortie",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
       "protocol": "C'est le protocole avec lequel votre échange est routé.",
       "protocolLifi": "C'est le protocole par lequel votre échange est routé. LI.FI exécute une série de transactions intermédiaires pour trouver la meilleure combinaison globale de prix, de sécurité et de rapidité.",
       "protocolFee": "Il s'agit des frais facturés par le protocole sélectionné pour traiter cette transaction, il ne s'agit pas de frais facturés par ShapeShift",
       "shapeshiftFee": "ShapeShift n'ajoute aucun frais sur les échanges 🎉",
-      "manualReceiveAddress": "C'est l'adresse à laquelle vous recevrez vos fonds. Elle a été saisie manuellement, veuillez vous assurer qu'elle est correcte."
+      "manualReceiveAddress": "C'est l'adresse à laquelle vous recevrez vos fonds. Elle a été saisie manuellement, veuillez vous assurer qu'elle est correcte.",
+      "amountPercentageDifference": "Il s'agit de la différence en pourcentage du montant total en %{buyAssetSymbol} que vous recevrez, par rapport au meilleur devis.",
+      "overallPercentageDifference": "Il s'agit de la différence en pourcentage du montant global reçu après déduction de tous les frais, par rapport au meilleur devis.",
+      "gasFee": "Il s'agit des frais de carburant estimés pour finaliser cette transaction.",
+      "slippage": "Si le prix change de telle manière que vous recevrez moins de %{amount}, votre transaction sera annulée. Il s’agit du montant minimum garanti que vous recevrez."
     },
     "rates": {
       "tags": {
@@ -802,7 +811,6 @@
     "onChainName": "sur %{chainName}",
     "unknownGas": "(inconnu)",
     "numHops": "Cet échange comprend %{numHops} sauts",
-    "percentageDifferenceTooltip": "Il s'agit de la différence en pourcentage du montant total en %{buyAssetSymbol} que vous recevrez, par rapport au meilleur devis.",
     "receiveAddress": "Adresse de réception",
     "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse ou",
     "toContinue": "pour continuer.",
@@ -1759,16 +1767,23 @@
     "fee": "Frais",
     "youSent": "Vous avez envoyé",
     "youReceived": "Vous avez reçu",
+    "sentTo": "Envoyé à %{adresse}",
+    "receivedFrom": "Reçu de %{adresse}",
     "orderRoute": "Route de l'ordre",
     "status": "Statut",
     "transactionType": "Type de transaction",
     "minerFee": "Frais de minage",
     "approvalAmount": "Montant autorisé",
     "unknownType": "Transaction",
+    "date": "Date",
     "from": "De",
     "to": "À",
     "for": "Pour",
-    "transfers": "Transferts"
+    "transfers": "Transferts",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois-ci"
   },
   "plugins": {
     "foxPage": {
@@ -2198,6 +2213,8 @@
     "initialPricesAndPoolShare": "Prix ​​initiaux et part du pool",
     "pricePerAsset": "%{from} par %{to}",
     "symAlert": "Votre %{from} sera divisé en une exposition 50:50 à %{to} et %{from} dès votre entrée dans le pool.",
+    "unsupportedNetworkExplainer": "Votre porte-monnaie ne prend pas en charge %{network}. Veuillez passer à un porte-monnaie prenant en charge ce réseau.",
+    "unsupportedNetworksExplainer": "Votre porte-monnaie ne prend pas en charge %{network1} et %{network2}. Veuillez passer à un porte-monnaie prenant en charge ces réseaux.",
     "shareOfPool": "Part du pool",
     "assetDepositAmount": "Montant du dépôt %{asset}",
     "totalLiquidity": "Liquidité totale",

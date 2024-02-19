@@ -20,7 +20,7 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
-import { getSupportedChainIdsByChainNamespace } from '.'
+import { getSupportedChainIdsByChainNamespace, isKeepKeyHDWallet } from '.'
 
 type GetApproveContractDataArgs = {
   approvalAmountCryptoBaseUnit: string
@@ -96,7 +96,8 @@ export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fe
   const { accountNumber, adapter, wallet, ...rest } = args
 
   const from = await adapter.getAddress({ accountNumber, wallet })
-  const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+  const supportsEIP1559 =
+    !isKeepKeyHDWallet(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
   return getFees({ ...rest, adapter, from, supportsEIP1559 })
 }

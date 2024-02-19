@@ -14,7 +14,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { isToken } from 'lib/utils'
+import { isKeepKeyHDWallet, isToken } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -98,7 +98,8 @@ const mutations = createMutationKeys('mutations', {
         value: '0',
         data: approvalCalldata,
         from,
-        supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+        supportsEIP1559:
+          !isKeepKeyHDWallet(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
       })
 
       const buildCustomTxInput = {

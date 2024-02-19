@@ -659,9 +659,12 @@ export class FoxyApi {
       }
     })()
 
-    // This was typed as any previously but is now typed as {}
-    // Can we surface the contract types here?
-    const epoch: any = await (() => {
+    const epoch: {
+      length?: BigInt
+      number?: BigInt
+      endBlock?: BigInt
+      distribute?: BigInt
+    } = await (() => {
       try {
         return stakingContract.epoch()
       } catch (e) {
@@ -670,9 +673,10 @@ export class FoxyApi {
       }
     })()
 
-    // This was typed as any previously but is now typed as {}
-    // Can we surface the contract types here?
-    const requestedWithdrawals: any = await (() => {
+    const requestedWithdrawals: {
+      minCycle?: BigInt
+      amount?: BigInt
+    } = await (() => {
       try {
         return tokePoolContract.requestedWithdrawals(stakingContract.target)
       } catch (e) {
@@ -681,50 +685,54 @@ export class FoxyApi {
       }
     })()
 
-    // This was typed as any previously but is now typed as {}
-    // Can we surface the contract types here?
-    const currentCycleIndex: any = await (() => {
+    const currentCycleIndex: BigInt = await (() => {
       try {
         return tokeManagerContract.getCurrentCycleIndex()
       } catch (e) {
         console.error(e, 'failed to get currentCycleIndex')
-        return 0
+        return BigInt(0)
       }
     })()
-
-    // This was typed as any previously but is now typed as {}
-    // Can we surface the contract types here?
-    const withdrawalAmount: any = await (() => {
+    const withdrawalAmount: BigInt = await (() => {
       try {
         return stakingContract.withdrawalAmount()
       } catch (e) {
         console.error(e, 'failed to get currentCycleIndex')
-        return 0
+        return BigInt(0)
       }
     })()
 
     const currentBlock = await this.provider.getBlockNumber()
 
-    const epochExpired = bnOrZero(epoch.number.toString()).gte(coolDownInfo.endEpoch.toString())
+    const epochExpired = bnOrZero(epoch.number?.toString()).gte(coolDownInfo.endEpoch.toString())
     const coolDownValid =
       !bnOrZero(coolDownInfo.endEpoch).isZero() && !bnOrZero(coolDownInfo.amount).isZero()
 
-    const pastTokeCycleIndex = bnOrZero(requestedWithdrawals.minCycle).lte(
+    const pastTokeCycleIndex = bnOrZero(requestedWithdrawals.minCycle?.toString()).lte(
       currentCycleIndex.toString(),
     )
-    const stakingTokenAvailableWithTokemak = requestedWithdrawals.amount.add(withdrawalAmount)
-    const stakingTokenAvailable = withdrawalAmount.gte(coolDownInfo.amount)
+    const stakingTokenAvailableWithTokemak = bnOrZero(requestedWithdrawals.amount?.toString()).plus(
+      withdrawalAmount.toString(),
+    )
+    const stakingTokenAvailable = bnOrZero(withdrawalAmount.toString()).gte(coolDownInfo.amount)
     const validCycleAndAmount =
       (pastTokeCycleIndex && stakingTokenAvailableWithTokemak.gte(coolDownInfo.amount)) ||
       stakingTokenAvailable
 
-    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString())
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(
+      epoch.number?.toString() ?? '0',
+    )
     const blocksLeftInCurrentEpoch =
-      epochsLeft.gt(0) && epoch.endBlock.gt(currentBlock)
-        ? epoch.endBlock.sub(currentBlock).toNumber()
+      epochsLeft.gt(0) && bnOrZero(epoch.endBlock?.toString()).gt(currentBlock)
+        ? bnOrZero(epoch.endBlock?.toString())
+            .minus(currentBlock)
+            .toNumber()
         : 0 // calculate time remaining in current epoch
     const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
-      ? epochsLeft.minus(1).times(epoch.length).toNumber()
+      ? epochsLeft
+          .minus(1)
+          .times(epoch.length?.toString() ?? '0')
+          .toNumber()
       : 0
 
     return (

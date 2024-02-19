@@ -10085,6 +10085,7 @@ __metadata:
     eslint-plugin-simple-import-sort: ^10.0.0
     eth-url-parser: ^1.0.4
     ethers: ^6.11.1
+    ethers5: "npm:ethers@5.7.2"
     express: ^4.18.2
     fast-json-stable-stringify: ^2.1.0
     framer-motion: ^11.0.3
@@ -21060,7 +21061,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:5.7.2, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.2":
+"ethers5@npm:ethers@5.7.2, ethers@npm:5.7.2, ethers@npm:^5.6.5, ethers@npm:^5.6.9, ethers@npm:^5.7.2":
   version: 5.7.2
   resolution: "ethers@npm:5.7.2"
   dependencies:

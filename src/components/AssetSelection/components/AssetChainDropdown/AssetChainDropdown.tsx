@@ -65,16 +65,21 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
     return relatedAssetIds.length <= 1 || isLoading || isError
   }, [relatedAssetIds, isError, isLoading])
 
+  const isTooltipDisabled = useMemo(() => {
+    // only render the tooltip when there are no other related assets and we're not loading and not
+    // errored
+    return relatedAssetIds.length > 1 || isLoading || isError
+  }, [relatedAssetIds, isError, isLoading])
+
   const buttonTooltipText = useMemo(() => {
-    if (relatedAssetIds.length > 1 || isLoading || isError) return ''
     return translate('trade.tooltip.noRelatedAssets', { chainName: assetChainName })
-  }, [assetChainName, isError, isLoading, relatedAssetIds.length, translate])
+  }, [assetChainName, translate])
 
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
     <Menu {...menuProps}>
-      <Tooltip label={buttonTooltipText}>
+      <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
         <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
           <AssetChainRow assetId={assetId} hideBalances />
         </MenuButton>

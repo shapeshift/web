@@ -127,7 +127,7 @@ export const swapperApi = createApi({
                   return selectIsTradingActive({
                     assetId,
                     inboundAddressResponse,
-                    swapperName: SwapperName.Thorchain,
+                    swapperName,
                     mimir,
                   })
                 }),

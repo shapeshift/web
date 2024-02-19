@@ -51,7 +51,7 @@ export const selectAssetNameById = createSelector(
   (asset): string => asset?.name ?? '',
 )
 
-export const selectAssetChainNameById = createSelector(selectAssetById, (asset): string => {
+export const selectChainDisplayNameByAssetId = createSelector(selectAssetById, (asset): string => {
   if (!asset) return ''
   const chainAdapterManager = getChainAdapterManager()
   return chainAdapterManager.get(asset.chainId)?.getDisplayName() ?? ''

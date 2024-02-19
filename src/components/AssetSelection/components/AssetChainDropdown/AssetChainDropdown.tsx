@@ -14,7 +14,7 @@ import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssetChainNameById,
+  selectChainDisplayNameByAssetId,
   selectRelatedAssetIdsInclusiveSorted,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -42,7 +42,9 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
     state: { wallet },
   } = useWallet()
   const translate = useTranslate()
-  const assetChainName = useAppSelector(state => selectAssetChainNameById(state, assetId ?? ''))
+  const chainDisplayName = useAppSelector(state =>
+    selectChainDisplayNameByAssetId(state, assetId ?? ''),
+  )
   const relatedAssetIds = useAppSelector(state =>
     selectRelatedAssetIdsInclusiveSorted(state, assetId ?? ''),
   )
@@ -72,8 +74,8 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   }, [relatedAssetIds, isError, isLoading])
 
   const buttonTooltipText = useMemo(() => {
-    return translate('trade.tooltip.noRelatedAssets', { chainName: assetChainName })
-  }, [assetChainName, translate])
+    return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })
+  }, [chainDisplayName, translate])
 
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 

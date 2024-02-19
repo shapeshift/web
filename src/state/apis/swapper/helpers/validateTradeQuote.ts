@@ -42,6 +42,7 @@ export const validateTradeQuote = async (
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
     sendAddress,
+    inputSellAmountCryptoBaseUnit,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | undefined
@@ -51,6 +52,7 @@ export const validateTradeQuote = async (
     // TODO(gomes): this should most likely live in the quote alongside the receiveAddress,
     // summoning @woodenfurniture WRT implications of that, this works for now
     sendAddress: string | undefined
+    inputSellAmountCryptoBaseUnit: string
   },
 ): Promise<{
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -252,6 +254,10 @@ export const validateTradeQuote = async (
     return false
   })()
 
+  // ensure the trade is not selling an amount higher than the user input
+  const invalidQuoteSellAmount =
+    inputSellAmountCryptoBaseUnit !== firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
+
   return {
     errors: [
       !!disableSmartContractSwap && {
@@ -300,6 +306,7 @@ export const validateTradeQuote = async (
         },
       },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
+      invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
 
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),

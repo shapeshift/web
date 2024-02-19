@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
@@ -104,6 +105,8 @@ export const Pool = () => {
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: foundPool?.assetId,
+    enabled: !!foundPool,
+    swapperName: SwapperName.Thorchain,
   })
 
   const poolAssetIds = useMemo(() => {
@@ -124,6 +127,11 @@ export const Pool = () => {
       }),
     )
   }, [foundPool?.opportunityId, history])
+
+  const handleTradeClick = useCallback(() => {
+    if (!foundPool) return
+    history.push(`/trade/${foundPool?.assetId}`)
+  }, [foundPool, history])
 
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
   const assetMarketData = useAppSelector(state =>
@@ -214,7 +222,12 @@ export const Pool = () => {
                   {translate('pools.addLiquidity')}
                 </Button>
               </Tooltip>
-              <Button colorScheme='blue' leftIcon={swapIcon}>
+              <Button
+                colorScheme='blue'
+                leftIcon={swapIcon}
+                isDisabled={isTradingActiveLoading || isTradingActive === false}
+                onClick={handleTradeClick}
+              >
                 {translate('trade.trade')}
               </Button>
             </Flex>

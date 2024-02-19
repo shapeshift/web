@@ -23,6 +23,7 @@ import {
   type FeeDataEstimate,
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -107,6 +108,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     isLoading: isTradingActiveLoading,
   } = useIsTradingActive({
     assetId: poolAssetId,
+    enabled: !txId,
+    swapperName: SwapperName.Thorchain,
   })
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]
@@ -368,7 +371,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       memo: estimateFeesArgs?.memo ?? '',
       accountId: estimateFeesArgs?.accountId ?? '',
       contractAddress: estimateFeesArgs?.contractAddress ?? '',
-      enabled: !!estimateFeesArgs,
+      enabled: !!estimateFeesArgs && !txId,
     })
 
   const estimatedFeeDataCryptoPrecision = useMemo(() => {

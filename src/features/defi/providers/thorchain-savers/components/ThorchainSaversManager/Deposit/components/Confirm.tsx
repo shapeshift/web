@@ -13,6 +13,7 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -540,6 +541,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,
+    enabled: !!assetId,
+    swapperName: SwapperName.Thorchain,
   })
 
   const handleDeposit = useCallback(async () => {

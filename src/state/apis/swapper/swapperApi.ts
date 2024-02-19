@@ -37,8 +37,15 @@ export const swapperApi = createApi({
     getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteRequest>({
       queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {
         const state = getState() as ReduxState
-        const { swapperName, sendAddress, receiveAddress, sellAsset, buyAsset, affiliateBps } =
-          tradeQuoteInput
+        const {
+          swapperName,
+          sendAddress,
+          receiveAddress,
+          sellAsset,
+          buyAsset,
+          affiliateBps,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        } = tradeQuoteInput
 
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
@@ -109,6 +116,9 @@ export const swapperApi = createApi({
 
               const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
                 [sellAsset.assetId, buyAsset.assetId].map(async assetId => {
+                  // We only need to fetch inbound_address and mimir for THORChain - this avoids overfetching for other swappers
+                  if (swapperName !== SwapperName.Thorchain) return true
+
                   const inboundAddresses = await queryClient.fetchQuery({
                     ...reactQueries.thornode.inboundAddresses(),
                     // Go stale instantly
@@ -127,7 +137,7 @@ export const swapperApi = createApi({
                   return selectIsTradingActive({
                     assetId,
                     inboundAddressResponse,
-                    swapperName: SwapperName.Thorchain,
+                    swapperName,
                     mimir,
                   })
                 }),
@@ -159,6 +169,7 @@ export const swapperApi = createApi({
               isTradingActiveOnSellPool,
               isTradingActiveOnBuyPool,
               sendAddress,
+              inputSellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
             })
             return {
               id: quoteSource,

@@ -15,6 +15,7 @@ import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftos
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
@@ -594,6 +595,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,
+    enabled: !!assetId,
+    swapperName: SwapperName.Thorchain,
   })
 
   const handleConfirm = useCallback(async () => {

@@ -9,7 +9,7 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
-import { isValidAccountNumber } from 'lib/utils'
+import { isKeepKeyHDWallet, isValidAccountNumber } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -220,7 +220,8 @@ export const useFoxFarming = (
         from: userAddress,
         to: contractAddress,
         value: '0',
-        supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+        supportsEIP1559:
+          !isKeepKeyHDWallet(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
       })
     },
     [adapter, contractAddress, foxFarmingContract, wallet],

@@ -28,7 +28,7 @@ export const selectIsTradingActive = ({
 }: {
   assetId: AssetId | undefined
   swapperName: SwapperName
-  mimir: Record<string, unknown>
+  mimir: Record<string, unknown> | undefined
   inboundAddressResponse: InboundAddressResponse | undefined
 }): boolean => {
   switch (swapperName) {
@@ -39,7 +39,9 @@ export const selectIsTradingActive = ({
       if (sellAssetIsRune) {
         // The sell asset is RUNE, there is no inbound address data to check against
         // Check the HALTTHORCHAIN flag on the mimir endpoint instead
-        return Object.entries(mimir).some(([k, v]) => k === 'HALTTHORCHAIN' && v === 0)
+        return Boolean(
+          mimir && Object.entries(mimir).some(([k, v]) => k === 'HALTTHORCHAIN' && v === 0),
+        )
       }
 
       // We have inboundAddressData for the sell asset, check if it is halted

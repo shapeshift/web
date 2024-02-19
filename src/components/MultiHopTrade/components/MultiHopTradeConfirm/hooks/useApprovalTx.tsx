@@ -5,6 +5,7 @@ import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isKeepKeyHDWallet } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,7 +39,7 @@ export const useApprovalTx = (
         // This accidentally works since all EVM chains share the same address, so there's no need
         // to call adapter.getAddress() later down the call stack
         const from = fromAccountId(sellAssetAccountId).account
-        const supportsEIP1559 = await wallet.ethSupportsEIP1559()
+        const supportsEIP1559 = !isKeepKeyHDWallet(wallet) && (await wallet.ethSupportsEIP1559())
 
         const { buildCustomTxInput, networkFeeCryptoBaseUnit } = await getApprovalTxData({
           tradeQuoteStep,

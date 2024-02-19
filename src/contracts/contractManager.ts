@@ -15,7 +15,7 @@ import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
 import { getContract } from 'viem'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
+import { getEthersProvider, getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { viemClientByChainId, viemEthMainnetClient } from 'lib/viem-client'
 
 import {
@@ -119,7 +119,7 @@ export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
     type: ContractType.UniV2Pair,
     chainId: KnownChainIds.EthereumMainnet,
   })
-  const ethersProvider = getEthersProvider() as Provider
+  const ethersV5Provider = getEthersV5Provider()
 
   const token0Address = await pair.read.token0()
   const token1Address = await pair.read.token1()
@@ -142,19 +142,13 @@ export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const token0: Token = await Fetcher.fetchTokenData(
     Number(asset0EvmChainId),
     asset0Address,
-    // @ts-ignore TODO(gomes): FIXME, this is 99% likely to fail because ethers v6 now uses BigInt instead of BigNumber
-    // We may want to patch @uniswap/sdk while https://github.com/Uniswap/web3-react/issues/812 is open
-    ethersProvider,
+    ethersV5Provider,
   )
   const token1: Token = await Fetcher.fetchTokenData(
     Number(asset1EvmChainId),
     asset1Address,
-    // @ts-ignore TODO(gomes): FIXME, this is 99% likely to fail because ethers v6 now uses BigInt instead of BigNumber
-    // We may want to patch @uniswap/sdk while https://github.com/Uniswap/web3-react/issues/812 is open
-    ethersProvider,
+    ethersV5Provider,
   )
 
-  // @ts-ignore TODO(gomes): FIXME, this is 99% likely to fail because ethers v6 now uses BigInt instead of BigNumber
-  // We may want to patch @uniswap/sdk while https://github.com/Uniswap/web3-react/issues/812 is open
-  return Fetcher.fetchPairData(token0, token1, ethersProvider)
+  return Fetcher.fetchPairData(token0, token1, ethersV5Provider)
 })

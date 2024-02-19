@@ -12,9 +12,11 @@ import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 export const useIsTradingActive = ({
   assetId,
   enabled,
+  swapperName,
 }: {
   assetId: AssetId | undefined
   enabled: boolean
+  swapperName: SwapperName
 }) => {
   const [
     {
@@ -49,15 +51,13 @@ export const useIsTradingActive = ({
   })
 
   const isTradingActive = useMemo(() => {
-    if (isMimirLoading || !mimir || !assetId) return
-
     return selectIsTradingActive({
       assetId,
       inboundAddressResponse: inboundAddressesData,
-      swapperName: SwapperName.Thorchain,
+      swapperName,
       mimir,
     })
-  }, [assetId, inboundAddressesData, isMimirLoading, mimir])
+  }, [assetId, inboundAddressesData, mimir, swapperName])
 
   const refetch = useCallback(async () => {
     const { data: mimirResponse } = await refetchMimir()

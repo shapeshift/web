@@ -4,6 +4,7 @@ import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { WithdrawType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import dotenv from 'dotenv'
+import { ethers } from 'ethers'
 import readline from 'readline-sync'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -54,6 +55,9 @@ const main = async (): Promise<void> => {
     adapter: ethChainAdapter,
     providerUrl: process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
     foxyAddresses,
+    provider: new ethers.providers.StaticJsonRpcProvider(
+      process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
+    ),
   })
 
   const accountNumber = 0

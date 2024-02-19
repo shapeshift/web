@@ -1,6 +1,7 @@
 import type { GridProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -54,6 +55,7 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
     enabled: !!pool,
+    swapperName: SwapperName.Thorchain,
   })
 
   const handlePoolClick = useCallback(() => {

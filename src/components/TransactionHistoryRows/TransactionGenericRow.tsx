@@ -136,8 +136,8 @@ export const TransactionGenericRow = ({
     }
 
     if (hasManySendAssets) {
-      const assets = transfersByType.Send.map(transfer => transfer.asset.symbol)
-      return <RawText color='text.subtle'>{assets.join(' + ')}</RawText>
+      const symbols = transfersByType.Send.map(transfer => transfer.asset.symbol)
+      return <RawText color='text.subtle'>{symbols.join(' + ')}</RawText>
     }
   }, [hasSingleSendAsset, hasManySendAssets, transfersByType.Send])
 
@@ -306,8 +306,8 @@ export const TransactionGenericRow = ({
     }
 
     if (hasManyReceiveAssets) {
-      const assets = transfersByType.Receive.map(transfer => transfer.asset.symbol)
-      return <RawText color='text.subtle'>{assets.join(' + ')}</RawText>
+      const symbols = transfersByType.Receive.map(transfer => transfer.asset.symbol)
+      return <RawText color='text.subtle'>{symbols.join(' + ')}</RawText>
     }
   }, [
     hasNoReceiveAssets,

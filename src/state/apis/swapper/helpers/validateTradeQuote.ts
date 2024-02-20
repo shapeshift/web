@@ -255,8 +255,9 @@ export const validateTradeQuote = async (
   })()
 
   // ensure the trade is not selling an amount higher than the user input
-  const invalidQuoteSellAmount =
-    inputSellAmountCryptoBaseUnit !== firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
+  const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit).gte(
+    firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  )
 
   return {
     errors: [

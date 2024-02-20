@@ -216,9 +216,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     const _UserlpData: UserLpDataPosition | undefined = userData.find(
       data => data.opportunityId === opportunityId,
     )
-    const runeAddress = _UserlpData?.runeAddress
-    if (!_UserlpData || !runeAddress) return
+    if (!_UserlpData) return
     setUserlpData(_UserlpData)
+    const runeAddress = _UserlpData?.runeAddress
+    if (!runeAddress) return
     const runeAccountId = toAccountId({
       chainId: thorchainChainId,
       account: runeAddress,

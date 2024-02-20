@@ -21,7 +21,7 @@ export const useIsApprovalNeeded = (
         ? bn(allowanceCryptoBaseUnit).lt(
             tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           )
-        : undefined
+        : false
     },
     [tradeQuoteStep],
   )

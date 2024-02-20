@@ -593,6 +593,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
           return (
             <AssetInput
+              key={asset.assetId}
               accountId={poolAccountId}
               cryptoAmount={cryptoAmount}
               onChange={handleRemoveLiquidityInputChange}
@@ -604,7 +605,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               balance={cryptoBalance}
               fiatBalance={fiatBalance}
               percentOptions={percentOptions}
-              isReadOnly={false} // todo
+              isReadOnly={false}
               formControlProps={formControlProps}
             ></AssetInput>
           )

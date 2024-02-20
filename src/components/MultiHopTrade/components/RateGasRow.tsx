@@ -1,6 +1,15 @@
 import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Box, Center, Collapse, Flex, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
+import {
+  Box,
+  Center,
+  Collapse,
+  Flex,
+  Skeleton,
+  Stack,
+  Tooltip,
+  useDisclosure,
+} from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { AnimatePresence } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
@@ -8,7 +17,6 @@ import { type FC, memo, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
-import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { StreamIcon } from 'components/Icons/Stream'
 import { Row } from 'components/Row/Row'
@@ -29,7 +37,6 @@ type RateGasRowProps = {
   rate?: string
   gasFee: string
   isLoading?: boolean
-  isTradeQuoteLoading: boolean
   isError?: boolean
   allowSelectQuote: boolean
   swapperName?: SwapperName
@@ -51,7 +58,6 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     rate,
     gasFee,
     isLoading,
-    isTradeQuoteLoading,
     allowSelectQuote,
     swapperName,
     swapSource,
@@ -100,9 +106,16 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     switch (true) {
       case isLoading:
         return (
-          <Stack direction='row' alignItems='center' fontSize='sm' px={6} py={4}>
-            <CircularProgress size='16px' />
+          <Stack
+            direction='row'
+            alignItems='center'
+            fontSize='sm'
+            px={6}
+            py={4}
+            justifyContent='space-between'
+          >
             <Text translation={'trade.searchingRate'} />
+            <Skeleton height='21px' width='80px' />
           </Stack>
         )
       case !rate:
@@ -165,9 +178,6 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                           symbol={buySymbol ?? ''}
                         />
                         {allowSelectQuote && <ArrowUpDownIcon />}
-                        {/* Indicates that a quote is available to execute but also there are still
-                        swappers loading. Prevents blocking trading during outages etc */}
-                        {isTradeQuoteLoading && <CircularProgress size='16px' />}
                       </Stack>
                     </Row.Value>
                   </Row>

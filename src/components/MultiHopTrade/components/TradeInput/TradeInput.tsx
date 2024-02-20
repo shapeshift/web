@@ -75,7 +75,6 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsAnyTradeQuoteLoaded,
-  selectIsAnyTradeQuoteLoading,
   selectIsUnsafeActiveQuote,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -154,7 +153,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
-  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
   const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
@@ -163,8 +161,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      // case !isAnySwapperFetched:
-      //   return 'common.loadingText'
+      case !isAnyTradeQuoteLoaded:
       case !hasUserEnteredAmount:
         return 'trade.previewTrade'
       case !!quoteRequestError:
@@ -178,7 +175,13 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       default:
         return 'trade.previewTrade'
     }
-  }, [quoteRequestErrors, quoteResponseErrors, activeQuoteErrors, hasUserEnteredAmount])
+  }, [
+    quoteRequestErrors,
+    quoteResponseErrors,
+    activeQuoteErrors,
+    isAnyTradeQuoteLoaded,
+    hasUserEnteredAmount,
+  ])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
@@ -360,9 +363,9 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   }, [isUnsafeQuote])
 
   const quoteHasError = useMemo(() => {
-    // if (isQuoteRequestUninitialized || !isAnySwapperFetched) return false
+    if (!isAnyTradeQuoteLoaded) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [activeQuoteErrors?.length, quoteRequestErrors?.length])
+  }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -468,7 +471,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
               rate={rate}
               isLoading={isLoading}
-              isTradeQuoteLoading={isAnyTradeQuoteLoading}
               // isError={didQuoteRequestFail}
               swapperName={activeSwapperName}
               swapSource={tradeQuoteStep?.source}
@@ -518,7 +520,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               size='lg-multiline'
               data-test='trade-form-preview-button'
               isDisabled={shouldDisablePreviewButton}
-              isLoading={isLoading}
               mx={-2}
             >
               <Text translation={quoteStatusTranslation} />
@@ -534,8 +535,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       totalNetworkFeeFiatPrecision,
       rate,
       isLoading,
-      isAnyTradeQuoteLoading,
-      // didQuoteRequestFail,
       activeSwapperName,
       tradeQuoteStep?.source,
       handleOpenCompactQuoteList,
@@ -614,7 +613,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                           {translate('navBar.trade')}
                         </Heading>
                         <Flex gap={2} alignItems='center'>
-                          {activeQuote && (
+                          {activeQuote && (isCompact || isSmallerThanXl) && (
                             <CountdownSpinner isLoading={isLoading || isRefetching} />
                           )}
                           <SlippagePopover />

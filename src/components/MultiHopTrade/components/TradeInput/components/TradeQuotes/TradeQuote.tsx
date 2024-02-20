@@ -1,5 +1,5 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
+import { Center, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
@@ -280,10 +280,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
     return (
       <Flex gap={2} alignItems='center'>
         <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-        <CountdownSpinner isLoading={isLoading || isRefetching} />
+        <Center display={isActive ? 'flex' : 'none'}>
+          <CountdownSpinner isLoading={isLoading || isRefetching} />
+        </Center>
       </Flex>
     )
-  }, [isLoading, isRefetching, tag])
+  }, [isActive, isLoading, isRefetching, tag])
 
   const bodyContent = useMemo(() => {
     return quote ? (

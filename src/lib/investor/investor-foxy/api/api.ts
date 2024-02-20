@@ -15,7 +15,6 @@ import { ethers } from 'ethers'
 import { toLower } from 'lodash'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/investor/constants'
-import { isKeepKeyHDWallet } from 'lib/utils'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import { erc20Abi } from '../abi/erc20-abi'
@@ -130,7 +129,6 @@ export class FoxyApi {
       chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
     } = payload.estimatedFees.fast
     const shouldUseEIP1559Fees =
-      !isKeepKeyHDWallet(wallet) &&
       (await wallet.ethSupportsEIP1559()) &&
       maxFeePerGas !== undefined &&
       maxPriorityFeePerGas !== undefined

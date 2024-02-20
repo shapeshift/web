@@ -1,7 +1,7 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Center, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
+import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -55,7 +55,11 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   isRefetching,
   onBack,
 }) => {
-  const { quote, errors, inputOutputRatio } = quoteData
+  const { quote, errors, inputOutputRatio, swapperName } = quoteData
+
+  if (swapperName === SwapperName.CowSwap) {
+    console.log(quoteData)
+  }
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()

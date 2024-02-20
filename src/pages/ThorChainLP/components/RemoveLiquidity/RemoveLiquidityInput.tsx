@@ -285,33 +285,25 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
   // however that's fine for now until accurate fees estimation is implemented
-  const {
-    data: estimatedRuneFeesData,
-    isLoading: isEstimatedRuneFeesDataLoading,
-    // isError: isEstimatedRuneFeesDataError,
-    // isSuccess: isEstimatedRuneFeesDataSuccess,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId: thorchainAssetId,
-    collateralAccountId: runeAccountId ?? '', // fixme
-    repaymentAccountId: runeAccountId ?? '', // fixme
-    repaymentAsset: runeAsset ?? null,
-    repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
-    confirmedQuote,
-  })
+  const { data: estimatedRuneFeesData, isLoading: isEstimatedRuneFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId: thorchainAssetId,
+      collateralAccountId: runeAccountId ?? '', // fixme
+      repaymentAccountId: runeAccountId ?? '', // fixme
+      repaymentAsset: runeAsset ?? null,
+      repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
+      confirmedQuote,
+    })
 
-  const {
-    data: estimatedPoolAssetFeesData,
-    isLoading: isEstimatedPoolAssetFeesDataLoading,
-    // isError: isEstimatedPoolAssetFeesDataError,
-    // isSuccess: isEstimatedPoolAssetFeesDataSuccess,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId: poolAsset?.assetId ?? '', // fixme
-    collateralAccountId: poolAccountId,
-    repaymentAccountId: poolAccountId,
-    repaymentAsset: poolAsset ?? null,
-    confirmedQuote,
-    repaymentAmountCryptoPrecision: actualAssetCryptoLiquidityAmount,
-  })
+  const { data: estimatedPoolAssetFeesData, isLoading: isEstimatedPoolAssetFeesDataLoading } =
+    useQuoteEstimatedFeesQuery({
+      collateralAssetId: poolAsset?.assetId ?? '', // fixme
+      collateralAccountId: poolAccountId,
+      repaymentAccountId: poolAccountId,
+      repaymentAsset: poolAsset ?? null,
+      confirmedQuote,
+      repaymentAmountCryptoPrecision: actualAssetCryptoLiquidityAmount,
+    })
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>

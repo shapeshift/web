@@ -26,6 +26,7 @@ import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -196,14 +197,18 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, rune?.assetId ?? ''))
 
-  const {
-    data: inboundAddressData,
-    // isLoading: isInboundAddressLoading,
-    // isError: isInboundAddressError,
-  } = useQuery({
-    ...reactQueries.thornode.inboundAddress(poolAsset?.assetId),
+  const { data: inboundAddressesData } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
     enabled: !!poolAsset,
-    select: data => data?.unwrap(),
+    select: data => selectInboundAddressData(data, poolAsset?.assetId),
+    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 60_000,
   })
 
   useEffect(() => {
@@ -377,16 +382,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       case 'EvmCustomTx': {
         // TODO: this should really be inboundAddressData?.router, but useQuoteEstimatedFeesQuery doesn't yet handle contract calls
         // for the purpose of naively assuming a send, using the inbound address instead of the router is fine
-        return inboundAddressData?.address
+        return inboundAddressesData?.address
       }
       case 'Send': {
-        return inboundAddressData?.address
+        return inboundAddressesData?.address
       }
       default: {
         assertUnreachable(transactionType as never)
       }
     }
-  }, [poolAsset, inboundAddressData?.address])
+  }, [poolAsset, inboundAddressesData?.address])
 
   const renderHeader = useMemo(() => {
     if (headerComponent) return headerComponent

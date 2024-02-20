@@ -1,10 +1,14 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectAccountNumberByAccountId,
+  selectPortfolioAccountMetadataByAccountId,
+} from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectFirstHopSellAccountId,
@@ -40,9 +44,26 @@ export const useReceiveAddress = ({
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const sellAssetAccountNumberFilter = useMemo(
+    () => ({ accountId: sellAssetAccountId }),
+    [sellAssetAccountId],
+  )
+  const sellAssetAccountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, sellAssetAccountNumberFilter),
+  )
+
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdByAccountNumberAndChainId,
+  )
+
+  const maybeMatchingBuyAccountId = useMemo(() => {
+    if (!buyAsset) return
+    if (sellAssetAccountNumber === undefined) return
+    return accountIdsByAccountNumberAndChainId[sellAssetAccountNumber]?.[buyAsset.chainId]
+  }, [accountIdsByAccountNumberAndChainId, sellAssetAccountNumber, buyAsset])
 
   const buyAccountId = useAppSelector(state =>
-    selectLastHopBuyAccountId(state, { accountId: sellAssetAccountId }),
+    selectLastHopBuyAccountId(state, { accountId: maybeMatchingBuyAccountId }),
   )
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),

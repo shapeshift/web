@@ -29,6 +29,7 @@ type RateGasRowProps = {
   rate?: string
   gasFee: string
   isLoading?: boolean
+  isTradeQuoteLoading: boolean
   isError?: boolean
   allowSelectQuote: boolean
   swapperName?: SwapperName
@@ -50,6 +51,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     rate,
     gasFee,
     isLoading,
+    isTradeQuoteLoading,
     allowSelectQuote,
     swapperName,
     swapSource,
@@ -163,6 +165,9 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                           symbol={buySymbol ?? ''}
                         />
                         {allowSelectQuote && <ArrowUpDownIcon />}
+                        {/* Indicates that a quote is available to execute but also there are still
+                        swappers loading. Prevents blocking trading during outages etc */}
+                        {isTradeQuoteLoading && <CircularProgress size='16px' />}
                       </Stack>
                     </Row.Value>
                   </Row>

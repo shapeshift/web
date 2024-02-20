@@ -6,7 +6,6 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -31,8 +30,8 @@ import {
 } from 'state/slices/selectors'
 import {
   selectActiveQuoteMeta,
+  selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
-  selectTradeQuoteRequestErrors,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -120,13 +119,11 @@ export const useGetTradeQuotes = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-  const debouncedSellAmountCryptoPrecision = useDebounce(sellAmountCryptoPrecision, 500)
-  const isDebouncing = debouncedSellAmountCryptoPrecision !== sellAmountCryptoPrecision
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
-  const userslippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
+  const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
   const sellAccountMetadata = useMemo(() => {
     return selectPortfolioAccountMetadataByAccountId(store.getState(), {
@@ -162,21 +159,9 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        wallet &&
-          !isDebouncing &&
-          sellAccountId &&
-          sellAccountMetadata &&
-          receiveAddress &&
-          !isVotingPowerLoading,
+        wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading,
       ),
-    [
-      wallet,
-      isDebouncing,
-      sellAccountId,
-      sellAccountMetadata,
-      receiveAddress,
-      isVotingPowerLoading,
-    ],
+    [wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
   )
 
   useEffect(() => {
@@ -195,11 +180,6 @@ export const useGetTradeQuotes = () => {
       return
     }
 
-    // Don't update tradeQuoteInput while we're still debouncing
-    // This needs to happen after checking and aborting invalid state to prevent incorrectly
-    // displaying loading state during debouncing
-    if (isDebouncing) return
-
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
     // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
     // That effectively means we'll unsubscribe to queries, considering them stale
@@ -214,7 +194,7 @@ export const useGetTradeQuotes = () => {
       const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
       const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
-      const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(debouncedSellAmountCryptoPrecision)
+      const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
 
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
@@ -237,7 +217,7 @@ export const useGetTradeQuotes = () => {
         affiliateBps,
         potentialAffiliateBps,
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
-        slippageTolerancePercentageDecimal: userslippageTolerancePercentageDecimal,
+        slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
         pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
       })
 
@@ -253,13 +233,11 @@ export const useGetTradeQuotes = () => {
     votingPower,
     wallet,
     receiveAccountMetadata?.bip44Params,
-    userslippageTolerancePercentageDecimal,
+    userSlippageTolerancePercentageDecimal,
     sellAssetUsdRate,
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
-    debouncedSellAmountCryptoPrecision,
-    isDebouncing,
   ])
 
   useEffect(() => {
@@ -279,57 +257,14 @@ export const useGetTradeQuotes = () => {
     }
   }, [hasFocus, shouldRefetchTradeQuotes, tradeQuoteInput])
 
-  const cowSwapQuoteMeta = useGetSwapperTradeQuote(SwapperName.CowSwap, commonTradeQuoteArgs)
-  const oneInchQuoteMeta = useGetSwapperTradeQuote(SwapperName.OneInch, commonTradeQuoteArgs)
-  const lifiQuoteMeta = useGetSwapperTradeQuote(SwapperName.LIFI, commonTradeQuoteArgs)
-  const thorchainQuoteMeta = useGetSwapperTradeQuote(SwapperName.Thorchain, commonTradeQuoteArgs)
-  const zrxQuoteMeta = useGetSwapperTradeQuote(SwapperName.Zrx, commonTradeQuoteArgs)
-
-  const combinedQuoteMeta = useMemo(() => {
-    return [cowSwapQuoteMeta, oneInchQuoteMeta, lifiQuoteMeta, thorchainQuoteMeta, zrxQuoteMeta]
-  }, [cowSwapQuoteMeta, oneInchQuoteMeta, lifiQuoteMeta, thorchainQuoteMeta, zrxQuoteMeta])
-
-  // cease fetching state when at least 1 response is available
-  // more quotes will arrive after, which is intentional.
-  const isAnySwapperFetched = useMemo(() => {
-    return !isDebouncing && combinedQuoteMeta.some(quoteMeta => !quoteMeta.isFetching)
-  }, [combinedQuoteMeta, isDebouncing])
+  useGetSwapperTradeQuote(SwapperName.CowSwap, commonTradeQuoteArgs)
+  useGetSwapperTradeQuote(SwapperName.OneInch, commonTradeQuoteArgs)
+  useGetSwapperTradeQuote(SwapperName.LIFI, commonTradeQuoteArgs)
+  useGetSwapperTradeQuote(SwapperName.Thorchain, commonTradeQuoteArgs)
+  useGetSwapperTradeQuote(SwapperName.Zrx, commonTradeQuoteArgs)
 
   // true if any debounce, input or swapper is fetching
-  const isQuoteRequestIncomplete = useMemo(() => {
-    return isDebouncing || combinedQuoteMeta.some(quoteMeta => quoteMeta.isFetching)
-  }, [combinedQuoteMeta, isDebouncing])
-
-  const isQuoteRequestUninitialized = useMemo(() => {
-    return combinedQuoteMeta.every(quoteMeta => quoteMeta.isUninitialized)
-  }, [combinedQuoteMeta])
-
-  const isSwapperFetching: Record<SwapperName, boolean> = useMemo(() => {
-    return {
-      [SwapperName.CowSwap]: cowSwapQuoteMeta.isFetching,
-      [SwapperName.OneInch]: oneInchQuoteMeta.isFetching,
-      [SwapperName.LIFI]: lifiQuoteMeta.isFetching,
-      [SwapperName.Thorchain]: thorchainQuoteMeta.isFetching,
-      [SwapperName.Zrx]: zrxQuoteMeta.isFetching,
-      [SwapperName.Test]: false,
-    }
-  }, [
-    cowSwapQuoteMeta.isFetching,
-    lifiQuoteMeta.isFetching,
-    oneInchQuoteMeta.isFetching,
-    thorchainQuoteMeta.isFetching,
-    zrxQuoteMeta.isFetching,
-  ])
-
-  const allQuotesHaveError = useMemo(() => {
-    return combinedQuoteMeta.every(quoteMeta => !!quoteMeta.error)
-  }, [combinedQuoteMeta])
-
-  const tradeQuoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
-
-  const didQuoteRequestFail = useMemo(() => {
-    return allQuotesHaveError || tradeQuoteRequestErrors.length > 0
-  }, [allQuotesHaveError, tradeQuoteRequestErrors.length])
+  const isTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
@@ -337,7 +272,7 @@ export const useGetTradeQuotes = () => {
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
     // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteMeta || isQuoteRequestUninitialized || isQuoteRequestIncomplete) return
+    if (activeQuoteMeta || isTradeQuoteLoading) return
 
     const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
 
@@ -347,23 +282,14 @@ export const useGetTradeQuotes = () => {
     }
 
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteMeta, isQuoteRequestUninitialized, isQuoteRequestIncomplete, dispatch])
+  }, [activeQuoteMeta, isTradeQuoteLoading, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (isQuoteRequestIncomplete) return
+    if (isTradeQuoteLoading) return
     if (mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [sortedTradeQuotes, mixpanel, isQuoteRequestIncomplete])
-
-  return {
-    isQuoteRequestUninitialized,
-    isAnySwapperFetched,
-    isQuoteRequestComplete: !isQuoteRequestIncomplete,
-    isSwapperFetching,
-    didQuoteRequestFail,
-    isQuoteRequestIncomplete,
-  }
+  }, [sortedTradeQuotes, mixpanel, isTradeQuoteLoading])
 }

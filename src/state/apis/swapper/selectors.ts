@@ -27,7 +27,11 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
 
       if (isMostRecent) {
         latestTimestamps[swapperName] = startedTimeStamp
-        loadingState[swapperName] = queryInfo?.status === QueryStatus.pending
+        loadingState[swapperName] = [
+          QueryStatus.uninitialized,
+          QueryStatus.pending,
+          undefined,
+        ].includes(queryInfo?.status)
       }
     }
 

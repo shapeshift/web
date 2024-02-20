@@ -8,8 +8,9 @@ import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMeta,
-  selectIsSwapperQuoteAvailable,
+  selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
+  selectLoadingSwappers,
   selectSortedTradeQuotes,
   selectTradeQuoteDisplayCache,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -49,8 +50,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
-  const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperQuoteAvailable)
+  const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperResponseAvailable)
   const tradeQuoteDisplayCache = useAppSelector(selectTradeQuoteDisplayCache)
+  const loadingSwappers = useAppSelector(selectLoadingSwappers)
   const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
 
   useEffect(() => {
@@ -118,52 +120,38 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
       return []
     }
 
-    return Object.entries(isSwapperQuoteAvailable)
-      .filter(
-        ([swapperName, isQuoteAvailable]) =>
-          // only render loading placeholders for swappers that are still fetching data
-          (!isQuoteAvailable || isTradeQuoteApiQueryPending[swapperName as SwapperName]) &&
-          // filter out entries that already have a placeholder
-          !tradeQuoteDisplayCache.some(quoteData => quoteData.swapperName === swapperName),
+    return loadingSwappers.map(swapperName => {
+      // Attempt to match other quote identifiers to MotionBox can animate.
+      // Typically the identifier is the swapper name but not always.
+      const id = swapperName
+      const quoteData = {
+        id,
+        quote: undefined,
+        swapperName: swapperName as SwapperName,
+        inputOutputRatio: 0,
+        errors: [],
+        warnings: [],
+        isStale: true,
+      }
+      return (
+        <MotionBox key={id} layout {...motionBoxProps}>
+          <TradeQuote
+            isActive={false}
+            isLoading={true}
+            isRefetching={false}
+            isBest={false}
+            key={id}
+            // eslint doesn't understand useMemo not possible to use inside map
+            // eslint-disable-next-line react-memo/require-usememo
+            quoteData={quoteData}
+            bestTotalReceiveAmountCryptoPrecision={undefined}
+            bestInputOutputRatio={undefined}
+            onBack={onBack}
+          />
+        </MotionBox>
       )
-      .map(([swapperName, _isQuoteAvailable]) => {
-        // Attempt to match other quote identifiers to MotionBox can animate.
-        // Typically the identifier is the swapper name but not always.
-        const id = swapperName
-        const quoteData = {
-          id,
-          quote: undefined,
-          swapperName: swapperName as SwapperName,
-          inputOutputRatio: 0,
-          errors: [],
-          warnings: [],
-          isStale: true,
-        }
-        return (
-          <MotionBox key={id} layout {...motionBoxProps}>
-            <TradeQuote
-              isActive={false}
-              isLoading={true}
-              isRefetching={false}
-              isBest={false}
-              key={id}
-              // eslint doesn't understand useMemo not possible to use inside map
-              // eslint-disable-next-line react-memo/require-usememo
-              quoteData={quoteData}
-              bestTotalReceiveAmountCryptoPrecision={undefined}
-              bestInputOutputRatio={undefined}
-              onBack={onBack}
-            />
-          </MotionBox>
-        )
-      })
-  }, [
-    isTradeQuoteRequestAborted,
-    isSwapperQuoteAvailable,
-    isTradeQuoteApiQueryPending,
-    tradeQuoteDisplayCache,
-    onBack,
-  ])
+    })
+  }, [isTradeQuoteRequestAborted, loadingSwappers, onBack])
 
   return (
     <Box position='relative'>

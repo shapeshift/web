@@ -44,7 +44,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { positiveOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -57,8 +57,8 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectHasUserEnteredAmount,
   selectInputBuyAsset,
-  selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
@@ -74,6 +74,8 @@ import {
   selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
+  selectIsAnyTradeQuoteLoaded,
+  selectIsAnyTradeQuoteLoading,
   selectIsUnsafeActiveQuote,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -108,13 +110,7 @@ type TradeInputProps = {
 }
 
 export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
-  const {
-    isAnySwapperFetched: _isAnySwapperFetched,
-    isQuoteRequestComplete: _isQuoteRequestComplete,
-    isQuoteRequestUninitialized,
-    didQuoteRequestFail,
-    isQuoteRequestIncomplete,
-  } = useGetTradeQuotes()
+  useGetTradeQuotes()
   const {
     state: { wallet },
   } = useWallet()
@@ -128,8 +124,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const { showErrorToast } = useErrorHandler()
   const [isCompactQuoteListOpen, setIsCompactQuoteListOpen] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const [isAnySwapperFetched, setIsAnySwapperFetched] = useState(true)
-  const [isQuoteRequestComplete, setIsQuoteRequestComplete] = useState(true)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
@@ -153,7 +147,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const manualReceiveAddressIsEditing = useAppSelector(selectManualReceiveAddressIsEditing)
   const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
-  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
@@ -161,44 +154,22 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
-
-  // whenever the sell amount changes, set the quote states to fetching
-  useEffect(() => {
-    setIsAnySwapperFetched(false)
-    setIsQuoteRequestComplete(false)
-  }, [sellAmountCryptoPrecision])
-
-  // when a quote becomes available, set the quote states to fetched
-  useEffect(() => {
-    if (_isAnySwapperFetched) {
-      setIsAnySwapperFetched(true)
-    }
-  }, [_isAnySwapperFetched])
-
-  // when a quote request is complete, mark it as complete
-  useEffect(() => {
-    if (_isQuoteRequestComplete) {
-      setIsQuoteRequestComplete(true)
-    }
-  }, [_isQuoteRequestComplete])
-
-  const hasUserEnteredAmount = useMemo(
-    () => bnOrZero(sellAmountCryptoPrecision).gt(0),
-    [sellAmountCryptoPrecision],
-  )
+  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
   const quoteStatusTranslation = useMemo(() => {
     const quoteRequestError = quoteRequestErrors[0]
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case !isAnySwapperFetched:
-        return 'common.loadingText'
-      case !hasUserEnteredAmount || isQuoteRequestUninitialized:
+      // case !isAnySwapperFetched:
+      //   return 'common.loadingText'
+      case !hasUserEnteredAmount:
         return 'trade.previewTrade'
       case !!quoteRequestError:
         return getQuoteRequestErrorTranslation(quoteRequestError)
-      case isQuoteRequestComplete && !!quoteResponseError:
+      case !!quoteResponseError:
         return getQuoteRequestErrorTranslation(quoteResponseError)
       case !!tradeQuoteError:
         // this should never occur because users shouldn't be able to select an errored quote
@@ -207,15 +178,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       default:
         return 'trade.previewTrade'
     }
-  }, [
-    quoteRequestErrors,
-    quoteResponseErrors,
-    activeQuoteErrors,
-    isAnySwapperFetched,
-    hasUserEnteredAmount,
-    isQuoteRequestUninitialized,
-    isQuoteRequestComplete,
-  ])
+  }, [quoteRequestErrors, quoteResponseErrors, activeQuoteErrors, hasUserEnteredAmount])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
@@ -315,7 +278,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   const isLoading = useMemo(
     () =>
-      !isQuoteRequestComplete ||
+      !isAnyTradeQuoteLoaded ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
@@ -325,7 +288,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isQuoteRequestComplete,
+      isAnyTradeQuoteLoaded,
       isConfirmationLoading,
       isSupportedAssetsLoading,
       isSellAddressByteCodeLoading,
@@ -376,6 +339,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
+        setIsConfirmationLoading(false)
         return
       }
 
@@ -396,14 +360,9 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   }, [isUnsafeQuote])
 
   const quoteHasError = useMemo(() => {
-    if (isQuoteRequestUninitialized || !isAnySwapperFetched) return false
+    // if (isQuoteRequestUninitialized || !isAnySwapperFetched) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [
-    isQuoteRequestUninitialized,
-    isAnySwapperFetched,
-    activeQuoteErrors?.length,
-    quoteRequestErrors?.length,
-  ])
+  }, [activeQuoteErrors?.length, quoteRequestErrors?.length])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -424,7 +383,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       // don't allow users to execute trades while the quote is being updated
       isTradeQuoteApiQueryPending[activeSwapperName] ||
       // don't allow users to proceed until all swappers have an initial result
-      (!activeSwapperName && isQuoteRequestIncomplete)
+      !activeSwapperName
     )
   }, [
     quoteHasError,
@@ -432,12 +391,11 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
-    hasUserEnteredAmount,
-    activeQuote,
     disableSmartContractSwap,
     activeSwapperName,
+    activeQuote,
+    hasUserEnteredAmount,
     isTradeQuoteApiQueryPending,
-    isQuoteRequestIncomplete,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {
@@ -510,7 +468,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
               rate={rate}
               isLoading={isLoading}
-              isError={didQuoteRequestFail}
+              isTradeQuoteLoading={isAnyTradeQuoteLoading}
+              // isError={didQuoteRequestFail}
               swapperName={activeSwapperName}
               swapSource={tradeQuoteStep?.source}
               onRateClick={handleOpenCompactQuoteList}
@@ -575,7 +534,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       totalNetworkFeeFiatPrecision,
       rate,
       isLoading,
-      didQuoteRequestFail,
+      isAnyTradeQuoteLoading,
+      // didQuoteRequestFail,
       activeSwapperName,
       tradeQuoteStep?.source,
       handleOpenCompactQuoteList,

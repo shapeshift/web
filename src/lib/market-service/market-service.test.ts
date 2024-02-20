@@ -1,4 +1,5 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
+import { ethers } from 'ethers'
 import { describe, expect, it, vi } from 'vitest'
 
 import { CoinGeckoMarketService } from './coingecko/coingecko'
@@ -99,6 +100,7 @@ describe('market service', () => {
   const marketServiceManagerArgs = {
     coinGeckoAPIKey: 'dummyCoingeckoApiKey',
     yearnChainReference: 1 as const,
+    provider: new ethers.providers.StaticJsonRpcProvider(''),
     providerUrls: {
       jsonRpcProviderUrl: '',
       unchainedEthereumWsUrl: '',

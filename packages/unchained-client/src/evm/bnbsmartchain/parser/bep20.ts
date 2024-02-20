@@ -16,11 +16,11 @@ export interface TxMetadata extends BaseTxMetadata {
 
 interface ParserArgs {
   chainId: ChainId
-  provider: ethers.providers.JsonRpcBatchProvider
+  provider: ethers.providers.StaticJsonRpcProvider
 }
 
 export class Parser<T extends Tx> implements SubParser<T> {
-  provider: ethers.providers.JsonRpcBatchProvider
+  provider: ethers.providers.StaticJsonRpcProvider
 
   readonly chainId: ChainId
   readonly abiInterface = new ethers.utils.Interface(bep20)

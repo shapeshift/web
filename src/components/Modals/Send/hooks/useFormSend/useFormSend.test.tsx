@@ -170,7 +170,6 @@ describe.each([
             wallet: {
               supportsOfflineSigning: vi.fn().mockReturnValue(true),
               ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
-              getVendor: vi.fn().mockReturnValue('Native'),
             },
           },
         }) as unknown as IWalletContext,
@@ -231,7 +230,6 @@ describe.each([
             wallet: {
               supportsOfflineSigning: vi.fn().mockReturnValue(true),
               ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
-              getVendor: vi.fn().mockReturnValue('Native'),
             },
           },
         }) as unknown as IWalletContext,
@@ -298,7 +296,6 @@ describe.each([
               supportsOfflineSigning: vi.fn().mockReturnValue(false),
               supportsBroadcast: vi.fn().mockReturnValue(true),
               ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
-              getVendor: vi.fn().mockReturnValue('Native'),
             },
           },
         }) as unknown as IWalletContext,
@@ -354,7 +351,6 @@ describe.each([
       supportsOfflineSigning: vi.fn().mockReturnValue(false),
       supportsBroadcast: vi.fn().mockReturnValue(true),
       ethSupportsEIP1559: vi.fn().mockReturnValue(walletSupportsEIP1559),
-      getVendor: vi.fn().mockReturnValue('Native'),
     } as unknown as HDWallet
     const toaster = vi.fn() as unknown as CreateToastFnReturn
     const signAndBroadcastTransaction = vi.fn().mockResolvedValue('txid')

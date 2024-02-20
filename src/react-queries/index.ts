@@ -1,10 +1,11 @@
 import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { Ok } from '@sniptt/monads'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type {
@@ -14,18 +15,19 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { isKeepKeyHDWallet, isToken } from 'lib/utils'
+import { assertGetChainAdapter } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   getApproveContractData,
   getErc20Allowance,
   getFees,
-  getSupportedEvmChainIds,
 } from 'lib/utils/evm'
 import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
+
+import { GetAllowanceErr } from './types'
 
 const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -34,15 +36,24 @@ const common = createQueryKeys('common', {
     from: string | undefined,
   ) => ({
     queryKey: ['allowanceCryptoBaseUnit', assetId, spender, from],
-    queryFn: async () => {
+    queryFn: async (): Promise<Result<string, GetAllowanceErr>> => {
       if (!assetId) throw new Error('assetId is required')
       if (!spender) throw new Error('spender is required')
       if (!from) throw new Error('from address is required')
 
       const { chainId, assetReference } = fromAssetId(assetId)
-      if (!isToken(assetReference)) return null
-      const supportedEvmChainIds = getSupportedEvmChainIds()
-      if (!supportedEvmChainIds.includes(chainId as KnownChainIds)) return null
+
+      if (!evmChainIds.includes(chainId as EvmChainId)) {
+        return Err(GetAllowanceErr.NotEVMChain)
+      }
+
+      // Asserts and makes the query error (i.e isError) if this errors - *not* a monadic error
+      const adapter = assertGetChainAdapter(chainId)
+
+      // No approval needed for selling a fee asset
+      if (assetId === adapter.getFeeAssetId()) {
+        return Err(GetAllowanceErr.IsFeeAsset)
+      }
 
       const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
         address: assetReference,
@@ -51,7 +62,7 @@ const common = createQueryKeys('common', {
         chainId,
       })
 
-      return allowanceOnChainCryptoBaseUnit
+      return Ok(allowanceOnChainCryptoBaseUnit)
     },
   }),
 })
@@ -98,8 +109,7 @@ const mutations = createMutationKeys('mutations', {
         value: '0',
         data: approvalCalldata,
         from,
-        supportsEIP1559:
-          !isKeepKeyHDWallet(wallet) && supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
+        supportsEIP1559: supportsETH(wallet) && (await wallet.ethSupportsEIP1559()),
       })
 
       const buildCustomTxInput = {

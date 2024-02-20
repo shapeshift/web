@@ -84,7 +84,10 @@ const checkIsSpam = (tx: Tx): boolean => {
     const { name, symbol } = token
 
     if (isNft(assetId)) {
-      return [name, symbol].some(isSpammyNftText) || BLACKLISTED_COLLECTION_IDS.includes(assetId)
+      return (
+        [name, symbol].some(text => isSpammyNftText(text, true)) ||
+        BLACKLISTED_COLLECTION_IDS.includes(assetId)
+      )
     } else {
       return [name, symbol].some(isSpammyTokenText)
     }

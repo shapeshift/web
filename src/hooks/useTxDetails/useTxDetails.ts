@@ -19,7 +19,7 @@ import { useAppSelector } from 'state/store'
 export type Transfer = TxTransfer & { asset: Asset; marketData: MarketData }
 export type Fee = unchained.Fee & { asset: Asset; marketData: MarketData }
 
-export type TxType = unchained.TransferType | unchained.TradeType | 'method' | 'unknown'
+export type TxType = unchained.TransferType | unchained.TradeType | 'method' | 'common'
 
 // Adding a new supported method?
 // Also update transactionRow.parser translations and TransactionMethod.tsx
@@ -75,7 +75,7 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
   if (tx.trade) return tx.trade.type
   if (isSupportedMethod(tx)) return 'method'
   if (transfers.length === 1) return transfers[0].type // standard send/receive
-  return 'unknown'
+  return 'common'
 }
 
 export const getTransfers = (
@@ -89,7 +89,11 @@ export const getTransfers = (
     if (asset) {
       prev.push({
         ...transfer,
-        asset,
+        asset: {
+          ...asset,
+          symbol: asset.symbol || transfer.token?.symbol || '',
+          name: asset.name || transfer.token?.name || '',
+        },
         marketData: marketData[transfer.assetId] ?? defaultMarketData,
       })
     } else {

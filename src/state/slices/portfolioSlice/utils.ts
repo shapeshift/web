@@ -206,9 +206,14 @@ export const accountToPortfolio: AccountToPortfolio = ({
 
             if (nftCollection) {
               if (nftCollection.isSpam) return
-              if ([nftCollection.description, nftCollection.name].some(isSpammyNftText)) return
+              if (
+                [nftCollection.description, nftCollection.name].some(nftText =>
+                  isSpammyNftText(nftText),
+                )
+              )
+                return
             } else {
-              if ([token.name, token.symbol].some(isSpammyNftText)) return
+              if ([token.name, token.symbol].some(nftText => isSpammyNftText(nftText, true))) return
             }
           }
 

@@ -87,7 +87,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
       })()
 
       const typeLabel = (() => {
-        if (type === 'unknown') return 'transactionRow.unknown'
+        if (type === 'common') return 'transactionRow.common'
         if (tx.data?.method) return `transactionRow.parser.${tx.data.parser}.${tx.data.method}`
         return `transactionHistory.transactionTypes.${type}`
       })()

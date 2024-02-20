@@ -48,7 +48,7 @@ export const TransactionMethod = ({
         case method !== undefined && parser !== undefined:
           return `transactionRow.parser.${parser}.${method}`
         default:
-          return 'transactionRow.unknown'
+          return 'transactionRow.common'
       }
     })()
 

@@ -68,7 +68,10 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
     ),
     [confirmedQuote, headerComponent, opportunityId, poolAccountId, setConfirmedQuote],
   )
-  const renderRemoveLiquidityConfirm = useCallback(() => <RemoveLiquidityConfirm />, [])
+  const renderRemoveLiquidityConfirm = useCallback(
+    () => (confirmedQuote ? <RemoveLiquidityConfirm confirmedQuote={confirmedQuote} /> : <></>),
+    [confirmedQuote],
+  )
   const renderRemoveLiquidityStatus = useCallback(() => <RemoveLiquidityStatus />, [])
 
   return (

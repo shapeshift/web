@@ -48,21 +48,28 @@ export const SellAssetInput = memo(
       selectMarketDataByFilter(state, { assetId: asset.assetId }),
     )
 
+    // sync local state with redux on mount only
     useEffect(() => {
-      // sync local state with redux on mount only
       setRawSellAmountCryptoPrecision(sellAmountCryptoPrecision)
       setRawSellAmountUserCurrency(sellAmountUserCurrency ?? '0')
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    // sync redux with local state
     useEffect(() => {
-      // sync redux with local state
       dispatch(
         tradeInput.actions.setSellAmountCryptoPrecision(
           positiveOrZero(debouncedSellAmountCryptoPrecision).toString(),
         ),
       )
     }, [debouncedSellAmountCryptoPrecision, dispatch])
+
+    // reset input value on asset change
+    useEffect(() => {
+      setRawSellAmountCryptoPrecision('0')
+      setRawSellAmountUserCurrency('0')
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [asset])
 
     const handleSellAssetInputChange = useCallback(
       (value: string, isFiat: boolean | undefined) => {

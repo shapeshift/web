@@ -406,15 +406,15 @@ export const Position = () => {
                     opportunityId={foundPool.opportunityId}
                   />
                 </TabPanel>
-                <TabPanel px={0} py={0}>
-                  {params.poolAccountId && (
+                {params.poolAccountId && (
+                  <TabPanel px={0} py={0}>
                     <RemoveLiquidity
                       headerComponent={TabHeader}
                       opportunityId={foundPool.opportunityId}
                       poolAccountId={params.poolAccountId}
                     />
-                  )}
-                </TabPanel>
+                  </TabPanel>
+                )}
               </TabPanels>
             </Tabs>
           </Card>

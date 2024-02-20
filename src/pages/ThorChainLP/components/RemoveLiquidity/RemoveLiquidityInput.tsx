@@ -369,20 +369,19 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     const transactionType = getThorchainLpTransactionType(poolAsset.chainId)
 
     switch (transactionType) {
-      case 'MsgDeposit': {
+      case 'MsgDeposit':
         return THORCHAIN_POOL_MODULE_ADDRESS
-      }
-      case 'EvmCustomTx': {
+
+      case 'EvmCustomTx':
         // TODO: this should really be inboundAddressData?.router, but useQuoteEstimatedFeesQuery doesn't yet handle contract calls
         // for the purpose of naively assuming a send, using the inbound address instead of the router is fine
         return inboundAddressesData?.address
-      }
-      case 'Send': {
+
+      case 'Send':
         return inboundAddressesData?.address
-      }
-      default: {
+
+      default:
         assertUnreachable(transactionType as never)
-      }
     }
   }, [poolAsset, inboundAddressesData?.address])
 
@@ -600,7 +599,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               percentOptions={percentOptions}
               isReadOnly={false}
               formControlProps={formControlProps}
-            ></AssetInput>
+            />
           )
         })}
       </Stack>

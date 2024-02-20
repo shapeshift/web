@@ -282,14 +282,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     setFiatRuneBalance(underlyingRuneValueFiatUserCurrency)
   }, [isAsymAssetSide, isAsymRuneSide, percentageSelection, userlpData])
 
-  // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
+  // We reuse lending utils here since all this does is estimating fees for a given withdrawal amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
   // however that's fine for now until accurate fees estimation is implemented
   const { data: estimatedRuneFeesData, isLoading: isEstimatedRuneFeesDataLoading } =
     useQuoteEstimatedFeesQuery({
       collateralAssetId: thorchainAssetId,
-      collateralAccountId: runeAccountId ?? '', // fixme
-      repaymentAccountId: runeAccountId ?? '', // fixme
+      collateralAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
+      repaymentAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
       repaymentAsset: runeAsset ?? null,
       repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
       confirmedQuote,
@@ -297,7 +297,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const { data: estimatedPoolAssetFeesData, isLoading: isEstimatedPoolAssetFeesDataLoading } =
     useQuoteEstimatedFeesQuery({
-      collateralAssetId: poolAsset?.assetId ?? '', // fixme
+      collateralAssetId: poolAsset?.assetId ?? '',
       collateralAccountId: poolAccountId,
       repaymentAccountId: poolAccountId,
       repaymentAsset: poolAsset ?? null,

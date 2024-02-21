@@ -405,7 +405,7 @@ describe('GnosisChainAdapter', () => {
         },
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
+      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid toHex value/)
     })
   })
 

@@ -21,12 +21,13 @@ import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { hexlify, toUtf8Bytes } from 'ethers'
+import { toUtf8Bytes } from 'ethers'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
+import { toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAsset } from 'components/AssetToAsset/AssetToAsset'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -299,7 +300,7 @@ export const BorrowConfirm = ({
         sendMax: false,
         accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId as KnownChainIds)
-          ? hexlify(toUtf8Bytes(confirmedQuote.quoteMemo))
+          ? toHex(toUtf8Bytes(confirmedQuote.quoteMemo))
           : confirmedQuote.quoteMemo,
         amountFieldError: '',
         estimatedFees,

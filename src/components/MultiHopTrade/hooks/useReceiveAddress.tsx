@@ -1,14 +1,10 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectAccountNumberByAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/portfolioSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectInputBuyAsset,

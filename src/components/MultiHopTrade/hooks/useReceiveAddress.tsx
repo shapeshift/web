@@ -7,7 +7,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
@@ -39,11 +38,7 @@ export const useReceiveAddress = ({
 
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-
-  const buyAccountId = useAppSelector(state =>
-    selectLastHopBuyAccountId(state, { accountId: sellAssetAccountId }),
-  )
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )
@@ -51,9 +46,15 @@ export const useReceiveAddress = ({
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
-      if (!wallet) return
-      if (!buyAccountId) return
-      if (!buyAccountMetadata) return
+      if (!wallet) {
+        return
+      }
+      if (!buyAccountId) {
+        return
+      }
+      if (!buyAccountMetadata) {
+        return
+      }
       if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata.accountType)
         throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
       const buyAssetChainId = buyAsset.chainId
@@ -62,7 +63,9 @@ export const useReceiveAddress = ({
        * do NOT remove
        * super dangerous - don't use the wrong bip44 params to generate receive addresses
        */
-      if (buyAssetChainId !== buyAssetAccountChainId) return
+      if (buyAssetChainId !== buyAssetAccountChainId) {
+        return
+      }
       const receiveAddress = await getReceiveAddress({
         asset: buyAsset,
         wallet,

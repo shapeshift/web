@@ -7,6 +7,7 @@ import {
   Card,
   CardFooter,
   CardHeader,
+  Center,
   CircularProgress,
   CircularProgressLabel,
   Divider,
@@ -20,13 +21,11 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { FadeTransition } from 'components/FadeTransition'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
@@ -437,10 +436,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }, 100)
   }, [])
 
-  const handleCloseCompactQuoteList = useCallback(
-    () => setIsCompactQuoteListOpen(false),
-    [setIsCompactQuoteListOpen],
-  )
+  const handleCloseCompactQuoteList = useCallback(() => setIsCompactQuoteListOpen(false), [])
 
   const handleOpenCompactQuoteList = useCallback(() => {
     if (!isCompact && !isSmallerThanXl) return
@@ -589,125 +585,133 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   return (
     <TradeSlideTransition>
       <MessageOverlay show={isKeplr} title={overlayTitle}>
-        <Flex width='full' justifyContent='center'>
-          <AnimatePresence mode='wait'>
-            {isCompactQuoteListOpen ? (
-              <FadeTransition key='compact-quote-list'>
-                <QuoteList
-                  flex={1}
-                  width='full'
-                  maxWidth='500px'
-                  height={isCompact ? '500px' : 'calc(100vh - 230px)'}
-                  onBack={handleCloseCompactQuoteList}
-                  isLoading={isLoading}
-                />
-              </FadeTransition>
-            ) : (
-              <Card ref={tradeInputRef} flex={1} width='full' maxWidth='500px'>
-                <FadeTransition key='trade-input'>
-                  <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
-                    <CardHeader px={6}>
-                      <Flex alignItems='center' justifyContent='space-between'>
-                        <Heading as='h5' fontSize='md'>
-                          {translate('navBar.trade')}
-                        </Heading>
-                        <Flex gap={2} alignItems='center'>
-                          {activeQuote && (isCompact || isSmallerThanXl) && (
-                            <CountdownSpinner isLoading={isLoading || isRefetching} />
-                          )}
-                          <SlippagePopover />
-                        </Flex>
-                      </Flex>
-                    </CardHeader>
-                    <Stack spacing={0}>
-                      <SellAssetInput
-                        accountId={initialSellAssetAccountId}
-                        asset={sellAsset}
-                        label={translate('trade.payWith')}
-                        onAccountIdChange={setSellAssetAccountId}
-                        labelPostFix={sellTradeAssetSelect}
-                        percentOptions={percentOptions}
-                      />
-                      <Flex alignItems='center' justifyContent='center' my={-2}>
-                        <Divider />
-                        <CircularProgress
-                          color='blue.500'
-                          thickness='4px'
-                          size='34px'
-                          trackColor='transparent'
-                          isIndeterminate={isLoading}
-                          borderRadius='full'
-                        >
-                          <CircularProgressLabel
-                            fontSize='md'
-                            display='flex'
-                            alignItems='center'
-                            justifyContent='center'
-                          >
-                            <IconButton
-                              onClick={handleSwitchAssets}
-                              isRound
-                              size='sm'
-                              position='relative'
-                              variant='outline'
-                              borderColor='border.base'
-                              zIndex={1}
-                              aria-label={translate('lending.switchAssets')}
-                              icon={arrowDownIcon}
-                              isDisabled={shouldDisableSwitchAssets}
-                            />
-                          </CircularProgressLabel>
-                        </CircularProgress>
-
-                        <Divider />
-                      </Flex>
-                      <TradeAssetInput
-                        isReadOnly={true}
-                        accountId={initialBuyAssetAccountId}
-                        assetId={buyAsset.assetId}
-                        assetSymbol={buyAsset.symbol}
-                        assetIcon={buyAsset.icon}
-                        cryptoAmount={
-                          hasUserEnteredAmount
-                            ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-                            : '0'
-                        }
-                        fiatAmount={
-                          hasUserEnteredAmount
-                            ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
-                            : '0'
-                        }
-                        percentOptions={emptyPercentOptions}
-                        showInputSkeleton={isLoading}
-                        showFiatSkeleton={isLoading}
-                        label={translate('trade.youGet')}
-                        onAccountIdChange={setBuyAssetAccountId}
-                        isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-                        formControlProps={formControlProps}
-                        labelPostFix={buyTradeAssetSelect}
-                        priceImpact={priceImpactPercentage?.toString()}
-                      />
-                    </Stack>
-                    {ConfirmSummary}
-                  </Stack>
-                </FadeTransition>
-              </Card>
-            )}
-          </AnimatePresence>
-          {!isCompact && isLargerThanMd && (
+        <Flex
+          width='full'
+          justifyContent='center'
+          maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
+        >
+          <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
             <QuoteList
-              width={hasUserEnteredAmount && !isSmallerThanXl ? '500px' : '0px'}
-              flexShrink={1}
-              maxHeight={tradeInputRef.current?.offsetHeight ?? '500px'}
-              maxWidth='500px'
-              flexBasis='auto'
-              overflow='hidden'
-              opacity={hasUserEnteredAmount && !isSmallerThanXl ? 1 : 0}
-              transition='opacity 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms, width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
-              ml={hasUserEnteredAmount && !isSmallerThanXl ? 4 : 0}
+              onBack={handleCloseCompactQuoteList}
               isLoading={isLoading}
+              height={tradeInputRef.current?.offsetHeight ?? '500px'}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
             />
-          )}
+          </Center>
+          <Center width='inherit'>
+            <Card
+              flex={1}
+              width='full'
+              maxWidth='500px'
+              ref={tradeInputRef}
+              visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
+              position={isCompactQuoteListOpen ? 'absolute' : undefined}
+            >
+              <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
+                <CardHeader px={6}>
+                  <Flex alignItems='center' justifyContent='space-between'>
+                    <Heading as='h5' fontSize='md'>
+                      {translate('navBar.trade')}
+                    </Heading>
+                    <Flex gap={2} alignItems='center'>
+                      {activeQuote && (isCompact || isSmallerThanXl) && (
+                        <CountdownSpinner isLoading={isLoading || isRefetching} />
+                      )}
+                      <SlippagePopover />
+                    </Flex>
+                  </Flex>
+                </CardHeader>
+                <Stack spacing={0}>
+                  <SellAssetInput
+                    accountId={initialSellAssetAccountId}
+                    asset={sellAsset}
+                    label={translate('trade.payWith')}
+                    onAccountIdChange={setSellAssetAccountId}
+                    labelPostFix={sellTradeAssetSelect}
+                    percentOptions={percentOptions}
+                  />
+                  <Flex alignItems='center' justifyContent='center' my={-2}>
+                    <Divider />
+                    <CircularProgress
+                      color='blue.500'
+                      thickness='4px'
+                      size='34px'
+                      trackColor='transparent'
+                      isIndeterminate={isLoading}
+                      borderRadius='full'
+                    >
+                      <CircularProgressLabel
+                        fontSize='md'
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='center'
+                      >
+                        <IconButton
+                          onClick={handleSwitchAssets}
+                          isRound
+                          size='sm'
+                          position='relative'
+                          variant='outline'
+                          borderColor='border.base'
+                          zIndex={1}
+                          aria-label={translate('lending.switchAssets')}
+                          icon={arrowDownIcon}
+                          isDisabled={shouldDisableSwitchAssets}
+                        />
+                      </CircularProgressLabel>
+                    </CircularProgress>
+
+                    <Divider />
+                  </Flex>
+                  <TradeAssetInput
+                    isReadOnly={true}
+                    accountId={initialBuyAssetAccountId}
+                    assetId={buyAsset.assetId}
+                    assetSymbol={buyAsset.symbol}
+                    assetIcon={buyAsset.icon}
+                    cryptoAmount={
+                      hasUserEnteredAmount
+                        ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
+                        : '0'
+                    }
+                    fiatAmount={
+                      hasUserEnteredAmount
+                        ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
+                        : '0'
+                    }
+                    percentOptions={emptyPercentOptions}
+                    showInputSkeleton={isLoading}
+                    showFiatSkeleton={isLoading}
+                    label={translate('trade.youGet')}
+                    onAccountIdChange={setBuyAssetAccountId}
+                    isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+                    formControlProps={formControlProps}
+                    labelPostFix={buyTradeAssetSelect}
+                    priceImpact={priceImpactPercentage?.toString()}
+                  />
+                </Stack>
+                {ConfirmSummary}
+              </Stack>
+            </Card>
+
+            {!isCompact && isLargerThanMd && (
+              <QuoteList
+                flexShrink={1}
+                height={tradeInputRef.current?.offsetHeight ?? '500px'}
+                width={
+                  hasUserEnteredAmount && !isSmallerThanXl
+                    ? tradeInputRef.current?.offsetWidth ?? 'full'
+                    : '0px'
+                }
+                flexBasis='auto'
+                overflow='hidden'
+                opacity={hasUserEnteredAmount && !isSmallerThanXl ? 1 : 0}
+                transition='opacity 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms, width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
+                ml={hasUserEnteredAmount && !isSmallerThanXl ? 4 : 0}
+                isLoading={isLoading}
+              />
+            )}
+          </Center>
         </Flex>
       </MessageOverlay>
     </TradeSlideTransition>

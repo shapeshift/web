@@ -8,7 +8,7 @@ import type {
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
-import { isAddress, toBeHex, toUtf8String } from 'ethers'
+import { toBeHex, toUtf8String } from 'ethers'
 import type {
   ConfirmData,
   CosmosSignAminoCallRequestParams,
@@ -18,7 +18,7 @@ import type {
   TransactionParams,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/types'
-import { isHex } from 'viem'
+import { isAddress, isHex } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 

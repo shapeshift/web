@@ -129,9 +129,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
     string | undefined
   >()
-  const [cryptoAssetBalance, setCrytoAssetBalance] = useState<string | undefined>()
+  const [cryptoAssetBalance, setCryptoAssetBalance] = useState<string | undefined>()
   const [fiatAssetBalance, setFiatAssetBalance] = useState<string | undefined>()
-  const [cryptoRuneBalance, setCrytoRuneBalance] = useState<string | undefined>()
+  const [cryptoRuneBalance, setCryptoRuneBalance] = useState<string | undefined>()
   const [fiatRuneBalance, setFiatRuneBalance] = useState<string | undefined>()
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
@@ -213,12 +213,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   useEffect(() => {
     if (!userData) return
-    const _UserlpData: UserLpDataPosition | undefined = userData.find(
+    const _userlpData: UserLpDataPosition | undefined = userData.find(
       data => data.opportunityId === opportunityId,
     )
-    if (!_UserlpData) return
-    setUserlpData(_UserlpData)
-    const runeAddress = _UserlpData?.runeAddress
+    if (!_userlpData) return
+    setUserlpData(_userlpData)
+    const runeAddress = _userlpData?.runeAddress
     if (!runeAddress) return
     const runeAccountId = toAccountId({
       chainId: thorchainChainId,
@@ -276,9 +276,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
         .toFixed(),
     )
-    setCrytoAssetBalance(underlyingAssetAmountCryptoPrecision)
+    setCryptoAssetBalance(underlyingAssetAmountCryptoPrecision)
     setFiatAssetBalance(underlyingAssetValueFiatUserCurrency)
-    setCrytoRuneBalance(underlyingRuneAmountCryptoPrecision)
+    setCryptoRuneBalance(underlyingRuneAmountCryptoPrecision)
     setFiatRuneBalance(underlyingRuneValueFiatUserCurrency)
   }, [isAsymAssetSide, isAsymRuneSide, percentageSelection, userlpData])
 

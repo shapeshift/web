@@ -448,10 +448,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   }, [isCompact, isSmallerThanXl])
 
   useEffect(() => {
-    if (isCompactQuoteListOpen && !isSmallerThanXl) {
+    if (isCompactQuoteListOpen && !isCompact && !isSmallerThanXl) {
       setIsCompactQuoteListOpen(false)
     }
-  }, [isCompactQuoteListOpen, isSmallerThanXl])
+  }, [isCompact, isCompactQuoteListOpen, isSmallerThanXl])
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (

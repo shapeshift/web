@@ -1,7 +1,7 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Center, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -57,10 +57,6 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 }) => {
   const { quote, errors, inputOutputRatio, swapperName } = quoteData
 
-  if (swapperName === SwapperName.CowSwap) {
-    console.log(quoteData)
-  }
-
   const dispatch = useAppDispatch()
   const translate = useTranslate()
 
@@ -72,12 +68,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const sellAsset = useAppSelector(selectInputSellAsset)
   const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
     assetId: buyAsset.assetId,
-    swapperName: quoteData.swapperName,
+    swapperName,
     enabled: true,
   })
   const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
     assetId: sellAsset.assetId,
-    swapperName: quoteData.swapperName,
+    swapperName,
     enabled: true,
   })
 
@@ -162,7 +158,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =
-    quoteData.inputOutputRatio !== undefined && isAmountEntered && quoteData.inputOutputRatio <= 0
+    inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
 
   const hasAmountWithPositiveReceive =
     isAmountEntered &&
@@ -252,7 +248,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
       if (isUserSlippageNotApplied) {
         return translate('trade.quote.cantSetSlippage', {
           userSlippageFormatted: toPercent(userSlippagePercentageDecimal),
-          swapperName: quoteData.swapperName,
+          swapperName,
         })
       }
 
@@ -278,7 +274,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         </Tooltip>
       </Skeleton>
     )
-  }, [isLoading, quote, quoteData.swapperName, toPercent, translate, userSlippagePercentageDecimal])
+  }, [isLoading, quote, swapperName, toPercent, translate, userSlippagePercentageDecimal])
 
   const headerContent = useMemo(() => {
     return (

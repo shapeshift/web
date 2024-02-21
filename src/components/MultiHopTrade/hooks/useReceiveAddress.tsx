@@ -1,17 +1,12 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectAccountNumberByAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/portfolioSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
@@ -43,28 +38,7 @@ export const useReceiveAddress = ({
 
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const sellAssetAccountNumberFilter = useMemo(
-    () => ({ accountId: sellAssetAccountId }),
-    [sellAssetAccountId],
-  )
-  const sellAssetAccountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, sellAssetAccountNumberFilter),
-  )
-
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
-  )
-
-  const maybeMatchingBuyAccountId = useMemo(() => {
-    if (!buyAsset) return
-    if (sellAssetAccountNumber === undefined) return
-    return accountIdsByAccountNumberAndChainId[sellAssetAccountNumber]?.[buyAsset.chainId]
-  }, [accountIdsByAccountNumberAndChainId, sellAssetAccountNumber, buyAsset])
-
-  const buyAccountId = useAppSelector(state =>
-    selectLastHopBuyAccountId(state, { accountId: maybeMatchingBuyAccountId }),
-  )
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )
@@ -72,9 +46,15 @@ export const useReceiveAddress = ({
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
-      if (!wallet) return
-      if (!buyAccountId) return
-      if (!buyAccountMetadata) return
+      if (!wallet) {
+        return
+      }
+      if (!buyAccountId) {
+        return
+      }
+      if (!buyAccountMetadata) {
+        return
+      }
       if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata.accountType)
         throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
       const buyAssetChainId = buyAsset.chainId
@@ -83,7 +63,9 @@ export const useReceiveAddress = ({
        * do NOT remove
        * super dangerous - don't use the wrong bip44 params to generate receive addresses
        */
-      if (buyAssetChainId !== buyAssetAccountChainId) return
+      if (buyAssetChainId !== buyAssetAccountChainId) {
+        return
+      }
       const receiveAddress = await getReceiveAddress({
         asset: buyAsset,
         wallet,

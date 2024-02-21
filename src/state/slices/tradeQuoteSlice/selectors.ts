@@ -67,8 +67,8 @@ const selectEnabledSwappersIgnoringCrossAccountTrade = createSelector(
   },
 )
 
-// this is required to break a race condition between rtk query and our selectors
-// we're treating redux as the source of truth.
+// Returns a mapping from swapper name to a flag indicating whether a trade quote response is
+// available.
 export const selectIsSwapperResponseAvailable = createDeepEqualOutputSelector(
   selectTradeQuotes,
   selectEnabledSwappersIgnoringCrossAccountTrade,
@@ -84,6 +84,8 @@ export const selectIsSwapperResponseAvailable = createDeepEqualOutputSelector(
   },
 )
 
+// Returns a mapping from swapper name to a flag indicating whether an actual trade quote is
+// available on the trade quote response.
 const selectIsSwapperQuoteAvailable = createSelector(
   selectTradeQuotes,
   selectEnabledSwappersIgnoringCrossAccountTrade,
@@ -101,6 +103,8 @@ const selectIsSwapperQuoteAvailable = createSelector(
   },
 )
 
+// Returns the top-level errors related to the request for a trade quote. Not related to individual
+// quote responses.
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectIsWalletConnected,
@@ -135,6 +139,8 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   },
 )
 
+// Returns the top-level errors related to the response from the trade quote request. Not related to
+// individual quote responses.
 export const selectTradeQuoteResponseErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectTradeQuotes,

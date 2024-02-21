@@ -471,7 +471,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
               rate={rate}
               isLoading={isLoading}
-              // isError={didQuoteRequestFail}
               swapperName={activeSwapperName}
               swapSource={tradeQuoteStep?.source}
               onRateClick={handleOpenCompactQuoteList}

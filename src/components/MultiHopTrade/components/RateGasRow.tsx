@@ -37,7 +37,6 @@ type RateGasRowProps = {
   rate?: string
   gasFee: string
   isLoading?: boolean
-  isError?: boolean
   allowSelectQuote: boolean
   swapperName?: SwapperName
   swapSource?: SwapSource

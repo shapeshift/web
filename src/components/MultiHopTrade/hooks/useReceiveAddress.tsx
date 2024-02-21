@@ -51,9 +51,15 @@ export const useReceiveAddress = ({
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
-      if (!wallet) return
-      if (!buyAccountId) return
-      if (!buyAccountMetadata) return
+      if (!wallet) {
+        return
+      }
+      if (!buyAccountId) {
+        return
+      }
+      if (!buyAccountMetadata) {
+        return
+      }
       if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata.accountType)
         throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
       const buyAssetChainId = buyAsset.chainId
@@ -62,7 +68,9 @@ export const useReceiveAddress = ({
        * do NOT remove
        * super dangerous - don't use the wrong bip44 params to generate receive addresses
        */
-      if (buyAssetChainId !== buyAssetAccountChainId) return
+      if (buyAssetChainId !== buyAssetAccountChainId) {
+        return
+      }
       const receiveAddress = await getReceiveAddress({
         asset: buyAsset,
         wallet,

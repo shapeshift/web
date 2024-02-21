@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Selector } from 'react-redux'
 import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -110,9 +111,17 @@ export const selectLastHopBuyAccountId = createSelector(
   selectAccountIdParamFromFilter,
   (tradeInput, buyAsset, accountIdAssetValues, accountIds, maybeMatchingBuyAccountId) => {
     // return the users selection if it exists
-    if (tradeInput.buyAssetAccountId) return tradeInput.buyAssetAccountId
-    // an AccountId was found matching the sell asset's account number, return it
-    if (maybeMatchingBuyAccountId) return maybeMatchingBuyAccountId
+    if (tradeInput.buyAssetAccountId) {
+      return tradeInput.buyAssetAccountId
+    }
+    // an AccountId was found matching the sell asset's account number, AND the chainId is correct, return it
+    // TODO: use account number
+    if (
+      maybeMatchingBuyAccountId &&
+      buyAsset.chainId === fromAccountId(maybeMatchingBuyAccountId).chainId
+    ) {
+      return maybeMatchingBuyAccountId
+    }
 
     const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
       accountIdAssetValues,

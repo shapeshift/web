@@ -11,7 +11,8 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getConfig } from 'config'
 import type { TypedDataDomain, TypedDataField } from 'ethers'
-import { keccak256, toUtf8Bytes, TypedDataEncoder } from 'ethers'
+import { keccak256, TypedDataEncoder } from 'ethers'
+import { stringToBytes } from 'viem'
 import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
@@ -215,7 +216,7 @@ const generateAppDataFromDoc = async (
   doc: LatestAppDataDocVersion,
 ): Promise<Pick<AppDataInfo, 'fullAppData' | 'appDataKeccak256'>> => {
   const appData = await stringifyDeterministic(doc)
-  const appDataKeccak256 = keccak256(toUtf8Bytes(appData))
+  const appDataKeccak256 = keccak256(stringToBytes(appData))
 
   return { fullAppData: appData, appDataKeccak256 }
 }

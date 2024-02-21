@@ -260,7 +260,7 @@ export const Position = () => {
 
   const tvl = useMemo(() => {
     if (!foundPool)
-      return { tvl: '0', assetAmountCrytoPrecision: '0', runeAmountCryptoPrecision: '0' }
+      return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
 
     return calculateTVL(foundPool.assetDepth, foundPool.runeDepth, runeMarketData.price)
   }, [foundPool, runeMarketData.price])

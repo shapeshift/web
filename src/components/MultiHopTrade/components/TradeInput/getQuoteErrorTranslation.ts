@@ -43,6 +43,8 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.quoteCrossChainNotSupported'
       case SwapperTradeQuoteError.NetworkFeeEstimationFailed:
         return 'trade.errors.networkFeeEstimateFailed'
+      case TradeQuoteValidationError.InsufficientSellAssetBalance:
+        return 'trade.errors.insufficientFunds'
       case TradeQuoteValidationError.UnknownError:
       case SwapperTradeQuoteError.UnknownError:
       case SwapperTradeQuoteError.InternalError:

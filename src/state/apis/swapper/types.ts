@@ -38,6 +38,7 @@ export enum TradeQuoteValidationError {
   QuoteSellAmountInvalid = 'QuoteSellAmountInvalid',
   QueryFailed = 'QueryFailed',
   UnknownError = 'UnknownError',
+  InsufficientSellAssetBalance = 'InsufficientSellAssetBalance',
 }
 
 // The following affect individual trade quotes.

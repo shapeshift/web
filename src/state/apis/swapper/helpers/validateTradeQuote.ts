@@ -24,7 +24,6 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectFirstHopSellAccountId,
-  selectInputSellAmountCryptoPrecision,
   selectPortfolioAccountIdByNumberByChainId,
   selectSecondHopSellAccountId,
 } from 'state/slices/selectors'
@@ -122,8 +121,13 @@ export const validateTradeQuote = async (
 
   const lastHop = (isMultiHopTrade ? secondHop : firstHop)!
   const walletSupportedChainIds = selectWalletSupportedChainIds(state)
-  const sellAmountCryptoPrecision = selectInputSellAmountCryptoPrecision(state)
+
+  // do not use selectors here, use the quote data as it can disagree with the user input sometimes
   const sellAmountCryptoBaseUnit = firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
+  const sellAmountCryptoPrecision = fromBaseUnit(
+    sellAmountCryptoBaseUnit,
+    firstHop.sellAsset.precision,
+  )
   const buyAmountCryptoBaseUnit = lastHop.buyAmountBeforeFeesCryptoBaseUnit
 
   // the network fee asset for the first hop in the trade
@@ -138,6 +142,11 @@ export const validateTradeQuote = async (
   // this is the account we're selling from - network fees are paid from the sell account for the current hop
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
+
+  const firstHopSellAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+    assetId: firstHop.sellAsset.assetId,
+    accountId: firstHopSellAccountId ?? '',
+  })
 
   const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
@@ -255,10 +264,17 @@ export const validateTradeQuote = async (
   })()
 
   // Ensure the trade is not selling an amount higher than the user input, within a very safe threshold.
-  // Threshold is required because cowswap sometimes quotes a sell amount a teeny-tiny bit more than you input.
+  // Threshold is required because CowSwap sometimes quotes a sell amount a teeny-tiny bit more than you input.
   const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit)
     .times('1.0000000000001')
-    .lt(firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit)
+    .lt(sellAmountCryptoBaseUnit)
+
+  // Some swappers (CowSwap) can return ever-so-slightly higher sell amount than the user input,
+  // resulting in quotes that could feasibly be for an amount higher than the user has. This check
+  // is ignorant of network fees because we check that separately
+  const firstHopHasSufficientBalanceForSellAsset = bnOrZero(firstHopSellAssetBalancePrecision).gte(
+    bn(sellAmountCryptoPrecision),
+  )
 
   return {
     errors: [
@@ -309,7 +325,9 @@ export const validateTradeQuote = async (
       },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
       invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
-
+      !firstHopHasSufficientBalanceForSellAsset && {
+        error: TradeQuoteValidationError.InsufficientSellAssetBalance,
+      },
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),
     warnings: [isUnsafeQuote && { error: TradeQuoteWarning.UnsafeQuote }].filter(isTruthy),

@@ -18,7 +18,6 @@ import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
-import { toUtf8Bytes } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -29,7 +28,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { encodeFunctionData, getAddress, toHex } from 'viem'
+import { encodeFunctionData, getAddress, stringToBytes, toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -258,7 +257,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         to: quote.inbound_address,
         memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
-          ? toHex(toUtf8Bytes(memoUtf8))
+          ? toHex(stringToBytes(memoUtf8))
           : memoUtf8,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
@@ -477,7 +476,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         sendMax: Boolean(state?.deposit.sendMax),
         accountId,
         memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
-          ? toHex(toUtf8Bytes(memoUtf8))
+          ? toHex(stringToBytes(memoUtf8))
           : memoUtf8,
         amountFieldError: '',
         estimatedFees,

@@ -471,7 +471,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                 ? getAddress(fromAssetId(assetId).assetReference)
                 : // Native EVM assets use the 0 address as the asset address
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                  ZeroAddress
+                  zeroAddress
 
               const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
                 confirmedQuote.feeBps

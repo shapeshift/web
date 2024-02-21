@@ -3,7 +3,7 @@ import type { BIP32Path, ETHSignTypedData } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { CustomTheme, ThemeMode as ThemeModeType } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
-import { toQuantity, toUtf8Bytes } from 'ethers'
+import { toUtf8Bytes } from 'ethers'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -92,7 +92,7 @@ export const Notifications = memo(() => {
       try {
         const signedMsg = await wallet.ethSignMessage({
           addressNList,
-          message: toQuantity(toUtf8Bytes(message)),
+          message: toHex(toUtf8Bytes(message)),
         })
 
         return signedMsg?.signature

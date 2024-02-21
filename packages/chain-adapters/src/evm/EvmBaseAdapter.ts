@@ -21,8 +21,7 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
-import { toQuantity } from 'ethers'
-import { isAddress } from 'viem'
+import { isAddress, toHex } from 'viem'
 import { numberToHex } from 'web3-utils'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -248,7 +247,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }[this.chainId]
 
     await wallet.ethSwitchChain({
-      chainId: toQuantity(adapterChainReference),
+      chainId: toHex(adapterChainReference),
       chainName: this.getDisplayName(),
       nativeCurrency: {
         name: targetNetwork.name,

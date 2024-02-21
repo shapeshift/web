@@ -138,11 +138,12 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
 export const selectTradeQuoteResponseErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectTradeQuotes,
-  (inputSellAmountCryptoBaseUnit, swappersApiTradeQuotes) => {
+  selectEnabledSwappersIgnoringCrossAccountTrade,
+  (inputSellAmountCryptoBaseUnit, swappersApiTradeQuotes, enabledSwappers) => {
     const hasUserEnteredAmount = bnOrZero(inputSellAmountCryptoBaseUnit).gt(0)
     if (!hasUserEnteredAmount) return []
 
-    const numSwappers = Object.values(SwapperName).length - 1 // minus 1 because test swapper not used
+    const numSwappers = enabledSwappers.length
 
     // don't report NoQuotesAvailable if any swapper has not upserted a response
     if (Object.values(swappersApiTradeQuotes).length < numSwappers) {

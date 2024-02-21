@@ -7,7 +7,8 @@ import type {
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { ethers, isHexString } from 'ethers'
+import { ethers } from 'ethers'
+import { isHex } from 'viem'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -37,7 +38,7 @@ export const cowSwapper: Swapper = {
     // orderDigest should be an hex string here. All we need to do is pass it to signMessage/wallet.ethSignMessage and sign it
     const messageToSign = orderDigest
 
-    if (!isHexString(messageToSign)) throw new Error('messageToSign is not an hex string')
+    if (!isHex(messageToSign)) throw new Error('messageToSign is not an hex string')
 
     const signatureOrderDigest = await signMessage(messageToSign)
 

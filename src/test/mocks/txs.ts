@@ -1,7 +1,7 @@
 import { ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { Dex, TradeType, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { ZeroAddress } from 'ethers'
+import { zeroAddress } from 'viem'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
@@ -119,7 +119,7 @@ export const TradeTx: Tx = {
   transfers: [
     {
       assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-      from: [ZeroAddress],
+      from: [zeroAddress],
       to: ['0x934be745172066EDF795ffc5EA9F28f19b440c63'],
       type: TransferType.Receive,
       value: '9178352',
@@ -315,7 +315,7 @@ export const yearnVaultDeposit: Tx = {
   transfers: [
     {
       assetId: 'eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9',
-      from: [ZeroAddress],
+      from: [zeroAddress],
       to: ['0x934be745172066EDF795ffc5EA9F28f19b440c63'],
       type: TransferType.Receive,
       value: '9178352',
@@ -353,7 +353,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       },
       {
         assetId: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
-        from: [ZeroAddress],
+        from: [zeroAddress],
         to: [account],
         type: TransferType.Receive,
         value: '5481290118862792961',
@@ -378,7 +378,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
       {
         assetId: 'eip155:1/erc20:0xfbeb78a723b8087fd2ea7ef1afec93d35e8bed42',
         from: [account],
-        to: [ZeroAddress],
+        to: [zeroAddress],
         type: TransferType.Send,
         value: '5481290118862792961',
       },

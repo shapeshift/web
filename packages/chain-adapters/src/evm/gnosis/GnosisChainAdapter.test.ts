@@ -12,8 +12,8 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type { ethers } from 'ethers'
-import { ZeroAddress } from 'ethers'
 import { merge } from 'lodash'
+import { zeroAddress } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
 import { numberToHex } from 'web3-utils'
 
@@ -227,7 +227,7 @@ describe('GnosisChainAdapter', () => {
         to: '0x642F4Bda144C63f6DC47EE0fDfbac0a193e2eDb7',
         value: '123',
         chainSpecific: {
-          from: ZeroAddress,
+          from: zeroAddress,
           data: '0x',
         },
       }
@@ -553,7 +553,7 @@ describe('GnosisChainAdapter', () => {
       const adapter = new gnosis.ChainAdapter(args)
 
       const wallet = await getWallet()
-      wallet.ethGetAddress = async () => await Promise.resolve(ZeroAddress)
+      wallet.ethGetAddress = async () => await Promise.resolve(zeroAddress)
 
       const tx = {
         wallet,
@@ -656,7 +656,7 @@ describe('GnosisChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         accountNumber,
-        to: ZeroAddress,
+        to: zeroAddress,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>

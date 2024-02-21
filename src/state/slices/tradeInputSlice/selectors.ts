@@ -108,7 +108,6 @@ export const selectLastHopSellAccountId = selectFirstHopSellAccountId
 export const selectLastHopBuyAccountId = createSelector(
   selectTradeInput,
   selectInputBuyAsset,
-  selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
   selectAccountIdByAccountNumberAndChainId,
   selectFirstHopSellAccountId,
@@ -116,7 +115,6 @@ export const selectLastHopBuyAccountId = createSelector(
   (
     tradeInput,
     buyAsset,
-    accountIdAssetValues,
     accountIds,
     accountIdByAccountNumberAndChainId,
     firstHopSellAccountId,
@@ -142,14 +140,8 @@ export const selectLastHopBuyAccountId = createSelector(
       return maybeMatchingBuyAccountId
     }
 
-    const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
-      accountIdAssetValues,
-      buyAsset.assetId,
-    )
-    const firstBuyAssetAccountId = getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
-
     // otherwise return a sane default
-    return highestFiatBalanceBuyAccountId ?? firstBuyAssetAccountId
+    return getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
   },
 )
 

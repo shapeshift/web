@@ -561,6 +561,7 @@
   "transactionRow": {
     "send": "Sent",
     "receive": "Received",
+    "common": "Transaction",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -664,8 +665,7 @@
         "join_pool": "Join Pool",
         "exit_pool": "Exit Pool"
       }
-    },
-    "unknown": "Transaction"
+    }
   },
   "bridge": {
     "confirm": "Confirm Bridge",

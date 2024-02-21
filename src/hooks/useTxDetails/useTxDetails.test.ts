@@ -34,11 +34,11 @@ describe('useTxDetails', () => {
     expect(type).toEqual('method')
   })
 
-  it('should get correct type for an unknown tx', () => {
-    const unknown = deposit
-    unknown.data!.method = 'unknown'
-    const transfers = getTransfers(unknown, mockAssetState().byId, marketData)
-    const type = getTxType(unknown, transfers)
-    expect(type).toEqual('unknown')
+  it('should get correct type for a common tx', () => {
+    const common = deposit
+    common.data!.method = 'common'
+    const transfers = getTransfers(common, mockAssetState().byId, marketData)
+    const type = getTxType(common, transfers)
+    expect(type).toEqual('common')
   })
 })

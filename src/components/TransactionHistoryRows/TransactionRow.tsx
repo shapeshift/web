@@ -1,15 +1,13 @@
 import type { BoxProps } from '@chakra-ui/react'
 import { Box, forwardRef, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { TradeType, TransferType } from '@shapeshiftoss/unchained-client'
+import { TradeType } from '@shapeshiftoss/unchained-client'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo, useState } from 'react'
+import { TransactionCommon } from 'components/TransactionHistoryRows/TransactionCommon'
 import { TransactionMethod } from 'components/TransactionHistoryRows/TransactionMethod'
-import { TransactionReceive } from 'components/TransactionHistoryRows/TransactionReceive'
-import { TransactionSend } from 'components/TransactionHistoryRows/TransactionSend'
 import { TransactionTrade } from 'components/TransactionHistoryRows/TransactionTrade'
-import { UnknownTransaction } from 'components/TransactionHistoryRows/UnknownTransaction'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { useTxDetails } from 'hooks/useTxDetails/useTxDetails'
 
@@ -62,10 +60,6 @@ const TransactionType = ({
   )
 
   switch (txDetails.type) {
-    case TransferType.Send:
-      return <TransactionSend {...props} />
-    case TransferType.Receive:
-      return <TransactionReceive {...props} />
     case TradeType.Trade:
     case TradeType.Swap:
     case TradeType.Refund:
@@ -73,7 +67,7 @@ const TransactionType = ({
     case 'method':
       return <TransactionMethod {...props} />
     default:
-      return <UnknownTransaction {...props} />
+      return <TransactionCommon {...props} />
   }
 }
 

@@ -215,7 +215,7 @@ export const nftApi = createApi({
                 if (hasSpammyMedias(item.medias)) return
                 if (
                   [item.collection.description, item.collection.name, item.name, item.symbol].some(
-                    isSpammyNftText,
+                    nftText => isSpammyNftText(nftText),
                   )
                 )
                   return

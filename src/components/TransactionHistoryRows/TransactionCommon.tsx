@@ -1,11 +1,11 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 
+import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
 import { Status } from './TransactionDetails/Status'
-import { Text } from './TransactionDetails/Text'
 import { TransactionId } from './TransactionDetails/TransactionId'
 import { Transfers } from './TransactionDetails/Transfers'
 import { TxGrid } from './TransactionDetails/TxGrid'
@@ -13,7 +13,7 @@ import { TransactionGenericRow } from './TransactionGenericRow'
 import type { TransactionRowProps } from './TransactionRow'
 import { getTransfersByType } from './utils'
 
-export const UnknownTransaction = ({
+export const TransactionCommon = ({
   txDetails,
   showDateAndGuide,
   compactMode,
@@ -29,11 +29,10 @@ export const UnknownTransaction = ({
   return (
     <>
       <TransactionGenericRow
-        type={''}
+        type={txDetails.type}
         status={txDetails.tx.status}
         toggleOpen={toggleOpen}
         compactMode={compactMode}
-        title='transactionRow.unknown'
         blockTime={txDetails.tx.blockTime}
         transfersByType={transfersByType}
         fee={txDetails.fee}
@@ -52,25 +51,16 @@ export const UnknownTransaction = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          {txDetails.tx.trade && (
-            <Row title='orderRoute'>
-              <Text value={'0x'} />
-            </Row>
-          )}
-          {txDetails.tx.trade && (
-            <Row title='transactionType'>
-              <Text value={txDetails.tx.trade.dexName} />
-            </Row>
-          )}
-          {txDetails.fee && (
-            <Row title='minerFee'>
-              <Amount
-                value={txDetails.fee.value}
-                precision={txDetails.fee.asset.precision}
-                symbol={txDetails.fee.asset.symbol}
-              />
-            </Row>
-          )}
+          <Row title='minerFee'>
+            <Amount
+              value={txDetails.fee?.value ?? '0'}
+              precision={txDetails.fee?.asset.precision ?? 0}
+              symbol={txDetails.fee?.asset.symbol ?? ''}
+            />
+          </Row>
+          <Row title='date'>
+            <TransactionDate blockTime={txDetails.tx.blockTime} />
+          </Row>
         </TxGrid>
       </TransactionDetailsContainer>
     </>

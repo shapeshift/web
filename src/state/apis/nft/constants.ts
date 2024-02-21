@@ -30,10 +30,22 @@ const NFT_NAME_BLACKLIST = [
   'jrnyclubnet',
   'jrnyclub.net',
   '://',
+  "'",
 ]
 
-// This checks for whitespace only, url scheme, domain extension, and any explicit spam text not caught by the previous patterns
-const TOKEN_TEXT_REGEX_BLACKLIST = [/^\s*$/, /:\/\//, /\.[a-zA-Z]{2,4}/, /ETH\.\.\./]
+// This checks for whitespace only, url scheme, domain extension, non printable control characters and any explicit spam text not caught by the previous patterns
+const TOKEN_TEXT_REGEX_BLACKLIST = [
+  // eslint-disable-next-line no-control-regex
+  /[\x00-\x1F\x7F-\x9F]/,
+  /^\s*$/,
+  /:\/\//,
+  /[.,][a-zA-Z]{2,4}/,
+  /ETH\.\.\./,
+]
+
+// This checks for domain extension and non printable control characters
+// eslint-disable-next-line no-control-regex
+const NFT_TEXT_REGEX_BLACKLIST = [/[\x00-\x1F\x7F-\x9F]/, /[.,][a-zA-Z]{2,4}/]
 
 // This escapes special characters we may encounter in NFTS, so we can add them to the blacklist
 // e.g "$9999+ free giveaway *limited time only*" would not work without it
@@ -41,14 +53,11 @@ const nftNameBlacklistRegex = new RegExp(
   NFT_NAME_BLACKLIST.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
   'i',
 )
-export const isSpammyNftText = (nftText: string) => {
-  // TODO(gomes): since we iterate on collection description, NFT name, and NFT symbol running this check,
-  // one of the three with almost always be empty, resulting in it being wrongly flagged as spammy.
-  // We may want to revert this behavior if we can get more granular and only run this in specific cases
-  // const isEmptyText = nftText === ''
-  const isEmptyText = false
+export const isSpammyNftText = (nftText: string, excludeEmpty?: boolean) => {
+  const isEmptyText = Boolean(excludeEmpty && /^\s*$/.test(nftText))
   const isSpammyMatch = nftNameBlacklistRegex.test(nftText)
-  return isEmptyText || isSpammyMatch
+  const isRegexBlacklistMatch = NFT_TEXT_REGEX_BLACKLIST.some(regex => regex.test(nftText))
+  return isEmptyText || isSpammyMatch || isRegexBlacklistMatch
 }
 export const isSpammyTokenText = (tokenText: string) =>
   TOKEN_TEXT_REGEX_BLACKLIST.some(regex => regex.test(tokenText))

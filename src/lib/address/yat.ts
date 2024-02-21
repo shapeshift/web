@@ -1,8 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { ethers } from 'ethers'
 import GraphemeSplitter from 'grapheme-splitter'
+import { getAddress } from 'viem'
 
 // validate a yat
 type ValidateYatArgs = {
@@ -77,7 +77,7 @@ export const resolveYat: ResolveYat = async args => {
     })()
 
     if (!maybeAddress) return ''
-    return ethers.getAddress(maybeAddress)
+    return getAddress(maybeAddress)
   } catch (e) {
     return ''
   }

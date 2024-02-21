@@ -3,7 +3,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
-import { ethers } from 'ethers'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -113,7 +112,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
     try {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
-      const lpAssetContractAddress = ethers.getAddress(fromAssetId(lpAssetId).assetReference)
+      const lpAssetContractAddress = getAddress(fromAssetId(lpAssetId).assetReference)
       await approveAsset(getAddress(lpAssetContractAddress))
       await poll({
         fn: () => lpAllowance(),

@@ -14,6 +14,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { getAddress } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
@@ -75,7 +76,7 @@ export const FoxyWithdraw: React.FC<{
         )
           return
         const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(
-          ethers.getAddress(foxyStakingContractAddress),
+          getAddress(foxyStakingContractAddress),
         )
         // Get foxy fee for instant sends
         const foxyFeePercentage = await foxyApi.instantUnstakeFee({

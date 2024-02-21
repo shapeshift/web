@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { ethers } from 'ethers'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
 import { Field, Withdraw as ReusableWithdraw } from 'features/defi/components/Withdraw/Withdraw'
 import type {
@@ -201,7 +200,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         onNext(DefiStep.Confirm)
         dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: false })
       } else {
-        const lpAssetContractAddress = ethers.getAddress(fromAssetId(lpAssetId).assetReference)
+        const lpAssetContractAddress = getAddress(fromAssetId(lpAssetId).assetReference)
 
         const fees = await getApproveFees(getAddress(lpAssetContractAddress))
         if (!fees) return

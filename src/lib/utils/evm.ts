@@ -16,7 +16,7 @@ import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { ethers } from 'ethers'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -219,7 +219,7 @@ export const getApproveContractData = ({
   spender,
   chainId,
 }: GetApproveContractDataArgs): string => {
-  const address = ethers.getAddress(to)
+  const address = getAddress(to)
   const contract = getOrCreateContractByType({
     address,
     type: ContractType.ERC20,

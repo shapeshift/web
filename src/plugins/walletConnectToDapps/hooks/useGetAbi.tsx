@@ -3,6 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { ethers, Fragment } from 'ethers'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/types'
 import { useEffect, useMemo, useState } from 'react'
+import { getAddress } from 'viem'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
 
@@ -69,7 +70,7 @@ export const useGetAbi = (transactionParams: TransactionParams): ethers.Interfac
               EIP1967_IMPLEMENTATION_SLOT,
             )
             // Remove the first 26 chars (64 hex digits)
-            implementationAddress = ethers.getAddress(paddedImplementationAddress.substring(26))
+            implementationAddress = getAddress(paddedImplementationAddress.substring(26))
             break
           default:
             implementationAddress = null

@@ -13,6 +13,7 @@ import type { BigNumber } from 'bignumber.js'
 import type { TransactionReceipt } from 'ethers'
 import { ethers } from 'ethers'
 import { toLower } from 'lodash'
+import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/investor/constants'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
@@ -179,8 +180,8 @@ export class FoxyApi {
   }
 
   checksumAddress(address: string): string {
-    // ethers always returns checksum addresses from getAddress() calls
-    return ethers.getAddress(address)
+    // viem always returns checksum addresses from getAddress() calls
+    return getAddress(address)
   }
 
   private verifyAddresses(addresses: string[]) {

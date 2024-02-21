@@ -9,7 +9,6 @@ import {
 } from 'contracts/constants'
 import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
-import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import { type Address, encodeFunctionData, getAddress } from 'viem'
@@ -81,16 +80,16 @@ export const useUniV2LiquidityPool = ({
 
   // Checksummed addresses
   const asset0ContractAddress = useMemo(
-    () => ethers.getAddress(fromAssetId(assetId0OrWeth).assetReference),
+    () => getAddress(fromAssetId(assetId0OrWeth).assetReference),
     [assetId0OrWeth],
   )
   const asset1ContractAddress = useMemo(
-    () => ethers.getAddress(fromAssetId(assetId1OrWeth).assetReference),
+    () => getAddress(fromAssetId(assetId1OrWeth).assetReference),
     [assetId1OrWeth],
   )
 
   const lpContractAddress = useMemo(
-    () => ethers.getAddress(fromAssetId(lpAssetId).assetReference),
+    () => getAddress(fromAssetId(lpAssetId).assetReference),
     [lpAssetId],
   )
 

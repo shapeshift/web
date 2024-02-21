@@ -1,18 +1,20 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Selector } from 'react-redux'
 import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAccountIdParamFromFilter } from 'state/selectors'
 
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectWalletAccountIds,
 } from '../common-selectors'
 import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
-import { selectPortfolioAssetAccountBalancesSortedUserCurrency } from '../portfolioSlice/selectors'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectPortfolioAccountMetadata,
+  selectPortfolioAssetAccountBalancesSortedUserCurrency,
+} from '../portfolioSlice/selectors'
 import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
@@ -108,18 +110,35 @@ export const selectLastHopBuyAccountId = createSelector(
   selectInputBuyAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectWalletAccountIds,
-  selectAccountIdParamFromFilter,
-  (tradeInput, buyAsset, accountIdAssetValues, accountIds, maybeMatchingBuyAccountId) => {
+  selectAccountIdByAccountNumberAndChainId,
+  selectFirstHopSellAccountId,
+  selectPortfolioAccountMetadata,
+  (
+    tradeInput,
+    buyAsset,
+    accountIdAssetValues,
+    accountIds,
+    accountIdByAccountNumberAndChainId,
+    firstHopSellAccountId,
+    accountMetadata,
+  ) => {
     // return the users selection if it exists
     if (tradeInput.buyAssetAccountId) {
       return tradeInput.buyAssetAccountId
     }
-    // an AccountId was found matching the sell asset's account number, AND the chainId is correct, return it
-    // TODO: use account number
-    if (
-      maybeMatchingBuyAccountId &&
-      buyAsset.chainId === fromAccountId(maybeMatchingBuyAccountId).chainId
-    ) {
+
+    // maybe convert the account id to an account number
+    const maybeMatchingBuyAccountNumber = firstHopSellAccountId
+      ? accountMetadata[firstHopSellAccountId]?.bip44Params.accountNumber
+      : undefined
+
+    // maybe convert account number to account id on the buy asset chain
+    const maybeMatchingBuyAccountId = maybeMatchingBuyAccountNumber
+      ? accountIdByAccountNumberAndChainId[maybeMatchingBuyAccountNumber]?.[buyAsset.chainId]
+      : undefined
+
+    // an AccountId was found matching the sell asset's account number and chainId, return it
+    if (maybeMatchingBuyAccountId) {
       return maybeMatchingBuyAccountId
     }
 

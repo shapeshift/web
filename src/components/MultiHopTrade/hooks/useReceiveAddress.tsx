@@ -7,7 +7,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
@@ -39,11 +38,7 @@ export const useReceiveAddress = ({
 
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-
-  const buyAccountId = useAppSelector(state =>
-    selectLastHopBuyAccountId(state, { accountId: sellAssetAccountId }),
-  )
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
   )

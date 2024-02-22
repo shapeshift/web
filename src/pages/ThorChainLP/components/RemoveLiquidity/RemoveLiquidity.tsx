@@ -1,6 +1,8 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { Suspense, useCallback } from 'react'
+import React, { Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 
 import { RemoveLiquidityConfirm } from './RemoveLiquidityConfirm'
 import { RemoveLiquidityInput } from './RemoveLiquidityInput'
@@ -16,28 +18,55 @@ const AddLiquidityEntries = [
 ]
 
 export type RemoveLiquidityProps = {
-  headerComponent?: JSX.Element
-  opportunityId?: string
+  headerComponent: JSX.Element
+  opportunityId: string
+  poolAccountId: AccountId
 }
+
+export type RemoveLiquidityRoutesProps = RemoveLiquidityProps & {
+  confirmedQuote: LpConfirmedWithdrawalQuote | null
+  setConfirmedQuote: (quote: LpConfirmedWithdrawalQuote) => void
+}
+
 export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
   headerComponent,
   opportunityId,
+  poolAccountId,
 }) => {
+  const [confirmedQuote, setConfirmedQuote] = useState<LpConfirmedWithdrawalQuote | null>(null)
+
   return (
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
-      <RemoveLiquidityRoutes headerComponent={headerComponent} opportunityId={opportunityId} />
+      <RemoveLiquidityRoutes
+        headerComponent={headerComponent}
+        opportunityId={opportunityId}
+        setConfirmedQuote={setConfirmedQuote}
+        confirmedQuote={confirmedQuote}
+        poolAccountId={poolAccountId}
+      />
     </MemoryRouter>
   )
 }
 
-const RemoveLiquidityRoutes: React.FC<RemoveLiquidityProps> = ({
+const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   headerComponent,
   opportunityId,
+  confirmedQuote,
+  setConfirmedQuote,
+  poolAccountId,
 }) => {
   const location = useLocation()
   const renderRemoveLiquidityInput = useCallback(
-    () => <RemoveLiquidityInput headerComponent={headerComponent} opportunityId={opportunityId} />,
-    [headerComponent, opportunityId],
+    () => (
+      <RemoveLiquidityInput
+        headerComponent={headerComponent}
+        opportunityId={opportunityId}
+        confirmedQuote={confirmedQuote}
+        setConfirmedQuote={setConfirmedQuote}
+        poolAccountId={poolAccountId}
+      />
+    ),
+    [confirmedQuote, headerComponent, opportunityId, poolAccountId, setConfirmedQuote],
   )
   const renderRemoveLiquidityConfirm = useCallback(() => <RemoveLiquidityConfirm />, [])
   const renderRemoveLiquidityStatus = useCallback(() => <RemoveLiquidityStatus />, [])

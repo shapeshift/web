@@ -6,10 +6,6 @@ import { getConfig } from 'config'
 import { toQuantity, toUtf8Bytes } from 'ethers'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-<<<<<<< HEAD
-=======
-import { stringToBytes, toHex } from 'viem'
->>>>>>> 214c676c9c (feat: cleanup)
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'

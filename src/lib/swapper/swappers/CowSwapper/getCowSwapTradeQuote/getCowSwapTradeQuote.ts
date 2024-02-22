@@ -96,7 +96,6 @@ export async function getCowSwapTradeQuote(
   const {
     feeAmount: feeAmountInSellTokenCryptoBaseUnit,
     buyAmount: buyAmountAfterFeesCryptoBaseUnit,
-    sellAmount,
   } = data.quote
 
   const { rate, buyAmountBeforeFeesCryptoBaseUnit } = getValuesFromQuoteResponse({
@@ -129,7 +128,7 @@ export async function getCowSwapTradeQuote(
             },
           },
         },
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
         buyAmountBeforeFeesCryptoBaseUnit,
         buyAmountAfterFeesCryptoBaseUnit,
         source: SwapperName.CowSwap,

@@ -11,7 +11,8 @@ import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contrac
 import { ContractType } from 'contracts/types'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
-import { type Address, encodeFunctionData, getAddress } from 'viem'
+import type { Address } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -148,7 +149,7 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidityETH',
           args: [
-            getAddress(otherAssetContractAddress),
+            otherAssetContractAddress,
             BigInt(toBaseUnit(otherAssetAmount, otherAsset.precision)),
             BigInt(amountOtherAssetMin),
             BigInt(amountEthMin),
@@ -165,8 +166,8 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidity',
           args: [
-            getAddress(asset0ContractAddress),
-            getAddress(asset1ContractAddress),
+            asset0ContractAddress,
+            asset1ContractAddress,
             BigInt(toBaseUnit(token0Amount, asset0.precision)),
             BigInt(toBaseUnit(token1Amount, asset1.precision)),
             BigInt(amountAsset0Min),
@@ -243,8 +244,8 @@ export const useUniV2LiquidityPool = ({
       asset1Amount,
       asset0Amount,
     }: {
-      asset0ContractAddress: string
-      asset1ContractAddress: string
+      asset0ContractAddress: Address
+      asset1ContractAddress: Address
       lpAmount: string
       asset1Amount: string
       asset0Amount: string
@@ -255,9 +256,8 @@ export const useUniV2LiquidityPool = ({
       const to = getAddress(fromAccountId(accountId).account)
 
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
-        const otherAssetContractAddress = getAddress(
-          assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress,
-        )
+        const otherAssetContractAddress =
+          assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
         const otherAsset = assetId0OrWeth === wethAssetId ? asset1 : asset0
         const ethAmount = assetId0OrWeth === wethAssetId ? asset0Amount : asset1Amount
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
@@ -281,8 +281,8 @@ export const useUniV2LiquidityPool = ({
         abi: uniswapRouterContract.abi,
         functionName: 'removeLiquidity',
         args: [
-          getAddress(asset0ContractAddress),
-          getAddress(asset1ContractAddress),
+          asset0ContractAddress,
+          asset1ContractAddress,
           BigInt(toBaseUnit(lpAmount, lpAsset.precision)),
           BigInt(calculateSlippageMargin(asset0Amount, asset0.precision)),
           BigInt(calculateSlippageMargin(asset1Amount, asset1.precision)),
@@ -493,7 +493,7 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidityETH',
           args: [
-            getAddress(otherAssetContractAddress),
+            otherAssetContractAddress,
             BigInt(toBaseUnit(otherAssetAmount, otherAsset.precision)),
             BigInt(amountOtherAssetMin),
             BigInt(amountEthMin),
@@ -518,8 +518,8 @@ export const useUniV2LiquidityPool = ({
           abi: uniswapRouterContract.abi,
           functionName: 'addLiquidity',
           args: [
-            getAddress(asset0ContractAddress),
-            getAddress(asset1ContractAddress),
+            asset0ContractAddress,
+            asset1ContractAddress,
             BigInt(toBaseUnit(token0Amount, asset0.precision)),
             BigInt(toBaseUnit(token1Amount, asset1.precision)),
             BigInt(amountAsset0Min),

@@ -202,7 +202,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       } else {
         const lpAssetContractAddress = getAddress(fromAssetId(lpAssetId).assetReference)
 
-        const fees = await getApproveFees(getAddress(lpAssetContractAddress))
+        const fees = await getApproveFees(lpAssetContractAddress)
         if (!fees) return
 
         dispatch({

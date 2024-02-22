@@ -113,7 +113,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     try {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
       const lpAssetContractAddress = getAddress(fromAssetId(lpAssetId).assetReference)
-      await approveAsset(getAddress(lpAssetContractAddress))
+      await approveAsset(lpAssetContractAddress)
       await poll({
         fn: () => lpAllowance(),
         validate: (result: string) => {

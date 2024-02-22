@@ -195,14 +195,10 @@ export const Deposit: React.FC<DepositProps> = ({
           // e.g https://github.com/Uniswap/governance/blob/eabd8c71ad01f61fb54ed6945162021ee419998e/contracts/Uni.sol#L119
           const asset0ApprovalFee =
             asset0ContractAddress &&
-            bnOrZero(
-              (await getApproveFees(getAddress(asset0ContractAddress)))?.networkFeeCryptoBaseUnit,
-            )
+            bnOrZero((await getApproveFees(asset0ContractAddress))?.networkFeeCryptoBaseUnit)
           const asset1ApprovalFee =
             asset1ContractAddress &&
-            bnOrZero(
-              (await getApproveFees(getAddress(asset1ContractAddress)))?.networkFeeCryptoBaseUnit,
-            )
+            bnOrZero((await getApproveFees(asset1ContractAddress))?.networkFeeCryptoBaseUnit)
 
           if (!(asset0ApprovalFee || asset1ApprovalFee)) return
 

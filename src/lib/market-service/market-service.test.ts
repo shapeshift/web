@@ -1,3 +1,4 @@
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
 import { describe, expect, it, vi } from 'vitest'
@@ -156,11 +157,12 @@ describe('market service', () => {
   })
 
   describe('findByAssetId', () => {
-    const args = { assetId: 'eip155:1/slip44:60' }
+    const ethArgs = { assetId: ethAssetId }
+    const btcArgs = { assetId: btcAssetId }
 
     it('can return from first market service and skip the next', async () => {
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
-      const result = await marketServiceManager.findByAssetId(args)
+      const result = await marketServiceManager.findByAssetId(ethArgs)
       expect(result).toEqual(mockCGFindByAssetIdData)
     })
 
@@ -168,7 +170,7 @@ describe('market service', () => {
       mockCoingeckoFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
-      const result = await marketServiceManager.findByAssetId(args)
+      const result = await marketServiceManager.findByAssetId(ethArgs)
       expect(result).toEqual(mockFoxyMarketData)
     })
 
@@ -179,7 +181,7 @@ describe('market service', () => {
       mockYearnTokenFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
-      const result = await marketServiceManager.findByAssetId(args)
+      const result = await marketServiceManager.findByAssetId(btcArgs)
       expect(result).toBeNull()
     })
   })

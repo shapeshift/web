@@ -102,16 +102,34 @@ const createThrottle = ({
   intervalMs: number
 }) => {
   let currentLevel = 0
+  let pendingResolves: ((value?: unknown) => void)[] = []
 
-  setInterval(() => {
-    currentLevel = Math.max(0, currentLevel - drainPerInterval)
-  }, intervalMs)
+  const drain = () => {
+    const drainAmount = Math.min(currentLevel, drainPerInterval)
+    currentLevel -= drainAmount
+
+    // Resolve pending promises if there's enough capacity
+    while (pendingResolves.length > 0 && currentLevel + costPerReq <= capacity) {
+      const resolve = pendingResolves.shift()
+      if (resolve) {
+        currentLevel += costPerReq
+        resolve()
+      }
+    }
+  }
+
+  // Start the interval to drain the capacity
+  setInterval(drain, intervalMs)
 
   const throttle = async () => {
-    let isFull = currentLevel + costPerReq >= capacity
-    while (isFull) {
-      await new Promise(resolve => setTimeout(resolve, intervalMs))
-      isFull = currentLevel + costPerReq >= capacity
+    if (currentLevel + costPerReq <= capacity) {
+      // If adding another request doesn't exceed capacity, proceed immediately
+      currentLevel += costPerReq
+    } else {
+      // Otherwise, wait until there's enough capacity
+      await new Promise(resolve => {
+        pendingResolves.push(resolve)
+      })
     }
   }
 
@@ -246,7 +264,7 @@ export const generateRelatedAssetIndex = async () => {
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
     costPerReq: 1, // Keeping the cost per request as 1 for simplicity
     drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
-    intervalMs: 5000,
+    intervalMs: 1000,
   })
   let i = 0
   for (const batch of chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)) {

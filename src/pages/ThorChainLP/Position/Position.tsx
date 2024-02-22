@@ -260,7 +260,7 @@ export const Position = () => {
 
   const tvl = useMemo(() => {
     if (!foundPool)
-      return { tvl: '0', assetAmountCrytoPrecision: '0', runeAmountCryptoPrecision: '0' }
+      return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
 
     return calculateTVL(foundPool.assetDepth, foundPool.runeDepth, runeMarketData.price)
   }, [foundPool, runeMarketData.price])
@@ -406,12 +406,15 @@ export const Position = () => {
                     opportunityId={foundPool.opportunityId}
                   />
                 </TabPanel>
-                <TabPanel px={0} py={0}>
-                  <RemoveLiquidity
-                    headerComponent={TabHeader}
-                    opportunityId={foundPool.opportunityId}
-                  />
-                </TabPanel>
+                {params.poolAccountId && (
+                  <TabPanel px={0} py={0}>
+                    <RemoveLiquidity
+                      headerComponent={TabHeader}
+                      opportunityId={foundPool.opportunityId}
+                      poolAccountId={params.poolAccountId}
+                    />
+                  </TabPanel>
+                )}
               </TabPanels>
             </Tabs>
           </Card>

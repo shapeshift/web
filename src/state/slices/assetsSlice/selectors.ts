@@ -1,9 +1,11 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { orderBy } from 'lodash'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
@@ -61,6 +63,10 @@ export const selectAssets = createDeepEqualOutputSelector(
 )
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
+export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
+  const getAssetName = (asset: Asset) => asset.name
+  return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
+})
 
 export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
   selectMarketDataIdsSortedByMarketCapUsd,

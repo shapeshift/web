@@ -5,12 +5,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swapper/swapperApi'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets, selectAssetsSortedByName } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
-  const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
+  const sortedAssets = useAppSelector(selectAssetsSortedByName)
   const assets = useAppSelector(selectAssets)
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()

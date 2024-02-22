@@ -1,10 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
-import {
-  selectAssetsSortedByName,
-  selectWalletSupportedChainIds,
-} from 'state/slices/common-selectors'
+import { selectWalletSupportedChainIds } from 'state/slices/common-selectors'
+import { selectAssetsSortedByName } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'

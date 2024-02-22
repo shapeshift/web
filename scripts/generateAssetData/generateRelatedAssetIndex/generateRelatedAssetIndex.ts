@@ -207,7 +207,7 @@ const processRelatedAssetIds = async (
     }
 
   // Has zerion-provided related assets, or manually added ones
-  const hasRelatedAssets = Boolean(relatedAssetIds.length > 0)
+  const hasRelatedAssets = relatedAssetIds.length > 0
 
   // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
   if (hasRelatedAssets && assetData[relatedAssetKey] !== undefined) {

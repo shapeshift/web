@@ -25,7 +25,7 @@ import { AssetChainRow } from './AssetChainRow'
 type AssetChainDropdownProps = {
   assetId?: AssetId
   assetIds?: AssetId[]
-  onClick: (arg: AssetId | undefined) => void
+  onChangeAsset: (arg: AssetId | undefined) => void
   buttonProps?: ButtonProps
   isLoading?: boolean
   isError?: boolean
@@ -34,7 +34,7 @@ type AssetChainDropdownProps = {
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   assetId,
   assetIds,
-  onClick,
+  onChangeAsset,
   buttonProps,
   isLoading,
   isError,
@@ -68,7 +68,17 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
     })
   }, [filteredRelatedAssetIds, wallet])
 
-  const onChange = useCallback((value: string | string[]) => onClick(value as AssetId), [onClick])
+  const handleChangeAsset = useCallback(
+    (value: string | string[]) => {
+      // this should never happen, but in case it does...
+      if (typeof value !== 'string') {
+        console.error('expected string value')
+        return
+      }
+      onChangeAsset(value as AssetId)
+    },
+    [onChangeAsset],
+  )
 
   const isDisabled = useMemo(() => {
     return filteredRelatedAssetIds.length <= 1 || isLoading || isError
@@ -94,7 +104,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
         </MenuButton>
       </Tooltip>
       <MenuList zIndex='banner'>
-        <MenuOptionGroup type='radio' value={assetId} onChange={onChange}>
+        <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
           {renderChains}
         </MenuOptionGroup>
       </MenuList>

@@ -87,7 +87,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
       <AssetChainDropdown
         assetId={assetId}
         assetIds={assetIds}
-        onClick={handleAssetChange}
+        onChangeAsset={handleAssetChange}
         isLoading={isLoading}
         buttonProps={combinedButtonProps}
       />

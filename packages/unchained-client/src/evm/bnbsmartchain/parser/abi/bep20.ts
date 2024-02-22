@@ -1,6 +1,6 @@
-import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { InterfaceAbi } from 'ethers'
 
-const bep20: JsonFragment[] = [
+const bep20: InterfaceAbi = [
   {
     anonymous: false,
     inputs: [

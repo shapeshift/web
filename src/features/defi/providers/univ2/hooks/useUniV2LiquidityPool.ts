@@ -1,4 +1,3 @@
-import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
@@ -12,7 +11,7 @@ import { ContractType } from 'contracts/types'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -451,10 +450,7 @@ export const useUniV2LiquidityPool = ({
       const data = encodeFunctionData({
         abi: contract.abi,
         functionName: 'approve',
-        args: [
-          getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference),
-          BigInt(MaxUint256.toString()),
-        ],
+        args: [getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference), maxUint256],
       })
 
       return getFeesWithWallet({
@@ -605,7 +601,7 @@ export const useUniV2LiquidityPool = ({
       const data = encodeFunctionData({
         abi: contract.abi,
         functionName: 'approve',
-        args: [uniV2ContractAddress, BigInt(MaxUint256.toString())],
+        args: [uniV2ContractAddress, maxUint256],
       })
 
       const fees = await getApproveFees(contractAddress)

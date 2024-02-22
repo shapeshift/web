@@ -1,11 +1,10 @@
-import { MaxUint256 } from '@ethersproject/constants'
 import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
@@ -148,7 +147,7 @@ export const useFoxFarming = (
     const data = encodeFunctionData({
       abi: uniV2LPContract.abi,
       functionName: 'approve',
-      args: [contractAddress, BigInt(MaxUint256.toString())],
+      args: [contractAddress, BigInt(maxUint256.toString())],
     })
 
     return getFeesWithWallet({
@@ -232,7 +231,7 @@ export const useFoxFarming = (
     const data = encodeFunctionData({
       abi: uniV2LPContract.abi,
       functionName: 'approve',
-      args: [contractAddress, BigInt(MaxUint256.toString())],
+      args: [contractAddress, BigInt(maxUint256.toString())],
     })
 
     const fees = await getApproveFees()

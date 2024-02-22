@@ -1,6 +1,6 @@
-import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { InterfaceAbi } from 'ethers'
 
-export const YEARN_VAULT_ABI: JsonFragment[] = [
+export const YEARN_VAULT_ABI: InterfaceAbi = [
   {
     name: 'Transfer',
     inputs: [

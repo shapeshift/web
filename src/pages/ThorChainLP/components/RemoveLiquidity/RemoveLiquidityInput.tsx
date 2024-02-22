@@ -129,10 +129,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
     string | undefined
   >()
-  const [cryptoAssetBalance, setCryptoAssetBalance] = useState<string | undefined>()
-  const [fiatAssetBalance, setFiatAssetBalance] = useState<string | undefined>()
-  const [cryptoRuneBalance, setCryptoRuneBalance] = useState<string | undefined>()
-  const [fiatRuneBalance, setFiatRuneBalance] = useState<string | undefined>()
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
 
@@ -276,10 +272,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
         .toFixed(),
     )
-    setCryptoAssetBalance(underlyingAssetAmountCryptoPrecision)
-    setFiatAssetBalance(underlyingAssetValueFiatUserCurrency)
-    setCryptoRuneBalance(underlyingRuneAmountCryptoPrecision)
-    setFiatRuneBalance(underlyingRuneValueFiatUserCurrency)
   }, [isAsymAssetSide, isAsymRuneSide, percentageSelection, userlpData])
 
   // We reuse lending utils here since all this does is estimating fees for a given withdrawal amount with a memo
@@ -580,8 +572,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           const fiatAmount = isRune
             ? virtualRuneFiatLiquidityAmount
             : virtualAssetFiatLiquidityAmount
-          const cryptoBalance = isRune ? cryptoRuneBalance : cryptoAssetBalance
-          const fiatBalance = isRune ? fiatRuneBalance : fiatAssetBalance
+          const cryptoBalance = isRune
+            ? userlpData?.underlyingRuneAmountCryptoPrecision
+            : userlpData?.underlyingAssetAmountCryptoPrecision
+          const fiatBalance = isRune
+            ? userlpData?.underlyingRuneAmountCryptoPrecision
+            : userlpData?.underlyingRuneValueFiatUserCurrency
 
           return (
             <AssetInput
@@ -616,10 +612,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     virtualAssetCryptoLiquidityAmount,
     virtualRuneFiatLiquidityAmount,
     virtualAssetFiatLiquidityAmount,
-    cryptoRuneBalance,
-    cryptoAssetBalance,
-    fiatRuneBalance,
-    fiatAssetBalance,
+    userlpData?.underlyingRuneAmountCryptoPrecision,
+    userlpData?.underlyingAssetAmountCryptoPrecision,
+    userlpData?.underlyingRuneValueFiatUserCurrency,
     poolAccountId,
     percentOptions,
   ])

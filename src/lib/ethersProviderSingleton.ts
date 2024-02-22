@@ -37,7 +37,9 @@ export const getEthersProvider = (
   chainId: EvmChainId = KnownChainIds.EthereumMainnet,
 ): JsonRpcProvider => {
   if (!ethersProviders.has(chainId)) {
-    const provider = new JsonRpcProvider(rpcUrlByChainId(chainId))
+    const provider = new JsonRpcProvider(rpcUrlByChainId(chainId), undefined, {
+      staticNetwork: true,
+    })
     ethersProviders.set(chainId, provider)
     return provider
   } else {

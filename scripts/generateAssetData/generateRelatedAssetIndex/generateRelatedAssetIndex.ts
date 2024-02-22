@@ -246,7 +246,7 @@ export const generateRelatedAssetIndex = async () => {
     capacity: 100,
     costPerReq: 1,
     drainPerInterval: 100,
-    intervalMs: 1000,
+    intervalMs: 5000,
   })
 
   let i = 0

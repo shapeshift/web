@@ -199,8 +199,8 @@ const processRelatedAssetIds = async (
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
   // ensure empty results get added so we can use this index to generate distinct asset list
-  const { relatedAssetIds, relatedAssetKey } = relatedAssetsResult ??
-    manualRelatedAssetsResult ?? {
+  const { relatedAssetIds, relatedAssetKey } = manualRelatedAssetsResult ??
+    relatedAssetsResult ?? {
       relatedAssetIds: [],
       relatedAssetKey: assetId,
     }

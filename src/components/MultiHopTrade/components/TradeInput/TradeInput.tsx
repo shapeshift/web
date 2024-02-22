@@ -89,6 +89,7 @@ import { breakpoints } from 'theme/theme'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { QuoteList } from '../QuoteList/QuoteList'
+import { HorizontalCollapse } from './components/HorizontalCollapse'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
@@ -113,10 +114,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  // const tradeInputRef = useRef<HTMLDivElement | null>(null)
   const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints.md})`, { ssr: false })
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
@@ -696,24 +695,13 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               </Stack>
             </Card>
 
-            {!isCompact && isLargerThanMd && (
-              <QuoteList
-                flexShrink={1}
-                height='full'
-                maxHeight={tradeInputHeight ?? 'full'}
-                width={
-                  hasUserEnteredAmount && !isSmallerThanXl
-                    ? tradeInputRef.current?.offsetWidth ?? 'full'
-                    : '0px'
-                }
-                flexBasis='auto'
-                overflow='hidden'
-                opacity={hasUserEnteredAmount && !isSmallerThanXl ? 1 : 0}
-                transition='opacity 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms, width 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms'
-                ml={hasUserEnteredAmount && !isSmallerThanXl ? 4 : 0}
-                isLoading={isLoading}
-              />
-            )}
+            <HorizontalCollapse
+              isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              height={tradeInputHeight ?? 'full'}
+            >
+              <QuoteList ml={4} isLoading={isLoading} height={tradeInputHeight ?? 'full'} />
+            </HorizontalCollapse>
           </Center>
         </Flex>
       </MessageOverlay>

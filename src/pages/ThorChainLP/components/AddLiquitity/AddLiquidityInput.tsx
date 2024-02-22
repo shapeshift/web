@@ -33,7 +33,7 @@ import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimate
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
@@ -135,6 +135,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return [...new Set(parsedPools.map(pool => assets[pool.assetId]).filter(isSome))]
   }, [assets, parsedPools])
+
+  const poolAssetIds = useMemo(() => {
+    return poolAssets.map(poolAsset => poolAsset.assetId)
+  }, [poolAssets])
 
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
   // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
@@ -256,10 +260,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
   }, [poolAsset, defaultOpportunityId, parsedPools, walletSupportsAsset, walletSupportsRune])
-
-  const handleAssetChange = useCallback((asset: Asset) => {
-    console.info(asset)
-  }, [])
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -1058,15 +1058,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </FormLabel>
         <TradeAssetSelect
           assetId={poolAsset?.assetId}
+          assetIds={poolAssetIds}
           onAssetClick={handlePoolAssetClick}
-          onAssetChange={handleAssetChange}
+          onAssetChange={setPoolAsset}
           isLoading={false}
           mb={0}
           buttonProps={buttonProps}
         />
         <TradeAssetSelect
           assetId={thorchainAssetId}
-          onAssetChange={handleAssetChange}
           isReadOnly
           isLoading={false}
           mb={0}
@@ -1074,7 +1074,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         />
       </Stack>
     )
-  }, [poolAsset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick, translate])
+  }, [defaultOpportunityId, translate, poolAsset?.assetId, poolAssetIds, handlePoolAssetClick])
 
   const handleAsymSideChange = useCallback(
     (asymSide: string | null) => {

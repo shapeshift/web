@@ -272,12 +272,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     tradeQuoteStep?.source,
   ])
 
-  const isRefetching = useMemo(() => {
-    if (activeSwapperName) {
-      return isTradeQuoteApiQueryPending[activeSwapperName] ?? false
-    }
-    return false
-  }, [activeSwapperName, isTradeQuoteApiQueryPending])
+  const isRefetching = useMemo(
+    () => Boolean(activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName] === true),
+    [activeSwapperName, isTradeQuoteApiQueryPending],
+  )
 
   const isLoading = useMemo(
     () =>

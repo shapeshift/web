@@ -58,6 +58,7 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectAssetsSortedByName,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
@@ -88,7 +89,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { QuoteList } from '../QuoteList/QuoteList'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
@@ -212,11 +212,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 
-  const {
-    supportedSellAssets,
-    supportedBuyAssets,
-    isLoading: isSupportedAssetsLoading,
-  } = useSupportedAssets()
+  const assets = useAppSelector(selectAssetsSortedByName)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
@@ -284,26 +280,24 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     [activeSwapperName, isTradeQuoteApiQueryPending],
   )
 
-  const isLoading = useMemo(
-    () =>
+  const isLoading = useMemo(() => {
+    return (
       !isAnyTradeQuoteLoaded ||
       isConfirmationLoading ||
-      isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
       isReceiveAddressByteCodeLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading,
-    [
-      isAnyTradeQuoteLoaded,
-      isConfirmationLoading,
-      isSupportedAssetsLoading,
-      isSellAddressByteCodeLoading,
-      isReceiveAddressByteCodeLoading,
-      isVotingPowerLoading,
-    ],
-  )
+      isVotingPowerLoading
+    )
+  }, [
+    isAnyTradeQuoteLoaded,
+    isConfirmationLoading,
+    isSellAddressByteCodeLoading,
+    isReceiveAddressByteCodeLoading,
+    isVotingPowerLoading,
+  ])
 
   const translate = useTranslate()
   const overlayTitle = useMemo(
@@ -315,17 +309,17 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     sellAssetSearch.open({
       onClick: setSellAsset,
       title: 'trade.tradeFrom',
-      assets: supportedSellAssets,
+      assets,
     })
-  }, [sellAssetSearch, setSellAsset, supportedSellAssets])
+  }, [assets, sellAssetSearch, setSellAsset])
 
   const handleBuyAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onClick: setBuyAsset,
       title: 'trade.tradeTo',
-      assets: supportedBuyAssets,
+      assets,
     })
-  }, [buyAssetSearch, setBuyAsset, supportedBuyAssets])
+  }, [assets, buyAssetSearch, setBuyAsset])
 
   const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectBuyAmountBeforeFeesCryptoPrecision,
@@ -571,10 +565,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={sellAsset.assetId}
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
-        isLoading={isSupportedAssetsLoading}
+        isLoading={false}
       />
     ),
-    [handleSellAssetClick, isSupportedAssetsLoading, sellAsset.assetId, setSellAsset],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
   )
 
   const buyTradeAssetSelect = useMemo(
@@ -583,10 +577,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={buyAsset.assetId}
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
-        isLoading={isSupportedAssetsLoading}
+        isLoading={false}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, isSupportedAssetsLoading, setBuyAsset],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
   )
 
   // disable switching assets if the buy asset isn't supported

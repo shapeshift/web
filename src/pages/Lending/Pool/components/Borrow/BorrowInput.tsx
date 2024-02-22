@@ -129,7 +129,7 @@ export const BorrowInput = ({
     buyAssetSearch.open({
       onClick: setBorrowAsset,
       title: 'lending.borrow',
-      assets: borrowAssets,
+      assets: borrowAssets ?? [],
     })
   }, [borrowAssets, buyAssetSearch, setBorrowAsset])
 

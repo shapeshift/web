@@ -12,23 +12,19 @@ import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
-import {
-  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
-  selectChainIdsByMarketCap,
-} from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { selectChainIdsByMarketCap } from 'state/slices/selectors'
 
 import { AssetList } from './AssetList'
 import { ChainList } from './Chains/ChainList'
 import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 export type AssetSearchProps = {
-  assets?: Asset[]
+  assets: Asset[]
   onClick?: (asset: Asset) => void
   disableUnsupported?: boolean
   formProps?: BoxProps
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
-  assets: selectedAssets,
+  assets,
   onClick,
   disableUnsupported,
   formProps,
@@ -37,9 +33,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const history = useHistory()
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
-  const assets = useAppSelector(
-    state => selectedAssets ?? selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state),
-  )
+
   /**
    * assets filtered by selected chain ids
    */

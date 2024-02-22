@@ -9,7 +9,6 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import assert from 'assert'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
@@ -167,13 +166,6 @@ const generateAssetData = async () => {
 
 const main = async () => {
   try {
-    // check zerion api key is set before starting, prevents getting through generateAssetData()
-    // and then failing
-    assert(
-      process.env.ZERION_API_KEY !== undefined,
-      'Missing Zerion API key - see readme for instructions',
-    )
-
     await generateAssetData()
     await generateRelatedAssetIndex()
 

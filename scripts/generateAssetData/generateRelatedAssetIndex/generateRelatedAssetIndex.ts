@@ -214,7 +214,10 @@ const processRelatedAssetIds = async (
     return
   }
 
-  const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
+  const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData).catch(e => {
+    console.error(`Error fetching related assets for ${assetId}: ${e}`)
+    return undefined
+  })
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
   // ensure empty results get added so we can use this index to generate distinct asset list
@@ -264,7 +267,7 @@ export const generateRelatedAssetIndex = async () => {
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
     costPerReq: 1, // Keeping the cost per request as 1 for simplicity
     drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
-    intervalMs: 1000,
+    intervalMs: 2000,
   })
   let i = 0
   for (const batch of chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)) {

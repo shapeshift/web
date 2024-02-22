@@ -49,7 +49,6 @@ export const useGetAbi = (transactionParams: TransactionParams): ethers.Interfac
     // check for proxy methods on the root interface
     let proxyFunctionNameIfExists: string | undefined
     if (rootContractInterface) {
-      // TODO(gomes): how to do this with v6? looks like we should probably map over fragments, and then map over functions
       const rootFunctions = rootContractInterface.fragments.filter(Fragment.isFunction)
       proxyFunctionNameIfExists = Object.values(PROXY_CONTRACT_METHOD_NAME).find(x =>
         rootFunctions.find(y => y.name === x),

@@ -8,7 +8,6 @@ import type {
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
-import { toBeHex, toUtf8String } from 'ethers'
 import type {
   ConfirmData,
   CosmosSignAminoCallRequestParams,
@@ -18,7 +17,7 @@ import type {
   TransactionParams,
   WalletConnectState,
 } from 'plugins/walletConnectToDapps/types'
-import { isAddress, isHex } from 'viem'
+import { hexToString, isAddress, isHex, toHex } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 
@@ -27,7 +26,7 @@ import { isSome } from 'lib/utils'
  */
 export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
   try {
-    return isHex(value) ? toUtf8String(value) : value
+    return isHex(value) ? hexToString(value) : value
   } catch (e) {
     // use raw hex string if unable to convert to utf8 (ex. keccak256)
     return value
@@ -35,7 +34,7 @@ export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
 }
 
 export const convertNumberToHex = (value: number | string): string =>
-  typeof value === 'number' ? toBeHex(value) : toBeHex(parseInt(value))
+  typeof value === 'number' ? toHex(value) : toHex(parseInt(value))
 
 export const convertHexToNumber = (value: string): number => parseInt(value, 16)
 

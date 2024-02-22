@@ -126,6 +126,8 @@
     "showLess": "Daha Az",
     "yourBalance": "Bakiyeniz",
     "signTransaction": "İşlemi imzala",
+    "halted": "Durduruldu",
+    "poolHalted": "Havuz Durduruldu",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -257,7 +259,6 @@
     "exploreThe": "DeFi Dünyası'nı",
     "defiUniverse": "Keşfedin",
     "body": "Ticaret yapın, köprü kurun ve kazanın. Özel. Topluluk sahibi. Gözetimsiz. Merkezi olmayan.",
-    "body2": "Yeni ShapeShift'e hoş geldiniz. %100 Ücretsiz. Açık kaynak. Topluluk Sahibi. Çevrimdışı. Özel.",
     "header": "Başlamak için lütfen bir cüzdan bağlayın",
     "cta": "Cüzdanı Bağla",
     "viewADemo": "Demo Görüntüle",
@@ -323,7 +324,8 @@
         "foxyBalance": "FOXy Bakiyesi",
         "withdrawals": "Para Çekme",
         "emptyWithdraws": "Bekleyen veya etkin para çekme işlemleri burada gösterilir.",
-        "availableDate": "kullanılabilir %{date}"
+        "availableDate": "kullanılabilir %{date}",
+        "disabledTitle": "FOXy para yatırma işlemleri devre dışı bırakıldı"
       },
       "foxFarmingOverview": {
         "header": "Kazanmak için ETH-FOX LP jetonlarını %{opportunity}'e yatırın",
@@ -573,6 +575,7 @@
     "from": "İtibaren",
     "trade": "Takas",
     "swap": "Takas",
+    "swapWith": "%{dex} ile takas",
     "amount": "Tutar",
     "for": "için",
     "emptyMessage": "%{status} işlemleriniz burada görünecek.",
@@ -748,17 +751,23 @@
     "recipientAddress": "Alıcı adresi",
     "customRecipientAddress": "Özel alıcı adresi",
     "customRecipientAddressDescription": "Bu takas için özel bir alıcı adresi girin",
+    "thisIsYourCustomRecipientAddress": "Bu sizin özel alıcı adresinizdir",
     "enterCustomRecipientAddress": "Özel alıcı adresini girin",
     "tooltip": {
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
+      "priceImpactLabel": "Fiyat hareketi: %{priceImpactPercentage}%",
       "priceImpact": "Havuzdaki mevcut likidite göz önüne alındığında, bu büyüklükteki bir takasın yüksek bir fiyat etkisi olabilir. Giriş jetonunuzun miktarı ile çıkış jetonunda alacağınız miktar arasında büyük bir fark olabilir.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
       "protocolLifi": "Bu, ticaretinizin yönlendirildiği protokoldür. LI.FI, fiyat, güvenlik ve hızın en iyi genel kombinasyonu için başlık altında bir dizi aracı işlem yürütür.",
       "protocolFee": "Bu, bu işlemi gerçekleştirmek için seçilen protokol tarafından alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "shapeshiftFee": "ShapeShift, işlemlerde ücret eklemiyor 🎉",
-      "manualReceiveAddress": "Bu, fonunuzu çekeceğiniz adrestir. Manuel olarak girilmiştir, lütfen doğru olduğundan emin olun."
+      "manualReceiveAddress": "Bu, fonunuzu çekeceğiniz adrestir. Manuel olarak girilmiştir, lütfen doğru olduğundan emin olun.",
+      "amountPercentageDifference": "En iyi fiyat teklifiyle karşılaştırıldığında alacağınız toplam %{buyAssetSymbol} tutarındaki yüzde farkıdır",
+      "overallPercentageDifference": "En iyi teklifle karşılaştırıldığında, tüm ücretler düşüldükten sonra alınan toplam tutardaki yüzdelik farktır.",
+      "gasFee": "Bu ticareti tamamlamak için gereken tahmini gaz ücretidir.",
+      "slippage": "Fiyat, %{amount} tutarından daha azını alacak şekilde hareket ederse işleminiz geri alınacaktır. Bu, alacağınız garanti edilen minimum tutardır."
     },
     "rates": {
       "tags": {
@@ -802,7 +811,6 @@
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
     "numHops": "Bu takas %{numHops} atlama içerir",
-    "percentageDifferenceTooltip": "Bu, en iyi fiyat teklifiyle karşılaştırıldığında alacağınız toplam %{buyAssetSymbol} tutarındaki yüzde farkıdır",
     "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdanda %{chainName} adresi bulunamadı. Manuel olarak bir adres girin veya",
     "toContinue": "devam edin.",
@@ -1759,16 +1767,23 @@
     "fee": "Ücret",
     "youSent": "Gönderdiniz",
     "youReceived": "Aldınız",
+    "sentTo": "%{address} adresine gönderildi",
+    "receivedFrom": "%{address} adresinden alındı",
     "orderRoute": "Sipariş Rotası",
     "status": "Durum",
     "transactionType": "İşlem Tipi",
     "minerFee": "Madenci Ücreti",
     "approvalAmount": "Onay Tutarı",
     "unknownType": "İşlem",
+    "date": "Tarih",
     "from": "'dan",
     "to": "'a",
     "for": "İçin",
-    "transfers": "Transferler"
+    "transfers": "Transferler",
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "thisWeek": "Bu Hafta",
+    "thisMonth": "Bu Ay"
   },
   "plugins": {
     "foxPage": {
@@ -2198,6 +2213,8 @@
     "initialPricesAndPoolShare": "Başlangıç ​​Fiyatları ve Havuz Payı",
     "pricePerAsset": "%{to} başına %{from}",
     "symAlert": "%{from}'unuz, havuza girdikten sonra hem %{to} hem de %{from}'a 50:50'lik bir maruziyete bölünecek.",
+    "unsupportedNetworkExplainer": "Cüzdanınız %{network}'ı desteklemiyor. Lütfen bu ağı destekleyen bir cüzdana geçin.",
+    "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'yi desteklemiyor. Lütfen bu ağları destekleyen bir cüzdana geçin.",
     "shareOfPool": "Havuz Payı",
     "assetDepositAmount": "%{asset} Yatırma Tutarı",
     "totalLiquidity": "Toplam Likidite",

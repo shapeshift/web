@@ -974,7 +974,7 @@ export const selectEquityTotalBalance = createDeepEqualOutputSelector(
   },
 )
 
-export const selectRelatedAssetIdsInclusiveSorted = createDeepEqualOutputSelector(
+export const selectRelatedAssetIdsInclusiveSorted = createCachedSelector(
   selectRelatedAssetIdsInclusive,
   selectPortfolioUserCurrencyBalances,
   (relatedAssetIds, portfolioUserCurrencyBalances) => {
@@ -992,4 +992,4 @@ export const selectRelatedAssetIdsInclusiveSorted = createDeepEqualOutputSelecto
       ['desc', 'asc'],
     ).map(({ assetId }) => assetId)
   },
-)
+)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')

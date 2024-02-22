@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useCountdown } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useCountdown'
 import { GET_TRADE_QUOTE_POLLING_INTERVAL } from 'state/apis/swapper/swapperApi'
 
-export const CountdownSpinner = ({ isLoading }: { isLoading: boolean }) => {
+export const CountdownSpinner = memo(({ isLoading }: { isLoading: boolean }) => {
   const { timeRemainingMs, reset, start } = useCountdown({
     initialTimeMs: GET_TRADE_QUOTE_POLLING_INTERVAL,
     autoStart: false,
@@ -37,4 +37,4 @@ export const CountdownSpinner = ({ isLoading }: { isLoading: boolean }) => {
       isIndeterminate={isLoading}
     />
   )
-}
+})

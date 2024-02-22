@@ -20,7 +20,7 @@ export const selectAssetById = createCachedSelector(
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 // selects all related assetIds, inclusive of the asset being queried
-export const selectRelatedAssetIdsInclusive = createDeepEqualOutputSelector(
+export const selectRelatedAssetIdsInclusive = createCachedSelector(
   (state: ReduxState) => state.assets.relatedAssetIndex,
   selectAssetById,
   (relatedAssetIndex, asset): AssetId[] => {
@@ -29,16 +29,16 @@ export const selectRelatedAssetIdsInclusive = createDeepEqualOutputSelector(
     if (!relatedAssetKey) return [asset.assetId]
     return [relatedAssetKey].concat(relatedAssetIndex[relatedAssetKey] ?? [])
   },
-)
+)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 // selects all related assetIds, exclusive of the asset being queried
-export const selectRelatedAssetIds = createDeepEqualOutputSelector(
+export const selectRelatedAssetIds = createCachedSelector(
   selectRelatedAssetIdsInclusive,
   selectAssetById,
   (relatedAssetIdsInclusive, asset): AssetId[] => {
     return relatedAssetIdsInclusive.filter(assetId => assetId !== asset?.assetId) ?? []
   },
-)
+)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 export const selectAssetByFilter = createCachedSelector(
   (state: ReduxState) => state.assets.byId,

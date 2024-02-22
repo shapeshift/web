@@ -9,13 +9,17 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAssetById,
+  selectAssets,
   selectChainDisplayNameByAssetId,
+  selectRelatedAssetIdsInclusive,
   selectRelatedAssetIdsInclusiveSorted,
+  selectRelatedAssetIndex,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -29,7 +33,7 @@ type AssetChainDropdownProps = {
   buttonProps?: ButtonProps
   isLoading?: boolean
   isError?: boolean
-} & Omit<MenuProps, 'children'>
+}
 
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   assetId,
@@ -38,7 +42,6 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   buttonProps,
   isLoading,
   isError,
-  ...menuProps
 }) => {
   const {
     state: { wallet },
@@ -50,6 +53,46 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   const relatedAssetIds = useAppSelector(state =>
     selectRelatedAssetIdsInclusiveSorted(state, assetId ?? ''),
   )
+
+  const relatedAssetIdsInclusive = useAppSelector(state =>
+    selectRelatedAssetIdsInclusive(state, assetId ?? ''),
+  )
+
+  const relatedAssetIndex = useAppSelector(selectRelatedAssetIndex)
+
+  useEffect(() => {
+    console.log('assetId changed')
+  }, [assetId])
+  useEffect(() => {
+    console.log('assetIds changed')
+  }, [assetIds])
+  useEffect(() => {
+    console.log('onChangeAsset changed')
+  }, [onChangeAsset])
+  useEffect(() => {
+    console.log('buttonProps changed')
+  }, [buttonProps])
+  useEffect(() => {
+    console.log('isLoading changed')
+  }, [isLoading])
+  useEffect(() => {
+    console.log('isError changed')
+  }, [isError])
+  useEffect(() => {
+    console.log('relatedAssetIds changed')
+  }, [relatedAssetIds])
+  useEffect(() => {
+    console.log('wallet changed')
+  }, [wallet])
+  useEffect(() => {
+    console.log('chainDisplayName changed')
+  }, [chainDisplayName])
+  useEffect(() => {
+    console.log('relatedAssetIdsInclusive changed')
+  }, [relatedAssetIdsInclusive])
+  useEffect(() => {
+    console.log('relatedAssetIndex changed')
+  }, [relatedAssetIndex])
 
   const filteredRelatedAssetIds = useMemo(() => {
     if (!assetIds?.length) return relatedAssetIds
@@ -97,7 +140,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
-    <Menu {...menuProps}>
+    <Menu>
       <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
         <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
           <AssetChainRow assetId={assetId} hideBalances />

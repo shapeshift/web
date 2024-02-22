@@ -57,18 +57,19 @@ export const getManualRelatedAssetIds = (
 ): { relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined => {
   // assetId is the primary implementation for the related assets, which makes it pretty easy, just access the property and voila
   if (manualRelatedAssetIndex[assetId]) {
+    const relatedAssetKey = assetId
     return {
       relatedAssetIds: manualRelatedAssetIndex[assetId],
-      relatedAssetKey: assetId,
+      relatedAssetKey,
     }
   }
 
   // assetId isn't the primary implementation, but may be one of the related assets
-  for (const [primaryAssetId, relatedAssetIds] of Object.entries(manualRelatedAssetIndex)) {
+  for (const [relatedAssetKey, relatedAssetIds] of Object.entries(manualRelatedAssetIndex)) {
     if (relatedAssetIds.includes(assetId)) {
       return {
-        relatedAssetIds: [...relatedAssetIds, primaryAssetId],
-        relatedAssetKey: primaryAssetId,
+        relatedAssetIds,
+        relatedAssetKey,
       }
     }
   }

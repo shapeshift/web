@@ -383,7 +383,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       !hasUserEnteredAmount ||
       // don't allow users to execute trades while the quote is being updated
       isTradeQuoteApiQueryPending[activeSwapperName] ||
-      // don't allow users to proceed until all swappers have an initial result
+      // don't allow users to proceed until a swapper has been selected
       !activeSwapperName
     )
   }, [

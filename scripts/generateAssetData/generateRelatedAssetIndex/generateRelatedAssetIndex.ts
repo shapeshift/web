@@ -1,5 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { FEE_ASSET_IDS, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  arbitrumAssetId,
+  arbitrumNovaAssetId,
+  ethAssetId,
+  FEE_ASSET_IDS,
+  fromAssetId,
+  optimismAssetId,
+} from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AssetsById } from '@shapeshiftoss/types'
 import assert from 'assert'
@@ -20,6 +27,55 @@ const BATCH_SIZE = 100
 
 const axiosInstance = axios.create()
 axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
+
+const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
+  [ethAssetId]: [
+    optimismAssetId,
+    arbitrumAssetId,
+    arbitrumNovaAssetId,
+    // WETH on Ethereum
+    'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    // WETH on Gnosis
+    'eip155:100/erc20:0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
+    // WETH on Polygon
+    'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+    // WETH on Arbitrum One
+    'eip155:42161/erc20:0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+    // WETH on Arbitrum Nova
+    'eip155:42170/erc20:0x722e8bdd2ce80a4422e880164f2079488e115365',
+    // WETH on Avalanche
+    'eip155:43114/erc20:0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab',
+    // WETH on BSC
+    'eip155:56/bep20:0x2170ed0880ac9a755fd29b2688956bd959f933f8',
+    // WETH on Optimism
+    'eip155:10/erc20:0x4200000000000000000000000000000000000006',
+  ],
+}
+
+export const getManualRelatedAssetIds = (
+  assetId: AssetId,
+): { relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined => {
+  // assetId is the primary implementation for the related assets, which makes it pretty easy, just access the property and voila
+  if (manualRelatedAssetIndex[assetId]) {
+    return {
+      relatedAssetIds: manualRelatedAssetIndex[assetId],
+      relatedAssetKey: assetId,
+    }
+  }
+
+  // assetId isn't the primary implementation, but may be one of the related assets
+  for (const [primaryAssetId, relatedAssetIds] of Object.entries(manualRelatedAssetIndex)) {
+    if (relatedAssetIds.includes(assetId)) {
+      return {
+        relatedAssetIds: [...relatedAssetIds, primaryAssetId],
+        relatedAssetKey: primaryAssetId,
+      }
+    }
+  }
+
+  // No related assets found
+  return undefined
+}
 
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
@@ -140,15 +196,20 @@ const processRelatedAssetIds = async (
   }
 
   const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
+  const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
   // ensure empty results get added so we can use this index to generate distinct asset list
-  const { relatedAssetIds, relatedAssetKey } = relatedAssetsResult ?? {
-    relatedAssetIds: [],
-    relatedAssetKey: assetId,
-  }
+  const { relatedAssetIds, relatedAssetKey } = relatedAssetsResult ??
+    manualRelatedAssetsResult ?? {
+      relatedAssetIds: [],
+      relatedAssetKey: assetId,
+    }
+
+  // Has zerion-provided related assets, or manually added ones
+  const hasRelatedAssets = Boolean(relatedAssetIds.length > 0)
 
   // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
-  if (relatedAssetIds.length > 0 && assetData[relatedAssetKey] !== undefined) {
+  if (hasRelatedAssets && assetData[relatedAssetKey] !== undefined) {
     assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
   }
 

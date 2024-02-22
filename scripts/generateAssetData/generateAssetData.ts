@@ -165,7 +165,7 @@ const generateAssetData = async () => {
   )
 }
 
-;(async () => {
+const main = async () => {
   try {
     // check zerion api key is set before starting, prevents getting through generateAssetData()
     // and then failing
@@ -183,4 +183,6 @@ const generateAssetData = async () => {
   } catch (err) {
     console.info(err)
   }
-})()
+}
+
+main()

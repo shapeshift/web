@@ -126,6 +126,8 @@
     "showLess": "表示を減らす",
     "yourBalance": "バランス",
     "signTransaction": "トランザクションに署名する",
+    "halted": "停止中",
+    "poolHalted": "プールが停止しています",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -257,7 +259,6 @@
     "exploreThe": "をエクスプローラーしてください",
     "defiUniverse": "DeFi空間",
     "body": "取引し、ブリッジし、獲得しましょう。プライベートであり、コミュニティが所有した、ノンカストディアルな分散型の取引所です。",
-    "body2": "新しいShapeShiftへようこそ。完全無料・オープンソース・コミュニティ所有・ノンカストディアル・プライベート",
     "header": "始めるにはウォレットを接続してください",
     "cta": "ウォレットを接続する",
     "viewADemo": "デモを見る",
@@ -323,7 +324,8 @@
         "foxyBalance": "FOXy残高",
         "withdrawals": "出金",
         "emptyWithdraws": "保留中の出金またはアクティブな出金はここに表示されます。",
-        "availableDate": "利用可能 %{date}"
+        "availableDate": "利用可能 %{date}",
+        "disabledTitle": "FOXyデポジットは無効になっています"
       },
       "foxFarmingOverview": {
         "header": "ETH-FOX LP トークンを %{opportunity} に入金して獲得する",
@@ -573,6 +575,7 @@
     "from": "から",
     "trade": "取引",
     "swap": "スワップ",
+    "swapWith": "%{dex} とスワップ",
     "amount": "額",
     "for": "のために",
     "emptyMessage": "%{status} トランザクションがここに表示されます。",
@@ -748,17 +751,23 @@
     "recipientAddress": "受信者のアドレス",
     "customRecipientAddress": "カスタム受信者アドレス",
     "customRecipientAddressDescription": "この取引のカスタム受信者アドレスを入力してください",
+    "thisIsYourCustomRecipientAddress": "これはカスタム受信者アドレスです",
     "enterCustomRecipientAddress": "カスタム受信者アドレスを入力してください",
     "tooltip": {
       "rate": "この取引ペアの予想レートです。",
       "noRateAvailable": "多くの場合、取引ペアの流動性が非常に限られているか、まったくないことが原因です。",
+      "priceImpactLabel": "価格への影響: %{priceImpactPercentage}%",
       "priceImpact": "プール内の現在の流動性を考慮すると、このサイズのスワップは価格に大きな影響を与える可能性があります。入力トークンの量と出力トークンで受け取る量の間には大きな違いがある可能性があります",
       "minerFee": "これはブロックチェーン上でトランザクションを処理するための料金であり、ShapeShiftによって請求される料金ではありません。",
       "protocol": "取引がルーティングされるプロトコルです。",
       "protocolLifi": "取引がルーティングされるプロトコルです。 LI.FIは、価格、安全性、スピードの総合的な最適な組み合わせを実現するために、一連の仲介取引を内部で実行します。",
       "protocolFee": "このトランザクションを処理するために選択されたプロトコルによって請求される料金であり、ShapeShiftによって請求される料金ではありません",
       "shapeshiftFee": "ShapeShiftは取引で追加の手数料を徴収しません",
-      "manualReceiveAddress": "資金を受け取るアドレスです。手動で入力されていますので、正しいことを確認してください。"
+      "manualReceiveAddress": "資金を受け取るアドレスです。手動で入力されていますので、正しいことを確認してください。",
+      "amountPercentageDifference": "これは、最良の見積もりと比較した、あなたが受け取る %{buyAssetSymbol} の合計額の差のパーセンテージです。",
+      "overallPercentageDifference": "これは、最良の見積もりと比較した、すべての手数料を差し引いた後の受け取り総額のパーセンテージの差です。",
+      "gasFee": "これは、この取引を完了するための推定ガス代です。",
+      "slippage": "価格が変動し、受け取る金額が %{amount} 未満になる場合、トランザクションは取り消されます。これは受け取ることが保証される最低金額です。"
     },
     "rates": {
       "tags": {
@@ -802,7 +811,6 @@
     "onChainName": "%{chainName} で",
     "unknownGas": "(unknown)",
     "numHops": "このトレードには %{numHops} ホップが含まれます",
-    "percentageDifferenceTooltip": "これは、最良の見積もりと比較した、お客様が受け取る %{buyAssetSymbol} の合計額の差のパーセンテージです。",
     "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力するか、",
     "toContinue": "続ける。",
@@ -1759,16 +1767,23 @@
     "fee": "手数料",
     "youSent": "送った",
     "youReceived": "受け取った",
+    "sentTo": "%{address}に送信",
+    "receivedFrom": "%{address} から受信しました",
     "orderRoute": "注文ルート",
     "status": "ステータス",
     "transactionType": "取引タイプ",
     "minerFee": "マイナー手数料",
     "approvalAmount": "承認金額",
     "unknownType": "トランザクション",
+    "date": "日付",
     "from": "から",
     "to": "に",
     "for": "のために",
-    "transfers": "転送"
+    "transfers": "転送",
+    "today": "今日",
+    "yesterday": "昨日",
+    "thisWeek": "今週",
+    "thisMonth": "今月"
   },
   "plugins": {
     "foxPage": {
@@ -2198,6 +2213,8 @@
     "initialPricesAndPoolShare": "初期価格とプールシェア",
     "pricePerAsset": "%{from}/%{to}",
     "symAlert": "あなたの %{from} は、プールに入ると %{to} と %{from} の両方に 50:50 の割合で公開されます。",
+    "unsupportedNetworkExplainer": "お使いのウォレットは %{network} をサポートしていません。このネットワークをサポートするウォレットに切り替えてください。",
+    "unsupportedNetworksExplainer": "使用しているウォレットは %{network1} と %{network2} をサポートしていません。これらのネットワークをサポートするウォレットに切り替えてください。",
     "shareOfPool": "プールのシェア",
     "assetDepositAmount": "%{asset} 入金額",
     "totalLiquidity": "総流動性",

@@ -64,7 +64,9 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
           {translate('trade.slippage.auto')}
         </Tag>
       )
-    } else if (bnOrZero(slippageAsPercentageString).eq(bnOrZero(userSlippagePercentage))) {
+    }
+
+    if (bnOrZero(slippageAsPercentageString).eq(bnOrZero(userSlippagePercentage))) {
       return (
         <Tag colorScheme='purple' size='sm'>
           {translate('trade.slippage.custom')}

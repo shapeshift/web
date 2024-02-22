@@ -4,6 +4,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
@@ -18,15 +19,24 @@ export const selectAssetById = createCachedSelector(
   (byId, assetId) => byId[assetId] || undefined,
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
-export const selectRelatedAssetIds = createSelector(
+// selects all related assetIds, inclusive of the asset being queried
+export const selectRelatedAssetIdsInclusive = createDeepEqualOutputSelector(
   (state: ReduxState) => state.assets.relatedAssetIndex,
   selectAssetById,
   (relatedAssetIndex, asset): AssetId[] => {
-    const relatedAssetKey = asset?.relatedAssetKey
-    if (!relatedAssetKey) return []
-    return [relatedAssetKey]
-      .concat(relatedAssetIndex[relatedAssetKey] ?? [])
-      .filter(assetId => assetId !== asset.assetId)
+    if (!asset) return []
+    const relatedAssetKey = asset.relatedAssetKey
+    if (!relatedAssetKey) return [asset.assetId]
+    return [relatedAssetKey].concat(relatedAssetIndex[relatedAssetKey] ?? [])
+  },
+)
+
+// selects all related assetIds, exclusive of the asset being queried
+export const selectRelatedAssetIds = createDeepEqualOutputSelector(
+  selectRelatedAssetIdsInclusive,
+  selectAssetById,
+  (relatedAssetIdsInclusive, asset): AssetId[] => {
+    return relatedAssetIdsInclusive.filter(assetId => assetId !== asset?.assetId) ?? []
   },
 )
 
@@ -41,11 +51,18 @@ export const selectAssetNameById = createSelector(
   (asset): string => asset?.name ?? '',
 )
 
+export const selectChainDisplayNameByAssetId = createSelector(selectAssetById, (asset): string => {
+  if (!asset) return ''
+  const chainAdapterManager = getChainAdapterManager()
+  return chainAdapterManager.get(asset.chainId)?.getDisplayName() ?? ''
+})
+
 export const selectAssets = createDeepEqualOutputSelector(
   (state: ReduxState) => state.assets.byId,
   byId => byId,
 )
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
+export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
 
 export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
   selectCryptoMarketDataIds,

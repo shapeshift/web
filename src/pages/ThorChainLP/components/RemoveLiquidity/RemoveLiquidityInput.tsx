@@ -251,25 +251,21 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     setVirtualRuneCryptoLiquidityAmount(
       bnOrZero(underlyingRuneAmountCryptoPrecision)
         .times(percentageSelection / 100)
-        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
         .toFixed(),
     )
     setVirtualRuneFiatLiquidityAmount(
       bnOrZero(underlyingRuneValueFiatUserCurrency)
         .times(percentageSelection / 100)
-        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
         .toFixed(),
     )
     setVirtualAssetFiatLiquidityAmount(
       bnOrZero(underlyingAssetValueFiatUserCurrency)
         .times(percentageSelection / 100)
-        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
         .toFixed(),
     )
     setVirtualAssetCryptoLiquidityAmount(
       bnOrZero(underlyingAssetAmountCryptoPrecision)
         .times(percentageSelection / 100)
-        .times(isAsymAssetSide || isAsymRuneSide ? 2 : 1)
         .toFixed(),
     )
   }, [isAsymAssetSide, isAsymRuneSide, percentageSelection, userlpData])
@@ -561,23 +557,38 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       <Stack divider={pairDivider} spacing={0}>
         {assets.map(asset => {
           const isRune = asset.assetId === rune.assetId
+          const isAsym = foundPool.isAsymmetric
+          console.log('xxx isAsym', isAsym)
           const marketData = isRune ? runeMarketData : assetMarketData
           const handleRemoveLiquidityInputChange = createHandleRemoveLiquidityInputChange(
             marketData,
             isRune,
           )
-          const cryptoAmount = isRune
-            ? virtualRuneCryptoLiquidityAmount
-            : virtualAssetCryptoLiquidityAmount
-          const fiatAmount = isRune
-            ? virtualRuneFiatLiquidityAmount
-            : virtualAssetFiatLiquidityAmount
-          const cryptoBalance = isRune
-            ? userlpData?.underlyingRuneAmountCryptoPrecision
-            : userlpData?.underlyingAssetAmountCryptoPrecision
-          const fiatBalance = isRune
-            ? userlpData?.underlyingRuneAmountCryptoPrecision
-            : userlpData?.underlyingRuneValueFiatUserCurrency
+          const cryptoAmount = bnOrZero(
+            isRune ? virtualRuneCryptoLiquidityAmount : virtualAssetCryptoLiquidityAmount,
+          )
+            .times(isAsym ? 2 : 1)
+            .toFixed()
+          const fiatAmount = bnOrZero(
+            isRune ? virtualRuneFiatLiquidityAmount : virtualAssetFiatLiquidityAmount,
+          )
+            .times(isAsym ? 2 : 1)
+            .toFixed()
+          const cryptoBalance = bnOrZero(
+            isRune
+              ? userlpData?.underlyingRuneAmountCryptoPrecision
+              : userlpData?.underlyingAssetAmountCryptoPrecision,
+          )
+            .times(isAsym ? 2 : 1)
+            .toFixed()
+
+          const fiatBalance = bnOrZero(
+            isRune
+              ? userlpData?.underlyingRuneValueFiatUserCurrency
+              : userlpData?.underlyingAssetValueFiatUserCurrency,
+          )
+            .times(isAsym ? 2 : 1)
+            .toFixed()
 
           return (
             <AssetInput
@@ -615,6 +626,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     userlpData?.underlyingRuneAmountCryptoPrecision,
     userlpData?.underlyingAssetAmountCryptoPrecision,
     userlpData?.underlyingRuneValueFiatUserCurrency,
+    userlpData?.underlyingAssetValueFiatUserCurrency,
     poolAccountId,
     percentOptions,
   ])

@@ -43,7 +43,7 @@ type ReceiveSummaryProps = {
   swapperName: string
   defaultIsOpen?: boolean
   swapSource?: SwapSource
-  priceImpact?: BigNumber
+  priceImpact?: BigNumber.Value
 } & RowProps
 
 const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
@@ -145,7 +145,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             intermediaryTransactionOutputs={intermediaryTransactionOutputs}
           />
 
-          {priceImpact && <PriceImpact impactPercentage={priceImpact.toFixed(2)} />}
+          {priceImpact && <PriceImpact impactPercentage={bnOrZero(priceImpact).toFixed(2)} />}
           <Divider borderColor='border.base' />
 
           {hasProtocolFees && (

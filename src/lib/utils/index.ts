@@ -263,19 +263,20 @@ export const assertGetChainAdapter = (
   return adapter
 }
 
-export const ALLOWED_PRICE_IMPACT_LOW: string = '1' // 1%
-export const ALLOWED_PRICE_IMPACT_MEDIUM: string = '3' // 3%
-export const ALLOWED_PRICE_IMPACT_HIGH: string = '5' // 5%
-export const BLOCKED_PRICE_IMPACT_NON_EXPERT: string = '15' // 15%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW: string = '1' // 1%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM: string = '3' // 3%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH: string = '5' // 5%
+export const ALLOWED_PRICE_IMPACT_PERCENTAGE_EXPERT: string = '15' // 15%
 
 const IMPACT_TIERS = [
-  BLOCKED_PRICE_IMPACT_NON_EXPERT,
-  ALLOWED_PRICE_IMPACT_HIGH,
-  ALLOWED_PRICE_IMPACT_MEDIUM,
-  ALLOWED_PRICE_IMPACT_LOW,
+  ALLOWED_PRICE_IMPACT_PERCENTAGE_EXPERT,
+  ALLOWED_PRICE_IMPACT_PERCENTAGE_HIGH,
+  ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM,
+  ALLOWED_PRICE_IMPACT_PERCENTAGE_LOW,
 ]
 
 type WarningSeverity = 0 | 1 | 2 | 3 | 4
+
 export function warningSeverity(priceImpact: string | undefined): WarningSeverity {
   if (!priceImpact) return 0
   // This function is used to calculate the Severity level for % changes in USD value and Price Impact.

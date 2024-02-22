@@ -846,7 +846,6 @@
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
     }
-
   },
   "modals": {
     "popup": {
@@ -2233,6 +2232,7 @@
     "chainFee": "%{chain} Fee",
     "supplying": "Supplying",
     "confirmAndDeposit": "Confirm and Deposit",
+    "confirmAndWithdraw": "Confirm and Withdraw",
     "removeAmounts": "Remove Amount(s)",
     "yourPositions": {
       "yourPositions": "Your Positions",

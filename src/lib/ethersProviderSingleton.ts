@@ -29,13 +29,13 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   }
 }
 
-const ethersProviders: Map<ChainId, providers.JsonRpcBatchProvider> = new Map()
+const ethersProviders: Map<ChainId, providers.StaticJsonRpcProvider> = new Map()
 
 export const getEthersProvider = (
   chainId: EvmChainId = KnownChainIds.EthereumMainnet,
-): providers.JsonRpcBatchProvider => {
+): providers.StaticJsonRpcProvider => {
   if (!ethersProviders.has(chainId)) {
-    const provider = new providers.JsonRpcBatchProvider(rpcUrlByChainId(chainId))
+    const provider = new providers.StaticJsonRpcProvider(rpcUrlByChainId(chainId))
     ethersProviders.set(chainId, provider)
     return provider
   } else {

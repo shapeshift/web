@@ -59,6 +59,7 @@ type EthereumChainReference =
 export type ConstructorArgs = {
   adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   providerUrl: string
+  provider: ethers.providers.StaticJsonRpcProvider
   foxyAddresses: FoxyAddressesType
   chainReference?: EthereumChainReference
 }
@@ -82,9 +83,8 @@ const TOKE_IPFS_URL = 'https://ipfs.tokemaklabs.xyz/ipfs'
 
 export class FoxyApi {
   public adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
-  public provider: ethers.providers.JsonRpcBatchProvider
+  public provider: ethers.providers.StaticJsonRpcProvider
   private providerUrl: string
-  public jsonRpcProvider: ethers.providers.JsonRpcBatchProvider
   private foxyStakingContracts: ethers.Contract[]
   private liquidityReserveContracts: ethers.Contract[]
   private readonly ethereumChainReference: ChainReference
@@ -95,10 +95,10 @@ export class FoxyApi {
     providerUrl,
     foxyAddresses,
     chainReference = CHAIN_REFERENCE.EthereumMainnet,
+    provider,
   }: ConstructorArgs) {
     this.adapter = adapter
-    this.provider = new ethers.providers.JsonRpcBatchProvider(providerUrl)
-    this.jsonRpcProvider = new ethers.providers.JsonRpcBatchProvider(providerUrl)
+    this.provider = provider
     this.foxyStakingContracts = foxyAddresses.map(
       addresses => new ethers.Contract(addresses.staking, foxyStakingAbi, this.provider),
     )

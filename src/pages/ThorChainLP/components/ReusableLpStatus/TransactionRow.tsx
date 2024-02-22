@@ -23,6 +23,7 @@ import {
   type FeeDataEstimate,
   FeeDataKey,
 } from '@shapeshiftoss/chain-adapters'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -108,6 +109,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   } = useIsTradingActive({
     assetId: poolAssetId,
     enabled: !txId,
+    swapperName: SwapperName.Thorchain,
   })
 
   const runeAccountId = accountIdsByChainId[thorchainChainId]

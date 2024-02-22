@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -26,12 +27,13 @@ import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
@@ -133,6 +135,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return [...new Set(parsedPools.map(pool => assets[pool.assetId]).filter(isSome))]
   }, [assets, parsedPools])
+
+  const poolAssetIds = useMemo(() => {
+    return poolAssets.map(poolAsset => poolAsset.assetId)
+  }, [poolAssets])
 
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
   // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
@@ -254,10 +260,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!foundOpportunityId) return
     setActiveOpportunityId(foundOpportunityId)
   }, [poolAsset, defaultOpportunityId, parsedPools, walletSupportsAsset, walletSupportsRune])
-
-  const handleAssetChange = useCallback((asset: Asset) => {
-    console.info(asset)
-  }, [])
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -433,6 +435,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
     enabled: !!poolAsset,
+    swapperName: SwapperName.Thorchain,
   })
 
   const poolAccountId = useMemo(
@@ -507,17 +510,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     queryClient,
   ])
 
-  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useQuery({
-    refetchInterval: 30_000,
-    enabled:
-      poolAsset &&
-      walletSupportsOpportunity === true &&
-      isToken(fromAssetId(poolAsset.assetId).assetReference),
-    ...reactQueries.common.allowanceCryptoBaseUnit(
-      poolAsset?.assetId,
-      inboundAddressesData?.router,
-      poolAssetAccountAddress,
-    ),
+  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
+    assetId: poolAsset?.assetId,
+    spender: inboundAddressesData?.router,
+    from: poolAssetAccountAddress,
   })
 
   const isApprovalRequired = useMemo(() => {
@@ -1062,15 +1058,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </FormLabel>
         <TradeAssetSelect
           assetId={poolAsset?.assetId}
+          assetIds={poolAssetIds}
           onAssetClick={handlePoolAssetClick}
-          onAssetChange={handleAssetChange}
+          onAssetChange={setPoolAsset}
           isLoading={false}
           mb={0}
           buttonProps={buttonProps}
         />
         <TradeAssetSelect
           assetId={thorchainAssetId}
-          onAssetChange={handleAssetChange}
           isReadOnly
           isLoading={false}
           mb={0}
@@ -1078,7 +1074,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         />
       </Stack>
     )
-  }, [poolAsset?.assetId, defaultOpportunityId, handleAssetChange, handlePoolAssetClick, translate])
+  }, [defaultOpportunityId, translate, poolAsset?.assetId, poolAssetIds, handlePoolAssetClick])
 
   const handleAsymSideChange = useCallback(
     (asymSide: string | null) => {

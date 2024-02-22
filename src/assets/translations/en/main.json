@@ -561,6 +561,7 @@
   "transactionRow": {
     "send": "Sent",
     "receive": "Received",
+    "common": "Transaction",
     "moreDetails": "More Details",
     "date": "Date",
     "txid": "Transaction ID",
@@ -664,8 +665,7 @@
         "join_pool": "Join Pool",
         "exit_pool": "Exit Pool"
       }
-    },
-    "unknown": "Transaction"
+    }
   },
   "bridge": {
     "confirm": "Confirm Bridge",
@@ -767,7 +767,8 @@
       "amountPercentageDifference": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
       "overallPercentageDifference": "This is the percentage difference in the overall amount received after all fees are deducted, compared to the best quote",
       "gasFee": "This is the estimated gas fee to complete this trade.",
-      "slippage": "If the price moves so that you will receive less than %{amount}, your transaction will be reverted. This is the minimum amount you are guaranteed to receive."
+      "slippage": "If the price moves so that you will receive less than %{amount}, your transaction will be reverted. This is the minimum amount you are guaranteed to receive.",
+      "noRelatedAssets": "This asset is only available on %{chainDisplayName}"
     },
     "rates": {
       "tags": {
@@ -845,7 +846,6 @@
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
     }
-
   },
   "modals": {
     "popup": {
@@ -2232,6 +2232,7 @@
     "chainFee": "%{chain} Fee",
     "supplying": "Supplying",
     "confirmAndDeposit": "Confirm and Deposit",
+    "confirmAndWithdraw": "Confirm and Withdraw",
     "removeAmounts": "Remove Amount(s)",
     "yourPositions": {
       "yourPositions": "Your Positions",

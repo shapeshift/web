@@ -22,8 +22,8 @@ import { useTranslate } from 'react-polyglot'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -189,6 +189,10 @@ export const RepayInput = ({
   const { data: lendingSupportedAssets, isLoading: isLendingSupportedAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
 
+  const lendingSupportedAssetIds = useMemo(() => {
+    return lendingSupportedAssets?.map(lendingSupportedAsset => lendingSupportedAsset.assetId) ?? []
+  }, [lendingSupportedAssets])
+
   useEffect(() => {
     if (!(lendingSupportedAssets && collateralAsset)) return
     if (repaymentAsset) return
@@ -207,16 +211,13 @@ export const RepayInput = ({
     })
   }, [buyAssetSearch, lendingSupportedAssets, setRepaymentAsset])
 
-  const handleAssetChange = useCallback((asset: Asset) => {
-    return console.info(asset)
-  }, [])
-
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={repaymentAsset?.assetId ?? ''}
+        assetIds={lendingSupportedAssetIds}
         onAssetClick={handleRepaymentAssetClick}
-        onAssetChange={handleAssetChange}
+        onAssetChange={setRepaymentAsset}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
@@ -224,9 +225,10 @@ export const RepayInput = ({
       />
     )
   }, [
-    handleAssetChange,
+    setRepaymentAsset,
     handleRepaymentAssetClick,
     isLendingSupportedAssetsLoading,
+    lendingSupportedAssetIds,
     repaymentAsset?.assetId,
   ])
 
@@ -234,18 +236,11 @@ export const RepayInput = ({
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
-        onAssetClick={handleRepaymentAssetClick}
-        onAssetChange={handleAssetChange}
         isReadOnly
         isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [
-    collateralAssetId,
-    handleAssetChange,
-    handleRepaymentAssetClick,
-    isLendingSupportedAssetsLoading,
-  ])
+  }, [collateralAssetId, isLendingSupportedAssetsLoading])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 

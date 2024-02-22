@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
@@ -105,6 +106,7 @@ export const Pool = () => {
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: foundPool?.assetId,
     enabled: !!foundPool,
+    swapperName: SwapperName.Thorchain,
   })
 
   const poolAssetIds = useMemo(() => {
@@ -185,7 +187,7 @@ export const Pool = () => {
 
   const tvl = useMemo(() => {
     if (!foundPool)
-      return { tvl: '0', assetAmountCrytoPrecision: '0', runeAmountCryptoPrecision: '0' }
+      return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
 
     return calculateTVL(foundPool.assetDepth, foundPool.runeDepth, runeMarketData.price)
   }, [foundPool, runeMarketData.price])
@@ -242,7 +244,7 @@ export const Pool = () => {
                   apy={foundPool.poolAPY}
                   tvl={tvl.tvl}
                   runeTvl={tvl.runeAmountCryptoPrecision}
-                  assetTvl={tvl.assetAmountCrytoPrecision}
+                  assetTvl={tvl.assetAmountCryptoPrecision}
                   tvl24hChange={tvl24hChange ?? 0}
                   assetIds={poolAssetIds}
                   direction='column'

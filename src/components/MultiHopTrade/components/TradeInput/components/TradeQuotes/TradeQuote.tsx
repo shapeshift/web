@@ -66,10 +66,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const sellAsset = useAppSelector(selectInputSellAsset)
   const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
     assetId: buyAsset.assetId,
+    swapperName: quoteData.swapperName,
     enabled: true,
   })
   const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
     assetId: sellAsset.assetId,
+    swapperName: quoteData.swapperName,
     enabled: true,
   })
 

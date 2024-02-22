@@ -1,5 +1,5 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Center, Image } from '@chakra-ui/react'
+import { Box, Center, Image } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TransferType } from '@shapeshiftoss/unchained-client'
 import uniqBy from 'lodash/uniqBy'
@@ -61,7 +61,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
       }
       if (transfers.length > 2 && compareIndex === 3) return null
       return (
-        <>
+        <Box key={index}>
           {compareIndex === 2 && (
             <Image
               src={FlipShadow}
@@ -85,7 +85,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
             borderRadius={isNft ? 0 : 'full'}
             left={0}
           />
-        </>
+        </Box>
       )
     })
   }, [isNft, size, transfers])

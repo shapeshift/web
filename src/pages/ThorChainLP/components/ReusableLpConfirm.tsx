@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import React, { useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa'
@@ -27,6 +28,7 @@ import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
+import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,7 +40,7 @@ type ReusableLpConfirmProps = {
   handleBack: () => void
   handleConfirm: () => void
   baseAssetId: AssetId
-  confirmedQuote: LpConfirmedDepositQuote
+  confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
 }
 
 const dividerStyle = {
@@ -184,13 +186,23 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
     enabled: !!pool,
+    swapperName: SwapperName.Thorchain,
   })
 
   const confirmCopy = useMemo(() => {
     if (isTradingActive === false) return translate('common.poolHalted')
 
-    return translate('pools.confirmAndDeposit')
-  }, [isTradingActive, translate])
+    const message = (() => {
+      if ('feeAmountFiat' in confirmedQuote) {
+        // 'feeAmountFiat' exists, so confirmedQuote is an instance of LpConfirmedDepositQuote
+        return translate('pools.confirmAndDeposit')
+      } else {
+        // 'feeAmountFiat' does not exist, so confirmedQuote is an instance of LpConfirmedWithdrawalQuote
+        return translate('pools.confirmAndWithdraw')
+      }
+    })()
+    return message
+  }, [confirmedQuote, isTradingActive, translate])
 
   if (!(pool && asset && baseAsset)) return null
 
@@ -211,10 +223,12 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('pools.chainFee', { chain: 'ShapeShift' })}</Row.Label>
                 <Row.Value>
-                  {bn(confirmedQuote.feeAmountFiat).isZero() ? (
-                    'Free'
-                  ) : (
+                  {confirmedQuote &&
+                  'feeAmountFiat' in confirmedQuote &&
+                  !bn(confirmedQuote.feeAmountFiat).isZero() ? (
                     <Amount.Fiat value={confirmedQuote.feeAmountFiat} />
+                  ) : (
+                    <Amount.Fiat value={'0'} />
                   )}
                 </Row.Value>
               </Row>

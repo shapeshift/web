@@ -196,10 +196,8 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
 
       // Alchemy only supports spam reporting for Ethereum, Polygon, Optimism, and Arbitrum
       if (![ethChainId, polygonChainId, optimismChainId, arbitrumChainId].includes(chainId)) return
-      const { data } = await axios.get<string>(`${alchemyUri!}/reportSpam`, {
-        params: { address },
-      })
-      console.log(data)
+
+      await axios.get<string>(`${alchemyUri!}/reportSpam`, { params: { address } })
     } catch (e) {
       console.error(e)
     } finally {

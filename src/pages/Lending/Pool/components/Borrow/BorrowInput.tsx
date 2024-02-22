@@ -11,15 +11,14 @@ import {
 } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import noop from 'lodash/noop'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { TradeAssetSelect } from 'components/MultiHopTrade/components/AssetSelection'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -102,6 +101,10 @@ export const BorrowInput = ({
   const { data: borrowAssets, isLoading: isLendingSupportedAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
 
+  const borrowAssetIds = useMemo(() => {
+    return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
+  }, [borrowAssets])
+
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
   useEffect(() => {
@@ -121,10 +124,6 @@ export const BorrowInput = ({
       assets: borrowAssets,
     })
   }, [borrowAssets, buyAssetSearch, setBorrowAsset])
-
-  const handleAssetChange = useCallback((asset: Asset) => {
-    return console.info(asset)
-  }, [])
 
   const handleDepositInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
@@ -391,26 +390,26 @@ export const BorrowInput = ({
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
-        onAssetClick={noop}
-        onAssetChange={handleAssetChange}
         isReadOnly
         isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [collateralAssetId, handleAssetChange, isLendingSupportedAssetsLoading])
+  }, [collateralAssetId, isLendingSupportedAssetsLoading])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={borrowAsset?.assetId ?? ''}
+        assetIds={borrowAssetIds}
         onAssetClick={handleBorrowAssetClick}
-        onAssetChange={handleAssetChange}
+        onAssetChange={setBorrowAsset}
         isLoading={isLendingSupportedAssetsLoading}
       />
     )
   }, [
     borrowAsset?.assetId,
-    handleAssetChange,
+    borrowAssetIds,
+    setBorrowAsset,
     handleBorrowAssetClick,
     isLendingSupportedAssetsLoading,
   ])

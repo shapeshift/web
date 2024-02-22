@@ -205,6 +205,24 @@ export type LpConfirmedDepositQuote = {
   runeGasFeeFiat: string
   poolAssetGasFeeFiat: string
 }
+
+export type LpConfirmedWithdrawalQuote = {
+  totalAmountFiat: string
+  assetCryptoLiquidityAmount: string
+  assetFiatLiquidityAmount: string
+  runeCryptoLiquidityAmount: string
+  runeFiatLiquidityAmount: string
+  shareOfPoolDecimalPercent: string
+  slippageRune: string
+  opportunityId: string
+  assetAddress?: string
+  quoteInboundAddress: string
+  // For informative purposes only at confirm step - to be recalculated before signing
+  totalGasFeeFiat: string
+  runeGasFeeFiat: string
+  poolAssetGasFeeFiat: string
+}
+
 export enum AsymSide {
   Asset = 'asset',
   Rune = 'rune',

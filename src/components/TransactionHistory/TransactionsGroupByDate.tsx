@@ -31,23 +31,18 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
       const groups: TransactionGroup[] = []
       for (let index = 0; index < transactions.length; index++) {
         const transaction = transactions[index]
-        const today = dayjs().locale(locale)
+        const now = dayjs().locale(locale)
         const transactionDate = dayjs(transaction.date * 1000).locale(locale)
-        const diffDays = today.diff(transactionDate, 'day')
-        const diffWeeks = today.diff(transactionDate, 'week')
-        const diffMonths = today.diff(transactionDate, 'month')
-        const diffYears = today.diff(transactionDate, 'year')
-
         const formattedDate = (() => {
-          if (diffDays === 0) {
+          if (now.isSame(transactionDate, 'day')) {
             return translate('transactionHistory.today')
-          } else if (diffDays === 1) {
+          } else if (now.subtract(1, 'day').isSame(transactionDate, 'day')) {
             return translate('transactionHistory.yesterday')
-          } else if (diffWeeks === 0) {
+          } else if (now.isSame(transactionDate, 'week')) {
             return translate('transactionHistory.thisWeek')
-          } else if (diffMonths === 0) {
+          } else if (now.isSame(transactionDate, 'month')) {
             return translate('transactionHistory.thisMonth')
-          } else if (diffYears === 0) {
+          } else if (now.isSame(transactionDate, 'year')) {
             return transactionDate.format('MMMM')
           } else {
             return transactionDate.format('MMMM YYYY')

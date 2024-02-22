@@ -243,12 +243,11 @@ export const generateRelatedAssetIndex = async () => {
   progressBar.start(Object.keys(generatedAssetData).length, 0)
 
   const throttle = createThrottle({
-    capacity: 100,
-    costPerReq: 1,
-    drainPerInterval: 100,
+    capacity: 50, // Reduced initial capacity to allow for a burst but not too high
+    costPerReq: 1, // Keeping the cost per request as 1 for simplicity
+    drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
     intervalMs: 5000,
   })
-
   let i = 0
   for (const batch of chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)) {
     await Promise.all(

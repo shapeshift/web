@@ -15,10 +15,10 @@ export class Parser implements SubParser<Tx> {
   readonly abiInterface = new ethers.Interface(FOXY_STAKING_ABI)
 
   readonly supportedFunctions = {
-    stakeSigHash: this.abiInterface.getFunction('stake(uint256,address)')?.selector,
-    unstakeSigHash: this.abiInterface.getFunction('unstake')?.selector,
-    instantUnstakeSigHash: this.abiInterface.getFunction('instantUnstake')?.selector,
-    claimWithdrawSigHash: this.abiInterface.getFunction('claimWithdraw')?.selector,
+    stakeSigHash: this.abiInterface.getFunction('stake(uint256,address)')!.selector,
+    unstakeSigHash: this.abiInterface.getFunction('unstake')!.selector,
+    instantUnstakeSigHash: this.abiInterface.getFunction('instantUnstake')!.selector,
+    claimWithdrawSigHash: this.abiInterface.getFunction('claimWithdraw')!.selector,
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

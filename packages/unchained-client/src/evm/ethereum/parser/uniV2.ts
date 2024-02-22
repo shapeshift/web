@@ -35,13 +35,13 @@ export class Parser implements SubParser<Tx> {
   readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI)
 
   readonly supportedFunctions = {
-    addLiquidityEthSigHash: this.abiInterface.getFunction('addLiquidityETH')?.selector,
-    removeLiquidityEthSigHash: this.abiInterface.getFunction('removeLiquidityETH')?.selector,
+    addLiquidityEthSigHash: this.abiInterface.getFunction('addLiquidityETH')!.selector,
+    removeLiquidityEthSigHash: this.abiInterface.getFunction('removeLiquidityETH')!.selector,
   }
 
   readonly supportedStakingRewardsFunctions = {
-    stakeSigHash: this.stakingRewardsInterface.getFunction('stake')?.selector,
-    exitSigHash: this.stakingRewardsInterface.getFunction('exit')?.selector,
+    stakeSigHash: this.stakingRewardsInterface.getFunction('stake')!.selector,
+    exitSigHash: this.stakingRewardsInterface.getFunction('exit')!.selector,
   }
 
   constructor(args: ParserArgs) {

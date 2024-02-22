@@ -26,8 +26,8 @@ export class Parser implements SubParser<Tx> {
   readonly abiInterface = new ethers.Interface(WETH_ABI)
 
   readonly supportedFunctions = {
-    depositSigHash: this.abiInterface.getFunction('deposit')?.selector,
-    withdrawalSigHash: this.abiInterface.getFunction('withdraw')?.selector,
+    depositSigHash: this.abiInterface.getFunction('deposit')!.selector,
+    withdrawalSigHash: this.abiInterface.getFunction('withdraw')!.selector,
   }
 
   constructor(args: ParserArgs) {

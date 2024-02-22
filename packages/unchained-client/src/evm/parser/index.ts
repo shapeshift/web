@@ -34,7 +34,7 @@ export class BaseTransactionParser<T extends Tx> {
     this.chainId = args.chainId
     this.assetId = args.assetId
     this.api = args.api
-    this.provider = new JsonRpcProvider(args.rpcUrl)
+    this.provider = new JsonRpcProvider(args.rpcUrl, undefined, { staticNetwork: true })
   }
 
   /**

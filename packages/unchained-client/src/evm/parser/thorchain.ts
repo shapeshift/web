@@ -40,12 +40,11 @@ export class Parser implements SubParser<Tx> {
   constructor(args: ParserArgs) {
     this.abiInterface = new ethers.Interface(routerAbi)
     this.supportedFunctions = {
-      depositSigHash: this.abiInterface.getFunction('deposit')?.selector ?? '',
-      depositWithExpirySigHash: this.abiInterface.getFunction('depositWithExpiry')?.selector ?? '',
-      transferOutSigHash: this.abiInterface.getFunction('transferOut')?.selector ?? '',
-      transferOutAndCallSigHash:
-        this.abiInterface.getFunction('transferOutAndCall')?.selector ?? '',
-      swapInSigHash: this.abiInterface.getFunction('swapIn')?.selector ?? '',
+      depositSigHash: this.abiInterface.getFunction('deposit')!.selector,
+      depositWithExpirySigHash: this.abiInterface.getFunction('depositWithExpiry')!.selector,
+      transferOutSigHash: this.abiInterface.getFunction('transferOut')!.selector,
+      transferOutAndCallSigHash: this.abiInterface.getFunction('transferOutAndCall')!.selector,
+      swapInSigHash: this.abiInterface.getFunction('swapIn')!.selector,
     }
     this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
     this.chainId = args.chainId

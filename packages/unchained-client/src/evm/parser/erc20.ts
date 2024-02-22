@@ -25,7 +25,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
   readonly abiInterface = new ethers.Interface(ERC20_ABI)
 
   readonly supportedFunctions = {
-    approveSigHash: this.abiInterface.getFunction('approve')?.selector ?? '',
+    approveSigHash: this.abiInterface.getFunction('approve')!.selector,
   }
 
   constructor(args: ParserArgs) {

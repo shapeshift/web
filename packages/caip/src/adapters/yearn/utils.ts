@@ -1,6 +1,6 @@
 import type { Token, Vault } from '@yfi/sdk'
 import { Yearn } from '@yfi/sdk'
-import { ethers } from 'ethers'
+import { ethers } from 'ethers5'
 import fs from 'fs'
 import toLower from 'lodash/toLower'
 import uniqBy from 'lodash/uniqBy'
@@ -10,9 +10,7 @@ import { toChainId } from '../../chainId/chainId'
 import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
 
 const network = 1 // 1 for mainnet
-const provider = new ethers.JsonRpcProvider(process.env.REACT_APP_ETHEREUM_NODE_URL)
-// @ts-ignore types are drunk here as yearn expects the v5 flavor of ethers JsonRpcProvider,
-// but yearn usage is nuked from the codebase so meh
+const provider = new ethers.providers.StaticJsonRpcProvider(process.env.REACT_APP_ETHEREUM_NODE_URL)
 const yearnSdk = new Yearn(network, { provider })
 
 export const writeFiles = async (data: Record<string, Record<string, string>>) => {

@@ -6,7 +6,7 @@ import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateR
 
 const main = async () => {
   try {
-    // check zerion api key is set before starting, prevents getting through generateAssetData()
+    // check zerion api key is set before starting, prevents getting through generateAssetIndex()
     // and then failing
     assert(
       process.env.ZERION_API_KEY !== undefined,

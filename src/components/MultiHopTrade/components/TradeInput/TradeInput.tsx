@@ -21,7 +21,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -94,6 +94,7 @@ import { SellAssetInput } from './components/SellAssetInput'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
+import { useSharedHeight } from './hooks/useSharedHieght'
 
 const formControlProps = {
   borderRadius: 0,
@@ -112,7 +113,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
     state: { wallet },
   } = useWallet()
-  const tradeInputRef = useRef<HTMLDivElement | null>(null)
+  // const tradeInputRef = useRef<HTMLDivElement | null>(null)
+  const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints.md})`, { ssr: false })
   const { handleSubmit } = useFormContext()
@@ -594,7 +596,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
             <QuoteList
               onBack={handleCloseCompactQuoteList}
               isLoading={isLoading}
-              height={tradeInputRef.current?.offsetHeight ?? '500px'}
+              height={tradeInputHeight ?? '500px'}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
             />
           </Center>
@@ -697,7 +699,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
             {!isCompact && isLargerThanMd && (
               <QuoteList
                 flexShrink={1}
-                height={tradeInputRef.current?.offsetHeight ?? '500px'}
+                height='full'
+                maxHeight={tradeInputHeight ?? 'full'}
                 width={
                   hasUserEnteredAmount && !isSmallerThanXl
                     ? tradeInputRef.current?.offsetWidth ?? 'full'

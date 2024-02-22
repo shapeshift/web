@@ -264,7 +264,7 @@ export const useGetTradeQuotes = () => {
   useGetSwapperTradeQuote(SwapperName.Zrx, commonTradeQuoteArgs)
 
   // true if any debounce, input or swapper is fetching
-  const isTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
@@ -272,7 +272,7 @@ export const useGetTradeQuotes = () => {
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
     // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteMeta || isTradeQuoteLoading) return
+    if (activeQuoteMeta || isAnyTradeQuoteLoading) return
 
     const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
 
@@ -282,14 +282,14 @@ export const useGetTradeQuotes = () => {
     }
 
     dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteMeta, isTradeQuoteLoading, dispatch])
+  }, [activeQuoteMeta, isAnyTradeQuoteLoading, dispatch])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
-    if (isTradeQuoteLoading) return
+    if (isAnyTradeQuoteLoading) return
     if (mixpanel) {
       const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
-  }, [sortedTradeQuotes, mixpanel, isTradeQuoteLoading])
+  }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
 }

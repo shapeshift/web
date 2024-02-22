@@ -25,8 +25,6 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
-vi.unmock('ethers')
-
 vi.mock('../utils/cowService', () => {
   const mockAxios = {
     default: {

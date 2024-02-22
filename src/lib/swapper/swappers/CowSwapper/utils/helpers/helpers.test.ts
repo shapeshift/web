@@ -14,8 +14,6 @@ vi.mock('../cowService', async () => {
   }
 })
 
-vi.unmock('ethers')
-
 describe('utils', () => {
   describe('getNowPlusThirtyMinutesTimestamp', () => {
     const mockDay = '2020-12-31'

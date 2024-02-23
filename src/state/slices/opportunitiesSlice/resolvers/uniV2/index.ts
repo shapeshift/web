@@ -12,13 +12,13 @@ import { toBaseUnit } from 'lib/math'
 import { selectZapperFulfilled } from 'state/apis/zapper/selectors'
 import { zapperApi } from 'state/apis/zapper/zapperApi'
 import type { ReduxState } from 'state/reducer'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
+import { selectAssets } from 'state/slices/selectors'
 
 import { foxEthLpAssetIds } from '../../constants'
 import type {
@@ -55,7 +55,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
   const { DynamicLpAssets } = selectFeatureFlags(state)
 
-  const assets: AssetsState = state.assets
+  const assetsById = selectAssets(state)
 
   const selectGetZapperAppTokensOutput = zapperApi.endpoints.getZapperAppTokensOutput.select()
   // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us
@@ -176,9 +176,9 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
             chainId,
           })
     const underlyingAssetIds = [assetId0, assetId1] as const
-    const underlyingAsset0 = assets.byId[underlyingAssetIds[0]]
-    const underlyingAsset1 = assets.byId[underlyingAssetIds[1]]
-    const lpAsset = assets.byId[opportunityId]
+    const underlyingAsset0 = assetsById[underlyingAssetIds[0]]
+    const underlyingAsset1 = assetsById[underlyingAssetIds[1]]
+    const lpAsset = assetsById[opportunityId]
 
     if (!lpAsset) continue
     if (!(underlyingAsset0?.symbol && underlyingAsset1?.symbol)) continue

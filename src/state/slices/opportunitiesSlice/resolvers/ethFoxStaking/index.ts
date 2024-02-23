@@ -6,8 +6,8 @@ import dayjs from 'dayjs'
 import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
+import { selectAssets } from 'state/slices/selectors'
 
 import {
   assertIsFoxEthStakingContractAddress,
@@ -35,8 +35,9 @@ export const ethFoxStakingMetadataResolver = async ({
 }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const assets: AssetsState = state.assets
-  const lpAssetPrecision = assets.byId[foxEthLpAssetId]?.precision ?? 0
+
+  const assetsById = selectAssets(state)
+  const lpAssetPrecision = assetsById[foxEthLpAssetId]?.precision ?? 0
   const lpTokenMarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
     state,
     foxEthLpAssetId,
@@ -103,8 +104,8 @@ export const ethFoxStakingMetadataResolver = async ({
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatiosBaseUnit: [
-          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
-          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
+          toBaseUnit(ethPoolRatio.toString(), assetsById[foxEthPair[0]]?.precision ?? 0),
+          toBaseUnit(foxPoolRatio.toString(), assetsById[foxEthPair[1]]?.precision ?? 0),
         ] as const,
         expired,
         name: 'Fox Farming',

@@ -14,9 +14,11 @@ import { selectMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/sele
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
 export const selectAssetById = createCachedSelector(
-  (state: ReduxState) => state.assets.byId,
+  (state: ReduxState) => state.assets,
   (_state: ReduxState, assetId: AssetId) => assetId,
-  (byId, assetId) => byId[assetId] || undefined,
+  (assetsState: ReduxState['assets'], assetId) => {
+    return assetsState.fungible.byId[assetId] ?? assetsState.nonFungible.byId[assetId]
+  },
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 // selects all related assetIds, inclusive of the asset being queried
@@ -41,9 +43,9 @@ export const selectRelatedAssetIds = createCachedSelector(
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 export const selectAssetByFilter = createCachedSelector(
-  (state: ReduxState) => state.assets.byId,
+  (state: ReduxState) => state,
   selectAssetIdParamFromFilter,
-  (byId, assetId) => byId[assetId ?? ''] || undefined,
+  (state, assetId) => (assetId ? selectAssetById(state, assetId) : undefined),
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
 export const selectAssetNameById = createSelector(
@@ -58,10 +60,21 @@ export const selectChainDisplayNameByAssetId = createSelector(selectAssetById, (
 })
 
 export const selectAssets = createDeepEqualOutputSelector(
-  (state: ReduxState) => state.assets.byId,
+  (state: ReduxState) => {
+    // TEMP: we will need to split this selector into fungible and non-fungible flavors
+    // the fungble one will not need ot be cached since it's static
+    return Object.assign({}, state.assets.fungible.byId, state.assets.nonFungible.byId)
+  },
   byId => byId,
 )
-export const selectAssetIds = (state: ReduxState) => state.assets.ids
+export const selectAssetIds = createDeepEqualOutputSelector(
+  (state: ReduxState) => {
+    // TEMP: we will need to split this selector into fungible and non-fungible flavors
+    // the fungble one will not need ot be cached since it's static
+    return state.assets.fungible.ids.concat(state.assets.nonFungible.ids)
+  },
+  ids => ids,
+)
 export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
 export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
   const getAssetName = (asset: Asset) => asset.name

@@ -124,8 +124,14 @@ export const mockStore: ReduxState = {
     },
   },
   assets: {
-    byId: {},
-    ids: [],
+    fungible: {
+      byId: {},
+      ids: [],
+    },
+    nonFungible: {
+      byId: {},
+      ids: [],
+    },
     relatedAssetIndex: {},
   },
   marketData: {

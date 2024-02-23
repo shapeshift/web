@@ -107,11 +107,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const initialRemovalPercentage = 50
 
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>(foundPoolAsset)
   const [userlpData, setUserlpData] = useState<UserLpDataPosition | undefined>()
   const [runeAccountId, setRuneAccountId] = useState<AccountId | undefined>()
-  const [percentageSelection, setPercentageSelection] = useState<number>(50)
+  const [percentageSelection, setPercentageSelection] = useState<number>(initialRemovalPercentage)
+  const [sliderValue, setSliderValue] = useState<number>(initialRemovalPercentage)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
 
   // Virtual as in, these are the amounts if removing symetrically. But a user may remove asymetrically, so these are not the *actual* amounts
@@ -233,9 +235,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const handlePercentageSliderChange = useCallback(
     (percentage: number) => {
+      setSliderValue(percentage)
+    },
+    [setSliderValue],
+  )
+
+  const handlePercentageSliderChangeEnd = useCallback(
+    (percentage: number) => {
+      setSliderValue(percentage)
       setPercentageSelection(percentage)
     },
-    [setPercentageSelection],
+    [setPercentageSelection, setSliderValue],
   )
 
   useEffect(() => {
@@ -642,8 +652,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             {translate('pools.removeAmounts')}
           </FormLabel>
           <Stack px={6} py={4} spacing={4}>
-            <Amount.Percent value={percentageSelection / 100} fontSize='2xl' />
-            <Slider value={percentageSelection} onChange={handlePercentageSliderChange}>
+            <Amount.Percent value={sliderValue / 100} fontSize='2xl' />
+            <Slider
+              value={sliderValue}
+              onChange={handlePercentageSliderChange}
+              onChangeEnd={handlePercentageSliderChangeEnd}
+            >
               <SliderTrack>
                 <SliderFilledTrack />
               </SliderTrack>

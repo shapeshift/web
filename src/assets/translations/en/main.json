@@ -127,6 +127,7 @@
     "yourBalance": "Your balance",
     "signTransaction": "Sign transaction",
     "halted": "Halted",
+    "staged": "Staged",
     "poolHalted": "Pool Halted",
     "carousel": {
       "next": "Next",
@@ -2199,11 +2200,12 @@
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
+    "positions": "Positions",
     "tvl": "TVL",
     "volume24h": "Volume 24H",
     "volume7d": "Volume 7D",
     "balance": "Balance",
-    "unclaimedFees": "Unclaimed Fees",
+    "earnings": "Earnings",
     "poolShare": "Pool Share",
     "yourPosition": "Your Position",
     "poolInformation": "Pool Information",

@@ -569,7 +569,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         {assets.map(asset => {
           const isRune = asset.assetId === rune.assetId
           const isAsym = foundPool.isAsymmetric
-          console.log('xxx isAsym', isAsym)
           const marketData = isRune ? runeMarketData : assetMarketData
           const handleRemoveLiquidityInputChange = createHandleRemoveLiquidityInputChange(
             marketData,

@@ -208,7 +208,7 @@ export const zapperApi = createApi({
           { assets: { byId: {}, ids: [] }, data: {} },
         )
 
-        dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
+        dispatch(assetsSlice.actions.upsertNonFungibleAssets(zapperAssets))
 
         return { data }
       },
@@ -470,8 +470,10 @@ export const zapper = createApi({
                     }
                   })()
 
-                  dispatch(assetsSlice.actions.upsertAssets(rewardAssetsToUpsert))
-                  dispatch(assetsSlice.actions.upsertAssets(maybeTopLevelRewardAssetToUpsert))
+                  dispatch(assetsSlice.actions.upsertNonFungibleAssets(rewardAssetsToUpsert))
+                  dispatch(
+                    assetsSlice.actions.upsertNonFungibleAssets(maybeTopLevelRewardAssetToUpsert),
+                  )
 
                   const rewardsCryptoBaseUnit = {
                     amounts: rewardTokens.map(token => token.balanceRaw),
@@ -585,7 +587,7 @@ export const zapper = createApi({
                     { byId: {}, ids: [] },
                   )
 
-                  dispatch(assetsSlice.actions.upsertAssets(underlyingAssetsToUpsert))
+                  dispatch(assetsSlice.actions.upsertNonFungibleAssets(underlyingAssetsToUpsert))
 
                   // Upsert underlyingAssetIds if they don't exist in store
                   if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
@@ -596,7 +598,7 @@ export const zapper = createApi({
                       precision: Number(asset.decimals) ?? 18,
                       icons: asset.displayProps?.images ?? [],
                     })
-                    dispatch(assetsSlice.actions.upsertAsset(underlyingAsset))
+                    dispatch(assetsSlice.actions.upsertNonFungibleAsset(underlyingAsset))
                   }
 
                   const underlyingAssetRatiosBaseUnit = (asset.dataProps?.reserves ?? []).map(

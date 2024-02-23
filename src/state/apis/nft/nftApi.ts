@@ -125,7 +125,7 @@ const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsert
       }
     })
 
-    dispatch(assetsSlice.actions.upsertAssets(assetsToUpsert))
+    dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetsToUpsert))
     dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
   },
 )

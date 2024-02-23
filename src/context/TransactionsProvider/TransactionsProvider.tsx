@@ -216,7 +216,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               maybeRefetchNfts(msg)
 
               // upsert any new nft assets if detected
-              dispatch(assetsSlice.actions.upsertAssets(makeNftAssetsFromTxs([msg])))
+              dispatch(assetsSlice.actions.upsertNonFungibleAssets(makeNftAssetsFromTxs([msg])))
 
               // deal with incoming message
               dispatch(onMessage({ message: { ...msg, accountType }, accountId }))

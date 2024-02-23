@@ -185,7 +185,7 @@ export const portfolioApi = createApi({
               )
 
               // upsert placeholder assets
-              dispatch(assetSlice.actions.upsertAssets(assets))
+              dispatch(assetSlice.actions.upsertNonFungibleAssets(assets))
 
               return accountToPortfolio({
                 portfolioAccounts,

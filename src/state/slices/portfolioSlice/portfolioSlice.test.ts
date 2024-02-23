@@ -277,7 +277,7 @@ describe('portfolioSlice', () => {
 
         // dispatch asset data
         const assetData = mockAssetState()
-        store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+        store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
         const state = store.getState()
 
         const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
@@ -329,7 +329,7 @@ describe('portfolioSlice', () => {
 
         // dispatch asset data
         const assetData = mockAssetState()
-        store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+        store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
         const state = store.getState()
 
         const allocationByAccountId = selectPortfolioAllocationPercentByFilter(state, {
@@ -387,7 +387,7 @@ describe('portfolioSlice', () => {
 
         // dispatch asset data
         const assetData = mockAssetState()
-        store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+        store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
         const state = store.getState()
 
         const returnValue = {
@@ -467,7 +467,7 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
 
       it('can select highest value account by assetId', () => {
         const state = store.getState()
@@ -526,7 +526,7 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
       const state = store.getState()
 
       it('should be able to filter by assetId', () => {
@@ -595,7 +595,7 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
       const state = store.getState()
 
       it('should be able to filter by assetId', () => {
@@ -669,7 +669,7 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
       const state = store.getState()
 
       it('should return assetIds (excluding fee assets, ie Ethereum) of a given account, sorted by fiat value', () => {
@@ -716,7 +716,7 @@ describe('portfolioSlice', () => {
 
       // dispatch asset data
       const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+      store.dispatch(assetsSlice.actions.upsertNonFungibleAssets(assetData))
       const state = store.getState()
 
       it('should return correct portfolio rows in case of 100% allocation on one asset', () => {

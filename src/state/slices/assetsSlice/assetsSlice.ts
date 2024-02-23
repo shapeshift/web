@@ -127,11 +127,11 @@ export const assets = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
+    upsertNonFungibleAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
       state.nonFungible.byId = Object.assign({}, state.nonFungible.byId, action.payload.byId) // upsert
       state.nonFungible.ids = Object.keys(state.nonFungible.byId)
     },
-    upsertAsset: (state, action: PayloadAction<Asset>) => {
+    upsertNonFungibleAsset: (state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
       state.nonFungible.byId[assetId] = Object.assign(
         {},
@@ -170,7 +170,7 @@ export const assetApi = createApi({
           ids: Object.keys(assetsById) ?? [],
         }
 
-        if (data) dispatch(assets.actions.upsertAssets(data))
+        if (data) dispatch(assets.actions.upsertNonFungibleAssets(data))
         return { data }
       },
     }),
@@ -192,7 +192,7 @@ export const assetApi = createApi({
           byId[assetId] = originalAsset && Object.assign(originalAsset, { description, isTrusted })
           const data = { byId, ids }
 
-          if (data) dispatch(assets.actions.upsertAssets(data))
+          if (data) dispatch(assets.actions.upsertNonFungibleAssets(data))
           return { data }
         } catch (e) {
           const data = `getAssetDescription: error fetching description for ${assetId}`

@@ -1,7 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { BN } from 'lib/bignumber/bignumber'
 
-export type ThorNodeLiquidityProvider = {
+export type ThornodeLiquidityProvider = {
   asset: string
   asset_address?: string
   rune_address?: string
@@ -15,7 +15,7 @@ export type ThorNodeLiquidityProvider = {
   asset_deposit_value: string
 }
 
-export type MidgardPool = {
+export type MidgardMemberPool = {
   assetAdded: string
   assetAddress: string
   assetDeposit: string
@@ -32,9 +32,10 @@ export type MidgardPool = {
   runeWithdrawn: string
 }
 
-export type MidgardLiquidityProvidersList = string[]
-export type MidgardLiquidityProvider = {
-  pools: MidgardPool[]
+export type MidgardMembersList = string[]
+
+export type MidgardMember = {
+  pools: MidgardMemberPool[]
 }
 
 export type MidgardPoolStats = {
@@ -109,7 +110,7 @@ export type MidgardSwapHistoryResponse = {
 // TODO(gomes): This is the LP provider type from /liquidity_provider/<address>, which contains more data then the one from /liquidity_providers/
 // use this instead of the /liquidity_providers/ endpoint when applicable, and perhaps consume those fields if useful?
 // We're not using this anywhere just yet, but most likely should.
-export type ExtendedThorNodeLiquidityProvider = ThorNodeLiquidityProvider & {
+export type ExtendedThornodeLiquidityProvider = ThornodeLiquidityProvider & {
   rune_redeem_value: string
   asset_redeem_value: string
   luvi_deposit_value: string
@@ -117,7 +118,7 @@ export type ExtendedThorNodeLiquidityProvider = ThorNodeLiquidityProvider & {
   luvi_growth_pct: string
 }
 
-export type ThorchainLiquidityProvidersResponseSuccess = ThorNodeLiquidityProvider[]
+export type ThorchainLiquidityProvidersResponseSuccess = ThornodeLiquidityProvider[]
 
 type ThorchainEarningsHistoryPoolItem = {
   pool: string
@@ -253,3 +254,5 @@ export type UserLpDataPosition = {
 
   assetId: AssetId
 }
+
+export type Position = MidgardMemberPool & { accountId: AccountId }

@@ -9,12 +9,11 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses } from 'lib/utils/thorchain'
 import { get24hTvlChangePercentage, getAllTimeVolume, getEarnings } from 'lib/utils/thorchain/lp'
-import {
-  AsymSide,
-  type MidgardLiquidityProvider,
-  type MidgardLiquidityProvidersList,
-} from 'lib/utils/thorchain/lp/types'
+import type { MidgardMember, MidgardMembersList } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+
+const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
 
 // Note: since this isn't consumes as part of reactQueries queries, but directly as a regular function call within this file,
 // the additional property on top of queryKey and queryFn (i.e staleTime) *is* working
@@ -25,10 +24,7 @@ const liquidityMember = (address: string) => ({
   queryFn: async () => {
     try {
       const checksumAddress = isAddress(address) ? getAddress(address) : address
-      const { data } = await axios.get<MidgardLiquidityProvider>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/member/${checksumAddress}`,
-      )
-
+      const { data } = await axios.get<MidgardMember>(`${midgardUrl}/member/${checksumAddress}`)
       return data
     } catch (e) {
       // THORCHain returns a 404 which is perfectly valid, but axios catches as an error
@@ -48,10 +44,7 @@ export const liquidityMembers = () => ({
   // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
   staleTime: Infinity,
   queryFn: async () => {
-    const { data } = await axios.get<MidgardLiquidityProvidersList>(
-      `${getConfig().REACT_APP_MIDGARD_URL}/members`,
-    )
-
+    const { data } = await axios.get<MidgardMembersList>(`${midgardUrl}/members`)
     return data
   },
 })
@@ -107,6 +100,7 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
 
           const accountAddresses = await getAccountAddresses(accountId)
           const foundMember = allMembers.find(member => accountAddresses.includes(member))
+
           if (!foundMember) return null
 
           return queryClient.fetchQuery(liquidityMember(foundMember))
@@ -158,6 +152,7 @@ export const getThorchainLpPosition = async ({
     const positionOpportunityId = `${poolAssetId}*${asymSide ?? 'sym'}`
     return positionOpportunityId === opportunityId
   })
+
   if (!position) return null
 
   return {

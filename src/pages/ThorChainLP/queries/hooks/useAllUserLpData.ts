@@ -1,4 +1,5 @@
-import { type AccountId, type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -7,8 +8,8 @@ import { bn } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
-import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
-import { AsymSide, type MidgardPool } from 'lib/utils/thorchain/lp/types'
+import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -19,7 +20,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type UseUserLpDataReturn = {
+type UseAllUserLpDataReturn = {
   assetId: AssetId
   positions: UserLpDataPosition[]
 }
@@ -28,7 +29,7 @@ export const useAllUserLpData = ({
   assetIds,
 }: {
   assetIds: AssetId[]
-}): UseQueryResult<UseUserLpDataReturn | null>[] => {
+}): UseQueryResult<UseAllUserLpDataReturn | null>[] => {
   const queryClient = useQueryClient()
   const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
@@ -80,7 +81,7 @@ export const useAllUserLpData = ({
 
             return allPositions
           },
-          select: (positions: (MidgardPool & { accountId: AccountId })[] | undefined) => {
+          select: (positions: Position[] | undefined) => {
             return {
               assetId,
               positions: (positions ?? [])
@@ -161,7 +162,7 @@ export const useAllUserLpData = ({
   const _userLpDataQueries = useQueries({
     // @ts-ignore useQueries isn't strongly typed :(
     queries,
-  }) as UseQueryResult<UseUserLpDataReturn | null>[]
+  }) as UseQueryResult<UseAllUserLpDataReturn | null>[]
 
   // Massage queries data to dedupe opportunities
   // i.e for sym, positions will be present in both the asset and RUNE address members

@@ -16,6 +16,7 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import {
+  selectAssets,
   selectEarnUserLpOpportunity,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByLpId,
@@ -49,7 +50,7 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
 }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
-  const assets = useAppSelector(selectorState => selectorState.assets.byId)
+  const assetsById = useAppSelector(selectAssets)
 
   const lpAssetId = toAssetId({ chainId, assetNamespace, assetReference })
 
@@ -83,8 +84,8 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
   )
 
   const lpAsset = useMemo(
-    () => earnLpOpportunity?.assetId && assets[earnLpOpportunity?.assetId],
-    [assets, earnLpOpportunity?.assetId],
+    () => earnLpOpportunity?.assetId && assetsById[earnLpOpportunity?.assetId],
+    [assetsById, earnLpOpportunity?.assetId],
   )
 
   const underlyingAssetsFiatBalanceFilter = useMemo(

@@ -12,6 +12,7 @@ import {
   polygonChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
+import { getConfig } from 'config'
 import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
 import { sha256 } from 'lib/utils'
@@ -21,28 +22,49 @@ import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { chainIdToFeeAssetId } from '../portfolioSlice/utils'
 
-let service: AssetService | undefined = undefined
-
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const getAssetService = () => {
-  if (!service) {
-    service = new AssetService()
-  }
+const assetService = new AssetService()
 
-  return service
-}
+const config = getConfig()
+
+const assetsById = Object.entries(assetService.assetsById).reduce<AssetsByIdPartial>(
+  (prev, [assetId, asset]) => {
+    if (!config.REACT_APP_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return prev
+    if (!config.REACT_APP_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return prev
+    if (!config.REACT_APP_FEATURE_POLYGON && asset.chainId === polygonChainId) return prev
+    if (!config.REACT_APP_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return prev
+    if (!config.REACT_APP_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return prev
+    if (!config.REACT_APP_FEATURE_ARBITRUM_NOVA && asset.chainId === arbitrumNovaChainId)
+      return prev
+    prev[assetId] = asset
+    return prev
+  },
+  {},
+)
 
 export type AssetsState = {
-  byId: AssetsByIdPartial
-  ids: AssetId[]
+  fungible: {
+    byId: AssetsByIdPartial
+    ids: AssetId[]
+  }
+  nonFungible: {
+    byId: AssetsByIdPartial
+    ids: AssetId[]
+  }
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
 }
 
 export const initialState: AssetsState = {
-  byId: {},
-  ids: [],
-  relatedAssetIndex: {},
+  fungible: {
+    byId: assetsById,
+    ids: Object.keys(assetsById),
+  },
+  nonFungible: {
+    byId: {},
+    ids: [],
+  },
+  relatedAssetIndex: assetService.relatedAssetIndex,
 }
 
 export const defaultAsset: Asset = {
@@ -59,7 +81,7 @@ export const defaultAsset: Asset = {
 }
 
 export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
-export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
+export type UpsertAssetsPayload = AssetsState['nonFungible']
 
 /**
  * utility to create an asset from minimal asset data from external sources at runtime
@@ -89,7 +111,7 @@ export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
   const explorerLinks = ((): ExplorerLinks => {
     const feeAssetId = chainIdToFeeAssetId(chainId)
     if (!feeAssetId) throw new Error('makeAsset: feeAssetId not found')
-    const feeAsset = getAssetService().assetsById[feeAssetId]
+    const feeAsset = assetService.assetsById[feeAssetId]
     return {
       explorer: feeAsset.explorer,
       explorerTxLink: feeAsset.explorerTxLink,
@@ -106,16 +128,17 @@ export const assets = createSlice({
   reducers: {
     clear: () => initialState,
     upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
-      state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
-      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
+      state.nonFungible.byId = Object.assign({}, state.nonFungible.byId, action.payload.byId) // upsert
+      state.nonFungible.ids = Object.keys(state.nonFungible.byId)
     },
     upsertAsset: (state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
-      state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
-      state.ids = Array.from(new Set(state.ids.concat(assetId)))
-    },
-    setRelatedAssetIndex: (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
-      state.relatedAssetIndex = action.payload
+      state.nonFungible.byId[assetId] = Object.assign(
+        {},
+        state.nonFungible.byId[assetId],
+        action.payload,
+      )
+      state.nonFungible.ids = Object.keys(state.nonFungible.byId)
     },
   },
 })
@@ -128,11 +151,8 @@ export const assetApi = createApi({
       // all assets
       queryFn: (_, { getState, dispatch }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
-        const service = getAssetService()
 
-        dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
-
-        const assetsById = Object.entries(service?.assetsById ?? {}).reduce<AssetsByIdPartial>(
+        const assetsById = Object.entries(assetService.assetsById).reduce<AssetsByIdPartial>(
           (prev, [assetId, asset]) => {
             if (!flags.Optimism && asset.chainId === optimismChainId) return prev
             if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
@@ -162,12 +182,12 @@ export const assetApi = createApi({
         if (!assetId) {
           throw new Error('assetId not provided')
         }
-        const service = getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
-        const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
+        const { byId: byIdOriginal, ids } = (getState() as any).assets
+          .nonFungible as AssetsState['nonFungible']
         const byId = cloneDeep(byIdOriginal)
         try {
-          const { description, isTrusted } = await service.description(assetId, selectedLocale)
+          const { description, isTrusted } = await assetService.description(assetId, selectedLocale)
           const originalAsset = byId[assetId]
           byId[assetId] = originalAsset && Object.assign(originalAsset, { description, isTrusted })
           const data = { byId, ids }

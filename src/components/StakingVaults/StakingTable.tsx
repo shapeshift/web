@@ -9,7 +9,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { store } from 'state/store'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AssetCell } from './Cells'
 
@@ -57,8 +58,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => {
-          const assets = store.getState().assets.byId
-          const asset = assets[row.original.assetId]
+          const asset = useAppSelector(state => selectAssetById(state, row.original.assetId))
           const assetName = asset?.name ?? ''
           const providerDisplayName = makeDefiProviderDisplayName({
             provider: value,

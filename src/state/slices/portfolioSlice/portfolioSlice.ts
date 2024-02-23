@@ -18,6 +18,7 @@ import type { ReduxState } from 'state/reducer'
 
 import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice, makeAsset } from '../assetsSlice/assetsSlice'
+import { selectAssetIds, selectAssets } from '../selectors'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
@@ -154,7 +155,8 @@ export const portfolioApi = createApi({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
-        const assetIds = state.assets.ids
+        const assetIds = selectAssetIds(state)
+        const assetsById = selectAssets(state)
         const chainAdapters = getChainAdapterManager()
         const { chainId, account: pubkey } = fromAccountId(accountId)
         try {
@@ -174,7 +176,7 @@ export const portfolioApi = createApi({
                     if (isNft(token.assetId)) return isSpammyNftText(text)
                     return isSpammyTokenText(text)
                   })
-                  if (state.assets.byId[token.assetId] || isSpam) return prev
+                  if (assetsById[token.assetId] || isSpam) return prev
                   prev.byId[token.assetId] = makeAsset({ ...token })
                   prev.ids.push(token.assetId)
                   return prev

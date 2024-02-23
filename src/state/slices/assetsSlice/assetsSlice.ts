@@ -13,7 +13,6 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
 import { sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -41,15 +40,14 @@ const assetsById = Object.entries(assetService.assetsById).reduce<AssetsByIdPart
   {},
 )
 
+type AssetMetadata = {
+  byId: AssetsByIdPartial
+  ids: AssetId[]
+}
+
 export type AssetsState = {
-  fungible: {
-    byId: AssetsByIdPartial
-    ids: AssetId[]
-  }
-  nonFungible: {
-    byId: AssetsByIdPartial
-    ids: AssetId[]
-  }
+  fungible: AssetMetadata
+  nonFungible: AssetMetadata
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
 }
 
@@ -154,14 +152,20 @@ export const assetApi = createApi({
           throw new Error('assetId not provided')
         }
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
-        const { byId: byIdOriginal, ids } = (getState() as any).assets
-          .nonFungible as AssetsState['nonFungible']
-        const byId = cloneDeep(byIdOriginal)
+        const state = getState() as any
+        const originalAsset = state.assets.fungible[assetId] ?? state.assets.nonFungible[assetId]
+
         try {
           const { description, isTrusted } = await assetService.description(assetId, selectedLocale)
-          const originalAsset = byId[assetId]
-          byId[assetId] = originalAsset && Object.assign(originalAsset, { description, isTrusted })
-          const data = { byId, ids }
+
+          const data = {
+            byId: {
+              [assetId]: originalAsset
+                ? Object.assign(originalAsset, { description, isTrusted })
+                : undefined,
+            },
+            ids: [assetId],
+          }
 
           if (data) dispatch(assets.actions.upsertNonFungibleAssets(data))
           return { data }

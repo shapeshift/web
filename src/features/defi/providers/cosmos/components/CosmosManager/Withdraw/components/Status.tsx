@@ -23,7 +23,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
@@ -51,7 +51,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
   // Asset info
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const underlyingAssetId = toAssetId({
     chainId,
     assetNamespace,

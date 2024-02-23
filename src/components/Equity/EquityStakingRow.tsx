@@ -17,7 +17,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -44,7 +44,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   } = useWallet()
   const history = useHistory()
   const location = useLocation()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const filter = useMemo(() => {
     return {

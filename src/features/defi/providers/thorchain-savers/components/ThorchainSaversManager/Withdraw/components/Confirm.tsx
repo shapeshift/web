@@ -69,10 +69,10 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectAssets,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -103,7 +103,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { chainId, assetNamespace, assetReference } = query
   const opportunity = state?.opportunity
   const chainAdapter = getChainAdapterManager().get(chainId)
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   // Asset info
   const assetId = toAssetId({

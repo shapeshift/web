@@ -41,8 +41,8 @@ import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionDa
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import {
   selectAssetById,
-  selectAssets,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -137,7 +137,7 @@ export const RepayInput = ({
     setConfirmedQuote(lendingQuoteCloseData)
 
     if (mixpanel) {
-      const assets = selectAssets(store.getState())
+      const assets = selectFungibleAssets(store.getState())
 
       const compositeRepaymentAsset = getMaybeCompositeAssetSymbol(
         repaymentAsset?.assetId ?? '',

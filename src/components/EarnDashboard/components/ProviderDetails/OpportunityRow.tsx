@@ -16,7 +16,11 @@ import {
   getUnderlyingAssetIdsBalances,
 } from 'state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
-import { selectAssetById, selectAssets, selectMarketDataUserCurrency } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFungibleAssets,
+  selectMarketDataUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { NestedAsset } from './NestedAsset'
@@ -51,7 +55,7 @@ export const OpportunityRow: React.FC<
   const translate = useTranslate()
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
 
   const rewardsBalances = useMemo(() => {

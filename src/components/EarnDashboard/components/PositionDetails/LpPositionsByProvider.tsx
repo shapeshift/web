@@ -21,7 +21,7 @@ import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/u
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserLpOpportunities,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -49,7 +49,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 

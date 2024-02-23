@@ -27,8 +27,8 @@ import {
 } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectFirstAccountIdByChainId,
+  selectFungibleAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataUserCurrency,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
@@ -50,7 +50,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const lpAsset = assets[foxEthLpAssetId]
   if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
 

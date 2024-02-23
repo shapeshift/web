@@ -8,7 +8,7 @@ import type { FeePrice } from 'components/Modals/Send/views/Confirm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectFungibleAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export function useCallRequestEvmFees(state: WalletConnectState) {
@@ -16,7 +16,7 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { chainId, accountId, transaction } = useWalletConnectState(state)
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const feeAsset = useMemo(() => {
     const chainAdapter = chainId ? assertGetChainAdapter(chainId) : undefined

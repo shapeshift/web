@@ -43,9 +43,9 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -78,7 +78,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     assetNamespace,
     assetReference,
   })
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 

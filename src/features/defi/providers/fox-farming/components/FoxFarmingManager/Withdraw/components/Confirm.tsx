@@ -28,8 +28,8 @@ import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunities
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -47,7 +47,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, rewardId } = query
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const opportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, {

@@ -30,8 +30,8 @@ import { walletCanEditMemo } from 'lib/utils'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectBIP44ParamsByAccountId,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectStakingOpportunityByFilter,
@@ -60,7 +60,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   const feeAssetId = toAssetId({
     chainId,

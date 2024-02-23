@@ -2,7 +2,7 @@ import { type ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
-import { selectAssets } from 'state/slices/selectors'
+import { selectFungibleAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 const queryKey = ['getPopularAssetsQuery']
@@ -13,7 +13,7 @@ export const queryFn = async () => {
     All: [],
   }
 
-  const assets = selectAssets(store.getState())
+  const assets = selectFungibleAssets(store.getState())
 
   for (const assetId of assetIds) {
     const asset = assets[assetId]

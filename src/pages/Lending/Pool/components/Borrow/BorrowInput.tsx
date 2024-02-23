@@ -44,8 +44,8 @@ import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -360,7 +360,7 @@ export const BorrowInput = ({
     if (!lendingQuoteData || !collateralAsset || !borrowAsset) return
 
     if (mixpanel) {
-      const assets = selectAssets(store.getState())
+      const assets = selectFungibleAssets(store.getState())
 
       const compositeBorrowAsset = getMaybeCompositeAssetSymbol(borrowAsset.assetId, assets)
       const compositeCollateralAsset = getMaybeCompositeAssetSymbol(collateralAsset.assetId, assets)

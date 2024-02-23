@@ -5,7 +5,7 @@ import { reactQueries } from 'react-queries'
 import { bn } from 'lib/bignumber/bignumber'
 import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
-import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectFungibleAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { Pool, VolumeStats } from './usePool'
@@ -14,7 +14,7 @@ import { getPool, getVolumeStats, selectSwapsData } from './usePool'
 export type { Pool } from './usePool'
 
 export const usePools = () => {
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )

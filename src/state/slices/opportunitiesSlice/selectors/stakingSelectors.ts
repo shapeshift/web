@@ -21,7 +21,7 @@ import {
   selectValidatorIdParamFromFilter,
 } from 'state/selectors'
 
-import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
+import { selectAssetByFilter, selectFungibleAssets } from '../../assetsSlice/selectors'
 import {
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
@@ -339,7 +339,7 @@ export const selectAggregatedUserStakingOpportunityByStakingId = createDeepEqual
 export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunityByStakingId,
   selectMarketDataUserCurrency,
-  selectAssets,
+  selectFungibleAssets,
   (opportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!opportunity) return
 
@@ -390,7 +390,7 @@ export const selectAggregatedUserStakingOpportunities = createDeepEqualOutputSel
 export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   selectMarketDataUserCurrency,
-  selectAssets,
+  selectFungibleAssets,
   (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
     aggregatedUserStakingOpportunities.map(opportunity => {
       const asset = assets[opportunity.assetId]
@@ -446,7 +446,7 @@ export const selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmou
   createDeepEqualOutputSelector(
     selectActiveAggregatedEarnUserStakingOpportunities,
     selectMarketDataUserCurrency,
-    selectAssets,
+    selectFungibleAssets,
     (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
       aggregatedUserStakingOpportunities
         .filter(isActiveStakingEarnOpportunity)
@@ -465,7 +465,7 @@ export const selectActiveAggregatedEarnUserStakingOpportunitiesWithTotalFiatAmou
 export const selectEarnBalancesUserCurrencyAmountFull = createDeepEqualOutputSelector(
   selectAggregatedUserStakingOpportunities,
   selectMarketDataUserCurrency,
-  selectAssets,
+  selectFungibleAssets,
   selectPortfolioUserCurrencyBalances,
   (aggregatedUserStakingOpportunities, marketData, assets, portfolioFiatBalances): BN =>
     aggregatedUserStakingOpportunities
@@ -479,7 +479,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
   createDeepEqualOutputSelector(
     selectAggregatedEarnUserStakingOpportunities,
     selectStakingOpportunitiesById,
-    selectAssets,
+    selectFungibleAssets,
     (
       aggregatedEarnUserStakingOpportunities,
       stakingOpportunitiesById,
@@ -574,7 +574,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmptyByStakingId
 export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOutputSelector(
   selectUserStakingOpportunityByUserStakingId,
   selectMarketDataUserCurrency,
-  selectAssets,
+  selectFungibleAssets,
   (userStakingOpportunity, marketData, assets): StakingEarnOpportunityType | undefined => {
     if (!userStakingOpportunity || !marketData) return
 
@@ -655,7 +655,7 @@ export const selectHighestBalanceAccountIdByStakingId = createSelector(
 
 export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
   selectUserStakingOpportunityByUserStakingId,
-  selectAssets,
+  selectFungibleAssets,
   (userStakingOpportunity, assets): AssetWithBalance[] | undefined => {
     if (!userStakingOpportunity) return
 
@@ -692,7 +692,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
 export const selectAllEarnUserStakingOpportunitiesByFilter = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectUserStakingOpportunitiesById,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,

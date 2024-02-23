@@ -8,7 +8,12 @@ import { Text } from 'components/Text'
 import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssets, selectMarketDataUserCurrency, selectTxs } from 'state/slices/selectors'
+import {
+  selectFungibleAssets,
+  selectMarketDataUserCurrency,
+  selectNonFungibleAssets,
+  selectTxs,
+} from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -43,7 +48,8 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
-  const assets = useAppSelector(selectAssets)
+  const fungibleAssets = useAppSelector(selectFungibleAssets)
+  const nonFungibleAssets = useAppSelector(selectNonFungibleAssets)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const translate = useTranslate()
   const fields = useMemo(
@@ -63,6 +69,10 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     }),
     [translate],
   )
+
+  const assets = useMemo(() => {
+    return Object.assign({}, fungibleAssets, nonFungibleAssets)
+  }, [fungibleAssets, nonFungibleAssets])
 
   const generateCSV = useCallback(() => {
     setIsLoading(true)

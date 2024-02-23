@@ -30,7 +30,7 @@ import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -74,7 +74,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 
   const { onOngoingFarmingTxIdChange } = useFoxEth()
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),

@@ -13,7 +13,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { selectAssets } from 'state/slices/selectors'
+import { selectFungibleAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OpportunityRow } from './OpportunityRow'
@@ -36,7 +36,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ o
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const groupedItems = useMemo(() => {
     const groups = opportunities.reduce(

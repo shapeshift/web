@@ -33,8 +33,8 @@ import { walletCanEditMemo } from 'lib/utils'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectBIP44ParamsByAccountId,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectStakingOpportunityByFilter,
@@ -79,7 +79,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   })
 
   const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId),

@@ -21,9 +21,9 @@ import {
   selectWalletSupportedChainIds,
 } from 'state/slices/common-selectors'
 import {
-  selectAssets,
   selectFeeAssetById,
   selectFirstHopSellAccountId,
+  selectFungibleAssets,
   selectInputSellAmountCryptoPrecision,
   selectPortfolioAccountIdByNumberByChainId,
   selectSecondHopSellAccountId,
@@ -79,7 +79,7 @@ export const validateTradeQuote = async (
             assetId,
           }: { minAmountCryptoBaseUnit?: string; assetId?: AssetId } = error?.details ?? {}
 
-          const assetsById = selectAssets(state)
+          const assetsById = selectFungibleAssets(state)
           const asset = assetId && assetsById[assetId]
 
           if (!minAmountCryptoBaseUnit || !asset) {

@@ -9,7 +9,7 @@ import { isSome } from 'lib/utils'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataUserCurrency,
   selectPortfolioAccounts,
@@ -26,7 +26,7 @@ type UseAllUserLpDataReturn = {
 
 export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null>[] => {
   const queryClient = useQueryClient()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const runeAccountIds = findAccountsByAssetId(portfolioAccounts, thorchainAssetId)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)

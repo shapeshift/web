@@ -16,9 +16,9 @@ import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlic
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import {
-  selectAssets,
   selectEarnUserLpOpportunity,
   selectFirstAccountIdByChainId,
+  selectFungibleAssets,
   selectHighestBalanceAccountIdByLpId,
   selectSelectedLocale,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
@@ -50,7 +50,7 @@ export const UniV2Overview: React.FC<UniV2OverviewProps> = ({
 }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
-  const assetsById = useAppSelector(selectAssets)
+  const assetsById = useAppSelector(selectFungibleAssets)
 
   const lpAssetId = toAssetId({ chainId, assetNamespace, assetReference })
 

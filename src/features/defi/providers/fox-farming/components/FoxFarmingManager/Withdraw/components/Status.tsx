@@ -24,8 +24,8 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
@@ -48,7 +48,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const opportunity = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, {

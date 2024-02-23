@@ -6,7 +6,7 @@ import { createSelector } from 'reselect'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter } from 'state/selectors'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssets, selectMarketDataUserCurrency } from 'state/slices/selectors'
+import { selectFungibleAssets, selectMarketDataUserCurrency } from 'state/slices/selectors'
 
 import { fiatRampApi } from './fiatRamps'
 
@@ -31,7 +31,7 @@ export const selectFiatSellAssetIds = createDeepEqualOutputSelector(
 type AssetWithMarketData = Asset & MarketData
 
 export const selectFiatRampBuyAssetsWithMarketData = createSelector(
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataUserCurrency,
   selectFiatBuyAssetIds,
   (assetsById, marketData, assetIds): AssetWithMarketData[] => {

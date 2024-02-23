@@ -59,31 +59,32 @@ export const selectChainDisplayNameByAssetId = createSelector(selectAssetById, (
   return chainAdapterManager.get(asset.chainId)?.getDisplayName() ?? ''
 })
 
-export const selectAssets = createDeepEqualOutputSelector(
+export const selectFungibleAssets = (state: ReduxState) => state.assets.fungible.byId
+export const selectNonFungibleAssets = createDeepEqualOutputSelector(
   (state: ReduxState) => {
-    // TEMP: we will need to split this selector into fungible and non-fungible flavors
-    // the fungble one will not need ot be cached since it's static
-    return Object.assign({}, state.assets.fungible.byId, state.assets.nonFungible.byId)
+    return state.assets.nonFungible.byId
   },
   byId => byId,
 )
-export const selectAssetIds = createDeepEqualOutputSelector(
+export const selectFungibleAssetIds = (state: ReduxState) => state.assets.fungible.ids
+export const selectNonFungibleAssetIds = createDeepEqualOutputSelector(
   (state: ReduxState) => {
-    // TEMP: we will need to split this selector into fungible and non-fungible flavors
-    // the fungble one will not need ot be cached since it's static
-    return state.assets.fungible.ids.concat(state.assets.nonFungible.ids)
+    return state.assets.nonFungible.ids
   },
   ids => ids,
 )
 export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
-export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
-  const getAssetName = (asset: Asset) => asset.name
-  return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
-})
+export const selectAssetsSortedByName = createDeepEqualOutputSelector(
+  selectFungibleAssets,
+  assets => {
+    const getAssetName = (asset: Asset) => asset.name
+    return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
+  },
+)
 
 export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
   selectMarketDataIdsSortedByMarketCapUsd,
-  selectAssets,
+  selectFungibleAssets,
   (marketDataAssetIds, assets): Asset[] => {
     const sortedAssets = marketDataAssetIds.reduce<Asset[]>((acc, assetId) => {
       const asset = assets[assetId]
@@ -96,13 +97,13 @@ export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
 )
 
 export const selectFeeAssetByChainId = createCachedSelector(
-  selectAssets,
+  selectFungibleAssets,
   (_state: ReduxState, chainId: ChainId) => chainId,
   (assetsById, chainId): Asset | undefined => getFeeAssetByChainId(assetsById, chainId),
 )((_state: ReduxState, chainId) => chainId ?? 'chainId')
 
 export const selectFeeAssetById = createCachedSelector(
-  selectAssets,
+  selectFungibleAssets,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (assetsById, assetId): Asset | undefined => getFeeAssetByAssetId(assetsById, assetId),
 )((_s: ReduxState, assetId: AssetId) => assetId ?? 'assetId') as (

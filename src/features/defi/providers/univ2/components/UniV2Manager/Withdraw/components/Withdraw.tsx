@@ -23,8 +23,8 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserLpOpportunity,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -64,7 +64,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
     assetReference,
   })
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const uniV2OpportunityFilter = useMemo(
     () => ({

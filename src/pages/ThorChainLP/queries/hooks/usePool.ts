@@ -13,7 +13,7 @@ import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
 } from 'lib/utils/thorchain/lp/types'
-import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectFungibleAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export type Pool = MidgardPoolResponse & {
@@ -158,7 +158,7 @@ export const getVolumeStats = (
 }
 
 export const usePool = (poolAssetId: string) => {
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )

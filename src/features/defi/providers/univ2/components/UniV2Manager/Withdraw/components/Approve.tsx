@@ -29,8 +29,8 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserLpOpportunity,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -84,7 +84,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   if (!asset0) throw new Error('Asset 0 not found')
   if (!asset1) throw new Error('Asset 1 not found')
   if (!feeAsset) throw new Error('Fee asset not found')

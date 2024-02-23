@@ -52,9 +52,9 @@ import {
 } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
+  selectFungibleAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectOpportunitiesApiQueriesByFilter,
@@ -89,7 +89,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     assetNamespace,
     assetReference,
   })
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   useEffect(() => {

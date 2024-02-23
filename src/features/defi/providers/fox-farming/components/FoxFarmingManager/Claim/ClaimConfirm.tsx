@@ -40,8 +40,8 @@ import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunities
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -60,7 +60,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   const [canClaim, setCanClaim] = useState<boolean>(false)
   const wallet = useWallet().state.wallet
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const history = useHistory()
   const { chainId, contractAddress } = query

@@ -21,8 +21,8 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
@@ -81,7 +81,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     txStatus: TxStatus.PENDING,
   })
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   // Get Opportunity
   const opportunity = useAppSelector(state =>

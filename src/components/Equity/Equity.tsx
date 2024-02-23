@@ -18,8 +18,8 @@ import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetEquityItemsByFilter,
-  selectAssets,
   selectEquityTotalBalance,
+  selectFungibleAssets,
   selectOpportunityApiPending,
   selectPortfolioLoading,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
@@ -44,7 +44,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const portfolioLoading = useSelector(selectPortfolioLoading)
   const opportunitiesLoading = useAppSelector(selectOpportunityApiPending)
   const isLoading = portfolioLoading || opportunitiesLoading
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset = assets[assetId]
   const borderColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const filter = useMemo(() => {

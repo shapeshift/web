@@ -10,8 +10,8 @@ import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectAssets,
   selectFirstAccountIdByChainId,
+  selectFungibleAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,7 +27,7 @@ export const StakingCards: React.FC<StakingCardsProps> = ({ ids }) => {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )

@@ -14,7 +14,7 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import { selectNonFungibleAssets } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
@@ -150,7 +150,7 @@ export const zapperApi = createApi({
         const { data: res } = await axios.request({ ...payload })
         const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        const assets = selectAssets(getState() as ReduxState)
+        const assets = selectNonFungibleAssets(getState() as ReduxState)
 
         const { assets: zapperAssets, data } = zapperV2AppTokensData.reduce<{
           assets: UpsertAssetsPayload
@@ -359,7 +359,7 @@ export const zapper = createApi({
 
         const accountIds = selectWalletAccountIds(state)
 
-        const assets = selectAssets(state)
+        const assets = selectNonFungibleAssets(state)
         const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
         const addresses = accountIdsToEvmAddresses(accountIds)

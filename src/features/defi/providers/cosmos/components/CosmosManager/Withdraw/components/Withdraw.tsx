@@ -22,8 +22,8 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -58,7 +58,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const assetNamespace = 'slip44' // TODO: add to query, why do we hardcode this?
   // Reward Asset info
   const assetId = toAssetId({

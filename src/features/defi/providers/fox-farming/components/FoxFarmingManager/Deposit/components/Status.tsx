@@ -26,7 +26,7 @@ import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
@@ -67,7 +67,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const history = useHistory()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )

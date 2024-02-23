@@ -86,8 +86,8 @@ import {
   selectAccountIdsByAssetId,
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectAssets,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
@@ -195,7 +195,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     useState<string | undefined>()
 
   const { data: pools } = usePools()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const poolAssets = useMemo(() => {
     return [...new Set((pools ?? []).map(pool => assets[pool.assetId]).filter(isSome))]

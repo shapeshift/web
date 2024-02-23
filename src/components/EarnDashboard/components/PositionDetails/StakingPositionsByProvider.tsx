@@ -27,7 +27,7 @@ import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/u
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -81,7 +81,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,

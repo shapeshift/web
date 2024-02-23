@@ -31,7 +31,7 @@ import {
 } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
@@ -88,7 +88,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
   const opportunityData = useAppSelector(state =>
     selectUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const filteredOpportunitiesMetadataFilter = useMemo(() => {
     return {

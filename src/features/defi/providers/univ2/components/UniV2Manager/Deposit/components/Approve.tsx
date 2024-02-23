@@ -29,8 +29,8 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserLpOpportunity,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -117,7 +117,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
     assetId1,
   })
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))

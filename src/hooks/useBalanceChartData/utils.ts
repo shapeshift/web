@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData } from '@shapeshiftoss/types'
 import intersection from 'lodash/intersection'
 import { useSelector } from 'react-redux'
-import { selectAssets } from 'state/slices/selectors'
+import { selectFungibleAssets } from 'state/slices/selectors'
 
 import type { BalanceChartData } from './useBalanceChartData'
 
@@ -17,7 +17,7 @@ export const makeBalanceChartData = (total: HistoryData[] = []): BalanceChartDat
 })
 
 export const useUnavailableBalanceChartDataAssetNames = (assetIds: AssetId[]): string => {
-  const assets = useSelector(selectAssets)
+  const assets = useSelector(selectFungibleAssets)
   return intersection(assetIds, CHART_ASSET_ID_BLACKLIST)
     .map(assetId => assets[assetId]?.name)
     .join(', ')

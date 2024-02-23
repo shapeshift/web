@@ -69,9 +69,9 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -112,7 +112,7 @@ export const Deposit: React.FC<DepositProps> = ({
   } | null>(null)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const assetId = toAssetId({
     chainId,

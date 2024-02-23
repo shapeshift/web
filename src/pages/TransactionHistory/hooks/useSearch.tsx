@@ -3,11 +3,11 @@ import debounce from 'lodash/debounce'
 import { useCallback, useMemo, useState } from 'react'
 import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { isSome } from 'lib/utils'
-import { selectAssets } from 'state/slices/selectors'
+import { selectFungibleAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSearch = () => {
-  const assetsById = useAppSelector(selectAssets)
+  const assetsById = useAppSelector(selectFungibleAssets)
   const assets = useMemo(() => Object.values(assetsById).filter(isSome), [assetsById])
   const [searchTerm, setSearchTerm] = useState('')
   const [matchingAssets, setMatchingAssets] = useState<Asset[] | null>(null)

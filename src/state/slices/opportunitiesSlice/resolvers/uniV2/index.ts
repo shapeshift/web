@@ -18,7 +18,7 @@ import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSl
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-import { selectAssets } from 'state/slices/selectors'
+import { selectFungibleAssets } from 'state/slices/selectors'
 
 import { foxEthLpAssetIds } from '../../constants'
 import type {
@@ -55,7 +55,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   const state: any = getState() // ReduxState causes circular dependency
   const { DynamicLpAssets } = selectFeatureFlags(state)
 
-  const assetsById = selectAssets(state)
+  const assetsById = selectFungibleAssets(state)
 
   const selectGetZapperAppTokensOutput = zapperApi.endpoints.getZapperAppTokensOutput.select()
   // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us

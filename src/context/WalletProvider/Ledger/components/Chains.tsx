@@ -45,14 +45,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
+import { selectFungibleAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 export const LedgerChains = () => {
   const translate = useTranslate()
   const { state: walletState, dispatch: walletDispatch } = useWallet()
   const dispatch = useAppDispatch()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const walletChainIds = useAppSelector(selectWalletChainIds)
 

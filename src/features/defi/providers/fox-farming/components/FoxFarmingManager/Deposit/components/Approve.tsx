@@ -26,7 +26,7 @@ import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -71,7 +71,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
 
   const { allowance, approve, getStakeFees } = useFoxFarming(contractAddress)
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),

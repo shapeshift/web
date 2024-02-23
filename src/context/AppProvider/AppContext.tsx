@@ -27,7 +27,7 @@ import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectAssetIds,
+  selectFungibleAssetIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
@@ -53,7 +53,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const wallet = useWallet().state.wallet
-  const assetIds = useSelector(selectAssetIds)
+  const assetIds = useSelector(selectFungibleAssetIds)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)

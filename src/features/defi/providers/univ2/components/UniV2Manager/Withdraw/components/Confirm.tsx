@@ -28,8 +28,8 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserLpOpportunity,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -83,7 +83,7 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
     return selectAssetById(state, assetId1)
   })
   const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   if (!feeAsset) throw new Error(`Asset not found for AssetId ${ethAssetId}`)
   if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)

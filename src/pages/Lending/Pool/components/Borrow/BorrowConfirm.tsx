@@ -51,8 +51,8 @@ import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import {
   selectAssetById,
-  selectAssets,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
@@ -148,7 +148,7 @@ export const BorrowConfirm = ({
   const eventData = useMemo(() => {
     if (!confirmedQuote) return {}
 
-    const assets = selectAssets(store.getState())
+    const assets = selectFungibleAssets(store.getState())
     const compositeBorrowAsset = getMaybeCompositeAssetSymbol(borrowAsset?.assetId ?? '', assets)
     const compositeCollateralAsset = getMaybeCompositeAssetSymbol(collateralAssetId ?? '', assets)
 

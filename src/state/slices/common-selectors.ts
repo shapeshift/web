@@ -10,7 +10,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
-import { selectAssets } from './assetsSlice/selectors'
+import { selectFungibleAssets } from './assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
@@ -79,7 +79,7 @@ export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelector(
-  selectAssets,
+  selectFungibleAssets,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAccountIdParamFromFilter,
@@ -96,7 +96,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectBalanceThreshold,
@@ -116,7 +116,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
 )
 
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(
-  selectAssets,
+  selectFungibleAssets,
   selectPortfolioAccountBalancesBaseUnit,
   selectMarketDataUserCurrency,
   (assetsById, accounts, marketData) => {
@@ -146,8 +146,8 @@ export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOut
 
 export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioUserCurrencyBalances,
-  selectAssets,
-  (portfolioUserCurrencyBalances, assets) => {
+  selectFungibleAssets,
+  (portfolioUserCurrencyBalances, fungibleAssets) => {
     const getAssetBalance = ([_assetId, balance]: [AssetId, string]) => bnOrZero(balance).toNumber()
 
     return orderBy<[AssetId, string][]>(
@@ -157,7 +157,7 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
     )
       .map(value => {
         const assetId = (value as [AssetId, string])[0]
-        return assets[assetId]
+        return fungibleAssets[assetId]
       })
       .filter(isSome)
       .filter(asset => !isNft(asset.assetId))

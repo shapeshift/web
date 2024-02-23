@@ -26,8 +26,8 @@ import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
   selectAssetById,
-  selectAssets,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
@@ -55,7 +55,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const assetId = state?.opportunity?.assetId
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
 

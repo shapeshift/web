@@ -22,7 +22,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
@@ -38,7 +38,7 @@ export const Status = () => {
   const history = useHistory()
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const assetNamespace = 'slip44'
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 

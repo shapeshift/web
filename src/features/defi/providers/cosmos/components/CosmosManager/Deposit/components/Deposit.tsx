@@ -24,7 +24,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectStakingOpportunityByFilter,
@@ -52,7 +52,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress } = query
   const assetNamespace = 'slip44'
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const validatorId = toValidatorId({ chainId, account: contractAddress })

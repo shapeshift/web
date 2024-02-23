@@ -53,9 +53,9 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -90,7 +90,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   // Asset info
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const assetId = toAssetId({
     chainId,
     assetNamespace,

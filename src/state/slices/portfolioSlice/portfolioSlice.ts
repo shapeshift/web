@@ -1,3 +1,4 @@
+import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
@@ -16,9 +17,9 @@ import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
-import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
+import type { AssetMetadata } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice, makeAsset } from '../assetsSlice/assetsSlice'
-import { selectFungibleAssetIds, selectFungibleAssets } from '../selectors'
+import { selectFungibleAssetIds, selectFungibleAssets, selectNonFungibleAssets } from '../selectors'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
@@ -138,6 +139,16 @@ export const portfolio = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<Portfolio>(),
     },
+    upsertUnsupportedFungiblePortfolioAssets: (state, action: PayloadAction<AssetMetadata>) => {
+      state.unsupportedFungiblePortfolioAssets.byId = Object.assign(
+        {},
+        state.unsupportedFungiblePortfolioAssets.byId,
+        action.payload.byId,
+      )
+      state.unsupportedFungiblePortfolioAssets.ids = Object.keys(
+        state.unsupportedFungiblePortfolioAssets.byId,
+      )
+    },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
@@ -156,7 +167,8 @@ export const portfolioApi = createApi({
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
         const fungibleAssetIds = selectFungibleAssetIds(state)
-        const assetsById = selectFungibleAssets(state)
+        const fungibleAssetsById = selectFungibleAssets(state)
+        const nonFungibleAssetsById = selectNonFungibleAssets(state)
         const chainAdapters = getChainAdapterManager()
         const { chainId, account: pubkey } = fromAccountId(accountId)
         try {
@@ -170,22 +182,59 @@ export const portfolioApi = createApi({
             if (evmChainIds.includes(chainId as EvmChainId)) {
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
-              const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
+              const nonFungibleAssets = (account.chainSpecific.tokens ?? []).reduce<AssetMetadata>(
                 (prev, token) => {
+                  // early exit for existing and non-nft assets
+                  if (nonFungibleAssetsById[token.assetId] || !isNft(token.assetId)) {
+                    return prev
+                  }
+
+                  // remove spam where possible
                   const isSpam = [token.name, token.symbol].some(text => {
-                    if (isNft(token.assetId)) return isSpammyNftText(text)
-                    return isSpammyTokenText(text)
+                    return isSpammyNftText(text)
                   })
-                  if (assetsById[token.assetId] || isSpam) return prev
+                  if (isSpam) return prev
+
                   prev.byId[token.assetId] = makeAsset({ ...token })
                   prev.ids.push(token.assetId)
+
                   return prev
                 },
                 { byId: {}, ids: [] },
               )
 
-              // upsert placeholder assets
-              dispatch(assetSlice.actions.upsertNonFungibleAssets(assets))
+              const unsupportedFungibleAssets = (
+                account.chainSpecific.tokens ?? []
+              ).reduce<AssetMetadata>(
+                (prev, token) => {
+                  // only fungible assets not already in our list are not supported
+                  if (fungibleAssetsById[token.assetId] || isNft(token.assetId)) {
+                    return prev
+                  }
+
+                  // remove spam where possible
+                  const isSpam = [token.name, token.symbol].some(text => {
+                    return isSpammyTokenText(text)
+                  })
+                  if (isSpam) return prev
+
+                  prev.byId[token.assetId] = makeAsset({ ...token })
+                  prev.ids.push(token.assetId)
+
+                  return prev
+                },
+                { byId: {}, ids: [] },
+              )
+
+              // upsert placeholder non-fungible assets
+              dispatch(assetSlice.actions.upsertNonFungibleAssets(nonFungibleAssets))
+
+              // upsert unsupported, fungible portfolio assets
+              dispatch(
+                portfolio.actions.upsertUnsupportedFungiblePortfolioAssets(
+                  unsupportedFungibleAssets,
+                ),
+              )
 
               return accountToPortfolio({
                 portfolioAccounts,

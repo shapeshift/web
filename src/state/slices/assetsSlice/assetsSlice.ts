@@ -40,7 +40,7 @@ const assetsById = Object.entries(assetService.assetsById).reduce<AssetsByIdPart
   {},
 )
 
-type AssetMetadata = {
+export type AssetMetadata = {
   byId: AssetsByIdPartial
   ids: AssetId[]
 }

@@ -2,6 +2,8 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { AccountMetadataById, PartialRecord } from '@shapeshiftoss/types'
 import type { Nominal } from 'types/common'
 
+import type { AssetMetadata } from '../assetsSlice/assetsSlice'
+
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */
   assetIds: AssetId[]
@@ -54,6 +56,8 @@ export type ConnectWallet = {
 }
 
 export type Portfolio = {
+  // portfolio assets we found which are unsupported by our platform - stored separately here to prevent mass selector reflow
+  unsupportedFungiblePortfolioAssets: AssetMetadata
   /**
    * lookup of accountId -> accountMetadata
    */
@@ -68,6 +72,10 @@ export type Portfolio = {
 }
 
 export const initialState: Portfolio = {
+  unsupportedFungiblePortfolioAssets: {
+    byId: {},
+    ids: [],
+  },
   accounts: {
     byId: {},
     ids: [],

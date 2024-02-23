@@ -17,8 +17,6 @@ import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
 import { sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import type { ReduxState } from 'state/reducer'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import { chainIdToFeeAssetId } from '../portfolioSlice/utils'
 
@@ -147,33 +145,6 @@ export const assetApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'assetApi',
   endpoints: build => ({
-    getAssets: build.query<UpsertAssetsPayload, void>({
-      // all assets
-      queryFn: (_, { getState, dispatch }) => {
-        const flags = selectFeatureFlags(getState() as ReduxState)
-
-        const assetsById = Object.entries(assetService.assetsById).reduce<AssetsByIdPartial>(
-          (prev, [assetId, asset]) => {
-            if (!flags.Optimism && asset.chainId === optimismChainId) return prev
-            if (!flags.BnbSmartChain && asset.chainId === bscChainId) return prev
-            if (!flags.Polygon && asset.chainId === polygonChainId) return prev
-            if (!flags.Gnosis && asset.chainId === gnosisChainId) return prev
-            if (!flags.Arbitrum && asset.chainId === arbitrumChainId) return prev
-            if (!flags.ArbitrumNova && asset.chainId === arbitrumNovaChainId) return prev
-            prev[assetId] = asset
-            return prev
-          },
-          {},
-        )
-        const data = {
-          byId: assetsById,
-          ids: Object.keys(assetsById) ?? [],
-        }
-
-        if (data) dispatch(assets.actions.upsertNonFungibleAssets(data))
-        return { data }
-      },
-    }),
     getAssetDescription: build.query<
       UpsertAssetsPayload,
       { assetId: AssetId | undefined; selectedLocale: string }
@@ -205,4 +176,4 @@ export const assetApi = createApi({
   }),
 })
 
-export const { useGetAssetsQuery, useGetAssetDescriptionQuery } = assetApi
+export const { useGetAssetDescriptionQuery } = assetApi

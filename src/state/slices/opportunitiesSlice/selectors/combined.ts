@@ -26,7 +26,7 @@ import type {
 } from '../types'
 import { DefiProvider, DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
-import { selectAssets } from './../../assetsSlice/selectors'
+import { selectFungibleAssets } from './../../assetsSlice/selectors'
 import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
 import {
@@ -71,7 +71,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
-  selectAssets,
+  selectFungibleAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
   selectChainIdParamFromFilter,
@@ -254,7 +254,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
 export const selectClaimableRewards = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesWithMetadataByFilter,
-  selectAssets,
+  selectFungibleAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   (userStakingOpportunitesWithMetadata, assets, marketData): string => {
     return userStakingOpportunitesWithMetadata
@@ -292,7 +292,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
-  selectAssets,
+  selectFungibleAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
   selectChainIdParamFromFilter,

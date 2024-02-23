@@ -54,8 +54,8 @@ import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionDa
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectAssets,
   selectFeeAssetById,
+  selectFungibleAssets,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -140,7 +140,7 @@ export const RepayConfirm = ({
   const eventData = useMemo(() => {
     if (!confirmedQuote) return {}
 
-    const assets = selectAssets(store.getState())
+    const assets = selectFungibleAssets(store.getState())
 
     const compositeRepaymentAsset = getMaybeCompositeAssetSymbol(
       repaymentAsset?.assetId ?? '',

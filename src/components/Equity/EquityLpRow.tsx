@@ -14,7 +14,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectOpportunityApiPending,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
@@ -43,7 +43,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   const history = useHistory()
   const location = useLocation()
   const isLoading = useAppSelector(selectOpportunityApiPending)
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
   const filter = useMemo(() => {
     return {

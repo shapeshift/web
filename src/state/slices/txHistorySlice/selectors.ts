@@ -21,7 +21,7 @@ import {
   selectTxStatusParamFromFilter,
 } from 'state/selectors'
 
-import { selectAssets } from '../assetsSlice/selectors'
+import { selectFungibleAssets } from '../assetsSlice/selectors'
 import { selectWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
@@ -212,7 +212,7 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
 export const selectTxsByQuery = createDeepEqualOutputSelector(
   selectTxs,
   selectTxIdsByFilter,
-  selectAssets,
+  selectFungibleAssets,
   selectSearchQueryFromFilter,
   (txsById, txIds, assets, searchQuery): TxId[] => {
     // Txs do *not* have a guaranteed order, but txIds do (most recent first)

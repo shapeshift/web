@@ -28,7 +28,7 @@ import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slice
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectAssets,
+  selectFungibleAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -58,7 +58,7 @@ export const GlobalSearchModal = memo(
       dispatch,
     } = useWallet()
 
-    const assets = useAppSelector(selectAssets)
+    const assets = useAppSelector(selectFungibleAssets)
     const stakingOpportunities = useAppSelector(
       selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
     )

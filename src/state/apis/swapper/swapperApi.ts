@@ -18,7 +18,7 @@ import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInpu
 import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
-import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import { selectFungibleAssets } from 'state/slices/assetsSlice/selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -64,7 +64,7 @@ export const swapperApi = createApi({
             affiliateBps,
           },
           swapperName,
-          selectAssets(state),
+          selectFungibleAssets(state),
         )
 
         if (quoteResult === undefined) {
@@ -215,7 +215,7 @@ export const swapperApi = createApi({
 
         const featureFlags = selectFeatureFlags(state)
         const enabledSwappers = getEnabledSwappers(featureFlags, false)
-        const assets = selectAssets(state)
+        const assets = selectFungibleAssets(state)
         const sellAsset = selectInputSellAsset(state)
 
         const supportedSellAssetsSet = await getSupportedSellAssetIds(enabledSwappers, assets)

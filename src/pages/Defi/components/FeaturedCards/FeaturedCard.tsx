@@ -21,7 +21,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { selectAssetById, selectFungibleAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const scrollSnapAlign = { base: 'center', md: 'start' }
@@ -60,7 +60,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
     ))
   }, [underlyingAssetIds])
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetName = asset?.name ?? ''
   const providerDisplayName = makeDefiProviderDisplayName({ provider, assetName })

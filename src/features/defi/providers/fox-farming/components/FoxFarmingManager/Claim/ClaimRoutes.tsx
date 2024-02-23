@@ -16,8 +16,8 @@ import { fromBaseUnit } from 'lib/math'
 import type { UserStakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
-  selectAssets,
   selectFirstAccountIdByChainId,
+  selectFungibleAssets,
   selectHighestBalanceAccountIdByStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
@@ -52,7 +52,7 @@ export const ClaimRoutes = ({
 
   const rewardAssetId = toAssetId({ chainId, assetNamespace, assetReference: rewardId })
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const opportunityId = useMemo(
     () =>

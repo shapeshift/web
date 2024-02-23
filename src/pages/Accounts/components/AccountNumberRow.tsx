@@ -32,8 +32,8 @@ import {
   isUtxoChainId,
 } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAssets,
   selectFeeAssetByChainId,
+  selectFungibleAssets,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
 } from 'state/slices/selectors'
@@ -110,7 +110,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const translate = useTranslate()
-  const assets = useSelector(selectAssets)
+  const assets = useSelector(selectFungibleAssets)
   const accountId = useMemo(() => accountIds[0], [accountIds]) // all accountIds belong to the same chain
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
   const filter = useMemo(() => ({ accountNumber, chainId }), [accountNumber, chainId])

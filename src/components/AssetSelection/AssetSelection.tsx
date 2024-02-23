@@ -5,7 +5,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
-import { selectAssets } from 'state/slices/selectors'
+import { selectFungibleAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetChainDropdown } from './components/AssetChainDropdown/AssetChainDropdown'
@@ -68,7 +68,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(props))
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const handleAssetChange = useCallback(
     (assetId?: AssetId) => {

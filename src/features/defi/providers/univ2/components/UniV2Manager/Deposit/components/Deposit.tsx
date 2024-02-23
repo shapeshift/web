@@ -24,8 +24,8 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectAssets,
   selectEarnUserLpOpportunity,
+  selectFungibleAssets,
   selectMarketDataById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -86,7 +86,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetId1))
   const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetId0))
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   if (!lpAsset) throw new Error(`Asset not found for AssetId ${lpAssetId}`)
   if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)

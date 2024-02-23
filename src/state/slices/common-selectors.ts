@@ -8,7 +8,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
-import { selectAssets } from './assetsSlice/selectors'
+import { selectFungibleAssets } from './assetsSlice/selectors'
 import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
@@ -71,7 +71,7 @@ export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelector(
-  selectAssets,
+  selectFungibleAssets,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAccountIdParamFromFilter,
@@ -88,7 +88,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
-  selectAssets,
+  selectFungibleAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectPortfolioAssetBalancesBaseUnit,
   selectBalanceThreshold,
@@ -108,7 +108,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
 )
 
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(
-  selectAssets,
+  selectFungibleAssets,
   selectPortfolioAccountBalancesBaseUnit,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   (assetsById, accounts, marketData) => {

@@ -14,7 +14,7 @@ import {
   selectLpIdParamFromFilter,
 } from 'state/selectors'
 
-import { selectAssets } from '../../assetsSlice/selectors'
+import { selectFungibleAssets } from '../../assetsSlice/selectors'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
@@ -34,7 +34,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpOpportunitiesById,
   selectLpIdParamFromFilter,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectAssets,
+  selectFungibleAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
@@ -109,7 +109,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
   selectLpOpportunitiesById,
   selectLpIdParamFromFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectAssets,
+  selectFungibleAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
@@ -191,7 +191,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectLpIdParamFromFilter,
   selectLpOpportunitiesById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectAssets,
+  selectFungibleAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpId,
@@ -240,7 +240,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
 export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSelector(
   selectLpOpportunitiesById,
   selectPortfolioAssetBalancesBaseUnit,
-  selectAssets,
+  selectFungibleAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   (
     lpOpportunitiesById,
@@ -325,7 +325,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
   selectLpOpportunitiesById,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
-  selectAssets,
+  selectFungibleAssets,
   selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,

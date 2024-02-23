@@ -155,7 +155,7 @@ type PortfolioAccounts = {
 
 type AccountToPortfolioArgs = {
   portfolioAccounts: PortfolioAccounts
-  assetIds: string[]
+  fungibleAssetIds: AssetId[]
   nftCollectionsById: Partial<Record<AssetId, NftCollectionType>>
 }
 
@@ -164,7 +164,7 @@ type AccountToPortfolio = (args: AccountToPortfolioArgs) => Portfolio
 // this should live in chain adapters but is here for backwards compatibility
 // until we can kill all the other places in web fetching this data
 export const accountToPortfolio: AccountToPortfolio = ({
-  assetIds,
+  fungibleAssetIds,
   nftCollectionsById,
   portfolioAccounts,
 }) => {
@@ -191,7 +191,7 @@ export const accountToPortfolio: AccountToPortfolio = ({
         ethAccount.chainSpecific.tokens?.forEach(token => {
           // don't update portfolio if asset is not in the store except for nft assets,
           // nft assets will be dynamically upserted based on the state of the txHistory slice after the portfolio is loaded
-          if (!isNft(token.assetId) && !assetIds.includes(token.assetId)) return
+          if (!isNft(token.assetId) && !fungibleAssetIds.includes(token.assetId)) return
 
           if (isNft(token.assetId)) {
             const { assetReference, chainId, assetNamespace } = fromAssetId(token.assetId)
@@ -259,7 +259,7 @@ export const accountToPortfolio: AccountToPortfolio = ({
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
         cosmosAccount.chainSpecific.assets?.forEach(asset => {
-          if (!assetIds.includes(asset.assetId)) return
+          if (!fungibleAssetIds.includes(asset.assetId)) return
 
           if (bnOrZero(asset.amount).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
 

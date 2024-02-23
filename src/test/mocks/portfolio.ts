@@ -20,7 +20,10 @@ type MockChainIds =
   | KnownChainIds.CosmosMainnet
 
 // Creates a mock portfolio
-export const mockUpsertPortfolio = (accounts: Account<MockChainIds>[], assetIds: string[]) => {
+export const mockUpsertPortfolio = (
+  accounts: Account<MockChainIds>[],
+  fungibleAssetIds: string[],
+) => {
   const portfolioAccounts = accounts.reduce(
     (
       acc: {
@@ -34,7 +37,7 @@ export const mockUpsertPortfolio = (accounts: Account<MockChainIds>[], assetIds:
     {},
   )
 
-  return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById: {} })
+  return accountToPortfolio({ portfolioAccounts, fungibleAssetIds, nftCollectionsById: {} })
 }
 
 export const mockChainAdapters = new Map([

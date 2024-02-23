@@ -18,7 +18,7 @@ import type { ReduxState } from 'state/reducer'
 
 import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice, makeAsset } from '../assetsSlice/assetsSlice'
-import { selectAssetIds, selectAssets } from '../selectors'
+import { selectFungibleAssetIds, selectFungibleAssets } from '../selectors'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
@@ -155,8 +155,8 @@ export const portfolioApi = createApi({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
-        const assetIds = selectAssetIds(state)
-        const assetsById = selectAssets(state)
+        const fungibleAssetIds = selectFungibleAssetIds(state)
+        const assetsById = selectFungibleAssets(state)
         const chainAdapters = getChainAdapterManager()
         const { chainId, account: pubkey } = fromAccountId(accountId)
         try {
@@ -189,12 +189,12 @@ export const portfolioApi = createApi({
 
               return accountToPortfolio({
                 portfolioAccounts,
-                assetIds: assetIds.concat(assets.ids),
+                fungibleAssetIds,
                 nftCollectionsById,
               })
             }
 
-            return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
+            return accountToPortfolio({ portfolioAccounts, fungibleAssetIds, nftCollectionsById })
           })()
 
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))

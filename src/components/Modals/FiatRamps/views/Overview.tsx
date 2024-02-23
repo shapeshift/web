@@ -39,7 +39,7 @@ import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
-  selectAssets,
+  selectFungibleAssets,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioUserCurrencyBalanceByFilter,
   selectSelectedCurrency,
@@ -94,7 +94,7 @@ export const Overview: React.FC<OverviewProps> = ({
   const { colorMode } = useColorMode()
   const translate = useTranslate()
   const toast = useToast()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const {
     state: { wallet, isConnected, isDemoWallet },
     dispatch,

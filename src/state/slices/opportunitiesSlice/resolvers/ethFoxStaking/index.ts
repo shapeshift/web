@@ -7,7 +7,7 @@ import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { selectAssets } from 'state/slices/selectors'
+import { selectFungibleAssets } from 'state/slices/selectors'
 
 import {
   assertIsFoxEthStakingContractAddress,
@@ -35,7 +35,7 @@ export const ethFoxStakingMetadataResolver = async ({
 }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const assetsById = selectAssets(state)
+  const assetsById = selectFungibleAssets(state)
   const lpAssetPrecision = assetsById[foxEthLpAssetId]?.precision ?? 0
   const lpTokenMarketData: MarketData = selectMarketDataById(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price

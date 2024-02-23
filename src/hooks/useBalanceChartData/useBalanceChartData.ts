@@ -19,10 +19,10 @@ import type { SupportedFiatCurrencies } from 'lib/market-service'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
-  selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoryTimeframe,
+  selectFungibleAssets,
   selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
@@ -331,7 +331,7 @@ type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDat
 */
 export const useBalanceChartData: UseBalanceChartData = args => {
   const { assetId, accountId, timeframe } = args
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const walletId = useAppSelector(selectWalletId)
   const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
   const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())

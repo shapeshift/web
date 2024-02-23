@@ -9,8 +9,8 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
-  selectAssets,
   selectFirstAccountIdByChainId,
+  selectFungibleAssets,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -23,7 +23,7 @@ type LpCardsProps = {
 export const LpCards: React.FC<LpCardsProps> = ({ ids }) => {
   const history = useHistory()
   const location = useLocation()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const {
     state: { isConnected, isDemoWallet },
     dispatch,

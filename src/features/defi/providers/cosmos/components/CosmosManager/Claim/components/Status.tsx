@@ -19,7 +19,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectFungibleAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TxStatus } from '../ClaimCommon'
@@ -53,7 +53,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { chainId, assetReference } = query
   const translate = useTranslate()
   const assetNamespace = 'slip44'
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards

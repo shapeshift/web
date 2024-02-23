@@ -26,7 +26,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { selectAssetById, selectFungibleAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const menuButtonWidth = { base: 'full', md: 'auto' }
@@ -81,7 +81,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
   const chainAdapterManager = getChainAdapterManager()
   const translate = useTranslate()
 
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
 
   const handleChainClick = useCallback(
     async (requestedEthNetwork: string) => {

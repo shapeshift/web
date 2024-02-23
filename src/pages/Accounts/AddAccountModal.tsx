@@ -27,7 +27,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
-  selectAssets,
+  selectFungibleAssets,
   selectMaybeNextAccountNumberByChainId,
   selectPortfolioChainIdsSortedUserCurrency,
 } from 'state/slices/selectors'
@@ -44,7 +44,7 @@ export const AddAccountModal = () => {
     state: { wallet, deviceId: walletDeviceId },
   } = useWallet()
 
-  const assets = useSelector(selectAssets)
+  const assets = useSelector(selectFungibleAssets)
   const chainIds = useSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])

@@ -23,7 +23,7 @@ import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText, Text } from 'components/Text'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
-import { selectAssets, selectPortfolioLoadingStatusGranular } from 'state/slices/selectors'
+import { selectFungibleAssets, selectPortfolioLoadingStatusGranular } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
 
 const warningIcon = <WarningIcon />
@@ -35,7 +35,7 @@ export const DegradedStateBanner = memo(() => {
   const footerBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const buttonBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
-  const assets = useSelector(selectAssets)
+  const assets = useSelector(selectFungibleAssets)
 
   const erroredAccountIds = useMemo(() => {
     return entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(

@@ -27,7 +27,6 @@ import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectFungibleAssetIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
@@ -53,7 +52,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const wallet = useWallet().state.wallet
-  const assetIds = useSelector(selectFungibleAssetIds)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
@@ -262,5 +260,5 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist
-  return <>{Boolean(assetIds.length) && children}</>
+  return <>{children}</>
 }

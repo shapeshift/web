@@ -608,14 +608,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               cryptoAmount={cryptoAmount}
               onChange={handleRemoveLiquidityInputChange}
               fiatAmount={fiatAmount}
-              showFiatAmount={true}
+              showFiatAmount
               assetId={asset.assetId}
               assetIcon={asset.icon}
               assetSymbol={asset.symbol}
               balance={cryptoBalance}
               fiatBalance={fiatBalance}
               percentOptions={percentOptions}
-              isReadOnly={false}
+              isReadOnly
               formControlProps={formControlProps}
             />
           )

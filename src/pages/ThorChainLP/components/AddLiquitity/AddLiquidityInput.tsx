@@ -881,10 +881,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
 
     setConfirmedQuote({
-      assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
-      assetFiatLiquidityAmount: actualAssetFiatLiquidityAmount,
-      runeCryptoLiquidityAmount: actualRuneCryptoLiquidityAmount,
-      runeFiatLiquidityAmount: actualRuneFiatLiquidityAmount,
+      assetCryptoDepositAmount: actualAssetCryptoLiquidityAmount,
+      assetFiatDepositAmount: actualAssetFiatLiquidityAmount,
+      runeCryptoDepositAmount: actualRuneCryptoLiquidityAmount,
+      runeFiatDepositAmount: actualRuneFiatLiquidityAmount,
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId: activeOpportunityId,

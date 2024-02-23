@@ -2,92 +2,67 @@ import { type AssetId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip
 import { useQuery } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { reactQueries } from 'react-queries'
+import { bn } from 'lib/bignumber/bignumber'
 import { sellSupportedChainIds } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { MidgardPoolResponse, ThorChainId } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { selectAssets } from 'state/slices/selectors'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export type ParsedPool = MidgardPoolResponse & {
-  isAsymmetric: boolean
-  asymSide: AsymSide | null
+export type Pool = MidgardPoolResponse & {
   assetId: AssetId
   name: string
-  opportunityId: string
+  tvlFiat: string
 }
 
-export const usePools = (excludeVirtualPools?: boolean) => {
+export const usePools = () => {
   const assets = useAppSelector(selectAssets)
+  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+
   const selectPools = useCallback(
     (pools: MidgardPoolResponse[]) => {
       const runeAsset = assets[thorchainAssetId]
+
       // We need RUNE as a base asset, if we don't, we have bigger problems
       if (!runeAsset) return []
+
       // TODO(gomes): handle isLoading
       if (!pools?.length) return []
 
-      return pools.reduce((acc, pool) => {
-        // We don't support this chain, so we aren't able to represent it in the app
-        const assetId = poolAssetIdToAssetId(pool.asset)
-        if (!assetId) return acc
+      return pools
+        .reduce<Pool[]>((acc, pool) => {
+          // We don't support this chain, so we aren't able to represent it in the app
+          const assetId = poolAssetIdToAssetId(pool.asset)
+          if (!assetId) return acc
 
-        const chainId = fromAssetId(assetId).chainId as ThorChainId
-        if (!sellSupportedChainIds[chainId]) return acc
+          const chainId = fromAssetId(assetId).chainId
+          if (!sellSupportedChainIds[chainId]) return acc
 
-        const asset = assets[assetId]
-        if (!asset) return acc
+          const asset = assets[assetId]
+          if (!asset) return acc
 
-        const symmetrical = {
-          ...pool,
-          isAsymmetric: false,
-          asymSide: null,
-          assetId,
-          name: `${asset.symbol}/${runeAsset.symbol} LP`,
-          opportunityId: `${assetId}*sym`,
-        }
+          const tvl = bn(pool.assetDepth).times(pool.assetPrice).plus(pool.runeDepth)
 
-        if (excludeVirtualPools) {
-          acc.push(symmetrical)
+          acc.push({
+            ...pool,
+            assetId,
+            name: `${asset.symbol}/${runeAsset.symbol}`,
+            tvlFiat: fromThorBaseUnit(tvl).times(runeMarketData.price).toFixed(),
+          })
+
           return acc
-        }
-
-        const runeSym = {
-          ...pool,
-          isAsymmetric: true,
-          asymSide: AsymSide.Rune,
-          assetId,
-          name: `${runeAsset.symbol} LP`,
-          opportunityId: `${assetId}*${AsymSide.Rune}`,
-        }
-
-        const assetSym = {
-          ...pool,
-          isAsymmetric: true,
-          asymSide: AsymSide.Asset,
-          assetId,
-          name: `${asset.symbol} LP`,
-          opportunityId: `${assetId}*${AsymSide.Asset}`,
-        }
-
-        acc.push(runeSym, assetSym, symmetrical)
-
-        return acc
-      }, [] as ParsedPool[])
+        }, [])
+        .sort((a, b) => bn(b.runeDepth).comparedTo(a.runeDepth))
     },
-    [assets, excludeVirtualPools],
+    [assets, runeMarketData],
   )
+
   const pools = useQuery({
     ...reactQueries.midgard.poolsData(),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // 5 minutes, since this is related to pools data, not user data - we can afford to have this stale for longer
     staleTime: 60_000 * 5,
-    // Parses pools with 3 "positions" per pool:
-    // - RUNE asym
-    // - Asset asym
-    // - Sym
-    // This is done to represent the different type of possible deposits for a given position, but may not necessarily relate to 3 pools being displayed
-    // per actual pool at view-layer depending on product specs
     select: selectPools,
   })
 

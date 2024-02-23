@@ -17,7 +17,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
-import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
   marketData,
@@ -64,12 +63,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
-
-  // immediately load all assets, before the wallet is even connected,
-  // so the app is functional and ready
-  // if we already have assets in store, we don't need to refetch the base assets, as these won't change
-  // if they do, it means we regenerated generatedAssetData.json, and can run a migration to trigger a refetch of base assets
-  useGetAssetsQuery(undefined, { skip: Boolean(assetIds.length) })
 
   // load top 1000 assets market data
   // this is needed to sort assets by market cap

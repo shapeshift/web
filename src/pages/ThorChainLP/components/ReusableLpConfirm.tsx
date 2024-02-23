@@ -33,7 +33,7 @@ import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/t
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { usePools } from '../queries/hooks/usePools'
+import { fromOpportunityId } from '../utils'
 import { PoolIcon } from './PoolIcon'
 
 type ReusableLpConfirmProps = {
@@ -61,37 +61,36 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   confirmedQuote,
 }) => {
   const translate = useTranslate()
-  const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
-  const { data: parsedPools } = usePools()
+  const { opportunityId } = confirmedQuote
+  const { assetId, type: opportunityType } = fromOpportunityId(opportunityId)
 
-  const pool = useMemo(() => {
-    if (!parsedPools) return undefined
-
-    return parsedPools.find(pool => pool.opportunityId === confirmedQuote.opportunityId)
-  }, [confirmedQuote.opportunityId, parsedPools])
-
-  const asset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
-
+  const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
 
   const assetNetwork = useMemo(() => {
-    if (!asset) return undefined
-    return getChainAdapterManager().get(asset.chainId)?.getDisplayName()
-  }, [asset])
+    if (!poolAsset) return
+    return getChainAdapterManager().get(poolAsset.chainId)?.getDisplayName()
+  }, [poolAsset])
 
   const baseAssetNetwork = useMemo(() => {
-    if (!baseAsset) return undefined
+    if (!baseAsset) return
     return getChainAdapterManager().get(baseAsset.chainId)?.getDisplayName()
   }, [baseAsset])
 
   const assetIds = useMemo(() => {
-    if (!pool || !baseAsset) return []
-    return [pool.assetId, baseAsset.assetId]
-  }, [baseAsset, pool])
+    if (!poolAsset || !baseAsset) return []
+    return [poolAsset.assetId, baseAsset.assetId]
+  }, [baseAsset, poolAsset])
+
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: poolAsset?.assetId,
+    enabled: !!poolAsset,
+    swapperName: SwapperName.Thorchain,
+  })
 
   const divider = useMemo(() => {
-    if (pool?.asymSide) return <></>
+    if (opportunityType !== 'sym') return <></>
 
     return (
       <Flex style={dividerStyle}>
@@ -113,23 +112,23 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         </Center>
       </Flex>
     )
-  }, [pool?.asymSide])
+  }, [opportunityType])
 
   const depositCards = useMemo(() => {
-    if (!pool || !asset || !baseAsset) return null
+    if (!poolAsset || !baseAsset) return null
 
     const assets: Asset[] = (() => {
-      if (!(pool && asset && baseAsset)) return []
+      if (!(poolAsset && baseAsset)) return []
 
-      switch (pool.asymSide) {
-        case null:
-          return [baseAsset, asset]
+      switch (opportunityType) {
         case AsymSide.Rune:
           return [baseAsset]
         case AsymSide.Asset:
-          return [asset]
+          return [poolAsset]
+        case 'sym':
+          return [baseAsset, poolAsset]
         default:
-          assertUnreachable(pool.asymSide)
+          assertUnreachable(opportunityType)
       }
     })()
 
@@ -196,13 +195,9 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         })}
       </Stack>
     )
-  }, [asset, baseAsset, confirmedQuote, divider, pool])
+  }, [poolAsset, baseAsset, confirmedQuote, divider, opportunityType])
 
-  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: pool?.assetId,
-    enabled: !!pool,
-    swapperName: SwapperName.Thorchain,
-  })
+  const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
   const confirmCopy = useMemo(() => {
     if (isTradingActive === false) return translate('common.poolHalted')
@@ -219,7 +214,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     return message
   }, [confirmedQuote, isTradingActive, translate])
 
-  if (!(pool && asset && baseAsset)) return null
+  if (!(poolAsset && baseAsset)) return null
 
   return (
     <SlideTransition>
@@ -294,7 +289,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
             <Flex gap={2} alignItems='center' justifyContent='center'>
               <PoolIcon size='xs' assetIds={assetIds} />
               <RawText fontWeight='medium'>
-                {asset.symbol}/{baseAsset.symbol}
+                {poolAsset.symbol}/{baseAsset.symbol}
               </RawText>
             </Flex>
           </Row.Value>

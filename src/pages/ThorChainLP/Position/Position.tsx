@@ -23,14 +23,13 @@ import type { PropsWithChildren } from 'react'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
+import { useHistory, useParams } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import {
   calculateEarnings,
   calculateTVL,
@@ -49,10 +48,12 @@ import { PoolInfo } from '../components/PoolInfo'
 import { RemoveLiquidity } from '../components/RemoveLiquidity/RemoveLiquidity'
 import { usePools } from '../queries/hooks/usePools'
 import { useUserLpData } from '../queries/hooks/useUserLpData'
+import { getPositionName } from '../utils'
 
 type MatchParams = {
-  poolAccountId?: AccountId
-  poolOpportunityId?: string
+  poolAssetId: string
+  accountId: AccountId
+  opportunityId: string
 }
 
 const containerPadding = { base: 6, '2xl': 8 }
@@ -60,25 +61,22 @@ const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
 
 const PoolHeader = () => {
-  const translate = useTranslate()
   const history = useHistory()
-  const { path } = useRouteMatch()
-  const handleBack = useCallback(() => {
-    const isPoolPage = matchPath('/pools/positions/:poolAssetId', path)
-    const isPoolAccountPage = matchPath('/pools/poolAccount/:poolAccountId/:poolAssetId', path)
+  const translate = useTranslate()
 
-    if (isPoolAccountPage) {
-      history.push('/pools/positions')
-    } else if (isPoolPage) {
-      history.push('/pools')
-    }
-  }, [history, path])
+  const handleBack = useCallback(() => history.push('/pools/positions'), [history])
+
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
+
   return (
     <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
       <Flex gap={4} alignItems='center'>
-        <IconButton icon={backIcon} aria-label={translate('pools.pools')} onClick={handleBack} />
-        <Heading>{translate('pools.pools')}</Heading>
+        <IconButton
+          icon={backIcon}
+          aria-label={translate('pools.positions')}
+          onClick={handleBack}
+        />
+        <Heading>{translate('pools.positions')}</Heading>
       </Flex>
     </Container>
   )
@@ -88,6 +86,7 @@ type FormHeaderProps = {
   setStepIndex: (index: number) => void
   activeIndex: number
 }
+
 type FormHeaderTabProps = {
   index: number
   onClick: (index: number) => void
@@ -138,56 +137,60 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-rev
 export const Position = () => {
   const params = useParams<MatchParams>()
 
-  const { data: parsedPools } = usePools()
+  const [stepIndex, setStepIndex] = useState<number>(0)
 
-  const foundPool = useMemo(() => {
-    if (!parsedPools) return undefined
-    const routeOpportunityId = decodeURIComponent(params.poolOpportunityId ?? '')
+  const { data: pools } = usePools()
 
-    return parsedPools.find(pool => pool.opportunityId === routeOpportunityId)
-  }, [params, parsedPools])
+  const opportunityId = useMemo(() => {
+    return decodeURIComponent(params.opportunityId ?? '')
+  }, [params.opportunityId])
 
-  const { data: userData } = useUserLpData({ assetId: foundPool?.assetId ?? '' })
+  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+  const accountId = useMemo(() => params.accountId, [params.accountId])
 
-  const foundUserData = useMemo(() => {
-    if (!userData) return undefined
+  const pool = useMemo(() => {
+    return pools?.find(pool => pool.asset === poolAssetId)
+  }, [poolAssetId, pools])
+
+  const { data: userLpData } = useUserLpData({ assetId: pool?.assetId ?? '' })
+
+  const position = useMemo(() => {
+    if (!userLpData) return
 
     // TODO(gomes): when routed from the "Your positions" page, we will want to handle multi-account and narrow by AccountId
     // TODO(gomes): when supporting multi account for this, we will want to either handle default, highest balance account as default,
     // or, probably better from an architectural standpoint, have each account position be its separate row
-    return userData?.find(data => data.opportunityId === foundPool?.opportunityId)
-  }, [foundPool?.opportunityId, userData])
+    return userLpData?.find(data => data.opportunityId === opportunityId)
+  }, [opportunityId, userLpData])
 
-  const [stepIndex, setStepIndex] = useState<number>(0)
-
-  const headerComponent = useMemo(() => <PoolHeader />, [])
+  const positionName = useMemo(() => {
+    return getPositionName(pool?.name ?? '', opportunityId)
+  }, [pool?.name, opportunityId])
 
   const poolAssetIds = useMemo(() => {
-    if (!foundPool) return []
+    if (!pool) return []
 
-    return [foundPool.assetId, thorchainAssetId]
-  }, [foundPool])
+    return [pool.assetId, thorchainAssetId]
+  }, [pool])
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
+  const asset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
 
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
-  const assetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, foundPool?.assetId ?? ''),
-  )
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, pool?.assetId ?? ''))
 
   const { data: swapDataPrevious24h } = useQuery({
-    ...reactQueries.midgard.swapsData(foundPool?.assetId, 'previous24h'),
+    ...reactQueries.midgard.swapsData(pool?.assetId, 'previous24h'),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     staleTime: Infinity,
-    enabled: !!foundPool?.assetId,
+    enabled: !!pool?.assetId,
   })
 
   const { data: swapData24h } = useQuery({
-    ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     staleTime: Infinity,
-    enabled: !!foundPool?.assetId,
+    enabled: !!pool?.assetId,
   })
 
   const fees24h = useMemo(() => {
@@ -197,15 +200,15 @@ export const Position = () => {
   }, [assetMarketData.price, runeMarketData.price, swapData24h])
 
   const { data: volume24h } = useQuery({
-    ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
     select: data => getVolume(runeMarketData.price, data),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     staleTime: Infinity,
-    enabled: !!foundPool?.assetId,
+    enabled: !!pool?.assetId,
   })
 
   const swap24hChange = useMemo(() => {
-    if (!foundPool || !swapData24h || !swapDataPrevious24h) return null
+    if (!pool || !swapData24h || !swapDataPrevious24h) return null
 
     return get24hSwapChangePercentage(
       runeMarketData.price,
@@ -213,44 +216,46 @@ export const Position = () => {
       swapData24h,
       swapDataPrevious24h,
     )
-  }, [foundPool, swapData24h, swapDataPrevious24h, runeMarketData, assetMarketData])
+  }, [pool, swapData24h, swapDataPrevious24h, runeMarketData, assetMarketData])
 
   const { data: tvl24hChange } = useQuery({
-    ...reactQueries.thorchainLp.tvl24hChange(foundPool?.assetId),
-    enabled: !!foundPool?.assetId,
+    ...reactQueries.thorchainLp.tvl24hChange(pool?.assetId),
+    enabled: !!pool?.assetId,
   })
 
   const { data: allTimeVolume } = useQuery({
-    ...reactQueries.thorchainLp.allTimeVolume(foundPool?.assetId, runeMarketData.price),
-    enabled: Boolean(!!foundPool?.assetId && !!bnOrZero(runeMarketData.price).gt(0)),
-  })
-
-  const { data: thornodePoolData } = useQuery({
-    ...reactQueries.thornode.poolData(foundPool?.assetId),
+    ...reactQueries.thorchainLp.allTimeVolume(pool?.assetId, runeMarketData.price),
+    enabled: Boolean(!!pool?.assetId && !!bnOrZero(runeMarketData.price).gt(0)),
   })
 
   const { data: earnings } = useQuery({
-    ...reactQueries.thorchainLp.earnings(foundUserData?.dateFirstAdded),
-    enabled: Boolean(foundUserData && thornodePoolData),
+    ...reactQueries.thorchainLp.earnings(position?.dateFirstAdded),
+    enabled: Boolean(position),
     select: data => {
-      if (!data || !foundUserData || !thornodePoolData) return null
-      const poolAssetId = assetIdToPoolAssetId({ assetId: foundUserData.assetId })
-      const foundHistoryPool = data.meta.pools.find(pool => pool.pool === poolAssetId)
-      if (!foundHistoryPool) return null
+      if (!data || !position) return null
+
+      const poolEarnings = data.meta.pools.find(pool => pool.pool === poolAssetId)
+      if (!poolEarnings) return null
 
       return calculateEarnings(
-        foundHistoryPool.assetLiquidityFees,
-        foundHistoryPool.runeLiquidityFees,
-        foundUserData.poolShare,
+        poolEarnings.assetLiquidityFees,
+        poolEarnings.runeLiquidityFees,
+        position.poolShare,
         runeMarketData.price,
         assetMarketData.price,
       )
     },
   })
 
+  const tvl = useMemo(() => {
+    if (!pool) return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
+
+    return calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price)
+  }, [pool, runeMarketData.price])
+
   const liquidityValueComponent = useMemo(
-    () => <Amount.Fiat value={foundUserData?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
-    [foundUserData?.totalValueFiatUserCurrency],
+    () => <Amount.Fiat value={position?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
+    [position?.totalValueFiatUserCurrency],
   )
 
   const unclaimedFeesComponent = useMemo(
@@ -258,19 +263,14 @@ export const Position = () => {
     [earnings?.totalEarningsFiatUserCurrency],
   )
 
-  const tvl = useMemo(() => {
-    if (!foundPool)
-      return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
-
-    return calculateTVL(foundPool.assetDepth, foundPool.runeDepth, runeMarketData.price)
-  }, [foundPool, runeMarketData.price])
+  const headerComponent = useMemo(() => <PoolHeader />, [])
 
   const TabHeader = useMemo(
     () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
     [stepIndex],
   )
 
-  if (!foundPool) return null
+  if (!pool) return null
 
   return (
     <Main headerComponent={headerComponent}>
@@ -280,7 +280,7 @@ export const Position = () => {
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='md' />
-                <Heading as='h3'>{foundPool.name}</Heading>
+                <Heading as='h3'>{positionName}</Heading>
               </Flex>
             </CardHeader>
             <CardBody gap={6} display='flex' flexDir='column' px={8} pb={8} pt={0}>
@@ -288,7 +288,7 @@ export const Position = () => {
               <Flex gap={12} flexWrap='wrap'>
                 <Stack flex={1}>
                   <DynamicComponent
-                    label='pools.liquidityValue'
+                    label='pools.balance'
                     component={liquidityValueComponent}
                     flex={responsiveFlex}
                     flexDirection='column-reverse'
@@ -306,7 +306,7 @@ export const Position = () => {
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={foundUserData?.underlyingAssetAmountCryptoPrecision ?? '0'}
+                          value={position?.underlyingAssetAmountCryptoPrecision ?? '0'}
                           symbol={asset?.symbol ?? ''}
                         />
                       </Flex>
@@ -321,7 +321,7 @@ export const Position = () => {
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={foundUserData?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                          value={position?.underlyingRuneAmountCryptoPrecision ?? '0'}
                           symbol={runeAsset?.symbol ?? ''}
                         />
                       </Flex>
@@ -330,7 +330,7 @@ export const Position = () => {
                 </Stack>
                 <Stack flex={1}>
                   <DynamicComponent
-                    label='pools.unclaimedFees'
+                    label='pools.earnings'
                     component={unclaimedFeesComponent}
                     flex={responsiveFlex}
                     flexDirection='column-reverse'
@@ -387,7 +387,7 @@ export const Position = () => {
                 fee24hChange={swap24hChange?.feeChangePercentage}
                 fees24h={fees24h}
                 allTimeVolume={allTimeVolume}
-                apy={foundPool.poolAPY}
+                apy={pool.annualPercentageRate}
                 tvl={tvl.tvl}
                 tvl24hChange={tvl24hChange ?? 0}
                 assetIds={poolAssetIds}
@@ -401,17 +401,14 @@ export const Position = () => {
             <Tabs onChange={setStepIndex} variant='unstyled' index={stepIndex}>
               <TabPanels>
                 <TabPanel px={0} py={0}>
-                  <AddLiquidity
-                    headerComponent={TabHeader}
-                    opportunityId={foundPool.opportunityId}
-                  />
+                  <AddLiquidity headerComponent={TabHeader} opportunityId={opportunityId} />
                 </TabPanel>
-                {params.poolAccountId && (
+                {accountId && (
                   <TabPanel px={0} py={0}>
                     <RemoveLiquidity
                       headerComponent={TabHeader}
-                      opportunityId={foundPool.opportunityId}
-                      poolAccountId={params.poolAccountId}
+                      opportunityId={opportunityId}
+                      accountId={accountId}
                     />
                   </TabPanel>
                 )}

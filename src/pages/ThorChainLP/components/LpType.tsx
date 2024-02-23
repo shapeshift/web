@@ -9,6 +9,7 @@ import { RawText } from 'components/Text'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { assertUnreachable } from 'lib/utils'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -98,19 +99,20 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
   )
   const poolAssetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
 
-  const assetIds = useMemo(() => {
-    return [assetId, thorchainAssetId]
-  }, [assetId])
-
   const makeAssetIdsOption = useCallback(
     (value: AsymSide | 'sym'): AssetId[] => {
-      if (value === 'sym') return assetIds
-      if (value === AsymSide.Rune) return [thorchainAssetId]
-      if (value === AsymSide.Asset) return [assetId]
-
-      throw new Error(`Invalid value ${value}`)
+      switch (value) {
+        case AsymSide.Rune:
+          return [thorchainAssetId]
+        case AsymSide.Asset:
+          return [assetId]
+        case 'sym':
+          return [assetId, thorchainAssetId]
+        default:
+          assertUnreachable(value)
+      }
     },
-    [assetId, assetIds],
+    [assetId],
   )
 
   const walletSupportsRune = useMemo(() => {

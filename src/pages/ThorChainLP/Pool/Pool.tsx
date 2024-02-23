@@ -12,7 +12,7 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
@@ -22,9 +22,10 @@ import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { generatePath, matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
+import { generatePath, useHistory, useParams } from 'react-router'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Main } from 'components/Layout/Main'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import {
   calculateTVL,
   get24hSwapChangePercentage,
@@ -42,8 +43,7 @@ import { PairRates } from './components/PairRates'
 import { PoolChart } from './components/PoolChart'
 
 type MatchParams = {
-  poolAccountId?: AccountId
-  poolOpportunityId?: string
+  poolAssetId: string
 }
 
 const containerPadding = { base: 6, '2xl': 8 }
@@ -60,20 +60,13 @@ type PoolHeaderProps = {
 }
 
 const PoolHeader: React.FC<PoolHeaderProps> = ({ assetIds, name }) => {
-  const translate = useTranslate()
   const history = useHistory()
-  const { path } = useRouteMatch()
-  const handleBack = useCallback(() => {
-    const isPoolPage = matchPath('/pools/positions/:poolAssetId', path)
-    const isPoolAccountPage = matchPath('/pools/poolAccount/:poolAccountId/:poolAssetId', path)
+  const translate = useTranslate()
 
-    if (isPoolAccountPage) {
-      history.push('/pools/positions')
-    } else if (isPoolPage) {
-      history.push('/pools')
-    }
-  }, [history, path])
+  const handleBack = useCallback(() => history.push('/pools'), [history])
+
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
+
   return (
     <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
       <Flex gap={4} alignItems='center'>
@@ -94,70 +87,61 @@ export const Pool = () => {
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: parsedPools } = usePools()
+  const { data: pools } = usePools()
 
-  const foundPool = useMemo(() => {
-    if (!parsedPools) return undefined
-    const routeOpportunityId = decodeURIComponent(params.poolOpportunityId ?? '')
-
-    return parsedPools.find(pool => pool.opportunityId === routeOpportunityId)
-  }, [params, parsedPools])
+  const pool = useMemo(() => {
+    return pools?.find(pool => pool.asset === params.poolAssetId)
+  }, [params.poolAssetId, pools])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: foundPool?.assetId,
-    enabled: !!foundPool,
+    assetId: pool?.assetId,
+    enabled: !!pool,
     swapperName: SwapperName.Thorchain,
   })
 
   const poolAssetIds = useMemo(() => {
-    if (!foundPool) return []
+    if (!pool) return []
 
-    return [foundPool.assetId, thorchainAssetId]
-  }, [foundPool])
-
-  const headerComponent = useMemo(
-    () => <PoolHeader assetIds={poolAssetIds} name={foundPool?.name ?? ''} />,
-    [foundPool?.name, poolAssetIds],
-  )
+    return [pool.assetId, thorchainAssetId]
+  }, [pool])
 
   const handleAddLiquidityClick = useCallback(() => {
     history.push(
-      generatePath('/pools/add/:poolOpportunityId', {
-        poolOpportunityId: foundPool?.opportunityId ?? '',
+      generatePath('/pools/add/:poolAssetId', {
+        poolAssetId: params.poolAssetId,
       }),
     )
-  }, [foundPool?.opportunityId, history])
+  }, [params.poolAssetId, history])
 
   const handleTradeClick = useCallback(() => {
-    if (!foundPool) return
-    history.push(`/trade/${foundPool?.assetId}`)
-  }, [foundPool, history])
+    if (!pool) return
+
+    history.push(`/trade/${pool?.assetId}`)
+  }, [pool, history])
 
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
-  const assetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, foundPool?.assetId ?? ''),
-  )
+  const assetMarketData = useAppSelector(state => selectMarketDataById(state, pool?.assetId ?? ''))
 
   const { data: volume24h } = useQuery({
-    ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     staleTime: Infinity,
-    enabled: !!foundPool?.assetId,
+    enabled: !!pool?.assetId,
     select: data => getVolume(runeMarketData.price, data),
   })
 
   const { data: swapDataPrevious24h } = useQuery({
-    ...reactQueries.midgard.swapsData(foundPool?.assetId, 'previous24h'),
+    ...reactQueries.midgard.swapsData(pool?.assetId, 'previous24h'),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     staleTime: Infinity,
-    enabled: !!foundPool?.assetId,
+    enabled: !!pool?.assetId,
   })
 
   const { data: swapData24h } = useQuery({
-    ...reactQueries.midgard.swapsData(foundPool?.assetId, '24h'),
+    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     staleTime: Infinity,
-    enabled: !!foundPool?.assetId,
+    enabled: !!pool?.assetId,
   })
 
   const fees24h = useMemo(() => {
@@ -178,24 +162,28 @@ export const Pool = () => {
   }, [swapData24h, swapDataPrevious24h, runeMarketData.price, assetMarketData.price])
 
   const { data: tvl24hChange } = useQuery({
-    ...reactQueries.thorchainLp.tvl24hChange(foundPool?.assetId),
+    ...reactQueries.thorchainLp.tvl24hChange(pool?.assetId),
   })
 
   const { data: allTimeVolume } = useQuery({
-    ...reactQueries.thorchainLp.allTimeVolume(foundPool?.assetId, runeMarketData.price),
+    ...reactQueries.thorchainLp.allTimeVolume(pool?.assetId, runeMarketData.price),
   })
 
   const tvl = useMemo(() => {
-    if (!foundPool)
-      return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
+    if (!pool) return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
 
-    return calculateTVL(foundPool.assetDepth, foundPool.runeDepth, runeMarketData.price)
-  }, [foundPool, runeMarketData.price])
+    return calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price)
+  }, [pool, runeMarketData.price])
+
+  const headerComponent = useMemo(
+    () => <PoolHeader assetIds={poolAssetIds} name={pool?.name ?? ''} />,
+    [pool?.name, poolAssetIds],
+  )
 
   const addIcon = useMemo(() => <FaPlus />, [])
   const swapIcon = useMemo(() => <SwapIcon />, [])
 
-  if (!foundPool) return null
+  if (!pool) return null
 
   return (
     <Main headerComponent={headerComponent}>
@@ -241,10 +229,10 @@ export const Pool = () => {
                   fee24hChange={swap24hChange?.feeChangePercentage}
                   fees24h={fees24h}
                   allTimeVolume={allTimeVolume}
-                  apy={foundPool.poolAPY}
+                  apy={pool.annualPercentageRate}
                   tvl={tvl.tvl}
-                  runeTvl={tvl.runeAmountCryptoPrecision}
-                  assetTvl={tvl.assetAmountCryptoPrecision}
+                  runeTvl={fromThorBaseUnit(pool.runeDepth).toFixed()}
+                  assetTvl={fromThorBaseUnit(pool.assetDepth).toFixed()}
                   tvl24hChange={tvl24hChange ?? 0}
                   assetIds={poolAssetIds}
                   direction='column'

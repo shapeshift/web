@@ -17,13 +17,12 @@ import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { rune } from 'test/mocks/assets'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
-import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
+import { fromOpportunityId } from 'pages/ThorChainLP/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -44,31 +43,26 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const translate = useTranslate()
   const [activeStepIndex, setActiveStepIndex] = useState(0)
 
-  const { data: parsedPools } = usePools()
+  const { opportunityId } = confirmedQuote
+  const { assetId, type: opportunityType } = fromOpportunityId(opportunityId)
 
-  const pool = useMemo(() => {
-    if (!parsedPools) return undefined
-
-    return parsedPools.find(pool => pool.opportunityId === confirmedQuote.opportunityId)
-  }, [confirmedQuote.opportunityId, parsedPools])
-
-  const poolAsset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
+  const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
 
   const assets: Asset[] = useMemo(() => {
-    if (!(pool && poolAsset && baseAsset)) return []
+    if (!(poolAsset && baseAsset)) return []
 
-    switch (pool.asymSide) {
-      case null:
-        return [baseAsset, poolAsset]
+    switch (opportunityType) {
       case AsymSide.Rune:
         return [baseAsset]
       case AsymSide.Asset:
         return [poolAsset]
+      case 'sym':
+        return [baseAsset, poolAsset]
       default:
-        assertUnreachable(pool.asymSide)
+        assertUnreachable(opportunityType)
     }
-  }, [poolAsset, baseAsset, pool])
+  }, [poolAsset, baseAsset, opportunityType])
 
   const handleComplete = useCallback(() => {
     setActiveStepIndex(activeStepIndex + 1)
@@ -83,10 +77,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   )
 
   const hStackDivider = useMemo(() => {
-    if (pool?.asymSide) return <></>
+    if (opportunityType) return <></>
 
     return <RawText mx={1}>{translate('common.and')}</RawText>
-  }, [pool?.asymSide, translate])
+  }, [opportunityType, translate])
 
   const stepProgress = useMemo(
     () => (activeStepIndex / assets.length) * 100,
@@ -94,7 +88,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   )
 
   const renderBody = useMemo(() => {
-    if (!(pool && poolAsset && rune)) return null
+    if (!assets.length) return null
 
     if (isComplete) {
       return (
@@ -151,8 +145,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       </CardBody>
     )
   }, [
-    pool,
-    poolAsset,
     isComplete,
     assets,
     stepProgress,
@@ -181,15 +173,15 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               onComplete={handleComplete}
               isActive={index === activeStepIndex}
               confirmedQuote={confirmedQuote}
-              asymSide={pool?.asymSide}
+              asymSide={opportunityType !== 'sym' ? opportunityType : undefined}
             />
           )
         })}
       </Stack>
     )
-  }, [assets, confirmedQuote, poolAsset?.assetId, handleComplete, activeStepIndex, pool?.asymSide])
+  }, [assets, confirmedQuote, poolAsset?.assetId, handleComplete, activeStepIndex, opportunityType])
 
-  if (!(pool && poolAsset && baseAsset)) return null
+  if (!(poolAsset && baseAsset)) return null
 
   return (
     <SlideTransition>

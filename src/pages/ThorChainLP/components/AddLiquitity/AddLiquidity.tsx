@@ -23,13 +23,13 @@ const AddLiquidityEntries = [
 export type AddLiquidityProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
-  paramOpportunityId?: string
+  poolAssetId?: string
 }
 
 export const AddLiquidity: React.FC<AddLiquidityProps> = ({
   opportunityId,
+  poolAssetId,
   headerComponent,
-  paramOpportunityId,
 }) => {
   const [confirmedQuote, setConfirmedQuote] = useState<LpConfirmedDepositQuote | null>(null)
 
@@ -37,7 +37,7 @@ export const AddLiquidity: React.FC<AddLiquidityProps> = ({
     <MemoryRouter initialEntries={AddLiquidityEntries} initialIndex={0}>
       <AddLiquidityRoutes
         opportunityId={opportunityId}
-        paramOpportunityId={paramOpportunityId}
+        poolAssetId={poolAssetId}
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
@@ -54,7 +54,7 @@ type AddLiquidityRoutesProps = AddLiquidityProps & {
 export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
   headerComponent,
   opportunityId,
-  paramOpportunityId,
+  poolAssetId,
   confirmedQuote,
   setConfirmedQuote,
 }) => {
@@ -76,7 +76,7 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     () => (
       <AddLiquidityInput
         opportunityId={opportunityId}
-        paramOpportunityId={paramOpportunityId}
+        poolAssetId={poolAssetId}
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
@@ -90,7 +90,7 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
       headerComponent,
       onAccountIdChange,
       opportunityId,
-      paramOpportunityId,
+      poolAssetId,
       setConfirmedQuote,
     ],
   )

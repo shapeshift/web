@@ -136,14 +136,38 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     return (
       <Stack direction='row' divider={divider} position='relative'>
         {assets.map(_asset => {
-          const amountCryptoPrecision =
-            _asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeCryptoLiquidityAmount
-              : confirmedQuote.assetCryptoLiquidityAmount
-          const amountFiatUserCurrency =
-            _asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeFiatLiquidityAmount
-              : confirmedQuote.assetFiatLiquidityAmount
+          const [amountCryptoPrecision, amountFiatUserCurrency] = (() => {
+            let cryptoAmount
+            let amountFiatUserCurrency
+
+            if ('runeCryptoDepositAmount' in confirmedQuote) {
+              // confirmedQuote is LpConfirmedDepositQuote
+              let depositQuote = confirmedQuote as LpConfirmedDepositQuote
+              cryptoAmount =
+                _asset.assetId === thorchainAssetId
+                  ? depositQuote.runeCryptoDepositAmount
+                  : depositQuote.assetCryptoDepositAmount
+              amountFiatUserCurrency =
+                _asset.assetId === thorchainAssetId
+                  ? depositQuote.runeFiatDepositAmount
+                  : depositQuote.assetFiatDepositAmount
+            } else if ('runeCryptoWithdrawAmount' in confirmedQuote) {
+              // confirmedQuote is LpConfirmedWithdrawalQuote
+              let withdrawalQuote = confirmedQuote as LpConfirmedWithdrawalQuote
+              cryptoAmount =
+                _asset.assetId === thorchainAssetId
+                  ? withdrawalQuote.runeCryptoWithdrawAmount
+                  : withdrawalQuote.assetCryptoWithdrawAmount
+              amountFiatUserCurrency =
+                _asset.assetId === thorchainAssetId
+                  ? withdrawalQuote.runeFiatWithdrawAmount
+                  : withdrawalQuote.assetFiatWithdrawAmount
+            }
+
+            return [cryptoAmount, amountFiatUserCurrency]
+          })()
+
+          if (!amountCryptoPrecision || !amountFiatUserCurrency) return null
 
           return (
             <Card
@@ -172,16 +196,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         })}
       </Stack>
     )
-  }, [
-    asset,
-    baseAsset,
-    confirmedQuote.assetCryptoLiquidityAmount,
-    confirmedQuote.assetFiatLiquidityAmount,
-    confirmedQuote.runeCryptoLiquidityAmount,
-    confirmedQuote.runeFiatLiquidityAmount,
-    divider,
-    pool,
-  ])
+  }, [asset, baseAsset, confirmedQuote, divider, pool])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,

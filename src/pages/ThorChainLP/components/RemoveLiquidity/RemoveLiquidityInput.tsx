@@ -512,10 +512,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       .toFixed()
 
     setConfirmedQuote({
-      assetCryptoLiquidityAmount: actualAssetCryptoLiquidityAmount,
-      assetFiatLiquidityAmount: actualAssetFiatLiquidityAmount,
-      runeCryptoLiquidityAmount: actualRuneCryptoLiquidityAmount,
-      runeFiatLiquidityAmount: actualRuneFiatLiquidityAmount,
+      assetCryptoWithdrawAmount: actualAssetCryptoLiquidityAmount,
+      assetFiatWithdrawAmount: actualAssetFiatLiquidityAmount,
+      runeCryptoWithdrawAmount: actualRuneCryptoLiquidityAmount,
+      runeFiatWithdrawAmount: actualRuneFiatLiquidityAmount,
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId,
@@ -524,6 +524,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       runeGasFeeFiat: runeGasFeeFiat.toFixed(2),
       poolAssetGasFeeFiat: poolAssetGasFeeFiat.toFixed(2),
       totalGasFeeFiat,
+      feeBps: '0',
     })
   }, [
     actualAssetCryptoLiquidityAmount,

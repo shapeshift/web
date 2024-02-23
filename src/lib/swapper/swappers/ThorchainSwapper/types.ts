@@ -13,7 +13,7 @@ export type MidgardPoolResponse = {
   saversAPR: string
   saversDepth: string
   saversUnits: string
-  status: string
+  status: 'available' | 'staged' | 'suspended'
   synthSupply: string
   synthUnits: string
   totalCollateral: string

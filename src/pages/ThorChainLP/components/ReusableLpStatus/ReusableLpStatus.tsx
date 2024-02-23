@@ -117,8 +117,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     const supplyAssets = assets.map(_asset => {
       const amountCryptoPrecision =
         _asset.assetId === thorchainAssetId
-          ? confirmedQuote.runeCryptoLiquidityAmount
-          : confirmedQuote.assetCryptoLiquidityAmount
+          ? confirmedQuote.runeCryptoDepositAmount
+          : confirmedQuote.assetCryptoDepositAmount
       return (
         <Amount.Crypto
           key={`amount-${_asset.assetId}`}
@@ -159,8 +159,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     activeStepIndex,
     translate,
     hStackDivider,
-    confirmedQuote.runeCryptoLiquidityAmount,
-    confirmedQuote.assetCryptoLiquidityAmount,
+    confirmedQuote.runeCryptoDepositAmount,
+    confirmedQuote.assetCryptoDepositAmount,
   ])
 
   const assetCards = useMemo(() => {
@@ -169,8 +169,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         {assets.map((_asset, index) => {
           const amountCryptoPrecision =
             _asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeCryptoLiquidityAmount
-              : confirmedQuote.assetCryptoLiquidityAmount
+              ? confirmedQuote.runeCryptoDepositAmount
+              : confirmedQuote.assetCryptoDepositAmount
           return (
             <TransactionRow
               key={_asset.assetId}

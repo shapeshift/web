@@ -26,8 +26,9 @@ import { Balance } from 'components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOptionsButtonGroup'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { warningSeverity } from 'lib/utils'
 import { colors } from 'theme/colors'
+
+import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
 const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: '1' }
@@ -189,14 +190,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
-    const priceImpactColor = useMemo(() => {
-      if (!priceImpactPercentage) return undefined
-      if (bnOrZero(priceImpactPercentage).isLessThan(0)) return 'text.success'
-      const severity = warningSeverity(priceImpactPercentage)
-      if (severity < 1) return 'text.subtle'
-      if (severity < 3) return 'text.warning'
-      return 'text.error'
-    }, [priceImpactPercentage])
+    const priceImpactColor = usePriceImpactColor(priceImpactPercentage)
 
     return (
       <FormControl

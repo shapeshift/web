@@ -1,10 +1,10 @@
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { warningSeverity } from 'lib/utils'
+
+import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
 
 interface PriceImpactProps {
   priceImpactPercentage: string
@@ -13,14 +13,7 @@ interface PriceImpactProps {
 export const PriceImpact: FC<PriceImpactProps> = ({ priceImpactPercentage }) => {
   const translate = useTranslate()
 
-  const priceImpactColor = useMemo(() => {
-    if (!priceImpactPercentage) return undefined
-    if (bnOrZero(priceImpactPercentage).isLessThan(0)) return 'text.success'
-    const severity = warningSeverity(priceImpactPercentage)
-    if (severity < 1) return 'text.subtle'
-    if (severity < 3) return 'text.warning'
-    return 'text.error'
-  }, [priceImpactPercentage])
+  const priceImpactColor = usePriceImpactColor(priceImpactPercentage)
 
   const tooltipBody = useCallback(
     () => <RawText>{translate('trade.tooltip.priceImpact')}</RawText>,

@@ -56,7 +56,11 @@ export type ConnectWallet = {
 }
 
 export type Portfolio = {
-  // portfolio assets we found which are unsupported by our platform - stored separately here to prevent mass selector reflow
+  /**
+   * portfolio assets we found which are unsupported by our platform - stored separately here as
+   * they only apply to the portfolio of the connected wallet and are only displayed in a portfolio
+   * context
+   */
   unsupportedFungiblePortfolioAssets: AssetMetadata
   /**
    * lookup of accountId -> accountMetadata

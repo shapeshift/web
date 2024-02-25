@@ -151,7 +151,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                       display='flex'
                       alignItems='center'
                       gap={2}
-                      _hover={allowSelectQuote ? rateHover : {}}
+                      _hover={allowSelectQuote ? rateHover : undefined}
                       onClick={onRateClick}
                     >
                       {swapperIcons}

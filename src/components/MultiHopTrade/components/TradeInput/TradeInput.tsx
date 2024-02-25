@@ -686,7 +686,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                     isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
                     formControlProps={formControlProps}
                     labelPostFix={buyTradeAssetSelect}
-                    priceImpact={priceImpactPercentage?.toString()}
+                    priceImpactPercentage={priceImpactPercentage?.toString()}
                   />
                 </Stack>
                 {ConfirmSummary}

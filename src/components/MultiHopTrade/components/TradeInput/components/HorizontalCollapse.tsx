@@ -19,13 +19,12 @@ export const HorizontalCollapse = ({
   const [hidden, setHidden] = useState(!isOpen)
 
   const motionStyle = useMemo(
-    () =>
-      ({
-        height,
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        position: 'relative',
-      }) as MotionStyle,
+    (): MotionStyle => ({
+      height,
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      position: 'relative',
+    }),
     [height],
   )
 

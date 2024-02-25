@@ -755,7 +755,6 @@
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "receiveAtLeast": "Receive at least",
-    "avilableQuotes": "Available Quotes",
     "tooltip": {
       "changeQuote": "Change quote",
       "rate": "This is the expected rate for this trade pair.",

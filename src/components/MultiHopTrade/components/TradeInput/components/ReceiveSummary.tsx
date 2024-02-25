@@ -145,7 +145,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             intermediaryTransactionOutputs={intermediaryTransactionOutputs}
           />
 
-          {priceImpact && <PriceImpact impactPercentage={bnOrZero(priceImpact).toFixed(2)} />}
+          {priceImpact && <PriceImpact priceImpactPercentage={bnOrZero(priceImpact).toFixed(2)} />}
           <Divider borderColor='border.base' />
 
           {hasProtocolFees && (

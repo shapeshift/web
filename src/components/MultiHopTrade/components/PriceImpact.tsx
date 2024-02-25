@@ -7,20 +7,20 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { warningSeverity } from 'lib/utils'
 
 interface PriceImpactProps {
-  impactPercentage: string
+  priceImpactPercentage: string
 }
 
-export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
+export const PriceImpact: FC<PriceImpactProps> = ({ priceImpactPercentage }) => {
   const translate = useTranslate()
 
   const priceImpactColor = useMemo(() => {
-    if (!impactPercentage) return undefined
-    if (bnOrZero(impactPercentage).isLessThan(0)) return 'text.success'
-    const severity = warningSeverity(impactPercentage)
+    if (!priceImpactPercentage) return undefined
+    if (bnOrZero(priceImpactPercentage).isLessThan(0)) return 'text.success'
+    const severity = warningSeverity(priceImpactPercentage)
     if (severity < 1) return 'text.subtle'
     if (severity < 3) return 'text.warning'
     return 'text.error'
-  }, [impactPercentage])
+  }, [priceImpactPercentage])
 
   const tooltipBody = useCallback(
     () => <RawText>{translate('trade.tooltip.priceImpact')}</RawText>,
@@ -33,7 +33,7 @@ export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
         <Text translation='trade.priceImpact' />
       </Row.Label>
       <Row.Value>
-        <RawText color={priceImpactColor}>{impactPercentage} %</RawText>
+        <RawText color={priceImpactColor}>{priceImpactPercentage} %</RawText>
       </Row.Value>
     </Row>
   )

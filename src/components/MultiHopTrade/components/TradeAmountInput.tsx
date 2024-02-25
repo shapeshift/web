@@ -68,7 +68,7 @@ export type TradeAmountInputProps = {
   cryptoAmount?: string
   fiatAmount?: string
   showFiatAmount?: boolean
-  priceImpact?: string
+  priceImpactPercentage?: string
   balance?: string
   fiatBalance?: string
   errors?: FieldError
@@ -106,7 +106,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     showFiatAmount = '0',
     balance,
     fiatBalance,
-    priceImpact,
+    priceImpactPercentage,
     errors,
     percentOptions = defaultPercentOptions,
     children,
@@ -190,13 +190,13 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
     const priceImpactColor = useMemo(() => {
-      if (!priceImpact) return undefined
-      if (bnOrZero(priceImpact).isLessThan(0)) return 'text.success'
-      const severity = warningSeverity(priceImpact)
+      if (!priceImpactPercentage) return undefined
+      if (bnOrZero(priceImpactPercentage).isLessThan(0)) return 'text.success'
+      const severity = warningSeverity(priceImpactPercentage)
       if (severity < 1) return 'text.subtle'
       if (severity < 3) return 'text.warning'
       return 'text.error'
-    }, [priceImpact])
+    }, [priceImpactPercentage])
 
     return (
       <FormControl
@@ -291,7 +291,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 >
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>
-                {priceImpact && (
+                {priceImpactPercentage && (
                   <Tooltip label={translate('trade.tooltip.priceImpactDifference')}>
                     <Flex>
                       <Skeleton isLoaded={!showFiatSkeleton}>
@@ -300,7 +300,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                           prefix='('
                           suffix=')'
                           color={priceImpactColor ?? 'text.subtle'}
-                          value={bnOrZero(priceImpact).div(100).times(-1).toString()}
+                          value={bnOrZero(priceImpactPercentage).div(100).times(-1).toString()}
                         />
                       </Skeleton>
                     </Flex>

@@ -277,17 +277,17 @@ const IMPACT_TIERS = [
 
 type WarningSeverity = 0 | 1 | 2 | 3 | 4
 
-export function warningSeverity(priceImpact: string | undefined): WarningSeverity {
-  if (!priceImpact) return 0
+export function warningSeverity(priceImpactPercentage: string | undefined): WarningSeverity {
+  if (!priceImpactPercentage) return 0
   // This function is used to calculate the Severity level for % changes in USD value and Price Impact.
   // Price Impact is always an absolute value (conceptually always negative, but represented in code with a positive value)
   // The USD value change can be positive or negative, and it follows the same standard as Price Impact (positive value is the typical case of a loss due to slippage).
   // We don't want to return a warning level for a favorable/profitable change, so when the USD value change is negative we return 0.
   // TODO (WEB-1833): Disambiguate Price Impact and USD value change, and flip the sign of USD Value change.
-  if (bnOrZero(priceImpact).isLessThan(0)) return 0
+  if (bnOrZero(priceImpactPercentage).isLessThan(0)) return 0
   let impact: WarningSeverity = IMPACT_TIERS.length as WarningSeverity
   for (const impactLevel of IMPACT_TIERS) {
-    if (bnOrZero(impactLevel).isLessThan(priceImpact)) return impact
+    if (bnOrZero(impactLevel).isLessThan(priceImpactPercentage)) return impact
     impact--
   }
   return 0

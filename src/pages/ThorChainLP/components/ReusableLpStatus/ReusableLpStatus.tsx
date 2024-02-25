@@ -22,6 +22,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
+import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
@@ -32,7 +33,7 @@ import { TransactionRow } from './TransactionRow'
 type ReusableLpStatusProps = {
   handleBack: () => void
   baseAssetId: AssetId
-  confirmedQuote: LpConfirmedDepositQuote
+  confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
 } & PropsWithChildren
 
 export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
@@ -117,8 +118,12 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     const supplyAssets = assets.map(_asset => {
       const amountCryptoPrecision =
         _asset.assetId === thorchainAssetId
-          ? confirmedQuote.runeCryptoDepositAmount
-          : confirmedQuote.assetCryptoDepositAmount
+          ? 'runeCryptoDepositAmount' in confirmedQuote
+            ? confirmedQuote.runeCryptoDepositAmount
+            : confirmedQuote.runeCryptoWithdrawAmount
+          : 'assetCryptoDepositAmount' in confirmedQuote
+          ? confirmedQuote.assetCryptoDepositAmount
+          : confirmedQuote.assetCryptoWithdrawAmount
       return (
         <Amount.Crypto
           key={`amount-${_asset.assetId}`}
@@ -159,8 +164,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     activeStepIndex,
     translate,
     hStackDivider,
-    confirmedQuote.runeCryptoDepositAmount,
-    confirmedQuote.assetCryptoDepositAmount,
+    confirmedQuote,
   ])
 
   const assetCards = useMemo(() => {
@@ -169,8 +173,12 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         {assets.map((_asset, index) => {
           const amountCryptoPrecision =
             _asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeCryptoDepositAmount
-              : confirmedQuote.assetCryptoDepositAmount
+              ? 'runeCryptoDepositAmount' in confirmedQuote
+                ? confirmedQuote.runeCryptoDepositAmount
+                : confirmedQuote.runeCryptoWithdrawAmount
+              : 'assetCryptoDepositAmount' in confirmedQuote
+              ? confirmedQuote.assetCryptoDepositAmount
+              : confirmedQuote.assetCryptoWithdrawAmount
           return (
             <TransactionRow
               key={_asset.assetId}

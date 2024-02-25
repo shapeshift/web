@@ -512,7 +512,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         shareOfPoolDecimalPercent &&
         slippageRune &&
         opportunityId &&
-        poolAssetInboundAddress
+        poolAssetInboundAddress &&
+        poolAsset
       )
     )
       return
@@ -520,6 +521,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     const totalAmountFiat = bnOrZero(actualAssetFiatLiquidityAmount)
       .times(isAsym ? 1 : 2)
       .toFixed()
+
+    const poolChainId = poolAsset.chainId
 
     setConfirmedQuote({
       assetCryptoWithdrawAmount: actualAssetCryptoLiquidityAmount,
@@ -535,6 +538,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetGasFeeFiat: poolAssetGasFeeFiat.toFixed(2),
       totalGasFeeFiat,
       feeBps: '0',
+      accountIdsByChainId: {
+        [poolChainId]: poolAccountId,
+        [thorchainChainId]: runeAccountId ?? '',
+      },
     })
   }, [
     actualAssetCryptoLiquidityAmount,
@@ -543,8 +550,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     actualRuneFiatLiquidityAmount,
     isAsym,
     opportunityId,
+    poolAccountId,
+    poolAsset,
+    poolAsset?.chainId,
     poolAssetGasFeeFiat,
     poolAssetInboundAddress,
+    runeAccountId,
     runeGasFeeFiat,
     runeMarketData.price,
     setConfirmedQuote,

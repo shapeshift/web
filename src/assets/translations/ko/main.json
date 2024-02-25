@@ -1031,8 +1031,6 @@
     "fee": "수수료",
     "youSent": "보낸 금액",
     "youReceived": "받은 금액",
-    "sentTo": "보낸 대상",
-    "receivedFrom": "받은 대상",
     "orderRoute": "주문 경로",
     "status": "상태",
     "transactionType": "거래 유형",

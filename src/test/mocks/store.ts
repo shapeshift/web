@@ -59,6 +59,10 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+    unsupportedFungiblePortfolioAssets: {
+      byId: {},
+      ids: [],
+    },
   },
   preferences: {
     featureFlags: {

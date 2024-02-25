@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
@@ -49,6 +50,32 @@ export const selectPortfolioAccountBalancesBaseUnit = createDeepEqualOutputSelec
     ),
 )
 
+/**
+ * Selects the collection of assets in the portfolio, including those unsupported by our platform.
+ * Used to feed downstream selectors which require asset metadata for displaying the portfolio where
+ * unsupported assets would be missing this metadata otherwise.
+ *
+ * For performance reasons this does not return the superset of `fungibleAssetsById` and
+ * `unsupportedFungiblePortfolioAssetsById` but instead only returns the assets actually held.
+ */
+export const selectPortfolioFungibleAssetsById = createDeepEqualOutputSelector(
+  selectFungibleAssets,
+  (state: ReduxState) => state.portfolio.unsupportedFungiblePortfolioAssets.byId,
+  (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
+  (fungibleAssetsById, unsupportedFungiblePortfolioAssetsById, accountBalancesById) => {
+    return Object.values(accountBalancesById).reduce<PartialRecord<AssetId, Asset>>(
+      (acc, byAssetId) => {
+        Object.keys(byAssetId).forEach(assetId => {
+          acc[assetId] =
+            fungibleAssetsById[assetId] ?? unsupportedFungiblePortfolioAssetsById[assetId]
+        })
+        return acc
+      },
+      {},
+    )
+  },
+)
+
 export const selectPortfolioAssetBalancesBaseUnit = createDeepEqualOutputSelector(
   selectPortfolioAccountBalancesBaseUnit,
   (accountBalancesById): Record<AssetId, string> =>
@@ -79,14 +106,14 @@ export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelector(
-  selectFungibleAssets,
+  selectPortfolioFungibleAssetsById,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (assets, accountBalances, assetBalances, accountId, assetId): string => {
     if (!assetId) return '0'
-    const precision = assets?.[assetId]?.precision
+    const precision = assets[assetId]?.precision
     // to avoid megabillion phantom balances in mixpanel, return 0 rather than base unit value
     // if we don't have a precision for the asset
     if (precision === undefined) return '0'
@@ -96,7 +123,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 )((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
-  selectFungibleAssets,
+  selectPortfolioFungibleAssetsById,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectBalanceThreshold,
@@ -116,7 +143,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
 )
 
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(
-  selectFungibleAssets,
+  selectPortfolioFungibleAssetsById,
   selectPortfolioAccountBalancesBaseUnit,
   selectMarketDataUserCurrency,
   (assetsById, accounts, marketData) => {

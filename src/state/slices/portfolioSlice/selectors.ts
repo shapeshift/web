@@ -32,10 +32,7 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
 } from 'state/selectors'
-import {
-  selectFungibleAssets,
-  selectRelatedAssetIdsInclusive,
-} from 'state/slices/assetsSlice/selectors'
+import { selectRelatedAssetIdsInclusive } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
 import {
@@ -54,6 +51,7 @@ import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioFungibleAssetsById,
   selectPortfolioUserCurrencyBalances,
   selectPortfolioUserCurrencyBalancesByAccountId,
   selectWalletAccountIds,
@@ -287,7 +285,7 @@ export const selectPortfolioAccountIdsByAssetId = createDeepEqualOutputSelector(
  */
 export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
   createDeepEqualOutputSelector(
-    selectFungibleAssets,
+    selectPortfolioFungibleAssetsById,
     selectPortfolioAccountBalancesBaseUnit,
     selectPortfolioAssetBalancesBaseUnit,
     selectMarketDataUserCurrency,
@@ -482,7 +480,7 @@ export const selectPortfolioAccountsCryptoBalancesIncludingStaking = createDeepE
  */
 export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
   createDeepEqualOutputSelector(
-    selectFungibleAssets,
+    selectPortfolioFungibleAssetsById,
     selectPortfolioAccountsCryptoBalancesIncludingStaking,
     (assets, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
       return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
@@ -502,7 +500,7 @@ export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
  */
 export const selectPortfolioAccountsUserCurrencyBalancesIncludingStaking =
   createDeepEqualOutputSelector(
-    selectFungibleAssets,
+    selectPortfolioFungibleAssetsById,
     selectMarketDataUserCurrency,
     selectPortfolioAccountsCryptoBalancesIncludingStaking,
     (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
@@ -682,7 +680,7 @@ export const selectPortfolioAccountsGroupedByNumberByChainId = createCachedSelec
 export const selectPortfolioAssetIdsByAccountIdExcludeFeeAsset = createCachedSelector(
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectAccountIdParamFromFilter,
-  selectFungibleAssets,
+  selectPortfolioFungibleAssetsById,
   selectBalanceThreshold,
   (accountAssets, accountId, assets, balanceThreshold): AssetId[] => {
     if (!accountId) return []
@@ -759,7 +757,7 @@ export type AccountRowData = {
 }
 
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
-  selectFungibleAssets,
+  selectPortfolioFungibleAssetsById,
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioTotalUserCurrencyBalance,
@@ -810,7 +808,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
-  selectFungibleAssets,
+  selectPortfolioFungibleAssetsById,
   selectWalletId,
   selectWalletName,
   selectPortfolioUserCurrencyBalances,
@@ -898,7 +896,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectPortfolioAccountBalancesBaseUnit,
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAllEarnUserStakingOpportunitiesByFilter,
-  selectFungibleAssets,
+  selectPortfolioFungibleAssetsById,
   selectMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
   selectGetReadOnlyOpportunities,

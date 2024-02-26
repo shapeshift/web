@@ -29,6 +29,9 @@ import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 
 import { GetAllowanceErr } from './types'
 
+const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
+
 const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
     assetId: AssetId | undefined,
@@ -162,10 +165,9 @@ const midgard = createQueryKeys('midgard', {
       })()
 
       const { data } = await axios.get<MidgardSwapHistoryResponse>(
-        `${
-          getConfig().REACT_APP_MIDGARD_URL
-        }/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
+        `${midgardUrl}/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
       )
+
       return data
     },
   }),
@@ -173,9 +175,10 @@ const midgard = createQueryKeys('midgard', {
     queryKey: ['midgardPoolData', assetId],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
+
       const poolAssetId = assetIdToPoolAssetId({ assetId })
       const { data: poolData } = await axios.get<MidgardPoolResponse>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}`,
+        `${midgardUrl}/pool/${poolAssetId}?period=30d`,
       )
 
       return poolData
@@ -185,7 +188,7 @@ const midgard = createQueryKeys('midgard', {
     queryKey: ['midgardPoolsData'],
     queryFn: async () => {
       const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
-        `${getConfig().REACT_APP_MIDGARD_URL}/pools`,
+        `${midgardUrl}/pools?period=30d`,
       )
       return poolsData
     },
@@ -198,9 +201,10 @@ const thornode = createQueryKeys('thornode', {
     queryKey: ['thornodePoolData', assetId],
     queryFn: async () => {
       if (!assetId) throw new Error('assetId is required')
+
       const poolAssetId = assetIdToPoolAssetId({ assetId })
       const { data: poolData } = await axios.get<ThornodePoolResponse>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pool/${poolAssetId}`,
+        `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
       )
 
       return poolData
@@ -209,9 +213,8 @@ const thornode = createQueryKeys('thornode', {
   poolsData: () => ({
     queryKey: ['thornodePoolsData'],
     queryFn: async () => {
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
       const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-        `${daemonUrl}/lcd/thorchain/pools`,
+        `${thornodeUrl}/lcd/thorchain/pools`,
       )
 
       if (poolResponse.isOk()) {
@@ -225,9 +228,8 @@ const thornode = createQueryKeys('thornode', {
     return {
       queryKey: ['thorchainMimir'],
       queryFn: async () => {
-        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
         const { data: mimir } = await axios.get<Record<string, unknown>>(
-          `${daemonUrl}/lcd/thorchain/mimir`,
+          `${thornodeUrl}/lcd/thorchain/mimir`,
         )
         return mimir
       },
@@ -237,9 +239,9 @@ const thornode = createQueryKeys('thornode', {
     return {
       queryKey: ['thorchainBlockHeight'],
       queryFn: async () => {
-        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-        const { data: block } = await axios.get<ThorchainBlock>(`${daemonUrl}/lcd/thorchain/block`)
-
+        const { data: block } = await axios.get<ThorchainBlock>(
+          `${thornodeUrl}/lcd/thorchain/block`,
+        )
         return block
       },
     }
@@ -248,18 +250,15 @@ const thornode = createQueryKeys('thornode', {
     return {
       queryKey: ['thorchainInboundAddress'],
       queryFn: async () => {
-        const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-
         return (
           // Get all inbound addresses
           (
             await thorService.get<InboundAddressResponse[]>(
-              `${daemonUrl}/lcd/thorchain/inbound_addresses`,
+              `${thornodeUrl}/lcd/thorchain/inbound_addresses`,
             )
           ).andThen(({ data: inboundAddresses }) => {
             // Exclude halted
             const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
-
             return Ok(activeInboundAddresses)
           })
         )
@@ -267,4 +266,5 @@ const thornode = createQueryKeys('thornode', {
     }
   },
 })
+
 export const reactQueries = mergeQueryKeys(common, mutations, midgard, thornode, thorchainLp)

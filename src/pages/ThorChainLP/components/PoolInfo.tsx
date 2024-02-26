@@ -42,8 +42,8 @@ type PoolInfoProps = {
   direction?: FlexProps['flexDirection']
   display?: 'full' | 'teaser'
   reverse?: boolean
-  runeTvl?: string
-  assetTvl?: string
+  runeTvlCryptoPrecision?: string
+  assetTvlCryptoPrecision?: string
 }
 
 export const PoolInfo = ({
@@ -59,8 +59,8 @@ export const PoolInfo = ({
   direction = 'row',
   display = 'teaser',
   reverse = false,
-  runeTvl,
-  assetTvl,
+  runeTvlCryptoPrecision: runeTvl,
+  assetTvlCryptoPrecision: assetTvl,
 }: PoolInfoProps) => {
   const asset0 = useAppSelector(state => selectAssetById(state, assetIds[0]))
   const asset1 = useAppSelector(state => selectAssetById(state, assetIds[1]))

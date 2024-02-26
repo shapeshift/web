@@ -1,12 +1,12 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { reactQueries } from 'react-queries'
 import { bn } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
-import type { MidgardPool, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
+import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAssetId, selectWalletId } from 'state/slices/selectors'
@@ -48,13 +48,7 @@ export const useUserLpData = ({
     gcTime: 0,
   })
 
-  const selectLiquidityPositionsData = (
-    positions:
-      | (MidgardPool & {
-          accountId: AccountId
-        })[]
-      | undefined,
-  ) => {
+  const selectLiquidityPositionsData = (positions: Position[] | undefined) => {
     if (!positions || !thornodePoolData || !midgardPoolData) return null
 
     const parsedPositions = positions.map(position => {

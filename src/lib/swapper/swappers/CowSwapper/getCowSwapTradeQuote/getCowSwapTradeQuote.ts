@@ -22,22 +22,25 @@ import {
   getSupportedChainIds,
   getValuesFromQuoteResponse,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
-import {
-  isNativeEvmAsset,
-  normalizeIntegerAmount,
-} from 'lib/swapper/swappers/utils/helpers/helpers'
+import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
-  const { sellAsset, buyAsset, accountNumber, chainId, receiveAddress } = input
+  const {
+    sellAsset,
+    buyAsset,
+    accountNumber,
+    chainId,
+    receiveAddress,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  } = input
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)
 
   const supportedChainIds = getSupportedChainIds()
-  const sellAmount = input.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
   const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
@@ -45,9 +48,6 @@ export async function getCowSwapTradeQuote(
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)
     ? fromAssetId(buyAsset.assetId).assetReference
     : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
-
-  // making sure we do not have decimals for cowswap api (can happen at least from minQuoteSellAmount)
-  const normalizedSellAmountCryptoBaseUnit = normalizeIntegerAmount(sellAmount)
 
   const maybeNetwork = getCowswapNetwork(chainId)
   if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
@@ -70,7 +70,7 @@ export async function getCowSwapTradeQuote(
       partiallyFillable: false,
       from: receiveAddress,
       kind: ORDER_KIND_SELL,
-      sellAmountBeforeFee: normalizedSellAmountCryptoBaseUnit,
+      sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
   )
 
@@ -128,7 +128,7 @@ export async function getCowSwapTradeQuote(
             },
           },
         },
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: normalizedSellAmountCryptoBaseUnit,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
         buyAmountBeforeFeesCryptoBaseUnit,
         buyAmountAfterFeesCryptoBaseUnit,
         source: SwapperName.CowSwap,

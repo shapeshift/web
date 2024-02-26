@@ -30,6 +30,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import {
+  isLpConfirmedDepositQuote,
+  isLpConfirmedWithdrawalQuote,
+} from 'lib/utils/thorchain/lp/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -136,14 +140,34 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     return (
       <Stack direction='row' divider={divider} position='relative'>
         {assets.map(_asset => {
-          const amountCryptoPrecision =
-            _asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeCryptoLiquidityAmount
-              : confirmedQuote.assetCryptoLiquidityAmount
-          const amountFiatUserCurrency =
-            _asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeFiatLiquidityAmount
-              : confirmedQuote.assetFiatLiquidityAmount
+          const [amountCryptoPrecision, amountFiatUserCurrency] = (() => {
+            let cryptoAmount
+            let amountFiatUserCurrency
+
+            if (isLpConfirmedDepositQuote(confirmedQuote)) {
+              cryptoAmount =
+                _asset.assetId === thorchainAssetId
+                  ? confirmedQuote.runeCryptoDepositAmount
+                  : confirmedQuote.assetCryptoDepositAmount
+              amountFiatUserCurrency =
+                _asset.assetId === thorchainAssetId
+                  ? confirmedQuote.runeFiatDepositAmount
+                  : confirmedQuote.assetFiatDepositAmount
+            } else if (isLpConfirmedWithdrawalQuote(confirmedQuote)) {
+              cryptoAmount =
+                _asset.assetId === thorchainAssetId
+                  ? confirmedQuote.runeCryptoWithdrawAmount
+                  : confirmedQuote.assetCryptoWithdrawAmount
+              amountFiatUserCurrency =
+                _asset.assetId === thorchainAssetId
+                  ? confirmedQuote.runeFiatWithdrawAmount
+                  : confirmedQuote.assetFiatWithdrawAmount
+            }
+
+            return [cryptoAmount, amountFiatUserCurrency]
+          })()
+
+          if (!amountCryptoPrecision || !amountFiatUserCurrency) return null
 
           return (
             <Card
@@ -172,16 +196,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         })}
       </Stack>
     )
-  }, [
-    asset,
-    baseAsset,
-    confirmedQuote.assetCryptoLiquidityAmount,
-    confirmedQuote.assetFiatLiquidityAmount,
-    confirmedQuote.runeCryptoLiquidityAmount,
-    confirmedQuote.runeFiatLiquidityAmount,
-    divider,
-    pool,
-  ])
+  }, [asset, baseAsset, confirmedQuote, divider, pool])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
@@ -193,11 +208,9 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     if (isTradingActive === false) return translate('common.poolHalted')
 
     const message = (() => {
-      if ('feeAmountFiat' in confirmedQuote) {
-        // 'feeAmountFiat' exists, so confirmedQuote is an instance of LpConfirmedDepositQuote
+      if (isLpConfirmedDepositQuote(confirmedQuote)) {
         return translate('pools.confirmAndDeposit')
       } else {
-        // 'feeAmountFiat' does not exist, so confirmedQuote is an instance of LpConfirmedWithdrawalQuote
         return translate('pools.confirmAndWithdraw')
       }
     })()
@@ -224,7 +237,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 <Row.Label>{translate('pools.chainFee', { chain: 'ShapeShift' })}</Row.Label>
                 <Row.Value>
                   {confirmedQuote &&
-                  'feeAmountFiat' in confirmedQuote &&
+                  isLpConfirmedDepositQuote(confirmedQuote) &&
                   !bn(confirmedQuote.feeAmountFiat).isZero() ? (
                     <Amount.Fiat value={confirmedQuote.feeAmountFiat} />
                   ) : (

@@ -126,6 +126,8 @@
     "showLess": "显示较少",
     "yourBalance": "你的余额",
     "signTransaction": "签署交易",
+    "halted": "暂停的",
+    "poolHalted": "已暂停的池",
     "carousel": {
       "next": "下一个",
       "prev": "上一个",
@@ -257,7 +259,6 @@
     "exploreThe": "探索",
     "defiUniverse": "DeFi 宇宙",
     "body": "交易、跨链桥和赚取收益。隐私的。社区所有。无监护。去中心化的。",
-    "body2": "欢迎使用新的 ShapeShift。100% 免费、开源化、社区所有、非监管和隐私的。",
     "header": "请连接钱包以开始",
     "cta": "连接钱包",
     "viewADemo": "查看演示",
@@ -323,7 +324,8 @@
         "foxyBalance": "FOXy 余额",
         "withdrawals": "提现",
         "emptyWithdraws": "此处将显示待处理或进行的提现。",
-        "availableDate": "在 %{date} 可用"
+        "availableDate": "在 %{date} 可用",
+        "disabledTitle": "FOXy 充值已被禁用"
       },
       "foxFarmingOverview": {
         "header": "充值 ETH-FOX LP 代币 %{opportunity} 来赚取收益",
@@ -573,6 +575,7 @@
     "from": "从",
     "trade": "交易",
     "swap": "兑换",
+    "swapWith": "与 %{dex} 兑换",
     "amount": "数量",
     "for": "对于",
     "emptyMessage": "你的 %{status} 交易将显示在此处。",
@@ -748,17 +751,23 @@
     "recipientAddress": "收件人地址",
     "customRecipientAddress": "自定义收件人地址",
     "customRecipientAddressDescription": "输入此交易的自定义收件人地址",
+    "thisIsYourCustomRecipientAddress": "这是你的自定义收件人地址",
     "enterCustomRecipientAddress": "输入自定义收件人地址",
     "tooltip": {
       "rate": "这是该交易对的预期利率。",
       "noRateAvailable": "这通常是由于交易对的流动性非常有限或没有流动性。",
+      "priceImpactLabel": "价格影响：%{priceImpactPercentage}%",
       "priceImpact": "考虑到池中当前的流动性，这种规模的兑换可能会对价格产生很大的影响。你的输入代币数量与你将在输出代币中收到的数量之间可能存在很大差异",
       "minerFee": "这是在区块链上处理交易的费用，这不是 ShapeShift 收取的费用。",
       "protocol": "这是你的交易路径的协议。",
       "protocolLifi": "这是你的交易路径的协议。 LI.FI 在幕后执行一系列中间交易，以获得价格、安全性和速度的最佳整体组合。",
       "protocolFee": "交易费用是选择的协议收取的，不是 ShapeShift 收取的",
       "shapeshiftFee": "ShapeShift 不会增加交易费用 🎉",
-      "manualReceiveAddress": "这是你接收资金的地址。已手动输入，请确保正确。"
+      "manualReceiveAddress": "这是你接收资金的地址。已手动输入，请确保正确。",
+      "amountPercentageDifference": "这是你将收到的 %{buyAssetSymbol} 总数与最佳报价相比的百分比差异",
+      "overallPercentageDifference": "这是扣除所有费用后收到的总数与最佳报价相比的百分比差异",
+      "gasFee": "这是完成这笔交易的估计手续费。",
+      "slippage": "如果价格变动导致你收到的数量少于 %{amount} ，你的交易将被还原。这是保证你收到的最低数量。"
     },
     "rates": {
       "tags": {
@@ -802,7 +811,6 @@
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
     "numHops": "此交易包括 %{numHops}  hop",
-    "percentageDifferenceTooltip": "这是您将收到的 %{buyAssetSymbol} 总额与最佳报价相比的百分比差异",
     "receiveAddress": "接收地址",
     "receiveAddressDescription": "从连接的钱包中没有找不到 %{chainName} 地址。请手动输入地址或",
     "toContinue": "来继续。",
@@ -1759,18 +1767,23 @@
     "fee": "费用",
     "youSent": "你已发送",
     "youReceived": "你已接收",
-    "sentTo": "已发送给",
-    "receivedFrom": "已接收的来自",
+    "sentTo": "发送至 %{address}",
+    "receivedFrom": "从 %{address} 收到",
     "orderRoute": "下单路径",
     "status": "状态",
     "transactionType": "交易类型",
     "minerFee": "矿工费",
     "approvalAmount": "授权数量",
     "unknownType": "交易",
+    "date": "日期",
     "from": "从",
     "to": "到",
     "for": "对于",
-    "transfers": "传输"
+    "transfers": "传输",
+    "today": "今天",
+    "yesterday": "昨天",
+    "thisWeek": "本周",
+    "thisMonth": "本月"
   },
   "plugins": {
     "foxPage": {
@@ -2200,6 +2213,8 @@
     "initialPricesAndPoolShare": "初始价格和池份额",
     "pricePerAsset": "%{from} 每 %{to}",
     "symAlert": "进入池后，你的 %{from} 将按照 50:50 的比例分为 %{to} 和 %{from}。",
+    "unsupportedNetworkExplainer": "你的钱包不支持 %{network} 。请切换到支持该网络的钱包。",
+    "unsupportedNetworksExplainer": "你的钱包不支持 %{network1} 和 %{network2} 。请切换到支持这些网络的钱包。",
     "shareOfPool": "池份额",
     "assetDepositAmount": "%{asset} 充值数量",
     "totalLiquidity": "总流动性",

@@ -11,7 +11,7 @@ const selectSwapperApiQueries = (state: ReduxState) => state.swapperApi.queries
 export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
   selectSwapperApiQueries,
   queries => {
-    const loadingState: PartialRecord<SwapperName, boolean> = {}
+    const isLoadingBySwapperName: PartialRecord<SwapperName, boolean> = {}
     const latestTimestamps: PartialRecord<SwapperName, number> = {}
 
     for (const [queryKey, queryInfo] of Object.entries(queries)) {
@@ -27,10 +27,14 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
 
       if (isMostRecent) {
         latestTimestamps[swapperName] = startedTimeStamp
-        loadingState[swapperName] = queryInfo?.status === QueryStatus.pending
+        isLoadingBySwapperName[swapperName] = [
+          QueryStatus.uninitialized,
+          QueryStatus.pending,
+          undefined,
+        ].includes(queryInfo?.status)
       }
     }
 
-    return loadingState
+    return isLoadingBySwapperName
   },
 )

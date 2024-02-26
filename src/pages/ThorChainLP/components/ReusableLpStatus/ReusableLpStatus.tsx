@@ -22,7 +22,9 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
+import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -32,7 +34,7 @@ import { TransactionRow } from './TransactionRow'
 type ReusableLpStatusProps = {
   handleBack: () => void
   baseAssetId: AssetId
-  confirmedQuote: LpConfirmedDepositQuote
+  confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
 } & PropsWithChildren
 
 export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
@@ -117,8 +119,12 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     const supplyAssets = assets.map(_asset => {
       const amountCryptoPrecision =
         _asset.assetId === thorchainAssetId
-          ? confirmedQuote.runeCryptoLiquidityAmount
-          : confirmedQuote.assetCryptoLiquidityAmount
+          ? isLpConfirmedDepositQuote(confirmedQuote)
+            ? confirmedQuote.runeCryptoDepositAmount
+            : confirmedQuote.runeCryptoWithdrawAmount
+          : isLpConfirmedDepositQuote(confirmedQuote)
+          ? confirmedQuote.assetCryptoDepositAmount
+          : confirmedQuote.assetCryptoWithdrawAmount
       return (
         <Amount.Crypto
           key={`amount-${_asset.assetId}`}
@@ -145,7 +151,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         </Center>
         <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
-          <RawText>{translate('pools.supplying')}</RawText>
+          <RawText>
+            {translate(
+              isLpConfirmedDepositQuote(confirmedQuote) ? 'pools.supplying' : 'pools.withdrawing',
+            )}
+          </RawText>
           <HStack divider={hStackDivider}>{supplyAssets}</HStack>
         </Flex>
       </CardBody>
@@ -159,8 +169,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     activeStepIndex,
     translate,
     hStackDivider,
-    confirmedQuote.runeCryptoLiquidityAmount,
-    confirmedQuote.assetCryptoLiquidityAmount,
+    confirmedQuote,
   ])
 
   const assetCards = useMemo(() => {
@@ -169,8 +178,12 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         {assets.map((_asset, index) => {
           const amountCryptoPrecision =
             _asset.assetId === thorchainAssetId
-              ? confirmedQuote.runeCryptoLiquidityAmount
-              : confirmedQuote.assetCryptoLiquidityAmount
+              ? isLpConfirmedDepositQuote(confirmedQuote)
+                ? confirmedQuote.runeCryptoDepositAmount
+                : confirmedQuote.runeCryptoWithdrawAmount
+              : isLpConfirmedDepositQuote(confirmedQuote)
+              ? confirmedQuote.assetCryptoDepositAmount
+              : confirmedQuote.assetCryptoWithdrawAmount
           return (
             <TransactionRow
               key={_asset.assetId}

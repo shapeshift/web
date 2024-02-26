@@ -54,7 +54,11 @@ import {
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
-import type { AsymSide, LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import type {
+  AsymSide,
+  LpConfirmedDepositQuote,
+  LpConfirmedWithdrawalQuote,
+} from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
@@ -76,7 +80,7 @@ type TransactionRowProps = {
   onComplete: () => void
   isActive?: boolean
   isLast?: boolean
-  confirmedQuote: LpConfirmedDepositQuote
+  confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
   asymSide?: AsymSide | null
 }
 

@@ -1,5 +1,3 @@
-import type { CardProps } from '@chakra-ui/react'
-import { Card, CardBody } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useEffect } from 'react'
@@ -23,14 +21,15 @@ const MultiHopEntries = [
 
 export type TradeCardProps = {
   defaultBuyAssetId?: AssetId
-} & CardProps
+  isCompact?: boolean
+}
 
 type MatchParams = {
   chainId?: string
   assetSubId?: string
 }
 
-export const MultiHopTrade = memo(({ defaultBuyAssetId, ...cardProps }: TradeCardProps) => {
+export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardProps) => {
   const dispatch = useAppDispatch()
   const methods = useForm({ mode: 'onChange' })
   const { assetSubId, chainId } = useParams<MatchParams>()
@@ -45,19 +44,19 @@ export const MultiHopTrade = memo(({ defaultBuyAssetId, ...cardProps }: TradeCar
   }, [defaultBuyAsset, defaultBuyAssetId, dispatch, routeBuyAsset])
 
   return (
-    <Card {...cardProps}>
-      <CardBody px={0} py={0}>
-        <FormProvider {...methods}>
-          <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
-            <MultiHopRoutes />
-          </MemoryRouter>
-        </FormProvider>
-      </CardBody>
-    </Card>
+    <FormProvider {...methods}>
+      <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
+        <MultiHopRoutes isCompact={isCompact} />
+      </MemoryRouter>
+    </FormProvider>
   )
 })
 
-const MultiHopRoutes = memo(() => {
+type MultiHopRoutesProps = {
+  isCompact?: boolean
+}
+
+const MultiHopRoutes = memo(({ isCompact }: MultiHopRoutesProps) => {
   const location = useLocation()
   const dispatch = useAppDispatch()
 
@@ -75,7 +74,7 @@ const MultiHopRoutes = memo(() => {
     <AnimatePresence mode='wait' initial={false}>
       <Switch location={location}>
         <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-          <TradeInput />
+          <TradeInput isCompact={isCompact} />
         </Route>
         <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
           <MultiHopTradeConfirm />

@@ -4,13 +4,18 @@ import {
   AlertDescription,
   AlertIcon,
   Button,
+  Card,
   CardFooter,
   CardHeader,
+  Center,
+  CircularProgress,
+  CircularProgressLabel,
   Divider,
   Flex,
   Heading,
   IconButton,
   Stack,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -31,14 +36,14 @@ import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
+import { positiveOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -51,8 +56,8 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectHasUserEnteredAmount,
   selectInputBuyAsset,
-  selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
@@ -68,6 +73,7 @@ import {
   selectBuyAmountAfterFeesUserCurrency,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
+  selectIsAnyTradeQuoteLoaded,
   selectIsUnsafeActiveQuote,
   selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
@@ -78,45 +84,45 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
-import { PriceImpact } from '../PriceImpact'
+import { QuoteList } from '../QuoteList/QuoteList'
+import { HorizontalCollapse } from './components/HorizontalCollapse'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
-import { TradeQuotes } from './components/TradeQuotes/TradeQuotes'
+import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
+import { useSharedHeight } from './hooks/useSharedHieght'
 
 const formControlProps = {
   borderRadius: 0,
   background: 'transparent',
   borderWidth: 0,
-  paddingBottom: 0,
 }
-
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
-export const TradeInput = memo(() => {
-  const {
-    isAnySwapperFetched: _isAnySwapperFetched,
-    isQuoteRequestComplete: _isQuoteRequestComplete,
-    isQuoteRequestUninitialized,
-    didQuoteRequestFail,
-    isQuoteRequestIncomplete,
-  } = useGetTradeQuotes()
+type TradeInputProps = {
+  isCompact?: boolean
+}
+
+export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
+  useGetTradeQuotes()
   const {
     state: { wallet },
   } = useWallet()
+  const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
+  const [isCompactQuoteListOpen, setIsCompactQuoteListOpen] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
-  const [isAnySwapperFetched, setIsAnySwapperFetched] = useState(true)
-  const [isQuoteRequestComplete, setIsQuoteRequestComplete] = useState(true)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyAssetSearch')
   const sellAssetSearch = useModal('sellAssetSearch')
@@ -129,7 +135,7 @@ export const TradeInput = memo(() => {
     return [1]
   }, [sellAsset.assetId])
   const activeQuote = useAppSelector(selectActiveQuote)
-  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+  const { priceImpactPercentage } = usePriceImpact(activeQuote)
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
@@ -140,7 +146,6 @@ export const TradeInput = memo(() => {
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const manualReceiveAddressIsEditing = useAppSelector(selectManualReceiveAddressIsEditing)
   const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
-  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
@@ -148,44 +153,20 @@ export const TradeInput = memo(() => {
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
-
-  // whenever the sell amount changes, set the quote states to fetching
-  useEffect(() => {
-    setIsAnySwapperFetched(false)
-    setIsQuoteRequestComplete(false)
-  }, [sellAmountCryptoPrecision])
-
-  // when a quote becomes available, set the quote states to fetched
-  useEffect(() => {
-    if (_isAnySwapperFetched) {
-      setIsAnySwapperFetched(true)
-    }
-  }, [_isAnySwapperFetched])
-
-  // when a quote request is complete, mark it as complete
-  useEffect(() => {
-    if (_isQuoteRequestComplete) {
-      setIsQuoteRequestComplete(true)
-    }
-  }, [_isQuoteRequestComplete])
-
-  const hasUserEnteredAmount = useMemo(
-    () => bnOrZero(sellAmountCryptoPrecision).gt(0),
-    [sellAmountCryptoPrecision],
-  )
+  const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
   const quoteStatusTranslation = useMemo(() => {
     const quoteRequestError = quoteRequestErrors[0]
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case !isAnySwapperFetched:
-        return 'common.loadingText'
-      case !hasUserEnteredAmount || isQuoteRequestUninitialized:
+      case !isAnyTradeQuoteLoaded:
+      case !hasUserEnteredAmount:
         return 'trade.previewTrade'
       case !!quoteRequestError:
         return getQuoteRequestErrorTranslation(quoteRequestError)
-      case isQuoteRequestComplete && !!quoteResponseError:
+      case !!quoteResponseError:
         return getQuoteRequestErrorTranslation(quoteResponseError)
       case !!tradeQuoteError:
         // this should never occur because users shouldn't be able to select an errored quote
@@ -198,10 +179,8 @@ export const TradeInput = memo(() => {
     quoteRequestErrors,
     quoteResponseErrors,
     activeQuoteErrors,
-    isAnySwapperFetched,
+    isAnyTradeQuoteLoaded,
     hasUserEnteredAmount,
-    isQuoteRequestUninitialized,
-    isQuoteRequestComplete,
   ])
 
   const setBuyAsset = useCallback(
@@ -293,9 +272,14 @@ export const TradeInput = memo(() => {
     tradeQuoteStep?.source,
   ])
 
+  const isRefetching = useMemo(
+    () => Boolean(activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName] === true),
+    [activeSwapperName, isTradeQuoteApiQueryPending],
+  )
+
   const isLoading = useMemo(
     () =>
-      !isAnySwapperFetched ||
+      !isAnyTradeQuoteLoaded ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
@@ -305,7 +289,7 @@ export const TradeInput = memo(() => {
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isAnySwapperFetched,
+      isAnyTradeQuoteLoaded,
       isConfirmationLoading,
       isSupportedAssetsLoading,
       isSellAddressByteCodeLoading,
@@ -356,6 +340,7 @@ export const TradeInput = memo(() => {
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
+        setIsConfirmationLoading(false)
         return
       }
 
@@ -376,14 +361,9 @@ export const TradeInput = memo(() => {
   }, [isUnsafeQuote])
 
   const quoteHasError = useMemo(() => {
-    if (isQuoteRequestUninitialized || !isAnySwapperFetched) return false
+    if (!isAnyTradeQuoteLoaded) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [
-    isQuoteRequestUninitialized,
-    isAnySwapperFetched,
-    activeQuoteErrors?.length,
-    quoteRequestErrors?.length,
-  ])
+  }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -403,8 +383,8 @@ export const TradeInput = memo(() => {
       !hasUserEnteredAmount ||
       // don't allow users to execute trades while the quote is being updated
       isTradeQuoteApiQueryPending[activeSwapperName] ||
-      // don't allow users to proceed until all swappers have an initial result
-      (!activeSwapperName && isQuoteRequestIncomplete)
+      // don't allow users to proceed until a swapper has been selected
+      !activeSwapperName
     )
   }, [
     quoteHasError,
@@ -412,12 +392,11 @@ export const TradeInput = memo(() => {
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
-    hasUserEnteredAmount,
-    activeQuote,
     disableSmartContractSwap,
     activeSwapperName,
+    activeQuote,
+    hasUserEnteredAmount,
     isTradeQuoteApiQueryPending,
-    isQuoteRequestIncomplete,
   ])
 
   const maybeUnsafeTradeWarning = useMemo(() => {
@@ -456,31 +435,42 @@ export const TradeInput = memo(() => {
     }, 100)
   }, [])
 
+  const handleCloseCompactQuoteList = useCallback(() => setIsCompactQuoteListOpen(false), [])
+
+  const handleOpenCompactQuoteList = useCallback(() => {
+    if (!isCompact && !isSmallerThanXl) return
+    setIsCompactQuoteListOpen(true)
+  }, [isCompact, isSmallerThanXl])
+
+  useEffect(() => {
+    if (isCompactQuoteListOpen && !isCompact && !isSmallerThanXl) {
+      setIsCompactQuoteListOpen(false)
+    }
+  }, [isCompact, isCompactQuoteListOpen, isSmallerThanXl])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        bg='background.surface.raised.accent'
-        borderBottomRadius='xl'
-      >
-        {hasUserEnteredAmount && (
-          <>
-            {activeQuote ? (
-              <RateGasRow
-                sellSymbol={sellAsset.symbol}
-                buySymbol={buyAsset.symbol}
-                gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-                rate={rate}
-                isLoading={isLoading}
-                isError={didQuoteRequestFail}
-              />
-            ) : null}
-
-            {activeQuote ? (
+      <>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={0}
+          py={0}
+        >
+          {hasUserEnteredAmount && (
+            <RateGasRow
+              sellSymbol={sellAsset.symbol}
+              buySymbol={buyAsset.symbol}
+              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
+              rate={rate}
+              isLoading={isLoading}
+              swapperName={activeSwapperName}
+              swapSource={tradeQuoteStep?.source}
+              onRateClick={handleOpenCompactQuoteList}
+              allowSelectQuote={Boolean(isSmallerThanXl || isCompact)}
+            >
               <ReceiveSummary
                 isLoading={isLoading}
                 symbol={buyAsset.symbol}
@@ -491,40 +481,46 @@ export const TradeInput = memo(() => {
                 swapperName={activeSwapperName ?? ''}
                 defaultIsOpen={true}
                 swapSource={tradeQuoteStep?.source}
+                priceImpact={priceImpactPercentage}
               />
-            ) : null}
-            <RecipientAddress />
-            {isModeratePriceImpact && priceImpactPercentage && (
-              <PriceImpact impactPercentage={priceImpactPercentage.toFixed(2)} />
-            )}
-          </>
-        )}
-
-        <ManualAddressEntry />
-        {maybeUnsafeTradeWarning}
-        {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
-          <Button
-            colorScheme='red'
-            size='lg-multiline'
-            mx={-2}
-            onClick={handleAcknowledgeUnsafeQuote}
-          >
-            <Text translation={'defi.modals.saversVaults.understand'} />
-          </Button>
-        ) : (
-          <Button
-            type='submit'
-            colorScheme={quoteHasError ? 'red' : 'blue'}
-            size='lg-multiline'
-            data-test='trade-form-preview-button'
-            isDisabled={shouldDisablePreviewButton}
-            isLoading={isLoading}
-            mx={-2}
-          >
-            <Text translation={quoteStatusTranslation} />
-          </Button>
-        )}
-      </CardFooter>
+            </RateGasRow>
+          )}
+        </CardFooter>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <RecipientAddress />
+          <ManualAddressEntry />
+          {maybeUnsafeTradeWarning}
+          {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
+            <Button
+              colorScheme='red'
+              size='lg-multiline'
+              mx={-2}
+              onClick={handleAcknowledgeUnsafeQuote}
+            >
+              <Text translation={'defi.modals.saversVaults.understand'} />
+            </Button>
+          ) : (
+            <Button
+              type='submit'
+              colorScheme={quoteHasError ? 'red' : 'blue'}
+              size='lg-multiline'
+              data-test='trade-form-preview-button'
+              isDisabled={shouldDisablePreviewButton}
+              mx={-2}
+            >
+              <Text translation={quoteStatusTranslation} />
+            </Button>
+          )}
+        </CardFooter>
+      </>
     ),
     [
       hasUserEnteredAmount,
@@ -533,15 +529,15 @@ export const TradeInput = memo(() => {
       totalNetworkFeeFiatPrecision,
       rate,
       isLoading,
-      didQuoteRequestFail,
-      activeQuote,
+      activeSwapperName,
+      tradeQuoteStep?.source,
+      handleOpenCompactQuoteList,
+      isSmallerThanXl,
+      isCompact,
       buyAmountAfterFeesCryptoPrecision,
       buyAmountBeforeFeesCryptoPrecision,
       totalProtocolFees,
       slippageDecimal,
-      activeSwapperName,
-      tradeQuoteStep?.source,
-      isModeratePriceImpact,
       priceImpactPercentage,
       maybeUnsafeTradeWarning,
       isUnsafeQuote,
@@ -586,74 +582,127 @@ export const TradeInput = memo(() => {
   }, [buyAsset.chainId, walletSupportedChainIds])
 
   return (
-    <MessageOverlay show={isKeplr} title={overlayTitle}>
-      <SlideTransition>
-        <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
-          <CardHeader px={6}>
-            <Flex alignItems='center' justifyContent='space-between'>
-              <Heading as='h5' fontSize='md'>
-                {translate('navBar.trade')}
-              </Heading>
-              <SlippagePopover />
-            </Flex>
-          </CardHeader>
-          <Stack spacing={0}>
-            <SellAssetInput
-              accountId={initialSellAssetAccountId}
-              asset={sellAsset}
-              label={translate('trade.payWith')}
-              onAccountIdChange={setSellAssetAccountId}
-              labelPostFix={sellTradeAssetSelect}
-              percentOptions={percentOptions}
+    <TradeSlideTransition>
+      <MessageOverlay show={isKeplr} title={overlayTitle}>
+        <Flex
+          width='full'
+          justifyContent='center'
+          maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
+        >
+          <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
+            <QuoteList
+              onBack={handleCloseCompactQuoteList}
+              isLoading={isLoading}
+              height={tradeInputHeight ?? '500px'}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
             />
-            <Flex alignItems='center' justifyContent='center' my={-2}>
-              <Divider />
-              <IconButton
-                onClick={handleSwitchAssets}
-                isRound
-                size='sm'
-                position='relative'
-                variant='outline'
-                borderColor='border.base'
-                zIndex={1}
-                aria-label={translate('lending.switchAssets')}
-                icon={arrowDownIcon}
-                isDisabled={shouldDisableSwitchAssets}
-              />
-              <Divider />
-            </Flex>
-            <TradeAssetInput
-              isReadOnly={true}
-              accountId={initialBuyAssetAccountId}
-              assetId={buyAsset.assetId}
-              assetSymbol={buyAsset.symbol}
-              assetIcon={buyAsset.icon}
-              hideAmounts={true}
-              cryptoAmount={
-                hasUserEnteredAmount
-                  ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-                  : '0'
-              }
-              fiatAmount={
-                hasUserEnteredAmount
-                  ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
-                  : '0'
-              }
-              percentOptions={emptyPercentOptions}
-              showInputSkeleton={isLoading}
-              showFiatSkeleton={isLoading}
-              label={translate('trade.youGet')}
-              onAccountIdChange={setBuyAssetAccountId}
-              isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
-              formControlProps={formControlProps}
-              labelPostFix={buyTradeAssetSelect}
+          </Center>
+          <Center width='inherit'>
+            <Card
+              flex={1}
+              width='full'
+              maxWidth='500px'
+              ref={tradeInputRef}
+              visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
+              position={isCompactQuoteListOpen ? 'absolute' : undefined}
             >
-              <TradeQuotes isLoading={isLoading} />
-            </TradeAssetInput>
-          </Stack>
-          {ConfirmSummary}
-        </Stack>
-      </SlideTransition>
-    </MessageOverlay>
+              <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
+                <CardHeader px={6}>
+                  <Flex alignItems='center' justifyContent='space-between'>
+                    <Heading as='h5' fontSize='md'>
+                      {translate('navBar.trade')}
+                    </Heading>
+                    <Flex gap={2} alignItems='center'>
+                      {activeQuote && (isCompact || isSmallerThanXl) && (
+                        <CountdownSpinner isLoading={isLoading || isRefetching} />
+                      )}
+                      <SlippagePopover />
+                    </Flex>
+                  </Flex>
+                </CardHeader>
+                <Stack spacing={0}>
+                  <SellAssetInput
+                    accountId={initialSellAssetAccountId}
+                    asset={sellAsset}
+                    label={translate('trade.payWith')}
+                    onAccountIdChange={setSellAssetAccountId}
+                    labelPostFix={sellTradeAssetSelect}
+                    percentOptions={percentOptions}
+                  />
+                  <Flex alignItems='center' justifyContent='center' my={-2}>
+                    <Divider />
+                    <CircularProgress
+                      color='blue.500'
+                      thickness='4px'
+                      size='34px'
+                      trackColor='transparent'
+                      isIndeterminate={isLoading}
+                      borderRadius='full'
+                    >
+                      <CircularProgressLabel
+                        fontSize='md'
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='center'
+                      >
+                        <IconButton
+                          onClick={handleSwitchAssets}
+                          isRound
+                          size='sm'
+                          position='relative'
+                          variant='outline'
+                          borderColor='border.base'
+                          zIndex={1}
+                          aria-label={translate('lending.switchAssets')}
+                          icon={arrowDownIcon}
+                          isDisabled={shouldDisableSwitchAssets}
+                        />
+                      </CircularProgressLabel>
+                    </CircularProgress>
+
+                    <Divider />
+                  </Flex>
+                  <TradeAssetInput
+                    isReadOnly={true}
+                    accountId={initialBuyAssetAccountId}
+                    assetId={buyAsset.assetId}
+                    assetSymbol={buyAsset.symbol}
+                    assetIcon={buyAsset.icon}
+                    cryptoAmount={
+                      hasUserEnteredAmount
+                        ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
+                        : '0'
+                    }
+                    fiatAmount={
+                      hasUserEnteredAmount
+                        ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
+                        : '0'
+                    }
+                    percentOptions={emptyPercentOptions}
+                    showInputSkeleton={isLoading}
+                    showFiatSkeleton={isLoading}
+                    label={translate('trade.youGet')}
+                    onAccountIdChange={setBuyAssetAccountId}
+                    isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
+                    formControlProps={formControlProps}
+                    labelPostFix={buyTradeAssetSelect}
+                    priceImpactPercentage={priceImpactPercentage?.toString()}
+                  />
+                </Stack>
+                {ConfirmSummary}
+              </Stack>
+            </Card>
+
+            <HorizontalCollapse
+              isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              height={tradeInputHeight ?? 'full'}
+            >
+              <QuoteList ml={4} isLoading={isLoading} height={tradeInputHeight ?? 'full'} />
+            </HorizontalCollapse>
+          </Center>
+        </Flex>
+      </MessageOverlay>
+    </TradeSlideTransition>
   )
 })

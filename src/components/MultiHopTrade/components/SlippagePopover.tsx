@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -39,7 +39,7 @@ const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
 const faGear = <FaGear />
 
-export const SlippagePopover: FC = () => {
+export const SlippagePopover: FC = memo(() => {
   const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
@@ -189,4 +189,4 @@ export const SlippagePopover: FC = () => {
       </PopoverContent>
     </Popover>
   )
-}
+})

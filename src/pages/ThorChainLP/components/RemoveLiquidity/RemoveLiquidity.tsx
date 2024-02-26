@@ -72,7 +72,10 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
     () => (confirmedQuote ? <RemoveLiquidityConfirm confirmedQuote={confirmedQuote} /> : <></>),
     [confirmedQuote],
   )
-  const renderRemoveLiquidityStatus = useCallback(() => <RemoveLiquidityStatus />, [])
+  const renderRemoveLiquidityStatus = useCallback(
+    () => (confirmedQuote ? <RemoveLiquidityStatus confirmedQuote={confirmedQuote} /> : <></>),
+    [confirmedQuote],
+  )
 
   return (
     <AnimatePresence mode='wait' initial={false}>

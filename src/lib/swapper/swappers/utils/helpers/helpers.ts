@@ -21,15 +21,6 @@ import {
   DAO_TREASURY_POLYGON,
   isEvmTreasuryChainId,
 } from 'constants/treasury'
-import type { BigNumber } from 'lib/bignumber/bignumber'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-
-export const normalizeIntegerAmount = (amount: string | number | BigNumber): string => {
-  return bnOrZero(amount)
-    .integerValue()
-    .toNumber()
-    .toLocaleString('fullwide', { useGrouping: false })
-}
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
   const { chainId } = fromAssetId(assetId)

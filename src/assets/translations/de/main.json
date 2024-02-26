@@ -126,6 +126,8 @@
     "showLess": "Zeige weniger",
     "yourBalance": "Ihr Kontostand",
     "signTransaction": "Transaktion unterzeichnen",
+    "halted": "Angehalten",
+    "poolHalted": "Pool angehalten",
     "carousel": {
       "next": "Weiter",
       "prev": "Zuvor",
@@ -257,7 +259,6 @@
     "exploreThe": "Entdecken Sie das",
     "defiUniverse": "DeFi Universum",
     "body": "Handeln, wechseln und verdienen. Privat. Gemeinschaftseigentum. Nicht haftpflichtig. Dezentral.",
-    "body2": "Willkommen beim neuen ShapeShift. 100% kostenlos. Open Source. Gemeinschaftseigentum. Anwenderselbstverwaltung. Privat.",
     "header": "Bitte verbinden Sie eine Wallet, um loszulegen",
     "cta": "Wallet verbinden",
     "viewADemo": "Sehen Sie sich eine Demo an",
@@ -323,7 +324,8 @@
         "foxyBalance": "FOXy Kontostand",
         "withdrawals": "Abhebungen",
         "emptyWithdraws": "Ausstehende oder aktive Auszahlungen werden hier angezeigt.",
-        "availableDate": "Verfügbar %{date}"
+        "availableDate": "Verfügbar %{date}",
+        "disabledTitle": "FOXy Einzahlungen sind deaktiviert"
       },
       "foxFarmingOverview": {
         "header": "Zahlen Sie ETH-FOX LP Tokens bei %{opportunity} ein, um zu verdienen",
@@ -573,6 +575,7 @@
     "from": "Von",
     "trade": "Handeln",
     "swap": "Tauschen",
+    "swapWith": "Mit %{dex} tauschen",
     "amount": "Betrag",
     "for": "für",
     "emptyMessage": "Ihre %{status} Transaktionen werden hier angezeigt.",
@@ -748,17 +751,23 @@
     "recipientAddress": "Empfängeradresse",
     "customRecipientAddress": "Benutzerdefinierte Empfängeradresse",
     "customRecipientAddressDescription": "Geben Sie eine benutzerdefinierte Empfängeradresse für diesen Handel ein",
+    "thisIsYourCustomRecipientAddress": "Dies ist Ihre benutzerdefinierte Empfängeradresse",
     "enterCustomRecipientAddress": "Geben Sie eine benutzerdefinierte Empfängeradresse ein",
     "tooltip": {
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
+      "priceImpactLabel": "Preisauswirkung: %{priceImpactPercentage}%",
       "priceImpact": "Ein Swap dieser Größenordnung kann angesichts der aktuellen Liquidität im Pool erhebliche Auswirkungen auf den Preis haben. Es kann einen großen Unterschied zwischen der Menge Ihres Eingabe-Tokens und dem, was Sie als Ausgabe-Token erhalten, geben",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
       "protocolLifi": "Dies ist das Protokoll, über das Ihr Handel geleitet wird. LI.FI führt eine Reihe von Zwischengeschäften durch, um die beste Gesamtkombination aus Preis, Sicherheit und Geschwindigkeit zu erzielen.",
       "protocolFee": "Dies ist die Gebühr, die von dem für die Verarbeitung dieser Transaktion ausgewählten Protokoll erhoben wird, dies ist keine Gebühr, die von ShapeShift erhoben wird",
       "shapeshiftFee": "ShapeShift erhebt keine Gebühren fürs Handeln 🎉",
-      "manualReceiveAddress": "Dies ist die Adresse, an die Sie Ihr Geld erhalten. Sie wurde manuell eingegeben, bitte stellen Sie sicher, dass sie korrekt ist."
+      "manualReceiveAddress": "Dies ist die Adresse, an die Sie Ihr Geld erhalten. Sie wurde manuell eingegeben, bitte stellen Sie sicher, dass sie korrekt ist.",
+      "amountPercentageDifference": "Dies ist die prozentuale Differenz des Gesamtbetrags von %{buyAssetSymbol}, den Sie erhalten, im Vergleich zum besten Angebot",
+      "overallPercentageDifference": "Dies ist die prozentuale Differenz des Gesamtbetrags, den Sie nach Abzug aller Gebühren erhalten, im Vergleich zum besten Angebot",
+      "gasFee": "Dies ist die geschätzte Gasgebühr für den Abschluss dieses Handels.",
+      "slippage": "Wenn sich der Preis so verändert, dass Sie weniger als %{amount} erhalten, wird Ihre Transaktion rückgängig gemacht. Dies ist der Mindestbetrag, den Sie garantiert erhalten."
     },
     "rates": {
       "tags": {
@@ -802,7 +811,6 @@
     "onChainName": "auf %{chainName}",
     "unknownGas": "(unbekannt)",
     "numHops": "Dieser Handel umfasst %{numHops} Handelsstufen",
-    "percentageDifferenceTooltip": "Dies ist die prozentuale Differenz des Gesamtbetrags von %{buyAssetSymbol}, den Sie erhalten, im Vergleich zum besten Angebot",
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse der verbundenen Wallet gefunden. Geben Sie manuell eine Adresse ein oder",
     "toContinue": " weiter zu machen.",
@@ -1759,18 +1767,23 @@
     "fee": "Gebühr",
     "youSent": "Sie sandten ",
     "youReceived": "Sie erhielten",
-    "sentTo": "Senden an",
-    "receivedFrom": "Erhalten von",
+    "sentTo": "Gesendet an %{address}",
+    "receivedFrom": "Erhalten von %{address}",
     "orderRoute": "Bestellroute",
     "status": "Status",
     "transactionType": "Transaktionsart",
     "minerFee": "Miner-Gebühr",
     "approvalAmount": "genehmigter Betrag",
     "unknownType": "Transaktion",
+    "date": "Datum",
     "from": "Von",
     "to": "Nach",
     "for": "Für",
-    "transfers": "Überweisungen"
+    "transfers": "Überweisungen",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "thisWeek": "Diese Woche",
+    "thisMonth": "Diesen Monat"
   },
   "plugins": {
     "foxPage": {
@@ -2200,6 +2213,8 @@
     "initialPricesAndPoolShare": "Anfangspreise und Poolanteil",
     "pricePerAsset": "%{from} pro %{to}",
     "symAlert": "Ihr %{from} wird beim Eintritt in den Pool in ein 50:50-Engagement für %{to} und %{from} aufgeteilt.",
+    "unsupportedNetworkExplainer": "Ihre Wallet unterstützt %{network} nicht. Bitte wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
+    "unsupportedNetworksExplainer": "Ihre Wallet unterstützt %{network1} und %{network2} nicht. Bitte wechseln Sie zu einer Wallet, die diese Netzwerke unterstützt.",
     "shareOfPool": "Anteil am Pool",
     "assetDepositAmount": "%{asset} Einzahlungsbetrag",
     "totalLiquidity": "Gesamtliquidität",

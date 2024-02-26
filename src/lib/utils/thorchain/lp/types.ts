@@ -216,6 +216,7 @@ export type LpConfirmedWithdrawalQuote = {
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
+  accountIdsByChainId: Record<ChainId, AccountId>
   feeBps: string
   assetAddress?: string
   quoteInboundAddress: string

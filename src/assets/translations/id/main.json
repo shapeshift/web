@@ -954,8 +954,6 @@
     "fee": "Biaya ",
     "youSent": "Kamu mengirim",
     "youReceived": "Kamu Menerima ",
-    "sentTo": "Kirim Untuk ",
-    "receivedFrom": "Menerima Dari",
     "orderRoute": "Rute Pemesanan",
     "status": "Status",
     "transactionType": "Tipe Transaksi ",

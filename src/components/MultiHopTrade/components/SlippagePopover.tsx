@@ -16,8 +16,8 @@ import {
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaSlidersH } from 'react-icons/fa'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -37,9 +37,9 @@ const maxSlippagePercentage = '30'
 
 const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
-const faSlidersH = <FaSlidersH />
+const faGear = <FaGear />
 
-export const SlippagePopover: FC = () => {
+export const SlippagePopover: FC = memo(() => {
   const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
@@ -116,11 +116,7 @@ export const SlippagePopover: FC = () => {
   return (
     <Popover placement='bottom-end' onClose={handleClose}>
       <PopoverTrigger>
-        <IconButton
-          aria-label={translate('trade.tradeSettings')}
-          icon={faSlidersH}
-          variant='ghost'
-        />
+        <IconButton aria-label={translate('trade.tradeSettings')} icon={faGear} variant='ghost' />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverBody>
@@ -193,4 +189,4 @@ export const SlippagePopover: FC = () => {
       </PopoverContent>
     </Popover>
   )
-}
+})

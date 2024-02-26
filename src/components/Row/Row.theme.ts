@@ -10,6 +10,9 @@ export const RowStyle = {
     label: {
       color: 'text.subtle',
       fontWeight: 'medium',
+      display: 'flex',
+      gap: 2,
+      alignItems: 'center',
     },
     value: {},
   }),

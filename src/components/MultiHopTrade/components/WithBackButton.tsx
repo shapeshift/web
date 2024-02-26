@@ -4,13 +4,14 @@ import React from 'react'
 import { useTranslate } from 'react-polyglot'
 
 type WithBackButtonProps = React.PropsWithChildren<{
-  handleBack: () => void
+  onBack?: () => void
 }>
 
 const arrowBackIcon = <ArrowBackIcon />
 
-export const WithBackButton: React.FC<WithBackButtonProps> = ({ handleBack, children }) => {
+export const WithBackButton: React.FC<WithBackButtonProps> = ({ onBack, children }) => {
   const translate = useTranslate()
+  if (!onBack) return <>{children}</>
   return (
     <SimpleGrid gridTemplateColumns='25px 1fr 25px' alignItems='center' mx={-2}>
       <IconButton
@@ -19,7 +20,7 @@ export const WithBackButton: React.FC<WithBackButtonProps> = ({ handleBack, chil
         variant='ghost'
         fontSize='xl'
         isRound
-        onClick={handleBack}
+        onClick={onBack}
       />
       {children}
     </SimpleGrid>

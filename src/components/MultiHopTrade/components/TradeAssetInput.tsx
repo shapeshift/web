@@ -30,7 +30,7 @@ const AssetInputAwaitingAsset = () => {
 
 type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & { assetId: AssetId }
 
-const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
+const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
   const { assetId, accountId } = props
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
 
@@ -63,7 +63,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = props => {
       {...props}
     />
   )
-}
+})
 
 export type TradeAssetInputProps = {
   assetId?: AssetId

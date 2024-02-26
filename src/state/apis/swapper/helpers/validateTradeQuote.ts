@@ -256,9 +256,9 @@ export const validateTradeQuote = async (
 
   // Ensure the trade is not selling an amount higher than the user input, within a very safe threshold.
   // Threshold is required because cowswap sometimes quotes a sell amount a teeny-tiny bit more than you input.
-  const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit)
-    .times('1.0000000000001')
-    .lt(firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit)
+  const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit).lt(
+    firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  )
 
   return {
     errors: [

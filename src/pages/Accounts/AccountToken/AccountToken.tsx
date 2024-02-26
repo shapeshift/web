@@ -20,7 +20,7 @@ export type MatchParams = {
 
 const stackDirection: StackDirection = { base: 'column', xl: 'row' }
 const flexMaxWidth = { base: 'full', xl: 'sm' }
-const multiHopTradeDisplay = { base: 'none', md: 'block' }
+const multiHopTradeDisplay = { base: 'none', md: 'flex' }
 
 export const AccountToken = () => {
   const { accountId, assetId } = useParams<MatchParams>()
@@ -47,8 +47,15 @@ export const AccountToken = () => {
         <EarnOpportunities assetId={id} accountId={accountId} />
         <AssetTransactionHistory assetId={id} accountId={accountId} />
       </Stack>
-      <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={flexMaxWidth} gap={4}>
-        <MultiHopTrade display={multiHopTradeDisplay} />
+      <Flex
+        flexDir='column'
+        flex='1 1 0%'
+        width='full'
+        maxWidth={flexMaxWidth}
+        gap={4}
+        display={multiHopTradeDisplay}
+      >
+        <MultiHopTrade isCompact />
       </Flex>
     </Stack>
   )

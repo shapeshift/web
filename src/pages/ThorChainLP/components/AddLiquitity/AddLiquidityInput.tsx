@@ -734,6 +734,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       )
         return
 
+      setIsSlippageLoading(true)
+
       const runeAmountCryptoThorPrecision = convertPrecision({
         value: actualRuneCryptoLiquidityAmount,
         inputExponent: 0,
@@ -746,23 +748,24 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
-      setIsSlippageLoading(true)
-
       const estimate = await estimateAddThorchainLiquidityPosition({
         runeAmountCryptoThorPrecision,
         assetAmountCryptoThorPrecision,
         assetId: poolAsset.assetId,
       })
 
+      /*
+        Slippage is denominated in RUNE. Since the virtual RUNE amount is always half of the total pool amount
+        (for both sym and asym pools), and we want to display the total slippage across the entire position,
+        we multiply the slippage by 2 to get the total slippage for the pool.
+        */
+      const slippageRune = bnOrZero(estimate.slipPercent)
+        .div(100)
+        .times(virtualRuneFiatLiquidityAmount ?? 0)
+        .times(2)
+        .toFixed()
+      setSlippageRune(slippageRune)
       setIsSlippageLoading(false)
-
-      setSlippageRune(
-        bnOrZero(estimate.slipPercent)
-          .div(100)
-          .times(virtualRuneFiatLiquidityAmount ?? 0)
-          .times(2)
-          .toFixed(),
-      )
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
   }, [
@@ -1214,7 +1217,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
+            <Skeleton
+              isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
+            >
               <Amount.Fiat value={totalGasFeeFiat} />
             </Skeleton>
           </Row.Value>
@@ -1222,7 +1227,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.fees')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
+            <Skeleton
+              isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
+            >
               <Amount.Fiat value={confirmedQuote?.feeAmountFiat ?? '0'} />
             </Skeleton>
           </Row.Value>

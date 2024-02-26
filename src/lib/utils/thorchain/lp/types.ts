@@ -220,6 +220,7 @@ export type LpConfirmedWithdrawalQuote = {
   feeBps: string
   assetAddress?: string
   quoteInboundAddress: string
+  withdrawalBps: string
   // For informative purposes only at confirm step - to be recalculated before signing
   totalGasFeeFiat: string
   runeGasFeeFiat: string

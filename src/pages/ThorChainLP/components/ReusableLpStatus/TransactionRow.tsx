@@ -58,6 +58,7 @@ import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
@@ -101,6 +102,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
+  const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
 
   const { currentAccountIdByChainId } = confirmedQuote
 
@@ -272,11 +274,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     switch (transactionType) {
       case 'MsgDeposit': {
-        const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-          confirmedQuote.feeBps
-        }`
+        const memo = isDeposit
+          ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
+          : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
         return {
-          cryptoAmount: toBaseUnit(amountCryptoPrecision, asset.precision),
+          cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
           assetId: asset.assetId,
           memo,
           to: THORCHAIN_POOL_MODULE_ADDRESS,
@@ -356,8 +358,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     poolAsset,
     isRuneTx,
     amountCryptoPrecision,
+    isDeposit,
     otherAssetAddress,
-    confirmedQuote.feeBps,
+    confirmedQuote,
     runeAccountId,
     poolAssetAccountId,
     inboundAddressData,
@@ -420,12 +423,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
 
             const adapter = assertGetThorchainChainAdapter()
-            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-              confirmedQuote.feeBps
-            }`
+            const memo = isDeposit
+              ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
+                  confirmedQuote.feeBps
+                }`
+              : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
             const estimatedFees = await estimateFees({
-              cryptoAmount: amountCryptoBaseUnit,
+              cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
               assetId: asset.assetId,
               memo,
               to: THORCHAIN_POOL_MODULE_ADDRESS,
@@ -583,8 +588,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     poolAssetAccountId,
     amountCryptoPrecision,
     runeAccountNumber,
+    isDeposit,
     otherAssetAddress,
-    confirmedQuote.feeBps,
+    confirmedQuote,
     assetAccountNumber,
     accountAssetAddress,
     selectedCurrency,

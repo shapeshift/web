@@ -569,6 +569,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
       totalFeeFiatUserCurrency: totalGasFeeFiat,
       feeBps: '0',
+      withdrawalBps: (percentageSelection * 100).toString(),
       currentAccountIdByChainId: {
         [poolChainId]: accountId,
         [thorchainChainId]: runeAccountId ?? '',
@@ -582,9 +583,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     opportunityType,
     opportunityId,
     accountId,
+    percentageSelection,
     poolAsset,
-    poolAsset?.chainId,
-    poolAssetGasFeeFiatUserCurrency,
     poolAssetInboundAddress,
     runeAccountId,
     runeGasFeeFiatUserCurrency,
@@ -593,6 +593,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     shareOfPoolDecimalPercent,
     slippageRune,
     totalGasFeeFiat,
+    poolAssetGasFeeFiatUserCurrency,
   ])
 
   const tradeAssetInputs = useMemo(() => {

@@ -150,7 +150,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         </Center>
         <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
-          <RawText>{translate('pools.supplying')}</RawText>
+          <RawText>
+            {translate(
+              'runeCryptoDepositAmount' in confirmedQuote ? 'pools.supplying' : 'pools.withdrawing',
+            )}
+          </RawText>
           <HStack divider={hStackDivider}>{supplyAssets}</HStack>
         </Flex>
       </CardBody>

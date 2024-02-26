@@ -2235,6 +2235,7 @@
     "totalTokensLocked": "Total Tokens Locked",
     "chainFee": "%{chain} Fee",
     "supplying": "Supplying",
+    "withdrawing": "Withdrawing",
     "confirmAndDeposit": "Confirm and Deposit",
     "confirmAndWithdraw": "Confirm and Withdraw",
     "removeAmounts": "Remove Amount(s)",

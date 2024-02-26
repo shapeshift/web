@@ -223,12 +223,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
     )
 
-    const poolOpportunityId = assetId ? `${assetId}*${opportunityType}` : ''
+    const poolOpportunityId = assetId && toOpportunityId({ assetId, type: opportunityType })
 
     return (
       opportunityId ||
       poolOpportunityId ||
-      `${walletSupportedOpportunity?.assetId ?? pools[0].assetId}*${opportunityType}`
+      toOpportunityId({
+        assetId: walletSupportedOpportunity?.assetId ?? pools[0].assetId,
+        type: opportunityType,
+      })
     )
   }, [pools, opportunityId, getDefaultOpportunityType, poolAssetId, isSnapInstalled, wallet])
 

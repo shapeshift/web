@@ -6,9 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { SlideTransition } from 'components/SlideTransition'
 import { Sweep } from 'components/Sweep'
 import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
-import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { fromOpportunityId } from 'pages/ThorChainLP/utils'
 
 type AddLiquiditySweepProps = {
   confirmedQuote: LpConfirmedDepositQuote
@@ -25,19 +23,15 @@ export const AddLiquiditySweep: React.FC<AddLiquiditySweepProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const { opportunityId, accountIdsByChainId } = confirmedQuote
+  const { opportunityId, accountIdsByChainId, assetAddress } = confirmedQuote
 
-  const { data: parsedPools } = usePools()
-  const foundPool = useMemo(() => {
-    if (!parsedPools) return undefined
-    return parsedPools.find(pool => pool.opportunityId === opportunityId)
-  }, [opportunityId, parsedPools])
+  const assetId = useMemo(() => fromOpportunityId(opportunityId).assetId, [opportunityId])
 
-  const asset = useAppSelector(state => selectAssetById(state, foundPool?.assetId ?? ''))
-  const assetId = asset?.assetId
-  const accountId = accountIdsByChainId[assetId ? fromAssetId(assetId).chainId : '']
+  const accountId = useMemo(() => {
+    return accountIdsByChainId[assetId ? fromAssetId(assetId).chainId : '']
+  }, [accountIdsByChainId, assetId])
 
-  if (!assetId || !accountId || !confirmedQuote.assetAddress) return null
+  if (!assetId || !accountId || !assetAddress) return null
 
   return (
     <SlideTransition>
@@ -51,7 +45,7 @@ export const AddLiquiditySweep: React.FC<AddLiquiditySweepProps> = ({
       <CardBody pt={0}>
         <Sweep
           assetId={assetId}
-          fromAddress={confirmedQuote.assetAddress}
+          fromAddress={assetAddress}
           accountId={accountId}
           onBack={handleBack}
           onSweepSeen={handleSweepSeen}

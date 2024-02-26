@@ -1,22 +1,23 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag, Tooltip } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { calculateTVL, getVolume } from 'lib/utils/thorchain/lp'
+import { getVolume } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import type { ParsedPool } from './queries/hooks/usePools'
+import type { Pool } from './queries/hooks/usePools'
 import { usePools } from './queries/hooks/usePools'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
@@ -46,11 +47,12 @@ const listMargin = {
 }
 
 type PoolButtonProps = {
-  pool: ParsedPool
+  pool: Pool
 }
 
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
+  const translate = useTranslate()
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
@@ -59,20 +61,12 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
   })
 
   const handlePoolClick = useCallback(() => {
-    const { opportunityId } = pool
-    history.push(generatePath('/pools/poolAccount/:opportunityId', { opportunityId }))
-  }, [history, pool])
+    history.push(generatePath('/pools/:poolAssetId', { poolAssetId: pool.asset }))
+  }, [history, pool.asset])
 
-  const poolAssetIds = useMemo(() => {
-    return [pool.assetId, thorchainAssetId]
-  }, [pool.assetId])
+  const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
 
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
-
-  const tvl = useMemo(
-    () => calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price).tvl,
-    [pool.assetDepth, pool.runeDepth, runeMarketData.price],
-  )
 
   const { data: volume24H, isLoading: isVolume24HLoading } = useQuery({
     ...reactQueries.midgard.swapsData(pool.assetId, '24h'),
@@ -106,23 +100,29 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         </Box>
         <RawText>{pool.name}</RawText>
         <Tag size='sm'>
-          <Amount.Percent value={pool.poolAPY} />
+          <Amount.Percent value={pool.annualPercentageRate} />
         </Tag>
         <Skeleton isLoaded={!isTradingActiveLoading}>
-          {isTradingActive === false ? (
-            <Tag colorScheme='yellow'>
-              <Text translation='common.halted' />
-            </Tag>
-          ) : (
+          {isTradingActive === true && pool.status === 'available' && (
             <Tag colorScheme='green'>
               <Text translation='common.available' />
             </Tag>
           )}
+          {isTradingActive === true && pool.status === 'staged' && (
+            <Tooltip label={translate('pools.stagedTooltip')} hasArrow>
+              <Tag colorScheme='yellow'>
+                <Text translation='common.staged' />
+              </Tag>
+            </Tooltip>
+          )}
+          {isTradingActive === false && (
+            <Tag colorScheme='red'>
+              <Text translation='common.halted' />
+            </Tag>
+          )}
         </Skeleton>
       </Flex>
-      <Skeleton isLoaded={!!tvl}>
-        <Amount.Fiat value={tvl} />
-      </Skeleton>
+      <Amount.Fiat value={pool.tvlFiat} />
       <Skeleton isLoaded={!isVolume24HLoading} display={mobileDisplay}>
         <Amount.Fiat value={volume24H ?? '0'} />
       </Skeleton>
@@ -134,13 +134,15 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 }
 
 export const AvailablePools = () => {
+  const { data: pools, isLoading } = usePools()
+
   const headerComponent = useMemo(() => <PoolsHeader />, [])
-  const { data: parsedPools, isLoading } = usePools(true)
 
   const renderRows = useMemo(() => {
-    if (isLoading) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
-    return parsedPools?.map(pool => <PoolButton key={pool.opportunityId} pool={pool} />)
-  }, [isLoading, parsedPools])
+    if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
+    return pools?.map(pool => <PoolButton key={pool.asset} pool={pool} />)
+  }, [isLoading, pools])
+
   return (
     <Main headerComponent={headerComponent}>
       <Stack>
@@ -153,7 +155,6 @@ export const AvailablePools = () => {
           px={mobilePadding}
         >
           <Text translation='pools.pool' />
-
           <Text translation='pools.tvl' />
           <Flex display={mobileDisplay}>
             <Text translation='pools.volume24h' />

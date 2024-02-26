@@ -9,6 +9,7 @@ import { RawText } from 'components/Text'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { assertUnreachable } from 'lib/utils'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -87,9 +88,9 @@ const options = [
 type DepositTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
-  defaultOpportunityId?: string
+  opportunityId?: string
 }
-export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: DepositTypeProps) => {
+export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositTypeProps) => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
 
@@ -98,19 +99,20 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
   )
   const poolAssetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
 
-  const assetIds = useMemo(() => {
-    return [assetId, thorchainAssetId]
-  }, [assetId])
-
   const makeAssetIdsOption = useCallback(
     (value: AsymSide | 'sym'): AssetId[] => {
-      if (value === 'sym') return assetIds
-      if (value === AsymSide.Rune) return [thorchainAssetId]
-      if (value === AsymSide.Asset) return [assetId]
-
-      throw new Error(`Invalid value ${value}`)
+      switch (value) {
+        case AsymSide.Rune:
+          return [thorchainAssetId]
+        case AsymSide.Asset:
+          return [assetId]
+        case 'sym':
+          return [assetId, thorchainAssetId]
+        default:
+          assertUnreachable(value)
+      }
     },
-    [assetId, assetIds],
+    [assetId],
   )
 
   const walletSupportsRune = useMemo(() => {
@@ -158,7 +160,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
   }, [assetId, defaultValue, setValue])
 
   const radioOptions = useMemo(() => {
-    const _options = defaultOpportunityId ? options : []
+    const _options = opportunityId ? options : []
 
     return _options.map((option, index) => {
       const radio = getRadioProps({ value: option.value })
@@ -185,13 +187,7 @@ export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: Depo
         </TypeRadio>
       )
     })
-  }, [
-    defaultOpportunityId,
-    getRadioProps,
-    makeAssetIdsOption,
-    walletSsupportsAsset,
-    walletSupportsRune,
-  ])
+  }, [opportunityId, getRadioProps, makeAssetIdsOption, walletSsupportsAsset, walletSupportsRune])
 
   const group = getRootProps()
   return (

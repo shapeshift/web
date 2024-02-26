@@ -6,21 +6,25 @@ import { Main } from 'components/Layout/Main'
 import { AddLiquidity } from './components/AddLiquitity/AddLiquidity'
 
 type MatchParams = {
-  poolOpportunityId?: string
+  poolAssetId?: string
+  opportunityId?: string
 }
 
 export const AddLiquidityPage = () => {
-  const { poolOpportunityId } = useParams<MatchParams>()
+  const params = useParams<MatchParams>()
+
+  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+
   const opportunityId = useMemo(
-    () => decodeURIComponent(poolOpportunityId ?? ''),
-    [poolOpportunityId],
+    () => decodeURIComponent(params.opportunityId ?? ''),
+    [params.opportunityId],
   )
 
   return (
     <Main>
       <Center>
         <Card width='full' maxWidth='md'>
-          <AddLiquidity paramOpportunityId={opportunityId} />
+          <AddLiquidity poolAssetId={poolAssetId} opportunityId={opportunityId} />
         </Card>
       </Center>
     </Main>

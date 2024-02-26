@@ -33,7 +33,8 @@ export const selectIsTradingActive = ({
 }): boolean => {
   switch (swapperName) {
     case SwapperName.Thorchain: {
-      if (!assetId) throw new Error('AssetId is required')
+      if (!assetId) return false
+
       const sellAssetIsRune = isRune(assetId)
 
       if (sellAssetIsRune) {

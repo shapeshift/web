@@ -1,4 +1,4 @@
-import type { ButtonProps, MenuProps } from '@chakra-ui/react'
+import type { ButtonProps } from '@chakra-ui/react'
 import {
   Button,
   Menu,
@@ -29,7 +29,7 @@ type AssetChainDropdownProps = {
   buttonProps?: ButtonProps
   isLoading?: boolean
   isError?: boolean
-} & Omit<MenuProps, 'children'>
+}
 
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   assetId,
@@ -38,7 +38,6 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   buttonProps,
   isLoading,
   isError,
-  ...menuProps
 }) => {
   const {
     state: { wallet },
@@ -97,7 +96,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
-    <Menu {...menuProps}>
+    <Menu>
       <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
         <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
           <AssetChainRow assetId={assetId} hideBalances />

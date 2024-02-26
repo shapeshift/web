@@ -124,10 +124,8 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
 
   const hasPendingUndelegation = Boolean(
     undelegations &&
-      undelegations.some(
-        undelegation =>
-          dayjs().isAfter(dayjs(undelegation.completionTime).unix()) &&
-          bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
+      undelegations.some(undelegation =>
+        bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
       ),
   )
 

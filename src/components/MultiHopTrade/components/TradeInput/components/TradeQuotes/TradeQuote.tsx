@@ -1,5 +1,5 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Collapse, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
+import { Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
@@ -42,6 +42,7 @@ type TradeQuoteProps = {
   bestInputOutputRatio: number | undefined
   isLoading: boolean
   isRefetching: boolean
+  onBack?: () => void
 }
 
 export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
@@ -52,8 +53,9 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   bestInputOutputRatio,
   isLoading,
   isRefetching,
+  onBack,
 }) => {
-  const { quote, errors, inputOutputRatio } = quoteData
+  const { quote, errors, inputOutputRatio, swapperName } = quoteData
 
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -66,12 +68,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const sellAsset = useAppSelector(selectInputSellAsset)
   const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
     assetId: buyAsset.assetId,
-    swapperName: quoteData.swapperName,
+    swapperName,
     enabled: true,
   })
   const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
     assetId: sellAsset.assetId,
-    swapperName: quoteData.swapperName,
+    swapperName,
     enabled: true,
   })
 
@@ -130,11 +132,12 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
   const handleQuoteSelection = useCallback(() => {
     if (!isActive) {
       dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+      onBack && onBack()
     } else if (!isBest) {
       // don't allow un-selecting of best quote as it gets re-selected in this case
       dispatch(tradeQuoteSlice.actions.setActiveQuote(undefined))
     }
-  }, [dispatch, isActive, isBest, quoteData])
+  }, [dispatch, isActive, isBest, onBack, quoteData])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, sellAsset.chainId ?? ''))
   if (!feeAsset)
@@ -155,7 +158,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
   const hasNegativeRatio =
-    quoteData.inputOutputRatio !== undefined && isAmountEntered && quoteData.inputOutputRatio <= 0
+    inputOutputRatio !== undefined && isAmountEntered && inputOutputRatio <= 0
 
   const hasAmountWithPositiveReceive =
     isAmountEntered &&
@@ -245,7 +248,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
       if (isUserSlippageNotApplied) {
         return translate('trade.quote.cantSetSlippage', {
           userSlippageFormatted: toPercent(userSlippagePercentageDecimal),
-          swapperName: quoteData.swapperName,
+          swapperName,
         })
       }
 
@@ -271,7 +274,7 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
         </Tooltip>
       </Skeleton>
     )
-  }, [isLoading, quote, quoteData.swapperName, toPercent, translate, userSlippagePercentageDecimal])
+  }, [isLoading, quote, swapperName, toPercent, translate, userSlippagePercentageDecimal])
 
   const headerContent = useMemo(() => {
     return (
@@ -284,27 +287,24 @@ export const TradeQuoteLoaded: FC<TradeQuoteProps> = ({
 
   const bodyContent = useMemo(() => {
     return quote ? (
-      <Collapse in={isBest || isActive}>
-        <TradeQuoteContent
-          isLoading={isLoading}
-          buyAsset={buyAsset}
-          isBest={isBest}
-          numHops={quote?.steps.length}
-          totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
-          hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
-          totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
-          quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
-          networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
-          totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
-          slippage={slippage}
-          tradeQuote={quote}
-        />
-      </Collapse>
+      <TradeQuoteContent
+        isLoading={isLoading}
+        buyAsset={buyAsset}
+        isBest={isBest}
+        numHops={quote?.steps.length}
+        totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
+        hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
+        totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
+        quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
+        networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
+        totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
+        slippage={slippage}
+        tradeQuote={quote}
+      />
     ) : null
   }, [
     buyAsset,
     hasAmountWithPositiveReceive,
-    isActive,
     isBest,
     isLoading,
     networkFeeUserCurrencyPrecision,

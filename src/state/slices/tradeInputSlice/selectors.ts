@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { Selector } from 'react-redux'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -218,4 +218,9 @@ export const selectSellAssetBalanceCryptoBaseUnit = createSelector(
 export const selectIsInputtingFiatSellAmount = createSelector(
   selectTradeInput,
   tradeInput => tradeInput.isInputtingFiatSellAmount,
+)
+
+export const selectHasUserEnteredAmount = createSelector(
+  selectInputSellAmountCryptoPrecision,
+  sellAmountCryptoPrecision => bnOrZero(sellAmountCryptoPrecision).gt(0),
 )

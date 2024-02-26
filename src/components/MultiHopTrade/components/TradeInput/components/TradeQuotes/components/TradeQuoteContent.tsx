@@ -139,7 +139,7 @@ export const TradeQuoteContent = ({
       </CardBody>
 
       <CardFooter px={4} pb={4}>
-        <Flex justifyContent='left' alignItems='left' gap={8}>
+        <Flex justifyContent='left' alignItems='left' gap={4}>
           <Skeleton isLoaded={!isLoading}>
             <Flex gap={2} alignItems='center'>
               <RawText color='text.subtle'>

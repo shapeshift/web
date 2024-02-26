@@ -1,40 +1,32 @@
-import type { FlexProps, IconProps } from '@chakra-ui/react'
-import { Text as CText, useColorModeValue } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useMemo } from 'react'
-import { MdOfflineBolt } from 'react-icons/md'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 
+import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
+
 interface PriceImpactProps {
-  impactPercentage: string
+  priceImpactPercentage: string
 }
 
-const flexProps: FlexProps = { flexDirection: 'row' }
-
-export const PriceImpact: FC<PriceImpactProps> = ({ impactPercentage }) => {
+export const PriceImpact: FC<PriceImpactProps> = ({ priceImpactPercentage }) => {
   const translate = useTranslate()
-  const redText = useColorModeValue('red.500', 'red.400')
-  const iconProps: IconProps = useMemo(() => ({ color: redText }), [redText])
+
+  const priceImpactColor = usePriceImpactColor(priceImpactPercentage)
+
+  const tooltipBody = useCallback(
+    () => <RawText>{translate('trade.tooltip.priceImpact')}</RawText>,
+    [translate],
+  )
 
   return (
-    <Row fontSize='sm' flex={1}>
+    <Row fontSize='sm' flex={1} Tooltipbody={tooltipBody}>
       <Row.Label display='flex' alignItems='center' gap={1}>
         <Text translation='trade.priceImpact' />
-        <RawText as='span' fontSize='lg' color='gray.500'>
-          <MdOfflineBolt />
-        </RawText>
       </Row.Label>
       <Row.Value>
-        <HelperTooltip
-          label={translate('trade.tooltip.priceImpact')}
-          flexProps={flexProps}
-          iconProps={iconProps}
-        >
-          <CText color={redText}>{impactPercentage} %</CText>
-        </HelperTooltip>
+        <RawText color={priceImpactColor}>{priceImpactPercentage} %</RawText>
       </Row.Value>
     </Row>
   )

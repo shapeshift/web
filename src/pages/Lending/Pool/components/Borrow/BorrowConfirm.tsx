@@ -299,7 +299,7 @@ export const BorrowConfirm = ({
         sendMax: false,
         accountId: collateralAccountId,
         memo: supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId as KnownChainIds)
-          ? toHex(stringToBytes(confirmedQuote.quoteMemo))
+          ? toHex(confirmedQuote.quoteMemo)
           : confirmedQuote.quoteMemo,
         amountFieldError: '',
         estimatedFees,

@@ -290,7 +290,7 @@ export const RepayConfirm = ({
       memo: supportedEvmChainIds.includes(
         fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
       )
-        ? toHex(stringToBytes(confirmedQuote.quoteMemo))
+        ? toHex(confirmedQuote.quoteMemo)
         : confirmedQuote.quoteMemo,
       to: confirmedQuote.quoteInboundAddress,
       sendMax: false,
@@ -342,7 +342,7 @@ export const RepayConfirm = ({
         memo: supportedEvmChainIds.includes(
           fromAssetId(repaymentAsset?.assetId).chainId as KnownChainIds,
         )
-          ? toHex(stringToBytes(confirmedQuote.quoteMemo))
+          ? toHex(confirmedQuote.quoteMemo)
           : confirmedQuote.quoteMemo,
         amountFieldError: '',
         estimatedFees,

@@ -92,7 +92,7 @@ export const Notifications = memo(() => {
       try {
         const signedMsg = await wallet.ethSignMessage({
           addressNList,
-          message: toHex(stringToBytes(message)),
+          message: toHex(message),
         })
 
         return signedMsg?.signature

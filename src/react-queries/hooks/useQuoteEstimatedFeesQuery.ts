@@ -89,7 +89,7 @@ export const useQuoteEstimatedFeesQuery = ({
       confirmedQuote && 'quoteMemo' in confirmedQuote ? confirmedQuote.quoteMemo : ''
     const memo =
       assetId && supportedEvmChainIds.includes(fromAssetId(assetId).chainId as KnownChainIds)
-        ? toHex(stringToBytes(quoteMemo))
+        ? toHex(quoteMemo)
         : quoteMemo
     const to =
       confirmedQuote && 'quoteInboundAddress' in confirmedQuote

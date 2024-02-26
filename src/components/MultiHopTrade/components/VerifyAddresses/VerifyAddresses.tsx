@@ -285,63 +285,65 @@ export const VerifyAddresses = () => {
 
   return (
     <SlideTransition>
-      <CardHeader>
-        <WithBackButton onBack={handleBack}>
-          <Heading as='h5' textAlign='center'>
-            <Text translation='trade.verifyAddresses' />
-          </Heading>
-        </WithBackButton>
-      </CardHeader>
+      <Card>
+        <CardHeader>
+          <WithBackButton onBack={handleBack}>
+            <Heading as='h5' textAlign='center'>
+              <Text translation='trade.verifyAddresses' />
+            </Heading>
+          </WithBackButton>
+        </CardHeader>
 
-      <CardBody display='flex' flexDir='column' gap={4}>
-        <Card overflow='hidden'>
-          <CardHeader display='flex' alignItems='center' gap={2}>
-            <AssetIcon size='xs' assetId={buyAsset.assetId} />
-            <Text translation={buyAssetAddressTranslation} />
-          </CardHeader>
-          <CardBody bg='background.surface.raised.base'>
-            <Stack>
-              <Flex alignItems='center' gap={2} justifyContent='space-between'>
-                <Flex alignItems='center' gap={2}>
-                  <Skeleton isLoaded={!!buyAddress}>
-                    <RawText>{buyAddress}</RawText>
-                  </Skeleton>
+        <CardBody display='flex' flexDir='column' gap={4}>
+          <Card overflow='hidden'>
+            <CardHeader display='flex' alignItems='center' gap={2}>
+              <AssetIcon size='xs' assetId={buyAsset.assetId} />
+              <Text translation={buyAssetAddressTranslation} />
+            </CardHeader>
+            <CardBody bg='background.surface.raised.base'>
+              <Stack>
+                <Flex alignItems='center' gap={2} justifyContent='space-between'>
+                  <Flex alignItems='center' gap={2}>
+                    <Skeleton isLoaded={!!buyAddress}>
+                      <RawText>{buyAddress}</RawText>
+                    </Skeleton>
+                  </Flex>
+                  {isBuyVerifying && <Spinner boxSize={5} />}
+                  {buyVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
                 </Flex>
-                {isBuyVerifying && <Spinner boxSize={5} />}
-                {buyVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
-              </Flex>
-            </Stack>
-          </CardBody>
-        </Card>
-        <Card overflow='hidden'>
-          <CardHeader display='flex' alignItems='center' gap={2}>
-            <AssetIcon size='xs' assetId={sellAsset.assetId} />
-            <Text translation={sellAssetAddressTranslation} />
-          </CardHeader>
-          <CardBody bg='background.surface.raised.base'>
-            <Stack>
-              <Flex alignItems='center' gap={2} justifyContent='space-between'>
-                <Flex alignItems='center' gap={2}>
-                  <Skeleton isLoaded={!!sellAddress}>
-                    <RawText>{sellAddress}</RawText>
-                  </Skeleton>
+              </Stack>
+            </CardBody>
+          </Card>
+          <Card overflow='hidden'>
+            <CardHeader display='flex' alignItems='center' gap={2}>
+              <AssetIcon size='xs' assetId={sellAsset.assetId} />
+              <Text translation={sellAssetAddressTranslation} />
+            </CardHeader>
+            <CardBody bg='background.surface.raised.base'>
+              <Stack>
+                <Flex alignItems='center' gap={2} justifyContent='space-between'>
+                  <Flex alignItems='center' gap={2}>
+                    <Skeleton isLoaded={!!sellAddress}>
+                      <RawText>{sellAddress}</RawText>
+                    </Skeleton>
+                  </Flex>
+                  {isSellVerifying && <Spinner boxSize={5} />}
+                  {sellVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
                 </Flex>
-                {isSellVerifying && <Spinner boxSize={5} />}
-                {sellVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
-              </Flex>
-            </Stack>
-          </CardBody>
-        </Card>
-      </CardBody>
-      <CardFooter flexDir='column' gap={4}>
-        <Alert status='warning'>
-          <AlertIcon />
-          <AlertDescription>
-            <Text translation='trade.verifyAddressMessage' />
-          </AlertDescription>
-        </Alert>
-        {renderButton}
-      </CardFooter>
+              </Stack>
+            </CardBody>
+          </Card>
+        </CardBody>
+        <CardFooter flexDir='column' gap={4}>
+          <Alert status='warning'>
+            <AlertIcon />
+            <AlertDescription>
+              <Text translation='trade.verifyAddressMessage' />
+            </AlertDescription>
+          </Alert>
+          {renderButton}
+        </CardFooter>
+      </Card>
     </SlideTransition>
   )
 }

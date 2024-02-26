@@ -831,6 +831,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         assetId: poolAsset.assetId,
       })
 
+      /*
+        Slippage is denominated in RUNE. Since the virtual RUNE amount is always half of the total pool amount
+        (for both sym and asym pools), and we want to display the total slippage across the entire position,
+        we multiply the slippage by 2 to get the total slippage for the pool.
+        */
       const slippageRune = bnOrZero(estimate.slipPercent)
         .div(100)
         .times(virtualRuneFiatLiquidityAmount ?? 0)

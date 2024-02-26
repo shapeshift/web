@@ -263,7 +263,7 @@ export const BorrowInput = ({
     isLoading: isEstimatedSweepFeesDataLoading,
     isSuccess: isEstimatedSweepFeesDataSuccess,
   } = useGetEstimatedFeesQuery({
-    cryptoAmount: '0',
+    amountCryptoPrecision: '0',
     assetId: collateralAssetId,
     to: fromAddress ?? '',
     sendMax: true,

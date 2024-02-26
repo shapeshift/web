@@ -35,7 +35,7 @@ export const useFormSend = () => {
               <Text>
                 <Text>
                   {translate('modals.send.youHaveSent', {
-                    amount: sendInput.cryptoAmount,
+                    amount: sendInput.amountCryptoPrecision,
                     symbol: asset.symbol,
                   })}
                 </Text>

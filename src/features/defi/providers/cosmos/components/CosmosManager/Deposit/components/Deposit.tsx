@@ -92,7 +92,7 @@ export const Deposit: React.FC<DepositProps> = ({
     async (setValue: UseFormSetValue<DepositValues>) => {
       if (!accountId) return
       const estimatedFees = await estimateFees({
-        cryptoAmount: cryptoAmountAvailable.toString(),
+        amountCryptoPrecision: cryptoAmountAvailable.toString(),
         assetId,
         to: '',
         sendMax: true,

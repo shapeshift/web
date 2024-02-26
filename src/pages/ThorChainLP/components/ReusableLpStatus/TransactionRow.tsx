@@ -282,7 +282,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
           : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
         return {
-          cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
+          amountCryptoPrecision: isDeposit ? amountCryptoPrecision : '0',
           assetId: asset.assetId,
           memo,
           to: THORCHAIN_POOL_MODULE_ADDRESS,
@@ -324,7 +324,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         })
 
         return {
-          cryptoAmount: amount.toString(),
+          amountCryptoPrecision: amount.toString(),
           assetId: asset.assetId,
           to: inboundAddressData.router,
           from: accountAssetAddress,
@@ -342,7 +342,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
         return {
-          cryptoAmount: isDeposit
+          amountCryptoPrecision: isDeposit
             ? amountCryptoPrecision
             : // Reuse the savers util as a sane amount for the dust threshold
               fromBaseUnit(
@@ -379,7 +379,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
     useGetEstimatedFeesQuery({
-      cryptoAmount: estimateFeesArgs?.cryptoAmount ?? '0',
+      amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
       assetId: estimateFeesArgs?.assetId ?? '',
       to: estimateFeesArgs?.to ?? '',
       sendMax: estimateFeesArgs?.sendMax ?? false,
@@ -443,7 +443,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
             const estimatedFees = await estimateFees({
-              cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
+              amountCryptoPrecision: isDeposit ? amountCryptoPrecision : '0',
               assetId: asset.assetId,
               memo,
               to: THORCHAIN_POOL_MODULE_ADDRESS,
@@ -546,7 +546,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
             const estimateFeesArgs = {
-              cryptoAmount: isDeposit
+              amountCryptoPrecision: isDeposit
                 ? amountCryptoPrecision
                 : // Reuse the savers util as a sane amount for the dust threshold
                   fromBaseUnit(
@@ -563,7 +563,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
-              cryptoAmount: isDeposit
+              amountCryptoPrecision: isDeposit
                 ? amountCryptoPrecision
                 : // Reuse the savers util as a sane amount for the dust threshold
                   fromBaseUnit(

@@ -314,7 +314,7 @@ export const Deposit: React.FC<DepositProps> = ({
             contractAddress: undefined,
             assetId,
             sendMax: false,
-            cryptoAmount: '0',
+            amountCryptoPrecision: '0',
             to: customTxInput.to,
             from: fromAccountId(accountId).account,
             memo: customTxInput.data,
@@ -380,7 +380,7 @@ export const Deposit: React.FC<DepositProps> = ({
     isLoading: isEstimatedFeesDataLoading,
     isSuccess: isEstimatedFeesDataSuccess,
   } = useGetEstimatedFeesQuery({
-    cryptoAmount: inputValues?.cryptoAmount ?? '0',
+    amountCryptoPrecision: inputValues?.cryptoAmount ?? '0',
     assetId,
     to: thorchainSaversDepositQuote?.inbound_address ?? '',
     sendMax: false,
@@ -729,7 +729,7 @@ export const Deposit: React.FC<DepositProps> = ({
       )
       const estimatedFeesQueryArgs = {
         estimateFeesInput: {
-          cryptoAmount: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),
+          amountCryptoPrecision: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),
           assetId,
           to: fromAddress ?? '',
           sendMax: false,
@@ -780,7 +780,7 @@ export const Deposit: React.FC<DepositProps> = ({
         asset,
         assetMarketData: marketData,
         estimateFeesInput: {
-          cryptoAmount: '0',
+          amountCryptoPrecision: '0',
           assetId,
           to: fromAddress ?? '',
           sendMax: true,

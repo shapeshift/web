@@ -64,7 +64,7 @@ export const Details = () => {
   const history = useHistory()
   const translate = useTranslate()
 
-  const { accountId, amountFieldError, assetId, cryptoAmount, fiatAmount, fiatSymbol, memo } =
+  const { accountId, amountFieldError, assetId, amountCryptoPrecision: cryptoAmount, fiatAmount, fiatSymbol, memo } =
     useWatch({
       control,
     }) as Partial<SendInput>
@@ -75,7 +75,7 @@ export const Details = () => {
     (accountId: AccountId) => {
       setValue(SendFormFields.AccountId, accountId)
       if (!previousAccountId) return
-      if (!cryptoAmount) setValue(SendFormFields.CryptoAmount, '')
+      if (!cryptoAmount) setValue(SendFormFields.AmountCryptoPrecision, '')
       if (!fiatAmount) setValue(SendFormFields.FiatAmount, '')
     },
     [cryptoAmount, fiatAmount, previousAccountId, setValue],
@@ -103,7 +103,7 @@ export const Details = () => {
     // Also turns out we don't handle re-validation in case of changing AccountIds
     // This effect takes care of both the initial/account change cases
     if ((previousAccountId ?? '') !== accountId) {
-      const inputAmount = fieldName === SendFormFields.CryptoAmount ? cryptoAmount : fiatAmount
+      const inputAmount = fieldName === SendFormFields.AmountCryptoPrecision ? cryptoAmount : fiatAmount
       handleInputChange(inputAmount ?? '0')
       trigger(fieldName)
     }
@@ -221,7 +221,7 @@ export const Details = () => {
           isLoaded={!balancesLoading}
           cryptoAmountAvailable={cryptoHumanBalance.toString()}
           fiatAmountAvailable={fiatBalance.toString()}
-          showCrypto={fieldName === SendFormFields.CryptoAmount}
+          showCrypto={fieldName === SendFormFields.AmountCryptoPrecision}
           onClick={handleAccountCardClick}
           mb={2}
         />
@@ -250,10 +250,10 @@ export const Details = () => {
               )}
             </FormHelperText>
           </Box>
-          {fieldName === SendFormFields.CryptoAmount && (
+          {fieldName === SendFormFields.AmountCryptoPrecision && (
             <TokenRow
               control={control}
-              fieldName={SendFormFields.CryptoAmount}
+              fieldName={SendFormFields.AmountCryptoPrecision}
               onInputChange={handleInputChange}
               inputLeftElement={cryptoTokenRowInputLeftElement}
               inputRightElement={tokenRowInputRightElement}

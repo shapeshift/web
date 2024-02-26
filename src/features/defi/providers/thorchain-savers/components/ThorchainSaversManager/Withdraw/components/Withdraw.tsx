@@ -405,7 +405,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     isLoading: isEstimatedFeesDataLoading,
     isSuccess: isEstimatedFeesDataSuccess,
   } = useGetEstimatedFeesQuery({
-    cryptoAmount: dustAmountCryptoBaseUnit,
+    amountCryptoPrecision: dustAmountCryptoBaseUnit,
     assetId,
     to: thorchainSaversWithdrawQuote?.inbound_address ?? '',
     sendMax: false,

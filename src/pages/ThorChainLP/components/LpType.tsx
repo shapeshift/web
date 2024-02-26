@@ -88,9 +88,9 @@ const options = [
 type DepositTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
-  opportunityId?: string
+  defaultOpportunityId?: string
 }
-export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositTypeProps) => {
+export const LpType = ({ assetId, defaultOpportunityId, onAsymSideChange }: DepositTypeProps) => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
 
@@ -160,7 +160,7 @@ export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositType
   }, [assetId, defaultValue, setValue])
 
   const radioOptions = useMemo(() => {
-    const _options = opportunityId ? options : []
+    const _options = defaultOpportunityId ? options : []
 
     return _options.map((option, index) => {
       const radio = getRadioProps({ value: option.value })
@@ -187,7 +187,13 @@ export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositType
         </TypeRadio>
       )
     })
-  }, [opportunityId, getRadioProps, makeAssetIdsOption, walletSsupportsAsset, walletSupportsRune])
+  }, [
+    defaultOpportunityId,
+    getRadioProps,
+    makeAssetIdsOption,
+    walletSsupportsAsset,
+    walletSupportsRune,
+  ])
 
   const group = getRootProps()
   return (

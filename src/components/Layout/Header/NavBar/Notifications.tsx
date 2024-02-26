@@ -5,7 +5,7 @@ import type { CustomTheme, ThemeMode as ThemeModeType } from '@wherever/react-no
 import { getConfig } from 'config'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { stringToBytes, toHex } from 'viem'
+import { toHex } from 'viem'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'

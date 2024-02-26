@@ -59,7 +59,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
       case this.supportedFunctions.approveSigHash: {
         const amount = decoded.args.amount as BigInt
         const value = amount.toString()
-        if (amount === BigInt(0)) {
+        if (amount === 0n) {
           return await Promise.resolve({ data: { ...data, method: 'revoke', value } })
         }
         return await Promise.resolve({ data: { ...data, value: value.toString() } })

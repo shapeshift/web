@@ -71,7 +71,6 @@ import {
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioAccounts,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
 } from 'state/slices/selectors'
@@ -164,20 +163,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return [...new Set((pools ?? []).map(pool => assets[pool.assetId]).filter(isSome))]
   }, [assets, pools])
 
-  const accounts = useAppSelector(selectPortfolioAccounts)
-  const accountsByAssetId = useMemo(() => {
-    return Object.entries(accounts).reduce<Record<AssetId, AccountId[]>>(
-      (acc, [accountId, account]) => {
-        account.assetIds.forEach(assetId => {
-          if (!acc[assetId]) acc[assetId] = []
-          acc[assetId].push(accountId)
-        })
-        return acc
-      },
-      {},
-    )
-  }, [accounts])
-
   const poolAssetIds = useMemo(() => {
     return poolAssets.map(poolAsset => poolAsset.assetId)
   }, [poolAssets])
@@ -199,15 +184,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         isSnapInstalled,
       })
 
-      const runeSupport = Boolean(walletSupportsRune && accountsByAssetId[thorchainAssetId]?.length)
-      const assetSupport = Boolean(walletSupportsAsset && accountsByAssetId[assetId]?.length)
+      const runeSupport = Boolean(
+        walletSupportsRune && accountIdsByChainId[fromAssetId(thorchainAssetId).chainId]?.length,
+      )
+      const assetSupport = Boolean(
+        walletSupportsAsset && accountIdsByChainId[fromAssetId(assetId).chainId]?.length,
+      )
 
       if (runeSupport && assetSupport) return 'sym'
       if (assetSupport) return AsymSide.Asset
       if (runeSupport) return AsymSide.Rune
       return 'sym'
     },
-    [wallet, isSnapInstalled, accountsByAssetId],
+    [wallet, isSnapInstalled, accountIdsByChainId],
   )
 
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously

@@ -138,8 +138,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const actualAssetCryptoLiquidityAmount = useMemo(() => {
     if (isAsymAssetSide) {
-      // In asym asset side pool, use the virtual amount as is
-      return virtualAssetCryptoLiquidityAmount
+      // In asym asset side pool, use the virtual amount times 2
+      return bnOrZero(virtualAssetCryptoLiquidityAmount).times(2).toFixed()
     } else if (isAsymRuneSide) {
       // In asym rune side pool, the asset amount should be zero
       return '0'
@@ -150,8 +150,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const actualRuneCryptoLiquidityAmount = useMemo(() => {
     if (isAsymRuneSide) {
-      // In asym rune side pool, use the virtual amount as is
-      return virtualRuneCryptoLiquidityAmount
+      // In asym rune side pool, use the virtual amount times 2
+      return bnOrZero(virtualRuneCryptoLiquidityAmount).times(2).toFixed()
     } else if (isAsymAssetSide) {
       // In asym asset side pool, the rune amount should be zero
       return '0'
@@ -162,8 +162,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const actualAssetFiatLiquidityAmount = useMemo(() => {
     if (isAsymAssetSide) {
-      // In asym asset side pool, use the virtual fiat amount as is
-      return virtualAssetFiatLiquidityAmount
+      // In asym asset side pool, use the virtual fiat amount times 2
+      return bnOrZero(virtualAssetFiatLiquidityAmount).times(2).toFixed()
     } else if (isAsymRuneSide) {
       // In asym rune side pool, the asset fiat amount should be zero
       return '0'
@@ -174,8 +174,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const actualRuneFiatLiquidityAmount = useMemo(() => {
     if (isAsymRuneSide) {
-      // In asym rune side pool, use the virtual fiat amount as is
-      return virtualRuneFiatLiquidityAmount
+      // In asym rune side pool, use the virtual fiat amount times 2
+      return bnOrZero(virtualRuneFiatLiquidityAmount).times(2).toFixed()
     } else if (isAsymAssetSide) {
       // In asym asset side pool, the rune fiat amount should be zero
       return '0'

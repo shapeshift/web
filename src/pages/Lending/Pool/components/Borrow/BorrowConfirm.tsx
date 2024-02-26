@@ -292,7 +292,7 @@ export const BorrowConfirm = ({
     const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
-        cryptoAmount: depositAmount ?? '0',
+        amountCryptoPrecision: depositAmount ?? '0',
         assetId: collateralAssetId,
         to: confirmedQuote.quoteInboundAddress,
         from,

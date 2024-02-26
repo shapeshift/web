@@ -33,7 +33,7 @@ import { useAppSelector } from 'state/store'
 import type { SendInput } from '../../Form'
 import { SendFormFields, SendRoutes } from '../../SendCommon'
 
-type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.CryptoAmount
+type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.AmountCryptoPrecision
 
 type UseSendDetailsReturnType = {
   balancesLoading: boolean
@@ -50,7 +50,7 @@ type UseSendDetailsReturnType = {
 // TODO(0xdef1cafe): this whole thing needs to be refactored to be account focused, not asset focused
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
-  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.CryptoAmount)
+  const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.AmountCryptoPrecision)
   const [loading, setLoading] = useState<boolean>(false)
   const history = useHistory()
   const { getValues, setValue } = useFormContext<SendInput>()
@@ -113,15 +113,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
     if (!asset) throw new Error('No asset found')
 
-    const { assetId, cryptoAmount, to, sendMax } = getValues()
+    const { assetId, amountCryptoPrecision: cryptoAmount, to, sendMax } = getValues()
     if (!wallet) throw new Error('No wallet connected')
-    return estimateFees({ cryptoAmount, assetId, to, sendMax, accountId, contractAddress })
+    return estimateFees({ amountCryptoPrecision: cryptoAmount, assetId, to, sendMax, accountId, contractAddress })
   }, [accountId, asset, contractAddress, getValues, wallet])
 
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
       async () => {
-        const { cryptoAmount } = getValues()
+        const { amountCryptoPrecision: cryptoAmount } = getValues()
         if (cryptoAmount === '') return
         if (!asset || !accountId) return
         const estimatedFees = await estimateFormFees()
@@ -196,7 +196,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setValue(SendFormFields.AmountFieldError, '')
 
     if (feeAsset.assetId !== assetId) {
-      setValue(SendFormFields.CryptoAmount, cryptoHumanBalance.toPrecision())
+      setValue(SendFormFields.AmountCryptoPrecision, cryptoHumanBalance.toPrecision())
       setValue(SendFormFields.FiatAmount, userCurrencyBalance.toFixed(2))
       setLoading(true)
 
@@ -286,7 +286,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           ])
         }
 
-        setValue(SendFormFields.CryptoAmount, maxCrypto.toPrecision())
+        setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
         setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
         setLoading(false)
       } catch (e) {
@@ -313,7 +313,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const otherField =
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount
-          : SendFormFields.CryptoAmount
+          : SendFormFields.AmountCryptoPrecision
 
       try {
         if (inputValue === '') {
@@ -361,7 +361,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const toggleCurrency = () => {
     setFieldName(
       fieldName === SendFormFields.FiatAmount
-        ? SendFormFields.CryptoAmount
+        ? SendFormFields.AmountCryptoPrecision
         : SendFormFields.FiatAmount,
     )
   }

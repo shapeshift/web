@@ -58,7 +58,7 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { accountId, to, assetId, cryptoAmount, feeType, fiatAmount, memo, vanityAddress } =
+  const { accountId, to, assetId, amountCryptoPrecision: cryptoAmount, feeType, fiatAmount, memo, vanityAddress } =
     useWatch({
       control,
     }) as Partial<SendInput>

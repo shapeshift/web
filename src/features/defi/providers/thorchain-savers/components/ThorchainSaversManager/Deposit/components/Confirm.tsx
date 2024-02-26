@@ -252,7 +252,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       const memoUtf8 = quote.memo
       return {
-        cryptoAmount: state.deposit.cryptoAmount,
+        amountCryptoPrecision: state.deposit.cryptoAmount,
         assetId,
         from: maybeFromUTXOAccountAddress,
         to: quote.inbound_address,
@@ -467,7 +467,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       const memoUtf8 = quote.memo
 
       const sendInput: SendInput = {
-        cryptoAmount: maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
+        amountCryptoPrecision:
+          maybeGasDeductedCryptoAmountCryptoPrecision || state.deposit.cryptoAmount,
         assetId,
         to: quote.inbound_address,
         from: maybeFromUTXOAccountAddress,

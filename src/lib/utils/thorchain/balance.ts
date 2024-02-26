@@ -139,7 +139,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
   const estimatedFeesQueryArgs = {
     estimateFeesInput: {
-      cryptoAmount: amountCryptoPrecision,
+      amountCryptoPrecision,
       assetId: asset.assetId,
       to: quote?.inbound_address ?? '',
       sendMax: false,
@@ -193,7 +193,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     asset,
     assetMarketData,
     estimateFeesInput: {
-      cryptoAmount: '0',
+      amountCryptoPrecision: '0',
       assetId: asset.assetId,
       to: fromAddress ?? '',
       sendMax: true,

@@ -127,7 +127,7 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
       },
     },
   },
-  [SendFormFields.CryptoAmount]: '1',
+  [SendFormFields.AmountCryptoPrecision]: '1',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
   [SendFormFields.SendMax]: false,

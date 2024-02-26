@@ -83,7 +83,8 @@ export const useQuoteEstimatedFeesQuery = ({
   const feeAssetMarketData = useAppSelector(state => selectMarketDataById(state, collateralAssetId))
   const estimateFeesArgs = useMemo(() => {
     const supportedEvmChainIds = getSupportedEvmChainIds()
-    const cryptoAmount = depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision ?? '0'
+    const amountCryptoPrecision =
+      depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision ?? '0'
     const assetId = repaymentAsset?.assetId ?? collateralAssetId
     const quoteMemo =
       confirmedQuote && 'quoteMemo' in confirmedQuote ? confirmedQuote.quoteMemo : ''
@@ -98,7 +99,7 @@ export const useQuoteEstimatedFeesQuery = ({
     const accountId = repaymentAccountId ?? collateralAccountId
 
     return {
-      cryptoAmount,
+      amountCryptoPrecision,
       assetId,
       memo,
       to,

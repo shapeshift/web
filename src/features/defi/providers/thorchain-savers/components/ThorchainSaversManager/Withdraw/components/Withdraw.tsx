@@ -273,7 +273,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               getAddress(quote.inbound_address),
               // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
               // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
-              getAddress(zeroAddress),
+              zeroAddress,
               BigInt(amountCryptoBaseUnit),
               quote.memo,
               BigInt(quote.expiry),

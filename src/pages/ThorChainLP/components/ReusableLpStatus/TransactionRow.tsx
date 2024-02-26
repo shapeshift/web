@@ -280,7 +280,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
           : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
         return {
-          cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
+          cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
           assetId: asset.assetId,
           memo,
           to: THORCHAIN_POOL_MODULE_ADDRESS,
@@ -340,7 +340,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
         return {
-          cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
+          cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
           assetId,
           to: inboundAddressData.address,
           from: accountAssetAddress,
@@ -432,7 +432,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
             const estimatedFees = await estimateFees({
-              cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
+              cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
               assetId: asset.assetId,
               memo,
               to: THORCHAIN_POOL_MODULE_ADDRESS,
@@ -546,7 +546,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
-              cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
+              cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,

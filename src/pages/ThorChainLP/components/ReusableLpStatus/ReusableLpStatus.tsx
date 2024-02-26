@@ -24,6 +24,7 @@ import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
 import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -118,10 +119,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     const supplyAssets = assets.map(_asset => {
       const amountCryptoPrecision =
         _asset.assetId === thorchainAssetId
-          ? 'runeCryptoDepositAmount' in confirmedQuote
+          ? isLpConfirmedDepositQuote(confirmedQuote)
             ? confirmedQuote.runeCryptoDepositAmount
             : confirmedQuote.runeCryptoWithdrawAmount
-          : 'assetCryptoDepositAmount' in confirmedQuote
+          : isLpConfirmedDepositQuote(confirmedQuote)
           ? confirmedQuote.assetCryptoDepositAmount
           : confirmedQuote.assetCryptoWithdrawAmount
       return (
@@ -152,7 +153,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
           <RawText>
             {translate(
-              'runeCryptoDepositAmount' in confirmedQuote ? 'pools.supplying' : 'pools.withdrawing',
+              isLpConfirmedDepositQuote(confirmedQuote) ? 'pools.supplying' : 'pools.withdrawing',
             )}
           </RawText>
           <HStack divider={hStackDivider}>{supplyAssets}</HStack>
@@ -177,10 +178,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         {assets.map((_asset, index) => {
           const amountCryptoPrecision =
             _asset.assetId === thorchainAssetId
-              ? 'runeCryptoDepositAmount' in confirmedQuote
+              ? isLpConfirmedDepositQuote(confirmedQuote)
                 ? confirmedQuote.runeCryptoDepositAmount
                 : confirmedQuote.runeCryptoWithdrawAmount
-              : 'assetCryptoDepositAmount' in confirmedQuote
+              : isLpConfirmedDepositQuote(confirmedQuote)
               ? confirmedQuote.assetCryptoDepositAmount
               : confirmedQuote.assetCryptoWithdrawAmount
           return (

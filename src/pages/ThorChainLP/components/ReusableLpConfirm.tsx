@@ -30,6 +30,10 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import {
+  isLpConfirmedDepositQuote,
+  isLpConfirmedWithdrawalQuote,
+} from 'lib/utils/thorchain/lp/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -140,28 +144,24 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
             let cryptoAmount
             let amountFiatUserCurrency
 
-            if ('runeCryptoDepositAmount' in confirmedQuote) {
-              // confirmedQuote is LpConfirmedDepositQuote
-              let depositQuote = confirmedQuote as LpConfirmedDepositQuote
+            if (isLpConfirmedDepositQuote(confirmedQuote)) {
               cryptoAmount =
                 _asset.assetId === thorchainAssetId
-                  ? depositQuote.runeCryptoDepositAmount
-                  : depositQuote.assetCryptoDepositAmount
+                  ? confirmedQuote.runeCryptoDepositAmount
+                  : confirmedQuote.assetCryptoDepositAmount
               amountFiatUserCurrency =
                 _asset.assetId === thorchainAssetId
-                  ? depositQuote.runeFiatDepositAmount
-                  : depositQuote.assetFiatDepositAmount
-            } else if ('runeCryptoWithdrawAmount' in confirmedQuote) {
-              // confirmedQuote is LpConfirmedWithdrawalQuote
-              let withdrawalQuote = confirmedQuote as LpConfirmedWithdrawalQuote
+                  ? confirmedQuote.runeFiatDepositAmount
+                  : confirmedQuote.assetFiatDepositAmount
+            } else if (isLpConfirmedWithdrawalQuote(confirmedQuote)) {
               cryptoAmount =
                 _asset.assetId === thorchainAssetId
-                  ? withdrawalQuote.runeCryptoWithdrawAmount
-                  : withdrawalQuote.assetCryptoWithdrawAmount
+                  ? confirmedQuote.runeCryptoWithdrawAmount
+                  : confirmedQuote.assetCryptoWithdrawAmount
               amountFiatUserCurrency =
                 _asset.assetId === thorchainAssetId
-                  ? withdrawalQuote.runeFiatWithdrawAmount
-                  : withdrawalQuote.assetFiatWithdrawAmount
+                  ? confirmedQuote.runeFiatWithdrawAmount
+                  : confirmedQuote.assetFiatWithdrawAmount
             }
 
             return [cryptoAmount, amountFiatUserCurrency]
@@ -208,11 +208,9 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     if (isTradingActive === false) return translate('common.poolHalted')
 
     const message = (() => {
-      if ('feeAmountFiat' in confirmedQuote) {
-        // 'feeAmountFiat' exists, so confirmedQuote is an instance of LpConfirmedDepositQuote
+      if (isLpConfirmedDepositQuote(confirmedQuote)) {
         return translate('pools.confirmAndDeposit')
       } else {
-        // 'feeAmountFiat' does not exist, so confirmedQuote is an instance of LpConfirmedWithdrawalQuote
         return translate('pools.confirmAndWithdraw')
       }
     })()
@@ -239,7 +237,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 <Row.Label>{translate('pools.chainFee', { chain: 'ShapeShift' })}</Row.Label>
                 <Row.Value>
                   {confirmedQuote &&
-                  'feeAmountFiat' in confirmedQuote &&
+                  isLpConfirmedDepositQuote(confirmedQuote) &&
                   !bn(confirmedQuote.feeAmountFiat).isZero() ? (
                     <Amount.Fiat value={confirmedQuote.feeAmountFiat} />
                   ) : (

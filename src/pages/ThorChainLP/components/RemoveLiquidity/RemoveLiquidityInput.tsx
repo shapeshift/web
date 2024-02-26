@@ -19,12 +19,14 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
@@ -209,6 +211,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     refetchInterval: 60_000,
   })
 
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: poolAsset?.assetId,
+    enabled: !!poolAsset,
+    swapperName: SwapperName.Thorchain,
+  })
+
   useEffect(() => {
     if (!userData) return
     const _userlpData: UserLpDataPosition | undefined = userData.find(
@@ -283,25 +291,31 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   // We reuse lending utils here since all this does is estimating fees for a given withdrawal amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
   // however that's fine for now until accurate fees estimation is implemented
-  const { data: estimatedRuneFeesData, isLoading: isEstimatedRuneFeesDataLoading } =
-    useQuoteEstimatedFeesQuery({
-      collateralAssetId: thorchainAssetId,
-      collateralAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
-      repaymentAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
-      repaymentAsset: runeAsset ?? null,
-      repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
-      confirmedQuote,
-    })
+  const {
+    data: estimatedRuneFeesData,
+    isLoading: isEstimatedRuneFeesDataLoading,
+    isError: isEstimatedRuneFeesDataError,
+  } = useQuoteEstimatedFeesQuery({
+    collateralAssetId: thorchainAssetId,
+    collateralAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
+    repaymentAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
+    repaymentAsset: runeAsset ?? null,
+    repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
+    confirmedQuote,
+  })
 
-  const { data: estimatedPoolAssetFeesData, isLoading: isEstimatedPoolAssetFeesDataLoading } =
-    useQuoteEstimatedFeesQuery({
-      collateralAssetId: poolAsset?.assetId ?? '',
-      collateralAccountId: poolAccountId,
-      repaymentAccountId: poolAccountId,
-      repaymentAsset: poolAsset ?? null,
-      confirmedQuote,
-      repaymentAmountCryptoPrecision: actualAssetCryptoLiquidityAmount,
-    })
+  const {
+    data: estimatedPoolAssetFeesData,
+    isLoading: isEstimatedPoolAssetFeesDataLoading,
+    isError: isEstimatedPoolAssetFeesDataError,
+  } = useQuoteEstimatedFeesQuery({
+    collateralAssetId: poolAsset?.assetId ?? '',
+    collateralAccountId: poolAccountId,
+    repaymentAccountId: poolAccountId,
+    repaymentAsset: poolAsset ?? null,
+    confirmedQuote,
+    repaymentAmountCryptoPrecision: actualAssetCryptoLiquidityAmount,
+  })
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
@@ -741,7 +755,23 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Button mx={-2} size='lg' colorScheme='blue' onClick={handleSubmit}>
+        <Button
+          mx={-2}
+          size='lg'
+          colorScheme='blue'
+          onClick={handleSubmit}
+          isDisabled={
+            isTradingActive === false ||
+            !confirmedQuote ||
+            isEstimatedPoolAssetFeesDataError ||
+            isEstimatedRuneFeesDataError
+          }
+          isLoading={
+            isTradingActiveLoading ||
+            isEstimatedPoolAssetFeesDataLoading ||
+            isEstimatedRuneFeesDataLoading
+          }
+        >
           {translate('pools.removeLiquidity')}
         </Button>
       </CardFooter>

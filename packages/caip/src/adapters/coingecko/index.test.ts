@@ -136,6 +136,29 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
       })
+      const usdcOnPolygon = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.PolygonMainnet,
+        assetNamespace,
+        assetReference: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
+      })
+      const usdcOnArbitrum = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ArbitrumMainnet,
+        assetNamespace,
+        assetReference: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+      })
+      expect(coingeckoToAssetIds('usd-coin')).toEqual([
+        usdcOnEthereum,
+        usdcOnAvalanche,
+        usdcOnOptimism,
+        usdcOnPolygon,
+        usdcOnArbitrum,
+      ])
+    })
+    it('can get AssetIds for bridged USD Coin on EVM Chains', () => {
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+      const assetNamespace = 'erc20'
       const usdcOnBscBridged = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
@@ -148,11 +171,11 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
       })
-      const usdcOnPolygon = toAssetId({
+      const usdcOnArbitrumNovaBridged = toAssetId({
         chainNamespace,
-        chainReference: CHAIN_REFERENCE.PolygonMainnet,
+        chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
         assetNamespace,
-        assetReference: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
+        assetReference: '0x750ba8b76187092B0D1E87E28daaf484d1b5273b',
       })
       const usdcOnGnosisBridged = toAssetId({
         chainNamespace,
@@ -160,25 +183,6 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
       })
-      const usdcOnArbitrum = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.ArbitrumMainnet,
-        assetNamespace,
-        assetReference: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
-      })
-      const usdcOnArbitrumNovaBridged = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
-        assetNamespace,
-        assetReference: '0x750ba8b76187092B0D1E87E28daaf484d1b5273b',
-      })
-      expect(coingeckoToAssetIds('usd-coin')).toEqual([
-        usdcOnEthereum,
-        usdcOnAvalanche,
-        usdcOnOptimism,
-        usdcOnPolygon,
-        usdcOnArbitrum,
-      ])
       expect(coingeckoToAssetIds('binance-bridged-usdc-bnb-smart-chain')).toEqual([
         usdcOnBscBridged,
       ])

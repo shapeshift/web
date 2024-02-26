@@ -231,8 +231,8 @@ export const Pool = () => {
                   allTimeVolume={allTimeVolume}
                   apy={pool.annualPercentageRate}
                   tvl={tvl.tvl}
-                  runeTvl={fromThorBaseUnit(pool.runeDepth).toFixed()}
-                  assetTvl={fromThorBaseUnit(pool.assetDepth).toFixed()}
+                  runeTvlCryptoPrecision={fromThorBaseUnit(pool.runeDepth).toFixed()}
+                  assetTvlCryptoPrecision={fromThorBaseUnit(pool.assetDepth).toFixed()}
                   tvl24hChange={tvl24hChange ?? 0}
                   assetIds={poolAssetIds}
                   direction='column'

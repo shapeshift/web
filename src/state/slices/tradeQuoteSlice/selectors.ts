@@ -4,6 +4,7 @@ import type { ProtocolFee, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
+import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -12,12 +13,14 @@ import { isSome } from 'lib/utils'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
 import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
+import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
+  selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputBuyAssetUserCurrencyRate,
   selectInputSellAmountCryptoBaseUnit,
@@ -53,26 +56,55 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
 
-// this is required to break a race condition between rtk query and our selectors
-// we're treating redux as the source of truth.
-export const selectIsSwapperQuoteAvailable = createDeepEqualOutputSelector(
-  selectTradeQuotes,
+const selectEnabledSwappersIgnoringCrossAccountTrade = createSelector(
   selectFeatureFlags,
-  (tradeQuotes, featureFlags) => {
-    // all swappers are enabled regardless of cross account trade logic, so we can set it to false here
+  featureFlags => {
+    // cross account trade logic is irrelevant here, so we can set the flag to false here
     const enabledSwappers = getEnabledSwappers(featureFlags, false)
-    return Object.values(SwapperName)
-      .filter(swapperName => enabledSwappers[swapperName])
-      .reduce(
-        (acc, swapperName) => {
-          acc[swapperName as SwapperName] = tradeQuotes[swapperName] !== undefined
-          return acc
-        },
-        {} as Record<SwapperName, boolean>,
-      )
+    return Object.values(SwapperName).filter(
+      swapperName => enabledSwappers[swapperName],
+    ) as SwapperName[]
   },
 )
 
+// Returns a mapping from swapper name to a flag indicating whether a trade quote response is
+// available.
+export const selectIsSwapperResponseAvailable = createDeepEqualOutputSelector(
+  selectTradeQuotes,
+  selectEnabledSwappersIgnoringCrossAccountTrade,
+  (tradeQuotes, enabledSwappers) => {
+    return enabledSwappers.reduce(
+      (acc, swapperName) => {
+        const swapperResponse = tradeQuotes[swapperName]
+        acc[swapperName] = swapperResponse !== undefined
+        return acc
+      },
+      {} as Record<SwapperName, boolean>,
+    )
+  },
+)
+
+// Returns a mapping from swapper name to a flag indicating whether an actual trade quote is
+// available on the trade quote response.
+const selectIsSwapperQuoteAvailable = createSelector(
+  selectTradeQuotes,
+  selectEnabledSwappersIgnoringCrossAccountTrade,
+  (tradeQuotes, enabledSwappers) => {
+    return enabledSwappers.reduce(
+      (acc, swapperName) => {
+        const swapperResponse = tradeQuotes[swapperName]
+        acc[swapperName] =
+          swapperResponse !== undefined &&
+          Object.values(swapperResponse).some(swapperQuote => swapperQuote.quote !== undefined)
+        return acc
+      },
+      {} as Record<SwapperName, boolean>,
+    )
+  },
+)
+
+// Returns the top-level errors related to the request for a trade quote. Not related to individual
+// quote responses.
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectIsWalletConnected,
@@ -107,14 +139,17 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   },
 )
 
+// Returns the top-level errors related to the response from the trade quote request. Not related to
+// individual quote responses.
 export const selectTradeQuoteResponseErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectTradeQuotes,
-  (inputSellAmountCryptoBaseUnit, swappersApiTradeQuotes) => {
+  selectEnabledSwappersIgnoringCrossAccountTrade,
+  (inputSellAmountCryptoBaseUnit, swappersApiTradeQuotes, enabledSwappers) => {
     const hasUserEnteredAmount = bnOrZero(inputSellAmountCryptoBaseUnit).gt(0)
     if (!hasUserEnteredAmount) return []
 
-    const numSwappers = Object.values(SwapperName).length - 1 // minus 1 because test swapper not used
+    const numSwappers = enabledSwappers.length
 
     // don't report NoQuotesAvailable if any swapper has not upserted a response
     if (Object.values(swappersApiTradeQuotes).length < numSwappers) {
@@ -154,7 +189,22 @@ const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
 export const selectActiveQuoteMeta: Selector<
   ReduxState,
   { swapperName: SwapperName; identifier: string } | undefined
-> = createSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.activeQuoteMeta)
+> = createSelector(
+  selectTradeQuoteSlice,
+  selectSortedTradeQuotes,
+  (tradeQuoteSlice, sortedQuotes) => {
+    const bestQuote = sortedQuotes[0]
+    const bestQuoteMeta = bestQuote
+      ? { swapperName: bestQuote.swapperName, identifier: bestQuote.id }
+      : undefined
+    // Return the "best" quote even if it has errors, provided there is a quote to display data for
+    // this allows users to explore trades that aren't necessarily actionable. The UI will prevent
+    // executing these downstream.
+    const isSelectable = bestQuote?.quote !== undefined
+    const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
+    return tradeQuoteSlice.activeQuoteMeta ?? defaultQuoteMeta
+  },
+)
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
   createSelector(selectActiveQuoteMeta, selectTradeQuotes, (activeQuoteMeta, tradeQuotes) => {
@@ -603,4 +653,36 @@ export const selectTradeQuoteDisplayCache = createDeepEqualOutputSelector(
 export const selectIsTradeQuoteRequestAborted = createSelector(
   selectTradeQuoteSlice,
   swappers => swappers.isTradeQuoteRequestAborted,
+)
+
+export const selectLoadingSwappers = createSelector(
+  selectIsSwapperResponseAvailable,
+  selectIsTradeQuoteApiQueryPending,
+  selectTradeQuoteDisplayCache,
+  (isSwapperQuoteAvailable, isTradeQuoteApiQueryPending, tradeQuoteDisplayCache) => {
+    return Object.entries(isSwapperQuoteAvailable)
+      .filter(
+        ([swapperName, isQuoteAvailable]) =>
+          // only include swappers that are still fetching data
+          (!isQuoteAvailable || isTradeQuoteApiQueryPending[swapperName as SwapperName]) &&
+          // filter out entries that already have data - these have been loaded and are refetching
+          !tradeQuoteDisplayCache.some(quoteData => quoteData.swapperName === swapperName),
+      )
+      .map(([swapperName, _isQuoteAvailable]) => swapperName)
+  },
+)
+
+export const selectIsAnyTradeQuoteLoading = createSelector(
+  selectLoadingSwappers,
+  selectHasUserEnteredAmount,
+  (loadingSwappers, hasUserEnteredAmount) => {
+    return hasUserEnteredAmount && loadingSwappers.length > 0
+  },
+)
+
+export const selectIsAnyTradeQuoteLoaded = createSelector(
+  selectIsSwapperQuoteAvailable,
+  selectHasUserEnteredAmount,
+  (isSwapperQuoteAvailable, hasUserEnteredAmount) =>
+    !hasUserEnteredAmount || Object.values(isSwapperQuoteAvailable).some(identity),
 )

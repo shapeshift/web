@@ -17,7 +17,7 @@ import {
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaSlidersH } from 'react-icons/fa'
+import { FaGear } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
@@ -37,7 +37,7 @@ const maxSlippagePercentage = '30'
 
 const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
-const faSlidersH = <FaSlidersH />
+const faGear = <FaGear />
 
 export const SlippagePopover: FC = () => {
   const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
@@ -116,11 +116,7 @@ export const SlippagePopover: FC = () => {
   return (
     <Popover placement='bottom-end' onClose={handleClose}>
       <PopoverTrigger>
-        <IconButton
-          aria-label={translate('trade.tradeSettings')}
-          icon={faSlidersH}
-          variant='ghost'
-        />
+        <IconButton aria-label={translate('trade.tradeSettings')} icon={faGear} variant='ghost' />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverBody>

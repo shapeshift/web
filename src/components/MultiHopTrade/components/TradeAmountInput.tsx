@@ -8,6 +8,7 @@ import {
   Input,
   Skeleton,
   Stack,
+  Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -26,6 +27,8 @@ import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOpt
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { colors } from 'theme/colors'
+
+import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
 const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: '1' }
@@ -66,6 +69,7 @@ export type TradeAmountInputProps = {
   cryptoAmount?: string
   fiatAmount?: string
   showFiatAmount?: boolean
+  priceImpactPercentage?: string
   balance?: string
   fiatBalance?: string
   errors?: FieldError
@@ -103,6 +107,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     showFiatAmount = '0',
     balance,
     fiatBalance,
+    priceImpactPercentage,
     errors,
     percentOptions = defaultPercentOptions,
     children,
@@ -184,6 +189,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     )
 
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
+
+    const priceImpactColor = usePriceImpactColor(priceImpactPercentage)
 
     return (
       <FormControl
@@ -267,16 +274,33 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             display={hideAmounts ? 'none' : 'flex'}
           >
             {showFiatAmount && (
-              <Button
-                onClick={toggleIsFiat}
-                size='sm'
-                disabled={showFiatSkeleton}
-                fontWeight='medium'
-                variant='link'
-                color='text.subtle'
-              >
-                <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
-              </Button>
+              <Flex alignItems='center' gap={2}>
+                <Button
+                  onClick={toggleIsFiat}
+                  size='sm'
+                  disabled={showFiatSkeleton}
+                  fontWeight='medium'
+                  variant='link'
+                  color='text.subtle'
+                >
+                  <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
+                </Button>
+                {priceImpactPercentage && (
+                  <Tooltip label={translate('trade.tooltip.priceImpactDifference')}>
+                    <Flex>
+                      <Skeleton isLoaded={!showFiatSkeleton}>
+                        <Amount.Percent
+                          fontSize='sm'
+                          prefix='('
+                          suffix=')'
+                          color={priceImpactColor ?? 'text.subtle'}
+                          value={bnOrZero(priceImpactPercentage).div(100).times(-1).toString()}
+                        />
+                      </Skeleton>
+                    </Flex>
+                  </Tooltip>
+                )}
+              </Flex>
             )}
             <Flex alignItems='center' justifyContent='flex-end' gap={2}>
               <PercentOptionsButtonGroup

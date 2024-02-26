@@ -22,7 +22,7 @@ type AccountDetailsProps = {
 
 const directionXlRow: StackDirection = { base: 'column', xl: 'row' }
 const flexMaxWidth = { base: 'full', xl: 'md' }
-const displayMdBlock = { base: 'none', md: 'block' }
+const displayMdBlock = { base: 'none', md: 'flex' }
 
 export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
   const translate = useTranslate()
@@ -43,8 +43,15 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         <EarnOpportunities assetId={assetId} accountId={accountId} />
         <AssetTransactionHistory limit={10} accountId={accountId} />
       </Stack>
-      <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={flexMaxWidth} gap={4}>
-        <MultiHopTrade display={displayMdBlock} />
+      <Flex
+        flexDir='column'
+        flex='1 1 0%'
+        width='full'
+        maxWidth={flexMaxWidth}
+        gap={4}
+        display={displayMdBlock}
+      >
+        <MultiHopTrade isCompact />
       </Flex>
     </Stack>
   )

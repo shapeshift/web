@@ -21,11 +21,9 @@ const pageTransition = {
   duration: 0.05,
 }
 
-export const SlideTransition = ({
-  children,
-  loading,
-  ...rest
-}: HTMLMotionProps<'div'> & { loading?: boolean }) => {
+export type SlideTransitionProps = HTMLMotionProps<'div'> & { loading?: boolean }
+
+export const SlideTransition = ({ children, loading, ...rest }: SlideTransitionProps) => {
   return (
     <motion.div
       initial='initial'

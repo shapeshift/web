@@ -1,9 +1,10 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag, Tooltip } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
@@ -51,6 +52,7 @@ type PoolButtonProps = {
 
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
+  const translate = useTranslate()
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
@@ -107,9 +109,11 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
             </Tag>
           )}
           {isTradingActive === true && pool.status === 'staged' && (
-            <Tag colorScheme='yellow'>
-              <Text translation='common.staged' />
-            </Tag>
+            <Tooltip label={translate('pools.stagedTooltip')} hasArrow>
+              <Tag colorScheme='yellow'>
+                <Text translation='common.staged' />
+              </Tag>
+            </Tooltip>
           )}
           {isTradingActive === false && (
             <Tag colorScheme='red'>

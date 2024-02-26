@@ -667,6 +667,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   ])
 
   if (!foundPool || !poolAsset || !rune) return null
+  const validInputAmount =
+    (isAsymAssetSide && bnOrZero(virtualAssetCryptoLiquidityAmount).gt(0)) ||
+    (isAsymRuneSide && bnOrZero(virtualRuneCryptoLiquidityAmount).gt(0)) ||
+    (!isAsym &&
+      bnOrZero(virtualAssetCryptoLiquidityAmount).gt(0) &&
+      bnOrZero(virtualRuneCryptoLiquidityAmount).gt(0))
 
   return (
     <SlideTransition>
@@ -764,7 +770,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             isTradingActive === false ||
             !confirmedQuote ||
             isEstimatedPoolAssetFeesDataError ||
-            isEstimatedRuneFeesDataError
+            isEstimatedRuneFeesDataError ||
+            !validInputAmount
           }
           isLoading={
             isTradingActiveLoading ||

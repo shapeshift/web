@@ -335,12 +335,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       }
       case 'Send': {
         if (!inboundAddressData || !accountAssetAddress) return undefined
-        const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-          confirmedQuote.feeBps
-        }`
+        const memo = isDeposit
+          ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
+          : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
         return {
-          cryptoAmount: amountCryptoPrecision,
+          cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
           assetId,
           to: inboundAddressData.address,
           from: accountAssetAddress,
@@ -528,12 +528,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
             if (!accountAssetAddress) throw new Error('No accountAddress found')
 
-            const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-              confirmedQuote.feeBps
-            }`
+            const memo = isDeposit
+              ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
+                  confirmedQuote.feeBps
+                }`
+              : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
             const estimateFeesArgs = {
-              cryptoAmount: amountCryptoPrecision,
+              cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,
@@ -544,7 +546,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
-              cryptoAmount: amountCryptoPrecision,
+              cryptoAmount: isDeposit ? toBaseUnit(amountCryptoPrecision, asset.precision) : '0',
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,

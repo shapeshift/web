@@ -147,7 +147,7 @@ export const useFoxFarming = (
     const data = encodeFunctionData({
       abi: uniV2LPContract.abi,
       functionName: 'approve',
-      args: [contractAddress, BigInt(maxUint256.toString())],
+      args: [contractAddress, maxUint256],
     })
 
     return getFeesWithWallet({
@@ -231,7 +231,7 @@ export const useFoxFarming = (
     const data = encodeFunctionData({
       abi: uniV2LPContract.abi,
       functionName: 'approve',
-      args: [contractAddress, BigInt(maxUint256.toString())],
+      args: [contractAddress, maxUint256],
     })
 
     const fees = await getApproveFees()

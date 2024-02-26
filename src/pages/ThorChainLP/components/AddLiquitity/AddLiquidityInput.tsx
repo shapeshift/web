@@ -209,10 +209,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   //
   //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
   //     and not allowing them to select the sure-to-fail deposit types
-  const defaultOpportunityId = useMemo(() => {
+  useMemo(() => {
     if (!pools?.length) return
+    if (opportunityId) return opportunityId
 
-    const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
+    const assetId = activeOpportunityId
+      ? fromOpportunityId(activeOpportunityId).assetId
+      : poolAssetIdToAssetId(poolAssetId ?? '')
 
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
@@ -223,19 +226,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
     )
 
-    const poolOpportunityId = assetId && toOpportunityId({ assetId, type: opportunityType })
-
-    return (
-      opportunityId ||
-      poolOpportunityId ||
+    setActiveOpportunityId(
       toOpportunityId({
-        assetId: walletSupportedOpportunity?.assetId ?? pools[0].assetId,
+        assetId: assetId ?? walletSupportedOpportunity?.assetId ?? pools[0].assetId,
         type: opportunityType,
-      })
+      }),
     )
-  }, [pools, opportunityId, getDefaultOpportunityType, poolAssetId, isSnapInstalled, wallet])
-
-  useEffect(() => setActiveOpportunityId(defaultOpportunityId ?? ''), [defaultOpportunityId])
+  }, [
+    pools,
+    activeOpportunityId,
+    opportunityId,
+    getDefaultOpportunityType,
+    poolAssetId,
+    isSnapInstalled,
+    wallet,
+  ])
 
   const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
     if (!activeOpportunityId) return {}
@@ -1174,7 +1179,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {!opportunityId && (
             <LpType
               assetId={poolAsset.assetId}
-              defaultOpportunityId={activeOpportunityId}
+              opportunityId={activeOpportunityId}
               onAsymSideChange={handleAsymSideChange}
             />
           )}

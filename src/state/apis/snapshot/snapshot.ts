@@ -5,7 +5,9 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { PURGE } from 'redux-persist'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
+import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
+import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
 import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -17,11 +19,14 @@ type FoxVotingPowerCryptoBalance = string
 
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
 
-const initialState: {
-  votingPower: string | undefined
+export const initialState: {
+  votingPowerByModel: Record<ParameterModel, string | undefined>
   strategies: Strategy[] | undefined
 } = {
-  votingPower: undefined,
+  votingPowerByModel: {
+    SWAPPER: undefined,
+    THORCHAIN_LP: undefined,
+  },
   strategies: undefined,
 }
 
@@ -29,8 +34,12 @@ export const snapshot = createSlice({
   name: 'snapshot',
   initialState,
   reducers: {
-    setVotingPower: (state, { payload }: { payload: string }) => {
-      state.votingPower = payload
+    setVotingPower: (
+      state,
+      { payload }: { payload: { foxHeld: string; model: ParameterModel } },
+    ) => {
+      const { model, foxHeld } = payload
+      state.votingPowerByModel[model] = foxHeld
     },
     setStrategies: (state, { payload }: { payload: Strategy[] }) => {
       state.strategies = payload
@@ -73,8 +82,8 @@ export const snapshotApi = createApi({
         }
       },
     }),
-    getVotingPower: build.query<FoxVotingPowerCryptoBalance, void>({
-      queryFn: async (_, { dispatch, getState }) => {
+    getVotingPower: build.query<FoxVotingPowerCryptoBalance, { model: ParameterModel }>({
+      queryFn: async ({ model }, { dispatch, getState }) => {
         const accountIds: AccountId[] =
           (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
         const strategies = await (async () => {
@@ -95,7 +104,9 @@ export const snapshotApi = createApi({
             return acc
           }, new Set()),
         )
-        const foxDiscountBlock = await getEthersProvider().getBlockNumber()
+        const foxDiscountBlock = await findClosestFoxDiscountDelayBlockNumber(
+          FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
+        )
         const delegation = false // don't let people delegate for discounts - ambiguous in spec
         const votingPowerResults = await Promise.all(
           evmAddresses.map(async address => {
@@ -119,7 +130,7 @@ export const snapshotApi = createApi({
           return { error: { data, status: 400 } }
         }
 
-        dispatch(snapshot.actions.setVotingPower(foxHeld.toString()))
+        dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
         return { data: foxHeld.toString() }
       },
     }),

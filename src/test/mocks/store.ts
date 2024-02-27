@@ -192,7 +192,10 @@ export const mockStore: ReduxState = {
     isTradeQuoteRequestAborted: false,
   },
   snapshot: {
-    votingPower: undefined,
+    votingPowerByModel: {
+      SWAPPER: undefined,
+      THORCHAIN_LP: undefined,
+    },
     strategies: undefined,
   },
   localWalletSlice: {

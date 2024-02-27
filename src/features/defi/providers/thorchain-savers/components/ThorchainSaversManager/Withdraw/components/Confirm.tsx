@@ -197,7 +197,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     ;(async () => {
       try {
         if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit && asset)) return
-        if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit) return
+        // This effects sets these three state fields, so if we already have them, this is a no-op
+        if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit && expiry) return
         setQuoteLoading(true)
 
         const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
@@ -225,13 +226,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
 
         const {
-          expiry,
+          expiry: _expiry,
           dust_amount,
           expected_amount_out,
           fees: { slippage_bps },
         } = maybeQuote.unwrap()
 
-        setExpiry(expiry)
+        setExpiry(_expiry)
 
         const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
         setIsDangerousWithdraw(_isDangerousWithdraw)
@@ -269,6 +270,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.cryptoAmount,
     protocolFeeCryptoBaseUnit,
     isDangerousWithdraw,
+    expiry,
   ])
 
   useEffect(() => {
@@ -599,7 +601,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
 
   const handleConfirm = useCallback(async () => {
-    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return
+    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData || !expiry)
+      return
     try {
       if (
         !(
@@ -814,6 +817,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       headerText='modals.confirm.withdraw.header'
       isDisabled={
+        !expiry ||
         !hasEnoughBalanceForGas ||
         !userAddress ||
         disableSmartContractWithdraw ||

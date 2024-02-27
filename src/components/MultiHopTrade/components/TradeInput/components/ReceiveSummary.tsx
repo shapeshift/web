@@ -22,7 +22,6 @@ import { isSome } from 'lib/utils'
 import {
   selectActiveQuoteAffiliateBps,
   selectQuoteAffiliateFeeUserCurrency,
-  selectQuoteFeeAmountUsd,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -74,7 +73,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     // use the fee data from the actual quote in case it varies from the theoretical calculation
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
     const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
-    const quoteFeeUsd = useAppSelector(selectQuoteFeeAmountUsd)
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
       return items
@@ -181,11 +179,6 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                   </>
                 ) : (
                   <>
-                    <Amount.Fiat
-                      value={quoteFeeUsd}
-                      color='text.subtle'
-                      textDecoration='line-through'
-                    />
                     <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
                     <QuestionIcon color={greenColor} />
                   </>

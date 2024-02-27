@@ -86,7 +86,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   )
 
   const minAmountAfterSlippageTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['trade.tooltip.slippage', { amount: formattedCryptoAmount }],
+    () => ['trade.tooltip.slippageWithAmount', { amount: formattedCryptoAmount }],
     [formattedCryptoAmount],
   )
 

@@ -46,6 +46,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
+import { feeCurveParameters } from 'lib/fees/parameters'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
@@ -801,6 +802,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountFiat),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+      // TODO(gomes)
+      parameters: feeCurveParameters.swapper,
     })
 
     setConfirmedQuote({

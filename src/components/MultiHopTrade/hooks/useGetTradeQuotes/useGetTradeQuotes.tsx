@@ -11,6 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
+import { feeCurveParameters } from 'lib/fees/parameters'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -199,6 +200,7 @@ export const useGetTradeQuotes = () => {
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
         foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        parameters: feeCurveParameters.swapper,
       })
 
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)

@@ -210,7 +210,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   //
   //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
   //     and not allowing them to select the sure-to-fail deposit types
-  const defaultOpportunityId = useMemo(() => {
+  useMemo(() => {
     if (!pools?.length) return
     if (activeOpportunityId) return activeOpportunityId
 
@@ -225,16 +225,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
     )
 
-    const poolOpportunityId = assetId && toOpportunityId({ assetId, type: opportunityType })
+    const defaultOpportunityId = toOpportunityId({
+      assetId: assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
+      type: opportunityType,
+    })
 
-    return (
-      opportunityId ||
-      poolOpportunityId ||
-      toOpportunityId({
-        assetId: walletSupportedOpportunity?.assetId ?? pools[0].assetId,
-        type: opportunityType,
-      })
-    )
+    setActiveOpportunityId(opportunityId || defaultOpportunityId)
   }, [
     pools,
     opportunityId,
@@ -244,8 +240,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     isSnapInstalled,
     wallet,
   ])
-
-  useEffect(() => setActiveOpportunityId(defaultOpportunityId ?? ''), [defaultOpportunityId])
 
   const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
     if (!activeOpportunityId) return {}

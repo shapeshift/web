@@ -100,6 +100,8 @@ const dividerStyle = {
   marginTop: 12,
 }
 
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORCHAIN_LP' }
+
 export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
@@ -126,10 +128,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
 
-  const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'THORCHAIN_LP' }),
-    [],
-  )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isSnapInstalled = useIsSnapInstalled()

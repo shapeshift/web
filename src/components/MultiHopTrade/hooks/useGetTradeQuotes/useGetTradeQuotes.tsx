@@ -61,6 +61,8 @@ type GetMixPanelDataFromApiQuotesReturn = {
   isActionable: boolean // is any quote in the request actionable
 }
 
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
+
 const getMixPanelDataFromApiQuotes = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
 ): GetMixPanelDataFromApiQuotesReturn => {
@@ -143,10 +145,6 @@ export const useGetTradeQuotes = () => {
   const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
 
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'SWAPPER' }),
-    [],
-  )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,

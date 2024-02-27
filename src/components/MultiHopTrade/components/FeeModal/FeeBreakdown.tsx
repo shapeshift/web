@@ -12,6 +12,7 @@ import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/sli
 import { selectQuoteAffiliateFeeUserCurrency } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const divider = <Divider />
 
 const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: string }) => {
@@ -24,10 +25,6 @@ const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: str
 
 export const FeeBreakdown = () => {
   const translate = useTranslate()
-  const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'SWAPPER' }),
-    [],
-  )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const { foxDiscountUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =

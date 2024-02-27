@@ -98,6 +98,7 @@ import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 import { useSharedHeight } from './hooks/useSharedHieght'
 
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const formControlProps = {
   borderRadius: 0,
   background: 'transparent',
@@ -214,10 +215,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'SWAPPER' }),
-    [],
-  )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
 
   const isVotingPowerLoading = useMemo(

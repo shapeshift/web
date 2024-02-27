@@ -10,6 +10,7 @@ import { selectPortfolioChainIdsSortedUserCurrency } from 'state/slices/selector
 import { useAppSelector } from 'state/store'
 
 import { GlobalFilter } from './GlobalFilter'
+import { useFetchOpportunities } from './hooks/useFetchOpporunities'
 import type { PositionTableProps } from './PositionTable'
 import { PositionTable } from './PositionTable'
 import type { ProviderTableProps } from './ProviderTable'
@@ -44,6 +45,8 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
   const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
+
+  useFetchOpportunities()
 
   return (
     <Flex width='full' flexDir='column' gap={6}>

@@ -64,10 +64,17 @@ export const Details = () => {
   const history = useHistory()
   const translate = useTranslate()
 
-  const { accountId, amountFieldError, assetId, amountCryptoPrecision: cryptoAmount, fiatAmount, fiatSymbol, memo } =
-    useWatch({
-      control,
-    }) as Partial<SendInput>
+  const {
+    accountId,
+    amountFieldError,
+    assetId,
+    amountCryptoPrecision: cryptoAmount,
+    fiatAmount,
+    fiatSymbol,
+    memo,
+  } = useWatch({
+    control,
+  }) as Partial<SendInput>
 
   const previousAccountId = usePrevious(accountId)
 
@@ -103,7 +110,8 @@ export const Details = () => {
     // Also turns out we don't handle re-validation in case of changing AccountIds
     // This effect takes care of both the initial/account change cases
     if ((previousAccountId ?? '') !== accountId) {
-      const inputAmount = fieldName === SendFormFields.AmountCryptoPrecision ? cryptoAmount : fiatAmount
+      const inputAmount =
+        fieldName === SendFormFields.AmountCryptoPrecision ? cryptoAmount : fiatAmount
       handleInputChange(inputAmount ?? '0')
       trigger(fieldName)
     }

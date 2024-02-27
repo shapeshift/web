@@ -58,10 +58,18 @@ export const Confirm = () => {
   } = useFormContext<SendInput>()
   const history = useHistory()
   const translate = useTranslate()
-  const { accountId, to, assetId, amountCryptoPrecision: cryptoAmount, feeType, fiatAmount, memo, vanityAddress } =
-    useWatch({
-      control,
-    }) as Partial<SendInput>
+  const {
+    accountId,
+    to,
+    assetId,
+    amountCryptoPrecision: cryptoAmount,
+    feeType,
+    fiatAmount,
+    memo,
+    vanityAddress,
+  } = useWatch({
+    control,
+  }) as Partial<SendInput>
   const { fees } = useSendFees()
   const allowCustomSendNonce = getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE
 

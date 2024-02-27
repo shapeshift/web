@@ -26,7 +26,16 @@ export const PoolSummary = ({
   if (!asset) return null
 
   return (
-    <Stack fontSize='sm' px={6} spacing={4} fontWeight='medium'>
+    <Stack
+      fontSize='sm'
+      px={6}
+      spacing={4}
+      fontWeight='medium'
+      mb={4}
+      pt={4}
+      borderTopWidth={1}
+      borderColor='border.base'
+    >
       <RawText fontWeight='bold'>{translate('pools.initialPricesAndPoolShare')}</RawText>
       <Row>
         <Row.Label>

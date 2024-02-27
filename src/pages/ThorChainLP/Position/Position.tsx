@@ -300,6 +300,8 @@ export const Position = () => {
                         justifyContent='space-between'
                         alignItems='center'
                         fontWeight='medium'
+                        whiteSpace='nowrap'
+                        gap={2}
                       >
                         <Flex alignItems='center' gap={2}>
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
@@ -315,6 +317,8 @@ export const Position = () => {
                         justifyContent='space-between'
                         alignItems='center'
                         fontWeight='medium'
+                        whiteSpace='nowrap'
+                        gap={2}
                       >
                         <Flex alignItems='center' gap={2}>
                           <AssetIcon size='xs' assetId={poolAssetIds[1]} />
@@ -342,6 +346,8 @@ export const Position = () => {
                         justifyContent='space-between'
                         alignItems='center'
                         fontWeight='medium'
+                        whiteSpace='nowrap'
+                        gap={2}
                       >
                         <Flex alignItems='center' gap={2}>
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
@@ -350,6 +356,7 @@ export const Position = () => {
                         <Amount.Crypto
                           value={earnings?.assetEarnings ?? '0'}
                           symbol={asset?.symbol ?? ''}
+                          whiteSpace='nowrap'
                         />
                       </Flex>
                       <Flex
@@ -357,6 +364,8 @@ export const Position = () => {
                         justifyContent='space-between'
                         alignItems='center'
                         fontWeight='medium'
+                        whiteSpace='nowrap'
+                        gap={2}
                       >
                         <Flex alignItems='center' gap={2}>
                           <AssetIcon size='xs' assetId={poolAssetIds[1]} />

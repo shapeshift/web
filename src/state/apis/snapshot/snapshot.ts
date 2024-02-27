@@ -19,7 +19,7 @@ type FoxVotingPowerCryptoBalance = string
 
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
 
-const initialState: {
+export const initialState: {
   votingPowerByModel: Record<ParameterModel, string | undefined>
   strategies: Strategy[] | undefined
 } = {

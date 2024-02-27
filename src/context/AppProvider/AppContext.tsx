@@ -1,16 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  avalancheChainId,
-  bchChainId,
-  bscChainId,
-  btcChainId,
-  cosmosChainId,
-  dogeChainId,
-  ethChainId,
-  fromAccountId,
-  ltcChainId,
-} from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { type AccountMetadataById, KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -19,17 +9,13 @@ import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { setTimeoutAsync } from 'lib/utils'
-import { nftApi } from 'state/apis/nft/nftApi'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
-import { zapper } from 'state/apis/zapper/zapperApi'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   marketApi,
@@ -37,17 +23,11 @@ import {
   useFindAllQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import {
-  fetchAllOpportunitiesIdsByChainId,
-  fetchAllOpportunitiesMetadataByChainId,
-  fetchAllOpportunitiesUserDataByAccountId,
-} from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetIds,
-  selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
@@ -77,9 +57,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
-  const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const routeAssetId = useRouteAssetId()
-  const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
   const isSnapInstalled = useIsSnapInstalled()
 
   // track anonymous portfolio
@@ -187,58 +165,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       await dispatch(getAllTxHistory.initiate(requestedAccountIds))
     })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
-
-  // once portfolio is loaded, fetch remaining chain specific data
-  useEffect(() => {
-    ;(async () => {
-      if (!requestedAccountIds.length) return
-      if (portfolioLoadingStatus === 'loading') return
-
-      dispatch(nftApi.endpoints.getNftUserTokens.initiate({ accountIds: requestedAccountIds }))
-
-      dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
-
-      const maybeFetchZapperData = DynamicLpAssets
-        ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
-        : () => setTimeoutAsync(0)
-
-      await maybeFetchZapperData
-
-      requestedAccountIds.forEach(accountId => {
-        const { chainId } = fromAccountId(accountId)
-        switch (chainId) {
-          case btcChainId:
-          case ltcChainId:
-          case dogeChainId:
-          case bchChainId:
-          case cosmosChainId:
-          case bscChainId:
-          case avalancheChainId:
-            ;(async () => {
-              await fetchAllOpportunitiesIdsByChainId(chainId)
-              await fetchAllOpportunitiesMetadataByChainId(chainId)
-              await fetchAllOpportunitiesUserDataByAccountId(accountId)
-            })()
-            break
-          case ethChainId:
-            ;(async () => {
-              await fetchAllOpportunitiesIdsByChainId(chainId)
-              await fetchAllOpportunitiesMetadataByChainId(chainId)
-              await fetchAllOpportunitiesUserDataByAccountId(accountId)
-            })()
-            break
-          default:
-        }
-      })
-    })()
-  }, [
-    portfolioLoadingStatus,
-    portfolioAccounts,
-    DynamicLpAssets,
-    dispatch,
-    requestedAccountIds,
-    portfolioAssetIds,
-  ])
 
   const uniV2LpIdsData = useAppSelector(
     opportunitiesApi.endpoints.getOpportunityIds.select({

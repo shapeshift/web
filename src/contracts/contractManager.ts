@@ -10,11 +10,10 @@ import { FarmingABI } from 'contracts/abis/farmingAbi'
 import { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { IUniswapV2Router02 } from 'contracts/abis/IUniswapV2Router02'
 import { THORChain_RouterABI } from 'contracts/abis/THORCHAIN_RouterABI'
-import { ethers } from 'ethers'
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
-import { getContract } from 'viem'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
+import { getAddress, getContract } from 'viem'
+import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { viemClientByChainId, viemEthMainnetClient } from 'lib/viem-client'
 
 import {
@@ -104,7 +103,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
   })
   definedContracts.push({
     contract,
-    address: ethers.utils.getAddress(address),
+    address: getAddress(address),
   } as unknown as DefinedContract)
   return contract as KnownContractByType<T>
 }
@@ -112,13 +111,13 @@ export const getOrCreateContractByType = <T extends ContractType>({
 export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const { assetReference, chainId } = fromAssetId(pairAssetId)
   // Checksum
-  const contractAddress = ethers.utils.getAddress(assetReference)
+  const contractAddress = getAddress(assetReference)
   const pair = getOrCreateContractByType({
     address: contractAddress,
     type: ContractType.UniV2Pair,
     chainId: KnownChainIds.EthereumMainnet,
   })
-  const ethersProvider = getEthersProvider()
+  const ethersV5Provider = getEthersV5Provider()
 
   const token0Address = await pair.read.token0()
   const token1Address = await pair.read.token1()
@@ -141,13 +140,13 @@ export const fetchUniV2PairData = memoize(async (pairAssetId: AssetId) => {
   const token0: Token = await Fetcher.fetchTokenData(
     Number(asset0EvmChainId),
     asset0Address,
-    ethersProvider,
+    ethersV5Provider,
   )
   const token1: Token = await Fetcher.fetchTokenData(
     Number(asset1EvmChainId),
     asset1Address,
-    ethersProvider,
+    ethersV5Provider,
   )
 
-  return Fetcher.fetchPairData(token0, token1, ethersProvider)
+  return Fetcher.fetchPairData(token0, token1, ethersV5Provider)
 })

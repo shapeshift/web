@@ -1,6 +1,6 @@
-import type { ContractInterface } from 'ethers'
+import type { InterfaceAbi } from 'ethers'
 
-export const tokePoolAbi: ContractInterface = [
+export const tokePoolAbi: InterfaceAbi = [
   {
     anonymous: false,
     inputs: [

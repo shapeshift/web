@@ -1,6 +1,6 @@
-import type { ContractInterface } from 'ethers'
+import type { InterfaceAbi } from 'ethers'
 
-export const foxyAbi: ContractInterface = [
+export const foxyAbi: InterfaceAbi = [
   {
     inputs: [],
     stateMutability: 'nonpayable',

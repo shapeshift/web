@@ -1,6 +1,6 @@
-import type { ContractInterface } from 'ethers'
+import type { InterfaceAbi } from 'ethers'
 
-export const erc20Abi: ContractInterface = [
+export const erc20Abi: InterfaceAbi = [
   {
     constant: true,
     inputs: [],

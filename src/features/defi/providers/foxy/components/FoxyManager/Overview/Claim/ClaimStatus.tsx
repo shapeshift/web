@@ -1,7 +1,7 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import type { ethers } from 'ethers'
+import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
@@ -68,7 +68,7 @@ type ClaimStatusProps = {
 }
 
 export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
-  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
+  const { poll } = usePoll<TransactionReceipt | null>()
   const { history: browserHistory } = useBrowserRouter()
   const foxyApi = getFoxyApi()
   const translate = useTranslate()
@@ -118,20 +118,22 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
       try {
         const transactionReceipt = await poll({
           fn: () => foxyApi.getTxReceipt({ txid }),
-          validate: (result: ethers.providers.TransactionReceipt) => !isNil(result),
+          validate: (result: TransactionReceipt | null) => !isNil(result),
           interval: 15000,
           maxAttempts: 30,
         })
 
-        if (transactionReceipt.status) {
+        if (transactionReceipt?.status) {
           refetchFoxyBalances()
         }
 
         setState({
           ...state,
-          txStatus: transactionReceipt.status ? TxStatus.SUCCESS : TxStatus.FAILED,
-          usedGasFeeCryptoBaseUnit: transactionReceipt.effectiveGasPrice
-            .mul(transactionReceipt.gasUsed)
+          txStatus: transactionReceipt?.status ? TxStatus.SUCCESS : TxStatus.FAILED,
+          usedGasFeeCryptoBaseUnit: bnOrZero(
+            (transactionReceipt as TransactionReceiptParams | null)?.effectiveGasPrice?.toString(),
+          )
+            .times(bnOrZero(transactionReceipt?.gasUsed.toString()))
             .toString(),
         })
       } catch (error) {

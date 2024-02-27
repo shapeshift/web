@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
-import { ethers } from 'ethers'
+import { getAddress, JsonRpcProvider } from 'ethers'
 
 import type { Token, TxStatus } from '../../types'
 import { TransferType } from '../../types'
@@ -26,7 +26,7 @@ export class BaseTransactionParser<T extends Tx> {
   assetId: AssetId
 
   protected readonly api: Api
-  protected readonly provider: ethers.providers.StaticJsonRpcProvider
+  protected readonly provider: JsonRpcProvider
 
   private parsers: SubParser<T>[] = []
 
@@ -34,7 +34,7 @@ export class BaseTransactionParser<T extends Tx> {
     this.chainId = args.chainId
     this.assetId = args.assetId
     this.api = args.api
-    this.provider = new ethers.providers.StaticJsonRpcProvider(args.rpcUrl)
+    this.provider = new JsonRpcProvider(args.rpcUrl, undefined, { staticNetwork: true })
   }
 
   /**
@@ -51,7 +51,7 @@ export class BaseTransactionParser<T extends Tx> {
   }
 
   async parse(tx: T, address: string): Promise<ParsedTx> {
-    address = ethers.utils.getAddress(address)
+    address = getAddress(address)
 
     // We expect only one Parser to return a result. If multiple do, we take the first and early exit.
     const contractParserResult = await findAsyncSequential<SubParser<T>, TxSpecific>(

@@ -1,6 +1,6 @@
-import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { InterfaceAbi } from 'ethers'
 
-export const ERC20_ABI: JsonFragment[] = [
+export const ERC20_ABI: InterfaceAbi = [
   {
     inputs: [
       { internalType: 'string', name: 'name_', type: 'string' },

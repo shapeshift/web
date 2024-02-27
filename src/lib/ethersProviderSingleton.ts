@@ -2,7 +2,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { providers } from 'ethers'
+import { JsonRpcProvider } from 'ethers'
+import { ethers as ethersV5 } from 'ethers5'
 
 import { assertUnreachable } from './utils'
 
@@ -29,16 +30,32 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   }
 }
 
-const ethersProviders: Map<ChainId, providers.StaticJsonRpcProvider> = new Map()
+const ethersProviders: Map<ChainId, JsonRpcProvider> = new Map()
+const ethersV5Providers: Map<ChainId, ethersV5.providers.StaticJsonRpcProvider> = new Map()
 
 export const getEthersProvider = (
   chainId: EvmChainId = KnownChainIds.EthereumMainnet,
-): providers.StaticJsonRpcProvider => {
+): JsonRpcProvider => {
   if (!ethersProviders.has(chainId)) {
-    const provider = new providers.StaticJsonRpcProvider(rpcUrlByChainId(chainId))
+    const provider = new JsonRpcProvider(rpcUrlByChainId(chainId), undefined, {
+      staticNetwork: true,
+    })
     ethersProviders.set(chainId, provider)
     return provider
   } else {
     return ethersProviders.get(chainId)!
+  }
+}
+
+// For backwards-compatibility for libraries still stuck in v5
+export const getEthersV5Provider = (
+  chainId: EvmChainId = KnownChainIds.EthereumMainnet,
+): ethersV5.providers.JsonRpcProvider => {
+  if (!ethersV5Providers.has(chainId)) {
+    const provider = new ethersV5.providers.StaticJsonRpcProvider(rpcUrlByChainId(chainId))
+    ethersV5Providers.set(chainId, provider)
+    return provider
+  } else {
+    return ethersV5Providers.get(chainId)!
   }
 }

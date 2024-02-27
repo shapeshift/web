@@ -17,9 +17,9 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, gnosisChainId } from '@shapeshiftoss/caip'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
-import { utils } from 'ethers'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { toHex } from 'viem'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -106,7 +106,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
           requestedChainId === gnosisChainId ? ['https://rpc.gnosischain.com'] : []
         const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
         await (state.wallet as ETHWallet).ethSwitchChain?.({
-          chainId: utils.hexValue(Number(requestedEthNetwork)),
+          chainId: toHex(Number(requestedEthNetwork)),
           chainName: requestedChainChainAdapter.getDisplayName(),
           nativeCurrency: {
             name: requestedChainFeeAsset.name,

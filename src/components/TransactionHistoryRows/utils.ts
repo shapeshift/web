@@ -1,7 +1,7 @@
-import { MaxUint256 } from '@ethersproject/constants'
 import type { TransferType, TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { memoize } from 'lodash'
+import { maxUint256 } from 'viem'
 import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
@@ -93,7 +93,7 @@ export const makeAmountOrDefault = (
     (approvedAssetMarketData.maxSupply &&
       bn(approvedAssetMarketData.maxSupply).gte(0) &&
       bn(approvedAmount).gte(approvedAssetMarketData.maxSupply)) ||
-    bn(value).isEqualTo(MaxUint256.toString())
+    bn(value).isEqualTo(maxUint256.toString())
   )
     return `transactionRow.parser.${parser}.infinite`
   // We don't have market data for that asset thus can't know whether or not it's infinite

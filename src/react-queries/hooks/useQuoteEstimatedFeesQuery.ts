@@ -1,8 +1,8 @@
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
-import { utils } from 'ethers'
 import { useMemo } from 'react'
+import { toHex } from 'viem'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -89,7 +89,7 @@ export const useQuoteEstimatedFeesQuery = ({
       confirmedQuote && 'quoteMemo' in confirmedQuote ? confirmedQuote.quoteMemo : ''
     const memo =
       assetId && supportedEvmChainIds.includes(fromAssetId(assetId).chainId as KnownChainIds)
-        ? utils.hexlify(utils.toUtf8Bytes(quoteMemo))
+        ? toHex(quoteMemo)
         : quoteMemo
     const to =
       confirmedQuote && 'quoteInboundAddress' in confirmedQuote

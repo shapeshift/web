@@ -1,5 +1,4 @@
 import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
-import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
@@ -17,7 +16,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, zeroAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
@@ -274,7 +273,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               getAddress(quote.inbound_address),
               // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
               // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
-              AddressZero,
+              zeroAddress,
               BigInt(amountCryptoBaseUnit),
               quote.memo,
               BigInt(quote.expiry),

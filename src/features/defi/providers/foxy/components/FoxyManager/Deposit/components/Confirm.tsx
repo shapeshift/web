@@ -2,7 +2,7 @@ import { Alert, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { ethers } from 'ethers'
+import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -32,7 +32,7 @@ import { DepositContext } from '../DepositContext'
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
-  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
+  const { poll } = usePoll<TransactionReceipt | null>()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
@@ -98,16 +98,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
       const transactionReceipt = await poll({
         fn: () => foxyApi.getTxReceipt({ txid }),
-        validate: (result: ethers.providers.TransactionReceipt) => !isNil(result),
+        validate: (result: TransactionReceipt | null) => !isNil(result),
         interval: 15000,
         maxAttempts: 30,
       })
       dispatch({
         type: FoxyDepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: transactionReceipt.status ? 'success' : 'failed',
-          usedGasFeeCryptoBaseUnit: transactionReceipt.effectiveGasPrice
-            .mul(transactionReceipt.gasUsed)
+          txStatus: transactionReceipt?.status ? 'success' : 'failed',
+          usedGasFeeCryptoBaseUnit: bnOrZero(
+            (transactionReceipt as TransactionReceiptParams | null)?.effectiveGasPrice?.toString(),
+          )
+            .times(transactionReceipt?.gasUsed.toString() ?? 0)
             .toString(),
         },
       })

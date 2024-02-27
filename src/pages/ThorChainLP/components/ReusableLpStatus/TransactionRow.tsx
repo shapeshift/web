@@ -9,7 +9,6 @@ import {
   Link,
   Skeleton,
 } from '@chakra-ui/react'
-import { AddressZero } from '@ethersproject/constants'
 import {
   type AssetId,
   fromAccountId,
@@ -33,7 +32,7 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { selectInboundAddressData } from 'react-queries/selectors'
-import { getAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -290,7 +289,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         if (!inboundAddressData?.router) return undefined
         const assetAddress = isToken(fromAssetId(assetId).assetReference)
           ? getAddress(fromAssetId(assetId).assetReference)
-          : AddressZero
+          : zeroAddress
         const amount = BigInt(toBaseUnit(amountCryptoPrecision, asset.precision).toString())
 
         const args = (() => {
@@ -300,7 +299,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             ? getAddress(fromAssetId(assetId).assetReference)
             : // Native EVM assets use the 0 address as the asset address
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-              AddressZero
+              zeroAddress
 
           const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
             confirmedQuote.feeBps
@@ -475,7 +474,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                 ? getAddress(fromAssetId(assetId).assetReference)
                 : // Native EVM assets use the 0 address as the asset address
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                  AddressZero
+                  zeroAddress
 
               const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
                 confirmedQuote.feeBps

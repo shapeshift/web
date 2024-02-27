@@ -34,17 +34,17 @@ interface SupportedFunctions {
 export class Parser implements SubParser<Tx> {
   private readonly chainId: ChainId
   private readonly thorchainParser: ThorchainParser
-  private readonly abiInterface: ethers.utils.Interface
+  private readonly abiInterface: ethers.Interface
   private readonly supportedFunctions: SupportedFunctions
 
   constructor(args: ParserArgs) {
-    this.abiInterface = new ethers.utils.Interface(routerAbi)
+    this.abiInterface = new ethers.Interface(routerAbi)
     this.supportedFunctions = {
-      depositSigHash: this.abiInterface.getSighash('deposit'),
-      depositWithExpirySigHash: this.abiInterface.getSighash('depositWithExpiry'),
-      transferOutSigHash: this.abiInterface.getSighash('transferOut'),
-      transferOutAndCallSigHash: this.abiInterface.getSighash('transferOutAndCall'),
-      swapInSigHash: this.abiInterface.getSighash('swapIn'),
+      depositSigHash: this.abiInterface.getFunction('deposit')!.selector,
+      depositWithExpirySigHash: this.abiInterface.getFunction('depositWithExpiry')!.selector,
+      transferOutSigHash: this.abiInterface.getFunction('transferOut')!.selector,
+      transferOutAndCallSigHash: this.abiInterface.getFunction('transferOutAndCall')!.selector,
+      swapInSigHash: this.abiInterface.getFunction('swapIn')!.selector,
     }
     this.thorchainParser = new ThorchainParser({ midgardUrl: args.midgardUrl })
     this.chainId = args.chainId

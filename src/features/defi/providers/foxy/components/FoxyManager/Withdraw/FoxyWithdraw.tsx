@@ -1,7 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { ethers } from 'ethers'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -14,6 +13,7 @@ import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { getAddress } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
@@ -75,7 +75,7 @@ export const FoxyWithdraw: React.FC<{
         )
           return
         const foxyOpportunity = await foxyApi.getFoxyOpportunityByStakingAddress(
-          ethers.utils.getAddress(foxyStakingContractAddress),
+          getAddress(foxyStakingContractAddress),
         )
         // Get foxy fee for instant sends
         const foxyFeePercentage = await foxyApi.instantUnstakeFee({

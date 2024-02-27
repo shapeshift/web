@@ -94,6 +94,7 @@ import { HorizontalCollapse } from './components/HorizontalCollapse'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
+import { WithLazyRender } from './components/WithLazyRender'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 import { useSharedHeight } from './hooks/useSharedHieght'
@@ -111,8 +112,12 @@ type TradeInputProps = {
   isCompact?: boolean
 }
 
-export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
+const GetTradeQuotes = () => {
   useGetTradeQuotes()
+  return <></>
+}
+
+export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
     state: { wallet },
   } = useWallet()
@@ -585,20 +590,23 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   return (
     <TradeSlideTransition>
+      <WithLazyRender shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex
           width='full'
           justifyContent='center'
           maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
         >
-          <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
-            <QuoteList
-              onBack={handleCloseCompactQuoteList}
-              isLoading={isLoading}
-              height={tradeInputHeight ?? '500px'}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
-            />
-          </Center>
+          {(isCompact || isSmallerThanXl) && (
+            <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
+              <QuoteList
+                onBack={handleCloseCompactQuoteList}
+                isLoading={isLoading}
+                height={tradeInputHeight ?? '500px'}
+                width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              />
+            </Center>
+          )}
           <Center width='inherit'>
             <Card
               flex={1}

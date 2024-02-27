@@ -43,7 +43,7 @@ export const HorizontalCollapse = ({
       style={motionStyle}
     >
       <Box position='absolute' left={0} width={width} height={height}>
-        {children}
+        {!hidden ? children : null}
       </Box>
     </motion.div>
   )

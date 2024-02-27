@@ -136,23 +136,11 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
       })
-      const usdcOnBsc = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
-        assetNamespace: 'bep20',
-        assetReference: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
-      })
       const usdcOnPolygon = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.PolygonMainnet,
         assetNamespace,
-        assetReference: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
-      })
-      const usdcOnGnosis = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.GnosisMainnet,
-        assetNamespace,
-        assetReference: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+        assetReference: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
       })
       const usdcOnArbitrum = toAssetId({
         chainNamespace,
@@ -160,21 +148,48 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
       })
-      const usdcOnArbitrumNova = toAssetId({
+      expect(coingeckoToAssetIds('usd-coin')).toEqual([
+        usdcOnEthereum,
+        usdcOnAvalanche,
+        usdcOnOptimism,
+        usdcOnPolygon,
+        usdcOnArbitrum,
+      ])
+    })
+    it('can get AssetIds for bridged USD Coin on EVM Chains', () => {
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+      const assetNamespace = 'erc20'
+      const usdcOnBscBridged = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
+        assetNamespace: 'bep20',
+        assetReference: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+      })
+      const usdcOnPolygonBridged = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.PolygonMainnet,
+        assetNamespace,
+        assetReference: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      })
+      const usdcOnArbitrumNovaBridged = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
         assetNamespace,
         assetReference: '0x750ba8b76187092B0D1E87E28daaf484d1b5273b',
       })
-      expect(coingeckoToAssetIds('usd-coin')).toEqual([
-        usdcOnEthereum,
-        usdcOnAvalanche,
-        usdcOnOptimism,
-        usdcOnBsc,
-        usdcOnPolygon,
-        usdcOnGnosis,
-        usdcOnArbitrum,
-        usdcOnArbitrumNova,
+      const usdcOnGnosisBridged = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.GnosisMainnet,
+        assetNamespace,
+        assetReference: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+      })
+      expect(coingeckoToAssetIds('binance-bridged-usdc-bnb-smart-chain')).toEqual([
+        usdcOnBscBridged,
+      ])
+      expect(coingeckoToAssetIds('bridged-usdc-polygon-pos-bridge')).toEqual([usdcOnPolygonBridged])
+      expect(coingeckoToAssetIds('gnosis-xdai-bridged-usdc-gnosis')).toEqual([usdcOnGnosisBridged])
+      expect(coingeckoToAssetIds('official-arbitrum-bridged-usdc-arbitrum-nova')).toEqual([
+        usdcOnArbitrumNovaBridged,
       ])
     })
   })

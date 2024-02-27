@@ -39,7 +39,7 @@ import {
   selectAssetById,
   selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioAccountIdsByAssetId,
+  selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioAccountMetadata,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -203,7 +203,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
   }) => {
     const filter = useMemo(() => ({ assetId }), [assetId])
     const accountIds = useAppSelector((s: ReduxState) =>
-      selectPortfolioAccountIdsByAssetId(s, filter),
+      selectPortfolioAccountIdsByAssetIdFilter(s, filter),
     )
 
     const translate = useTranslate()

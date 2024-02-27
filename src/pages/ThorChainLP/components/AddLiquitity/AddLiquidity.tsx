@@ -60,16 +60,18 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
 }) => {
   const history = useHistory()
   const location = useLocation()
-  const [accountIdsByChainId, setAccountIdsByChainId] = useState<Record<ChainId, AccountId>>({})
+  const [currentAccountIdByChainId, setCurrentAccountIdByChainId] = useState<
+    Record<ChainId, AccountId>
+  >({})
 
   const onAccountIdChange = useCallback(
     (accountId: AccountId) => {
-      setAccountIdsByChainId(prev => {
+      setCurrentAccountIdByChainId(prev => {
         const chainId = fromAccountId(accountId).chainId
         return { ...prev, [chainId]: accountId }
       })
     },
-    [setAccountIdsByChainId],
+    [setCurrentAccountIdByChainId],
   )
 
   const renderAddLiquidityInput = useCallback(
@@ -80,12 +82,12 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
-        accountIdsByChainId={accountIdsByChainId}
+        currentAccountIdByChainId={currentAccountIdByChainId}
         onAccountIdChange={onAccountIdChange}
       />
     ),
     [
-      accountIdsByChainId,
+      currentAccountIdByChainId,
       confirmedQuote,
       headerComponent,
       onAccountIdChange,

@@ -300,6 +300,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       }
       case 'EvmCustomTx': {
         if (!inboundAddressData?.router) return undefined
+        if (!accountAssetAddress) return undefined
         const assetAddress = isToken(fromAssetId(assetId).assetReference)
           ? getAddress(fromAssetId(assetId).assetReference)
           : zeroAddress
@@ -521,6 +522,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (!inboundAddressData) throw new Error('No inboundAddressData found')
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
             if (!accountAssetAddress) throw new Error('No accountAddress found')
+            if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
             const _amountCryptoPrecision = isDeposit
               ? amountCryptoPrecision
               : // Reuse the savers util as a sane amount for the dust threshold
@@ -528,16 +530,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                   THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
                   asset.precision,
                 ) ?? '0'
-            const estimateFeesArgs = {
-              amountCryptoPrecision: _amountCryptoPrecision,
-              assetId,
-              to: inboundAddressData?.address,
-              from: accountAssetAddress,
-              sendMax: false,
-              memo,
-              accountId,
-              contractAddress: undefined,
-            }
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
               amountCryptoPrecision: _amountCryptoPrecision,
@@ -580,6 +572,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     asset,
     poolAsset,
     wallet,
+    memo,
     isRuneTx,
     inboundAddressData,
     refetchIsTradingActive,
@@ -588,9 +581,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     amountCryptoPrecision,
     runeAccountNumber,
     isDeposit,
-    memo,
     assetAccountNumber,
     accountAssetAddress,
+    estimateFeesArgs,
     selectedCurrency,
   ])
 

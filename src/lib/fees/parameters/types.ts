@@ -5,8 +5,7 @@ export type FeeCurveParameters = {
   FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD: number
   FEE_CURVE_MIDPOINT_USD: number
   FEE_CURVE_STEEPNESS_K: number
+  FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS: number
 }
 
-export type ParameterModel = 'swapper'
-// TODO(gomes): Add THORChain LP model parameters and consume them in Thorchain LP domain
-// | 'thorchainLP'
+export type ParameterModel = 'swapper' | 'thorchainLp'

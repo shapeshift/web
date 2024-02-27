@@ -23,7 +23,8 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import type { FeeCurveParameters } from 'lib/fees/parameters/types'
+import { feeCurveParameters } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
@@ -35,7 +36,7 @@ import { FeeSliders } from './FeeSliders'
 type FeeChartProps = {
   tradeSize: number
   foxHolding: number
-  parameters: FeeCurveParameters
+  feeModel: ParameterModel
 }
 
 const xyChartMargin = { left: 30, right: 30, top: 0, bottom: 30 }
@@ -111,7 +112,8 @@ const xScale = {
   domain: [0, CHART_TRADE_SIZE_MAX_USD],
 }
 
-const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, parameters }) => {
+const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) => {
+  const parameters = feeCurveParameters[feeModel]
   const { FEE_CURVE_MAX_FEE_BPS } = parameters
   const yScale = useMemo(
     () => ({ type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }),
@@ -141,22 +143,22 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, parameters }
         const feeBps = calculateFees({
           tradeAmountUsd: bn(trade),
           foxHeld: bn(debouncedFoxHolding),
-          parameters,
+          feeModel,
         }).feeBpsFloat.toNumber()
         return { x: trade, y: feeBps }
       })
       .filter(isSome)
-  }, [debouncedFoxHolding, parameters])
+  }, [debouncedFoxHolding, feeModel])
 
   const currentPoint = useMemo(() => {
     const feeBps = calculateFees({
       tradeAmountUsd: bn(tradeSize),
       foxHeld: bn(debouncedFoxHolding),
-      parameters,
+      feeModel,
     }).feeBpsFloat.toNumber()
 
     return [{ x: tradeSize, y: feeBps }]
-  }, [tradeSize, debouncedFoxHolding, parameters])
+  }, [tradeSize, debouncedFoxHolding, feeModel])
 
   const tickLabelProps = useCallback(
     () => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' }),
@@ -253,21 +255,21 @@ export type FeeSlidersProps = {
   setFoxHolding: (val: number) => void
   currentFoxHoldings: string
   isLoading?: boolean
-  parameters: FeeCurveParameters
+  feeModel: ParameterModel
 }
 
 type FeeOutputProps = {
   tradeSize: number
   foxHolding: number
-  parameters: FeeCurveParameters
+  feeModel: ParameterModel
 }
 
-export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, parameters }) => {
+export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, feeModel }) => {
   const { feeUsd, feeBps, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
       tradeAmountUsd: bn(tradeSize),
       foxHeld: bn(foxHolding),
-      parameters,
+      feeModel,
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -344,11 +346,11 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 
 type FeeExplainerProps = CardProps
 
-export const FeeExplainer: React.FC<
-  FeeExplainerProps & { parameters: FeeCurveParameters }
-> = props => {
-  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = props.parameters
-  const votingPower = useAppSelector(selectVotingPower)
+export const FeeExplainer: React.FC<FeeExplainerProps & { feeModel: ParameterModel }> = props => {
+  const parameters = feeCurveParameters[props.feeModel]
+  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = parameters
+  const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
 
   const [tradeSize, setTradeSize] = useState(
@@ -371,14 +373,14 @@ export const FeeExplainer: React.FC<
             foxHolding={foxHolding}
             setFoxHolding={setFoxHolding}
             currentFoxHoldings={votingPower ?? '0'}
-            parameters={props.parameters}
+            feeModel={props.feeModel}
           />
         </CardBody>
       </Card>
       <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base' {...props}>
         <CardBody p={feeExplainerCardBody}>
-          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} parameters={props.parameters} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} parameters={props.parameters} />
+          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} feeModel={props.feeModel} />
+          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} feeModel={props.feeModel} />l
         </CardBody>
       </Card>
     </Stack>

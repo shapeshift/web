@@ -44,6 +44,7 @@ import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIs
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { positiveOrZero } from 'lib/bignumber/bignumber'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -213,7 +214,11 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPower = useAppSelector(selectVotingPower)
+  const votingPowerParams: { feeModel: ParameterModel } = useMemo(
+    () => ({ feeModel: 'swapper' }),
+    [],
+  )
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,

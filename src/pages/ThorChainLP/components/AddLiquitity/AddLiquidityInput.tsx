@@ -46,7 +46,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { feeCurveParameters } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
@@ -124,7 +124,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
 
-  const votingPower = useAppSelector(selectVotingPower)
+  const votingPowerParams: { feeModel: ParameterModel } = useMemo(
+    () => ({ feeModel: 'thorchainLp' }),
+    [],
+  )
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isSnapInstalled = useIsSnapInstalled()
   const isVotingPowerLoading = useMemo(
@@ -802,8 +806,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountFiat),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      // TODO(gomes)
-      parameters: feeCurveParameters.swapper,
+      feeModel: 'thorchainLp',
     })
 
     setConfirmedQuote({

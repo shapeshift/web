@@ -1,12 +1,13 @@
 import BigNumber from 'bignumber.js'
 import { bn } from 'lib/bignumber/bignumber'
 
-import type { FeeCurveParameters } from './parameters/types'
+import { feeCurveParameters } from './parameters'
+import type { ParameterModel } from './parameters/types'
 
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
   foxHeld: BigNumber | undefined
-  parameters: FeeCurveParameters
+  feeModel: ParameterModel
 }
 
 /**
@@ -31,7 +32,8 @@ type CalculateFeeBpsReturn = {
 }
 type CalculateFeeBps = (args: CalculateFeeBpsArgs) => CalculateFeeBpsReturn
 
-export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, parameters }) => {
+export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeModel }) => {
+  const parameters = feeCurveParameters[feeModel]
   const {
     FEE_CURVE_NO_FEE_THRESHOLD_USD,
     FEE_CURVE_MAX_FEE_BPS,

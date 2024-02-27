@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
-import { feeCurveParameters } from 'lib/fees/parameters'
 
 import { FeeBreakdown } from './FeeBreakdown'
 
@@ -42,7 +41,7 @@ export const FeeModal = ({ isOpen, onClose: handleClose }: FeeModalProps) => {
                 borderRadius='none'
                 bg='transparent'
                 boxShadow='none'
-                parameters={feeCurveParameters.swapper}
+                feeModel='swapper'
               />
             </TabPanel>
           </TabPanels>

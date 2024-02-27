@@ -525,14 +525,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (!inboundAddressData) throw new Error('No inboundAddressData found')
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
             if (!accountAssetAddress) throw new Error('No accountAddress found')
+            const _amountCryptoPrecision = isDeposit
+              ? amountCryptoPrecision
+              : // Reuse the savers util as a sane amount for the dust threshold
+                fromBaseUnit(
+                  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+                  asset.precision,
+                ) ?? '0'
             const estimateFeesArgs = {
-              amountCryptoPrecision: isDeposit
-                ? amountCryptoPrecision
-                : // Reuse the savers util as a sane amount for the dust threshold
-                  fromBaseUnit(
-                    THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-                    asset.precision,
-                  ) ?? '0',
+              amountCryptoPrecision: _amountCryptoPrecision,
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,
@@ -543,13 +544,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
-              amountCryptoPrecision: isDeposit
-                ? amountCryptoPrecision
-                : // Reuse the savers util as a sane amount for the dust threshold
-                  fromBaseUnit(
-                    THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-                    asset.precision,
-                  ) ?? '0',
+              amountCryptoPrecision: _amountCryptoPrecision,
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,

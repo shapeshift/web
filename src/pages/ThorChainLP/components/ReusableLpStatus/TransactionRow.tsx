@@ -267,20 +267,28 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     enabled: !!assetId,
   })
 
-  const estimateFeesArgs = useMemo(() => {
-    if (!assetId || !wallet || !asset || !poolAsset) return undefined
-
-    const thorchainNotationAssetId = assetIdToPoolAssetId({
+  const thorchainNotationAssetId = useMemo(() => {
+    if (!asset || !poolAsset) return undefined
+    // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
+    // Left as-is for this PR to avoid a bigly diff
+    assetIdToPoolAssetId({
       assetId: isRuneTx ? poolAsset.assetId : asset.assetId,
     })
+  }, [asset, poolAsset, isRuneTx])
+
+  const memo = useMemo(() => {
+    return isDeposit
+      ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
+      : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
+  }, [isDeposit, thorchainNotationAssetId, otherAssetAddress, confirmedQuote])
+
+  const estimateFeesArgs = useMemo(() => {
+    if (!assetId || !wallet || !asset || !poolAsset) return undefined
     const transactionType = getThorchainLpTransactionType(asset.chainId)
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
     switch (transactionType) {
       case 'MsgDeposit': {
-        const memo = isDeposit
-          ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
-          : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
         return {
           amountCryptoPrecision: isDeposit ? amountCryptoPrecision : '0',
           assetId: asset.assetId,
@@ -307,9 +315,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
               AddressZero
 
-          const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-            confirmedQuote.feeBps
-          }`
           const amount = BigInt(amountCryptoBaseUnit.toString())
 
           return { memo, amount, expiry, vault, asset }
@@ -337,10 +342,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       }
       case 'Send': {
         if (!inboundAddressData || !accountAssetAddress) return undefined
-        const memo = isDeposit
-          ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
-          : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
-
         return {
           amountCryptoPrecision: isDeposit
             ? amountCryptoPrecision
@@ -366,11 +367,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     asset,
     poolAsset,
-    isRuneTx,
     amountCryptoPrecision,
     isDeposit,
-    otherAssetAddress,
-    confirmedQuote,
+    memo,
+    isRuneTx,
     runeAccountId,
     poolAssetAccountId,
     inboundAddressData,
@@ -420,11 +420,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
-      // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
-      // Left as-is for this PR to avoid a bigly diff
-      const thorchainNotationAssetId = assetIdToPoolAssetId({
-        assetId: isRuneTx ? poolAsset.assetId : asset.assetId,
-      })
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
       const transactionType = getThorchainLpTransactionType(asset.chainId)
@@ -436,11 +431,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
 
             const adapter = assertGetThorchainChainAdapter()
-            const memo = isDeposit
-              ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-                  confirmedQuote.feeBps
-                }`
-              : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
             const estimatedFees = await estimateFees({
               amountCryptoPrecision: isDeposit ? amountCryptoPrecision : '0',
@@ -494,9 +484,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                   AddressZero
 
-              const memo = `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-                confirmedQuote.feeBps
-              }`
               const amount = BigInt(amountCryptoBaseUnit.toString())
 
               return { memo, amount, expiry, vault, asset }
@@ -538,13 +525,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             if (!inboundAddressData) throw new Error('No inboundAddressData found')
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
             if (!accountAssetAddress) throw new Error('No accountAddress found')
-
-            const memo = isDeposit
-              ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${
-                  confirmedQuote.feeBps
-                }`
-              : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
-
             const estimateFeesArgs = {
               amountCryptoPrecision: isDeposit
                 ? amountCryptoPrecision
@@ -617,8 +597,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     amountCryptoPrecision,
     runeAccountNumber,
     isDeposit,
-    otherAssetAddress,
-    confirmedQuote,
+    memo,
     assetAccountNumber,
     accountAssetAddress,
     selectedCurrency,

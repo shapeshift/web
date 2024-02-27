@@ -60,7 +60,9 @@ const formControlProps = {
   background: 'transparent',
   borderWidth: 0,
   paddingBottom: 0,
-  paddingTop: 0,
+  paddingTop: 4,
+  paddingLeft: 4,
+  paddingRight: 4,
 }
 const dividerStyle = {
   borderBottomWidth: 0,

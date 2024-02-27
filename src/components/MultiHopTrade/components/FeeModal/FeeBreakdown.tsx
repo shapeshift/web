@@ -6,6 +6,7 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
+import { feeCurveParameters } from 'lib/fees/parameters'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { selectQuoteAffiliateFeeUserCurrency } from 'state/slices/tradeQuoteSlice/selectors'
@@ -29,6 +30,7 @@ export const FeeBreakdown = () => {
     calculateFees({
       tradeAmountUsd: bnOrZero(sellAmountUsd),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+      parameters: feeCurveParameters.swapper,
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)

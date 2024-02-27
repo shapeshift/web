@@ -16,7 +16,6 @@ import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
-import { FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
 
 import { CHART_TRADE_SIZE_MAX_FOX, CHART_TRADE_SIZE_MAX_USD, labelStyles } from './common'
 import type { FeeSlidersProps } from './FeeExplainer'
@@ -28,7 +27,9 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
   setFoxHolding,
   isLoading,
   currentFoxHoldings,
+  parameters,
 }) => {
+  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = parameters
   const translate = useTranslate()
   const {
     number: { toFiat },

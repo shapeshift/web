@@ -23,7 +23,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { FEE_CURVE_MAX_FEE_BPS, FEE_CURVE_NO_FEE_THRESHOLD_USD } from 'lib/fees/parameters'
+import type { FeeCurveParameters } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
@@ -35,6 +35,7 @@ import { FeeSliders } from './FeeSliders'
 type FeeChartProps = {
   tradeSize: number
   foxHolding: number
+  parameters: FeeCurveParameters
 }
 
 const xyChartMargin = { left: 30, right: 30, top: 0, bottom: 30 }
@@ -109,9 +110,13 @@ const xScale = {
   type: 'linear' as const,
   domain: [0, CHART_TRADE_SIZE_MAX_USD],
 }
-const yScale = { type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }
 
-const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
+const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, parameters }) => {
+  const { FEE_CURVE_MAX_FEE_BPS } = parameters
+  const yScale = useMemo(
+    () => ({ type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }),
+    [FEE_CURVE_MAX_FEE_BPS],
+  )
   const height = 250
   const textColor = useToken('colors', 'text.subtle')
   const borderColor = useToken('colors', 'border.base')
@@ -136,20 +141,22 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize }) => {
         const feeBps = calculateFees({
           tradeAmountUsd: bn(trade),
           foxHeld: bn(debouncedFoxHolding),
+          parameters,
         }).feeBpsFloat.toNumber()
         return { x: trade, y: feeBps }
       })
       .filter(isSome)
-  }, [debouncedFoxHolding])
+  }, [debouncedFoxHolding, parameters])
 
   const currentPoint = useMemo(() => {
     const feeBps = calculateFees({
       tradeAmountUsd: bn(tradeSize),
       foxHeld: bn(debouncedFoxHolding),
+      parameters,
     }).feeBpsFloat.toNumber()
 
     return [{ x: tradeSize, y: feeBps }]
-  }, [tradeSize, debouncedFoxHolding])
+  }, [tradeSize, debouncedFoxHolding, parameters])
 
   const tickLabelProps = useCallback(
     () => ({ fill: textColor, fontSize: 12, fontWeight: 'medium' }),
@@ -246,18 +253,21 @@ export type FeeSlidersProps = {
   setFoxHolding: (val: number) => void
   currentFoxHoldings: string
   isLoading?: boolean
+  parameters: FeeCurveParameters
 }
 
 type FeeOutputProps = {
   tradeSize: number
   foxHolding: number
+  parameters: FeeCurveParameters
 }
 
-export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding }) => {
+export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, parameters }) => {
   const { feeUsd, feeBps, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
       tradeAmountUsd: bn(tradeSize),
       foxHeld: bn(foxHolding),
+      parameters,
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -334,7 +344,10 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 
 type FeeExplainerProps = CardProps
 
-export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
+export const FeeExplainer: React.FC<
+  FeeExplainerProps & { parameters: FeeCurveParameters }
+> = props => {
+  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = props.parameters
   const votingPower = useAppSelector(selectVotingPower)
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
 
@@ -358,13 +371,14 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
             foxHolding={foxHolding}
             setFoxHolding={setFoxHolding}
             currentFoxHoldings={votingPower ?? '0'}
+            parameters={props.parameters}
           />
         </CardBody>
       </Card>
       <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base' {...props}>
         <CardBody p={feeExplainerCardBody}>
-          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} />
+          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} parameters={props.parameters} />
+          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} parameters={props.parameters} />
         </CardBody>
       </Card>
     </Stack>

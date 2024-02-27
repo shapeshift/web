@@ -5,6 +5,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 
 import type { ReduxState } from './reducer'
 import type {
@@ -45,6 +46,7 @@ type ParamFilter = Partial<{
   includeRewardsBalances: boolean
   searchQuery: string
   txStatus: TxStatus
+  feeModel: ParameterModel
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -76,3 +78,4 @@ export const selectIncludeRewardsBalancesParamFromFilter =
   selectParamFromFilter('includeRewardsBalances')
 export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
 export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
+export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')

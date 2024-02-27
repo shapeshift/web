@@ -6,12 +6,13 @@ import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { feeCurveParameters } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { selectQuoteAffiliateFeeUserCurrency } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const divider = <Divider />
 
 const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: string }) => {
@@ -24,13 +25,13 @@ const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: str
 
 export const FeeBreakdown = () => {
   const translate = useTranslate()
-  const votingPower = useAppSelector(selectVotingPower)
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const { foxDiscountUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
       tradeAmountUsd: bnOrZero(sellAmountUsd),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      parameters: feeCurveParameters.swapper,
+      feeModel: 'SWAPPER',
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)

@@ -46,7 +46,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { feeCurveParameters } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
@@ -64,6 +64,7 @@ import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { Opportunity } from 'pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
   selectAccountNumberByAccountId,
@@ -77,7 +78,7 @@ import {
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -99,6 +100,8 @@ const dividerStyle = {
   marginTop: 12,
 }
 
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORCHAIN_LP' }
+
 export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
@@ -118,13 +121,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
 
-  const votingPower = useAppSelector(selectVotingPower)
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isSnapInstalled = useIsSnapInstalled()
   const isVotingPowerLoading = useMemo(
@@ -781,6 +785,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   useEffect(() => {
+    dispatch(
+      snapshotApi.endpoints.getVotingPower.initiate(
+        { model: 'THORCHAIN_LP' },
+        // Fetch only once on mount to avoid overfetching
+        { forceRefetch: false },
+      ),
+    )
+
     if (
       !(
         actualAssetCryptoLiquidityAmount &&
@@ -790,7 +802,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         shareOfPoolDecimalPercent &&
         slippageRune &&
         activeOpportunityId &&
-        poolAssetInboundAddress
+        poolAssetInboundAddress &&
+        votingPower
       )
     )
       return
@@ -802,8 +815,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountFiat),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      // TODO(gomes)
-      parameters: feeCurveParameters.swapper,
+      feeModel: 'THORCHAIN_LP',
     })
 
     setConfirmedQuote({
@@ -831,6 +843,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualAssetFiatLiquidityAmount,
     actualRuneCryptoLiquidityAmount,
     actualRuneFiatLiquidityAmount,
+    dispatch,
     isAsym,
     poolAssetAccountAddress,
     poolAssetFeeAssetMarktData.price,
@@ -1255,6 +1268,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           isDisabled={
             isTradingActive === false ||
             !confirmedQuote ||
+            !votingPower ||
             isVotingPowerLoading ||
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance ||

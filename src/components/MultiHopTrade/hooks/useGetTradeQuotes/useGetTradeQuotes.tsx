@@ -11,7 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { feeCurveParameters } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
@@ -60,6 +60,8 @@ type GetMixPanelDataFromApiQuotesReturn = {
   version: string // ISO 8601 standard basic format date
   isActionable: boolean // is any quote in the request actionable
 }
+
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
 const getMixPanelDataFromApiQuotes = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
@@ -143,7 +145,7 @@ export const useGetTradeQuotes = () => {
   const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
 
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPower = useAppSelector(selectVotingPower)
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
     [isSnapshotApiQueriesPending, votingPower],
@@ -200,7 +202,7 @@ export const useGetTradeQuotes = () => {
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
         foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-        parameters: feeCurveParameters.swapper,
+        feeModel: 'SWAPPER',
       })
 
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)

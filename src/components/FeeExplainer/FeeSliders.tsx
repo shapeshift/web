@@ -30,8 +30,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
   currentFoxHoldings,
   feeModel,
 }) => {
-  const parameters = feeCurveParameters[feeModel]
-  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = parameters
+  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = feeCurveParameters[feeModel]
   const translate = useTranslate()
   const {
     number: { toFiat },

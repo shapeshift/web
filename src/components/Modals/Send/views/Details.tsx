@@ -68,7 +68,7 @@ export const Details = () => {
     accountId,
     amountFieldError,
     assetId,
-    amountCryptoPrecision: cryptoAmount,
+    amountCryptoPrecision,
     fiatAmount,
     fiatSymbol,
     memo,
@@ -82,10 +82,10 @@ export const Details = () => {
     (accountId: AccountId) => {
       setValue(SendFormFields.AccountId, accountId)
       if (!previousAccountId) return
-      if (!cryptoAmount) setValue(SendFormFields.AmountCryptoPrecision, '')
+      if (!amountCryptoPrecision) setValue(SendFormFields.AmountCryptoPrecision, '')
       if (!fiatAmount) setValue(SendFormFields.FiatAmount, '')
     },
-    [cryptoAmount, fiatAmount, previousAccountId, setValue],
+    [amountCryptoPrecision, fiatAmount, previousAccountId, setValue],
   )
 
   const { close: handleClose } = useModal('send')
@@ -111,7 +111,7 @@ export const Details = () => {
     // This effect takes care of both the initial/account change cases
     if ((previousAccountId ?? '') !== accountId) {
       const inputAmount =
-        fieldName === SendFormFields.AmountCryptoPrecision ? cryptoAmount : fiatAmount
+        fieldName === SendFormFields.AmountCryptoPrecision ? amountCryptoPrecision : fiatAmount
       handleInputChange(inputAmount ?? '0')
       trigger(fieldName)
     }
@@ -195,7 +195,7 @@ export const Details = () => {
     [asset?.symbol, translate],
   )
 
-  if (!(asset && !isNil(cryptoAmount) && !isNil(fiatAmount) && fiatSymbol)) {
+  if (!(asset && !isNil(amountCryptoPrecision) && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
 
@@ -250,7 +250,7 @@ export const Details = () => {
               _hover={formHelperTextHoverStyle}
             >
               {fieldName === SendFormFields.FiatAmount ? (
-                <Amount.Crypto value={cryptoAmount} symbol={asset.symbol} prefix='≈' />
+                <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} prefix='≈' />
               ) : (
                 <Flex>
                   <Amount.Fiat value={fiatAmount} mr={1} prefix='≈' /> {fiatSymbol}
@@ -321,7 +321,7 @@ export const Details = () => {
           <Button
             width='full'
             isDisabled={
-              !(cryptoAmount ?? fiatAmount) ||
+              !(amountCryptoPrecision ?? fiatAmount) ||
               !!amountFieldError ||
               loading ||
               Boolean(memoFieldError)

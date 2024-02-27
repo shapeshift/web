@@ -62,7 +62,7 @@ export const Confirm = () => {
     accountId,
     to,
     assetId,
-    amountCryptoPrecision: cryptoAmount,
+    amountCryptoPrecision,
     feeType,
     fiatAmount,
     memo,
@@ -116,7 +116,7 @@ export const Confirm = () => {
     [asset],
   )
 
-  if (!(to && asset?.name && cryptoAmount && fiatAmount && feeType)) return null
+  if (!(to && asset?.name && amountCryptoPrecision && fiatAmount && feeType)) return null
 
   return (
     <SlideTransition>
@@ -143,7 +143,7 @@ export const Confirm = () => {
             lineHeight='shorter'
             textTransform='uppercase'
             symbol={asset.symbol}
-            value={cryptoAmount}
+            value={amountCryptoPrecision}
           />
           <Amount.Fiat color='text.subtle' fontSize='xl' lineHeight='short' value={fiatAmount} />
         </Flex>
@@ -232,7 +232,7 @@ export const Confirm = () => {
                 textTransform='uppercase'
                 maximumFractionDigits={6}
                 symbol={asset.symbol}
-                value={cryptoAmount}
+                value={amountCryptoPrecision}
               />
               <Amount.Crypto prefix='+' value={cryptoAmountFee} symbol={feeAsset?.symbol ?? ''} />
             </Row.Label>

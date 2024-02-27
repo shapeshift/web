@@ -41,7 +41,7 @@ export type EstimateFeesInput = {
 }
 
 export const estimateFees = ({
-  amountCryptoPrecision: cryptoAmount,
+  amountCryptoPrecision,
   assetId,
   from,
   memo,
@@ -54,7 +54,9 @@ export const estimateFees = ({
   const state = store.getState()
   const asset = selectAssetById(state, assetId)
   if (!asset) throw new Error(`Asset not found for ${assetId}`)
-  const value = bnOrZero(cryptoAmount).times(bn(10).exponentiatedBy(asset.precision)).toFixed(0)
+  const value = bnOrZero(amountCryptoPrecision)
+    .times(bn(10).exponentiatedBy(asset.precision))
+    .toFixed(0)
 
   const { chainNamespace } = fromChainId(asset.chainId)
 

@@ -113,10 +113,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const estimateFormFees = useCallback((): Promise<FeeDataEstimate<ChainId>> => {
     if (!asset) throw new Error('No asset found')
 
-    const { assetId, amountCryptoPrecision: cryptoAmount, to, sendMax } = getValues()
+    const { assetId, amountCryptoPrecision, to, sendMax } = getValues()
     if (!wallet) throw new Error('No wallet connected')
     return estimateFees({
-      amountCryptoPrecision: cryptoAmount,
+      amountCryptoPrecision,
       assetId,
       to,
       sendMax,
@@ -128,12 +128,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const debouncedSetEstimatedFormFees = useMemo(() => {
     return debounce(
       async () => {
-        const { amountCryptoPrecision: cryptoAmount } = getValues()
-        if (cryptoAmount === '') return
+        const { amountCryptoPrecision } = getValues()
+        if (amountCryptoPrecision === '') return
         if (!asset || !accountId) return
         const estimatedFees = await estimateFormFees()
 
-        const hasValidBalance = cryptoHumanBalance.gte(cryptoAmount)
+        const hasValidBalance = cryptoHumanBalance.gte(amountCryptoPrecision)
 
         if (!hasValidBalance) {
           throw new Error('common.insufficientFunds')
@@ -150,7 +150,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         // If sending native fee asset, ensure amount entered plus fees is less than balance.
         if (feeAsset.assetId === assetId) {
           const canCoverFees = nativeAssetBalance
-            .minus(bnOrZero(cryptoAmount).times(`1e+${asset.precision}`).decimalPlaces(0))
+            .minus(bnOrZero(amountCryptoPrecision).times(`1e+${asset.precision}`).decimalPlaces(0))
             .minus(estimatedFees.fast.txFee)
             .isPositive()
           if (!canCoverFees) {

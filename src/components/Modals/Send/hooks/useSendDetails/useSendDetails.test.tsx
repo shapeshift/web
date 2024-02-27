@@ -133,7 +133,7 @@ const setup = ({
         setValue,
         formState: { errors: formErrors },
         getValues: () => ({
-          cryptoAmount: '1',
+          amountCryptoPrecision: '1',
           asset: asset.assetId,
         }),
       }) as unknown as UseFormReturn<any, any>,
@@ -189,7 +189,7 @@ describe('useSendDetails', () => {
       assetBalance: balances[ethAssetId],
     })
     expect(result.current.balancesLoading).toBe(false)
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('amountCryptoPrecision')
     expect(result.current.loading).toBe(false)
   })
 
@@ -197,14 +197,14 @@ describe('useSendDetails', () => {
     const { result } = setup({
       assetBalance: balances[ethAssetId],
     })
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('amountCryptoPrecision')
     act(() => {
       result.current.toggleCurrency()
     })
     await waitFor(() => expect(result.current.fieldName).toBe('fiatAmount'))
   })
 
-  it('toggles the amount input error to the fiatAmount/cryptoAmount field', async () => {
+  it('toggles the amount input error to the fiatAmount/amountCryptoPrecision field', async () => {
     let setError = vi.fn()
     const { result } = setup({
       assetBalance: balances[ethAssetId],
@@ -229,7 +229,7 @@ describe('useSendDetails', () => {
       setValue,
     })
     // Field is set to fiatAmount
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('amountCryptoPrecision')
 
     // Set fiat amount
     await act(async () => {
@@ -247,7 +247,7 @@ describe('useSendDetails', () => {
     vi.useRealTimers()
   })
 
-  it('handles input change on cryptoAmount', async () => {
+  it('handles input change on amountCryptoPrecision', async () => {
     vi.useFakeTimers()
     const setValue = vi.fn()
     const { result } = setup({
@@ -255,9 +255,9 @@ describe('useSendDetails', () => {
       setValue,
     })
     // Field is set to fiatAmount
-    expect(result.current.fieldName).toBe('cryptoAmount')
+    expect(result.current.fieldName).toBe('amountCryptoPrecision')
 
-    // toggle field to cryptoAmount
+    // toggle field to amountCryptoPrecision
     act(() => {
       result.current.toggleCurrency()
     })
@@ -268,7 +268,7 @@ describe('useSendDetails', () => {
     await act(async () => {
       await result.current.handleInputChange('3500')
       vi.advanceTimersByTime(1000) // handleInputChange is now debounced for 1 second
-      expect(setValue).toHaveBeenCalledWith('cryptoAmount', '1')
+      expect(setValue).toHaveBeenCalledWith('amountCryptoPrecision', '1')
       setValue.mockClear()
     })
     vi.useRealTimers()
@@ -291,7 +291,7 @@ describe('useSendDetails', () => {
         },
       })
       expect(setValue).toHaveBeenNthCalledWith(6, 'fiatAmount', '17500.00')
-      expect(setValue).toHaveBeenNthCalledWith(5, 'cryptoAmount', '5')
+      expect(setValue).toHaveBeenNthCalledWith(5, 'amountCryptoPrecision', '5')
     })
   })
 
@@ -305,7 +305,7 @@ describe('useSendDetails', () => {
     await act(async () => {
       await result.current.handleSendMax()
       expect(setValue).toHaveBeenNthCalledWith(1, 'amountFieldError', '')
-      expect(setValue).toHaveBeenNthCalledWith(2, 'cryptoAmount', '21')
+      expect(setValue).toHaveBeenNthCalledWith(2, 'amountCryptoPrecision', '21')
       expect(setValue).toHaveBeenNthCalledWith(3, 'fiatAmount', runeFiatAmount)
     })
   })

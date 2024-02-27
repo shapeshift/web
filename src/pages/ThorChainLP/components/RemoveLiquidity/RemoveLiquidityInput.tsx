@@ -573,7 +573,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
       totalFeeFiatUserCurrency: totalGasFeeFiat,
       feeBps: '0',
-      withdrawalBps: (percentageSelection * 100).toString(),
+      withdrawalBps: bnOrZero(percentageSelection).times(100).toString(),
       currentAccountIdByChainId: {
         [poolChainId]: accountId,
         [thorchainChainId]: runeAccountId ?? '',

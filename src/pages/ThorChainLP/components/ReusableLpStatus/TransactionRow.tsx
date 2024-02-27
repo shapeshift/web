@@ -304,7 +304,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         const assetAddress = isToken(fromAssetId(assetId).assetReference)
           ? getAddress(fromAssetId(assetId).assetReference)
           : zeroAddress
-        const amount = // Reuse the savers util as a sane amount for the dust threshold
+        const amountOrDustAmountCryptoBaseUnit = // Reuse the savers util as a sane amount for the dust threshold
           BigInt(
             isDeposit
               ? amountCryptoBaseUnit
@@ -320,7 +320,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
               zeroAddress
 
-          return { memo, amount, expiry, vault, asset }
+          return { memo, amount: amountOrDustAmountCryptoBaseUnit, expiry, vault, asset }
         })()
 
         const data = depositWithExpiry({
@@ -332,7 +332,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         })
 
         return {
-          amountCryptoPrecision: amount.toString(),
+          amountCryptoPrecision: amountOrDustAmountCryptoBaseUnit.toString(),
           assetId: asset.assetId,
           to: inboundAddressData.router,
           from: accountAssetAddress,
@@ -345,7 +345,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       }
       case 'Send': {
         if (!inboundAddressData || !accountAssetAddress) return undefined
-        const amountCryptoPrecisionWithMaybeDust = isDeposit
+        const amountOrDustAmountCryptoPrecision = isDeposit
           ? amountCryptoPrecision
           : // Reuse the savers util as a sane amount for the dust threshold
             fromBaseUnit(
@@ -353,7 +353,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               asset.precision,
             ) ?? '0'
         return {
-          amountCryptoPrecision: amountCryptoPrecisionWithMaybeDust,
+          amountCryptoPrecision: amountOrDustAmountCryptoPrecision,
           assetId,
           to: inboundAddressData.address,
           from: accountAssetAddress,
@@ -479,7 +479,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           case 'EvmCustomTx': {
             if (!inboundAddressData?.router) return
             if (assetAccountNumber === undefined) return
-            const amount = // Reuse the savers util as a sane amount for the dust threshold
+            const amountOrDustAmountCryptoBaseUnit = // Reuse the savers util as a sane amount for the dust threshold
               BigInt(
                 isDeposit
                   ? amountCryptoBaseUnit
@@ -495,7 +495,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                   zeroAddress
 
-              return { memo, amount, expiry, vault, asset }
+              return { memo, amount: amountOrDustAmountCryptoBaseUnit, expiry, vault, asset }
             })()
 
             const data = depositWithExpiry({
@@ -512,7 +512,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               accountNumber: assetAccountNumber,
               adapter,
               data,
-              value: isToken(fromAssetId(assetId).assetReference) ? '0' : amount.toString(),
+              value: isToken(fromAssetId(assetId).assetReference)
+                ? '0'
+                : amountOrDustAmountCryptoBaseUnit.toString(),
               to: inboundAddressData.router,
               wallet,
             })
@@ -533,7 +535,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
             if (!accountAssetAddress) throw new Error('No accountAddress found')
             if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
-            const _amountCryptoPrecision = isDeposit
+            const _amountOrDustAmountCryptoPrecision = isDeposit
               ? amountCryptoPrecision
               : // Reuse the savers util as a sane amount for the dust threshold
                 fromBaseUnit(
@@ -542,7 +544,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                 ) ?? '0'
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
-              amountCryptoPrecision: _amountCryptoPrecision,
+              amountCryptoPrecision: _amountOrDustAmountCryptoPrecision,
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,

@@ -210,9 +210,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   //
   //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
   //     and not allowing them to select the sure-to-fail deposit types
-  useMemo(() => {
+  useEffect(() => {
     if (!pools?.length) return
-    if (activeOpportunityId) return activeOpportunityId
+    if (activeOpportunityId) return
 
     const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
 

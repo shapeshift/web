@@ -303,7 +303,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         const assetAddress = isToken(fromAssetId(assetId).assetReference)
           ? getAddress(fromAssetId(assetId).assetReference)
           : zeroAddress
-        const amount = BigInt(toBaseUnit(amountCryptoPrecision, asset.precision).toString())
+        const amount = BigInt(isDeposit ? amountCryptoBaseUnit : '0')
 
         const args = (() => {
           const expiry = BigInt(dayjs().add(15, 'minute').unix())
@@ -313,8 +313,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             : // Native EVM assets use the 0 address as the asset address
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
               zeroAddress
-
-          const amount = BigInt(amountCryptoBaseUnit.toString())
 
           return { memo, amount, expiry, vault, asset }
         })()
@@ -341,14 +339,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       }
       case 'Send': {
         if (!inboundAddressData || !accountAssetAddress) return undefined
+        const amountCryptoPrecisionWithMaybeDust = isDeposit
+          ? amountCryptoPrecision
+          : // Reuse the savers util as a sane amount for the dust threshold
+            fromBaseUnit(
+              THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+              asset.precision,
+            ) ?? '0'
         return {
-          amountCryptoPrecision: isDeposit
-            ? amountCryptoPrecision
-            : // Reuse the savers util as a sane amount for the dust threshold
-              fromBaseUnit(
-                THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-                asset.precision,
-              ) ?? '0',
+          amountCryptoPrecision: amountCryptoPrecisionWithMaybeDust,
           assetId,
           to: inboundAddressData.address,
           from: accountAssetAddress,
@@ -474,6 +473,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           case 'EvmCustomTx': {
             if (!inboundAddressData?.router) return
             if (assetAccountNumber === undefined) return
+            const amount = BigInt(isDeposit ? amountCryptoBaseUnit : '0')
 
             const args = (() => {
               const expiry = BigInt(dayjs().add(15, 'minute').unix())
@@ -483,8 +483,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                 : // Native EVM assets use the 0 address as the asset address
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                   zeroAddress
-
-              const amount = BigInt(amountCryptoBaseUnit.toString())
 
               return { memo, amount, expiry, vault, asset }
             })()
@@ -503,9 +501,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               accountNumber: assetAccountNumber,
               adapter,
               data,
-              value: isToken(fromAssetId(assetId).assetReference)
-                ? '0'
-                : amountCryptoBaseUnit.toString(),
+              value: isToken(fromAssetId(assetId).assetReference) ? '0' : amount.toString(),
               to: inboundAddressData.router,
               wallet,
             })

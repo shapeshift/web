@@ -380,7 +380,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps & { feeModel: ParameterMod
       <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base' {...props}>
         <CardBody p={feeExplainerCardBody}>
           <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} feeModel={props.feeModel} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} feeModel={props.feeModel} />l
+          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} feeModel={props.feeModel} />
         </CardBody>
       </Card>
     </Stack>

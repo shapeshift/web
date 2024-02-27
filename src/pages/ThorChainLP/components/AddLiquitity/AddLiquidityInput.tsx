@@ -70,6 +70,7 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectMarketDataById,
+  selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
@@ -103,7 +104,7 @@ export type AddLiquidityInputProps = {
   poolAssetId?: string
   setConfirmedQuote: (quote: LpConfirmedDepositQuote) => void
   confirmedQuote: LpConfirmedDepositQuote | null
-  accountIdsByChainId: Record<ChainId, AccountId>
+  currentAccountIdByChainId: Record<ChainId, AccountId>
   onAccountIdChange: (accountId: AccountId, assetId: AssetId) => void
 }
 
@@ -113,7 +114,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   poolAssetId,
   confirmedQuote,
   setConfirmedQuote,
-  accountIdsByChainId,
+  currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
   const wallet = useWallet().state.wallet
@@ -170,6 +171,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
     useIsSmartContractAddress(poolAssetAccountAddress ?? '')
 
+  const accountIdsByAssetId = useAppSelector(selectPortfolioAccountIdsByAssetId)
+
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
       const walletSupportsRune = walletSupportsChain({
@@ -185,18 +188,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       })
 
       const runeSupport = Boolean(
-        walletSupportsRune && accountIdsByChainId[fromAssetId(thorchainAssetId).chainId]?.length,
+        walletSupportsRune && accountIdsByAssetId[thorchainAssetId]?.length,
       )
-      const assetSupport = Boolean(
-        walletSupportsAsset && accountIdsByChainId[fromAssetId(assetId).chainId]?.length,
-      )
+      const assetSupport = Boolean(walletSupportsAsset && accountIdsByAssetId[assetId]?.length)
 
       if (runeSupport && assetSupport) return 'sym'
       if (assetSupport) return AsymSide.Asset
       if (runeSupport) return AsymSide.Rune
       return 'sym'
     },
-    [wallet, isSnapInstalled, accountIdsByChainId],
+    [wallet, isSnapInstalled, accountIdsByAssetId],
   )
 
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
@@ -209,8 +210,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   //
   //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
   //     and not allowing them to select the sure-to-fail deposit types
-  const defaultOpportunityId = useMemo(() => {
+  useEffect(() => {
     if (!pools?.length) return
+    if (activeOpportunityId) return
 
     const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
 
@@ -223,19 +225,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
     )
 
-    const poolOpportunityId = assetId && toOpportunityId({ assetId, type: opportunityType })
+    const defaultOpportunityId = toOpportunityId({
+      assetId: assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
+      type: opportunityType,
+    })
 
-    return (
-      opportunityId ||
-      poolOpportunityId ||
-      toOpportunityId({
-        assetId: walletSupportedOpportunity?.assetId ?? pools[0].assetId,
-        type: opportunityType,
-      })
-    )
-  }, [pools, opportunityId, getDefaultOpportunityType, poolAssetId, isSnapInstalled, wallet])
-
-  useEffect(() => setActiveOpportunityId(defaultOpportunityId ?? ''), [defaultOpportunityId])
+    setActiveOpportunityId(opportunityId || defaultOpportunityId)
+  }, [
+    pools,
+    opportunityId,
+    activeOpportunityId,
+    getDefaultOpportunityType,
+    poolAssetId,
+    isSnapInstalled,
+    wallet,
+  ])
 
   const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
     if (!activeOpportunityId) return {}
@@ -251,8 +255,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
   )
   const poolAssetAccountId = useMemo(() => {
-    return accountIdsByChainId[assetId ? fromAssetId(assetId).chainId : '']
-  }, [accountIdsByChainId, assetId])
+    return currentAccountIdByChainId[assetId ? fromAssetId(assetId).chainId : '']
+  }, [currentAccountIdByChainId, assetId])
   const poolAssetBalanceFilter = useMemo(() => {
     return { assetId, accountId: poolAssetAccountId }
   }, [assetId, poolAssetAccountId])
@@ -290,7 +294,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
-  const runeAccountId = useMemo(() => accountIdsByChainId[thorchainChainId], [accountIdsByChainId])
+  const runeAccountId = useMemo(
+    () => currentAccountIdByChainId[thorchainChainId],
+    [currentAccountIdByChainId],
+  )
   const runeBalanceFilter = useMemo(() => {
     return { assetId: runeAsset?.assetId, accountId: runeAccountId }
   }, [runeAsset, runeAccountId])
@@ -804,7 +811,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId: activeOpportunityId,
-      accountIdsByChainId,
+      currentAccountIdByChainId,
       totalAmountFiat,
       feeBps: feeBps.toFixed(0),
       feeAmountFiat: feeUsd.toFixed(2),
@@ -815,7 +822,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalGasFeeFiat,
     })
   }, [
-    accountIdsByChainId,
+    currentAccountIdByChainId,
     activeOpportunityId,
     actualAssetCryptoLiquidityAmount,
     actualAssetFiatLiquidityAmount,
@@ -892,7 +899,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             ? virtualRuneFiatLiquidityAmount
             : virtualAssetFiatLiquidityAmount
 
-          const accountId = accountIdsByChainId[asset.chainId]
+          const accountId = currentAccountIdByChainId[asset.chainId]
 
           return (
             <TradeAssetInput
@@ -927,7 +934,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     virtualAssetCryptoLiquidityAmount,
     virtualRuneFiatLiquidityAmount,
     virtualAssetFiatLiquidityAmount,
-    accountIdsByChainId,
+    currentAccountIdByChainId,
     percentOptions,
     handleAccountIdChange,
     opportunityType,
@@ -1174,7 +1181,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {!opportunityId && (
             <LpType
               assetId={poolAsset.assetId}
-              defaultOpportunityId={activeOpportunityId}
+              opportunityId={activeOpportunityId}
               onAsymSideChange={handleAsymSideChange}
             />
           )}

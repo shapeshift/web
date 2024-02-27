@@ -64,6 +64,7 @@ import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { Opportunity } from 'pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
   selectAccountNumberByAccountId,
@@ -77,7 +78,7 @@ import {
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -118,6 +119,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
@@ -785,6 +787,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   useEffect(() => {
+    dispatch(
+      snapshotApi.endpoints.getVotingPower.initiate(
+        { model: 'thorchainLp' },
+        // Fetch only once on mount to avoid overfetching
+        { forceRefetch: false },
+      ),
+    )
+
     if (
       !(
         actualAssetCryptoLiquidityAmount &&
@@ -794,7 +804,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         shareOfPoolDecimalPercent &&
         slippageRune &&
         activeOpportunityId &&
-        poolAssetInboundAddress
+        poolAssetInboundAddress &&
+        votingPower
       )
     )
       return
@@ -834,6 +845,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualAssetFiatLiquidityAmount,
     actualRuneCryptoLiquidityAmount,
     actualRuneFiatLiquidityAmount,
+    dispatch,
     isAsym,
     poolAssetAccountAddress,
     poolAssetFeeAssetMarktData.price,

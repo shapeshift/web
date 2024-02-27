@@ -1,6 +1,6 @@
-import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { InterfaceAbi } from 'ethers'
 
-export const WETH_ABI: JsonFragment[] = [
+export const WETH_ABI: InterfaceAbi = [
   {
     constant: true,
     inputs: [],

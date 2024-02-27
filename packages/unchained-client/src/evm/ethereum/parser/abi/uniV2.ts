@@ -1,6 +1,6 @@
-import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { InterfaceAbi } from 'ethers'
 
-export const UNIV2_ABI: JsonFragment[] = [
+export const UNIV2_ABI: InterfaceAbi = [
   {
     inputs: [
       { internalType: 'address', name: '_factory', type: 'address' },

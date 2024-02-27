@@ -1,6 +1,6 @@
-import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { InterfaceAbi } from 'ethers'
 
-export const SHAPESHIFT_ROUTER_ABI: JsonFragment[] = [
+export const SHAPESHIFT_ROUTER_ABI: InterfaceAbi = [
   {
     inputs: [
       {

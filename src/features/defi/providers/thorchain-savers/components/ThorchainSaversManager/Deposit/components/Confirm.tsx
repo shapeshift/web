@@ -18,7 +18,6 @@ import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
-import { utils } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -29,7 +28,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -257,9 +256,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         assetId,
         from: maybeFromUTXOAccountAddress,
         to: quote.inbound_address,
-        memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
-          ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
-          : memoUtf8,
+        memo: supportedEvmChainIds.includes(chainId as KnownChainIds) ? toHex(memoUtf8) : memoUtf8,
         sendMax: Boolean(!isUtxoChainId(chainId) && state?.deposit.sendMax),
         accountId,
         contractAddress: tokenOrUndefined(fromAssetId(asset.assetId).assetReference),
@@ -476,9 +473,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         from: maybeFromUTXOAccountAddress,
         sendMax: Boolean(state?.deposit.sendMax),
         accountId,
-        memo: supportedEvmChainIds.includes(chainId as KnownChainIds)
-          ? utils.hexlify(utils.toUtf8Bytes(memoUtf8))
-          : memoUtf8,
+        memo: supportedEvmChainIds.includes(chainId as KnownChainIds) ? toHex(memoUtf8) : memoUtf8,
         amountFieldError: '',
         estimatedFees,
         feeType: FeeDataKey.Fast,

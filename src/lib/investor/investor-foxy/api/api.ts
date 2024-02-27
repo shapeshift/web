@@ -10,8 +10,10 @@ import {
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'
+import type { TransactionReceipt } from 'ethers'
 import { ethers } from 'ethers'
 import { toLower } from 'lodash'
+import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from 'lib/investor/constants'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
@@ -59,7 +61,7 @@ type EthereumChainReference =
 export type ConstructorArgs = {
   adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
   providerUrl: string
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
   foxyAddresses: FoxyAddressesType
   chainReference?: EthereumChainReference
 }
@@ -83,7 +85,7 @@ const TOKE_IPFS_URL = 'https://ipfs.tokemaklabs.xyz/ipfs'
 
 export class FoxyApi {
   public adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>
-  public provider: ethers.providers.StaticJsonRpcProvider
+  public provider: ethers.JsonRpcProvider
   private providerUrl: string
   private foxyStakingContracts: ethers.Contract[]
   private liquidityReserveContracts: ethers.Contract[]
@@ -116,8 +118,8 @@ export class FoxyApi {
    * to exponential notation ('1.6e+21') in javascript.
    * @param amount
    */
-  private normalizeAmount(amount: BigNumber): ethers.BigNumber {
-    return ethers.BigNumber.from(amount.toFixed())
+  private normalizeAmount(amount: BigNumber): BigInt {
+    return BigInt(amount.toFixed())
   }
 
   // TODO(gomes): This is rank and should really belong in web for sanity sake.
@@ -152,7 +154,7 @@ export class FoxyApi {
       if (dryRun) return signedTx
       try {
         if (this.providerUrl.includes('localhost') || this.providerUrl.includes('127.0.0.1')) {
-          const sendSignedTx = await this.provider.sendTransaction(signedTx)
+          const sendSignedTx = await this.provider.broadcastTransaction(signedTx)
           return sendSignedTx?.blockHash ?? ''
         }
         return this.adapter.broadcastTransaction({
@@ -178,8 +180,8 @@ export class FoxyApi {
   }
 
   checksumAddress(address: string): string {
-    // ethers always returns checksum addresses from getAddress() calls
-    return ethers.utils.getAddress(address)
+    // viem always returns checksum addresses from getAddress() calls
+    return getAddress(address)
   }
 
   private verifyAddresses(addresses: string[]) {
@@ -190,7 +192,9 @@ export class FoxyApi {
 
   private getStakingContract(contractAddress: string): ethers.Contract {
     const stakingContract = this.foxyStakingContracts.find(
-      item => toLower(item.address) === toLower(contractAddress),
+      // This can be string | Addressable, where Addressable is an object containing getAddress()
+      // for ENS names. We can safely narrow it down to a string, as we do not instantiate contracts with an ens name.
+      item => toLower(item.target as string) === toLower(contractAddress),
     )
     if (!stakingContract) throw new Error('Not a valid contract address')
     return stakingContract
@@ -198,7 +202,9 @@ export class FoxyApi {
 
   private getLiquidityReserveContract(liquidityReserveAddress: string): ethers.Contract {
     const liquidityReserveContract = this.liquidityReserveContracts.find(
-      item => toLower(item.address) === toLower(liquidityReserveAddress),
+      // This can be string | Addressable, where Addressable is an object containing getAddress()
+      // for ENS names. We can safely narrow it down to a string, as we do not instantiate contracts with an ens name.
+      item => toLower(item.target as string) === toLower(liquidityReserveAddress),
     )
     if (!liquidityReserveContract) throw new Error('Not a valid reserve contract address')
     return liquidityReserveContract
@@ -209,7 +215,9 @@ export class FoxyApi {
       const opportunities = await Promise.all(
         this.foxyAddresses.map(async addresses => {
           const stakingContract = this.foxyStakingContracts.find(
-            item => toLower(item.address) === toLower(addresses.staking),
+            // This can be string | Addressable, where Addressable is an object containing getAddress()
+            // for ENS names. We can safely narrow it down to a string, as we do not instantiate contracts with an ens name.
+            item => toLower(item.target as string) === toLower(addresses.staking),
           )
           try {
             const expired = await stakingContract?.pauseStaking()
@@ -246,7 +254,7 @@ export class FoxyApi {
     }
   }
 
-  getTxReceipt({ txid }: TxReceipt): Promise<ethers.providers.TransactionReceipt> {
+  getTxReceipt({ txid }: TxReceipt): Promise<TransactionReceipt | null> {
     if (!txid) throw new Error('Must pass txid')
     return this.provider.getTransactionReceipt(txid)
   }
@@ -361,7 +369,7 @@ export class FoxyApi {
     const liquidityReserveContract = this.getLiquidityReserveContract(contractAddress)
 
     try {
-      const data = liquidityReserveContract.encodeFunctionData('removeLiquidity', [
+      const data = await liquidityReserveContract.encodeFunctionData('removeLiquidity', [
         this.normalizeAmount(amountDesired),
       ])
 
@@ -650,7 +658,12 @@ export class FoxyApi {
       }
     })()
 
-    const epoch = await (() => {
+    const epoch: {
+      length?: BigInt
+      number?: BigInt
+      endBlock?: BigInt
+      distribute?: BigInt
+    } = await (() => {
       try {
         return stakingContract.epoch()
       } catch (e) {
@@ -659,52 +672,66 @@ export class FoxyApi {
       }
     })()
 
-    const requestedWithdrawals = await (() => {
+    const requestedWithdrawals: {
+      minCycle?: BigInt
+      amount?: BigInt
+    } = await (() => {
       try {
-        return tokePoolContract.requestedWithdrawals(stakingContract.address)
+        return tokePoolContract.requestedWithdrawals(stakingContract.target)
       } catch (e) {
         console.error(e, 'failed to get requestedWithdrawals')
         return {}
       }
     })()
 
-    const currentCycleIndex = await (() => {
+    const currentCycleIndex: BigInt = await (() => {
       try {
         return tokeManagerContract.getCurrentCycleIndex()
       } catch (e) {
         console.error(e, 'failed to get currentCycleIndex')
-        return 0
+        return BigInt(0)
       }
     })()
-
-    const withdrawalAmount = await (() => {
+    const withdrawalAmount: BigInt = await (() => {
       try {
         return stakingContract.withdrawalAmount()
       } catch (e) {
         console.error(e, 'failed to get currentCycleIndex')
-        return 0
+        return BigInt(0)
       }
     })()
 
     const currentBlock = await this.provider.getBlockNumber()
 
-    const epochExpired = epoch.number.gte(coolDownInfo.endEpoch)
-    const coolDownValid = !coolDownInfo.endEpoch.isZero() && !coolDownInfo.amount.isZero()
+    const epochExpired = bnOrZero(epoch.number?.toString()).gte(coolDownInfo.endEpoch.toString())
+    const coolDownValid =
+      !bnOrZero(coolDownInfo.endEpoch).isZero() && !bnOrZero(coolDownInfo.amount).isZero()
 
-    const pastTokeCycleIndex = requestedWithdrawals.minCycle.lte(currentCycleIndex)
-    const stakingTokenAvailableWithTokemak = requestedWithdrawals.amount.add(withdrawalAmount)
-    const stakingTokenAvailable = withdrawalAmount.gte(coolDownInfo.amount)
+    const pastTokeCycleIndex = bnOrZero(requestedWithdrawals.minCycle?.toString()).lte(
+      currentCycleIndex.toString(),
+    )
+    const stakingTokenAvailableWithTokemak = bnOrZero(requestedWithdrawals.amount?.toString()).plus(
+      withdrawalAmount.toString(),
+    )
+    const stakingTokenAvailable = bnOrZero(withdrawalAmount.toString()).gte(coolDownInfo.amount)
     const validCycleAndAmount =
       (pastTokeCycleIndex && stakingTokenAvailableWithTokemak.gte(coolDownInfo.amount)) ||
       stakingTokenAvailable
 
-    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString())
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(
+      epoch.number?.toString() ?? '0',
+    )
     const blocksLeftInCurrentEpoch =
-      epochsLeft.gt(0) && epoch.endBlock.gt(currentBlock)
-        ? epoch.endBlock.sub(currentBlock).toNumber()
+      epochsLeft.gt(0) && bnOrZero(epoch.endBlock?.toString()).gt(currentBlock)
+        ? bnOrZero(epoch.endBlock?.toString())
+            .minus(currentBlock)
+            .toNumber()
         : 0 // calculate time remaining in current epoch
     const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
-      ? epochsLeft.minus(1).times(epoch.length).toNumber()
+      ? epochsLeft
+          .minus(1)
+          .times(epoch.length?.toString() ?? '0')
+          .toNumber()
       : 0
 
     return (
@@ -814,7 +841,7 @@ export class FoxyApi {
     const nextCycleStart = bnOrZero(currentCycleStart).plus(duration)
 
     const blockNumber = await this.provider.getBlockNumber()
-    const timestamp = (await this.provider.getBlock(blockNumber)).timestamp
+    const timestamp = (await this.provider.getBlock(blockNumber))?.timestamp
 
     const isTimeToRequest = bnOrZero(timestamp)
       .plus(timeLeftToRequestWithdrawal)
@@ -996,8 +1023,6 @@ export class FoxyApi {
     }
     const liquidityReserveContract = this.getLiquidityReserveContract(liquidityReserveAddress)
     try {
-      // ethers BigNumber doesn't support floats, so we have to convert it to a regular bn first
-      // to be able to get a float bignumber.js as an output
       const feeInBasisPoints = bnOrZero((await liquidityReserveContract.fee()).toString())
       return feeInBasisPoints.div(10000) // convert from basis points to decimal percentage
     } catch (e) {
@@ -1046,7 +1071,7 @@ export class FoxyApi {
 
     const coolDownInfo: [amount: string, gons: string, expiry: string] = (
       await stakingContract.coolDownInfo(userAddress)
-    ).map((info: ethers.BigNumber) => info.toString())
+    ).map((info: BigInt) => info.toString())
     const releaseTime = await this.getTimeUntilClaimable(input)
 
     const [amount, gons, expiry] = coolDownInfo

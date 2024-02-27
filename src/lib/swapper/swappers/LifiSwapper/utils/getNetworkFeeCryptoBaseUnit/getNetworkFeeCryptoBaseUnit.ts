@@ -2,7 +2,6 @@ import type { LifiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
@@ -50,7 +49,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
 
     const contract = new ethers.Contract(OPTIMISM_GAS_ORACLE_ADDRESS, abi, provider)
 
-    const l1GasUsed = (await contract.getL1GasUsed(data)) as BigNumber
+    const l1GasUsed = (await contract.getL1GasUsed(data)) as BigInt
 
     return l1GasUsed.toString()
   })()

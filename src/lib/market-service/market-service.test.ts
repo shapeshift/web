@@ -101,7 +101,7 @@ describe('market service', () => {
   const marketServiceManagerArgs = {
     coinGeckoAPIKey: 'dummyCoingeckoApiKey',
     yearnChainReference: 1 as const,
-    provider: new ethers.providers.StaticJsonRpcProvider(''),
+    provider: new ethers.JsonRpcProvider(''),
     providerUrls: {
       jsonRpcProviderUrl: '',
       unchainedEthereumWsUrl: '',

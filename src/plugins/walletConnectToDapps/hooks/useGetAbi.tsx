@@ -1,8 +1,10 @@
 import { skipToken } from '@reduxjs/toolkit/query'
-import { getConfig } from 'config'
-import { ethers } from 'ethers'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { ethers, Fragment } from 'ethers'
 import type { TransactionParams } from 'plugins/walletConnectToDapps/types'
 import { useEffect, useMemo, useState } from 'react'
+import { getAddress } from 'viem'
+import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { useGetContractAbiQuery } from 'state/apis/abi/abiApi'
 
 /*
@@ -19,22 +21,17 @@ enum PROXY_CONTRACT_METHOD_NAME {
 const EIP1967_IMPLEMENTATION_SLOT =
   '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
 
-export const useGetAbi = (
-  transactionParams: TransactionParams,
-): ethers.utils.Interface | undefined => {
+export const useGetAbi = (transactionParams: TransactionParams): ethers.Interface | undefined => {
   const [proxyContractImplementation, setProxyContractImplementation] = useState<string | null>(
     null,
   )
 
   const { to: contractAddress, data } = transactionParams
-  const provider = useMemo(
-    () => new ethers.providers.StaticJsonRpcProvider(getConfig().REACT_APP_ETHEREUM_NODE_URL),
-    [],
-  )
+  const provider = useMemo(() => getEthersProvider(KnownChainIds.EthereumMainnet), [])
 
   const { data: rootContractRawAbiData } = useGetContractAbiQuery(contractAddress)
   const rootContractInterface = useMemo(
-    () => (rootContractRawAbiData ? new ethers.utils.Interface(rootContractRawAbiData) : undefined),
+    () => (rootContractRawAbiData ? new ethers.Interface(rootContractRawAbiData) : undefined),
     [rootContractRawAbiData],
   )
 
@@ -52,7 +49,7 @@ export const useGetAbi = (
     // check for proxy methods on the root interface
     let proxyFunctionNameIfExists: string | undefined
     if (rootContractInterface) {
-      const rootFunctions = Object.values(rootContractInterface.functions)
+      const rootFunctions = rootContractInterface.fragments.filter(Fragment.isFunction)
       proxyFunctionNameIfExists = Object.values(PROXY_CONTRACT_METHOD_NAME).find(x =>
         rootFunctions.find(y => y.name === x),
       )
@@ -67,14 +64,12 @@ export const useGetAbi = (
               await rootContractWithProvider?.getFunctionImplementation(sighash)
             break
           case PROXY_CONTRACT_METHOD_NAME.EIP1967:
-            const paddedImplementationAddress = await provider.getStorageAt(
+            const paddedImplementationAddress = await provider.getStorage(
               contractAddress,
               EIP1967_IMPLEMENTATION_SLOT,
             )
             // Remove the first 26 chars (64 hex digits)
-            implementationAddress = ethers.utils.getAddress(
-              paddedImplementationAddress.substring(26),
-            )
+            implementationAddress = getAddress(paddedImplementationAddress.substring(26))
             break
           default:
             implementationAddress = null
@@ -96,7 +91,7 @@ export const useGetAbi = (
   const implementationContractInterface = useMemo(
     () =>
       contractImplementationRawAbiData
-        ? new ethers.utils.Interface(contractImplementationRawAbiData)
+        ? new ethers.Interface(contractImplementationRawAbiData)
         : undefined,
     [contractImplementationRawAbiData],
   )

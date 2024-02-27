@@ -8,7 +8,7 @@ import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
-import type { providers } from 'ethers'
+import type { BrowserProvider } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
@@ -73,7 +73,7 @@ const initialDeviceState: DeviceState = {
   isUpdatingPin: false,
   isDeviceLoading: false,
 }
-export type MetaMaskLikeProvider = providers.Web3Provider
+export type MetaMaskLikeProvider = BrowserProvider
 
 // A subset of wallets which have an EIP-1193-like provider
 export type KeyManagerWithProvider =

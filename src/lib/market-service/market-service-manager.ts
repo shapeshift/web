@@ -26,7 +26,7 @@ export type ProviderUrls = {
 export type MarketServiceManagerArgs = {
   yearnChainReference: 1 | 250 | 1337 | 42161 // from @yfi/sdk
   providerUrls: ProviderUrls
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
 }
 
 export class MarketServiceManager {

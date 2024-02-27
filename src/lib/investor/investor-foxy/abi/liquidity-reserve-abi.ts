@@ -1,6 +1,6 @@
-import type { ContractInterface } from 'ethers'
+import type { InterfaceAbi } from 'ethers'
 
-export const liquidityReserveAbi: ContractInterface = [
+export const liquidityReserveAbi: InterfaceAbi = [
   {
     inputs: [
       {

@@ -104,6 +104,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const isRuneTx = useMemo(() => asset?.assetId === thorchainAssetId, [asset?.assetId])
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
   const [status, setStatus] = useState(TxStatus.Unknown)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
@@ -388,6 +389,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [asset, estimatedFeesData])
 
   const handleSignTx = useCallback(() => {
+    setIsSubmitting(true)
     if (
       !(
         assetId &&
@@ -397,8 +399,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         wallet &&
         (isRuneTx || inboundAddressData?.address)
       )
-    )
+    ) {
+      setIsSubmitting(false)
       return
+    }
 
     return (async () => {
       // Pool just became halted at signing component mount, it's definitely not going to go back to active in just
@@ -578,6 +582,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })()
     })().then(() => {
       setStatus(TxStatus.Pending)
+      setIsSubmitting(false)
     })
   }, [
     assetId,
@@ -658,7 +663,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             onClick={handleSignTx}
             isDisabled={isTradingActive === false}
             isLoading={
-              status === TxStatus.Pending || isInboundAddressLoading || isTradingActiveLoading
+              status === TxStatus.Pending ||
+              isInboundAddressLoading ||
+              isTradingActiveLoading ||
+              isEstimatedFeesDataLoading ||
+              isSubmitting
             }
           >
             {confirmTranslation}

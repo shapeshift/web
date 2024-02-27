@@ -1187,15 +1187,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           )}
           {tradeAssetInputs}
         </Stack>
-        <Collapse in={hasUserEnteredValue}>
-          <PoolSummary
-            assetId={poolAsset.assetId}
-            runePerAsset={runePerAsset}
-            shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
-            isLoading={isSlippageLoading}
-          />
-        </Collapse>
       </Stack>
+      <Collapse in={hasUserEnteredValue}>
+        <PoolSummary
+          assetId={poolAsset.assetId}
+          runePerAsset={runePerAsset}
+          shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+          isLoading={isSlippageLoading}
+        />
+      </Collapse>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'

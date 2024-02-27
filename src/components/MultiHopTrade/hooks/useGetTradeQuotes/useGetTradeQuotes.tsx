@@ -144,7 +144,7 @@ export const useGetTradeQuotes = () => {
 
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'swapper' }),
+    () => ({ feeModel: 'SWAPPER' }),
     [],
   )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
@@ -204,7 +204,7 @@ export const useGetTradeQuotes = () => {
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
         foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-        feeModel: 'swapper',
+        feeModel: 'SWAPPER',
       })
 
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)

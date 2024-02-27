@@ -5,7 +5,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { PURGE } from 'redux-persist'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { feeCurveParameters } from 'lib/fees/parameters'
+import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
 import type { ReduxState } from 'state/reducer'
@@ -24,8 +24,8 @@ export const initialState: {
   strategies: Strategy[] | undefined
 } = {
   votingPowerByModel: {
-    swapper: undefined,
-    thorchainLp: undefined,
+    SWAPPER: undefined,
+    THORCHAIN_LP: undefined,
   },
   strategies: undefined,
 }
@@ -105,7 +105,7 @@ export const snapshotApi = createApi({
           }, new Set()),
         )
         const foxDiscountBlock = await findClosestFoxDiscountDelayBlockNumber(
-          feeCurveParameters[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
+          FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
         )
         const delegation = false // don't let people delegate for discounts - ambiguous in spec
         const votingPowerResults = await Promise.all(

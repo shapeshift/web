@@ -215,7 +215,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'swapper' }),
+    () => ({ feeModel: 'SWAPPER' }),
     [],
   )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))

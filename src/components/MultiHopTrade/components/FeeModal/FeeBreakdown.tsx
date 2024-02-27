@@ -25,7 +25,7 @@ const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: str
 export const FeeBreakdown = () => {
   const translate = useTranslate()
   const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'swapper' }),
+    () => ({ feeModel: 'SWAPPER' }),
     [],
   )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
@@ -34,7 +34,7 @@ export const FeeBreakdown = () => {
     calculateFees({
       tradeAmountUsd: bnOrZero(sellAmountUsd),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)

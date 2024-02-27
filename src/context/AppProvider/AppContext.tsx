@@ -172,7 +172,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Fetch voting power in AppContext for swapper only - THORChain LP will be fetched JIT to avoid overfetching
     dispatch(
-      snapshotApi.endpoints.getVotingPower.initiate({ model: 'swapper' }, { forceRefetch: true }),
+      snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
   }, [dispatch, portfolioLoadingStatus])
 

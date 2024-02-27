@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { bn } from 'lib/bignumber/bignumber'
 
-import { feeCurveParameters } from './parameters'
+import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
 
 type CalculateFeeBpsArgs = {
@@ -40,7 +40,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
     FEE_CURVE_MIDPOINT_USD,
     FEE_CURVE_STEEPNESS_K,
     FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD,
-  } = feeCurveParameters[feeModel]
+  } = FEE_CURVE_PARAMETERS[feeModel]
   const noFeeThresholdUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD)
   const maxFeeBps = bn(FEE_CURVE_MAX_FEE_BPS)
   const minFeeBps = bn(FEE_CURVE_MIN_FEE_BPS)

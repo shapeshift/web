@@ -41,7 +41,7 @@ export const FeeModal = ({ isOpen, onClose: handleClose }: FeeModalProps) => {
                 borderRadius='none'
                 bg='transparent'
                 boxShadow='none'
-                feeModel='swapper'
+                feeModel='SWAPPER'
               />
             </TabPanel>
           </TabPanels>

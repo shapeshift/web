@@ -17,7 +17,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(0)
   })
@@ -28,7 +28,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(29)
   })
@@ -39,7 +39,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(29)
   })
@@ -50,7 +50,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(10)
   })
@@ -61,7 +61,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(20)
   })
@@ -72,7 +72,7 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(10)
     expect(foxDiscountPercent).toEqual(bn(50))
@@ -84,7 +84,7 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(0)
     expect(foxDiscountPercent).toEqual(bn(100))
@@ -96,7 +96,7 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
-      feeModel: 'swapper',
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(0)
     expect(foxDiscountPercent).toEqual(bn(100))

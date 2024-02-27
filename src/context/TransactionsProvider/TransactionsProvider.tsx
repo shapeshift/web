@@ -139,7 +139,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       // Always refetch voting power (for swapper only) on new Tx. At best, we could detect FOX transfers, but have no way of knowing if any of the other
       // strategies e.g Hedgeys has updated
       dispatch(
-        snapshotApi.endpoints.getVotingPower.initiate({ model: 'swapper' }, { forceRefetch: true }),
+        snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
       )
     },
     [dispatch],

@@ -127,7 +127,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const history = useHistory()
 
   const votingPowerParams: { feeModel: ParameterModel } = useMemo(
-    () => ({ feeModel: 'thorchainLp' }),
+    () => ({ feeModel: 'THORCHAIN_LP' }),
     [],
   )
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
@@ -789,7 +789,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   useEffect(() => {
     dispatch(
       snapshotApi.endpoints.getVotingPower.initiate(
-        { model: 'thorchainLp' },
+        { model: 'THORCHAIN_LP' },
         // Fetch only once on mount to avoid overfetching
         { forceRefetch: false },
       ),
@@ -817,7 +817,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountFiat),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      feeModel: 'thorchainLp',
+      feeModel: 'THORCHAIN_LP',
     })
 
     setConfirmedQuote({

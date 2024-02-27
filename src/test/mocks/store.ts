@@ -193,8 +193,8 @@ export const mockStore: ReduxState = {
   },
   snapshot: {
     votingPowerByModel: {
-      swapper: undefined,
-      thorchainLp: undefined,
+      SWAPPER: undefined,
+      THORCHAIN_LP: undefined,
     },
     strategies: undefined,
   },

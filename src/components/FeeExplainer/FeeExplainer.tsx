@@ -23,7 +23,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { feeCurveParameters } from 'lib/fees/parameters'
+import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -113,7 +113,7 @@ const xScale = {
 }
 
 const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) => {
-  const { FEE_CURVE_MAX_FEE_BPS } = feeCurveParameters[feeModel]
+  const { FEE_CURVE_MAX_FEE_BPS } = FEE_CURVE_PARAMETERS[feeModel]
   const yScale = useMemo(
     () => ({ type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }),
     [FEE_CURVE_MAX_FEE_BPS],
@@ -346,7 +346,7 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 type FeeExplainerProps = CardProps & { feeModel: ParameterModel }
 
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
-  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = feeCurveParameters[props.feeModel]
+  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[props.feeModel]
   const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)

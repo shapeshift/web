@@ -113,8 +113,7 @@ const xScale = {
 }
 
 const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) => {
-  const parameters = feeCurveParameters[feeModel]
-  const { FEE_CURVE_MAX_FEE_BPS } = parameters
+  const { FEE_CURVE_MAX_FEE_BPS } = feeCurveParameters[feeModel]
   const yScale = useMemo(
     () => ({ type: 'linear' as const, domain: [0, FEE_CURVE_MAX_FEE_BPS] }),
     [FEE_CURVE_MAX_FEE_BPS],
@@ -344,11 +343,10 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, fee
 
 const feeExplainerCardBody = { base: 4, md: 8 }
 
-type FeeExplainerProps = CardProps
+type FeeExplainerProps = CardProps & { feeModel: ParameterModel }
 
-export const FeeExplainer: React.FC<FeeExplainerProps & { feeModel: ParameterModel }> = props => {
-  const parameters = feeCurveParameters[props.feeModel]
-  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = parameters
+export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
+  const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = feeCurveParameters[props.feeModel]
   const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)

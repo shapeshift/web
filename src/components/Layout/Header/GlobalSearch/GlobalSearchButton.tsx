@@ -4,7 +4,6 @@ import {
   Button,
   IconButton,
   Kbd,
-  List,
   Modal,
   ModalBody,
   ModalContent,
@@ -23,7 +22,6 @@ import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory, useLocation } from 'react-router'
 import scrollIntoView from 'scroll-into-view-if-needed'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
-import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
@@ -41,11 +39,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ActionResults } from './ActionResults/ActionResults'
-import { AssetResults } from './AssetResults/AssetResults'
-import { LpResults } from './LpResults/LpResults'
-import { StakingResults } from './StakingResults/StakingResults'
-import { TxResults } from './TxResults/TxResults'
+import { SearchResults } from './SearchResults'
 import { makeOpportunityRouteDetails } from './utils'
 
 const mrProp = { base: 0, md: 'auto' }
@@ -248,66 +242,6 @@ export const GlobalSeachButton = memo(() => {
   }, [searchQuery])
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
-  const renderResults = useMemo(() => {
-    return isSearching && !results?.length ? (
-      <SearchEmpty searchQuery={searchQuery} />
-    ) : (
-      <List>
-        <ActionResults
-          onClick={handleClick}
-          results={sendResults}
-          searchQuery={searchQuery}
-          activeIndex={activeIndex}
-          startingIndex={0}
-          menuNodes={menuNodes}
-        />
-        <AssetResults
-          onClick={handleClick}
-          results={assetResults}
-          activeIndex={activeIndex}
-          startingIndex={0}
-          searchQuery={searchQuery}
-          menuNodes={menuNodes}
-        />
-        <StakingResults
-          results={stakingResults}
-          onClick={handleClick}
-          activeIndex={activeIndex}
-          startingIndex={assetResults.length}
-          searchQuery={searchQuery}
-          menuNodes={menuNodes}
-        />
-        <LpResults
-          results={lpResults}
-          onClick={handleClick}
-          activeIndex={activeIndex}
-          startingIndex={assetResults.length + stakingResults.length}
-          searchQuery={searchQuery}
-          menuNodes={menuNodes}
-        />
-        <TxResults
-          results={txResults}
-          onClick={handleClick}
-          activeIndex={activeIndex}
-          startingIndex={assetResults.length + stakingResults.length + lpResults.length}
-          searchQuery={searchQuery}
-          menuNodes={menuNodes}
-        />
-      </List>
-    )
-  }, [
-    activeIndex,
-    assetResults,
-    handleClick,
-    isSearching,
-    lpResults,
-    menuNodes,
-    results?.length,
-    searchQuery,
-    sendResults,
-    stakingResults,
-    txResults,
-  ])
 
   return (
     <>
@@ -357,7 +291,17 @@ export const GlobalSeachButton = memo(() => {
             />
           </ModalHeader>
           <ModalBody px={0} ref={menuRef}>
-            {renderResults}
+            <SearchResults
+              assetResults={assetResults}
+              stakingResults={stakingResults}
+              lpResults={lpResults}
+              txResults={txResults}
+              sendResults={sendResults}
+              activeIndex={activeIndex}
+              searchQuery={searchQuery}
+              isSearching={isSearching}
+              onClickResult={handleClick}
+            />
           </ModalBody>
         </ModalContent>
       </Modal>

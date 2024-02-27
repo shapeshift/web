@@ -9,9 +9,12 @@ export const findClosestFoxDiscountDelayBlockNumber = async (
   delayHours: number,
 ): Promise<number> => {
   const currentBlock = await getEthersProvider().getBlockNumber()
+
+  // No-op - if delay is zero, we don't need to perform any logic to find the closest FOX discounts delay block number
+  // Since the block we're interested in is the current one
   if (delayHours === 0) return currentBlock
-  const dayjsDelay = dayjs.duration(delayHours, 'hours')
-  const targetTimestamp = dayjs().subtract(dayjsDelay).unix()
+
+  const targetTimestamp = dayjs().subtract(delayHours, 'hours').unix()
   // Define a tolerance window as half of the average block time.
 
   let startBlock = currentBlock

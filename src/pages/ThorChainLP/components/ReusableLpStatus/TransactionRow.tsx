@@ -304,7 +304,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         const assetAddress = isToken(fromAssetId(assetId).assetReference)
           ? getAddress(fromAssetId(assetId).assetReference)
           : zeroAddress
-        const amount = BigInt(isDeposit ? amountCryptoBaseUnit : '0')
+        const amount = // Reuse the savers util as a sane amount for the dust threshold
+          BigInt(
+            isDeposit
+              ? amountCryptoBaseUnit
+              : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId] ?? '0',
+          )
 
         const args = (() => {
           const expiry = BigInt(dayjs().add(15, 'minute').unix())
@@ -474,7 +479,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           case 'EvmCustomTx': {
             if (!inboundAddressData?.router) return
             if (assetAccountNumber === undefined) return
-            const amount = BigInt(isDeposit ? amountCryptoBaseUnit : '0')
+            const amount = // Reuse the savers util as a sane amount for the dust threshold
+              BigInt(
+                isDeposit
+                  ? amountCryptoBaseUnit
+                  : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId] ?? '0',
+              )
 
             const args = (() => {
               const expiry = BigInt(dayjs().add(15, 'minute').unix())

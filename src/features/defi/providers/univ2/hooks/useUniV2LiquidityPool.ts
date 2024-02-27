@@ -1,4 +1,3 @@
-import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
@@ -9,10 +8,10 @@ import {
 } from 'contracts/constants'
 import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
-import { ethers } from 'ethers'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
-import { type Address, encodeFunctionData, getAddress } from 'viem'
+import type { Address } from 'viem'
+import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -81,16 +80,16 @@ export const useUniV2LiquidityPool = ({
 
   // Checksummed addresses
   const asset0ContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(assetId0OrWeth).assetReference),
+    () => getAddress(fromAssetId(assetId0OrWeth).assetReference),
     [assetId0OrWeth],
   )
   const asset1ContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(assetId1OrWeth).assetReference),
+    () => getAddress(fromAssetId(assetId1OrWeth).assetReference),
     [assetId1OrWeth],
   )
 
   const lpContractAddress = useMemo(
-    () => ethers.utils.getAddress(fromAssetId(lpAssetId).assetReference),
+    () => getAddress(fromAssetId(lpAssetId).assetReference),
     [lpAssetId],
   )
 
@@ -244,8 +243,8 @@ export const useUniV2LiquidityPool = ({
       asset1Amount,
       asset0Amount,
     }: {
-      asset0ContractAddress: string
-      asset1ContractAddress: string
+      asset0ContractAddress: Address
+      asset1ContractAddress: Address
       lpAmount: string
       asset1Amount: string
       asset0Amount: string
@@ -256,9 +255,8 @@ export const useUniV2LiquidityPool = ({
       const to = getAddress(fromAccountId(accountId).account)
 
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
-        const otherAssetContractAddress = getAddress(
-          assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress,
-        )
+        const otherAssetContractAddress =
+          assetId0OrWeth === wethAssetId ? asset1ContractAddress : asset0ContractAddress
         const otherAsset = assetId0OrWeth === wethAssetId ? asset1 : asset0
         const ethAmount = assetId0OrWeth === wethAssetId ? asset0Amount : asset1Amount
         const otherAssetAmount = assetId0OrWeth === wethAssetId ? asset1Amount : asset0Amount
@@ -282,8 +280,8 @@ export const useUniV2LiquidityPool = ({
         abi: uniswapRouterContract.abi,
         functionName: 'removeLiquidity',
         args: [
-          getAddress(asset0ContractAddress),
-          getAddress(asset1ContractAddress),
+          asset0ContractAddress,
+          asset1ContractAddress,
           BigInt(toBaseUnit(lpAmount, lpAsset.precision)),
           BigInt(calculateSlippageMargin(asset0Amount, asset0.precision)),
           BigInt(calculateSlippageMargin(asset1Amount, asset1.precision)),
@@ -452,10 +450,7 @@ export const useUniV2LiquidityPool = ({
       const data = encodeFunctionData({
         abi: contract.abi,
         functionName: 'approve',
-        args: [
-          getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference),
-          BigInt(MaxUint256.toString()),
-        ],
+        args: [getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference), maxUint256],
       })
 
       return getFeesWithWallet({
@@ -606,7 +601,7 @@ export const useUniV2LiquidityPool = ({
       const data = encodeFunctionData({
         abi: contract.abi,
         functionName: 'approve',
-        args: [uniV2ContractAddress, BigInt(MaxUint256.toString())],
+        args: [uniV2ContractAddress, maxUint256],
       })
 
       const fees = await getApproveFees(contractAddress)

@@ -2,7 +2,7 @@ import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Token, Vault } from '@yfi/sdk'
 import { Yearn } from '@yfi/sdk'
-import { ethers } from 'ethers'
+import { ethers } from 'ethers5'
 import toLower from 'lodash/toLower'
 
 import { ethereum } from '../baseAssets'

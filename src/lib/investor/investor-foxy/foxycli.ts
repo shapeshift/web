@@ -55,9 +55,7 @@ const main = async (): Promise<void> => {
     adapter: ethChainAdapter,
     providerUrl: process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
     foxyAddresses,
-    provider: new ethers.providers.StaticJsonRpcProvider(
-      process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/',
-    ),
+    provider: new ethers.JsonRpcProvider(process.env.ARCHIVE_NODE || 'http://127.0.0.1:8545/'),
   })
 
   const accountNumber = 0

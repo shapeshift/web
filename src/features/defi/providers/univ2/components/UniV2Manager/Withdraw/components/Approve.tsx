@@ -3,7 +3,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
-import { ethers } from 'ethers'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -15,6 +14,7 @@ import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useUniV2LiquidityPool } from 'features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { usePoll } from 'hooks/usePoll/usePoll'
@@ -112,7 +112,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
 
     try {
       dispatch({ type: UniV2WithdrawActionType.SET_LOADING, payload: true })
-      const lpAssetContractAddress = ethers.utils.getAddress(fromAssetId(lpAssetId).assetReference)
+      const lpAssetContractAddress = getAddress(fromAssetId(lpAssetId).assetReference)
       await approveAsset(lpAssetContractAddress)
       await poll({
         fn: () => lpAllowance(),

@@ -1,6 +1,6 @@
-import type { JsonFragment } from '@ethersproject/abi/lib/fragments'
+import type { InterfaceAbi } from 'ethers'
 
-export const THOR_ETHEREUM_ABI: JsonFragment[] = [
+export const THOR_ETHEREUM_ABI: InterfaceAbi = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,

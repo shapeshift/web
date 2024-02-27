@@ -335,7 +335,8 @@ const reactAppRewireConfig = {
       _.merge(config, {
         resolve: {
           alias: {
-            'ethers/lib/utils': 'ethers/lib/utils.js',
+            'ethers/lib/utils': 'ethers5/lib/utils.js',
+            'ethers/lib/utils.js': 'ethers5/lib/utils.js',
           },
         },
       }),

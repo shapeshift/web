@@ -1,8 +1,8 @@
-import { MaxUint256 } from '@ethersproject/constants'
 import { ethChainId, foxAssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { mockMarketData } from 'test/mocks/marketData'
+import { maxUint256 } from 'viem'
 import { describe, expect, it } from 'vitest'
 
 import { makeAmountOrDefault } from './utils'
@@ -69,7 +69,7 @@ describe('TransactionHistoryRow/utils', () => {
 
     it('can parse erc20 infinite (max solidity uint256) approvals', () => {
       const args = makeRestArgsTuple({
-        value: MaxUint256.toString(),
+        value: maxUint256.toString(),
         marketData: foxMarketData,
         asset: foxAsset,
         parser: 'erc20',

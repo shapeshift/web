@@ -16,18 +16,18 @@ export interface TxMetadata extends BaseTxMetadata {
 
 export interface ParserArgs {
   chainId: ChainId
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
 }
 
 export class Parser implements SubParser<Tx> {
-  provider: ethers.providers.StaticJsonRpcProvider
+  provider: ethers.JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
-  readonly abiInterface = new ethers.utils.Interface(WETH_ABI)
+  readonly abiInterface = new ethers.Interface(WETH_ABI)
 
   readonly supportedFunctions = {
-    depositSigHash: this.abiInterface.getSighash('deposit'),
-    withdrawalSigHash: this.abiInterface.getSighash('withdraw'),
+    depositSigHash: this.abiInterface.getFunction('deposit')!.selector,
+    withdrawalSigHash: this.abiInterface.getFunction('withdraw')!.selector,
   }
 
   constructor(args: ParserArgs) {

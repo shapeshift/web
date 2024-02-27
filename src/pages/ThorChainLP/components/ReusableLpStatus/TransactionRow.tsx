@@ -62,6 +62,7 @@ import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
+import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -339,7 +340,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
         return {
-          cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
+          cryptoAmount: isDeposit
+            ? amountCryptoPrecision
+            : // Reuse the savers util as a sane amount for the dust threshold
+              fromBaseUnit(
+                THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+                asset.precision,
+              ) ?? '0',
           assetId,
           to: inboundAddressData.address,
           from: accountAssetAddress,
@@ -537,7 +544,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
 
             const estimateFeesArgs = {
-              cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
+              cryptoAmount: isDeposit
+                ? amountCryptoPrecision
+                : // Reuse the savers util as a sane amount for the dust threshold
+                  fromBaseUnit(
+                    THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+                    asset.precision,
+                  ) ?? '0',
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,
@@ -548,7 +561,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
-              cryptoAmount: isDeposit ? amountCryptoPrecision : '0',
+              cryptoAmount: isDeposit
+                ? amountCryptoPrecision
+                : // Reuse the savers util as a sane amount for the dust threshold
+                  fromBaseUnit(
+                    THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+                    asset.precision,
+                  ) ?? '0',
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,

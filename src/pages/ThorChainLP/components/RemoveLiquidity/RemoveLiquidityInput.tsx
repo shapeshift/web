@@ -363,11 +363,15 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [poolAssetGasFeeFiatUserCurrency, runeGasFeeFiatUserCurrency],
   )
 
-  const handlePercentageClick = useCallback((percentage: number) => {
-    return () => {
-      setPercentageSelection(percentage)
-    }
-  }, [])
+  const handlePercentageClick = useCallback(
+    (percentage: number) => {
+      return () => {
+        handlePercentageSliderChange(percentage)
+        setPercentageSelection(percentage)
+      }
+    },
+    [handlePercentageSliderChange],
+  )
 
   const percentOptions = useMemo(() => [], [])
 

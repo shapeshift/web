@@ -1,0 +1,19 @@
+import type { FeeCurveParameters } from './types'
+
+const FEE_CURVE_MAX_FEE_BPS = 50 // basis points
+const FEE_CURVE_MIN_FEE_BPS = 20 // basis points
+const FEE_CURVE_NO_FEE_THRESHOLD_USD = 2_000 // usd
+const FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD = 1_000_000 // fox
+const FEE_CURVE_MIDPOINT_USD = 50_000 // usd
+const FEE_CURVE_STEEPNESS_K = 80_000 // unitless
+const FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS = 7 // 7 for thorchain LP, see https://discord.com/channels/554694662431178782/920449863408287855/1207415430025580627
+
+export const thorchainLpParameters: FeeCurveParameters = {
+  FEE_CURVE_MAX_FEE_BPS,
+  FEE_CURVE_MIN_FEE_BPS,
+  FEE_CURVE_NO_FEE_THRESHOLD_USD,
+  FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD,
+  FEE_CURVE_MIDPOINT_USD,
+  FEE_CURVE_STEEPNESS_K,
+  FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
+}

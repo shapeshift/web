@@ -37,7 +37,12 @@ export const FeeModal = ({ isOpen, onClose: handleClose }: FeeModalProps) => {
               <FeeBreakdown />
             </TabPanel>
             <TabPanel px={0} py={0}>
-              <FeeExplainer borderRadius='none' bg='transparent' boxShadow='none' />
+              <FeeExplainer
+                borderRadius='none'
+                bg='transparent'
+                boxShadow='none'
+                feeModel='SWAPPER'
+              />
             </TabPanel>
           </TabPanels>
         </Tabs>

@@ -170,7 +170,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
 
-    dispatch(snapshotApi.endpoints.getVotingPower.initiate(undefined, { forceRefetch: true }))
+    // Fetch voting power in AppContext for swapper only - THORChain LP will be fetched JIT to avoid overfetching
+    dispatch(
+      snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
+    )
   }, [dispatch, portfolioLoadingStatus])
 
   // once portfolio is done loading, fetch all transaction history

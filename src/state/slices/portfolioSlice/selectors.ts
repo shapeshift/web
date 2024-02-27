@@ -243,7 +243,7 @@ export const selectFirstAccountIdByChainId = createCachedSelector(
  * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
  * but can contain it
  */
-export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
+export const selectPortfolioAccountIdsByAssetIdFilter = createCachedSelector(
   selectWalletAccountIds,
   selectAssetIdParamFromFilter,
   (accountIds, assetId): AccountId[] => {
@@ -255,6 +255,22 @@ export const selectPortfolioAccountIdsByAssetId = createCachedSelector(
 )(
   (state, paramFilter) =>
     `${state.portfolio.connectedWallet?.id}-${paramFilter?.assetId}` ?? 'assetId',
+)
+
+export const selectPortfolioAccountIdsByAssetId = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  (accounts): Record<AssetId, AccountId[]> => {
+    return Object.entries(accounts).reduce<Record<AssetId, AccountId[]>>(
+      (acc, [accountId, account]) => {
+        account.assetIds.forEach(assetId => {
+          if (!acc[assetId]) acc[assetId] = []
+          acc[assetId].push(accountId)
+        })
+        return acc
+      },
+      {},
+    )
+  },
 )
 
 /**

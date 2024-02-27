@@ -565,7 +565,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetGasFeeFiat: poolAssetGasFeeFiat.toFixed(2),
       totalGasFeeFiat,
       feeBps: '0',
-      accountIdsByChainId: {
+      currentAccountIdByChainId: {
         [poolChainId]: accountId,
         [thorchainChainId]: runeAccountId ?? '',
       },

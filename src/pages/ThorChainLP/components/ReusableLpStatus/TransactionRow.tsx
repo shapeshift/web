@@ -9,7 +9,6 @@ import {
   Link,
   Skeleton,
 } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   type AssetId,
   fromAccountId,
@@ -74,7 +73,6 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId?: AssetId
-  accountIdsByChainId: Record<ChainId, AccountId>
   poolAssetId?: AssetId
   amountCryptoPrecision: string
   onComplete: () => void
@@ -90,7 +88,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   onComplete,
   isActive,
-  accountIdsByChainId,
   confirmedQuote,
   asymSide,
 }) => {
@@ -105,6 +102,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
 
+  const { currentAccountIdByChainId } = confirmedQuote
+
   const {
     isTradingActive,
     refetch: refetchIsTradingActive,
@@ -115,9 +114,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     swapperName: SwapperName.Thorchain,
   })
 
-  const runeAccountId = accountIdsByChainId[thorchainChainId]
+  const runeAccountId = currentAccountIdByChainId[thorchainChainId]
   const poolAssetAccountId =
-    accountIdsByChainId[poolAsset?.assetId ? fromAssetId(poolAsset.assetId).chainId : '']
+    currentAccountIdByChainId[poolAsset?.assetId ? fromAssetId(poolAsset.assetId).chainId : '']
   const runeAccountNumberFilter = useMemo(
     () => ({ assetId: thorchainAssetId, accountId: runeAccountId ?? '' }),
     [runeAccountId],

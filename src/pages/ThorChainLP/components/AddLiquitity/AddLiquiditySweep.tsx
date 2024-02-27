@@ -23,13 +23,13 @@ export const AddLiquiditySweep: React.FC<AddLiquiditySweepProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const { opportunityId, accountIdsByChainId, assetAddress } = confirmedQuote
+  const { opportunityId, currentAccountIdByChainId, assetAddress } = confirmedQuote
 
   const assetId = useMemo(() => fromOpportunityId(opportunityId).assetId, [opportunityId])
 
   const accountId = useMemo(() => {
-    return accountIdsByChainId[assetId ? fromAssetId(assetId).chainId : '']
-  }, [accountIdsByChainId, assetId])
+    return currentAccountIdByChainId[assetId ? fromAssetId(assetId).chainId : '']
+  }, [currentAccountIdByChainId, assetId])
 
   if (!assetId || !accountId || !assetAddress) return null
 

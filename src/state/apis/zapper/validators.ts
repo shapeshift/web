@@ -79,7 +79,7 @@ const ZapperAppIdSchema = z.string()
 const ZapperDisplayValue = z.union([
   z.object({
     type: z.string(),
-    value: z.union([z.number(), z.string()]),
+    value: z.union([z.number(), z.string(), z.undefined()]),
   }),
   z.string(),
   z.number(),

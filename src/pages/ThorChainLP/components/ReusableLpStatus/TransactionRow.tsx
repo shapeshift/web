@@ -269,7 +269,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (!asset || !poolAsset) return undefined
     // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
     // Left as-is for this PR to avoid a bigly diff
-    assetIdToPoolAssetId({
+    return assetIdToPoolAssetId({
       assetId: isRuneTx ? poolAsset.assetId : asset.assetId,
     })
   }, [asset, poolAsset, isRuneTx])

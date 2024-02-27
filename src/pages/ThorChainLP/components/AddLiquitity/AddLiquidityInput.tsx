@@ -1270,6 +1270,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           isDisabled={
             isTradingActive === false ||
             !confirmedQuote ||
+            !votingPower ||
             isVotingPowerLoading ||
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance ||

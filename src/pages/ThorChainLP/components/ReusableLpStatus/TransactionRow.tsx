@@ -277,13 +277,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [asset, poolAsset, isRuneTx])
 
   const memo = useMemo(() => {
+    if (thorchainNotationAssetId === undefined) return undefined
     return isDeposit
       ? `+:${thorchainNotationAssetId}:${otherAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
   }, [isDeposit, thorchainNotationAssetId, otherAssetAddress, confirmedQuote])
 
   const estimateFeesArgs = useMemo(() => {
-    if (!assetId || !wallet || !asset || !poolAsset) return undefined
+    if (!assetId || !wallet || !asset || !poolAsset || !memo) return undefined
     const transactionType = getThorchainLpTransactionType(asset.chainId)
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
@@ -404,6 +405,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         asset &&
         poolAsset &&
         wallet &&
+        memo &&
         (isRuneTx || inboundAddressData?.address)
       )
     ) {

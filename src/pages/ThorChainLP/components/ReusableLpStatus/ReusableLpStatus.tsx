@@ -176,7 +176,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               key={_asset.assetId}
               assetId={_asset.assetId}
               poolAssetId={poolAsset?.assetId}
-              accountIdsByChainId={confirmedQuote.accountIdsByChainId}
               amountCryptoPrecision={amountCryptoPrecision}
               onComplete={handleComplete}
               isActive={index === activeStepIndex}

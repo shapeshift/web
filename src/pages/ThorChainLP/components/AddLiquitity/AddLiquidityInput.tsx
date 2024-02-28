@@ -1301,16 +1301,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             </Flex>
           </Row.Value>
         </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.fees')}</Row.Label>
-          <Row.Value>
-            <Skeleton
-              isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
-            >
-              <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? '0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
       </CardFooter>
       <CardFooter
         borderTopWidth={1}

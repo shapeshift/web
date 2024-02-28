@@ -37,6 +37,29 @@ export const getAllThorchainLiquidityProviderPositions = async (
   return data
 }
 
+// Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
+export const getCurrentValue = (
+  liquidityUnits: string,
+  poolUnits: string,
+  assetDepth: string,
+  runeDepth: string,
+): { rune: string; asset: string; poolShare: string } => {
+  const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
+  const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
+  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
+  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepth)
+
+  const poolShare = liquidityUnitsCryptoPrecision.div(poolUnitsCryptoPrecision)
+  const redeemableRune = poolShare.times(runeDepthCryptoPrecision).toFixed()
+  const redeemableAsset = poolShare.times(assetDepthCryptoPrecision).toFixed()
+
+  return {
+    rune: redeemableRune,
+    asset: redeemableAsset,
+    poolShare: poolShare.toFixed(),
+  }
+}
+
 // https://dev.thorchain.org/concepts/math.html#lp-units-add
 export const getLiquidityUnits = ({
   pool,
@@ -230,6 +253,14 @@ export const calculateEarnings = (
 
   return { totalEarningsFiatUserCurrency, assetEarnings, runeEarnings }
 }
+
+export const calculatePoolOwnershipPercentage = ({
+  userLiquidityUnits,
+  totalPoolUnits,
+}: {
+  userLiquidityUnits: string
+  totalPoolUnits: string
+}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
 
 // A THOR LP deposit can either be:
 // - a RUNE MsgDeposit message type

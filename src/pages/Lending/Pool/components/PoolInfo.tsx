@@ -1,24 +1,39 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Flex } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  AlertTitle,
+  Button,
+  Flex,
+  Link,
+  Progress,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { Tag, TagLeftIcon } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { DynamicComponent } from 'components/DynamicComponent'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { RawText, Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 const labelProps = { fontSize: 'sm ' }
 const responsiveFlex = { base: 'auto', lg: 1 }
+const faTwitterIcon = <FaTwitter />
 
 type PoolInfoProps = {
   poolAssetId: AssetId
 }
 
 export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
+  const alertBg = useColorModeValue('gray.200', 'gray.900')
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
 
@@ -59,6 +74,58 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
     () => <RawText fontSize='lg'>{poolData?.totalBorrowers ?? '0'}</RawText>,
     [poolData?.totalBorrowers],
   )
+
+  const renderVaultCap = useMemo(() => {
+    if (!poolData || !asset) return null
+
+    const isHardCapReached = bnOrZero(poolData.tvl).eq(poolData.maxSupplyFiat)
+    const currentCapFillPercentage = bnOrZero(poolData.tvl)
+      .div(bnOrZero(poolData.maxSupplyFiat))
+      .times(100)
+      .toNumber()
+
+    return (
+      <Flex flexWrap='wrap' direction='column' gap={4}>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <HelperTooltip label={translate('defi.modals.saversVaults.vaultCapTooltip')}>
+            <Text fontWeight='medium' translation='defi.modals.saversVaults.vaultCap' />
+          </HelperTooltip>
+          <Flex gap={1}>
+            <Amount.Fiat value={poolData?.tvl} />
+            <Amount.Fiat value={poolData?.maxSupplyFiat} prefix='/' color='text.subtle' />
+          </Flex>
+        </Flex>
+        {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (
+          <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
+            <AlertIcon />
+            <AlertTitle>{translate('defi.modals.saversVaults.haltedTitle')}</AlertTitle>
+            <>
+              <AlertDescription>
+                {translate('defi.modals.saversVaults.haltedDescription')}
+              </AlertDescription>
+              <Button
+                as={Link}
+                href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20lend%20%23${asset.symbol}%20on%20%40ShapeShift`}
+                isExternal
+                mt={4}
+                colorScheme='twitter'
+                rightIcon={faTwitterIcon}
+              >
+                @THORChain
+              </Button>
+            </>
+          </Alert>
+        ) : (
+          <Progress
+            value={currentCapFillPercentage}
+            size='sm'
+            borderRadius='md'
+            colorScheme={bnOrZero(currentCapFillPercentage).lt(100) ? 'green' : 'red'}
+          />
+        )}
+      </Flex>
+    )
+  }, [alertBg, asset, poolData, translate])
 
   if (!asset) return null
 
@@ -103,6 +170,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
           labelProps={labelProps}
         />
       </Flex>
+      {renderVaultCap}
     </>
   )
 }

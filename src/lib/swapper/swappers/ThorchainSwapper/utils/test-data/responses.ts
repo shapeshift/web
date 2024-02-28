@@ -20,6 +20,7 @@ export const btcThornodePool: ThornodePoolResponse = {
   synth_supply_remaining: '8963246519',
   synth_units: '142965023220851',
   loan_collateral: '8376774620',
+  loan_collateral_remaining: '8376774621',
   loan_cr: '30776',
   derived_depth_bps: '9484',
 }
@@ -40,6 +41,7 @@ export const ethThornodePool: ThornodePoolResponse = {
   synth_supply_remaining: '183106737474',
   synth_units: '36567637964216',
   loan_collateral: '84066273112',
+  loan_collateral_remaining: '84066273113',
   loan_cr: '31595',
   derived_depth_bps: '9491',
 }
@@ -60,6 +62,7 @@ export const foxThornodePool: ThornodePoolResponse = {
   synth_supply_remaining: '161390775916374',
   synth_units: '50300400994',
   loan_collateral: '0',
+  loan_collateral_remaining: '0',
   loan_cr: '20000',
   derived_depth_bps: '0',
 }
@@ -80,6 +83,7 @@ export const usdcThornodePool: ThornodePoolResponse = {
   synth_supply_remaining: '102379864074658',
   synth_units: '1423205664974',
   loan_collateral: '0',
+  loan_collateral_remaining: '0',
   loan_cr: '20000',
   derived_depth_bps: '0',
 }

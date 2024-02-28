@@ -188,7 +188,7 @@ export type MidgardTvlHistoryResponse = {
 }
 
 export type LpConfirmedDepositQuote = {
-  totalAmountFiat: string
+  totalAmountFiatUsd: string
   assetCryptoDepositAmount: string
   assetFiatDepositAmount: string
   runeCryptoDepositAmount: string

@@ -1,9 +1,7 @@
 import type { GridProps } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import uniq from 'lodash/uniq'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { generatePath, useHistory } from 'react-router'
@@ -23,7 +21,6 @@ import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
 import { useAllUserLpData } from './queries/hooks/useAllUserLpData'
 import { usePools } from './queries/hooks/usePools'
-import { getPositionName } from './utils'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -57,35 +54,19 @@ const alignItems = {
 }
 
 type PositionButtonProps = {
-  assetId: AssetId
-  poolName: string
   poolAssetId: string
-  opportunityId: string
-  accountId: string
-  apy: string
   position: UserLpDataPosition
 }
 
-const PositionButton = ({
-  apy,
-  assetId,
-  poolName,
-  poolAssetId,
-  accountId,
-  opportunityId,
-  position,
-}: PositionButtonProps) => {
+const PositionButton = ({ poolAssetId, position }: PositionButtonProps) => {
   const history = useHistory()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const { assetId, accountId, opportunityId } = useMemo(() => position, [position])
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
-  const positionName = useMemo(() => {
-    return getPositionName(poolName, opportunityId)
-  }, [poolName, opportunityId])
   const poolAssetIds = useMemo(() => [assetId, thorchainAssetId], [assetId])
 
   const { data: earnings, isLoading: isEarningsLoading } = useQuery({
@@ -95,18 +76,9 @@ const PositionButton = ({
     // That ensures new active listeners always get fresh earnings data
     staleTime: 0,
     select: data => {
-      if (!data) return null
-
       const poolEarnings = data.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!poolEarnings) return null
-
-      return calculateEarnings(
-        poolEarnings.assetLiquidityFees,
-        poolEarnings.runeLiquidityFees,
-        position.poolShare,
-        runeMarketData.price,
-        assetMarketData.price,
-      )
+      return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)
     },
   })
 
@@ -139,9 +111,16 @@ const PositionButton = ({
       >
         <Flex gap={4} alignItems='center'>
           <PoolIcon assetIds={poolAssetIds} size='sm' />
-          <RawText>{positionName}</RawText>
-          <Tag size='sm'>
-            <Amount.Percent value={apy} />
+          <RawText>{position.name}</RawText>
+          <Tag>
+            {position.asym ? (
+              <Text
+                // eslint-disable-next-line react-memo/require-usememo
+                translation={['common.asymmetric', { assetSymbol: position.asym.asset.symbol }]}
+              />
+            ) : (
+              <Text translation='common.symmetric' />
+            )}
           </Tag>
         </Flex>
         <Stack spacing={0} alignItems={alignItems}>
@@ -161,11 +140,11 @@ const PositionButton = ({
         </Stack>
         <Stack display={mobileDisplay} spacing={0}>
           <Skeleton isLoaded={!isEarningsLoading}>
-            <Amount.Fiat value={earnings?.totalEarningsFiatUserCurrency ?? '0'} />
+            <Amount.Fiat value={earnings?.totalEarningsFiat ?? '0'} />
           </Skeleton>
           <Skeleton isLoaded={!isEarningsLoading}>
             <Amount.Crypto
-              value={earnings?.assetEarnings ?? '0'}
+              value={earnings?.assetEarningsCryptoPrecision ?? '0'}
               symbol={asset.symbol}
               fontSize='sm'
               color='text.subtle'
@@ -173,7 +152,7 @@ const PositionButton = ({
           </Skeleton>
           <Skeleton isLoaded={!isEarningsLoading}>
             <Amount.Crypto
-              value={earnings?.runeEarnings ?? '0'}
+              value={earnings?.runeEarningsCryptoPrecision ?? '0'}
               symbol={'RUNE'}
               fontSize='sm'
               color='text.subtle'
@@ -194,9 +173,7 @@ const PositionButton = ({
 export const YourPositions = () => {
   const { data: pools } = usePools()
 
-  const poolAssetIds = useMemo(() => uniq((pools ?? []).map(pool => pool.assetId)), [pools])
-
-  const allUserLpData = useAllUserLpData({ assetIds: poolAssetIds })
+  const allUserLpData = useAllUserLpData()
 
   const activePositions = useMemo(() => {
     return allUserLpData.filter(query => query.data?.positions.length)
@@ -243,13 +220,8 @@ export const YourPositions = () => {
 
         return (
           <PositionButton
-            accountId={position.accountId}
-            assetId={position.assetId}
-            poolName={pool.name}
-            poolAssetId={pool.asset}
-            opportunityId={position.opportunityId}
-            apy={pool.annualPercentageRate}
             key={position.opportunityId}
+            poolAssetId={pool.asset}
             position={position}
           />
         )

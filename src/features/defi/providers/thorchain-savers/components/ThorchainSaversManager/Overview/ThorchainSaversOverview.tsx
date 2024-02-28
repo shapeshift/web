@@ -304,23 +304,21 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
             <AlertIcon />
             <AlertTitle>{translate('defi.modals.saversVaults.haltedTitle')}</AlertTitle>
-            {!isHardCapReached && (
-              <>
-                <AlertDescription>
-                  {translate('defi.modals.saversVaults.haltedDescription')}
-                </AlertDescription>
-                <Button
-                  as={Link}
-                  href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20deposit%20%23${underlyingAsset?.symbol}%20into%20a%20savers%20vault%20at%20%40ShapeShift`}
-                  isExternal
-                  mt={4}
-                  colorScheme='twitter'
-                  rightIcon={faTwitterIcon}
-                >
-                  @THORChain
-                </Button>
-              </>
-            )}
+            <>
+              <AlertDescription>
+                {translate('defi.modals.saversVaults.haltedDescription')}
+              </AlertDescription>
+              <Button
+                as={Link}
+                href={`https://twitter.com/intent/tweet?text=Hey%20%40THORChain%20%23raisethecaps%20already%20so%20I%20can%20deposit%20%23${underlyingAsset?.symbol}%20into%20a%20savers%20vault%20at%20%40ShapeShift`}
+                isExternal
+                mt={4}
+                colorScheme='twitter'
+                rightIcon={faTwitterIcon}
+              >
+                @THORChain
+              </Button>
+            </>
           </Alert>
         ) : (
           <Progress

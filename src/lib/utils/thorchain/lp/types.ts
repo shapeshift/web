@@ -76,7 +76,7 @@ export type MidgardPoolStats = {
   withdrawVolume: string
 }
 
-type MidgardInterval = {
+export type MidgardInterval = {
   averageSlip: string
   endTime: string
   runePriceUSD: string
@@ -120,7 +120,7 @@ export type ExtendedThornodeLiquidityProvider = ThornodeLiquidityProvider & {
 
 export type ThorchainLiquidityProvidersResponseSuccess = ThornodeLiquidityProvider[]
 
-type ThorchainEarningsHistoryPoolItem = {
+export type MidgardEarningsHistoryPoolItem = {
   pool: string
   assetLiquidityFees: string
   runeLiquidityFees: string
@@ -130,7 +130,7 @@ type ThorchainEarningsHistoryPoolItem = {
   earnings: string
 }
 
-type ThorchainEarningsHistoryItem = {
+type MidgardEarningsHistoryItem = {
   startTime: string
   endTime: string
   liquidityFees: string
@@ -140,10 +140,10 @@ type ThorchainEarningsHistoryItem = {
   liquidityEarnings: string
   avgNodeCount: string
   runePriceUSD: string
-  pools: ThorchainEarningsHistoryPoolItem[]
+  pools: MidgardEarningsHistoryPoolItem[]
 }
 
-type ThorchainEarningsHistoryInterval = {
+type MidgardEarningsHistoryInterval = {
   startTime: string
   endTime: string
   liquidityFees: string
@@ -153,12 +153,12 @@ type ThorchainEarningsHistoryInterval = {
   liquidityEarnings: string
   avgNodeCount: string
   runePriceUSD: string
-  pools: ThorchainEarningsHistoryPoolItem[]
+  pools: MidgardEarningsHistoryPoolItem[]
 }
 
-export type ThorchainEarningsHistoryResponse = {
-  meta: ThorchainEarningsHistoryItem
-  intervals: ThorchainEarningsHistoryInterval[]
+export type MidgardEarningsHistoryResponse = {
+  meta: MidgardEarningsHistoryItem
+  intervals: MidgardEarningsHistoryInterval[]
 }
 
 export type PoolShareDetail = {

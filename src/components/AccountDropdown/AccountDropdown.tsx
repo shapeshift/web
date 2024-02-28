@@ -317,7 +317,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
 
     return (
       <Box px={2} my={2} {...boxProps}>
-        <Menu closeOnSelect={true} autoSelect={false} flip>
+        <Menu isLazy closeOnSelect={true} autoSelect={false} flip>
           <MenuButton
             iconSpacing={1}
             as={Button}

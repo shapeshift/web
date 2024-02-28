@@ -11,12 +11,12 @@ import { Amount } from 'components/Amount/Amount'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { getVolume } from 'lib/utils/thorchain/lp'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
+import { getVolumeStats, selectSwapsData } from './queries/hooks/usePool'
 import type { Pool } from './queries/hooks/usePools'
 import { usePools } from './queries/hooks/usePools'
 
@@ -52,6 +52,17 @@ type PoolButtonProps = {
 
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
+  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+
+  const { data: swapsData } = useQuery({
+    ...reactQueries.midgard.swapsData(pool.asset, 'hour', 7 * 24),
+    select: selectSwapsData,
+  })
+
+  const volumeStats = useMemo(() => {
+    if (!swapsData) return
+    return getVolumeStats(swapsData, runeMarketData.price)
+  }, [swapsData, runeMarketData.price])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: pool?.assetId,
@@ -64,20 +75,6 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
   }, [history, pool.asset])
 
   const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
-
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
-
-  const { data: volume24H, isLoading: isVolume24HLoading } = useQuery({
-    ...reactQueries.midgard.swapsData(pool.assetId, '24h'),
-    select: data => getVolume(runeMarketData.price, data),
-  })
-
-  const { data: volume7D, isLoading: isVolume7DLoading } = useQuery({
-    ...reactQueries.midgard.swapsData(pool.assetId, '7d'),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    staleTime: Infinity,
-    select: data => getVolume(runeMarketData.price, data),
-  })
 
   const statusContent = useMemo(() => {
     switch (true) {
@@ -131,11 +128,11 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         </Skeleton>
       </Flex>
       <Amount.Fiat value={pool.tvlFiat} />
-      <Skeleton isLoaded={!isVolume24HLoading} display={mobileDisplay}>
-        <Amount.Fiat value={volume24H ?? '0'} />
+      <Skeleton isLoaded={!!volumeStats} display={mobileDisplay}>
+        <Amount.Fiat value={volumeStats?.volume24hFiat ?? '0'} />
       </Skeleton>
-      <Skeleton isLoaded={!isVolume7DLoading} display={largeDisplay}>
-        <Amount.Fiat value={volume7D ?? '0'} />
+      <Skeleton isLoaded={!!volumeStats} display={largeDisplay}>
+        <Amount.Fiat value={volumeStats?.volume7dFiat ?? '0'} />
       </Skeleton>
     </Button>
   )

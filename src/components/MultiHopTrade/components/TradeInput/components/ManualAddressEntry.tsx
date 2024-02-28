@@ -39,11 +39,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
 
   const isSnapInstalled = useIsSnapInstalled()
-  const walletSupportsBuyAssetChain = useWalletSupportsChain({
-    chainId: buyAssetChainId,
-    wallet,
-    isSnapInstalled,
-  })
+  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAssetChainId, wallet)
   const activeQuote = useAppSelector(selectActiveQuote)
   const shouldShowManualReceiveAddressInput = useMemo(() => {
     // We want to display the manual address entry if the wallet doesn't support the buy asset chain,

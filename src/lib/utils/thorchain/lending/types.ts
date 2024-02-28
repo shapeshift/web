@@ -140,3 +140,5 @@ export type ThorchainBlock = {
     height: number
   }
 }
+
+export type ThorchainMimir = Record<string, unknown>

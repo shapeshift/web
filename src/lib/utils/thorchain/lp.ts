@@ -4,24 +4,20 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 import { getSupportedEvmChainIds } from '../evm'
 import { fromThorBaseUnit } from '.'
-import type { UserLpDataPosition } from './lp/types'
-import {
-  type MidgardPoolStats,
-  type MidgardSwapHistoryResponse,
-  type MidgardTvlHistoryResponse,
-  type PoolShareDetail,
-  type ThorchainEarningsHistoryResponse,
-  type ThorchainLiquidityProvidersResponseSuccess,
+import type {
+  PoolShareDetail,
+  ThorchainLiquidityProvidersResponseSuccess,
+  UserLpDataPosition,
 } from './lp/types'
 
-const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
+const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
 export const getAllThorchainLiquidityProviderPositions = async (
   assetId: AssetId,
@@ -39,110 +35,6 @@ export const getAllThorchainLiquidityProviderPositions = async (
   if (!data || 'error' in data) return []
 
   return data
-}
-
-export const calculateTVL = (
-  assetDepthCryptoBaseUnit: string,
-  runeDepthCryptoBaseUnit: string,
-  runePrice: string,
-): { tvl: string; assetAmountCryptoPrecision: string; runeAmountCryptoPrecision: string } => {
-  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepthCryptoBaseUnit)
-  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepthCryptoBaseUnit)
-
-  const assetValueFiatUserCurrency = assetDepthCryptoPrecision.times(runePrice)
-  const runeValueFiatUserCurrency = runeDepthCryptoPrecision.times(runePrice)
-
-  const tvl = assetValueFiatUserCurrency.plus(runeValueFiatUserCurrency).times(2)
-
-  const result = {
-    tvl: tvl.toFixed(),
-    assetAmountCryptoPrecision: assetDepthCryptoPrecision.toFixed(),
-    runeAmountCryptoPrecision: runeDepthCryptoPrecision.toFixed(),
-  }
-
-  return result
-}
-
-export const getVolume = (
-  runePrice: string,
-  swapHistoryResponse: MidgardSwapHistoryResponse,
-): string => {
-  const volume = swapHistoryResponse.meta.totalVolume
-
-  return fromThorBaseUnit(volume).times(runePrice).toFixed()
-}
-
-export const get24hSwapChangePercentage = (
-  runePrice: string,
-  assetPrice: string,
-  current24hData: MidgardSwapHistoryResponse,
-  previous24hData: MidgardSwapHistoryResponse,
-): { volumeChangePercentage: number; feeChangePercentage: number } | null => {
-  // Get previous 24h fees
-  const previousToAssetFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toAssetFees)
-  const previousToRuneFeesCryptoPrecision = fromThorBaseUnit(previous24hData.meta.toRuneFees)
-  const previousToAssetFeesFiatUserCurrency = previousToAssetFeesCryptoPrecision.times(assetPrice)
-  const previousToRuneFeesFiatUserCurrency = previousToRuneFeesCryptoPrecision.times(runePrice)
-  const previousFeesFiatUserCurrency = previousToAssetFeesFiatUserCurrency.plus(
-    previousToRuneFeesFiatUserCurrency,
-  )
-
-  // Get current 24h fees
-  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(current24hData.meta.toAssetFees)
-  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(current24hData.meta.toRuneFees)
-  const currentToAssetFeesFiatUserCurrency = currentToAssetFeesCryptoPrecision.times(assetPrice)
-  const currentToRuneFeesFiatUserCurrency = currentToRuneFeesCryptoPrecision.times(runePrice)
-  const currentFeesFiatUserCurrency = currentToAssetFeesFiatUserCurrency.plus(
-    currentToRuneFeesFiatUserCurrency,
-  )
-
-  const feeChange = currentFeesFiatUserCurrency.minus(previousFeesFiatUserCurrency)
-  const feeChangePercentage = previousFeesFiatUserCurrency.isZero()
-    ? 0
-    : feeChange.div(previousFeesFiatUserCurrency).toNumber()
-
-  const previousVolume = bnOrZero(previous24hData.meta.totalVolume)
-  const currentVolume = current24hData.meta.totalVolume
-
-  const volumeChange = bnOrZero(currentVolume).minus(previousVolume)
-  const volumeChangePercentage = previousVolume.isZero()
-    ? 0
-    : volumeChange.div(previousVolume).toNumber()
-
-  return {
-    volumeChangePercentage,
-    feeChangePercentage,
-  }
-}
-
-export const get24hTvlChangePercentage = async (assetId: AssetId): Promise<number | null> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const now = Math.floor(Date.now() / 1000)
-  const twentyFourHoursAgo = now - 24 * 60 * 60
-  const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
-
-  const { data: current24hData } = await axios.get<MidgardTvlHistoryResponse>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/history/tvl?from=${twentyFourHoursAgo}&to=${now}`,
-  )
-
-  const currentPool24hDepth = current24hData.meta.poolsDepth.find(pool => pool.pool === poolAssetId)
-    ?.totalDepth
-
-  const { data: previous24hData } = await axios.get<MidgardTvlHistoryResponse>(
-    `${
-      getConfig().REACT_APP_MIDGARD_URL
-    }/history/tvl?from=${fortyEightHoursAgo}&to=${twentyFourHoursAgo}`,
-  )
-
-  const previousPool24hDepth = bnOrZero(
-    previous24hData.meta.poolsDepth.find(pool => pool.pool === poolAssetId)?.totalDepth,
-  )
-
-  const change =
-    currentPool24hDepth !== undefined && previousPool24hDepth !== undefined
-      ? bnOrZero(currentPool24hDepth).minus(previousPool24hDepth)
-      : bn(0)
-  return previousPool24hDepth.isZero() ? 0 : change.div(previousPool24hDepth).toNumber()
 }
 
 // Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
@@ -168,52 +60,21 @@ export const getCurrentValue = (
   }
 }
 
-export const getFees = (
-  runePrice: string,
-  assetPrice: string,
-  swapHistoryResponse: MidgardSwapHistoryResponse,
-): string => {
-  const currentToAssetFeesCryptoPrecision = fromThorBaseUnit(swapHistoryResponse.meta.toAssetFees)
-  const currentToRuneFeesCryptoPrecision = fromThorBaseUnit(swapHistoryResponse.meta.toRuneFees)
-  const currentToAssetFeesFiatUserCurrency = currentToAssetFeesCryptoPrecision.times(assetPrice)
-  const currentToRuneFeesFiatUserCurrency = currentToRuneFeesCryptoPrecision.times(runePrice)
-  const currentFeesFiatUserCurrency = currentToAssetFeesFiatUserCurrency.plus(
-    currentToRuneFeesFiatUserCurrency,
-  )
-
-  return currentFeesFiatUserCurrency.toFixed()
-}
-
-export const getAllTimeVolume = async (assetId: AssetId, runePrice: string): Promise<string> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-
-  const { data } = await axios.get<MidgardPoolStats>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/pool/${poolAssetId}/stats?period=all`,
-  )
-
-  const swapVolume = fromThorBaseUnit(data?.swapVolume ?? '0')
-  const totalVolume = swapVolume
-
-  const totalVolumeFiatUserCurrency = totalVolume.times(runePrice)
-
-  return totalVolumeFiatUserCurrency.toFixed()
-}
-
 // https://dev.thorchain.org/concepts/math.html#lp-units-add
 export const getLiquidityUnits = ({
   pool,
   assetAmountCryptoThorPrecision,
   runeAmountCryptoThorPrecision,
 }: {
-  pool: MidgardPoolResponse
+  pool: ThornodePoolResponse
   assetAmountCryptoThorPrecision: string
   runeAmountCryptoThorPrecision: string
 }): BN => {
-  const P = pool.liquidityUnits
+  const P = pool.LP_units
   const a = assetAmountCryptoThorPrecision
   const r = runeAmountCryptoThorPrecision
-  const R = pool.runeDepth
-  const A = pool.assetDepth
+  const R = pool.balance_rune
+  const A = pool.balance_asset
   const part1 = bnOrZero(R).times(a)
   const part2 = bnOrZero(r).times(A)
 
@@ -223,18 +84,18 @@ export const getLiquidityUnits = ({
   return result
 }
 
-export const getPoolShare = (liquidityUnits: BN, pool: MidgardPoolResponse): PoolShareDetail => {
+export const getPoolShare = (liquidityUnits: BN, pool: ThornodePoolResponse): PoolShareDetail => {
   // formula: (rune * part) / total; (asset * part) / total
   const units = liquidityUnits
-  const total = pool.liquidityUnits
-  const R = pool.runeDepth
-  const T = pool.assetDepth
+  const total = pool.LP_units
+  const R = pool.balance_rune
+  const T = pool.balance_asset
   const asset = bnOrZero(T).times(units).div(total)
   const rune = bnOrZero(R).times(units).div(total)
   return {
     assetShare: asset,
     runeShare: rune,
-    poolShareDecimalPercent: liquidityUnits.div(liquidityUnits.plus(pool.liquidityUnits)).toFixed(),
+    poolShareDecimalPercent: liquidityUnits.div(liquidityUnits.plus(pool.LP_units)).toFixed(),
   }
 }
 
@@ -246,13 +107,13 @@ export const getSlipOnLiquidity = ({
 }: {
   runeAmountCryptoThorPrecision: string
   assetAmountCryptoThorPrecision: string
-  pool: MidgardPoolResponse
+  pool: ThornodePoolResponse
 }): BN => {
   // formula: (t * R - T * r)/ (T*r + R*T)
   const r = runeAmountCryptoThorPrecision
   const t = assetAmountCryptoThorPrecision
-  const R = pool.runeDepth
-  const T = pool.assetDepth
+  const R = pool.balance_rune
+  const T = pool.balance_asset
   const numerator = bnOrZero(t).times(R).minus(bnOrZero(T).times(r))
   const denominator = bnOrZero(T).times(r).plus(bnOrZero(R).times(T))
   const result = numerator.div(denominator).abs()
@@ -271,9 +132,14 @@ export const estimateAddThorchainLiquidityPosition = async ({
   assetAmountCryptoThorPrecision: string
 }) => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
+
+  const poolResult = await thorService.get<ThornodePoolResponse>(
+    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+  )
+
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
+
   const liquidityUnitsCryptoThorPrecision = getLiquidityUnits({
     pool,
     assetAmountCryptoThorPrecision,
@@ -321,16 +187,21 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   assetAmountCryptoThorPrecision: string
 }) => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
-  const poolResult = await thorService.get<MidgardPoolResponse>(`${midgardUrl}/pool/${poolAssetId}`)
+
+  const poolResult = await thorService.get<ThornodePoolResponse>(
+    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+  )
+
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
+
   const liquidityUnitsCryptoThorPrecision = getLiquidityUnits({
     pool,
     assetAmountCryptoThorPrecision,
     runeAmountCryptoThorPrecision,
   })
 
-  const poolShare = getPoolShare(bnOrZero(liquidityUnitsCryptoThorPrecision), pool)
+  const poolShare = getPoolShare(liquidityUnitsCryptoThorPrecision, pool)
 
   const slip = getSlipOnLiquidity({
     runeAmountCryptoThorPrecision,
@@ -359,34 +230,6 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
       },
     },
   }
-}
-
-// Calculates all-time volume from the stats endpoint
-export const calculateTotalVolumeFiatUserCurrency = (
-  toAssetVolume: string,
-  toRuneVolume: string,
-  btcPrice: number,
-  runePrice: number,
-): string => {
-  const toAssetVolumeCryptoPrecision = fromThorBaseUnit(toAssetVolume)
-  const toRuneVolumeCryptoPrecision = fromThorBaseUnit(toRuneVolume)
-
-  const toAassetTotalVolumeFiatUserCurrency = toAssetVolumeCryptoPrecision.times(btcPrice)
-  const toRuneTotalVolumeRuneFiatUserCurrency = toRuneVolumeCryptoPrecision.times(runePrice)
-
-  const totalVolumeFiatUserCurrency = toAassetTotalVolumeFiatUserCurrency.plus(
-    toRuneTotalVolumeRuneFiatUserCurrency,
-  )
-
-  return totalVolumeFiatUserCurrency.toFixed()
-}
-
-export const getEarnings = async ({ from }: { from: string }) => {
-  const { data } = await axios.get<ThorchainEarningsHistoryResponse>(
-    `${getConfig().REACT_APP_MIDGARD_URL}/history/earnings?from=${from}`,
-  )
-
-  return data
 }
 
 export const calculateEarnings = (

@@ -1,5 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { Text } from 'components/Text'
 
 import { TradeQuotes } from '../TradeInput/components/TradeQuotes/TradeQuotes'
@@ -10,7 +11,18 @@ type QuoteListProps = {
   isLoading: boolean
 } & CardProps
 
-export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, ...cardProps }) => {
+export const QuoteList: React.FC<QuoteListProps> = props => {
+  const { onBack, isLoading, cardProps } = useMemo(() => {
+    const { onBack, isLoading, ...cardProps } = props
+
+    return {
+      onBack,
+      isLoading,
+      cardProps,
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Object.values(props)])
+
   return (
     <Card {...cardProps}>
       <CardHeader px={6} pt={4}>

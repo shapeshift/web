@@ -90,7 +90,7 @@ import { breakpoints } from 'theme/theme'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { QuoteList } from '../QuoteList/QuoteList'
-import { HorizontalCollapse } from './components/HorizontalCollapse'
+import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
@@ -112,7 +112,7 @@ type TradeInputProps = {
   isCompact?: boolean
 }
 
-// dummy component to allow use to lazily mount this beast of a hook
+// dummy component to allow us to lazily mount this beast of a hook
 const GetTradeQuotes = () => {
   useGetTradeQuotes()
   return <></>
@@ -709,19 +709,15 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               </Stack>
             </Card>
 
-            <HorizontalCollapse
+            <WithLazyMount
+              shouldUse={!isCompact && !isSmallerThanXl}
+              component={CollapsibleQuoteList}
               isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+              isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={tradeInputHeight ?? 'full'}
-            >
-              <WithLazyMount
-                shouldUse={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
-                component={QuoteList}
-                ml={4}
-                isLoading={isLoading}
-                height={tradeInputHeight ?? 'full'}
-              />
-            </HorizontalCollapse>
+              ml={4}
+            />
           </Center>
         </Flex>
       </MessageOverlay>

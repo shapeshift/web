@@ -114,6 +114,8 @@ export const Pool = () => {
   const addIcon = useMemo(() => <FaPlus />, [])
   const swapIcon = useMemo(() => <SwapIcon />, [])
 
+  if (!pool) return null
+
   return (
     <Main headerComponent={headerComponent}>
       <Flex gap={4} flexDir={flexDirPool}>
@@ -153,16 +155,16 @@ export const Pool = () => {
             <Card width='full' maxWidth={maxWidth}>
               <CardFooter gap={6} display='flex' flexDir='column' px={8} py={8}>
                 <PoolInfo
-                  volume24h={pool?.volume24hFiat}
-                  volume24hChange={pool?.volume24hChange}
-                  fee24hChange={pool?.fees24hChange}
-                  fees24h={pool?.fees24hFiat}
-                  allTimeVolume={pool?.volumeTotalFiat}
-                  apy={pool?.annualPercentageRate}
-                  tvl={pool?.tvl24hFiat}
-                  runeTvlCryptoPrecision={fromThorBaseUnit(pool?.runeDepth).toFixed()}
-                  assetTvlCryptoPrecision={fromThorBaseUnit(pool?.assetDepth).toFixed()}
-                  tvl24hChange={pool?.tvl24hChange}
+                  volume24h={pool.volume24hFiat}
+                  volume24hChange={pool.volume24hChange}
+                  fee24hChange={pool.fees24hChange}
+                  fees24h={pool.fees24hFiat}
+                  allTimeVolume={pool.volumeTotalFiat}
+                  apy={pool.annualPercentageRate}
+                  tvl={pool.tvl24hFiat}
+                  runeTvlCryptoPrecision={fromThorBaseUnit(pool.runeDepth).toFixed()}
+                  assetTvlCryptoPrecision={fromThorBaseUnit(pool.assetDepth).toFixed()}
+                  tvl24hChange={pool.tvl24hChange}
                   assetIds={poolAssetIds}
                   direction='column'
                   display='full'

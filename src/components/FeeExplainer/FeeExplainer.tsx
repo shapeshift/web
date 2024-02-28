@@ -349,6 +349,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[props.feeModel]
   const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  // TODO(gomes): drill down props
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
 
   const [tradeSize, setTradeSize] = useState(

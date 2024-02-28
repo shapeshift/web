@@ -11,6 +11,7 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { FeeModal } from 'components/FeeModal/FeeModal'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -19,13 +20,13 @@ import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
+import { selectInputSellAmountUsd } from 'state/slices/selectors'
 import {
   selectActiveQuoteAffiliateBps,
   selectQuoteAffiliateFeeUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FeeModal } from '../../FeeModal/FeeModal'
 import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from './MaxSlippage'
 import { SwapperIcon } from './SwapperIcon/SwapperIcon'
@@ -70,6 +71,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
+    const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
     // use the fee data from the actual quote in case it varies from the theoretical calculation
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
     const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
@@ -110,7 +112,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
       [intermediaryTransactionOutputsParsed],
     )
 
-    const handleFeeModal = useCallback(() => {
+    const toggleFeeModal = useCallback(() => {
       setShowFeeModal(!showFeeModal)
     }, [showFeeModal])
 
@@ -170,7 +172,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
               )}
             </Row.Label>
-            <Row.Value onClick={handleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+            <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
               <Flex alignItems='center' gap={2}>
                 {amountAfterDiscountUserCurrency !== '0' ? (
                   <>
@@ -187,7 +189,13 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             </Row.Value>
           </Row>
         </Stack>
-        <FeeModal isOpen={showFeeModal} onClose={handleFeeModal} />
+        <FeeModal
+          isOpen={showFeeModal}
+          onClose={toggleFeeModal}
+          affiliateFeeAmountUserCurrency={amountAfterDiscountUserCurrency}
+          inputAmountUsd={inputAmountUsd}
+          feeModel='SWAPPER'
+        />
       </>
     )
   },

@@ -1,4 +1,4 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, QuestionIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -15,6 +15,7 @@ import {
   Skeleton,
   Stack,
   StackDivider,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
@@ -34,10 +35,13 @@ import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
+import { FeeModal } from 'components/FeeModal/FeeModal'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText, Text } from 'components/Text'
+import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -101,6 +105,11 @@ const dividerStyle = {
 }
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORCHAIN_LP' }
+const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
+const shapeshiftFeeTranslation: TextPropTypes['translation'] = [
+  'trade.tradeFeeSource',
+  { tradeFeeSource: 'ShapeShift' },
+]
 
 export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
@@ -121,6 +130,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
@@ -136,6 +146,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [isSnapshotApiQueriesPending, votingPower],
   )
 
+  const [showFeeModal, toggleShowFeeModal] = useState(false)
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
@@ -341,6 +352,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
   }, [browserHistory])
+
+  const toggleFeeModal = useCallback(() => {
+    toggleShowFeeModal(!showFeeModal)
+  }, [showFeeModal])
 
   const actualAssetCryptoLiquidityAmount = useMemo(() => {
     // Symmetrical & Asym Asset: assetAmount = virtual amount (no rebalance, so use values as is)
@@ -689,6 +704,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bn(poolAssetMarketData.price).div(bn(runeMarketData.price)).toFixed()
   }, [poolAssetMarketData, runeMarketData])
 
+  const totalAmountFiat = useMemo(
+    () =>
+      bnOrZero(actualAssetFiatLiquidityAmount)
+        .times(isAsym ? 1 : 2)
+        .toFixed(),
+    [actualAssetFiatLiquidityAmount, isAsym],
+  )
+
   const createHandleAddLiquidityInputChange = useCallback(
     (marketData: MarketData, isRune: boolean) => {
       return (value: string, isFiat?: boolean) => {
@@ -808,10 +831,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
       return
 
-    const totalAmountFiat = bnOrZero(actualAssetFiatLiquidityAmount)
-      .times(isAsym ? 1 : 2)
-      .toFixed()
-
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountFiat),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
@@ -858,6 +877,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     slippageRune,
     totalGasFeeFiat,
     votingPower,
+    totalAmountFiat,
   ])
 
   const percentOptions = useMemo(() => [1], [])
@@ -1233,10 +1253,45 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
             <Skeleton
-              isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
+              isLoaded={Boolean(
+                !isEstimatedPoolAssetFeesDataLoading &&
+                  !isEstimatedRuneFeesDataLoading &&
+                  confirmedQuote,
+              )}
             >
               <Amount.Fiat value={totalGasFeeFiat} />
             </Skeleton>
+          </Row.Value>
+        </Row>
+        <Row
+          fontSize='sm'
+          fontWeight='medium'
+          isLoading={Boolean(
+            isEstimatedPoolAssetFeesDataLoading ||
+              isEstimatedRuneFeesDataLoading ||
+              !confirmedQuote,
+          )}
+        >
+          <Row.Label display='flex'>
+            <Text translation={shapeshiftFeeTranslation} />
+            {bnOrZero(confirmedQuote?.feeAmountFiat).gt(0) && (
+              <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
+            )}
+          </Row.Label>
+          <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+            <Flex alignItems='center' gap={2}>
+              {bnOrZero(confirmedQuote?.feeAmountFiat).gt(0) ? (
+                <>
+                  <Amount.Fiat value={confirmedQuote?.feeAmountFiat ?? 0} />
+                  <QuestionIcon />
+                </>
+              ) : (
+                <>
+                  <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                  <QuestionIcon color={greenColor} />
+                </>
+              )}
+            </Flex>
           </Row.Value>
         </Row>
         <Row fontSize='sm' fontWeight='medium'>
@@ -1300,6 +1355,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {confirmCopy}
         </Button>
       </CardFooter>
+      <FeeModal
+        affiliateFeeAmountUserCurrency={confirmedQuote?.feeAmountFiat ?? '0'}
+        isOpen={showFeeModal}
+        onClose={toggleFeeModal}
+        inputAmountUsd={totalAmountFiat}
+        feeModel='THORCHAIN_LP'
+      />
     </SlideTransition>
   )
 }

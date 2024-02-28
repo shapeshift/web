@@ -3,16 +3,17 @@ import { type BoxProps, Circle, Flex } from '@chakra-ui/layout'
 import { useCallback, useMemo, useState } from 'react'
 import { RiMoneyDollarCircleFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
+import { FeeModal } from 'components/FeeModal/FeeModal'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectInputSellAmountUsd } from 'state/slices/selectors'
 import {
   selectActiveQuoteAffiliateBps,
   selectQuoteAffiliateFeeUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FeeModal } from '../../FeeModal/FeeModal'
 import { StepperStep } from './StepperStep'
 
 export type FeeStepProps = {
@@ -28,6 +29,7 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   const translate = useTranslate()
   const [showFeeModal, setShowFeeModal] = useState(false)
 
+  const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
   const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
@@ -77,7 +79,13 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
         titleProps={titleProps}
         descriptionProps={descriptionProps}
       />
-      <FeeModal isOpen={showFeeModal} onClose={handleCloseFeeModal} />
+      <FeeModal
+        isOpen={showFeeModal}
+        onClose={handleCloseFeeModal}
+        affiliateFeeAmountUserCurrency={amountAfterDiscountUserCurrency}
+        inputAmountUsd={inputAmountUsd}
+        feeModel='SWAPPER'
+      />
     </>
   )
 }

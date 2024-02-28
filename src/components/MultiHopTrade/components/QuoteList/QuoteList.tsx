@@ -21,7 +21,7 @@ export const QuoteList: React.FC<QuoteListProps> = props => {
       cardProps,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Object.values(props)])
+  }, Object.values(props))
 
   return (
     <Card {...cardProps}>

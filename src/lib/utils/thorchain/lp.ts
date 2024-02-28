@@ -12,6 +12,7 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { getSupportedEvmChainIds } from '../evm'
 import { fromThorBaseUnit } from '.'
 import type {
+  MidgardEarningsHistoryPoolItem,
   PoolShareDetail,
   ThorchainLiquidityProvidersResponseSuccess,
   UserLpDataPosition,
@@ -35,29 +36,6 @@ export const getAllThorchainLiquidityProviderPositions = async (
   if (!data || 'error' in data) return []
 
   return data
-}
-
-// Does pretty much what it says on the box. Uses the user and pool data to calculate the user's *current* value in both ROON and asset
-export const getCurrentValue = (
-  liquidityUnits: string,
-  poolUnits: string,
-  assetDepth: string,
-  runeDepth: string,
-): { rune: string; asset: string; poolShare: string } => {
-  const liquidityUnitsCryptoPrecision = fromThorBaseUnit(liquidityUnits)
-  const poolUnitsCryptoPrecision = fromThorBaseUnit(poolUnits)
-  const assetDepthCryptoPrecision = fromThorBaseUnit(assetDepth)
-  const runeDepthCryptoPrecision = fromThorBaseUnit(runeDepth)
-
-  const poolShare = liquidityUnitsCryptoPrecision.div(poolUnitsCryptoPrecision)
-  const redeemableRune = poolShare.times(runeDepthCryptoPrecision).toFixed()
-  const redeemableAsset = poolShare.times(assetDepthCryptoPrecision).toFixed()
-
-  return {
-    rune: redeemableRune,
-    asset: redeemableAsset,
-    poolShare: poolShare.toFixed(),
-  }
 }
 
 // https://dev.thorchain.org/concepts/math.html#lp-units-add
@@ -84,18 +62,20 @@ export const getLiquidityUnits = ({
   return result
 }
 
-export const getPoolShare = (liquidityUnits: BN, pool: ThornodePoolResponse): PoolShareDetail => {
-  // formula: (rune * part) / total; (asset * part) / total
-  const units = liquidityUnits
-  const total = pool.LP_units
+export const getPoolShare = (pool: ThornodePoolResponse, liquidityUnits: BN): PoolShareDetail => {
+  // pool share: L/P = S
+  // asset share: A*S
+  // rune share: R*S
+  const L = liquidityUnits
+  const P = pool.pool_units
   const R = pool.balance_rune
-  const T = pool.balance_asset
-  const asset = bnOrZero(T).times(units).div(total)
-  const rune = bnOrZero(R).times(units).div(total)
+  const A = pool.balance_asset
+  const S = L.div(P)
+
   return {
-    assetShare: asset,
-    runeShare: rune,
-    poolShareDecimalPercent: liquidityUnits.div(liquidityUnits.plus(pool.LP_units)).toFixed(),
+    runeShareThorBaseUnit: S.times(R),
+    assetShareThorBaseUnit: S.times(A),
+    poolShareDecimalPercent: S.toFixed(),
   }
 }
 
@@ -145,7 +125,7 @@ export const estimateAddThorchainLiquidityPosition = async ({
     assetAmountCryptoThorPrecision,
     runeAmountCryptoThorPrecision,
   })
-  const poolShare = getPoolShare(liquidityUnitsCryptoThorPrecision, pool)
+  const poolShare = getPoolShare(pool, liquidityUnitsCryptoThorPrecision)
 
   const assetInboundFee = bn(0) // TODO
   const runeInboundFee = bn(0) // TODO
@@ -160,8 +140,8 @@ export const estimateAddThorchainLiquidityPosition = async ({
   return {
     assetPool: pool.asset,
     slipPercent: slip.times(100).toFixed(),
-    poolShareAsset: poolShare.assetShare.toFixed(),
-    poolShareRune: poolShare.runeShare.toFixed(),
+    poolShareAsset: poolShare.assetShareThorBaseUnit.toFixed(),
+    poolShareRune: poolShare.runeShareThorBaseUnit.toFixed(),
     poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
     liquidityUnits: liquidityUnitsCryptoThorPrecision.toFixed(),
     inbound: {
@@ -201,7 +181,7 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
     runeAmountCryptoThorPrecision,
   })
 
-  const poolShare = getPoolShare(liquidityUnitsCryptoThorPrecision, pool)
+  const poolShare = getPoolShare(pool, liquidityUnitsCryptoThorPrecision)
 
   const slip = getSlipOnLiquidity({
     runeAmountCryptoThorPrecision,
@@ -216,12 +196,12 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   return {
     assetPool: pool.asset,
     slipPercent: slip.times(100).toFixed(),
-    poolShareAssetCryptoThorPrecision: poolShare.assetShare.toFixed(),
-    poolShareRuneCryptoThorPrecision: poolShare.runeShare.toFixed(),
+    poolShareAssetCryptoThorPrecision: poolShare.assetShareThorBaseUnit.toFixed(),
+    poolShareRuneCryptoThorPrecision: poolShare.runeShareThorBaseUnit.toFixed(),
     poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
     liquidityUnitsCryptoThorPrecision: userData.liquidityUnits,
-    assetAmountCryptoThorPrecision: poolShare.assetShare.toFixed(),
-    runeAmountCryptoThorPrecision: poolShare.runeShare.toFixed(),
+    assetAmountCryptoThorPrecision: poolShare.assetShareThorBaseUnit.toFixed(),
+    runeAmountCryptoThorPrecision: poolShare.runeShareThorBaseUnit.toFixed(),
     inbound: {
       fees: {
         asset: assetInboundFee.toFixed(),
@@ -233,34 +213,23 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
 }
 
 export const calculateEarnings = (
-  _assetLiquidityFees: string,
-  _runeLiquidityFees: string,
+  pool: MidgardEarningsHistoryPoolItem,
   userPoolShare: string,
   runePrice: string,
-  assetPrice: string,
 ) => {
-  const assetLiquidityFees = fromThorBaseUnit(_assetLiquidityFees)
-  const runeLiquidityFees = fromThorBaseUnit(_runeLiquidityFees)
+  const totalEarningsRune = fromThorBaseUnit(pool.earnings).times(userPoolShare)
+  const totalEarningsFiat = totalEarningsRune.times(runePrice).toFixed()
 
-  const userShare = bn(userPoolShare)
-  const assetEarnings = userShare.times(assetLiquidityFees).times(2).toFixed()
-  const runeEarnings = userShare.times(runeLiquidityFees).times(2).toFixed()
-
-  const totalEarningsFiatUserCurrency = bn(assetEarnings)
-    .times(assetPrice)
-    .plus(bn(runeEarnings).times(runePrice))
+  const assetEarningsCryptoPrecision = fromThorBaseUnit(pool.assetLiquidityFees)
+    .times(userPoolShare)
     .toFixed()
 
-  return { totalEarningsFiatUserCurrency, assetEarnings, runeEarnings }
-}
+  const runeBlockRewards = fromThorBaseUnit(pool.rewards).times(userPoolShare)
+  const runeFees = fromThorBaseUnit(pool.runeLiquidityFees).times(userPoolShare)
+  const runeEarningsCryptoPrecision = runeFees.plus(runeBlockRewards).toFixed()
 
-export const calculatePoolOwnershipPercentage = ({
-  userLiquidityUnits,
-  totalPoolUnits,
-}: {
-  userLiquidityUnits: string
-  totalPoolUnits: string
-}): string => bn(userLiquidityUnits).div(totalPoolUnits).times(100).toFixed()
+  return { totalEarningsFiat, assetEarningsCryptoPrecision, runeEarningsCryptoPrecision }
+}
 
 // A THOR LP deposit can either be:
 // - a RUNE MsgDeposit message type

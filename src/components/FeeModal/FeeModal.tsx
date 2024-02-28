@@ -52,6 +52,7 @@ export const FeeModal = ({
             </TabPanel>
             <TabPanel px={0} py={0}>
               <FeeExplainer
+                inputAmountUsd={inputAmountUsd}
                 borderRadius='none'
                 bg='transparent'
                 boxShadow='none'

@@ -66,7 +66,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       flexProps,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Object.values(props)])
+  }, Object.values(props))
 
   const assets = useAppSelector(selectAssets)
 

@@ -9,7 +9,6 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { AddressZero } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -30,7 +29,7 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, zeroAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -198,7 +197,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     ;(async () => {
       try {
         if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit && asset)) return
-        if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit) return
+        // This effects sets these three state fields, so if we already have them, this is a no-op
+        if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit && expiry) return
         setQuoteLoading(true)
 
         const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
@@ -226,13 +226,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
 
         const {
-          expiry,
+          expiry: _expiry,
           dust_amount,
           expected_amount_out,
           fees: { slippage_bps },
         } = maybeQuote.unwrap()
 
-        setExpiry(expiry)
+        setExpiry(_expiry)
 
         const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
         setIsDangerousWithdraw(_isDangerousWithdraw)
@@ -270,6 +270,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.cryptoAmount,
     protocolFeeCryptoBaseUnit,
     isDangerousWithdraw,
+    expiry,
   ])
 
   useEffect(() => {
@@ -415,7 +416,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           getAddress(quote.inbound_address),
           // This looks incorrect according to https://dev.thorchain.org/thorchain-dev/concepts/sending-transactions#evm-chains
           // But this is how THORSwap does it, and it actually works - using the actual asset address as "asset" will result in reverts
-          AddressZero,
+          zeroAddress,
           BigInt(amount),
           quote.memo,
           BigInt(quote.expiry),
@@ -600,7 +601,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
 
   const handleConfirm = useCallback(async () => {
-    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return
+    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData || !expiry)
+      return
     try {
       if (
         !(
@@ -815,6 +817,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       headerText='modals.confirm.withdraw.header'
       isDisabled={
+        !expiry ||
         !hasEnoughBalanceForGas ||
         !userAddress ||
         disableSmartContractWithdraw ||

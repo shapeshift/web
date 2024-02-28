@@ -1,6 +1,6 @@
-import type { ContractInterface } from 'ethers'
+import type { InterfaceAbi } from 'ethers'
 
-export const tokeManagerAbi: ContractInterface = [
+export const tokeManagerAbi: InterfaceAbi = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,

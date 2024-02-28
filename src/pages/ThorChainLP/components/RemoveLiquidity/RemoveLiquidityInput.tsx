@@ -60,7 +60,9 @@ const formControlProps = {
   background: 'transparent',
   borderWidth: 0,
   paddingBottom: 0,
-  paddingTop: 0,
+  paddingTop: 4,
+  paddingLeft: 4,
+  paddingRight: 4,
 }
 const dividerStyle = {
   borderBottomWidth: 0,
@@ -565,7 +567,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetGasFeeFiat: poolAssetGasFeeFiat.toFixed(2),
       totalGasFeeFiat,
       feeBps: '0',
-      accountIdsByChainId: {
+      currentAccountIdByChainId: {
         [poolChainId]: accountId,
         [thorchainChainId]: runeAccountId ?? '',
       },

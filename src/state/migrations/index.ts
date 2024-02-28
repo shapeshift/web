@@ -3,6 +3,7 @@ import { clearMarketData } from './clearMarketData'
 import { clearNfts } from './clearNfts'
 import { clearOpportunities } from './clearOpportunities'
 import { clearPortfolio } from './clearPortfolio'
+import { clearSnapshot } from './clearSnapshot'
 import { clearTxHistory } from './clearTxHistory'
 
 export const migrations = {
@@ -37,4 +38,6 @@ export const migrations = {
   28: clearAssets,
   29: clearAssets,
   30: clearTxHistory,
+  31: clearAssets,
+  32: clearSnapshot,
 }

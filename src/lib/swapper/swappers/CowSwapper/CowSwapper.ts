@@ -8,7 +8,7 @@ import type {
 import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { ethers } from 'ethers'
-import { isHexString } from 'ethers/lib/utils.js'
+import { isHex } from 'viem'
 
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
@@ -38,14 +38,14 @@ export const cowSwapper: Swapper = {
     // orderDigest should be an hex string here. All we need to do is pass it to signMessage/wallet.ethSignMessage and sign it
     const messageToSign = orderDigest
 
-    if (!isHexString(messageToSign)) throw new Error('messageToSign is not an hex string')
+    if (!isHex(messageToSign)) throw new Error('messageToSign is not an hex string')
 
     const signatureOrderDigest = await signMessage(messageToSign)
 
     // Passing the signature through split/join to normalize the `v` byte.
     // Some wallets do not pad it with `27`, which causes a signature failure
     // `splitSignature` pads it if needed, and `joinSignature` simply puts it back together
-    const signature = ethers.utils.joinSignature(ethers.utils.splitSignature(signatureOrderDigest))
+    const signature = ethers.Signature.from(ethers.Signature.from(signatureOrderDigest)).serialized
 
     const maybeNetwork = getCowswapNetwork(chainId)
     if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()

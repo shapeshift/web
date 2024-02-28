@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { WithdrawType } from '@shapeshiftoss/types'
-import type { ethers } from 'ethers'
+import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
@@ -34,7 +34,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   onNext,
   accountId,
 }) => {
-  const { poll } = usePoll<ethers.providers.TransactionReceipt>()
+  const { poll } = usePoll<TransactionReceipt | null>()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
@@ -103,16 +103,19 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
 
       const transactionReceipt = await poll({
         fn: () => foxyApi.getTxReceipt({ txid }),
-        validate: (result: ethers.providers.TransactionReceipt) => !isNil(result),
+        validate: (result: TransactionReceipt | null) => !isNil(result),
         interval: 15000,
         maxAttempts: 30,
       })
       dispatch({
         type: FoxyWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: transactionReceipt.status ? 'success' : 'failed',
-          usedGasFeeCryptoBaseUnit: transactionReceipt.effectiveGasPrice
-            .mul(transactionReceipt.gasUsed)
+          txStatus: transactionReceipt?.status ? 'success' : 'failed',
+          usedGasFeeCryptoBaseUnit: bnOrZero(
+            // Types are drunk here, TransactionReceipt *does* implement TransactionReceiptParams but things are not narrowed down properly for some reason
+            (transactionReceipt as TransactionReceiptParams | null)?.effectiveGasPrice?.toString(),
+          )
+            .times(bnOrZero(transactionReceipt?.gasUsed?.toString()))
             .toString(),
         },
       })

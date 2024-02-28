@@ -46,6 +46,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
@@ -63,6 +64,7 @@ import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { Opportunity } from 'pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
   selectAccountNumberByAccountId,
@@ -70,12 +72,13 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectMarketDataById,
+  selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
@@ -97,13 +100,15 @@ const dividerStyle = {
   marginTop: 12,
 }
 
+const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORCHAIN_LP' }
+
 export type AddLiquidityInputProps = {
   headerComponent?: JSX.Element
   opportunityId?: string
   poolAssetId?: string
   setConfirmedQuote: (quote: LpConfirmedDepositQuote) => void
   confirmedQuote: LpConfirmedDepositQuote | null
-  accountIdsByChainId: Record<ChainId, AccountId>
+  currentAccountIdByChainId: Record<ChainId, AccountId>
   onAccountIdChange: (accountId: AccountId, assetId: AssetId) => void
 }
 
@@ -113,16 +118,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   poolAssetId,
   confirmedQuote,
   setConfirmedQuote,
-  accountIdsByChainId,
+  currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
 
-  const votingPower = useAppSelector(selectVotingPower)
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isSnapInstalled = useIsSnapInstalled()
   const isVotingPowerLoading = useMemo(
@@ -170,6 +176,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
     useIsSmartContractAddress(poolAssetAccountAddress ?? '')
 
+  const accountIdsByAssetId = useAppSelector(selectPortfolioAccountIdsByAssetId)
+
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
       const walletSupportsRune = walletSupportsChain({
@@ -185,18 +193,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       })
 
       const runeSupport = Boolean(
-        walletSupportsRune && accountIdsByChainId[fromAssetId(thorchainAssetId).chainId]?.length,
+        walletSupportsRune && accountIdsByAssetId[thorchainAssetId]?.length,
       )
-      const assetSupport = Boolean(
-        walletSupportsAsset && accountIdsByChainId[fromAssetId(assetId).chainId]?.length,
-      )
+      const assetSupport = Boolean(walletSupportsAsset && accountIdsByAssetId[assetId]?.length)
 
       if (runeSupport && assetSupport) return 'sym'
       if (assetSupport) return AsymSide.Asset
       if (runeSupport) return AsymSide.Rune
       return 'sym'
     },
-    [wallet, isSnapInstalled, accountIdsByChainId],
+    [wallet, isSnapInstalled, accountIdsByAssetId],
   )
 
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
@@ -209,13 +215,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   //
   //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
   //     and not allowing them to select the sure-to-fail deposit types
-  useMemo(() => {
+  useEffect(() => {
     if (!pools?.length) return
-    if (opportunityId) return opportunityId
+    if (activeOpportunityId) return
 
-    const assetId = activeOpportunityId
-      ? fromOpportunityId(activeOpportunityId).assetId
-      : poolAssetIdToAssetId(poolAssetId ?? '')
+    const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
 
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
@@ -226,16 +230,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
     )
 
-    setActiveOpportunityId(
-      toOpportunityId({
-        assetId: assetId ?? walletSupportedOpportunity?.assetId ?? pools[0].assetId,
-        type: opportunityType,
-      }),
-    )
+    const defaultOpportunityId = toOpportunityId({
+      assetId: assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
+      type: opportunityType,
+    })
+
+    setActiveOpportunityId(opportunityId || defaultOpportunityId)
   }, [
     pools,
-    activeOpportunityId,
     opportunityId,
+    activeOpportunityId,
     getDefaultOpportunityType,
     poolAssetId,
     isSnapInstalled,
@@ -256,8 +260,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
   )
   const poolAssetAccountId = useMemo(() => {
-    return accountIdsByChainId[assetId ? fromAssetId(assetId).chainId : '']
-  }, [accountIdsByChainId, assetId])
+    return currentAccountIdByChainId[assetId ? fromAssetId(assetId).chainId : '']
+  }, [currentAccountIdByChainId, assetId])
   const poolAssetBalanceFilter = useMemo(() => {
     return { assetId, accountId: poolAssetAccountId }
   }, [assetId, poolAssetAccountId])
@@ -295,7 +299,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
-  const runeAccountId = useMemo(() => accountIdsByChainId[thorchainChainId], [accountIdsByChainId])
+  const runeAccountId = useMemo(
+    () => currentAccountIdByChainId[thorchainChainId],
+    [currentAccountIdByChainId],
+  )
   const runeBalanceFilter = useMemo(() => {
     return { assetId: runeAsset?.assetId, accountId: runeAccountId }
   }, [runeAsset, runeAccountId])
@@ -778,6 +785,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   useEffect(() => {
+    dispatch(
+      snapshotApi.endpoints.getVotingPower.initiate(
+        { model: 'THORCHAIN_LP' },
+        // Fetch only once on mount to avoid overfetching
+        { forceRefetch: false },
+      ),
+    )
+
     if (
       !(
         actualAssetCryptoLiquidityAmount &&
@@ -787,7 +802,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         shareOfPoolDecimalPercent &&
         slippageRune &&
         activeOpportunityId &&
-        poolAssetInboundAddress
+        poolAssetInboundAddress &&
+        votingPower
       )
     )
       return
@@ -799,6 +815,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountFiat),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+      feeModel: 'THORCHAIN_LP',
     })
 
     setConfirmedQuote({
@@ -809,7 +826,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId: activeOpportunityId,
-      accountIdsByChainId,
+      currentAccountIdByChainId,
       totalAmountFiat,
       feeBps: feeBps.toFixed(0),
       feeAmountFiat: feeUsd.toFixed(2),
@@ -820,12 +837,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalGasFeeFiat,
     })
   }, [
-    accountIdsByChainId,
+    currentAccountIdByChainId,
     activeOpportunityId,
     actualAssetCryptoLiquidityAmount,
     actualAssetFiatLiquidityAmount,
     actualRuneCryptoLiquidityAmount,
     actualRuneFiatLiquidityAmount,
+    dispatch,
     isAsym,
     poolAssetAccountAddress,
     poolAssetFeeAssetMarktData.price,
@@ -897,7 +915,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             ? virtualRuneFiatLiquidityAmount
             : virtualAssetFiatLiquidityAmount
 
-          const accountId = accountIdsByChainId[asset.chainId]
+          const accountId = currentAccountIdByChainId[asset.chainId]
 
           return (
             <TradeAssetInput
@@ -932,7 +950,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     virtualAssetCryptoLiquidityAmount,
     virtualRuneFiatLiquidityAmount,
     virtualAssetFiatLiquidityAmount,
-    accountIdsByChainId,
+    currentAccountIdByChainId,
     percentOptions,
     handleAccountIdChange,
     opportunityType,
@@ -1185,15 +1203,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           )}
           {tradeAssetInputs}
         </Stack>
-        <Collapse in={hasUserEnteredValue}>
-          <PoolSummary
-            assetId={poolAsset.assetId}
-            runePerAsset={runePerAsset}
-            shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
-            isLoading={isSlippageLoading}
-          />
-        </Collapse>
       </Stack>
+      <Collapse in={hasUserEnteredValue}>
+        <PoolSummary
+          assetId={poolAsset.assetId}
+          runePerAsset={runePerAsset}
+          shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+          isLoading={isSlippageLoading}
+        />
+      </Collapse>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
@@ -1250,6 +1268,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           isDisabled={
             isTradingActive === false ||
             !confirmedQuote ||
+            !votingPower ||
             isVotingPowerLoading ||
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance ||

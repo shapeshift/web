@@ -3,7 +3,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { getConfig } from 'config'
-import type { providers } from 'ethers'
+import type { Eip1193Provider } from 'ethers'
 import pDebounce from 'p-debounce'
 import pMemoize from 'p-memoize'
 import { useCallback, useEffect, useState } from 'react'
@@ -87,9 +87,10 @@ export const checkIsMetaMask = pMemoize(
     // We don't want to run this hook altogether if using any wallet other than MM
     if (!isMetaMaskMultichainWallet) return false
 
-    const provider = (await detectEthereumProvider()) as providers.ExternalProvider
+    const provider = (await detectEthereumProvider()) as Eip1193Provider
     // MetaMask impersonators don't support the methods we need to check for snap installation, and will throw
-    if (!provider.isMetaMask) return false
+    // `as any` because isMetaMask is gone from the providers in ethers v6
+    if (!(provider as any).isMetaMask) return false
 
     return true
   },
@@ -104,7 +105,7 @@ export const checkIsMetaMaskImpersonator = pMemoize(
     // We don't want to run this hook altogether if using any wallet other than MM
     if (!isMetaMaskMultichainWallet) return false
 
-    const provider = (await detectEthereumProvider()) as providers.ExternalProvider
+    const provider = (await detectEthereumProvider()) as Eip1193Provider
     // Some impersonators really like to make it difficult for us to detect *actual* MetaMask
     // Note, checking for the truthiness of the value isn't enough - some impersonators have the key present but undefined
     // This is weird, but welcome to the world of web3

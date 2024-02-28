@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { calculateFees } from './model'
-import {
+import { swapperParameters } from './parameters/swapper'
+
+const {
   FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD,
   FEE_CURVE_MIDPOINT_USD,
   FEE_CURVE_NO_FEE_THRESHOLD_USD,
-} from './parameters'
+} = swapperParameters
 
 describe('calculateFees', () => {
   it('should return 0 bps for < no fee threshold', () => {
@@ -15,6 +17,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(0)
   })
@@ -25,6 +28,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(29)
   })
@@ -35,6 +39,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(29)
   })
@@ -45,6 +50,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(10)
   })
@@ -55,6 +61,7 @@ describe('calculateFees', () => {
     const { feeBps } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(20)
   })
@@ -65,6 +72,7 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(10)
     expect(foxDiscountPercent).toEqual(bn(50))
@@ -76,6 +84,7 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(0)
     expect(foxDiscountPercent).toEqual(bn(100))
@@ -87,6 +96,7 @@ describe('calculateFees', () => {
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,
+      feeModel: 'SWAPPER',
     })
     expect(feeBps.toNumber()).toEqual(0)
     expect(foxDiscountPercent).toEqual(bn(100))

@@ -1,5 +1,4 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
-import { MaxUint256 } from '@ethersproject/constants'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
@@ -24,7 +23,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { EstimatedFeesQueryKey } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router-dom'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -489,7 +488,7 @@ export const Deposit: React.FC<DepositProps> = ({
           const data = encodeFunctionData({
             abi: contract.abi,
             functionName: 'approve',
-            args: [getAddress(saversRouterContractAddress), BigInt(MaxUint256.toString())],
+            args: [getAddress(saversRouterContractAddress), maxUint256],
           })
 
           const adapter = assertGetEvmChainAdapter(chainId)

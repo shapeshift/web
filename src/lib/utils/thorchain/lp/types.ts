@@ -196,7 +196,7 @@ export type LpConfirmedDepositQuote = {
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
-  accountIdsByChainId: Record<ChainId, AccountId>
+  currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
   feeAmountFiat: string
   assetAddress?: string
@@ -216,7 +216,7 @@ export type LpConfirmedWithdrawalQuote = {
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
-  accountIdsByChainId: Record<ChainId, AccountId>
+  currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
   assetAddress?: string
   quoteInboundAddress: string

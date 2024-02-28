@@ -1,5 +1,5 @@
-import { AddressZero } from '@ethersproject/constants'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { zeroAddress } from 'viem'
 
 import type { CowChainId } from '../types'
 
@@ -8,7 +8,7 @@ export const MIN_COWSWAP_USD_TRADE_VALUES_BY_CHAIN_ID: Record<CowChainId, string
   [KnownChainIds.GnosisMainnet]: '0.01',
 }
 
-export const DEFAULT_ADDRESS = AddressZero
+export const DEFAULT_ADDRESS = zeroAddress
 
 export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
 export const COW_SWAP_SETTLEMENT_ADDRESS = '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'

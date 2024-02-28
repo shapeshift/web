@@ -1,14 +1,14 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag, Tooltip } from '@chakra-ui/react'
+import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { CircleIcon } from 'components/Icons/Circle'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { selectMarketDataById } from 'state/slices/selectors'
@@ -22,7 +22,7 @@ import { usePools } from './queries/hooks/usePools'
 
 export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  lg: '200px repeat(2, 1fr)',
+  lg: '1fr repeat(2, 1fr)',
   xl: '1fr repeat(3, minmax(200px, max-content))',
 }
 const mobileDisplay = {
@@ -52,7 +52,6 @@ type PoolButtonProps = {
 
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
-  const translate = useTranslate()
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
   const { data: swapsData } = useQuery({
@@ -77,6 +76,31 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
 
   const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
 
+  const statusContent = useMemo(() => {
+    switch (true) {
+      case isTradingActive === true && pool.status === 'available':
+        return {
+          color: 'green.500',
+          element: <Amount.Percent value={pool.annualPercentageRate} suffix='APY' />,
+        }
+      case isTradingActive === true && pool.status === 'staged':
+        return {
+          color: 'yellow.500',
+          element: <Text translation='common.staged' />,
+        }
+      case isTradingActive === false:
+        return {
+          color: 'red.500',
+          element: <Text translation='common.halted' />,
+        }
+      default:
+        return {
+          color: 'text.subtle',
+          element: <Amount.Percent value={pool.annualPercentageRate} />,
+        }
+    }
+  }, [isTradingActive, pool.annualPercentageRate, pool.status])
+
   return (
     <Button
       variant='ghost'
@@ -96,27 +120,11 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
           <PoolIcon assetIds={poolAssetIds} size='sm' />
         </Box>
         <RawText>{pool.name}</RawText>
-        <Tag size='sm'>
-          <Amount.Percent value={pool.annualPercentageRate} />
-        </Tag>
         <Skeleton isLoaded={!isTradingActiveLoading}>
-          {isTradingActive === true && pool.status === 'available' && (
-            <Tag colorScheme='green'>
-              <Text translation='common.available' />
-            </Tag>
-          )}
-          {isTradingActive === true && pool.status === 'staged' && (
-            <Tooltip label={translate('pools.stagedTooltip')} hasArrow>
-              <Tag colorScheme='yellow'>
-                <Text translation='common.staged' />
-              </Tag>
-            </Tooltip>
-          )}
-          {isTradingActive === false && (
-            <Tag colorScheme='red'>
-              <Text translation='common.halted' />
-            </Tag>
-          )}
+          <Tag size='sm'>
+            <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
+            {statusContent.element}
+          </Tag>
         </Skeleton>
       </Flex>
       <Amount.Fiat value={pool.tvlFiat} />

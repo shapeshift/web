@@ -3,7 +3,7 @@ import type { ButtonProps, FlexProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -34,16 +34,40 @@ type TradeAssetSelectEditableProps = {
 
 type TradeAssetSelectProps = TradeAssetSelectReadonlyProps | TradeAssetSelectEditableProps
 
-export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
-  onAssetClick,
-  onAssetChange,
-  assetId,
-  assetIds,
-  isReadOnly,
-  isLoading,
-  buttonProps,
-  ...rest
-}) => {
+export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
+  const {
+    onAssetClick,
+    onAssetChange,
+    assetId,
+    assetIds,
+    isReadOnly,
+    isLoading,
+    buttonProps,
+    flexProps,
+  } = useMemo(() => {
+    const {
+      onAssetClick,
+      onAssetChange,
+      assetId,
+      assetIds,
+      isReadOnly,
+      isLoading,
+      buttonProps,
+      ...flexProps
+    } = props
+    return {
+      onAssetClick,
+      onAssetChange,
+      assetId,
+      assetIds,
+      isReadOnly,
+      isLoading,
+      buttonProps,
+      flexProps,
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Object.values(props)])
+
   const assets = useAppSelector(selectAssets)
 
   const handleAssetChange = useCallback(
@@ -75,7 +99,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
   }, [rightIcon, buttonProps])
 
   return (
-    <Flex px={4} mb={4} alignItems='center' gap={2} {...rest}>
+    <Flex px={4} mb={4} alignItems='center' gap={2} {...flexProps}>
       <AssetMenuButton
         assetId={assetId}
         onAssetClick={onAssetClick}
@@ -93,4 +117,4 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = ({
       />
     </Flex>
   )
-}
+})

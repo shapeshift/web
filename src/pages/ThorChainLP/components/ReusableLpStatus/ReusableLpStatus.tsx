@@ -14,12 +14,12 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { PropsWithChildren } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
 import type {
   LpConfirmedDepositQuote,
@@ -113,7 +113,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       )
     }
 
-    const supplyAssets = assets.map(_asset => {
+    const supplyAssets = assets.map((_asset, i) => {
       const amountCryptoPrecision =
         _asset.assetId === thorchainAssetId
           ? isLpConfirmedDepositQuote(confirmedQuote)
@@ -123,12 +123,20 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           ? confirmedQuote.assetCryptoDepositAmount
           : confirmedQuote.assetCryptoWithdrawAmount
       return (
-        <Amount.Crypto
-          key={`amount-${_asset.assetId}`}
-          value={amountCryptoPrecision}
-          symbol={_asset.symbol}
-          maximumFractionDigits={4}
-        />
+        <Fragment key={`amount-${_asset.assetId}`}>
+          <Amount.Crypto
+            value={amountCryptoPrecision}
+            symbol={_asset.symbol}
+            maximumFractionDigits={4}
+          />
+          {i < assets.length - 1 && (
+            <>
+              <RawText>&nbsp;</RawText>
+              <Text translation='common.and' />
+              <RawText>&nbsp;</RawText>
+            </>
+          )}
+        </Fragment>
       )
     })
 

@@ -32,19 +32,18 @@ import {
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 
-type UseWalletSupportsChainArgs = {
+type WalletSupportsChainArgs = {
   isSnapInstalled: boolean | null
   chainId: ChainId
   wallet: HDWallet | null
 }
-type UseWalletSupportsChain = (args: UseWalletSupportsChainArgs) => boolean | null
 
 // use outside react
-export const walletSupportsChain: UseWalletSupportsChain = ({
+export const walletSupportsChain = ({
   chainId,
   wallet,
   isSnapInstalled,
-}) => {
+}: WalletSupportsChainArgs): boolean | null => {
   if (!wallet) return false
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   // Naming is slightly weird there, but the intent is if this evaluates to false, it acts as a short circuit
@@ -82,7 +81,10 @@ export const walletSupportsChain: UseWalletSupportsChain = ({
   }
 }
 
-export const useWalletSupportsChain: UseWalletSupportsChain = args => {
+export const useWalletSupportsChain = (
+  chainId: ChainId,
+  wallet: HDWallet | null,
+): boolean | null => {
   // We might be in a state where the wallet adapter is MetaMaskShapeShiftMultiChainHDWallet, but the actual underlying wallet
   // doesn't have multichain capabilities since snaps isn't installed
   // This should obviously belong at hdwallet-core, and feature detection should be made async, with hdwallet-shapeshift-multichain able to do feature detection
@@ -90,5 +92,5 @@ export const useWalletSupportsChain: UseWalletSupportsChain = args => {
   // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
   const isSnapInstalled = useIsSnapInstalled()
 
-  return walletSupportsChain({ ...args, isSnapInstalled })
+  return walletSupportsChain({ isSnapInstalled, chainId, wallet })
 }

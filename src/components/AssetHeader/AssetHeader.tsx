@@ -9,7 +9,6 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { SEO } from 'components/Layout/Seo'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -57,8 +56,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
     state: { wallet },
   } = useWallet()
 
-  const isSnapInstalled = useIsSnapInstalled()
-  const walletSupportsChain = useWalletSupportsChain({ chainId, wallet, isSnapInstalled })
+  const walletSupportsChain = useWalletSupportsChain(chainId, wallet)
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance =

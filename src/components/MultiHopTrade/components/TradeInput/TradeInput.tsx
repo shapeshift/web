@@ -43,6 +43,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { positiveOrZero } from 'lib/bignumber/bignumber'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
@@ -63,7 +64,6 @@ import {
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
-  selectWalletSupportedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -159,7 +159,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
   const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
@@ -455,6 +454,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }
   }, [isCompact, isCompactQuoteListOpen, isSmallerThanXl])
 
+  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <>
@@ -502,8 +503,11 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
-          <RecipientAddress />
-          <ManualAddressEntry />
+          <WithLazyRender shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
+          <WithLazyRender
+            shouldUse={hasUserEnteredAmount && !walletSupportsBuyAssetChain}
+            component={ManualAddressEntry}
+          />
           {maybeUnsafeTradeWarning}
           {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
             <Button
@@ -546,6 +550,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       totalProtocolFees,
       slippageDecimal,
       priceImpactPercentage,
+      receiveAddress,
+      walletSupportsBuyAssetChain,
       maybeUnsafeTradeWarning,
       isUnsafeQuote,
       isUnsafeQuoteNoticeDismissed,
@@ -584,9 +590,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   // disable switching assets if the buy asset isn't supported
   const shouldDisableSwitchAssets = useMemo(() => {
-    const walletSupportsBuyAssetChain = walletSupportedChainIds.includes(buyAsset.chainId)
     return !walletSupportsBuyAssetChain
-  }, [buyAsset.chainId, walletSupportedChainIds])
+  }, [walletSupportsBuyAssetChain])
 
   return (
     <TradeSlideTransition>
@@ -708,7 +713,13 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={tradeInputHeight ?? 'full'}
             >
-              <QuoteList ml={4} isLoading={isLoading} height={tradeInputHeight ?? 'full'} />
+              <WithLazyRender
+                shouldUse={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+                component={QuoteList}
+                ml={4}
+                isLoading={isLoading}
+                height={tradeInputHeight ?? 'full'}
+              />
             </HorizontalCollapse>
           </Center>
         </Flex>

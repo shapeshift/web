@@ -6,7 +6,6 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -151,12 +150,7 @@ export const useGetTradeQuotes = () => {
     [isSnapshotApiQueriesPending, votingPower],
   )
 
-  const isSnapInstalled = useIsSnapInstalled()
-  const walletSupportsBuyAssetChain = useWalletSupportsChain({
-    chainId: buyAsset.chainId,
-    wallet,
-    isSnapInstalled,
-  })
+  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
   const shouldRefetchTradeQuotes = useMemo(

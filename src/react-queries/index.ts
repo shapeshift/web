@@ -15,7 +15,7 @@ import type {
 } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { assertGetChainAdapter, assertUnreachable } from 'lib/utils'
+import { assertGetChainAdapter } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -140,31 +140,13 @@ const mutations = createMutationKeys('mutations', {
 })
 
 type Period = 'all'
-type Timeframe = '24h' | 'previous24h' | '7d'
 type Interval = '5min' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
-
-const getRangeFromTimeframe = (timeframe: Timeframe) => {
-  const now = Math.floor(Date.now() / 1000)
-  const twentyFourHoursAgo = now - 24 * 60 * 60
-  const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
-  const sevenDaysAgo = now - 7 * 24 * 60 * 60
-
-  switch (timeframe) {
-    case '24h':
-      return { from: twentyFourHoursAgo, to: now }
-    case 'previous24h':
-      return { from: fortyEightHoursAgo, to: twentyFourHoursAgo }
-    case '7d':
-      return { from: sevenDaysAgo, to: now }
-    default:
-      assertUnreachable(timeframe)
-  }
-}
 
 // Feature-agnostic, abstracts away midgard endpoints
 const midgard = createQueryKeys('midgard', {
-  swapsDataByInterval: (poolAssetId: string, interval: Interval, count: number) => ({
+  swapsData: (poolAssetId: string, interval: Interval, count: number) => ({
     queryKey: ['midgardSwapsData', poolAssetId, interval, count],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardSwapHistoryResponse>(
         `${midgardUrl}/history/swaps?pool=${poolAssetId}&interval=${interval}&count=${count}`,
@@ -172,18 +154,9 @@ const midgard = createQueryKeys('midgard', {
       return data
     },
   }),
-  swapsDataByTimeframe: (poolAssetId: string, timeframe: Timeframe) => ({
-    queryKey: ['midgardSwapsData', poolAssetId, timeframe],
-    queryFn: async () => {
-      const { from, to } = getRangeFromTimeframe(timeframe)
-      const { data } = await axios.get<MidgardSwapHistoryResponse>(
-        `${midgardUrl}/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
-      )
-      return data
-    },
-  }),
-  tvlByInterval: (interval: Interval, count: number) => ({
+  tvl: (interval: Interval, count: number) => ({
     queryKey: ['tvl', interval, count],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardTvlHistoryResponse>(
         `${midgardUrl}/history/tvl?interval=${interval}&count=${count}`,
@@ -191,18 +164,9 @@ const midgard = createQueryKeys('midgard', {
       return data
     },
   }),
-  tvlByTimeframe: (timeframe: Timeframe) => ({
-    queryKey: ['tvl', timeframe],
-    queryFn: async () => {
-      const { from, to } = getRangeFromTimeframe(timeframe)
-      const { data } = await axios.get<MidgardTvlHistoryResponse>(
-        `${midgardUrl}/history/tvl?from=${from}&to=${to}`,
-      )
-      return data
-    },
-  }),
   poolData: (poolAssetId: string) => ({
     queryKey: ['midgardPoolData', poolAssetId],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardPoolResponse>(
         `${midgardUrl}/pool/${poolAssetId}?period=30d`,
@@ -212,6 +176,7 @@ const midgard = createQueryKeys('midgard', {
   }),
   poolStats: (poolAssetId: string, period: Period) => ({
     queryKey: ['midgardPoolStats', poolAssetId, period],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardPoolStats>(
         `${midgardUrl}/pool/${poolAssetId}/stats?period=${period}`,
@@ -221,6 +186,7 @@ const midgard = createQueryKeys('midgard', {
   }),
   poolsData: () => ({
     queryKey: ['midgardPoolsData'],
+    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardPoolResponse[]>(`${midgardUrl}/pools?period=30d`)
       return data

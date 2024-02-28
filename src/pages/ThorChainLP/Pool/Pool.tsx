@@ -158,7 +158,7 @@ export const Pool = () => {
                   fee24hChange={pool?.fees24hChange}
                   fees24h={pool?.fees24hFiat}
                   allTimeVolume={pool?.volumeTotalFiat}
-                  apy={pool?.annualPercentageRate ?? '0'}
+                  apy={pool?.annualPercentageRate}
                   tvl={pool?.tvl24hFiat}
                   runeTvlCryptoPrecision={fromThorBaseUnit(pool?.runeDepth).toFixed()}
                   assetTvlCryptoPrecision={fromThorBaseUnit(pool?.assetDepth).toFixed()}

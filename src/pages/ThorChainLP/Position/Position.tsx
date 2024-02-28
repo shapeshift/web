@@ -323,14 +323,14 @@ export const Position = () => {
               borderColor='border.base'
             >
               <PoolInfo
-                volume24h={pool?.volume24hFiat}
-                volume24hChange={pool?.volume24hChange}
-                fee24hChange={pool?.fees24hChange}
-                fees24h={pool?.fees24hFiat}
-                allTimeVolume={pool?.volumeTotalFiat}
+                volume24h={pool.volume24hFiat}
+                volume24hChange={pool.volume24hChange}
+                fee24hChange={pool.fees24hChange}
+                fees24h={pool.fees24hFiat}
+                allTimeVolume={pool.volumeTotalFiat}
                 apy={pool.annualPercentageRate}
-                tvl={pool?.tvl24hFiat}
-                tvl24hChange={pool?.tvl24hChange}
+                tvl={pool.tvl24hFiat}
+                tvl24hChange={pool.tvl24hChange}
                 assetIds={poolAssetIds}
               />
             </CardFooter>

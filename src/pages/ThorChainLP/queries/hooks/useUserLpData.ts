@@ -38,10 +38,16 @@ export const getUserLpDataPosition = ({
   const rune = assets[thorchainAssetId]
   if (!rune) return
 
-  const [asym, name] = (() => {
-    if (position.runeAddress === '') return [{ side: AsymSide.Asset, asset }, asset.symbol]
-    if (position.assetAddress === '') return [{ side: AsymSide.Rune, asset: rune }, rune.symbol]
-    return [undefined, `${asset.symbol}/${rune.symbol}`]
+  const { asym, name } = (() => {
+    if (position.runeAddress === '') {
+      return { asym: { side: AsymSide.Asset, asset }, name: asset.symbol }
+    }
+
+    if (position.assetAddress === '') {
+      return { asym: { side: AsymSide.Rune, asset: rune }, name: rune.symbol }
+    }
+
+    return { asym: undefined, name: `${asset.symbol}/${rune.symbol}` }
   })()
 
   const { assetShareThorBaseUnit, runeShareThorBaseUnit, poolShareDecimalPercent } = getPoolShare(

@@ -78,6 +78,7 @@ const PositionButton = ({ poolAssetId, position }: PositionButtonProps) => {
     select: data => {
       const poolEarnings = data.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!poolEarnings) return null
+
       return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)
     },
   })

@@ -15,30 +15,21 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory, useParams } from 'react-router'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Main } from 'components/Layout/Main'
+import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import {
-  calculateTVL,
-  get24hSwapChangePercentage,
-  getFees,
-  getVolume,
-} from 'lib/utils/thorchain/lp'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
 import { PoolInfo } from '../components/PoolInfo'
-import { usePools } from '../queries/hooks/usePools'
+import { usePool } from '../queries/hooks/usePool'
 import { PairRates } from './components/PairRates'
 import { PoolChart } from './components/PoolChart'
 
@@ -87,93 +78,33 @@ export const Pool = () => {
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: pools } = usePools()
+  const assetId = useMemo(() => {
+    return poolAssetIdToAssetId(params.poolAssetId ?? '')
+  }, [params.poolAssetId])
 
-  const pool = useMemo(() => {
-    return pools?.find(pool => pool.asset === params.poolAssetId)
-  }, [params.poolAssetId, pools])
+  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+
+  const { data: pool } = usePool(params.poolAssetId ?? '')
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: pool?.assetId,
-    enabled: !!pool,
+    assetId,
+    enabled: Boolean(assetId),
     swapperName: SwapperName.Thorchain,
   })
 
   const poolAssetIds = useMemo(() => {
-    if (!pool) return []
-
-    return [pool.assetId, thorchainAssetId]
-  }, [pool])
+    if (!assetId) return []
+    return [assetId, thorchainAssetId]
+  }, [assetId])
 
   const handleAddLiquidityClick = useCallback(() => {
-    history.push(
-      generatePath('/pools/add/:poolAssetId', {
-        poolAssetId: params.poolAssetId,
-      }),
-    )
-  }, [params.poolAssetId, history])
+    history.push(generatePath('/pools/add/:poolAssetId', { poolAssetId }))
+  }, [poolAssetId, history])
 
   const handleTradeClick = useCallback(() => {
-    if (!pool) return
-
-    history.push(`/trade/${pool?.assetId}`)
-  }, [pool, history])
-
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, pool?.assetId ?? ''))
-
-  const { data: volume24h } = useQuery({
-    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    staleTime: Infinity,
-    enabled: !!pool?.assetId,
-    select: data => getVolume(runeMarketData.price, data),
-  })
-
-  const { data: swapDataPrevious24h } = useQuery({
-    ...reactQueries.midgard.swapsData(pool?.assetId, 'previous24h'),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    staleTime: Infinity,
-    enabled: !!pool?.assetId,
-  })
-
-  const { data: swapData24h } = useQuery({
-    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    staleTime: Infinity,
-    enabled: !!pool?.assetId,
-  })
-
-  const fees24h = useMemo(() => {
-    if (!swapData24h) return
-
-    return getFees(runeMarketData.price, assetMarketData.price, swapData24h)
-  }, [swapData24h, runeMarketData.price, assetMarketData.price])
-
-  const swap24hChange = useMemo(() => {
-    if (!swapData24h || !swapDataPrevious24h) return
-
-    return get24hSwapChangePercentage(
-      runeMarketData.price,
-      assetMarketData.price,
-      swapData24h,
-      swapDataPrevious24h,
-    )
-  }, [swapData24h, swapDataPrevious24h, runeMarketData.price, assetMarketData.price])
-
-  const { data: tvl24hChange } = useQuery({
-    ...reactQueries.thorchainLp.tvl24hChange(pool?.assetId),
-  })
-
-  const { data: allTimeVolume } = useQuery({
-    ...reactQueries.thorchainLp.allTimeVolume(pool?.assetId, runeMarketData.price),
-  })
-
-  const tvl = useMemo(() => {
-    if (!pool) return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
-
-    return calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price)
-  }, [pool, runeMarketData.price])
+    if (!assetId) return
+    history.push(`/trade/${assetId}`)
+  }, [assetId, history])
 
   const headerComponent = useMemo(
     () => <PoolHeader assetIds={poolAssetIds} name={pool?.name ?? ''} />,
@@ -182,8 +113,6 @@ export const Pool = () => {
 
   const addIcon = useMemo(() => <FaPlus />, [])
   const swapIcon = useMemo(() => <SwapIcon />, [])
-
-  if (!pool) return null
 
   return (
     <Main headerComponent={headerComponent}>
@@ -224,16 +153,16 @@ export const Pool = () => {
             <Card width='full' maxWidth={maxWidth}>
               <CardFooter gap={6} display='flex' flexDir='column' px={8} py={8}>
                 <PoolInfo
-                  volume24h={volume24h}
-                  volume24hChange={swap24hChange?.volumeChangePercentage}
-                  fee24hChange={swap24hChange?.feeChangePercentage}
-                  fees24h={fees24h}
-                  allTimeVolume={allTimeVolume}
-                  apy={pool.annualPercentageRate}
-                  tvl={tvl.tvl}
-                  runeTvlCryptoPrecision={fromThorBaseUnit(pool.runeDepth).toFixed()}
-                  assetTvlCryptoPrecision={fromThorBaseUnit(pool.assetDepth).toFixed()}
-                  tvl24hChange={tvl24hChange ?? 0}
+                  volume24h={pool?.volume24hFiat}
+                  volume24hChange={pool?.volume24hChange}
+                  fee24hChange={pool?.fees24hChange}
+                  fees24h={pool?.fees24hFiat}
+                  allTimeVolume={pool?.volumeTotalFiat}
+                  apy={pool?.annualPercentageRate ?? '0'}
+                  tvl={pool?.tvl24hFiat}
+                  runeTvlCryptoPrecision={fromThorBaseUnit(pool?.runeDepth).toFixed()}
+                  assetTvlCryptoPrecision={fromThorBaseUnit(pool?.assetDepth).toFixed()}
+                  tvl24hChange={pool?.tvl24hChange}
                   assetIds={poolAssetIds}
                   direction='column'
                   display='full'

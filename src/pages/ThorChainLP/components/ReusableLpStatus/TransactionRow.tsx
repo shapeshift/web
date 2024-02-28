@@ -181,7 +181,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         accountMetadata: otherAssetAccountMetadata,
         getPosition: getThorchainLpPosition,
       })
-      setOtherAssetAddress(_otherAssetAddress)
+      setOtherAssetAddress(_otherAssetAddress.replace('bitcoincash:', ''))
     })()
   }, [
     assetAccountMetadata,

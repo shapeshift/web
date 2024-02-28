@@ -43,6 +43,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { positiveOrZero } from 'lib/bignumber/bignumber'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
@@ -63,7 +64,6 @@ import {
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
-  selectWalletSupportedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -90,10 +90,11 @@ import { breakpoints } from 'theme/theme'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { QuoteList } from '../QuoteList/QuoteList'
-import { HorizontalCollapse } from './components/HorizontalCollapse'
+import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
+import { WithLazyMount } from './components/WithLazyMount'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 import { useSharedHeight } from './hooks/useSharedHieght'
@@ -111,8 +112,13 @@ type TradeInputProps = {
   isCompact?: boolean
 }
 
-export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
+// dummy component to allow us to lazily mount this beast of a hook
+const GetTradeQuotes = () => {
   useGetTradeQuotes()
+  return <></>
+}
+
+export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
     state: { wallet },
   } = useWallet()
@@ -154,7 +160,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
   const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
@@ -450,6 +455,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }
   }, [isCompact, isCompactQuoteListOpen, isSmallerThanXl])
 
+  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <>
@@ -497,8 +504,11 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
-          <RecipientAddress />
-          <ManualAddressEntry />
+          <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
+          <WithLazyMount
+            shouldUse={hasUserEnteredAmount && !walletSupportsBuyAssetChain}
+            component={ManualAddressEntry}
+          />
           {maybeUnsafeTradeWarning}
           {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
             <Button
@@ -541,6 +551,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       totalProtocolFees,
       slippageDecimal,
       priceImpactPercentage,
+      receiveAddress,
+      walletSupportsBuyAssetChain,
       maybeUnsafeTradeWarning,
       isUnsafeQuote,
       isUnsafeQuoteNoticeDismissed,
@@ -579,26 +591,28 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   // disable switching assets if the buy asset isn't supported
   const shouldDisableSwitchAssets = useMemo(() => {
-    const walletSupportsBuyAssetChain = walletSupportedChainIds.includes(buyAsset.chainId)
     return !walletSupportsBuyAssetChain
-  }, [buyAsset.chainId, walletSupportedChainIds])
+  }, [walletSupportsBuyAssetChain])
 
   return (
     <TradeSlideTransition>
+      <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex
           width='full'
           justifyContent='center'
           maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
         >
-          <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
-            <QuoteList
-              onBack={handleCloseCompactQuoteList}
-              isLoading={isLoading}
-              height={tradeInputHeight ?? '500px'}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
-            />
-          </Center>
+          {(isCompact || isSmallerThanXl) && (
+            <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
+              <QuoteList
+                onBack={handleCloseCompactQuoteList}
+                isLoading={isLoading}
+                height={tradeInputHeight ?? '500px'}
+                width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              />
+            </Center>
+          )}
           <Center width='inherit'>
             <Card
               flex={1}
@@ -695,13 +709,15 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               </Stack>
             </Card>
 
-            <HorizontalCollapse
+            <WithLazyMount
+              shouldUse={!isCompact && !isSmallerThanXl}
+              component={CollapsibleQuoteList}
               isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+              isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={tradeInputHeight ?? 'full'}
-            >
-              <QuoteList ml={4} isLoading={isLoading} height={tradeInputHeight ?? 'full'} />
-            </HorizontalCollapse>
+              ml={4}
+            />
           </Center>
         </Flex>
       </MessageOverlay>

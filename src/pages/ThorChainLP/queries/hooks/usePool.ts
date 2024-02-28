@@ -64,6 +64,7 @@ export const getPool = (
   }
 }
 
+// selectSwapsData aggregates fees and volume (128 hour intervals -> 7 day intervals)
 export const selectSwapsData = (data: MidgardSwapHistoryResponse) => {
   let historyIndex = 0
   const intervals = data.intervals.reduce<Pick<MidgardInterval, 'totalFees' | 'totalVolume'>[]>(
@@ -156,6 +157,7 @@ export const usePool = (poolAssetId: string) => {
     [assets, runeMarketData],
   )
 
+  // selectTvl changes 128 hour intervals -> 7 day intervals and keys by poolAssetId
   const selectTvl = useCallback(
     (data: MidgardTvlHistoryResponse) => {
       const tvlByPool = data.intervals.reduce<Record<string, string[]>>((acc, interval) => {

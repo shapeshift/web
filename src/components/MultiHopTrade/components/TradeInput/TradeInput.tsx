@@ -94,7 +94,7 @@ import { HorizontalCollapse } from './components/HorizontalCollapse'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
-import { WithLazyRender } from './components/WithLazyRender'
+import { WithLazyMount } from './components/WithLazyMount'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 import { useSharedHeight } from './hooks/useSharedHieght'
@@ -503,8 +503,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
-          <WithLazyRender shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
-          <WithLazyRender
+          <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
+          <WithLazyMount
             shouldUse={hasUserEnteredAmount && !walletSupportsBuyAssetChain}
             component={ManualAddressEntry}
           />
@@ -595,7 +595,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   return (
     <TradeSlideTransition>
-      <WithLazyRender shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
+      <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex
           width='full'
@@ -713,7 +713,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={tradeInputHeight ?? 'full'}
             >
-              <WithLazyRender
+              <WithLazyMount
                 shouldUse={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
                 component={QuoteList}
                 ml={4}

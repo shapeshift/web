@@ -112,6 +112,7 @@ type TradeInputProps = {
   isCompact?: boolean
 }
 
+// dummy component to allow use to lazily mount this beast of a hook
 const GetTradeQuotes = () => {
   useGetTradeQuotes()
   return <></>

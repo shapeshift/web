@@ -233,8 +233,8 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 <Row.Value>
                   {confirmedQuote &&
                   isLpConfirmedDepositQuote(confirmedQuote) &&
-                  !bn(confirmedQuote.feeAmountFiat).isZero() ? (
-                    <Amount.Fiat value={confirmedQuote.feeAmountFiat} />
+                  !bn(confirmedQuote.feeAmountFiatUserCurrency).isZero() ? (
+                    <Amount.Fiat value={confirmedQuote.feeAmountFiatUserCurrency} />
                   ) : (
                     <Amount.Fiat value={'0'} />
                   )}

@@ -708,7 +708,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return bn(poolAssetMarketData.price).div(bn(runeMarketData.price)).toFixed()
   }, [poolAssetMarketData, runeMarketData])
 
-  const totalAmountFiatUsd = useMemo(
+  const totalAmountUsd = useMemo(
     () =>
       bnOrZero(actualAssetLiquidityAmountFiatUserCurrency)
         .times(isAsym ? 1 : 2)
@@ -837,7 +837,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       return
 
     const { feeBps, feeUsd } = calculateFees({
-      tradeAmountUsd: bn(totalAmountFiatUsd),
+      tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
       feeModel: 'THORCHAIN_LP',
     })
@@ -851,9 +851,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       slippageRune,
       opportunityId: activeOpportunityId,
       currentAccountIdByChainId,
-      totalAmountFiatUsd,
+      totalAmountUsd,
       feeBps: feeBps.toFixed(0),
-      feeAmountFiat: feeUsd.toFixed(2),
+      feeAmountUsd: feeUsd.toFixed(2),
+      feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
       runeGasFeeFiat: runeGasFeeFiatUserCurrency.toFixed(2),
@@ -882,7 +883,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     slippageRune,
     totalGasFeeFiatUserCurrency,
     votingPower,
-    totalAmountFiatUsd,
+    totalAmountUsd,
+    userCurrencyToUsdRate,
   ])
 
   const percentOptions = useMemo(() => [1], [])
@@ -1279,15 +1281,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         >
           <Row.Label display='flex'>
             <Text translation={shapeshiftFeeTranslation} />
-            {bnOrZero(confirmedQuote?.feeAmountFiat).gt(0) && (
+            {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
               <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
             )}
           </Row.Label>
           <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
             <Flex alignItems='center' gap={2}>
-              {bnOrZero(confirmedQuote?.feeAmountFiat).gt(0) ? (
+              {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
                 <>
-                  <Amount.Fiat value={confirmedQuote?.feeAmountFiat ?? 0} />
+                  <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
                   <QuestionIcon />
                 </>
               ) : (
@@ -1305,7 +1307,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             <Skeleton
               isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
             >
-              <Amount.Fiat value={confirmedQuote?.feeAmountFiat ?? '0'} />
+              <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? '0'} />
             </Skeleton>
           </Row.Value>
         </Row>
@@ -1361,10 +1363,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </Button>
       </CardFooter>
       <FeeModal
-        affiliateFeeAmountUserCurrency={confirmedQuote?.feeAmountFiat ?? '0'}
+        affiliateFeeAmountUserCurrency={confirmedQuote?.feeAmountFiatUserCurrency ?? '0'}
         isOpen={showFeeModal}
         onClose={toggleFeeModal}
-        inputAmountUsd={totalAmountFiatUsd}
+        inputAmountUsd={totalAmountUsd}
         feeModel='THORCHAIN_LP'
       />
     </SlideTransition>

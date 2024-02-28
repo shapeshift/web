@@ -8,8 +8,11 @@ import { getAddress, isAddress } from 'viem'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses } from 'lib/utils/thorchain'
-import { get24hTvlChangePercentage, getAllTimeVolume, getEarnings } from 'lib/utils/thorchain/lp'
-import type { MidgardMember, MidgardMembersList } from 'lib/utils/thorchain/lp/types'
+import type {
+  MidgardEarningsHistoryResponse,
+  MidgardMember,
+  MidgardMembersList,
+} from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
@@ -52,23 +55,11 @@ export const liquidityMembers = () => ({
 export const thorchainLp = createQueryKeys('thorchainLp', {
   earnings: (from: string | undefined) => ({
     queryKey: ['thorchainearnings', from],
-    queryFn: () => {
-      if (!from) throw new Error('from is required')
-      return getEarnings({ from })
-    },
-  }),
-  tvl24hChange: (assetId: AssetId | undefined) => ({
-    queryKey: ['thorchainTvl24hChange', assetId],
-    queryFn: () => {
-      if (!assetId) throw new Error('assetId is required')
-      return get24hTvlChangePercentage(assetId)
-    },
-  }),
-  allTimeVolume: (assetId: AssetId | undefined, runePrice: string) => ({
-    queryKey: ['thorchainAllTimeVolume', assetId],
-    queryFn: () => {
-      if (!assetId) throw new Error('assetId is required')
-      return getAllTimeVolume(assetId, runePrice)
+    queryFn: async () => {
+      const { data } = await axios.get<MidgardEarningsHistoryResponse>(
+        `${midgardUrl}/history/earnings?from=${from}`,
+      )
+      return data
     },
   }),
   liquidityMembers,

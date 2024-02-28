@@ -23,8 +23,12 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
-import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
-import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
+import type { ThorchainBlock, ThorchainMimir } from 'lib/utils/thorchain/lending/types'
+import type {
+  MidgardPoolStats,
+  MidgardSwapHistoryResponse,
+  MidgardTvlHistoryResponse,
+} from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
 
 import { GetAllowanceErr } from './types'
@@ -134,63 +138,58 @@ const mutations = createMutationKeys('mutations', {
     },
   }),
 })
+
+type Period = 'all'
+type Interval = '5min' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
+
 // Feature-agnostic, abstracts away midgard endpoints
 const midgard = createQueryKeys('midgard', {
-  swapsData: (assetId: AssetId | undefined, timeframe: '24h' | 'previous24h' | '7d') => ({
-    queryKey: ['midgardSwapsData', assetId ?? '', timeframe],
+  swapsData: (poolAssetId: string, interval: Interval, count: number) => ({
+    queryKey: ['midgardSwapsData', poolAssetId, interval, count],
+    staleTime: 60_000,
     queryFn: async () => {
-      if (!assetId) throw new Error('assetId is required')
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-
-      const { from, to } = (() => {
-        const now = Math.floor(Date.now() / 1000)
-
-        if (timeframe === '24h') {
-          const twentyFourHoursAgo = now - 24 * 60 * 60
-          return { from: twentyFourHoursAgo, to: now }
-        }
-
-        if (timeframe === 'previous24h') {
-          const fortyEightHoursAgo = now - 2 * 24 * 60 * 60
-          const twentyFourHoursAgo = now - 24 * 60 * 60
-          return { from: fortyEightHoursAgo, to: twentyFourHoursAgo }
-        }
-
-        if (timeframe === '7d') {
-          const sevenDaysAgo = now - 7 * 24 * 60 * 60
-          return { from: sevenDaysAgo, to: now }
-        }
-
-        throw new Error(`Invalid timeframe ${timeframe}`)
-      })()
-
       const { data } = await axios.get<MidgardSwapHistoryResponse>(
-        `${midgardUrl}/history/swaps?pool=${poolAssetId}&from=${from}&to=${to}`,
+        `${midgardUrl}/history/swaps?pool=${poolAssetId}&interval=${interval}&count=${count}`,
       )
-
       return data
     },
   }),
-  poolData: (assetId: AssetId | undefined) => ({
-    queryKey: ['midgardPoolData', assetId],
+  tvl: (interval: Interval, count: number) => ({
+    queryKey: ['tvl', interval, count],
+    staleTime: 60_000,
     queryFn: async () => {
-      if (!assetId) throw new Error('assetId is required')
-
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { data: poolData } = await axios.get<MidgardPoolResponse>(
+      const { data } = await axios.get<MidgardTvlHistoryResponse>(
+        `${midgardUrl}/history/tvl?interval=${interval}&count=${count}`,
+      )
+      return data
+    },
+  }),
+  poolData: (poolAssetId: string) => ({
+    queryKey: ['midgardPoolData', poolAssetId],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await axios.get<MidgardPoolResponse>(
         `${midgardUrl}/pool/${poolAssetId}?period=30d`,
       )
-
-      return poolData
+      return data
+    },
+  }),
+  poolStats: (poolAssetId: string, period: Period) => ({
+    queryKey: ['midgardPoolStats', poolAssetId, period],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await axios.get<MidgardPoolStats>(
+        `${midgardUrl}/pool/${poolAssetId}/stats?period=${period}`,
+      )
+      return data
     },
   }),
   poolsData: () => ({
     queryKey: ['midgardPoolsData'],
+    staleTime: 60_000,
     queryFn: async () => {
-      const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
-        `${midgardUrl}/pools?period=30d`,
-      )
-      return poolsData
+      const { data } = await axios.get<MidgardPoolResponse[]>(`${midgardUrl}/pools?period=30d`)
+      return data
     },
   }),
 })
@@ -203,11 +202,11 @@ const thornode = createQueryKeys('thornode', {
       if (!assetId) throw new Error('assetId is required')
 
       const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { data: poolData } = await axios.get<ThornodePoolResponse>(
+      const { data } = await axios.get<ThornodePoolResponse>(
         `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
       )
 
-      return poolData
+      return data
     },
   }),
   poolsData: () => ({
@@ -228,10 +227,8 @@ const thornode = createQueryKeys('thornode', {
     return {
       queryKey: ['thorchainMimir'],
       queryFn: async () => {
-        const { data: mimir } = await axios.get<Record<string, unknown>>(
-          `${thornodeUrl}/lcd/thorchain/mimir`,
-        )
-        return mimir
+        const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/lcd/thorchain/mimir`)
+        return data
       },
     }
   },
@@ -239,10 +236,8 @@ const thornode = createQueryKeys('thornode', {
     return {
       queryKey: ['thorchainBlockHeight'],
       queryFn: async () => {
-        const { data: block } = await axios.get<ThorchainBlock>(
-          `${thornodeUrl}/lcd/thorchain/block`,
-        )
-        return block
+        const { data } = await axios.get<ThorchainBlock>(`${thornodeUrl}/lcd/thorchain/block`)
+        return data
       },
     }
   },

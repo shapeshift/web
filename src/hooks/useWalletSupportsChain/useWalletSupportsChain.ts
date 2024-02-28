@@ -30,6 +30,7 @@ import {
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 
 type WalletSupportsChainArgs = {
@@ -92,5 +93,9 @@ export const useWalletSupportsChain = (
   // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
   const isSnapInstalled = useIsSnapInstalled()
 
-  return walletSupportsChain({ isSnapInstalled, chainId, wallet })
+  const result = useMemo(() => {
+    return walletSupportsChain({ isSnapInstalled, chainId, wallet })
+  }, [chainId, isSnapInstalled, wallet])
+
+  return result
 }

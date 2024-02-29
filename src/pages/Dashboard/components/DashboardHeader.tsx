@@ -17,7 +17,6 @@ import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 import { SwapIcon } from 'components/Icons/SwapIcon'
-import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpporunities'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -80,7 +79,11 @@ const navCss = {
   },
 }
 
-export const DashboardHeader = () => {
+export const DashboardHeader = ({
+  isOpportunitiesLoading,
+}: {
+  isOpportunitiesLoading: boolean
+}) => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const location = useLocation()
   const send = useModal('send')
@@ -122,8 +125,6 @@ export const DashboardHeader = () => {
       activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
     }
   }, [location])
-
-  const isOpportunitiesLoading = useFetchOpportunities()
 
   const NavItems: TabItem[] = useMemo(() => {
     return [

@@ -175,6 +175,7 @@
     "react-hook-form": "^7.33.1",
     "react-icons": "^4.10.1",
     "react-infinite-scroller": "^1.2.6",
+    "react-modal-sheet": "^2.2.0",
     "react-multi-ref": "^1.0.1",
     "react-number-format": "^4.9.3",
     "react-polyglot": "^0.7.2",

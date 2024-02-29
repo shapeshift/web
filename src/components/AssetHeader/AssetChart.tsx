@@ -42,6 +42,7 @@ const timeControlsButtonGroupProps = {
 }
 const justifyContentMdSpaceBetween = { base: 'center', md: 'space-between' }
 const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const useMediaQueryOptions = { ssr: false }
 
 export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) => {
   const {
@@ -49,7 +50,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, useMediaQueryOptions)
   const [percentChange, setPercentChange] = useState(0)
   const [fiatChange, setFiatChange] = useState(0)
   const userChartTimeframe = useAppSelector(selectChartTimeframe)

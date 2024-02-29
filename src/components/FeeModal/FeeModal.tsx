@@ -11,15 +11,25 @@ import {
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 
 import { FeeBreakdown } from './FeeBreakdown'
 
 export type FeeModalProps = {
+  affiliateFeeAmountUserCurrency: string
+  inputAmountUsd: string | undefined
   isOpen: boolean
   onClose: () => void
+  feeModel: ParameterModel
 }
 
-export const FeeModal = ({ isOpen, onClose: handleClose }: FeeModalProps) => {
+export const FeeModal = ({
+  affiliateFeeAmountUserCurrency,
+  inputAmountUsd,
+  isOpen,
+  onClose: handleClose,
+  feeModel,
+}: FeeModalProps) => {
   const translate = useTranslate()
 
   return (
@@ -34,14 +44,19 @@ export const FeeModal = ({ isOpen, onClose: handleClose }: FeeModalProps) => {
           </TabList>
           <TabPanels>
             <TabPanel p={0}>
-              <FeeBreakdown />
+              <FeeBreakdown
+                feeModel={feeModel}
+                affiliateFeeAmountUserCurrency={affiliateFeeAmountUserCurrency}
+                inputAmountUsd={inputAmountUsd}
+              />
             </TabPanel>
             <TabPanel px={0} py={0}>
               <FeeExplainer
+                inputAmountUsd={inputAmountUsd}
                 borderRadius='none'
                 bg='transparent'
                 boxShadow='none'
-                feeModel='SWAPPER'
+                feeModel={feeModel}
               />
             </TabPanel>
           </TabPanels>

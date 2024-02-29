@@ -590,6 +590,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       feeBps: '0',
       withdrawalBps: bnOrZero(percentageSelection).times(100).toString(),
       currentAccountIdByChainId,
+      assetAddress: poolAssetAccountAddress,
     })
   }, [
     actualAssetCryptoLiquidityAmount,
@@ -611,6 +612,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     totalGasFeeFiat,
     poolAssetGasFeeFiatUserCurrency,
     currentAccountIdByChainId,
+    poolAssetAccountAddress,
   ])
 
   const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])

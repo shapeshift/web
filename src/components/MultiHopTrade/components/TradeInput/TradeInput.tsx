@@ -124,7 +124,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
   const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()

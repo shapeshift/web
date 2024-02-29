@@ -1238,70 +1238,70 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
           isLoading={isSlippageLoading}
         />
-      </Collapse>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        py={4}
-        bg='background.surface.raised.accent'
-      >
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isSlippageLoading}>
-              <Amount.Crypto value={slippageRune ?? ''} symbol={runeAsset.symbol} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.gasFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton
-              isLoaded={Boolean(
-                !isEstimatedPoolAssetFeesDataLoading &&
-                  !isEstimatedRuneFeesDataLoading &&
-                  confirmedQuote,
-              )}
-            >
-              <Amount.Fiat value={totalGasFeeFiatUserCurrency} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row
-          fontSize='sm'
-          fontWeight='medium'
-          isLoading={Boolean(
-            isEstimatedPoolAssetFeesDataLoading ||
-              isEstimatedRuneFeesDataLoading ||
-              !confirmedQuote,
-          )}
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          py={4}
+          bg='background.surface.raised.accent'
         >
-          <Row.Label display='flex'>
-            <Text translation={shapeshiftFeeTranslation} />
-            {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
-              <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isSlippageLoading}>
+                <Amount.Crypto value={slippageRune ?? ''} symbol={runeAsset.symbol} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.gasFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton
+                isLoaded={Boolean(
+                  !isEstimatedPoolAssetFeesDataLoading &&
+                    !isEstimatedRuneFeesDataLoading &&
+                    confirmedQuote,
+                )}
+              >
+                <Amount.Fiat value={totalGasFeeFiatUserCurrency} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row
+            fontSize='sm'
+            fontWeight='medium'
+            isLoading={Boolean(
+              isEstimatedPoolAssetFeesDataLoading ||
+                isEstimatedRuneFeesDataLoading ||
+                !confirmedQuote,
             )}
-          </Row.Label>
-          <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
-            <Flex alignItems='center' gap={2}>
-              {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
-                <>
-                  <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
-                  <QuestionIcon />
-                </>
-              ) : (
-                <>
-                  <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                  <QuestionIcon color={greenColor} />
-                </>
+          >
+            <Row.Label display='flex'>
+              <Text translation={shapeshiftFeeTranslation} />
+              {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
+                <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
               )}
-            </Flex>
-          </Row.Value>
-        </Row>
-      </CardFooter>
+            </Row.Label>
+            <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+              <Flex alignItems='center' gap={2}>
+                {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
+                  <>
+                    <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
+                    <QuestionIcon />
+                  </>
+                ) : (
+                  <>
+                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                    <QuestionIcon color={greenColor} />
+                  </>
+                )}
+              </Flex>
+            </Row.Value>
+          </Row>
+        </CardFooter>
+      </Collapse>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'

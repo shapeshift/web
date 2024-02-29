@@ -1,11 +1,12 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { NftTable } from 'components/Nfts/NftTable'
+import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpporunities'
 import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { Accounts } from 'pages/Accounts/Accounts'
@@ -21,13 +22,18 @@ import { WalletDashboard } from './WalletDashboard'
 const direction: StackDirection = { base: 'column', xl: 'row' }
 const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
 
-const dashboardHeader = <DashboardHeader />
-
 export const Dashboard = memo(() => {
   const translate = useTranslate()
   const isDefiDashboardEnabled = useFeatureFlag('DefiDashboard')
   const { path } = useRouteMatch()
   const isNftsEnabled = useFeatureFlag('Jaypegz')
+
+  const isOpportunitiesLoading = useFetchOpportunities()
+
+  const dashboardHeader = useMemo(
+    () => <DashboardHeader isOpportunitiesLoading={isOpportunitiesLoading} />,
+    [isOpportunitiesLoading],
+  )
 
   if (isDefiDashboardEnabled)
     return (

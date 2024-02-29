@@ -1,4 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { BN } from 'lib/bignumber/bignumber'
 
 export type ThornodeLiquidityProvider = {
@@ -162,8 +163,8 @@ export type MidgardEarningsHistoryResponse = {
 }
 
 export type PoolShareDetail = {
-  assetShare: BN
-  runeShare: BN
+  assetShareThorBaseUnit: BN
+  runeShareThorBaseUnit: BN
   poolShareDecimalPercent: string
 }
 
@@ -237,12 +238,15 @@ export type UserLpDataPosition = {
   liquidityUnits: string
   underlyingAssetAmountCryptoPrecision: string
   underlyingRuneAmountCryptoPrecision: string
-  isAsymmetric: boolean
-  asymSide: AsymSide | null
+  asym?: {
+    side: AsymSide
+    asset: Asset
+  }
   underlyingAssetValueFiatUserCurrency: string
   underlyingRuneValueFiatUserCurrency: string
   totalValueFiatUserCurrency: string
   poolOwnershipPercentage: string
+  name: string
   opportunityId: string
   poolShare: string
 

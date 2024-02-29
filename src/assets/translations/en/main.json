@@ -130,6 +130,8 @@
     "halted": "Halted",
     "staged": "Staged",
     "poolHalted": "Pool Halted",
+    "symmetric": "Symmetric",
+    "asymmetric": "Asymmetric (%{assetSymbol})",
     "carousel": {
       "next": "Next",
       "prev": "Previous",

@@ -1,5 +1,5 @@
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import type { AsymSide } from 'lib/utils/thorchain/lp/types'
 
 export type OpportunityType = AsymSide | 'sym'
 
@@ -20,12 +20,4 @@ export const fromOpportunityId = (opportunityId: string): Opportunity => {
 
 export const toOpportunityId = ({ assetId, type }: Opportunity) => {
   return `${assetId}*${type}`
-}
-
-export const getPositionName = (poolName: string, opportunityId: string) => {
-  const { type } = fromOpportunityId(opportunityId)
-  const [asset, rune] = poolName.split('/')
-  if (type === AsymSide.Asset) return asset
-  if (type === AsymSide.Rune) return rune
-  return poolName
 }

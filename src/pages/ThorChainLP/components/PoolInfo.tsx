@@ -20,7 +20,7 @@ const ChangeTag: React.FC<ChangeTagProps> = ({ value }) => {
   const icon = (value ?? 0) >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />
   const color = (value ?? 0) >= 0 ? 'green.500' : 'red.500'
   return (
-    <Skeleton isLoaded={!!value}>
+    <Skeleton isLoaded={value !== undefined}>
       <Flex color={color} fontSize='sm' alignItems='center'>
         {icon}
         <Amount.Percent value={value ?? '0'} fontWeight='medium' color={color} />
@@ -87,7 +87,7 @@ export const PoolInfo = ({
     <>
       <Flex gap={4} alignItems='center'>
         <Text translation='lending.poolInformation' fontWeight='medium' />
-        <Skeleton isLoaded={!!apy}>
+        <Skeleton isLoaded={apy !== undefined}>
           <Tag colorScheme='green'>
             <Amount.Percent value={apy ?? 0} suffix='APY' />
           </Tag>
@@ -151,7 +151,7 @@ export const PoolInfo = ({
 
       <Flex flexWrap='wrap' gap={6} flexDirection={direction}>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Skeleton isLoaded={!!tvl}>
+          <Skeleton isLoaded={tvl !== undefined}>
             <Flex alignItems='center' gap={2}>
               <Amount.Fiat fontSize='xl' value={tvl ?? 0} fontWeight='medium' />
               {tvlChangeTag}
@@ -165,7 +165,7 @@ export const PoolInfo = ({
           />
         </Stack>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Skeleton isLoaded={!!allTimeVolume}>
+          <Skeleton isLoaded={allTimeVolume !== undefined}>
             <Flex alignItems='center' gap={2}>
               <Amount.Fiat fontSize='xl' value={allTimeVolume ?? '0'} fontWeight='medium' />
             </Flex>
@@ -180,7 +180,7 @@ export const PoolInfo = ({
       </Flex>
       <Flex flexWrap='wrap' gap={6} flexDirection={direction}>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Skeleton isLoaded={!!volume24h}>
+          <Skeleton isLoaded={volume24h !== undefined}>
             <Flex alignItems='center' gap={2}>
               <Amount.Fiat fontSize='xl' value={volume24h ?? 0} fontWeight='medium' />
               {volumeChangeTag}
@@ -194,7 +194,7 @@ export const PoolInfo = ({
           />
         </Stack>
         <Stack spacing={0} flex={1} flexDir={reverse ? 'column-reverse' : 'column'}>
-          <Skeleton isLoaded={!!fees24h}>
+          <Skeleton isLoaded={fees24h !== undefined}>
             <Flex alignItems='center' gap={2}>
               <Amount.Fiat fontSize='xl' value={fees24h ?? 0} fontWeight='medium' />
               {feeChangeTag}

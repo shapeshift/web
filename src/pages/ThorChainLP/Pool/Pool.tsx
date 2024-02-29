@@ -86,6 +86,16 @@ export const Pool = () => {
 
   const { data: pool } = usePool(params.poolAssetId ?? '')
 
+  const runeTvlCryptoPrecision = useMemo(() => {
+    if (!pool?.runeDepth) return
+    return fromThorBaseUnit(pool.runeDepth).toFixed()
+  }, [pool?.runeDepth])
+
+  const assetTvlCryptoPrecision = useMemo(() => {
+    if (!pool?.assetDepth) return
+    return fromThorBaseUnit(pool.assetDepth).toFixed()
+  }, [pool?.assetDepth])
+
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId,
     enabled: Boolean(assetId),
@@ -160,8 +170,8 @@ export const Pool = () => {
                   allTimeVolume={pool?.volumeTotalFiat}
                   apy={pool?.annualPercentageRate}
                   tvl={pool?.tvl24hFiat}
-                  runeTvlCryptoPrecision={fromThorBaseUnit(pool?.runeDepth).toFixed()}
-                  assetTvlCryptoPrecision={fromThorBaseUnit(pool?.assetDepth).toFixed()}
+                  runeTvlCryptoPrecision={runeTvlCryptoPrecision}
+                  assetTvlCryptoPrecision={assetTvlCryptoPrecision}
                   tvl24hChange={pool?.tvl24hChange}
                   assetIds={poolAssetIds}
                   direction='column'

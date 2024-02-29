@@ -21,7 +21,7 @@ const flex = { base: 'none', md: '1 1 0%' }
 
 export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const translate = useTranslate()
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const { routes: pluginRoutes } = usePlugins()
   const groupColor = useColorModeValue('gray.400', 'gray.600')
   const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.100')

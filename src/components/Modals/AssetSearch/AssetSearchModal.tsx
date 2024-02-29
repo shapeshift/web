@@ -36,7 +36,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const { height: windowHeight } = useWindowSize()
 
   const handleClick = useCallback(

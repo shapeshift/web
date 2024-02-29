@@ -17,7 +17,7 @@ type YatBannerProps = {
 const hoverProp = { boxShadow: '0 0 0 2px var(--chakra-colors-chakra-body-text) inset' }
 
 export const YatBanner: React.FC<YatBannerProps> = memo(({ isCompact, ...rest }) => {
-  const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
+  const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
   const translate = useTranslate()
   const { isDemoWallet } = useWallet().state
 

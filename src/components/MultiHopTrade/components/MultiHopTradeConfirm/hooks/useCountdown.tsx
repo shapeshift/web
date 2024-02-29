@@ -1,16 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-type UseCountdownProps = {
-  initialTimeMs: number
-  autoStart?: boolean
-  onCompleted?: () => void
-}
-
-export const useCountdown = ({
-  initialTimeMs,
+export const useCountdown = (
+  initialTimeMs: number,
   autoStart = false,
-  onCompleted,
-}: UseCountdownProps): {
+  onCompleted?: () => void,
+): {
   timeRemainingMs: number
   start: () => void
   reset: () => void
@@ -57,9 +51,12 @@ export const useCountdown = ({
     if (autoStart) start()
   }, [autoStart, start])
 
-  return {
-    timeRemainingMs,
-    start,
-    reset,
-  }
+  return useMemo(
+    () => ({
+      timeRemainingMs,
+      start,
+      reset,
+    }),
+    [reset, start, timeRemainingMs],
+  )
 }

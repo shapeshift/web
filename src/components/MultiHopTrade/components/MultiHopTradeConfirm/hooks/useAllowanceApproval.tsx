@@ -1,11 +1,12 @@
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import type { Hash } from 'viem'
 import { useApprovalTx } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useApprovalTx'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { assertGetEvmChainAdapter, buildAndBroadcast } from 'lib/utils/evm'
 import { assertGetViemClient } from 'lib/viem-client'
+import type { ReduxState } from 'state/reducer'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -21,7 +22,11 @@ export const useAllowanceApproval = (
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
 
-  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
+  const sellAssetAccountIdCallback = useCallback(
+    (state: ReduxState) => selectHopSellAccountId(state, hopIndex),
+    [hopIndex],
+  )
+  const sellAssetAccountId = useAppSelector(sellAssetAccountIdCallback)
 
   const {
     approvalNetworkFeeCryptoBaseUnit,
@@ -89,9 +94,12 @@ export const useAllowanceApproval = (
     stopPollingBuildApprovalTx,
   ])
 
-  return {
-    isLoading,
-    executeAllowanceApproval,
-    approvalNetworkFeeCryptoBaseUnit,
-  }
+  return useMemo(
+    () => ({
+      isLoading,
+      executeAllowanceApproval,
+      approvalNetworkFeeCryptoBaseUnit,
+    }),
+    [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isLoading],
+  )
 }

@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHop,
@@ -27,10 +27,13 @@ const useIsApprovalInitiallyNeededForHop = (
     }
   }, [isApprovalNeeded, isLoading])
 
-  return {
-    isLoading: isApprovalInitiallyNeeded === undefined || isLoading,
-    isApprovalInitiallyNeeded,
-  }
+  return useMemo(
+    () => ({
+      isLoading: isApprovalInitiallyNeeded === undefined || isLoading,
+      isApprovalInitiallyNeeded,
+    }),
+    [isApprovalInitiallyNeeded, isLoading],
+  )
 }
 
 export const useIsApprovalInitiallyNeeded = () => {
@@ -68,5 +71,8 @@ export const useIsApprovalInitiallyNeeded = () => {
     secondHop,
   ])
 
-  return { isLoading: isFirstHopLoading || (isMultiHopTrade && isSecondHopLoading) }
+  return useMemo(
+    () => ({ isLoading: isFirstHopLoading || (isMultiHopTrade && isSecondHopLoading) }),
+    [isFirstHopLoading, isMultiHopTrade, isSecondHopLoading],
+  )
 }

@@ -4,10 +4,7 @@ import { useCountdown } from 'components/MultiHopTrade/components/MultiHopTradeC
 import { GET_TRADE_QUOTE_POLLING_INTERVAL } from 'state/apis/swapper/swapperApi'
 
 export const CountdownSpinner = memo(({ isLoading }: { isLoading: boolean }) => {
-  const { timeRemainingMs, reset, start } = useCountdown({
-    initialTimeMs: GET_TRADE_QUOTE_POLLING_INTERVAL,
-    autoStart: false,
-  })
+  const { timeRemainingMs, reset, start } = useCountdown(GET_TRADE_QUOTE_POLLING_INTERVAL, false)
 
   // ensure the countdown ui resets when a quote was loaded
   useEffect(() => {

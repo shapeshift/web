@@ -16,6 +16,9 @@ import { Hops } from './components/Hops'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
 
 const cardBorderRadius = { base: 'xl' }
+const useDisclosureProps = {
+  defaultIsOpen: true,
+}
 
 export const MultiHopTradeConfirm = memo(() => {
   const dispatch = useAppDispatch()
@@ -36,13 +39,8 @@ export const MultiHopTradeConfirm = memo(() => {
     history.push(TradeRoutePaths.Input)
   }, [dispatch, history])
 
-  const { isOpen: isFirstHopOpen, onToggle: onToggleFirstHop } = useDisclosure({
-    defaultIsOpen: true,
-  })
-
-  const { isOpen: isSecondHopOpen, onToggle: onToggleSecondHop } = useDisclosure({
-    defaultIsOpen: true,
-  })
+  const { isOpen: isFirstHopOpen, onToggle: onToggleFirstHop } = useDisclosure(useDisclosureProps)
+  const { isOpen: isSecondHopOpen, onToggle: onToggleSecondHop } = useDisclosure(useDisclosureProps)
 
   // toggle hop open states as we transition to the next hop
   useEffect(() => {

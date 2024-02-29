@@ -8,18 +8,19 @@ export type CollapsibleQuoteListProps = {
   width: string | number
   height: string | number
   isLoading: boolean
-} & CardProps
+  cardProps: CardProps
+}
 
-export const CollapsibleQuoteList = ({
+export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
   isOpen,
   width,
   height,
   isLoading,
-  ml,
-}: CollapsibleQuoteListProps) => {
+  cardProps,
+}) => {
   return (
     <HorizontalCollapse isOpen={isOpen} width={width} height={height}>
-      <QuoteList ml={ml} isLoading={isLoading} height={height} />
+      <QuoteList {...cardProps} isLoading={isLoading} height={height} />
     </HorizontalCollapse>
   )
 }

@@ -2,7 +2,7 @@ import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { selectAllowanceCryptoBaseUnit } from 'react-queries/hooks/selectors'
 import type { GetAllowanceErr } from 'react-queries/types'
@@ -26,20 +26,32 @@ export const useIsApprovalNeeded = (
     [tradeQuoteStep],
   )
 
-  const { data: isApprovalNeeded, isLoading: isApprovalNeededLoading } = useQuery({
-    ...reactQueries.common.allowanceCryptoBaseUnit(
-      tradeQuoteStep?.sellAsset.assetId,
-      tradeQuoteStep?.allowanceContract,
-      sellAssetAccountId ? fromAccountId(sellAssetAccountId)?.account : undefined,
-    ),
-    refetchInterval: 15_000,
-    enabled: Boolean(true),
-    select: selectIsApprovalNeeded,
-  })
+  const queryParams = useMemo(() => {
+    return {
+      ...reactQueries.common.allowanceCryptoBaseUnit(
+        tradeQuoteStep?.sellAsset.assetId,
+        tradeQuoteStep?.allowanceContract,
+        sellAssetAccountId ? fromAccountId(sellAssetAccountId)?.account : undefined,
+      ),
+      refetchInterval: 15_000,
+      enabled: Boolean(true),
+      select: selectIsApprovalNeeded,
+    }
+  }, [
+    selectIsApprovalNeeded,
+    sellAssetAccountId,
+    tradeQuoteStep?.allowanceContract,
+    tradeQuoteStep?.sellAsset.assetId,
+  ])
 
-  return {
-    isLoading:
-      isApprovalNeeded === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
-    isApprovalNeeded,
-  }
+  const { data: isApprovalNeeded, isLoading: isApprovalNeededLoading } = useQuery(queryParams)
+
+  return useMemo(
+    () => ({
+      isLoading:
+        isApprovalNeeded === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
+      isApprovalNeeded,
+    }),
+    [isApprovalNeeded, isApprovalNeededLoading, tradeQuoteStep],
+  )
 }

@@ -17,6 +17,7 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import type { ReduxState } from 'state/reducer'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -38,12 +39,18 @@ export const useTradeExecution = (hopIndex: number) => {
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
 
-  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
-
-  const accountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
+  const sellAssetAccountIdCallback = useCallback(
+    (state: ReduxState) => selectHopSellAccountId(state, hopIndex),
+    [hopIndex],
   )
+  const sellAssetAccountId = useAppSelector(sellAssetAccountIdCallback)
 
+  const accountMetadataCallback = useCallback(
+    (state: ReduxState) =>
+      selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
+    [sellAssetAccountId],
+  )
+  const accountMetadata = useAppSelector(accountMetadataCallback)
   const swapperName = useAppSelector(selectActiveSwapperName)
   const tradeQuote = useAppSelector(selectActiveQuote)
 
@@ -59,9 +66,12 @@ export const useTradeExecution = (hopIndex: number) => {
 
   // The intermediary buy asset may not actually be supported. If it doesn't exist in the asset slice
   // then it must be unsupported.
-  const supportedBuyAsset = useAppSelector(state =>
-    selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
+  const supportedBuyAssetCallback = useCallback(
+    (state: ReduxState) =>
+      selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
+    [hopIndex, tradeQuote?.steps],
   )
+  const supportedBuyAsset = useAppSelector(supportedBuyAssetCallback)
 
   const executeTrade = useCallback(() => {
     if (!wallet) throw Error('missing wallet')

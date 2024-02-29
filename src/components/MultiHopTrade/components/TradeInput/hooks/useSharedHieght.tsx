@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 export const useSharedHeight = () => {
   const [height, setHeight] = useState(0)
@@ -24,5 +24,5 @@ export const useSharedHeight = () => {
     }
   }, [])
 
-  return { observedRef, height }
+  return useMemo(() => ({ observedRef, height }), [height])
 }

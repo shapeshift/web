@@ -1,4 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
+import type { CardProps } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -58,6 +59,7 @@ import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getTh
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
+import type { ReduxState } from 'state/reducer'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -107,6 +109,7 @@ const formControlProps = {
 }
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
+const cardProps: CardProps = { ml: 4 }
 
 type TradeInputProps = {
   isCompact?: boolean
@@ -221,7 +224,12 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+
+  const votingPowerCallback = useCallback(
+    (state: ReduxState) => selectVotingPower(state, votingPowerParams),
+    [],
+  )
+  const votingPower = useAppSelector(votingPowerCallback)
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
@@ -730,7 +738,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={tradeInputHeight ?? 'full'}
-              ml={4}
+              cardProps={cardProps}
             />
           </Center>
         </Flex>

@@ -22,7 +22,7 @@ export const WithLazyMount = <T extends object = {}>(props: WithLazyRenderProps<
       componentProps,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Object.values(props)])
+  }, Object.values(props))
 
   useEffect(() => {
     if (!shouldUse || persistentShouldUse.current === true) {

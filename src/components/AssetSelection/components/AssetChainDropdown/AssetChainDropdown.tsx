@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
@@ -31,82 +31,77 @@ type AssetChainDropdownProps = {
   isError?: boolean
 }
 
-export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = ({
-  assetId,
-  assetIds,
-  onChangeAsset,
-  buttonProps,
-  isLoading,
-  isError,
-}) => {
-  const {
-    state: { wallet },
-  } = useWallet()
-  const translate = useTranslate()
-  const chainDisplayName = useAppSelector(state =>
-    selectChainDisplayNameByAssetId(state, assetId ?? ''),
-  )
-  const relatedAssetIds = useAppSelector(state =>
-    selectRelatedAssetIdsInclusiveSorted(state, assetId ?? ''),
-  )
+export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
+  ({ assetId, assetIds, onChangeAsset, buttonProps, isLoading, isError }) => {
+    const {
+      state: { wallet },
+    } = useWallet()
+    const translate = useTranslate()
+    const chainDisplayName = useAppSelector(state =>
+      selectChainDisplayNameByAssetId(state, assetId ?? ''),
+    )
+    const relatedAssetIds = useAppSelector(state =>
+      selectRelatedAssetIdsInclusiveSorted(state, assetId ?? ''),
+    )
 
-  const filteredRelatedAssetIds = useMemo(() => {
-    if (!assetIds?.length) return relatedAssetIds
-    return relatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
-  }, [assetIds, relatedAssetIds])
+    const filteredRelatedAssetIds = useMemo(() => {
+      if (!assetIds?.length) return relatedAssetIds
+      return relatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
+    }, [assetIds, relatedAssetIds])
 
-  const renderChains = useMemo(() => {
-    return filteredRelatedAssetIds.map(assetId => {
-      const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
+    const renderChains = useMemo(() => {
+      return filteredRelatedAssetIds.map(assetId => {
+        const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
 
-      return (
-        <MenuItemOption value={assetId} key={assetId} isDisabled={!isSupported}>
-          <AssetChainRow assetId={assetId} />
-        </MenuItemOption>
-      )
-    })
-  }, [filteredRelatedAssetIds, wallet])
+        return (
+          <MenuItemOption value={assetId} key={assetId} isDisabled={!isSupported}>
+            <AssetChainRow assetId={assetId} />
+          </MenuItemOption>
+        )
+      })
+    }, [filteredRelatedAssetIds, wallet])
 
-  const handleChangeAsset = useCallback(
-    (value: string | string[]) => {
-      // this should never happen, but in case it does...
-      if (typeof value !== 'string') {
-        console.error('expected string value')
-        return
-      }
-      onChangeAsset(value as AssetId)
-    },
-    [onChangeAsset],
-  )
+    const handleChangeAsset = useCallback(
+      (value: string | string[]) => {
+        // this should never happen, but in case it does...
+        if (typeof value !== 'string') {
+          console.error('expected string value')
+          return
+        }
+        onChangeAsset(value as AssetId)
+      },
+      [onChangeAsset],
+    )
 
-  const isDisabled = useMemo(() => {
-    return filteredRelatedAssetIds.length <= 1 || isLoading || isError
-  }, [filteredRelatedAssetIds, isError, isLoading])
+    const isDisabled = useMemo(() => {
+      return filteredRelatedAssetIds.length <= 1 || isLoading || isError
+    }, [filteredRelatedAssetIds, isError, isLoading])
 
-  const isTooltipDisabled = useMemo(() => {
-    // only render the tooltip when there are no other related assets and we're not loading and not
-    // errored
-    return filteredRelatedAssetIds.length > 1 || isLoading || isError
-  }, [filteredRelatedAssetIds, isError, isLoading])
+    const isTooltipDisabled = useMemo(() => {
+      // only render the tooltip when there are no other related assets and we're not loading and not
+      // errored
+      return filteredRelatedAssetIds.length > 1 || isLoading || isError
+    }, [filteredRelatedAssetIds, isError, isLoading])
 
-  const buttonTooltipText = useMemo(() => {
-    return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })
-  }, [chainDisplayName, translate])
+    const buttonTooltipText = useMemo(() => {
+      return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })
+    }, [chainDisplayName, translate])
 
-  if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
+    if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
-  return (
-    <Menu>
-      <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
-        <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
-          <AssetChainRow assetId={assetId} hideBalances />
-        </MenuButton>
-      </Tooltip>
-      <MenuList zIndex='banner'>
-        <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
-          {renderChains}
-        </MenuOptionGroup>
-      </MenuList>
-    </Menu>
-  )
-}
+    return (
+      <Menu isLazy>
+        <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
+          <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
+            <AssetChainRow assetId={assetId} hideBalances />
+          </MenuButton>
+        </Tooltip>
+        <MenuList zIndex='banner'>
+          <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
+            {renderChains}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    )
+  },
+)

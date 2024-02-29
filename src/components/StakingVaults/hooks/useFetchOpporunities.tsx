@@ -38,6 +38,7 @@ export const useFetchOpportunities = () => {
 
   const [isLoading, setIsLoading] = useState(true)
 
+  // TODO: this needs to be split up into separate react-queries so we aren't refetching when moving around the app
   useEffect(() => {
     ;(async () => {
       if (!requestedAccountIds.length) return
@@ -55,32 +56,28 @@ export const useFetchOpportunities = () => {
 
       await maybeFetchZapperData
 
-      requestedAccountIds.forEach(accountId => {
-        const { chainId } = fromAccountId(accountId)
-        switch (chainId) {
-          case btcChainId:
-          case ltcChainId:
-          case dogeChainId:
-          case bchChainId:
-          case cosmosChainId:
-          case bscChainId:
-          case avalancheChainId:
-            ;(async () => {
-              await fetchAllOpportunitiesIdsByChainId(chainId)
-              await fetchAllOpportunitiesMetadataByChainId(chainId)
-              await fetchAllOpportunitiesUserDataByAccountId(accountId)
-            })()
-            break
-          case ethChainId:
-            ;(async () => {
-              await fetchAllOpportunitiesIdsByChainId(chainId)
-              await fetchAllOpportunitiesMetadataByChainId(chainId)
-              await fetchAllOpportunitiesUserDataByAccountId(accountId)
-            })()
-            break
-          default:
-        }
-      })
+      await Promise.all(
+        requestedAccountIds.map(accountId => {
+          const { chainId } = fromAccountId(accountId)
+          switch (chainId) {
+            case btcChainId:
+            case ltcChainId:
+            case dogeChainId:
+            case bchChainId:
+            case cosmosChainId:
+            case bscChainId:
+            case avalancheChainId:
+            case ethChainId:
+              return (async () => {
+                await fetchAllOpportunitiesIdsByChainId(chainId)
+                await fetchAllOpportunitiesMetadataByChainId(chainId)
+                await fetchAllOpportunitiesUserDataByAccountId(accountId)
+              })()
+            default:
+              return Promise.resolve()
+          }
+        }),
+      )
 
       setIsLoading(false)
     })()

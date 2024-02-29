@@ -17,6 +17,7 @@ import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 import { SwapIcon } from 'components/Icons/SwapIcon'
+import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpporunities'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -90,7 +91,7 @@ export const DashboardHeader = () => {
     state: { isConnected },
   } = useWallet()
   const translate = useTranslate()
-  const loading = useAppSelector(selectPortfolioLoading)
+  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
@@ -122,6 +123,8 @@ export const DashboardHeader = () => {
     }
   }, [location])
 
+  const isOpportunitiesLoading = useFetchOpportunities()
+
   const NavItems: TabItem[] = useMemo(() => {
     return [
       {
@@ -140,7 +143,11 @@ export const DashboardHeader = () => {
         label: 'navBar.defi',
         path: '/dashboard/earn',
         color: 'purple',
-        rightElement: <Amount.Fiat value={earnUserCurrencyBalance} />,
+        rightElement: (
+          <Skeleton isLoaded={!isOpportunitiesLoading}>
+            <Amount.Fiat value={earnUserCurrencyBalance} />
+          </Skeleton>
+        ),
       },
       {
         label: 'navBar.rewards',
@@ -165,6 +172,7 @@ export const DashboardHeader = () => {
     claimableRewardsUserCurrencyBalance,
     earnUserCurrencyBalance,
     isNftsEnabled,
+    isOpportunitiesLoading,
     portfolioTotalUserCurrencyBalance,
     translate,
   ])
@@ -224,7 +232,7 @@ export const DashboardHeader = () => {
           <ProfileAvatar />
           <Flex flexDir='column' alignItems={portfolioTextAlignment}>
             <Text fontWeight='semibold' translation='defi.netWorth' color='text.subtle' />
-            <Skeleton isLoaded={!loading}>
+            <Skeleton isLoaded={!isPortfolioLoading && !isOpportunitiesLoading}>
               <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
             </Skeleton>
           </Flex>

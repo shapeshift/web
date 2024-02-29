@@ -188,7 +188,7 @@ export type MidgardTvlHistoryResponse = {
 }
 
 export type LpConfirmedDepositQuote = {
-  totalAmountFiat: string
+  totalAmountUsd: string
   assetCryptoDepositAmount: string
   assetFiatDepositAmount: string
   runeCryptoDepositAmount: string
@@ -198,21 +198,22 @@ export type LpConfirmedDepositQuote = {
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
-  feeAmountFiat: string
+  feeAmountUsd: string
+  feeAmountFiatUserCurrency: string
   assetAddress?: string
   quoteInboundAddress: string
   // For informative purposes only at confirm step - to be recalculated before signing
-  totalGasFeeFiat: string
-  runeGasFeeFiat: string
-  poolAssetGasFeeFiat: string
+  totalGasFeeFiatUserCurrency: string
+  runeGasFeeFiatUserCurrency: string
+  poolAssetGasFeeFiatUserCurrency: string
 }
 
 export type LpConfirmedWithdrawalQuote = {
-  totalAmountFiat: string
+  totalAmountFiatUserCurrency: string
   assetCryptoWithdrawAmount: string
-  assetFiatWithdrawAmount: string
+  assetWithdrawAmountFiatUserCurrency: string
   runeCryptoWithdrawAmount: string
-  runeFiatWithdrawAmount: string
+  runeFWithdrawAmountFiatUserCurrency: string
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
@@ -221,9 +222,9 @@ export type LpConfirmedWithdrawalQuote = {
   assetAddress?: string
   quoteInboundAddress: string
   // For informative purposes only at confirm step - to be recalculated before signing
-  totalGasFeeFiat: string
-  runeGasFeeFiat: string
-  poolAssetGasFeeFiat: string
+  totalFeeFiatUserCurrency: string
+  runeGasFeeFiatUserCurrency: string
+  poolAssetGasFeeFiatUserCurrency: string
 }
 
 export enum AsymSide {

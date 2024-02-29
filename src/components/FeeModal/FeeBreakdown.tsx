@@ -8,11 +8,9 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
-import { selectQuoteAffiliateFeeUserCurrency } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const divider = <Divider />
 
 const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: string }) => {
@@ -23,15 +21,25 @@ const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: str
   )
 }
 
-export const FeeBreakdown = () => {
+type FeeBreakdownProps = {
+  feeModel: ParameterModel
+  inputAmountUsd: string | undefined
+  affiliateFeeAmountUserCurrency: string
+}
+
+export const FeeBreakdown = ({
+  feeModel,
+  inputAmountUsd,
+  affiliateFeeAmountUserCurrency,
+}: FeeBreakdownProps) => {
   const translate = useTranslate()
+  const votingPowerParams: { feeModel: ParameterModel } = useMemo(() => ({ feeModel }), [feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const { foxDiscountUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
-      tradeAmountUsd: bnOrZero(sellAmountUsd),
+      tradeAmountUsd: bnOrZero(inputAmountUsd),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      feeModel: 'SWAPPER',
+      feeModel,
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -39,9 +47,6 @@ export const FeeBreakdown = () => {
   const feeBeforeDiscountUserCurrency = useMemo(() => {
     return feeUsdBeforeDiscount.times(userCurrencyToUsdRate).toFixed(2)
   }, [feeUsdBeforeDiscount, userCurrencyToUsdRate])
-
-  // use the fee from the actual quote in case it varies from the theoretical calculation
-  const affiliateFeeAmountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
 
   const isFree = useMemo(
     () => bnOrZero(affiliateFeeAmountUserCurrency).eq(0),

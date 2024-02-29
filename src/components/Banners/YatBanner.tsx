@@ -16,7 +16,13 @@ type YatBannerProps = {
 
 const hoverProp = { boxShadow: '0 0 0 2px var(--chakra-colors-chakra-body-text) inset' }
 
-export const YatBanner: React.FC<YatBannerProps> = memo(({ isCompact, ...rest }) => {
+export const YatBanner: React.FC<YatBannerProps> = memo(props => {
+  const { isCompact, ...linkProps } = useMemo(() => {
+    const { isCompact, ...linkProps } = props
+    return { isCompact, linkProps }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
+
   const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
   const translate = useTranslate()
   const { isDemoWallet } = useWallet().state
@@ -57,7 +63,7 @@ export const YatBanner: React.FC<YatBannerProps> = memo(({ isCompact, ...rest })
         _hover={hoverProp}
         borderRadius='xl'
         backgroundImage='radial-gradient(circle at bottom left, #00C1C165 0%, transparent 30%), radial-gradient(circle at top right, #7B61FF70 0%, transparent 50%)'
-        {...rest}
+        {...linkProps}
       >
         <Flex
           w='100%'

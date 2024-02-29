@@ -56,8 +56,10 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const handleTimeframeChange = useTimeframeChange(setTimeframe)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const { price } = marketData || {}
-  const assetPrice = toFiat(price) ?? 0
+  const assetPrice = useMemo(() => {
+    const price = marketData?.price
+    return toFiat(price) ?? 0
+  }, [marketData?.price, toFiat])
 
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 

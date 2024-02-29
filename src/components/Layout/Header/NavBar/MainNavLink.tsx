@@ -24,68 +24,72 @@ const activeProp = {
   fontWeight: 'bold',
 }
 
-export const MainNavLink = memo(
-  ({ isCompact, onClick, isNew, label, isActive, ...rest }: SidebarLinkProps) => {
-    const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
-    const translate = useTranslate()
-    const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-      e => (isActive ? e.preventDefault() : onClick?.(e)),
-      [isActive, onClick],
-    )
+export const MainNavLink = memo((props: SidebarLinkProps) => {
+  const { isCompact, onClick, isNew, label, isActive, buttonProps } = useMemo(() => {
+    const { isCompact, onClick, isNew, label, isActive, ...buttonProps } = props
+    return { isCompact, onClick, isNew, label, isActive, buttonProps }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
 
-    const justifyContentProp = useMemo(
-      () => ({ base: isCompact ? 'center' : 'flex-start', '2xl': 'flex-start' }),
-      [isCompact],
-    )
+  const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
+  const translate = useTranslate()
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    e => (isActive ? e.preventDefault() : onClick?.(e)),
+    [isActive, onClick],
+  )
 
-    const displayProp1 = useMemo(
-      () => ({ base: isCompact ? 'none' : 'inline-flex', '2xl': 'inline-flex' }),
-      [isCompact],
-    )
+  const justifyContentProp = useMemo(
+    () => ({ base: isCompact ? 'center' : 'flex-start', '2xl': 'flex-start' }),
+    [isCompact],
+  )
 
-    const displayProp2 = useMemo(
-      () => ({ base: isCompact ? 'none' : 'flex', '2xl': 'block' }),
-      [isCompact],
-    )
+  const displayProp1 = useMemo(
+    () => ({ base: isCompact ? 'none' : 'inline-flex', '2xl': 'inline-flex' }),
+    [isCompact],
+  )
 
-    const displayProp3 = useMemo(
-      () => ({ base: isCompact ? 'block' : 'none', '2xl': 'none' }),
-      [isCompact],
-    )
+  const displayProp2 = useMemo(
+    () => ({ base: isCompact ? 'none' : 'flex', '2xl': 'block' }),
+    [isCompact],
+  )
 
-    return (
-      <Tooltip label={label} isDisabled={isLargerThan2xl || !isCompact} placement='right'>
-        <Button
-          width='full'
-          justifyContent={justifyContentProp}
-          variant='nav-link'
-          isActive={isActive}
-          onClick={handleClick}
-          position='relative'
-          fontWeight='medium'
-          minWidth={isCompact ? 'auto' : 10}
-          iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
-          _active={activeProp}
-          _hover={hoverProp}
-          {...rest}
-        >
-          <Box display={displayProp2}>{label}</Box>
-          {isNew && (
-            <>
-              <Tag ml='auto' colorScheme='pink' display={displayProp1}>
-                {translate('common.new')}
-              </Tag>
-              <CircleIcon
-                style={styleProp}
-                right={0}
-                top={0}
-                position='absolute'
-                display={displayProp3}
-              />
-            </>
-          )}
-        </Button>
-      </Tooltip>
-    )
-  },
-)
+  const displayProp3 = useMemo(
+    () => ({ base: isCompact ? 'block' : 'none', '2xl': 'none' }),
+    [isCompact],
+  )
+
+  return (
+    <Tooltip label={label} isDisabled={isLargerThan2xl || !isCompact} placement='right'>
+      <Button
+        width='full'
+        justifyContent={justifyContentProp}
+        variant='nav-link'
+        isActive={isActive}
+        onClick={handleClick}
+        position='relative'
+        fontWeight='medium'
+        minWidth={isCompact ? 'auto' : 10}
+        iconSpacing={isLargerThan2xl ? 4 : isCompact ? 0 : 4}
+        _active={activeProp}
+        _hover={hoverProp}
+        {...buttonProps}
+      >
+        <Box display={displayProp2}>{label}</Box>
+        {isNew && (
+          <>
+            <Tag ml='auto' colorScheme='pink' display={displayProp1}>
+              {translate('common.new')}
+            </Tag>
+            <CircleIcon
+              style={styleProp}
+              right={0}
+              top={0}
+              position='absolute'
+              display={displayProp3}
+            />
+          </>
+        )}
+      </Button>
+    </Tooltip>
+  )
+})

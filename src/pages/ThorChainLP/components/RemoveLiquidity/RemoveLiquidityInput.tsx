@@ -36,9 +36,11 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
   estimateRemoveThorchainLiquidityPosition,
@@ -46,9 +48,16 @@ import {
 } from 'lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
+import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
-import { selectAssetById, selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectMarketDataById,
+  selectPortfolioAccountMetadataByAccountId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { RemoveLiquidityRoutePaths } from './types'
@@ -88,6 +97,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const history = useHistory()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
+  const wallet = useWallet().state.wallet
 
   const [slippageRune, setSlippageRune] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
@@ -96,6 +106,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [percentageSelection, setPercentageSelection] = useState<number>(INITIAL_REMOVAL_PERCENTAGE)
   const [sliderValue, setSliderValue] = useState<number>(INITIAL_REMOVAL_PERCENTAGE)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
+  const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
+    undefined,
+  )
 
   const { assetId, type: opportunityType } = useMemo(
     () => fromOpportunityId(opportunityId),
@@ -231,6 +244,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     swapperName: SwapperName.Thorchain,
   })
 
+  const currentAccountIdByChainId = useMemo(() => {
+    if (!poolAsset) return {}
+    return {
+      [poolAsset.chainId]: accountId,
+      [thorchainChainId]: runeAccountId ?? '',
+    }
+  }, [accountId, poolAsset, runeAccountId])
+
   useEffect(() => {
     if (!userLpData) return
 
@@ -253,10 +274,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
   }, [browserHistory])
-
-  const handleSubmit = useCallback(() => {
-    history.push(RemoveLiquidityRoutePaths.Confirm)
-  }, [history])
 
   const handlePercentageSliderChange = useCallback(
     (percentage: number) => {
@@ -557,8 +574,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       .times(opportunityType === 'sym' ? 2 : 1)
       .toFixed()
 
-    const poolChainId = poolAsset.chainId
-
     setConfirmedQuote({
       assetCryptoWithdrawAmount: actualAssetCryptoLiquidityAmount,
       assetWithdrawAmountFiatUserCurrency: actualAssetLiquidityAmountFiatUserCurrency,
@@ -574,10 +589,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       totalFeeFiatUserCurrency: totalGasFeeFiat,
       feeBps: '0',
       withdrawalBps: bnOrZero(percentageSelection).times(100).toString(),
-      currentAccountIdByChainId: {
-        [poolChainId]: accountId,
-        [thorchainChainId]: runeAccountId ?? '',
-      },
+      currentAccountIdByChainId,
     })
   }, [
     actualAssetCryptoLiquidityAmount,
@@ -598,7 +610,66 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     slippageRune,
     totalGasFeeFiat,
     poolAssetGasFeeFiatUserCurrency,
+    currentAccountIdByChainId,
   ])
+
+  const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])
+  const poolAssetAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
+  )
+
+  useEffect(() => {
+    if (!(wallet && poolAsset && opportunityId && poolAssetAccountMetadata)) return
+    ;(async () => {
+      const _accountAssetAddress = await getThorchainFromAddress({
+        accountId,
+        assetId: poolAsset?.assetId,
+        opportunityId,
+        wallet,
+        accountMetadata: poolAssetAccountMetadata,
+        getPosition: getThorchainLpPosition,
+      })
+      setPoolAssetAccountAddress(_accountAssetAddress)
+    })()
+  }, [accountId, opportunityId, poolAsset, poolAssetAccountMetadata, wallet])
+
+  const isSweepNeededArgs = useMemo(
+    () => ({
+      assetId: poolAsset?.assetId,
+      address: poolAssetAccountAddress ?? null,
+      amountCryptoBaseUnit: toBaseUnit(
+        actualAssetCryptoLiquidityAmount ?? 0,
+        poolAsset?.precision ?? 0,
+      ),
+      // Effectively defined at runtime because of the enabled check below
+      txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit!,
+      // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
+      // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
+      enabled: Boolean(
+        !!poolAsset?.assetId &&
+          bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
+          // isEstimatedPoolAssetFeesDataSuccess &&
+          // hasEnoughPoolAssetBalanceForTxPlusFees &&
+          estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
+      ),
+    }),
+    [
+      poolAsset?.assetId,
+      poolAsset?.precision,
+      poolAssetAccountAddress,
+      actualAssetCryptoLiquidityAmount,
+      estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
+    ],
+  )
+
+  const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
+    useIsSweepNeededQuery(isSweepNeededArgs)
+
+  const handleSubmit = useCallback(() => {
+    history.push(
+      isSweepNeeded ? RemoveLiquidityRoutePaths.Sweep : RemoveLiquidityRoutePaths.Confirm,
+    )
+  }, [history, isSweepNeeded])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && opportunityType)) return null
@@ -795,12 +866,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             !confirmedQuote ||
             isEstimatedPoolAssetFeesDataError ||
             isEstimatedRuneFeesDataError ||
-            !validInputAmount
+            !validInputAmount ||
+            isSweepNeededLoading
           }
           isLoading={
             isTradingActiveLoading ||
             isEstimatedPoolAssetFeesDataLoading ||
-            isEstimatedRuneFeesDataLoading
+            isEstimatedRuneFeesDataLoading ||
+            isSweepNeededLoading
           }
         >
           {translate('pools.removeLiquidity')}

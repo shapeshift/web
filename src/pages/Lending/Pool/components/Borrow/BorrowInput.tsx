@@ -38,6 +38,7 @@ import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFee
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
+import { usePoolDataQuery } from 'pages/Lending/hooks/usePoolDataQuery'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
@@ -100,6 +101,13 @@ export const BorrowInput = ({
 
   const { data: borrowAssets, isLoading: isLendingSupportedAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
+
+  const usePoolDataArgs = useMemo(() => ({ poolAssetId: collateralAssetId }), [collateralAssetId])
+  const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
+  const isHardCapReached = useMemo(() => {
+    if (!poolData) return null
+    return bnOrZero(poolData.tvl).eq(poolData.maxSupplyFiat)
+  }, [poolData])
 
   const borrowAssetIds = useMemo(() => {
     return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
@@ -415,6 +423,7 @@ export const BorrowInput = ({
   ])
 
   const quoteErrorTranslation = useMemo(() => {
+    if (isHardCapReached) return 'defi.modals.saversVaults.haltedTitle'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
@@ -442,6 +451,7 @@ export const BorrowInput = ({
     hasEnoughBalanceForTxPlusFees,
     hasEnoughBalanceForTxPlusSweep,
     isEstimatedFeesDataSuccess,
+    isHardCapReached,
     isLendingQuoteError,
     isLendingQuoteSuccess,
     lendingQuoteError?.message,
@@ -595,6 +605,7 @@ export const BorrowInput = ({
             mx={-2}
             onClick={onSubmit}
             isLoading={
+              isPoolDataLoading ||
               isLendingQuoteLoading ||
               isLendingQuoteRefetching ||
               isEstimatedFeesDataLoading ||
@@ -604,7 +615,8 @@ export const BorrowInput = ({
               isAddressByteCodeLoading
             }
             isDisabled={Boolean(
-              bnOrZero(depositAmountCryptoPrecision).isZero() ||
+              isHardCapReached ||
+                bnOrZero(depositAmountCryptoPrecision).isZero() ||
                 isLendingQuoteError ||
                 isLendingQuoteLoading ||
                 isLendingQuoteRefetching ||

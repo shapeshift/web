@@ -27,7 +27,7 @@ import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectInputSellAmountUsd, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
@@ -343,16 +343,18 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, fee
 
 const feeExplainerCardBody = { base: 4, md: 8 }
 
-type FeeExplainerProps = CardProps & { feeModel: ParameterModel }
+type FeeExplainerProps = CardProps & {
+  feeModel: ParameterModel
+  inputAmountUsd: string | undefined
+}
 
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[props.feeModel]
   const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
 
   const [tradeSize, setTradeSize] = useState(
-    sellAmountUsd ? Number.parseFloat(sellAmountUsd) : FEE_CURVE_NO_FEE_THRESHOLD_USD,
+    props.inputAmountUsd ? Number.parseFloat(props.inputAmountUsd) : FEE_CURVE_NO_FEE_THRESHOLD_USD,
   )
   const [foxHolding, setFoxHolding] = useState(bnOrZero(votingPower).toNumber())
   const translate = useTranslate()

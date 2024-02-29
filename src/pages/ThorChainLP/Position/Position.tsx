@@ -14,6 +14,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Tag,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
@@ -29,14 +30,8 @@ import { AssetIcon } from 'components/AssetIcon'
 import { DynamicComponent } from 'components/DynamicComponent'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  calculateEarnings,
-  calculateTVL,
-  get24hSwapChangePercentage,
-  getFees,
-  getVolume,
-} from 'lib/utils/thorchain/lp'
+import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { calculateEarnings } from 'lib/utils/thorchain/lp'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -46,9 +41,8 @@ import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
 import { PoolInfo } from '../components/PoolInfo'
 import { RemoveLiquidity } from '../components/RemoveLiquidity/RemoveLiquidity'
-import { usePools } from '../queries/hooks/usePools'
+import { usePool } from '../queries/hooks/usePool'
 import { useUserLpData } from '../queries/hooks/useUserLpData'
-import { getPositionName } from '../utils'
 
 type MatchParams = {
   poolAssetId: string
@@ -139,20 +133,15 @@ export const Position = () => {
 
   const [stepIndex, setStepIndex] = useState<number>(0)
 
-  const { data: pools } = usePools()
-
+  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
+  const accountId = useMemo(() => params.accountId, [params.accountId])
+  const assetId = useMemo(() => poolAssetIdToAssetId(poolAssetId), [poolAssetId])
   const opportunityId = useMemo(() => {
     return decodeURIComponent(params.opportunityId ?? '')
   }, [params.opportunityId])
 
-  const poolAssetId = useMemo(() => params.poolAssetId, [params.poolAssetId])
-  const accountId = useMemo(() => params.accountId, [params.accountId])
-
-  const pool = useMemo(() => {
-    return pools?.find(pool => pool.asset === poolAssetId)
-  }, [poolAssetId, pools])
-
-  const { data: userLpData } = useUserLpData({ assetId: pool?.assetId ?? '' })
+  const { data: pool } = usePool(poolAssetId ?? '')
+  const { data: userLpData } = useUserLpData({ assetId: assetId ?? '' })
 
   const position = useMemo(() => {
     if (!userLpData) return
@@ -163,95 +152,27 @@ export const Position = () => {
     return userLpData?.find(data => data.opportunityId === opportunityId)
   }, [opportunityId, userLpData])
 
-  const positionName = useMemo(() => {
-    return getPositionName(pool?.name ?? '', opportunityId)
-  }, [pool?.name, opportunityId])
-
   const poolAssetIds = useMemo(() => {
-    if (!pool) return []
+    if (!assetId) return []
+    return [assetId, thorchainAssetId]
+  }, [assetId])
 
-    return [pool.assetId, thorchainAssetId]
-  }, [pool])
-
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const asset = useAppSelector(state => selectAssetById(state, pool?.assetId ?? ''))
-
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, pool?.assetId ?? ''))
-
-  const { data: swapDataPrevious24h } = useQuery({
-    ...reactQueries.midgard.swapsData(pool?.assetId, 'previous24h'),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    staleTime: Infinity,
-    enabled: !!pool?.assetId,
-  })
-
-  const { data: swapData24h } = useQuery({
-    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    staleTime: Infinity,
-    enabled: !!pool?.assetId,
-  })
-
-  const fees24h = useMemo(() => {
-    if (!swapData24h) return undefined
-
-    return getFees(runeMarketData.price, assetMarketData.price, swapData24h)
-  }, [assetMarketData.price, runeMarketData.price, swapData24h])
-
-  const { data: volume24h } = useQuery({
-    ...reactQueries.midgard.swapsData(pool?.assetId, '24h'),
-    select: data => getVolume(runeMarketData.price, data),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    staleTime: Infinity,
-    enabled: !!pool?.assetId,
-  })
-
-  const swap24hChange = useMemo(() => {
-    if (!pool || !swapData24h || !swapDataPrevious24h) return null
-
-    return get24hSwapChangePercentage(
-      runeMarketData.price,
-      assetMarketData.price,
-      swapData24h,
-      swapDataPrevious24h,
-    )
-  }, [pool, swapData24h, swapDataPrevious24h, runeMarketData, assetMarketData])
-
-  const { data: tvl24hChange } = useQuery({
-    ...reactQueries.thorchainLp.tvl24hChange(pool?.assetId),
-    enabled: !!pool?.assetId,
-  })
-
-  const { data: allTimeVolume } = useQuery({
-    ...reactQueries.thorchainLp.allTimeVolume(pool?.assetId, runeMarketData.price),
-    enabled: Boolean(!!pool?.assetId && !!bnOrZero(runeMarketData.price).gt(0)),
-  })
 
   const { data: earnings } = useQuery({
     ...reactQueries.thorchainLp.earnings(position?.dateFirstAdded),
     enabled: Boolean(position),
     select: data => {
-      if (!data || !position) return null
+      if (!position) return null
 
       const poolEarnings = data.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!poolEarnings) return null
 
-      return calculateEarnings(
-        poolEarnings.assetLiquidityFees,
-        poolEarnings.runeLiquidityFees,
-        position.poolShare,
-        runeMarketData.price,
-        assetMarketData.price,
-      )
+      return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)
     },
   })
-
-  const tvl = useMemo(() => {
-    if (!pool) return { tvl: '0', assetAmountCryptoPrecision: '0', runeAmountCryptoPrecision: '0' }
-
-    return calculateTVL(pool.assetDepth, pool.runeDepth, runeMarketData.price)
-  }, [pool, runeMarketData.price])
 
   const liquidityValueComponent = useMemo(
     () => <Amount.Fiat value={position?.totalValueFiatUserCurrency ?? '0'} fontSize='2xl' />,
@@ -259,8 +180,8 @@ export const Position = () => {
   )
 
   const unclaimedFeesComponent = useMemo(
-    () => <Amount.Fiat value={earnings?.totalEarningsFiatUserCurrency ?? '0'} fontSize='2xl' />,
-    [earnings?.totalEarningsFiatUserCurrency],
+    () => <Amount.Fiat value={earnings?.totalEarningsFiat ?? '0'} fontSize='2xl' />,
+    [earnings?.totalEarningsFiat],
   )
 
   const headerComponent = useMemo(() => <PoolHeader />, [])
@@ -270,7 +191,7 @@ export const Position = () => {
     [stepIndex],
   )
 
-  if (!pool) return null
+  if (!position) return null
 
   return (
     <Main headerComponent={headerComponent}>
@@ -280,7 +201,20 @@ export const Position = () => {
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='md' />
-                <Heading as='h3'>{positionName}</Heading>
+                <Heading as='h3'>{position.name}</Heading>
+                <Tag size={'lg'}>
+                  {position?.asym ? (
+                    <Text
+                      // eslint-disable-next-line react-memo/require-usememo
+                      translation={[
+                        'common.asymmetric',
+                        { assetSymbol: position.asym.asset.symbol },
+                      ]}
+                    />
+                  ) : (
+                    <Text translation='common.symmetric' />
+                  )}
+                </Tag>
               </Flex>
             </CardHeader>
             <CardBody gap={6} display='flex' flexDir='column' px={8} pb={8} pt={0}>
@@ -308,7 +242,7 @@ export const Position = () => {
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={position?.underlyingAssetAmountCryptoPrecision ?? '0'}
+                          value={position.underlyingAssetAmountCryptoPrecision}
                           symbol={asset?.symbol ?? ''}
                         />
                       </Flex>
@@ -325,7 +259,7 @@ export const Position = () => {
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={position?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                          value={position.underlyingRuneAmountCryptoPrecision}
                           symbol={runeAsset?.symbol ?? ''}
                         />
                       </Flex>
@@ -354,7 +288,7 @@ export const Position = () => {
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={earnings?.assetEarnings ?? '0'}
+                          value={earnings?.assetEarningsCryptoPrecision ?? '0'}
                           symbol={asset?.symbol ?? ''}
                           whiteSpace='nowrap'
                         />
@@ -372,7 +306,7 @@ export const Position = () => {
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
                         <Amount.Crypto
-                          value={earnings?.runeEarnings ?? '0'}
+                          value={earnings?.runeEarningsCryptoPrecision ?? '0'}
                           symbol={runeAsset?.symbol ?? ''}
                         />
                       </Flex>
@@ -391,14 +325,14 @@ export const Position = () => {
               borderColor='border.base'
             >
               <PoolInfo
-                volume24h={volume24h}
-                volume24hChange={swap24hChange?.volumeChangePercentage}
-                fee24hChange={swap24hChange?.feeChangePercentage}
-                fees24h={fees24h}
-                allTimeVolume={allTimeVolume}
-                apy={pool.annualPercentageRate}
-                tvl={tvl.tvl}
-                tvl24hChange={tvl24hChange ?? 0}
+                volume24h={pool?.volume24hFiat}
+                volume24hChange={pool?.volume24hChange}
+                fee24hChange={pool?.fees24hChange}
+                fees24h={pool?.fees24hFiat}
+                allTimeVolume={pool?.volumeTotalFiat}
+                apy={pool?.annualPercentageRate}
+                tvl={pool?.tvl24hFiat}
+                tvl24hChange={pool?.tvl24hChange}
                 assetIds={poolAssetIds}
               />
             </CardFooter>

@@ -1,4 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import type { BN } from 'lib/bignumber/bignumber'
 
 export type ThornodeLiquidityProvider = {
@@ -76,7 +77,7 @@ export type MidgardPoolStats = {
   withdrawVolume: string
 }
 
-type MidgardInterval = {
+export type MidgardInterval = {
   averageSlip: string
   endTime: string
   runePriceUSD: string
@@ -120,7 +121,7 @@ export type ExtendedThornodeLiquidityProvider = ThornodeLiquidityProvider & {
 
 export type ThorchainLiquidityProvidersResponseSuccess = ThornodeLiquidityProvider[]
 
-type ThorchainEarningsHistoryPoolItem = {
+export type MidgardEarningsHistoryPoolItem = {
   pool: string
   assetLiquidityFees: string
   runeLiquidityFees: string
@@ -130,7 +131,7 @@ type ThorchainEarningsHistoryPoolItem = {
   earnings: string
 }
 
-type ThorchainEarningsHistoryItem = {
+type MidgardEarningsHistoryItem = {
   startTime: string
   endTime: string
   liquidityFees: string
@@ -140,10 +141,10 @@ type ThorchainEarningsHistoryItem = {
   liquidityEarnings: string
   avgNodeCount: string
   runePriceUSD: string
-  pools: ThorchainEarningsHistoryPoolItem[]
+  pools: MidgardEarningsHistoryPoolItem[]
 }
 
-type ThorchainEarningsHistoryInterval = {
+type MidgardEarningsHistoryInterval = {
   startTime: string
   endTime: string
   liquidityFees: string
@@ -153,17 +154,17 @@ type ThorchainEarningsHistoryInterval = {
   liquidityEarnings: string
   avgNodeCount: string
   runePriceUSD: string
-  pools: ThorchainEarningsHistoryPoolItem[]
+  pools: MidgardEarningsHistoryPoolItem[]
 }
 
-export type ThorchainEarningsHistoryResponse = {
-  meta: ThorchainEarningsHistoryItem
-  intervals: ThorchainEarningsHistoryInterval[]
+export type MidgardEarningsHistoryResponse = {
+  meta: MidgardEarningsHistoryItem
+  intervals: MidgardEarningsHistoryInterval[]
 }
 
 export type PoolShareDetail = {
-  assetShare: BN
-  runeShare: BN
+  assetShareThorBaseUnit: BN
+  runeShareThorBaseUnit: BN
   poolShareDecimalPercent: string
 }
 
@@ -188,7 +189,7 @@ export type MidgardTvlHistoryResponse = {
 }
 
 export type LpConfirmedDepositQuote = {
-  totalAmountFiat: string
+  totalAmountUsd: string
   assetCryptoDepositAmount: string
   assetFiatDepositAmount: string
   runeCryptoDepositAmount: string
@@ -198,21 +199,22 @@ export type LpConfirmedDepositQuote = {
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
-  feeAmountFiat: string
+  feeAmountUsd: string
+  feeAmountFiatUserCurrency: string
   assetAddress?: string
   quoteInboundAddress: string
   // For informative purposes only at confirm step - to be recalculated before signing
-  totalGasFeeFiat: string
-  runeGasFeeFiat: string
-  poolAssetGasFeeFiat: string
+  totalGasFeeFiatUserCurrency: string
+  runeGasFeeFiatUserCurrency: string
+  poolAssetGasFeeFiatUserCurrency: string
 }
 
 export type LpConfirmedWithdrawalQuote = {
-  totalAmountFiat: string
+  totalAmountFiatUserCurrency: string
   assetCryptoWithdrawAmount: string
-  assetFiatWithdrawAmount: string
+  assetWithdrawAmountFiatUserCurrency: string
   runeCryptoWithdrawAmount: string
-  runeFiatWithdrawAmount: string
+  runeFWithdrawAmountFiatUserCurrency: string
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
@@ -221,9 +223,9 @@ export type LpConfirmedWithdrawalQuote = {
   assetAddress?: string
   quoteInboundAddress: string
   // For informative purposes only at confirm step - to be recalculated before signing
-  totalGasFeeFiat: string
-  runeGasFeeFiat: string
-  poolAssetGasFeeFiat: string
+  totalFeeFiatUserCurrency: string
+  runeGasFeeFiatUserCurrency: string
+  poolAssetGasFeeFiatUserCurrency: string
 }
 
 export enum AsymSide {
@@ -236,12 +238,15 @@ export type UserLpDataPosition = {
   liquidityUnits: string
   underlyingAssetAmountCryptoPrecision: string
   underlyingRuneAmountCryptoPrecision: string
-  isAsymmetric: boolean
-  asymSide: AsymSide | null
+  asym?: {
+    side: AsymSide
+    asset: Asset
+  }
   underlyingAssetValueFiatUserCurrency: string
   underlyingRuneValueFiatUserCurrency: string
   totalValueFiatUserCurrency: string
   poolOwnershipPercentage: string
+  name: string
   opportunityId: string
   poolShare: string
 

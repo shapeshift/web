@@ -114,7 +114,7 @@ export const SlippagePopover: FC = memo(() => {
   if (!isAdvancedSlippageEnabled) return null
 
   return (
-    <Popover placement='bottom-end' onClose={handleClose}>
+    <Popover isLazy placement='bottom-end' onClose={handleClose}>
       <PopoverTrigger>
         <IconButton aria-label={translate('trade.tradeSettings')} icon={faGear} variant='ghost' />
       </PopoverTrigger>

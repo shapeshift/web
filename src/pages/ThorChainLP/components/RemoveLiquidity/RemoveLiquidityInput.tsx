@@ -108,15 +108,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [virtualAssetCryptoLiquidityAmount, setVirtualAssetCryptoLiquidityAmount] = useState<
     string | undefined
   >()
-  const [virtualAssetFiatLiquidityAmount, setVirtualAssetFiatLiquidityAmount] = useState<
-    string | undefined
-  >()
+  const [
+    virtualAssetLiquidityAmountFiatUserCurrency,
+    setVirtualAssetLiquidityAmountFiatUserCurrency,
+  ] = useState<string | undefined>()
   const [virtualRuneCryptoLiquidityAmount, setVirtualRuneCryptoLiquidityAmount] = useState<
     string | undefined
   >()
-  const [virtualRuneFiatLiquidityAmount, setVirtualRuneFiatLiquidityAmount] = useState<
-    string | undefined
-  >()
+  const [
+    virtualRuneLiquidityAmountFiatUserCurrency,
+    setVirtualRuneLiquidityAmountFiatUserCurrency,
+  ] = useState<string | undefined>()
 
   const actualAssetCryptoLiquidityAmount = useMemo(() => {
     switch (opportunityType) {
@@ -150,37 +152,37 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     }
   }, [opportunityType, virtualRuneCryptoLiquidityAmount])
 
-  const actualAssetFiatLiquidityAmount = useMemo(() => {
+  const actualAssetLiquidityAmountFiatUserCurrency = useMemo(() => {
     switch (opportunityType) {
       // Symmetrical: assetAmount = virtual amount (no deposit rebalance, so use current asset value as is)
       case 'sym':
-        return virtualAssetFiatLiquidityAmount
+        return virtualAssetLiquidityAmountFiatUserCurrency
       // Asym Asset: assetAmount = virtual amount times 2 (deposit 50:50 rebalance asset->rune, so current rune value will be swapped into asset before withdrawal)
       case AsymSide.Asset:
-        return bnOrZero(virtualAssetFiatLiquidityAmount).times(2).toFixed()
+        return bnOrZero(virtualAssetLiquidityAmountFiatUserCurrency).times(2).toFixed()
       // Asym Rune: assetAmount = '0' (deposit 50:50 rebalance rune -> asset, so current asset value will be swapped into rune before withdrawal)
       case AsymSide.Rune:
         return '0'
       default:
         assertUnreachable(opportunityType)
     }
-  }, [opportunityType, virtualAssetFiatLiquidityAmount])
+  }, [opportunityType, virtualAssetLiquidityAmountFiatUserCurrency])
 
-  const actualRuneFiatLiquidityAmount = useMemo(() => {
+  const actualRuneLiquidityAmountFiatUserCurrency = useMemo(() => {
     switch (opportunityType) {
       // Symmetrical: runeAmount = virtual amount (no deposit rebalance, so use current rune value as is)
       case 'sym':
-        return virtualRuneFiatLiquidityAmount
+        return virtualRuneLiquidityAmountFiatUserCurrency
       // Asym Rune: runeAmount = virtual amount times 2 (deposit 50:50 rebalance rune->asset, so current asset value will be swapped into rune before withdrawal)
       case AsymSide.Rune:
-        return bnOrZero(virtualRuneFiatLiquidityAmount).times(2).toFixed()
+        return bnOrZero(virtualRuneLiquidityAmountFiatUserCurrency).times(2).toFixed()
       // Asym Asset: runeAmount = '0' (deposit 50:50 rebalance asset->rune, so current rune value will be swapped into asset before withdrawal)
       case AsymSide.Asset:
         return '0'
       default:
         assertUnreachable(opportunityType)
     }
-  }, [opportunityType, virtualRuneFiatLiquidityAmount])
+  }, [opportunityType, virtualRuneLiquidityAmountFiatUserCurrency])
 
   const validInputAmount = useMemo(() => {
     switch (opportunityType) {
@@ -286,12 +288,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         .times(percentageSelection / 100)
         .toFixed(),
     )
-    setVirtualRuneFiatLiquidityAmount(
+    setVirtualRuneLiquidityAmountFiatUserCurrency(
       bnOrZero(underlyingRuneValueFiatUserCurrency)
         .times(percentageSelection / 100)
         .toFixed(),
     )
-    setVirtualAssetFiatLiquidityAmount(
+    setVirtualAssetLiquidityAmountFiatUserCurrency(
       bnOrZero(underlyingAssetValueFiatUserCurrency)
         .times(percentageSelection / 100)
         .toFixed(),
@@ -346,19 +348,19 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [estimatedRuneFeesData?.txFeeCryptoBaseUnit, runeAsset?.precision],
   )
 
-  const poolAssetGasFeeFiat = useMemo(
+  const poolAssetGasFeeFiatUserCurrency = useMemo(
     () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarktData.price),
     [poolAssetFeeAssetMarktData.price, poolAssetTxFeeCryptoPrecision],
   )
 
-  const runeGasFeeFiat = useMemo(
+  const runeGasFeeFiatUserCurrency = useMemo(
     () => bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price),
     [runeMarketData.price, runeTxFeeCryptoPrecision],
   )
 
   const totalGasFeeFiat = useMemo(
-    () => poolAssetGasFeeFiat.plus(runeGasFeeFiat).toFixed(2),
-    [poolAssetGasFeeFiat, runeGasFeeFiat],
+    () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency).toFixed(2),
+    [poolAssetGasFeeFiatUserCurrency, runeGasFeeFiatUserCurrency],
   )
 
   const handlePercentageClick = useCallback((percentage: number) => {
@@ -454,15 +456,15 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
         if (isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
           setVirtualRuneCryptoLiquidityAmount(crypto)
-          setVirtualRuneFiatLiquidityAmount(fiat)
-          setVirtualAssetFiatLiquidityAmount(fiat)
+          setVirtualRuneLiquidityAmountFiatUserCurrency(fiat)
+          setVirtualAssetLiquidityAmountFiatUserCurrency(fiat)
           setVirtualAssetCryptoLiquidityAmount(
             bnOrZero(crypto).div(bnOrZero(runePerAsset)).toFixed(),
           )
         } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
           setVirtualAssetCryptoLiquidityAmount(crypto)
-          setVirtualAssetFiatLiquidityAmount(fiat)
-          setVirtualRuneFiatLiquidityAmount(fiat)
+          setVirtualAssetLiquidityAmountFiatUserCurrency(fiat)
+          setVirtualRuneLiquidityAmountFiatUserCurrency(fiat)
           setVirtualRuneCryptoLiquidityAmount(
             bnOrZero(crypto).times(bnOrZero(runePerAsset)).toFixed(),
           )
@@ -514,7 +516,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       setSlippageRune(
         bnOrZero(estimate.slipPercent)
           .div(100)
-          .times(virtualRuneFiatLiquidityAmount ?? 0)
+          .times(virtualRuneLiquidityAmountFiatUserCurrency ?? 0)
           .times(2)
           .toFixed(),
       )
@@ -524,9 +526,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [
     actualAssetCryptoLiquidityAmount,
     actualRuneCryptoLiquidityAmount,
-    actualRuneFiatLiquidityAmount,
+    actualRuneLiquidityAmountFiatUserCurrency,
     poolAsset,
-    virtualRuneFiatLiquidityAmount,
+    virtualRuneLiquidityAmountFiatUserCurrency,
     userLpData,
     position,
   ])
@@ -535,9 +537,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (
       !(
         actualAssetCryptoLiquidityAmount &&
-        actualAssetFiatLiquidityAmount &&
+        actualAssetLiquidityAmountFiatUserCurrency &&
         actualRuneCryptoLiquidityAmount &&
-        actualRuneFiatLiquidityAmount &&
+        actualRuneLiquidityAmountFiatUserCurrency &&
         shareOfPoolDecimalPercent &&
         slippageRune &&
         opportunityId &&
@@ -547,7 +549,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     )
       return
 
-    const totalAmountFiat = bnOrZero(actualAssetFiatLiquidityAmount)
+    const totalAmountFiatUserCurrency = bnOrZero(actualAssetLiquidityAmountFiatUserCurrency)
       .times(opportunityType === 'sym' ? 2 : 1)
       .toFixed()
 
@@ -555,17 +557,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
     setConfirmedQuote({
       assetCryptoWithdrawAmount: actualAssetCryptoLiquidityAmount,
-      assetFiatWithdrawAmount: actualAssetFiatLiquidityAmount,
+      assetWithdrawAmountFiatUserCurrency: actualAssetLiquidityAmountFiatUserCurrency,
       runeCryptoWithdrawAmount: actualRuneCryptoLiquidityAmount,
-      runeFiatWithdrawAmount: actualRuneFiatLiquidityAmount,
+      runeFWithdrawAmountFiatUserCurrency: actualRuneLiquidityAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId,
-      totalAmountFiat,
+      totalAmountFiatUserCurrency,
       quoteInboundAddress: poolAssetInboundAddress,
-      runeGasFeeFiat: runeGasFeeFiat.toFixed(2),
-      poolAssetGasFeeFiat: poolAssetGasFeeFiat.toFixed(2),
-      totalGasFeeFiat,
+      runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
+      poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
+      totalFeeFiatUserCurrency: totalGasFeeFiat,
       feeBps: '0',
       currentAccountIdByChainId: {
         [poolChainId]: accountId,
@@ -574,18 +576,18 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     })
   }, [
     actualAssetCryptoLiquidityAmount,
-    actualAssetFiatLiquidityAmount,
+    actualAssetLiquidityAmountFiatUserCurrency,
     actualRuneCryptoLiquidityAmount,
-    actualRuneFiatLiquidityAmount,
+    actualRuneLiquidityAmountFiatUserCurrency,
     opportunityType,
     opportunityId,
     accountId,
     poolAsset,
     poolAsset?.chainId,
-    poolAssetGasFeeFiat,
+    poolAssetGasFeeFiatUserCurrency,
     poolAssetInboundAddress,
     runeAccountId,
-    runeGasFeeFiat,
+    runeGasFeeFiatUserCurrency,
     runeMarketData.price,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
@@ -624,7 +626,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             .times(opportunityType === 'sym' ? 1 : 2)
             .toFixed()
           const fiatAmount = bnOrZero(
-            isRune ? virtualRuneFiatLiquidityAmount : virtualAssetFiatLiquidityAmount,
+            isRune
+              ? virtualRuneLiquidityAmountFiatUserCurrency
+              : virtualAssetLiquidityAmountFiatUserCurrency,
           )
             .times(opportunityType === 'sym' ? 1 : 2)
             .toFixed()
@@ -674,8 +678,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     createHandleRemoveLiquidityInputChange,
     virtualRuneCryptoLiquidityAmount,
     virtualAssetCryptoLiquidityAmount,
-    virtualRuneFiatLiquidityAmount,
-    virtualAssetFiatLiquidityAmount,
+    virtualRuneLiquidityAmountFiatUserCurrency,
+    virtualAssetLiquidityAmountFiatUserCurrency,
     position?.underlyingRuneAmountCryptoPrecision,
     position?.underlyingAssetAmountCryptoPrecision,
     position?.underlyingRuneValueFiatUserCurrency,

@@ -212,11 +212,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 
-  const {
-    supportedSellAssets,
-    supportedBuyAssets,
-    isLoading: isSupportedAssetsLoading,
-  } = useSupportedAssets()
+  const { supportedSellAssets, supportedBuyAssets } = useSupportedAssets()
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
@@ -288,7 +284,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     return (
       !isAnyTradeQuoteLoaded ||
       isConfirmationLoading ||
-      isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
       isReceiveAddressByteCodeLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
@@ -299,7 +294,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   }, [
     isAnyTradeQuoteLoaded,
     isConfirmationLoading,
-    isSupportedAssetsLoading,
     isSellAddressByteCodeLoading,
     isReceiveAddressByteCodeLoading,
     isVotingPowerLoading,
@@ -571,10 +565,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={sellAsset.assetId}
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
-        isLoading={isSupportedAssetsLoading}
+        isLoading={false}
       />
     ),
-    [handleSellAssetClick, isSupportedAssetsLoading, sellAsset.assetId, setSellAsset],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
   )
 
   const buyTradeAssetSelect = useMemo(
@@ -583,10 +577,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={buyAsset.assetId}
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
-        isLoading={isSupportedAssetsLoading}
+        isLoading={false}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, isSupportedAssetsLoading, setBuyAsset],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
   )
 
   // disable switching assets if the buy asset isn't supported

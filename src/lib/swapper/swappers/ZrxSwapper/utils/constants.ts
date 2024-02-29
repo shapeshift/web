@@ -1,4 +1,5 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { SupportedChainIds } from 'lib/swapper/types'
 
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const OPTIMISM_L1_SWAP_GAS_LIMIT = '50000'
@@ -24,3 +25,8 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
 ])
+
+export const ZRX_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
+  sell: Object.keys(ZRX_SUPPORTED_CHAINIDS),
+  buy: Object.keys(ZRX_SUPPORTED_CHAINIDS),
+}

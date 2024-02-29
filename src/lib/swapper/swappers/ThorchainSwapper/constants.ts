@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { SupportedChainIds } from 'lib/swapper/types'
 
 export const sellSupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,
@@ -25,6 +26,11 @@ export const buySupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.ThorchainMainnet]: true,
   [KnownChainIds.AvalancheMainnet]: true,
   [KnownChainIds.BnbSmartChainMainnet]: true,
+}
+
+export const THORCHAIN_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
+  sell: Object.keys(sellSupportedChainIds),
+  buy: Object.keys(buySupportedChainIds),
 }
 
 export const THORCHAIN_STREAM_SWAP_SOURCE: SwapSource = `${SwapperName.Thorchain} • Streaming`

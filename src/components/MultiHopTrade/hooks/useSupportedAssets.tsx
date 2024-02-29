@@ -1,45 +1,52 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { isSome } from 'lib/utils'
-import { useGetSupportedAssetsQuery } from 'state/apis/swapper/swapperApi'
+import { swappers } from 'lib/swapper/constants'
+import { getEnabledSwappers } from 'lib/swapper/utils'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
-  selectFungibleAssets,
+  selectFeatureFlags,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
-  const assets = useAppSelector(selectFungibleAssets)
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
+  const featureFlags = useAppSelector(selectFeatureFlags)
 
-  const queryParams = useMemo(() => {
-    return {
-      walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId =>
+  const supportedSellChainIds = useMemo(() => {
+    const enabledSwappers = getEnabledSwappers(featureFlags, false)
+    return Object.entries(enabledSwappers).flatMap(([swapperName, isEnabled]) => {
+      if (!isEnabled) return []
+      const swapperSupportedChainIds =
+        swappers[swapperName as SwapperName]?.supportedChainIds.sell ?? []
+
+      return swapperSupportedChainIds.filter(chainId =>
         walletSupportsChain({ chainId, wallet, isSnapInstalled }),
-      ),
-      sortedAssetIds: sortedAssets.map(asset => asset.assetId),
-    }
-  }, [isSnapInstalled, sortedAssets, wallet])
+      )
+    })
+  }, [featureFlags, isSnapInstalled, wallet])
 
-  const { data, isLoading } = useGetSupportedAssetsQuery(queryParams)
+  const supportedBuyChainIds = useMemo(() => {
+    const enabledSwappers = getEnabledSwappers(featureFlags, false)
+    return Object.entries(enabledSwappers).flatMap(([swapperName, isEnabled]) => {
+      if (!isEnabled) return []
+      return swappers[swapperName as SwapperName]?.supportedChainIds.buy ?? []
+    })
+  }, [featureFlags])
 
   const supportedSellAssets = useMemo(() => {
-    if (!data) return []
-    return data.supportedSellAssetIds.map(assetId => assets[assetId]).filter(isSome)
-  }, [assets, data])
+    return sortedAssets.filter(asset => supportedSellChainIds.includes(asset.chainId))
+  }, [sortedAssets, supportedSellChainIds])
 
   const supportedBuyAssets = useMemo(() => {
-    if (!data) return []
-    return data.supportedBuyAssetIds.map(assetId => assets[assetId]).filter(isSome)
-  }, [assets, data])
+    return sortedAssets.filter(asset => supportedBuyChainIds.includes(asset.chainId))
+  }, [sortedAssets, supportedBuyChainIds])
 
   return {
-    isLoading,
     supportedSellAssets,
     supportedBuyAssets,
   }

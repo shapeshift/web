@@ -43,20 +43,33 @@ const stackSpacingMd4 = { base: 2, md: 4 }
 const flexDisplayLgFlex = { base: 'none', lg: 'flex' }
 const flexDisplayMdFlex = { base: 'none', md: 'flex' }
 
-export const AssetAccountRow = ({
-  accountId,
-  assetId,
-  showAllocation,
-  isCompact,
-  ...rest
-}: AssetAccountRowProps) => {
+export const AssetAccountRow = (props: AssetAccountRowProps) => {
+  const { accountId, assetId, showAllocation, isCompact, simpleGridProps } = useMemo(() => {
+    const { accountId, assetId, showAllocation, isCompact, ...simpleGridProps } = props
+    return {
+      accountId,
+      assetId,
+      showAllocation,
+      isCompact,
+      simpleGridProps,
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
+
   const rowHover = useColorModeValue('gray.100', 'gray.750')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-  const { assetReference, assetNamespace } = (asset && fromAssetId(asset.assetId)) ?? {}
+  const { assetReference, assetNamespace } = useMemo(
+    () =>
+      (asset && fromAssetId(asset.assetId)) ?? {
+        assetReference: undefined,
+        assetNamespace: undefined,
+      },
+    [asset],
+  )
 
   const filter = useMemo(() => ({ assetId: rowAssetId, accountId }), [rowAssetId, accountId])
 
@@ -101,7 +114,7 @@ export const AssetAccountRow = ({
       rounded='lg'
       gridGap='1rem'
       alignItems='center'
-      {...rest}
+      {...simpleGridProps}
     >
       <Flex alignItems='center'>
         <Box position='relative'>

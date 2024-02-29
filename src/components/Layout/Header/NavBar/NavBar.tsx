@@ -19,7 +19,13 @@ type NavBarProps = {
 
 const flex = { base: 'none', md: '1 1 0%' }
 
-export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
+export const NavBar = (props: NavBarProps) => {
+  const { isCompact, onClick, ...stackProps } = useMemo(() => {
+    const { isCompact, onClick, ...stackProps } = props
+    return { isCompact, onClick, stackProps }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
+
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const { routes: pluginRoutes } = usePlugins()
@@ -106,7 +112,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const divider = useMemo(() => <Divider borderColor={dividerColor} />, [dividerColor])
 
   return (
-    <Stack width='full' flex={flex} spacing={6} divider={divider} {...rest}>
+    <Stack width='full' flex={flex} spacing={6} divider={divider} {...stackProps}>
       {renderNavGroups}
     </Stack>
   )

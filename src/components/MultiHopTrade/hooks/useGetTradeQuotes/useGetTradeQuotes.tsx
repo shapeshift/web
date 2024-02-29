@@ -3,7 +3,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -17,6 +17,7 @@ import { isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper'
 import { GET_TRADE_QUOTE_POLLING_INTERVAL, swapperApi } from 'state/apis/swapper/swapperApi'
+import type { ReduxState } from 'state/reducer'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -127,24 +128,41 @@ export const useGetTradeQuotes = () => {
 
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
-  const sellAccountMetadata = useMemo(() => {
-    return selectPortfolioAccountMetadataByAccountId(store.getState(), {
-      accountId: sellAccountId,
-    })
-  }, [sellAccountId])
+  const sellAccountMetadataCallback = useCallback(
+    (state: ReduxState) => {
+      return selectPortfolioAccountMetadataByAccountId(state, {
+        accountId: sellAccountId,
+      })
+    },
+    [sellAccountId],
+  )
 
-  const receiveAccountMetadata = useMemo(() => {
-    return selectPortfolioAccountMetadataByAccountId(store.getState(), {
-      accountId: buyAccountId,
-    })
-  }, [buyAccountId])
+  const buyAccountMetadataCallback = useCallback(
+    (state: ReduxState) => {
+      return selectPortfolioAccountMetadataByAccountId(state, {
+        accountId: buyAccountId,
+      })
+    },
+    [buyAccountId],
+  )
+
+  const sellAccountMetadata = useAppSelector(sellAccountMetadataCallback)
+  const receiveAccountMetadata = useAppSelector(buyAccountMetadataCallback)
 
   const mixpanel = getMixPanel()
 
-  const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
+  const sellAssetUsdRateCallback = useCallback(
+    (s: ReduxState) => selectUsdRateByAssetId(s, sellAsset.assetId),
+    [sellAsset.assetId],
+  )
+  const sellAssetUsdRate = useAppSelector(sellAssetUsdRateCallback)
 
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  const votingPowerCallback = useCallback(
+    (state: ReduxState) => selectVotingPower(state, votingPowerParams),
+    [],
+  )
+  const votingPower = useAppSelector(votingPowerCallback)
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
     [isSnapshotApiQueriesPending, votingPower],

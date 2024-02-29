@@ -46,8 +46,11 @@ export const useSupportedAssets = () => {
     return sortedAssets.filter(asset => supportedBuyChainIds.includes(asset.chainId))
   }, [sortedAssets, supportedBuyChainIds])
 
-  return {
-    supportedSellAssets,
-    supportedBuyAssets,
-  }
+  return useMemo(
+    () => ({
+      supportedSellAssets,
+      supportedBuyAssets,
+    }),
+    [supportedBuyAssets, supportedSellAssets],
+  )
 }

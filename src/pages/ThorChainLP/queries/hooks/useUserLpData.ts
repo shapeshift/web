@@ -4,6 +4,7 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { reactQueries } from 'react-queries'
 import { bn } from 'lib/bignumber/bignumber'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import { calculatePoolOwnershipPercentage, getCurrentValue } from 'lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
@@ -30,6 +31,7 @@ export const useUserLpData = ({
 
   const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const { data: thornodePoolData } = useQuery({
     ...reactQueries.thornode.poolData(assetId),
@@ -41,7 +43,7 @@ export const useUserLpData = ({
   })
 
   const { data: midgardPoolData } = useQuery({
-    ...reactQueries.midgard.poolData(assetId),
+    ...reactQueries.midgard.poolData(poolAssetId ?? ''),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // 0 seconds garbage collect and stale times since this is used to get the current position value, we want this to always be cached-then-fresh
     staleTime: 0,

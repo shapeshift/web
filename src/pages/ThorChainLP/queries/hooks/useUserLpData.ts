@@ -12,7 +12,11 @@ import { getPoolShare } from 'lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
-import { selectAccountIdsByAssetId, selectAssets, selectWalletId } from 'state/slices/selectors'
+import {
+  selectAccountIdsByAssetId,
+  selectFungibleAssets,
+  selectWalletId,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type GetPositionArgs = {
@@ -91,7 +95,7 @@ export const useUserLpData = ({
   accountId,
 }: UseUserLpDataProps): UseQueryResult<UserLpDataPosition[] | null> => {
   const queryClient = useQueryClient()
-  const assets = useAppSelector(selectAssets)
+  const assets = useAppSelector(selectFungibleAssets)
   const assetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),

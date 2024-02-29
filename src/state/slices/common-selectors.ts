@@ -1,16 +1,21 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
+import { orderBy } from 'lodash'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
 import { selectFungibleAssets } from './assetsSlice/selectors'
-import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './marketDataSlice/selectors'
+import {
+  selectCryptoMarketData,
+  selectSelectedCurrencyMarketDataSortedByMarketCap,
+} from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
 
@@ -162,3 +167,26 @@ export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOut
     )
   },
 )
+
+export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
+  createDeepEqualOutputSelector(
+    selectFungibleAssets,
+    selectPortfolioUserCurrencyBalances,
+    selectCryptoMarketData,
+    (assets, portfolioUserCurrencyBalances, cryptoMarketData) => {
+      const getAssetUserCurrencyBalance = (asset: Asset) =>
+        bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+
+      // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+      // but we actually can't - this would rug the triple-sorting
+      const getAssetMarketCap = (asset: Asset) =>
+        bnOrZero(cryptoMarketData[asset.assetId]?.marketCap).toNumber()
+      const getAssetName = (asset: Asset) => asset.name
+
+      return orderBy(
+        Object.values(assets).filter(isSome),
+        [getAssetUserCurrencyBalance, getAssetMarketCap, getAssetName],
+        ['desc', 'desc', 'asc'],
+      )
+    },
+  )

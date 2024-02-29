@@ -26,7 +26,7 @@ const activeProp = {
 
 export const MainNavLink = memo(
   ({ isCompact, onClick, isNew, label, isActive, ...rest }: SidebarLinkProps) => {
-    const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`, { ssr: false })
+    const [isLargerThan2xl] = useMediaQuery(`(min-width: ${breakpoints['2xl']})`)
     const translate = useTranslate()
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
       e => (isActive ? e.preventDefault() : onClick?.(e)),

@@ -46,7 +46,7 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const [popupWindow, setPopupWindow] = useState<Window | null | void>(null)
   const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
   const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const handleFocusWindow = useCallback(() => popupWindow?.focus?.(), [popupWindow])
 

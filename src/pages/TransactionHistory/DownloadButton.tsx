@@ -41,7 +41,7 @@ const buttonMargin = [3, 3, 6]
 
 export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLoading, setIsLoading] = useState(false)
-  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
+  const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)

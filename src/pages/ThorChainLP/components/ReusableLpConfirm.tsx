@@ -159,8 +159,8 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                   : confirmedQuote.assetCryptoWithdrawAmount
               amountFiatUserCurrency =
                 _asset.assetId === thorchainAssetId
-                  ? confirmedQuote.runeFiatWithdrawAmount
-                  : confirmedQuote.assetFiatWithdrawAmount
+                  ? confirmedQuote.runeFWithdrawAmountFiatUserCurrency
+                  : confirmedQuote.assetWithdrawAmountFiatUserCurrency
             }
 
             return [cryptoAmount, amountFiatUserCurrency]
@@ -241,22 +241,22 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                 </Row.Value>
               </Row>
             </TimelineItem>
-            {bnOrZero(confirmedQuote.runeGasFeeFiat).gt(0) && (
+            {bnOrZero(confirmedQuote.runeGasFeeFiatUserCurrency).gt(0) && (
               <TimelineItem>
                 <Row fontSize='sm' fontWeight='medium'>
                   <Row.Label>{translate('pools.chainFee', { chain: baseAssetNetwork })}</Row.Label>
                   <Row.Value>
-                    <Amount.Fiat value={confirmedQuote.runeGasFeeFiat} />
+                    <Amount.Fiat value={confirmedQuote.runeGasFeeFiatUserCurrency} />
                   </Row.Value>
                 </Row>
               </TimelineItem>
             )}
-            {bnOrZero(confirmedQuote.poolAssetGasFeeFiat).gt(0) && (
+            {bnOrZero(confirmedQuote.poolAssetGasFeeFiatUserCurrency).gt(0) && (
               <TimelineItem>
                 <Row fontSize='sm' fontWeight='medium'>
                   <Row.Label>{translate('pools.chainFee', { chain: assetNetwork })}</Row.Label>
                   <Row.Value>
-                    <Amount.Fiat value={confirmedQuote.poolAssetGasFeeFiat} />
+                    <Amount.Fiat value={confirmedQuote.poolAssetGasFeeFiatUserCurrency} />
                   </Row.Value>
                 </Row>
               </TimelineItem>

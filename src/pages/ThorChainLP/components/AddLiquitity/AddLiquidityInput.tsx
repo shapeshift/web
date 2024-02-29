@@ -857,9 +857,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
-      runeGasFeeFiat: runeGasFeeFiatUserCurrency.toFixed(2),
-      poolAssetGasFeeFiat: poolAssetGasFeeFiatUserCurrency.toFixed(2),
-      totalGasFeeFiat: totalGasFeeFiatUserCurrency,
+      runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
+      poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
+      totalGasFeeFiatUserCurrency,
     })
   }, [
     currentAccountIdByChainId,

@@ -53,7 +53,7 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT = {
   [ethAssetId]: '10000000000',
   [avalancheAssetId]: '10000000000',
   [bscAssetId]: '10000000000',
-  [cosmosAssetId]: '0',
+  [cosmosAssetId]: '1',
   [binanceAssetId]: '0',
   [usdcEthereumAssetId]: '0',
   [usdtEthereumAssetId]: '0',

@@ -7,7 +7,6 @@ import { reactQueries } from 'react-queries'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
-import { Main } from 'components/Layout/Main'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText, Text } from 'components/Text'
 import { bn } from 'lib/bignumber/bignumber'
@@ -18,7 +17,6 @@ import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
-import { PoolsHeader } from './components/PoolsHeader'
 import { useAllUserLpData } from './queries/hooks/useAllUserLpData'
 import { usePools } from './queries/hooks/usePools'
 
@@ -193,7 +191,6 @@ export const YourPositions = () => {
   const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])
 
   const emptyIcon = useMemo(() => <PoolsIcon />, [])
-  const headerComponent = useMemo(() => <PoolsHeader />, [])
 
   const positionRows = useMemo(() => {
     if (isEmpty) {
@@ -257,11 +254,9 @@ export const YourPositions = () => {
   }, [isEmpty])
 
   return (
-    <Main headerComponent={headerComponent}>
-      <Stack>
-        {renderHeader}
-        {positionRows}
-      </Stack>
-    </Main>
+    <Stack>
+      {renderHeader}
+      {positionRows}
+    </Stack>
   )
 }

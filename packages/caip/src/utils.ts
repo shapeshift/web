@@ -11,6 +11,8 @@ export const accountIdToChainId = (accountId: AccountId): ChainId =>
 export const accountIdToSpecifier = (accountId: AccountId): string =>
   fromAccountId(accountId).account
 
+export const assetIdToChainId = (assetId: AssetId): ChainId => fromAssetId(assetId).chainId
+
 export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
   chainReference: ChainReference,

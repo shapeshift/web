@@ -1,21 +1,21 @@
-import type { GridProps } from '@chakra-ui/react'
+import type { GridProps, ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { assetIdToChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo } from 'react'
+import type { Property } from 'csstype'
+import { useCallback, useEffect, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { CircleIcon } from 'components/Icons/Circle'
-import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { selectMarketDataById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
-import { PoolsHeader } from './components/PoolsHeader'
 import { getVolumeStats, selectSwapsData } from './queries/hooks/usePool'
 import type { Pool } from './queries/hooks/usePools'
 import { usePools } from './queries/hooks/usePools'
@@ -28,6 +28,11 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
 const mobileDisplay = {
   base: 'none',
   lg: 'flex',
+}
+
+const assetCellDirection: ResponsiveValue<Property.FlexDirection> = {
+  base: 'column',
+  lg: 'row',
 }
 
 const largeDisplay = {
@@ -119,13 +124,15 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
         <Box minWidth='58px'>
           <PoolIcon assetIds={poolAssetIds} size='sm' />
         </Box>
-        <RawText>{pool.name}</RawText>
-        <Skeleton isLoaded={!isTradingActiveLoading}>
-          <Tag size='sm'>
-            <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
-            {statusContent.element}
-          </Tag>
-        </Skeleton>
+        <Flex flexWrap='wrap' rowGap={2} columnGap={4} flexDir={assetCellDirection}>
+          <RawText>{pool.name}</RawText>
+          <Skeleton isLoaded={!isTradingActiveLoading}>
+            <Tag size='sm'>
+              <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
+              {statusContent.element}
+            </Tag>
+          </Skeleton>
+        </Flex>
       </Flex>
       <Amount.Fiat value={pool.tvlFiat} />
       <Skeleton isLoaded={!!volumeStats} display={mobileDisplay}>
@@ -138,38 +145,67 @@ const PoolButton = ({ pool }: PoolButtonProps) => {
   )
 }
 
-export const AvailablePools = () => {
+type AvailablePoolsProps = {
+  searchQuery?: string
+  setChainIds?: (chainIds: ChainId[] | []) => void
+  filterByChainId?: ChainId
+}
+
+export const AvailablePools: React.FC<AvailablePoolsProps> = ({
+  searchQuery,
+  setChainIds,
+  filterByChainId,
+}) => {
   const { data: pools, isLoading } = usePools()
 
-  const headerComponent = useMemo(() => <PoolsHeader />, [])
+  const filteredByChainId = useMemo(() => {
+    if (!filterByChainId) return pools
+    return pools?.filter(pool => assetIdToChainId(pool.assetId) === filterByChainId)
+  }, [filterByChainId, pools])
+
+  const filteredPools = useMemo(() => {
+    if (!searchQuery) return filteredByChainId
+    return filteredByChainId?.filter(pool => {
+      const lowerCaseQuery = searchQuery.toUpperCase()
+      return pool.name.includes(lowerCaseQuery)
+    })
+  }, [filteredByChainId, searchQuery])
 
   const renderRows = useMemo(() => {
     if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
-    return pools?.map(pool => <PoolButton key={pool.asset} pool={pool} />)
-  }, [isLoading, pools])
+    return filteredPools?.map(pool => <PoolButton key={pool.asset} pool={pool} />)
+  }, [filteredPools, isLoading])
+
+  useEffect(() => {
+    if (!setChainIds) return
+
+    const uniqueChainIds = new Set(pools?.map(pool => assetIdToChainId(pool.assetId)) ?? [])
+    // If you need it back as an array:
+    const chainIdsArray = Array.from(uniqueChainIds)
+
+    setChainIds(chainIdsArray)
+  }, [pools, setChainIds])
 
   return (
-    <Main headerComponent={headerComponent}>
-      <Stack>
-        <SimpleGrid
-          gridTemplateColumns={lendingRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={mobilePadding}
-        >
-          <Text translation='pools.pool' />
-          <Text translation='pools.tvl' />
-          <Flex display={mobileDisplay}>
-            <Text translation='pools.volume24h' />
-          </Flex>
-          <Flex display={largeDisplay}>
-            <Text translation='pools.volume7d' />
-          </Flex>
-        </SimpleGrid>
-        <Stack mx={listMargin}>{renderRows}</Stack>
-      </Stack>
-    </Main>
+    <Stack>
+      <SimpleGrid
+        gridTemplateColumns={lendingRowGrid}
+        columnGap={4}
+        color='text.subtle'
+        fontWeight='bold'
+        fontSize='sm'
+        px={mobilePadding}
+      >
+        <Text translation='pools.pool' />
+        <Text translation='pools.tvl' />
+        <Flex display={mobileDisplay}>
+          <Text translation='pools.volume24h' />
+        </Flex>
+        <Flex display={largeDisplay}>
+          <Text translation='pools.volume7d' />
+        </Flex>
+      </SimpleGrid>
+      <Stack mx={listMargin}>{renderRows}</Stack>
+    </Stack>
   )
 }

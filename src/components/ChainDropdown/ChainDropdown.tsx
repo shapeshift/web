@@ -27,6 +27,7 @@ type ChainDropdownProps = {
   showAll?: boolean
   includeBalance?: boolean
   buttonProps?: ButtonProps
+  hideName?: boolean
 } & Omit<MenuProps, 'children'>
 
 const width = { base: 'full', md: 'auto' }
@@ -40,6 +41,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   showAll,
   includeBalance,
   buttonProps,
+  hideName,
   ...menuProps
 }) => {
   const totalPortfolioUserCurrencyBalance = useAppSelector(
@@ -60,7 +62,11 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   return (
     <Menu {...menuProps}>
       <MenuButton width={width} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
-        {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
+        {chainId ? (
+          <ChainRow chainId={chainId} hideName={hideName} />
+        ) : (
+          translate('common.allChains')
+        )}
       </MenuButton>
       <MenuList zIndex='banner'>
         <MenuOptionGroup type='radio' value={chainId} onChange={onChange}>

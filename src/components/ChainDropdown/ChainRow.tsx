@@ -13,8 +13,9 @@ import { useAppSelector } from 'state/store'
 type ChainRowProps = {
   chainId: ChainId
   includeBalance?: boolean
+  hideName?: boolean
 }
-export const ChainRow: React.FC<ChainRowProps> = ({ chainId, includeBalance }) => {
+export const ChainRow: React.FC<ChainRowProps> = ({ chainId, includeBalance, hideName }) => {
   const feeAssetId = chainIdToFeeAssetId(chainId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const filter = useMemo(() => ({ chainId }), [chainId])
@@ -26,7 +27,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId, includeBalance }) =
   return (
     <Flex alignItems='center' gap={4}>
       <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='xs' />
-      {feeAsset.networkName ?? feeAsset.name}
+      {!hideName && <>{feeAsset.networkName ?? feeAsset.name}</>}
       {includeBalance && <Amount.Fiat ml='auto' value={chainFiatBalance} />}
     </Flex>
   )

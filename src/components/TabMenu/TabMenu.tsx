@@ -1,6 +1,7 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Container, Flex } from '@chakra-ui/react'
 import type { Property } from 'csstype'
+import type { PropsWithChildren } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useLocation } from 'react-router'
 
@@ -14,8 +15,9 @@ export type TabItem = {
   rightElement?: JSX.Element
   hide?: boolean
 }
-
-const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const alignChildren = { base: 'flex-start', lg: 'center' }
+const justifyContent = { base: 'flex-start', lg: 'flex-end' }
+const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column-reverse', lg: 'row' }
 const navItemPadding = { base: 4, '2xl': 8 }
 const navCss = {
   '&::-webkit-scrollbar': {
@@ -25,9 +27,9 @@ const navCss = {
 
 type TabMenuProps = {
   items: TabItem[]
-}
+} & PropsWithChildren
 
-export const TabMenu: React.FC<TabMenuProps> = ({ items }) => {
+export const TabMenu: React.FC<TabMenuProps> = ({ items, children }) => {
   const location = useLocation()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -55,26 +57,33 @@ export const TabMenu: React.FC<TabMenuProps> = ({ items }) => {
   }, [items, location.pathname])
 
   return (
-    <Flex
-      flexDir={flexDirTabs}
-      borderBottomWidth={1}
-      borderColor='border.base'
-      marginBottom='-1px'
-      gap={8}
-      position='sticky'
-      top='72px'
-    >
+    <Flex borderBottomWidth={1} borderColor='border.base' marginBottom='-1px' gap={8}>
       <Container
-        ref={containerRef}
         maxWidth='container.4xl'
-        className='navbar-scroller'
         display='flex'
+        alignItems='center'
         gap={8}
+        justifyContent='space-between'
+        flexDir={flexDirTabs}
         px={navItemPadding}
-        overflowY='auto'
-        css={navCss}
       >
-        {renderNavItems}
+        <Container
+          ref={containerRef}
+          maxWidth='container.4xl'
+          className='navbar-scroller'
+          overflowY='auto'
+          display='flex'
+          gap={8}
+          px={0}
+          css={navCss}
+        >
+          {renderNavItems}
+        </Container>
+        {children && (
+          <Flex width='full' alignItems={alignChildren} gap={2} justifyContent={justifyContent}>
+            {children}
+          </Flex>
+        )}
       </Container>
     </Flex>
   )

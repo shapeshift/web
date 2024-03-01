@@ -66,6 +66,7 @@ import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectFeeAssetByChainId,
   selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
   selectTxById,
@@ -98,6 +99,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   // TOOO(gomes): we may be able to handle this better, or not
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, asset?.chainId ?? ''))
   const isRuneTx = useMemo(() => asset?.assetId === thorchainAssetId, [asset?.assetId])
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId ?? ''))
   const [status, setStatus] = useState(TxStatus.Unknown)
@@ -282,7 +284,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [isDeposit, thorchainNotationAssetId, otherAssetAddress, confirmedQuote])
 
   const estimateFeesArgs = useMemo(() => {
-    if (!assetId || !wallet || !asset || !poolAsset || !memo) return undefined
+    if (!assetId || !wallet || !asset || !poolAsset || !memo || !feeAsset) return undefined
     const transactionType = getThorchainLpTransactionType(asset.chainId)
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
@@ -333,14 +335,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
         return {
           amountCryptoPrecision: amountOrDustAmountCryptoBaseUnit.toString(),
-          assetId: asset.assetId,
+          // Withdraws do NOT occur a dust send to the contract address.
+          // It's a regular 0-value contract-call
+          assetId: isDeposit ? asset.assetId : feeAsset.assetId,
           to: inboundAddressData.router,
           from: accountAssetAddress,
           sendMax: false,
           // This is an ERC-20, we abuse the memo field for the actual hex-encoded calldata
           memo: data,
           accountId: poolAssetAccountId,
-          contractAddress: assetAddress,
+          // Withdraws do NOT occur a dust send to the contract address.
+          // It's a regular 0-value contract-call
+          contractAddress: isDeposit ? assetAddress : undefined,
         }
       }
       case 'Send': {
@@ -371,9 +377,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     asset,
     poolAsset,
+    memo,
+    feeAsset,
     amountCryptoPrecision,
     isDeposit,
-    memo,
     isRuneTx,
     runeAccountId,
     poolAssetAccountId,
@@ -395,10 +402,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     })
 
   const estimatedFeeDataCryptoPrecision = useMemo(() => {
-    if (!estimatedFeesData || !asset) return undefined
+    if (!estimatedFeesData || !feeAsset) return undefined
 
-    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, asset.precision)
-  }, [asset, estimatedFeesData])
+    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset?.precision)
+  }, [estimatedFeesData, feeAsset])
 
   const handleSignTx = useCallback(() => {
     setIsSubmitting(true)
@@ -608,7 +615,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return translate('common.signTransaction')
   }, [isTradingActive, translate])
 
-  if (!asset) return null
+  if (!asset || !feeAsset) return null
 
   return (
     <Card>
@@ -646,7 +653,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               <Skeleton isLoaded={Boolean(!isEstimatedFeesDataLoading && estimatedFeesData)}>
                 <Amount.Crypto
                   value={estimatedFeeDataCryptoPrecision ?? '0'}
-                  symbol={asset.symbol}
+                  symbol={feeAsset.symbol}
                 />
               </Skeleton>
             </Row.Value>

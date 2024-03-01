@@ -83,7 +83,7 @@ export const getPoolShare = (pool: ThornodePoolResponse, liquidityUnits: BN): Po
 }
 
 // formula: (Ra - Ar) / (Ar + RA)
-// https://dev.thorchain.org/concepts/math.html#slippage
+// https://gitlab.com/thorchain/asgardex-common/asgardex-util/-/blob/274a08d7e3bb9bdfaf283015f4054ddcb6c0bc6c/src/calc/stake.ts#L46
 export const getSlippage = ({
   pool,
   assetAmountThorBaseUnit,

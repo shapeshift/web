@@ -390,7 +390,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       memo: estimateFeesArgs?.memo ?? '',
       accountId: estimateFeesArgs?.accountId ?? '',
       contractAddress: estimateFeesArgs?.contractAddress ?? '',
-      enabled: !!estimateFeesArgs && !txId,
+      enabled: !!estimateFeesArgs,
     })
 
   const estimatedFeeDataCryptoPrecision = useMemo(() => {

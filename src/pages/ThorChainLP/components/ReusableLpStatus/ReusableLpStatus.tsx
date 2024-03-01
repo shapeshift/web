@@ -117,11 +117,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       const amountCryptoPrecision =
         _asset.assetId === thorchainAssetId
           ? isLpConfirmedDepositQuote(confirmedQuote)
-            ? confirmedQuote.runeCryptoDepositAmount
-            : confirmedQuote.runeCryptoWithdrawAmount
+            ? confirmedQuote.runeDepositAmountCryptoPrecision
+            : confirmedQuote.runeWithdrawAmountCryptoPrecision
           : isLpConfirmedDepositQuote(confirmedQuote)
-          ? confirmedQuote.assetCryptoDepositAmount
-          : confirmedQuote.assetCryptoWithdrawAmount
+          ? confirmedQuote.assetDepositAmountCryptoPrecision
+          : confirmedQuote.assetWithdrawAmountCryptoPrecision
       return (
         <Amount.Crypto
           key={`amount-${_asset.assetId}`}
@@ -166,11 +166,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           const amountCryptoPrecision =
             _asset.assetId === thorchainAssetId
               ? isLpConfirmedDepositQuote(confirmedQuote)
-                ? confirmedQuote.runeCryptoDepositAmount
-                : confirmedQuote.runeCryptoWithdrawAmount
+                ? confirmedQuote.runeDepositAmountCryptoPrecision
+                : confirmedQuote.runeWithdrawAmountCryptoPrecision
               : isLpConfirmedDepositQuote(confirmedQuote)
-              ? confirmedQuote.assetCryptoDepositAmount
-              : confirmedQuote.assetCryptoWithdrawAmount
+              ? confirmedQuote.assetDepositAmountCryptoPrecision
+              : confirmedQuote.assetWithdrawAmountCryptoPrecision
           return (
             <TransactionRow
               key={_asset.assetId}

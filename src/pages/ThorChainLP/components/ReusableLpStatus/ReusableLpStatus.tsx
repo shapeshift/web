@@ -72,6 +72,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
 
+    const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
+    if (opportunityType === 'sym' && isDeposit) return [baseAsset, poolAsset]
+
     switch (opportunityType) {
       case 'sym':
       case AsymSide.Rune:
@@ -81,7 +84,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       default:
         assertUnreachable(opportunityType)
     }
-  }, [poolAsset, baseAsset, opportunityType])
+  }, [poolAsset, baseAsset, confirmedQuote, opportunityType])
 
   const handleComplete = useCallback(() => {
     setActiveStepIndex(activeStepIndex + 1)

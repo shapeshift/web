@@ -58,12 +58,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     if (!(poolAsset && baseAsset)) return []
 
     switch (opportunityType) {
+      case 'sym':
       case AsymSide.Rune:
         return [baseAsset]
       case AsymSide.Asset:
         return [poolAsset]
-      case 'sym':
-        return [baseAsset, poolAsset]
       default:
         assertUnreachable(opportunityType)
     }

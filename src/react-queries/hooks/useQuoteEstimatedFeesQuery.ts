@@ -129,7 +129,7 @@ export const useQuoteEstimatedFeesQuery = ({
         feeAsset &&
           confirmedQuote &&
           (collateralAssetId || repaymentAsset) &&
-          bnOrZero(depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision).gt(0),
+          (bnOrZero(depositAmountCryptoPrecision).gt(0) || !!repaymentAmountCryptoPrecision),
       ),
     [
       collateralAssetId,

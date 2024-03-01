@@ -40,6 +40,7 @@ import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -607,7 +608,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectedCurrency,
   ])
 
-  const txIdLink = useMemo(() => `${asset?.explorerTxLink}${txId}`, [asset?.explorerTxLink, txId])
+  const txIdLink = useMemo(
+    () =>
+      getTxLink({
+        defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
+        txId: txId ?? '',
+      }),
+    [txId],
+  )
 
   const confirmTranslation = useMemo(() => {
     if (isTradingActive === false) return translate('common.poolHalted')

@@ -578,7 +578,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       assetCryptoWithdrawAmount: actualAssetCryptoLiquidityAmount,
       assetWithdrawAmountFiatUserCurrency: actualAssetLiquidityAmountFiatUserCurrency,
       runeCryptoWithdrawAmount: actualRuneCryptoLiquidityAmount,
-      runeFWithdrawAmountFiatUserCurrency: actualRuneLiquidityAmountFiatUserCurrency,
+      runeWithdrawAmountFiatUserCurrency: actualRuneLiquidityAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageRune,
       opportunityId,

@@ -159,7 +159,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
                   : confirmedQuote.assetCryptoWithdrawAmount
               amountFiatUserCurrency =
                 _asset.assetId === thorchainAssetId
-                  ? confirmedQuote.runeFWithdrawAmountFiatUserCurrency
+                  ? confirmedQuote.runeWithdrawAmountFiatUserCurrency
                   : confirmedQuote.assetWithdrawAmountFiatUserCurrency
             }
 

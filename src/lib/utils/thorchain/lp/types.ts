@@ -214,7 +214,7 @@ export type LpConfirmedWithdrawalQuote = {
   assetCryptoWithdrawAmount: string
   assetWithdrawAmountFiatUserCurrency: string
   runeCryptoWithdrawAmount: string
-  runeFWithdrawAmountFiatUserCurrency: string
+  runeWithdrawAmountFiatUserCurrency: string
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string

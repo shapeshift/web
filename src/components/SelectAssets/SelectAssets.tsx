@@ -20,7 +20,7 @@ export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps)
   const handleClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
   return (
     <>
-      <DialogHeader textAlign='center' flex={1}>
+      <DialogHeader textAlign='center'>
         <IconButton
           variant='ghost'
           icon={arrowBackIcon}

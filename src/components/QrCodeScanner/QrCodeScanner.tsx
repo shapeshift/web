@@ -1,14 +1,5 @@
-import {
-  Alert,
-  AlertIcon,
-  Box,
-  Button,
-  Flex,
-  ModalBody,
-  ModalCloseButton,
-  ModalFooter,
-  ModalHeader,
-} from '@chakra-ui/react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import { Alert, AlertIcon, Box, Button, Flex, IconButton } from '@chakra-ui/react'
 import type {
   Html5QrcodeError,
   Html5QrcodeResult,
@@ -18,6 +9,9 @@ import type {
 import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { DialogBody } from 'components/Modal/components/DialogBody'
+import { DialogHeader } from 'components/Modal/components/DialogHeader'
+import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
@@ -33,6 +27,8 @@ const isPermissionError = (
 
 const boxStyle = { width: '100%', minHeight: '298px', overflow: 'hidden', borderRadius: '1rem' }
 const qrBoxStyle = { width: 250, height: 250 }
+
+const arrowBackIcon = <ArrowBackIcon />
 
 export const QrCodeScanner = ({
   onSuccess,
@@ -75,9 +71,19 @@ export const QrCodeScanner = ({
 
   return (
     <SlideTransition>
-      <ModalHeader textAlign='center'>{translate('modals.send.scanQrCode')}</ModalHeader>
-      <ModalCloseButton borderRadius='full' />
-      <ModalBody>
+      <DialogHeader textAlign='center'>
+        <IconButton
+          variant='ghost'
+          icon={arrowBackIcon}
+          aria-label={translate('common.back')}
+          fontSize='xl'
+          size='sm'
+          isRound
+          onClick={onBack}
+        />
+        <DialogTitle>{translate('modals.send.scanQrCode')}</DialogTitle>
+      </DialogHeader>
+      <DialogBody>
         {error ? (
           <Flex justifyContent='center' alignItems='center' flexDirection='column'>
             <Alert status='error' borderRadius='xl'>
@@ -106,12 +112,7 @@ export const QrCodeScanner = ({
             />
           </Box>
         )}
-      </ModalBody>
-      <ModalFooter>
-        <Button width='full' variant='ghost' size='lg' onClick={onBack}>
-          <Text translation='common.back' />
-        </Button>
-      </ModalFooter>
+      </DialogBody>
     </SlideTransition>
   )
 }

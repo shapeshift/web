@@ -34,12 +34,14 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
 export const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
+  const contentStyle = { height: '95%' }
+
   if (isMobile || !isLargerThanMd) {
     return (
       <Drawer.Root open={isOpen} onClose={onClose} shouldScaleBackground>
         <Drawer.Portal>
           <CustomDrawerOverlay />
-          <CustomDrawerContent>
+          <CustomDrawerContent style={contentStyle}>
             <Box
               mx='auto'
               width='12'

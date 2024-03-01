@@ -49,6 +49,9 @@ const styles = {
       fontFeatureSettings: `'zero' on`,
       overflowX: 'hidden',
     },
+    '#root': {
+      background: 'background.surface.base',
+    },
     html: {
       scrollBehavior: 'smooth',
       height: '100%',
@@ -70,6 +73,15 @@ const styles = {
     },
     h6: {
       fontSize: 'md',
+    },
+    '.flex': {
+      display: 'flex',
+    },
+    '.flex-col': {
+      flexDirection: 'column',
+    },
+    '.h-full': {
+      height: '100%',
     },
     '.scroll-container': {
       visibility: 'hidden',

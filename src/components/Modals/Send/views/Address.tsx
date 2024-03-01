@@ -1,15 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  IconButton,
-  ModalBody,
-  ModalCloseButton,
-  ModalFooter,
-  ModalHeader,
-  Stack,
-} from '@chakra-ui/react'
+import { Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -17,6 +7,10 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { YatBanner } from 'components/Banners/YatBanner'
+import { DialogBody } from 'components/Modal/components/DialogBody'
+import { DialogFooter } from 'components/Modal/components/DialogFooter'
+import { DialogHeader } from 'components/Modal/components/DialogHeader'
+import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -104,24 +98,22 @@ export const Address = () => {
   if (!asset) return null
 
   return (
-    <SlideTransition>
-      <IconButton
-        variant='ghost'
-        icon={arrowBackIcon}
-        aria-label={translate('common.back')}
-        position='absolute'
-        top={2}
-        left={3}
-        fontSize='xl'
-        size='sm'
-        isRound
-        onClick={handleClick}
-      />
-      <ModalHeader textAlign='center'>
-        {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
-      </ModalHeader>
-      <ModalCloseButton borderRadius='full' />
-      <ModalBody>
+    <SlideTransition className='flex flex-col h-full'>
+      <DialogHeader>
+        <IconButton
+          variant='ghost'
+          icon={arrowBackIcon}
+          aria-label={translate('common.back')}
+          fontSize='xl'
+          size='sm'
+          isRound
+          onClick={handleClick}
+        />
+        <DialogTitle textAlign='center'>
+          {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
+        </DialogTitle>
+      </DialogHeader>
+      <DialogBody>
         <FormControl>
           <FormLabel color='text.subtle' w='full'>
             {translate('modals.send.sendForm.sendTo')}
@@ -135,8 +127,8 @@ export const Address = () => {
           />
         </FormControl>
         {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}
-      </ModalBody>
-      <ModalFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
+      </DialogBody>
+      <DialogFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
         <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>
           <Button
             width='full'
@@ -153,7 +145,7 @@ export const Address = () => {
             <Text translation='common.cancel' />
           </Button>
         </Stack>
-      </ModalFooter>
+      </DialogFooter>
     </SlideTransition>
   )
 }

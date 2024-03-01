@@ -67,9 +67,9 @@ export const App = () => {
   }, [isNativeOnboardOpen, openNativeOnboard, showWelcomeModal])
 
   return (
-    <>
+    <div vaul-drawer-wrapper=''>
       {showConsentBanner && <ConsentBanner />}
       <Routes />
-    </>
+    </div>
   )
 }

@@ -36,6 +36,8 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.CustomNonce]?: string
 }
 
+const formStyle = { height: '100%' }
+
 type SendFormProps = {
   initialAssetId?: AssetId
   accountId?: AccountId
@@ -128,7 +130,11 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
-      <form onSubmit={methods.handleSubmit(handleFormSend)} onKeyDown={checkKeyDown}>
+      <form
+        style={formStyle}
+        onSubmit={methods.handleSubmit(handleFormSend)}
+        onKeyDown={checkKeyDown}
+      >
         <AnimatePresence mode='wait' initial={false}>
           <Switch location={location} key={location.key}>
             <Route path={SendRoutes.Select}>

@@ -174,10 +174,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
           <DialogBody alignItems='center' justifyContent='center' textAlign='center'>
             <Box>
               <SkeletonText
-                noOfLines={2}
+                noOfLines={3}
                 display='flex'
                 flexDir='column'
                 alignItems='center'
+                skeletonHeight='16px'
+                spacing='2'
                 isLoaded={!!receiveAddress}
               >
                 <Text translation={onlySendTranslation} color='text.subtle' textAlign='center' />

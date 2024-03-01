@@ -223,7 +223,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       await queryClient.invalidateQueries({
         predicate: query => {
           // Paranoia using a predicate vs. a queryKey here, to ensure queries *actually* get invalidated
-          const shouldInvalidate = query.queryKey[0] === reactQueries.thorchainLp._def[0]
+          const shouldInvalidate = query.queryKey?.[0] === reactQueries.thorchainLp._def[0]
           return shouldInvalidate
         },
         type: 'all',

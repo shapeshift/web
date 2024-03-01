@@ -26,6 +26,7 @@ export type EstimatedFeesQueryKey = [
 ]
 
 type UseQuoteEstimatedFeesProps = {
+  enabled?: boolean
   collateralAssetId: AssetId
 } & (
   | {
@@ -72,6 +73,7 @@ export const useQuoteEstimatedFeesQuery = ({
   repaymentAsset,
   confirmedQuote,
   repaymentAmountCryptoPrecision: _repaymentAmountCryptoPrecision,
+  enabled: _enabled = true,
 }: UseQuoteEstimatedFeesProps) => {
   const repaymentAmountCryptoPrecision = useMemo(
     () =>
@@ -126,12 +128,14 @@ export const useQuoteEstimatedFeesQuery = ({
   const enabled = useMemo(
     () =>
       Boolean(
-        feeAsset &&
+        _enabled &&
+          feeAsset &&
           confirmedQuote &&
           (collateralAssetId || repaymentAsset) &&
           (bnOrZero(depositAmountCryptoPrecision).gt(0) || !!repaymentAmountCryptoPrecision),
       ),
     [
+      _enabled,
       collateralAssetId,
       confirmedQuote,
       depositAmountCryptoPrecision,

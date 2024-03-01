@@ -348,6 +348,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     isLoading: isEstimatedPoolAssetFeesDataLoading,
     isError: isEstimatedPoolAssetFeesDataError,
   } = useQuoteEstimatedFeesQuery({
+    // Sym opportunities do *not* require a pool asset Tx, all we need is a RUNE Tx to trigger the withdraw
+    enabled: opportunityType !== 'sym',
     collateralAssetId: poolAsset?.assetId ?? '',
     collateralAccountId: accountId,
     repaymentAccountId: accountId,

@@ -841,7 +841,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
             <Skeleton
-              isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
+              isLoaded={
+                (!isEstimatedPoolAssetFeesDataLoading || opportunityType === AsymSide.Rune) &&
+                (!isEstimatedRuneFeesDataLoading || opportunityType === AsymSide.Asset)
+              }
             >
               <Amount.Fiat value={totalGasFeeFiat} />
             </Skeleton>
@@ -874,15 +877,15 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           isDisabled={
             isTradingActive === false ||
             !confirmedQuote ||
-            isEstimatedPoolAssetFeesDataError ||
-            isEstimatedRuneFeesDataError ||
+            (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
+            (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
             !validInputAmount ||
             isSweepNeededLoading
           }
           isLoading={
             isTradingActiveLoading ||
-            isEstimatedPoolAssetFeesDataLoading ||
-            isEstimatedRuneFeesDataLoading ||
+            (isEstimatedPoolAssetFeesDataLoading && opportunityType !== AsymSide.Rune) ||
+            (isEstimatedRuneFeesDataLoading && opportunityType !== AsymSide.Asset) ||
             isSweepNeededLoading
           }
         >

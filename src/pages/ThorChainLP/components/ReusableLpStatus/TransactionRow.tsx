@@ -310,7 +310,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           BigInt(
             isDeposit
               ? amountCryptoBaseUnit
-              : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId] ?? '0',
+              : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
           )
 
         const args = (() => {

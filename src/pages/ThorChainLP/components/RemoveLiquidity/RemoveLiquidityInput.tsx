@@ -729,11 +729,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
             <Skeleton
-              isLoaded={
-                !isEstimatedPoolAssetFeesDataLoading &&
-                !isEstimatedRuneFeesDataLoading &&
-                !!confirmedQuote
-              }
+              isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
             >
               <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
             </Skeleton>

@@ -51,15 +51,17 @@ export const getLiquidityUnits = ({
   assetAmountThorBaseUnit: string
   runeAmountThorBaseUnit: string
 }): BN => {
-  const P = pool.pool_units
   const a = assetAmountThorBaseUnit
   const r = runeAmountThorBaseUnit
-  const R = pool.balance_rune
   const A = pool.balance_asset
+  const R = pool.balance_rune
+  const P = pool.pool_units
+
   const part1 = bnOrZero(R).times(a)
   const part2 = bnOrZero(r).times(A)
   const numerator = bnOrZero(P).times(part1.plus(part2))
   const denominator = bnOrZero(R).times(A).times(2)
+
   return numerator.div(denominator)
 }
 
@@ -80,7 +82,7 @@ export const getPoolShare = (pool: ThornodePoolResponse, liquidityUnits: BN): Po
   }
 }
 
-// formula: inputAmount / (inputAmount + inputBalance)
+// formula: (Ra - Ar) / (Ar + RA)
 // https://dev.thorchain.org/concepts/math.html#slippage
 export const getSlippage = ({
   pool,
@@ -91,18 +93,19 @@ export const getSlippage = ({
   assetAmountThorBaseUnit: string
   runeAmountThorBaseUnit: string
 }): SlippageDetails => {
-  // slippage is calculated on inputAmount divided by 2 to represent the 50:50 rebalance of the input amount
-  const a = bnOrZero(assetAmountThorBaseUnit).div(2)
-  const r = bnOrZero(runeAmountThorBaseUnit).div(2)
-
-  const A = pool.balance_asset
+  const r = bnOrZero(runeAmountThorBaseUnit)
+  const a = bnOrZero(assetAmountThorBaseUnit)
   const R = pool.balance_rune
+  const A = pool.balance_asset
+
+  const numerator = bnOrZero(R).times(a).minus(bnOrZero(A).times(r))
+  const denominator = bnOrZero(A).times(r).plus(bnOrZero(R).times(A))
+
+  const slippageBps = numerator.div(denominator).abs()
+  const assetPriceInRune = bnOrZero(pool.balance_rune).div(pool.balance_asset)
 
   if (a.gt(0) && r.eq(0)) {
-    const assetPriceInRune = bnOrZero(pool.balance_rune).div(pool.balance_asset)
-    const slippageBps = a.div(a.plus(A))
     const aInRune = a.times(assetPriceInRune)
-
     return {
       decimalPercent: slippageBps.times(100).toFixed(),
       runeAmountCryptoPrecision: fromThorBaseUnit(aInRune.times(slippageBps)).toFixed(
@@ -110,9 +113,8 @@ export const getSlippage = ({
       ),
     }
   }
-  if (r.gt(0) && a.eq(0)) {
-    const slippageBps = r.div(r.plus(R))
 
+  if (r.gt(0) && a.eq(0)) {
     return {
       decimalPercent: slippageBps.times(100).toFixed(),
       runeAmountCryptoPrecision: fromThorBaseUnit(r.times(slippageBps)).toFixed(THOR_PRECISION),

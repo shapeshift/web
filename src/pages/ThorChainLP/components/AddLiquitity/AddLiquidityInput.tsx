@@ -1243,11 +1243,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           <Row.Label>{translate('common.gasFee')}</Row.Label>
           <Row.Value>
             <Skeleton
-              isLoaded={
-                !isEstimatedPoolAssetFeesDataLoading &&
-                !isEstimatedRuneFeesDataLoading &&
-                !!confirmedQuote
-              }
+              isLoaded={!isEstimatedPoolAssetFeesDataLoading && !isEstimatedRuneFeesDataLoading}
             >
               <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
             </Skeleton>
@@ -1256,11 +1252,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         <Row
           fontSize='sm'
           fontWeight='medium'
-          isLoading={Boolean(
-            isEstimatedPoolAssetFeesDataLoading ||
-              isEstimatedRuneFeesDataLoading ||
-              !confirmedQuote,
-          )}
+          isLoading={isEstimatedPoolAssetFeesDataLoading || isEstimatedRuneFeesDataLoading}
         >
           <Row.Label display='flex'>
             <Text translation={shapeshiftFeeTranslation} />

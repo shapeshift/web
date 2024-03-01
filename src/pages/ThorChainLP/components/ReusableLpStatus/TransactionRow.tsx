@@ -391,6 +391,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       accountId: estimateFeesArgs?.accountId ?? '',
       contractAddress: estimateFeesArgs?.contractAddress ?? '',
       enabled: !!estimateFeesArgs,
+      disableRefetch: Boolean(txId),
     })
 
   const estimatedFeeDataCryptoPrecision = useMemo(() => {

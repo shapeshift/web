@@ -53,7 +53,7 @@ export const useGetEstimatedFeesQuery = ({
       ? {
           // Ensures fees are refetched at an interval, including when the app is in the background
           refetchIntervalInBackground: true,
-          refetchInterval: 5000,
+          refetchInterval: estimateFeesInput.disableRefetch ? false : 5000,
         }
       : {}),
   })

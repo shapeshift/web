@@ -39,6 +39,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assertUnreachable } from 'lib/utils'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
@@ -52,6 +53,7 @@ import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
+import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -334,7 +336,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     collateralAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
     repaymentAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
     repaymentAsset: runeAsset ?? null,
-    repaymentAmountCryptoPrecision: actualRuneCryptoLiquidityAmount,
+    repaymentAmountCryptoPrecision: fromBaseUnit(
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[thorchainAssetId] ?? '0',
+      THORCHAIN_FIXED_PRECISION,
+    ),
     confirmedQuote,
   })
 
@@ -348,7 +353,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     repaymentAccountId: accountId,
     repaymentAsset: poolAsset ?? null,
     confirmedQuote,
-    repaymentAmountCryptoPrecision: actualAssetCryptoLiquidityAmount,
+    repaymentAmountCryptoPrecision: fromBaseUnit(
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[poolAsset?.assetId ?? ''] ?? '0',
+      poolAsset?.precision ?? 0,
+    ),
   })
 
   const poolAssetTxFeeCryptoPrecision = useMemo(

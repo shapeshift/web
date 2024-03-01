@@ -195,7 +195,6 @@ export type MidgardTvlHistoryResponse = {
 
 export type LpConfirmedDepositQuote = {
   totalAmountUsd: string
-  totalAmountFiat: string
   assetDepositAmountCryptoPrecision: string
   assetDepositAmountFiatUserCurrency: string
   runeDepositAmountCryptoPrecision: string
@@ -205,7 +204,6 @@ export type LpConfirmedDepositQuote = {
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
-  feeAmountUsd: string
   feeAmountFiatUserCurrency: string
   assetAddress?: string
   quoteInboundAddress: string
@@ -216,7 +214,6 @@ export type LpConfirmedDepositQuote = {
 }
 
 export type LpConfirmedWithdrawalQuote = {
-  totalAmountFiatUserCurrency: string
   assetWithdrawAmountCryptoPrecision: string
   assetWithdrawAmountFiatUserCurrency: string
   runeWithdrawAmountCryptoPrecision: string

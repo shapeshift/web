@@ -36,7 +36,7 @@ import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AddLiquidity } from '../components/AddLiquitity/AddLiquidity'
+import { AddLiquidity } from '../components/AddLiquidity/AddLiquidity'
 import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
 import { PoolInfo } from '../components/PoolInfo'

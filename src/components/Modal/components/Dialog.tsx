@@ -1,18 +1,20 @@
-import { Box, Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
+import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
 import { Drawer } from 'vaul'
+import { useDialog, withDialogProvider } from 'context/DialogContextProvider/DialogContextProvider'
 import { isMobile } from 'lib/globals'
 import { breakpoints } from 'theme/theme'
 
-type DialogProps = {
+export type DialogProps = {
   isOpen: boolean
   onClose: () => void
+  height?: string
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)`
-  background-color: var(--chakra-colors-background-surface-overlay-base);
+  background-color: var(--chakra-colors-background-surface-base);
   display: flex;
   flex-direction: column;
   border-radius: 24px 24px 0 0;
@@ -31,37 +33,33 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   background-color: rgba(0, 0, 0, 0.8);
 `
 
-export const Dialog: React.FC<DialogProps> = ({ isOpen, onClose, children }) => {
+const DialogWindow: React.FC<DialogProps> = ({ isOpen, onClose, height, children }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const { snapPoint } = useDialog()
 
-  const contentStyle = { height: '95%' }
+  const contentStyle = { maxHeight: '95%', height: '100%' }
 
   if (isMobile || !isLargerThanMd) {
     return (
-      <Drawer.Root open={isOpen} onClose={onClose} shouldScaleBackground>
+      <Drawer.Root
+        open={isOpen}
+        onClose={onClose}
+        activeSnapPoint={snapPoint}
+        shouldScaleBackground
+      >
         <Drawer.Portal>
           <CustomDrawerOverlay />
-          <CustomDrawerContent style={contentStyle}>
-            <Box
-              mx='auto'
-              width='12'
-              h='1.5'
-              flexShrink={0}
-              borderRadius='full'
-              bg='text.subtlest'
-              mb={4}
-              mt={2}
-            />
-            {children}
-          </CustomDrawerContent>
+          <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
     )
   }
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent>{children}</ModalContent>
+      <ModalContent height={height}>{children}</ModalContent>
     </Modal>
   )
 }
+
+export const Dialog = withDialogProvider(DialogWindow)

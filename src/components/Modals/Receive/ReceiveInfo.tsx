@@ -158,16 +158,20 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
   return (
     <>
       <DialogHeader>
-        <IconButton
-          variant='ghost'
-          icon={arrowBackIcon}
-          aria-label={translate('common.back')}
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={onBackClick}
-        />
-        <DialogTitle>{translate('modals.receive.receiveAsset', { asset: name })}</DialogTitle>
+        <DialogHeader.Left>
+          <IconButton
+            variant='ghost'
+            icon={arrowBackIcon}
+            aria-label={translate('common.back')}
+            fontSize='xl'
+            size='sm'
+            isRound
+            onClick={onBackClick}
+          />
+        </DialogHeader.Left>
+        <DialogHeader.Middle>
+          <DialogTitle>{translate('modals.receive.receiveAsset', { asset: name })}</DialogTitle>
+        </DialogHeader.Middle>
       </DialogHeader>
       {wallet && chainAdapter ? (
         <>

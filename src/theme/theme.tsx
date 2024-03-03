@@ -48,6 +48,7 @@ const styles = {
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
       overflowX: 'hidden',
+      height: '100%',
     },
     '#root': {
       background: 'background.surface.base',

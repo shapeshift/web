@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
+import { useDialog } from 'context/DialogContextProvider/DialogContextProvider'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectChainIdsByMarketCap,
@@ -35,6 +36,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const { setSnapPoint } = useDialog()
   const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const assets = useAppSelector(
@@ -106,6 +108,10 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     [],
   )
 
+  const handleInputFocus = useCallback(() => {
+    setSnapPoint('50%')
+  }, [setSnapPoint])
+
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
   return (
@@ -121,7 +127,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           <InputLeftElement pointerEvents='none' zIndex={1}>
             <SearchIcon color='gray.300' />
           </InputLeftElement>
-          <Input {...inputProps} />
+          <Input onFocus={handleInputFocus} {...inputProps} />
         </InputGroup>
       </Box>
       {listAssets && (

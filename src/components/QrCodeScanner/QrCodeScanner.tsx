@@ -71,17 +71,21 @@ export const QrCodeScanner = ({
 
   return (
     <SlideTransition>
-      <DialogHeader textAlign='center'>
-        <IconButton
-          variant='ghost'
-          icon={arrowBackIcon}
-          aria-label={translate('common.back')}
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={onBack}
-        />
-        <DialogTitle>{translate('modals.send.scanQrCode')}</DialogTitle>
+      <DialogHeader>
+        <DialogHeader.Left>
+          <IconButton
+            variant='ghost'
+            icon={arrowBackIcon}
+            aria-label={translate('common.back')}
+            fontSize='xl'
+            size='sm'
+            isRound
+            onClick={onBack}
+          />
+        </DialogHeader.Left>
+        <DialogHeader.Middle>
+          <DialogTitle>{translate('modals.send.scanQrCode')}</DialogTitle>
+        </DialogHeader.Middle>
       </DialogHeader>
       <DialogBody>
         {error ? (

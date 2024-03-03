@@ -7,7 +7,7 @@ import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmTransactionRequest } from '@shapeshiftoss/swapper'
 import { SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -17,7 +17,6 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import type { ReduxState } from 'state/reducer'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -39,18 +38,15 @@ export const useTradeExecution = (hopIndex: number) => {
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
 
-  const sellAssetAccountIdCallback = useCallback(
-    (state: ReduxState) => selectHopSellAccountId(state, hopIndex),
-    [hopIndex],
-  )
-  const sellAssetAccountId = useAppSelector(sellAssetAccountIdCallback)
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
-  const accountMetadataCallback = useCallback(
-    (state: ReduxState) =>
-      selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
+  const accountMetadataFilter = useMemo(
+    () => ({ accountId: sellAssetAccountId }),
     [sellAssetAccountId],
   )
-  const accountMetadata = useAppSelector(accountMetadataCallback)
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
+  )
   const swapperName = useAppSelector(selectActiveSwapperName)
   const tradeQuote = useAppSelector(selectActiveQuote)
 
@@ -66,12 +62,9 @@ export const useTradeExecution = (hopIndex: number) => {
 
   // The intermediary buy asset may not actually be supported. If it doesn't exist in the asset slice
   // then it must be unsupported.
-  const supportedBuyAssetCallback = useCallback(
-    (state: ReduxState) =>
-      selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
-    [hopIndex, tradeQuote?.steps],
+  const supportedBuyAsset = useAppSelector(state =>
+    selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
   )
-  const supportedBuyAsset = useAppSelector(supportedBuyAssetCallback)
 
   const executeTrade = useCallback(() => {
     if (!wallet) throw Error('missing wallet')

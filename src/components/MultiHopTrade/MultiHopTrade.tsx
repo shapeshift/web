@@ -1,9 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useCallback, useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
-import type { ReduxState } from 'state/reducer'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -35,16 +34,8 @@ export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardPr
   const methods = useForm({ mode: 'onChange' })
   const { assetSubId, chainId } = useParams<MatchParams>()
 
-  const routeBuyAssetCallback = useCallback(
-    (state: ReduxState) => selectAssetById(state, `${chainId}/${assetSubId}`),
-    [assetSubId, chainId],
-  )
-  const defaultBuyAssetCallback = useCallback(
-    (state: ReduxState) => selectAssetById(state, defaultBuyAssetId ?? ''),
-    [defaultBuyAssetId],
-  )
-  const routeBuyAsset = useAppSelector(routeBuyAssetCallback)
-  const defaultBuyAsset = useAppSelector(defaultBuyAssetCallback)
+  const routeBuyAsset = useAppSelector(state => selectAssetById(state, `${chainId}/${assetSubId}`))
+  const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId ?? ''))
 
   useEffect(() => {
     dispatch(tradeInput.actions.clear())

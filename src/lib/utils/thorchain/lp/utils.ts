@@ -4,7 +4,7 @@ export function isLpConfirmedDepositQuote(
   quote: Record<string, unknown> | null,
 ): quote is LpConfirmedDepositQuote {
   return (
-    quote &&
+    quote !== null &&
     quote.assetCryptoDepositAmount !== undefined &&
     quote.assetFiatDepositAmount !== undefined &&
     quote.runeCryptoDepositAmount !== undefined &&

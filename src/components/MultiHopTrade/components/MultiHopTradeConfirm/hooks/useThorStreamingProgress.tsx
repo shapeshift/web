@@ -1,8 +1,7 @@
 import axios from 'axios'
 import { getConfig } from 'config'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
-import type { ReduxState } from 'state/reducer'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import type {
@@ -67,13 +66,9 @@ export const useThorStreamingProgress = (
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>()
   const { poll, cancelPolling } = usePoll<ThornodeStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
-  const selectHopExecutionMetadataCallback = useCallback(
-    (state: ReduxState) => selectHopExecutionMetadata(state, hopIndex),
-    [hopIndex],
-  )
   const {
     swap: { sellTxHash, streamingSwap: streamingSwapMeta },
-  } = useAppSelector(selectHopExecutionMetadataCallback)
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   useEffect(() => {
     // don't start polling until we have a tx

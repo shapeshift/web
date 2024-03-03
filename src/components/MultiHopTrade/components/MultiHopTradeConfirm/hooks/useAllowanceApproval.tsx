@@ -6,7 +6,6 @@ import { useApprovalTx } from 'components/MultiHopTrade/components/MultiHopTrade
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { assertGetEvmChainAdapter, buildAndBroadcast } from 'lib/utils/evm'
 import { assertGetViemClient } from 'lib/viem-client'
-import type { ReduxState } from 'state/reducer'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -22,11 +21,7 @@ export const useAllowanceApproval = (
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
 
-  const sellAssetAccountIdCallback = useCallback(
-    (state: ReduxState) => selectHopSellAccountId(state, hopIndex),
-    [hopIndex],
-  )
-  const sellAssetAccountId = useAppSelector(sellAssetAccountIdCallback)
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   const {
     approvalNetworkFeeCryptoBaseUnit,

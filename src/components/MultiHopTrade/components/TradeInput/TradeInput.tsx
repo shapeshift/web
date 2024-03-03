@@ -59,7 +59,6 @@ import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getTh
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import type { ReduxState } from 'state/reducer'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -224,12 +223,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-
-  const votingPowerCallback = useCallback(
-    (state: ReduxState) => selectVotingPower(state, votingPowerParams),
-    [],
-  )
-  const votingPower = useAppSelector(votingPowerCallback)
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,

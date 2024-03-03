@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { ReduxState } from 'state/reducer'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -40,12 +39,10 @@ export const useReceiveAddress = ({
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
-  const buyAccountMetadataCallback = useCallback(
-    (state: ReduxState) =>
-      selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
-    [buyAccountId],
+  const buyAccountMetadataFilter = useMemo(() => ({ accountId: buyAccountId }), [buyAccountId])
+  const buyAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
-  const buyAccountMetadata = useAppSelector(buyAccountMetadataCallback)
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const getReceiveAddressFromBuyAsset = useCallback(

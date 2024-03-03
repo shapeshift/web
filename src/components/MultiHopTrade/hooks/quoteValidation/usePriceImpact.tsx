@@ -1,8 +1,7 @@
 import type { TradeQuote } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { ReduxState } from 'state/reducer'
 import { selectUsdRateByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -14,18 +13,13 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
   const sellAsset = tradeQuote?.steps[0].sellAsset
   const buyAsset = tradeQuote?.steps[numSteps - 1].buyAsset
 
-  const sellAssetUsdRateCallback = useCallback(
-    (state: ReduxState) => selectUsdRateByAssetId(state, sellAsset?.assetId ?? ''),
-    [sellAsset?.assetId],
+  const sellAssetUsdRate = useAppSelector(state =>
+    selectUsdRateByAssetId(state, sellAsset?.assetId ?? ''),
   )
 
-  const buyAssetUsdRateCallback = useCallback(
-    (state: ReduxState) => selectUsdRateByAssetId(state, buyAsset?.assetId ?? ''),
-    [buyAsset?.assetId],
+  const buyAssetUsdRate = useAppSelector(state =>
+    selectUsdRateByAssetId(state, buyAsset?.assetId ?? ''),
   )
-
-  const sellAssetUsdRate = useAppSelector(sellAssetUsdRateCallback)
-  const buyAssetUsdRate = useAppSelector(buyAssetUsdRateCallback)
 
   const sellAmountBeforeFeesUsd = useMemo(() => {
     if (!tradeQuote || !sellAsset || !sellAssetUsdRate) return

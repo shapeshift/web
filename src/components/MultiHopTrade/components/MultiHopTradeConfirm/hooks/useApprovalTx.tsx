@@ -2,11 +2,10 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import type { ReduxState } from 'state/reducer'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,11 +25,7 @@ export const useApprovalTx = (
   const wallet = useWallet().state.wallet
   const { poll, cancelPolling: stopPolling } = usePoll()
 
-  const sellAssetAccountIdCallback = useCallback(
-    (state: ReduxState) => selectHopSellAccountId(state, hopIndex),
-    [hopIndex],
-  )
-  const sellAssetAccountId = useAppSelector(sellAssetAccountIdCallback)
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   useEffect(() => {
     poll({

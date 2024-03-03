@@ -50,16 +50,17 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     }, [assetIds, relatedAssetIds])
 
     const renderChains = useMemo(() => {
-      return filteredRelatedAssetIds.map(assetId => {
-        const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
+      if (!assetId) return null
+      return filteredRelatedAssetIds.map(relatedAssetId => {
+        const isSupported = wallet && isAssetSupportedByWallet(relatedAssetId, wallet)
 
         return (
-          <MenuItemOption value={assetId} key={assetId} isDisabled={!isSupported}>
-            <AssetChainRow assetId={assetId} />
+          <MenuItemOption value={relatedAssetId} key={relatedAssetId} isDisabled={!isSupported}>
+            <AssetChainRow assetId={relatedAssetId} mainImplementationAssetId={assetId} />
           </MenuItemOption>
         )
       })
-    }, [filteredRelatedAssetIds, wallet])
+    }, [assetId, filteredRelatedAssetIds, wallet])
 
     const handleChangeAsset = useCallback(
       (value: string | string[]) => {
@@ -93,7 +94,12 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       <Menu isLazy>
         <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
           <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
-            <AssetChainRow assetId={assetId} hideBalances />
+            <AssetChainRow
+              assetId={assetId}
+              mainImplementationAssetId={assetId}
+              hideBalances
+              hideSymbol
+            />
           </MenuButton>
         </Tooltip>
         <MenuList zIndex='banner'>

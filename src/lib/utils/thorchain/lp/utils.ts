@@ -1,7 +1,7 @@
 import type { LpConfirmedDepositQuote, LpConfirmedWithdrawalQuote } from './types'
 
 export function isLpConfirmedDepositQuote(
-  quote: Record<string, unknown>,
+  quote: Record<string, unknown> | null,
 ): quote is LpConfirmedDepositQuote {
   return (
     quote &&

@@ -49,6 +49,7 @@ import {
 } from 'lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
@@ -645,6 +646,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     })()
   }, [accountId, opportunityId, poolAsset, poolAssetAccountMetadata, wallet])
 
+  const isDeposit = useMemo(() => isLpConfirmedDepositQuote(confirmedQuote), [confirmedQuote])
+  const isSymWithdraw = useMemo(
+    () => opportunityType === 'sym' && !isDeposit,
+    [isDeposit, opportunityType],
+  )
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
@@ -658,7 +664,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: Boolean(
-        !!poolAsset?.assetId &&
+        // Symmetrical withdraws do not occur an asset Tx, only a RUNE Tx, hence will never occur a sweep step
+        !isSymWithdraw &&
+          !!poolAsset?.assetId &&
           bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
           // isEstimatedPoolAssetFeesDataSuccess &&
           // hasEnoughPoolAssetBalanceForTxPlusFees &&
@@ -671,6 +679,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetAccountAddress,
       actualAssetCryptoLiquidityAmount,
       estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
+      isSymWithdraw,
     ],
   )
 

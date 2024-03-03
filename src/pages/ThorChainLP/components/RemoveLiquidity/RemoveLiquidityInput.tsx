@@ -668,8 +668,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         !isSymWithdraw &&
           !!poolAsset?.assetId &&
           bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
-          // isEstimatedPoolAssetFeesDataSuccess &&
-          // hasEnoughPoolAssetBalanceForTxPlusFees &&
           estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
       ),
     }),

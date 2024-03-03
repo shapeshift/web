@@ -214,14 +214,15 @@ export type LpConfirmedWithdrawalQuote = {
   assetCryptoWithdrawAmount: string
   assetWithdrawAmountFiatUserCurrency: string
   runeCryptoWithdrawAmount: string
-  runeFWithdrawAmountFiatUserCurrency: string
+  runeWithdrawAmountFiatUserCurrency: string
   shareOfPoolDecimalPercent: string
   slippageRune: string
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
-  assetAddress?: string
+  assetAddress: string | undefined
   quoteInboundAddress: string
+  withdrawalBps: string
   // For informative purposes only at confirm step - to be recalculated before signing
   totalFeeFiatUserCurrency: string
   runeGasFeeFiatUserCurrency: string

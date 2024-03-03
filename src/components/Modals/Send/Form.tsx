@@ -24,7 +24,7 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.From]: string
   [SendFormFields.AmountFieldError]: string | [string, { asset: string }]
   [SendFormFields.AssetId]: AssetId
-  [SendFormFields.CryptoAmount]: string
+  [SendFormFields.AmountCryptoPrecision]: string
   [SendFormFields.EstimatedFees]: FeeDataEstimate<T>
   [SendFormFields.FeeType]: FeeDataKey
   [SendFormFields.FiatAmount]: string
@@ -59,7 +59,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       vanityAddress: '',
       assetId: initialAssetId,
       feeType: FeeDataKey.Average,
-      cryptoAmount: '',
+      amountCryptoPrecision: '',
       fiatAmount: '',
       fiatSymbol: selectedCurrency,
     },
@@ -69,7 +69,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     (assetId: AssetId) => {
       methods.setValue(SendFormFields.AssetId, assetId)
       methods.setValue(SendFormFields.AccountId, '')
-      methods.setValue(SendFormFields.CryptoAmount, '')
+      methods.setValue(SendFormFields.AmountCryptoPrecision, '')
       methods.setValue(SendFormFields.FiatAmount, '')
       methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
@@ -104,7 +104,10 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
         if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
           const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
-          methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)
+          methods.setValue(
+            SendFormFields.AmountCryptoPrecision,
+            maybeUrlResult.amountCryptoPrecision,
+          )
           methods.setValue(
             SendFormFields.FiatAmount,
             bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),

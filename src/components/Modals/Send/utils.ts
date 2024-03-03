@@ -28,7 +28,7 @@ import { store } from 'state/store'
 import type { SendInput } from './Form'
 
 export type EstimateFeesInput = {
-  cryptoAmount: string
+  amountCryptoPrecision: string
   assetId: AssetId
   // Optional hex-encoded calldata
   // for ERC-20s, use me in place of `data`
@@ -41,7 +41,7 @@ export type EstimateFeesInput = {
 }
 
 export const estimateFees = ({
-  cryptoAmount,
+  amountCryptoPrecision,
   assetId,
   from,
   memo,
@@ -54,7 +54,9 @@ export const estimateFees = ({
   const state = store.getState()
   const asset = selectAssetById(state, assetId)
   if (!asset) throw new Error(`Asset not found for ${assetId}`)
-  const value = bnOrZero(cryptoAmount).times(bn(10).exponentiatedBy(asset.precision)).toFixed(0)
+  const value = bnOrZero(amountCryptoPrecision)
+    .times(bn(10).exponentiatedBy(asset.precision))
+    .toFixed(0)
 
   const { chainNamespace } = fromChainId(asset.chainId)
 
@@ -118,7 +120,7 @@ export const handleSend = async ({
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }
 
-  const value = bnOrZero(sendInput.cryptoAmount)
+  const value = bnOrZero(sendInput.amountCryptoPrecision)
     .times(bn(10).exponentiatedBy(asset.precision))
     .toFixed(0)
 

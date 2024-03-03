@@ -340,7 +340,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return {
         from: maybeFromUTXOAccountAddress,
-        cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
+        amountCryptoPrecision: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
         assetId,
         to: quote.inbound_address,
         sendMax: false,
@@ -533,7 +533,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       }
 
       const sendInput: SendInput = {
-        cryptoAmount: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
+        amountCryptoPrecision: fromThorBaseUnit(dust_amount).toFixed(asset.precision),
         assetId,
         to: quote.inbound_address,
         from: maybeFromUTXOAccountAddress,

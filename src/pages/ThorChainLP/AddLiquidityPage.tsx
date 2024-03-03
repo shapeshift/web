@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useParams } from 'react-router'
 import { Main } from 'components/Layout/Main'
 
-import { AddLiquidity } from './components/AddLiquitity/AddLiquidity'
+import { AddLiquidity } from './components/AddLiquidity/AddLiquidity'
 
 type MatchParams = {
   poolAssetId?: string

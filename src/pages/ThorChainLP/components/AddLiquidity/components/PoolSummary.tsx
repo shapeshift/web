@@ -51,7 +51,10 @@ export const PoolSummary = ({
         <Row.Label>{translate('pools.shareOfPool')}</Row.Label>
         <Row.Value>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Percent value={shareOfPoolDecimalPercent ?? '0'} />
+            <Amount.Percent
+              options={{ maximumFractionDigits: 8 }}
+              value={shareOfPoolDecimalPercent ?? '0'}
+            />
           </Skeleton>
         </Row.Value>
       </Row>

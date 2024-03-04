@@ -168,6 +168,11 @@ export type PoolShareDetail = {
   poolShareDecimalPercent: string
 }
 
+export type SlippageDetails = {
+  decimalPercent: string
+  runeAmountCryptoPrecision: string
+}
+
 export type PoolDepth = {
   pool: string
   totalDepth: string
@@ -190,16 +195,15 @@ export type MidgardTvlHistoryResponse = {
 
 export type LpConfirmedDepositQuote = {
   totalAmountUsd: string
-  assetCryptoDepositAmount: string
-  assetFiatDepositAmount: string
-  runeCryptoDepositAmount: string
-  runeFiatDepositAmount: string
+  assetDepositAmountCryptoPrecision: string
+  assetDepositAmountFiatUserCurrency: string
+  runeDepositAmountCryptoPrecision: string
+  runeDepositAmountFiatUserCurrency: string
   shareOfPoolDecimalPercent: string
-  slippageRune: string
+  slippageFiatUserCurrency: string
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
-  feeAmountUsd: string
   feeAmountFiatUserCurrency: string
   assetAddress?: string
   quoteInboundAddress: string
@@ -210,13 +214,12 @@ export type LpConfirmedDepositQuote = {
 }
 
 export type LpConfirmedWithdrawalQuote = {
-  totalAmountFiatUserCurrency: string
-  assetCryptoWithdrawAmount: string
+  assetWithdrawAmountCryptoPrecision: string
   assetWithdrawAmountFiatUserCurrency: string
-  runeCryptoWithdrawAmount: string
+  runeWithdrawAmountCryptoPrecision: string
   runeWithdrawAmountFiatUserCurrency: string
   shareOfPoolDecimalPercent: string
-  slippageRune: string
+  slippageFiatUserCurrency: string
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
@@ -224,7 +227,7 @@ export type LpConfirmedWithdrawalQuote = {
   quoteInboundAddress: string
   withdrawalBps: string
   // For informative purposes only at confirm step - to be recalculated before signing
-  totalFeeFiatUserCurrency: string
+  totalGasFeeFiatUserCurrency: string
   runeGasFeeFiatUserCurrency: string
   poolAssetGasFeeFiatUserCurrency: string
 }

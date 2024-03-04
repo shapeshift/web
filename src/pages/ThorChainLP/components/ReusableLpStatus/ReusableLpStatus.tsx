@@ -26,7 +26,10 @@ import type {
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
+import {
+  isLpConfirmedDepositQuote,
+  isLpConfirmedWithdrawalQuote,
+} from 'lib/utils/thorchain/lp/utils'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -134,11 +137,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       const amountCryptoPrecision =
         _asset.assetId === thorchainAssetId
           ? isLpConfirmedDepositQuote(confirmedQuote)
-            ? confirmedQuote.runeCryptoDepositAmount
-            : confirmedQuote.runeCryptoWithdrawAmount
+            ? confirmedQuote.runeDepositAmountCryptoPrecision
+            : confirmedQuote.runeWithdrawAmountCryptoPrecision
           : isLpConfirmedDepositQuote(confirmedQuote)
-          ? confirmedQuote.assetCryptoDepositAmount
-          : confirmedQuote.assetCryptoWithdrawAmount
+          ? confirmedQuote.assetDepositAmountCryptoPrecision
+          : confirmedQuote.assetWithdrawAmountCryptoPrecision
       return (
         <Fragment key={`amount-${_asset.assetId}`}>
           <Amount.Crypto
@@ -197,24 +200,27 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     return (
       <Stack mt={4}>
         {txAssets.map((_asset, index) => {
-          const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
           const amountCryptoPrecision =
             _asset.assetId === thorchainAssetId
               ? isLpConfirmedDepositQuote(confirmedQuote)
-                ? confirmedQuote.runeCryptoDepositAmount
-                : confirmedQuote.runeCryptoWithdrawAmount
+                ? confirmedQuote.runeDepositAmountCryptoPrecision
+                : confirmedQuote.runeWithdrawAmountCryptoPrecision
               : isLpConfirmedDepositQuote(confirmedQuote)
-              ? confirmedQuote.assetCryptoDepositAmount
-              : confirmedQuote.assetCryptoWithdrawAmount
-          const isSymWithdraw = !isDeposit && opportunityType === 'sym'
+              ? confirmedQuote.assetDepositAmountCryptoPrecision
+              : confirmedQuote.assetWithdrawAmountCryptoPrecision
+
+          const isSymWithdraw =
+            isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
+
           /*
             Symmetrical withdrawals withdraw both asset amounts in a single TX.
             In this case, we want to provide the pool asset amount to TransactionRow in additional to the rune amount
             so we render both for the user.
           */
           const poolAmountCryptoPrecision = isSymWithdraw
-            ? confirmedQuote.assetCryptoWithdrawAmount
+            ? confirmedQuote.assetWithdrawAmountCryptoPrecision
             : undefined
+
           return (
             <TransactionRow
               key={_asset.assetId}

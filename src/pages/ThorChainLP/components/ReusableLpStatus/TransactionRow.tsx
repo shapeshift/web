@@ -307,15 +307,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       case 'EvmCustomTx': {
         if (!inboundAddressData?.router) return undefined
         if (!accountAssetAddress) return undefined
-        const assetAddress = isToken(fromAssetId(assetId).assetReference)
-          ? getAddress(fromAssetId(assetId).assetReference)
-          : zeroAddress
-        const amountOrDustAmountCryptoBaseUnit = // Reuse the savers util as a sane amount for the dust threshold
-          BigInt(
+        const amountOrDustAmountCryptoBaseUnit = (() => {
+          // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
+          if (isToken(fromAssetId(assetId).assetReference)) return 0n
+          return BigInt(
             isDeposit
               ? amountCryptoBaseUnit
-              : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
+              : // Reuse the savers util as a sane amount for the dust threshold
+                THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
           )
+        })()
 
         const args = (() => {
           const expiry = BigInt(dayjs().add(15, 'minute').unix())
@@ -338,7 +339,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         })
 
         return {
-          // Dust amount is always denominated in fee asset - for tokens, we never need to send any dust
+          // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
           amountCryptoPrecision: fromBaseUnit(
             amountOrDustAmountCryptoBaseUnit.toString(),
             feeAsset.precision,
@@ -352,9 +353,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           // This is an ERC-20, we abuse the memo field for the actual hex-encoded calldata
           memo: data,
           accountId: poolAssetAccountId,
-          // Withdraws do NOT occur a dust send to the contract address.
-          // It's a regular 0-value contract-call
-          contractAddress: isDeposit ? assetAddress : undefined,
+          // Note, this is NOT a send.
+          // contractAddress is only needed when doing a send and the account interacts *directly* with the token's contract address.
+          // Here, the LP contract is approved beforehand to spend the token value, which it will when calling depositWithExpiry()
+          contractAddress: undefined,
         }
       }
       case 'Send': {

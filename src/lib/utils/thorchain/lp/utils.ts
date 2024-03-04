@@ -5,10 +5,10 @@ export function isLpConfirmedDepositQuote(
 ): quote is LpConfirmedDepositQuote {
   return (
     quote !== null &&
-    quote.assetCryptoDepositAmount !== undefined &&
-    quote.assetFiatDepositAmount !== undefined &&
-    quote.runeCryptoDepositAmount !== undefined &&
-    quote.runeFiatDepositAmount !== undefined
+    quote.assetDepositAmountCryptoPrecision !== undefined &&
+    quote.assetDepositAmountFiatUserCurrency !== undefined &&
+    quote.runeDepositAmountCryptoPrecision !== undefined &&
+    quote.runeDepositAmountFiatUserCurrency !== undefined
   )
 }
 
@@ -17,9 +17,9 @@ export function isLpConfirmedWithdrawalQuote(
 ): quote is LpConfirmedWithdrawalQuote {
   return (
     quote &&
-    quote.assetCryptoWithdrawAmount !== undefined &&
-    quote.assetFiatWithdrawAmount !== undefined &&
-    quote.runeCryptoWithdrawAmount !== undefined &&
-    quote.runeFiatWithdrawAmount !== undefined
+    quote.assetWithdrawAmountCryptoPrecision !== undefined &&
+    quote.assetWithdrawAmountFiatUserCurrency !== undefined &&
+    quote.runeWithdrawAmountCryptoPrecision !== undefined &&
+    quote.runeWithdrawAmountFiatUserCurrency !== undefined
   )
 }

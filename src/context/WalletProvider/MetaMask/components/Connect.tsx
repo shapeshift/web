@@ -11,7 +11,7 @@ import {
   checkIsMetaMask,
   checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
-  isMetamaskMobileWebView,
+  isMetaMaskMobileWebView,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -87,7 +87,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           const isMetaMask = await checkIsMetaMask(wallet)
           const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
           // Wallets other than MM desktop - including MM impersonators - don't support MM snaps
-          if (!isMetaMask || isMetaMaskImpersonator || isMetamaskMobileWebView)
+          if (!isMetaMask || isMetaMaskImpersonator || isMetaMaskMobileWebView)
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
 
@@ -131,7 +131,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
   }, [])
 
-  return isMobile && !isMetamaskMobileWebView ? (
+  return isMobile && !isMetaMaskMobileWebView ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}

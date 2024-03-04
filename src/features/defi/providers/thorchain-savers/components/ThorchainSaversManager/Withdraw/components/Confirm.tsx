@@ -313,7 +313,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       })
 
       if (isUtxoChainId(chainId) && !maybeFromUTXOAccountAddress) {
-        throw new Error('Account address required to withdraw from THORChain savers')
+        console.debug('Account address required to withdraw from THORChain savers')
+        return
       }
 
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
@@ -622,14 +623,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!state?.withdraw.cryptoAmount) return
 
       if (dayjs().isAfter(dayjs.unix(Number(expiry)))) {
-        toast({
-          position: 'top-right',
-          description: translate('trade.errors.quoteExpired'),
-          title: translate('common.transactionFailed'),
-          status: 'error',
+        console.debug({
+          now: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+          expiry: dayjs.unix(Number(expiry)).format('YYYY-MM-DDTHH:mm:ss'),
         })
-        onNext(DefiStep.Info)
-        return
+        // Temporarily disabled
+        // toast({
+        // position: 'top-right',
+        // description: translate('trade.errors.quoteExpired'),
+        // title: translate('common.transactionFailed'),
+        // status: 'error',
+        // })
+        // onNext(DefiStep.Info)
+        // return
       }
 
       // Was the pool active when it was fetched at the time of the component mount

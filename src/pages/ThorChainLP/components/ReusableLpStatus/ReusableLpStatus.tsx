@@ -197,6 +197,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     return (
       <Stack mt={4}>
         {txAssets.map((_asset, index) => {
+          const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
           const amountCryptoPrecision =
             _asset.assetId === thorchainAssetId
               ? isLpConfirmedDepositQuote(confirmedQuote)
@@ -205,12 +206,22 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               : isLpConfirmedDepositQuote(confirmedQuote)
               ? confirmedQuote.assetCryptoDepositAmount
               : confirmedQuote.assetCryptoWithdrawAmount
+          const isSymWithdraw = !isDeposit && opportunityType === 'sym'
+          /*
+            Symmetrical withdrawals withdraw both asset amounts in a single TX.
+            In this case, we want to provide the pool asset amount to TransactionRow in additional to the rune amount
+            so we render both for the user.
+          */
+          const poolAmountCryptoPrecision = isSymWithdraw
+            ? confirmedQuote.assetCryptoWithdrawAmount
+            : undefined
           return (
             <TransactionRow
               key={_asset.assetId}
               assetId={_asset.assetId}
               poolAssetId={poolAsset?.assetId}
               amountCryptoPrecision={amountCryptoPrecision}
+              poolAmountCryptoPrecision={poolAmountCryptoPrecision}
               onComplete={handleComplete}
               isActive={index === activeStepIndex}
               confirmedQuote={confirmedQuote}

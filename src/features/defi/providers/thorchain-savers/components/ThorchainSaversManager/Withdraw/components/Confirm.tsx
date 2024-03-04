@@ -627,6 +627,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           now: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
           expiry: dayjs.unix(Number(expiry)).format('YYYY-MM-DDTHH:mm:ss'),
         })
+        mixpanel?.track(MixPanelEvent.ExpiredQuote, {
+          now: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+          expiry: dayjs.unix(Number(expiry)).format('YYYY-MM-DDTHH:mm:ss'),
+        })
         // Temporarily disabled
         // toast({
         // position: 'top-right',

@@ -50,6 +50,7 @@ export enum MixPanelEvent {
   SnapInstalled = 'Snap Installed',
   StartAddSnap = 'Start Add Snap',
   NoActionableQuotes = 'No Actionable Quotes',
+  ExpiredQuote = 'Expired Quote',
 }
 
 export type TrackOpportunityProps = {

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -10,8 +10,8 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
   checkIsMetaMask,
   checkIsMetaMaskImpersonator,
-  checkisMetaMaskMobileWebView,
   checkIsSnapInstalled,
+  isMetaMaskMobileWebView,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -44,7 +44,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   }, [])
 
   const isSnapsEnabled = useFeatureFlag('Snaps')
-  const isMetaMaskMobileWebView = useMemo(() => checkisMetaMaskMobileWebView(), [])
 
   const pairDevice = useCallback(async () => {
     setError(null)
@@ -115,7 +114,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     dispatch,
     localWallet,
     onProviderChange,
-    isMetaMaskMobileWebView,
     isSnapsEnabled,
     showSnapModal,
     history,

@@ -223,8 +223,9 @@ export type LpConfirmedWithdrawalQuote = {
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
-  assetAddress?: string
+  assetAddress: string | undefined
   quoteInboundAddress: string
+  withdrawalBps: string
   // For informative purposes only at confirm step - to be recalculated before signing
   totalGasFeeFiatUserCurrency: string
   runeGasFeeFiatUserCurrency: string

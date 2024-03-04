@@ -79,28 +79,31 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useToast()
 
-  const cryptoAmountAvailable = useMemo(
+  const amountAvailableCryptoPrecision = useMemo(
     () => bnOrZero(balance).div(`1e${asset.precision}`),
     [asset.precision, balance],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoAmountAvailable).times(marketData.price),
-    [cryptoAmountAvailable, marketData.price],
+    () => bnOrZero(amountAvailableCryptoPrecision).times(marketData.price),
+    [amountAvailableCryptoPrecision, marketData.price],
   )
 
   const handleMaxClick = useCallback(
     async (setValue: UseFormSetValue<DepositValues>) => {
       if (!accountId) return
       const estimatedFees = await estimateFees({
-        cryptoAmount: cryptoAmountAvailable.toString(),
+        amountCryptoPrecision: amountAvailableCryptoPrecision.toString(),
         assetId,
         to: '',
         sendMax: true,
         accountId,
         contractAddress: '',
       })
-      const amountAvailableCryptoPrecision = toBaseUnit(cryptoAmountAvailable, asset.precision)
-      const cryptoAmountHuman = bnOrZero(amountAvailableCryptoPrecision)
+      const amountAvailableCryptoBaseUnit = toBaseUnit(
+        amountAvailableCryptoPrecision,
+        asset.precision,
+      )
+      const cryptoAmountHuman = bnOrZero(amountAvailableCryptoBaseUnit)
         .minus(estimatedFees.average.txFee)
         .div(bn(10).pow(asset.precision))
         .toString()
@@ -112,7 +115,7 @@ export const Deposit: React.FC<DepositProps> = ({
         shouldValidate: true,
       })
     },
-    [accountId, asset.precision, assetId, cryptoAmountAvailable, marketData.price],
+    [accountId, asset.precision, assetId, amountAvailableCryptoPrecision, marketData.price],
   )
 
   const handleContinue = useCallback(
@@ -234,7 +237,7 @@ export const Deposit: React.FC<DepositProps> = ({
       asset={asset}
       isLoading={state.loading}
       apy={apy}
-      cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
+      cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
       cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2, BigNumber.ROUND_DOWN)}
       fiatInputValidation={fiatInputValidation}

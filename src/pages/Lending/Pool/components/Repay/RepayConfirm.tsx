@@ -285,7 +285,7 @@ export const RepayConfirm = ({
     const supportedEvmChainIds = getSupportedEvmChainIds()
 
     const estimatedFees = await estimateFees({
-      cryptoAmount: confirmedQuote.repaymentAmountCryptoPrecision,
+      amountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision,
       assetId: repaymentAsset.assetId,
       memo: supportedEvmChainIds.includes(
         fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
@@ -333,7 +333,7 @@ export const RepayConfirm = ({
 
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
-        cryptoAmount: confirmedQuote.repaymentAmountCryptoPrecision,
+        amountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision,
         assetId: repaymentAsset.assetId,
         from: '',
         to: confirmedQuote.quoteInboundAddress,

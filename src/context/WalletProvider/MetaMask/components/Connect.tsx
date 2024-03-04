@@ -122,6 +122,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   ])
 
   const handleRedirect = useCallback((): void => {
+    const METAMASK_DEEP_LINK_BASE_URL = 'https://metamask.app.link'
     // This constructs the MetaMask deep-linking target from the currently-loaded
     // window.location. The port will be blank if not specified, in which case it
     // should be omitted.
@@ -129,7 +130,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       .filter(x => !!x)
       .join(':')
 
-    return window.location.assign(`metamask://dapp//${mmDeeplinkTarget}`)
+    return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
   }, [])
 
   return isMobile && !isMetaMaskMobileWebView ? (

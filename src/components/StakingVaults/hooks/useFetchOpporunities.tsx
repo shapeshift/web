@@ -13,7 +13,6 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { setTimeoutAsync } from 'lib/utils'
-import { nftApi } from 'state/apis/nft/nftApi'
 import { zapper } from 'state/apis/zapper/zapperApi'
 import {
   fetchAllOpportunitiesIdsByChainId,
@@ -45,8 +44,6 @@ export const useFetchOpportunities = () => {
       if (portfolioLoadingStatus === 'loading') return
 
       setIsLoading(true)
-
-      dispatch(nftApi.endpoints.getNftUserTokens.initiate({ accountIds: requestedAccountIds }))
 
       dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
 

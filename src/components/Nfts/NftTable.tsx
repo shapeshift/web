@@ -7,13 +7,11 @@ import { NarwhalIcon } from 'components/Icons/Narwhal'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
-import {
-  selectGetNftUserTokensPending,
-  selectPortfolioNftItemsWithCollectionExcludeSpams,
-} from 'state/apis/nft/selectors'
+import { selectPortfolioNftItemsWithCollectionExcludeSpams } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { useAppSelector } from 'state/store'
 
+import { useFetchNfts } from './hooks/useFetchNfts'
 import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 import { NftNetworkFilter } from './NftNetworkFilter'
@@ -38,7 +36,7 @@ export const NftTable = () => {
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
-  const isLoading = useAppSelector(selectGetNftUserTokensPending)
+  const { isLoading } = useFetchNfts()
   const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
   const availableChainIds = useMemo(

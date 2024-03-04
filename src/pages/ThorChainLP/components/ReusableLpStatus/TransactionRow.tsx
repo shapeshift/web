@@ -307,9 +307,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       case 'EvmCustomTx': {
         if (!inboundAddressData?.router) return undefined
         if (!accountAssetAddress) return undefined
-        // The *memo* amount, denominated in either asset value *or* token value.
+        // The amount as part of the ABI calldata, denominated in either asset value *or* token value.
         // This is used as a directive for THORChain for the deposit/withdraw and is unrelated to the actual Tx value.
-        const memoAmountCryptoBaseUnit = BigInt(
+        const abiAmountCryptoBaseUnit = BigInt(
           isDeposit
             ? amountCryptoBaseUnit
             : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
@@ -335,13 +335,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
               zeroAddress
 
-          return { memo, txValueCryptoBaseUnit, memoAmountCryptoBaseUnit, expiry, vault, asset }
+          return { memo, amount: abiAmountCryptoBaseUnit, expiry, vault, asset }
         })()
 
         const data = depositWithExpiry({
           vault: args.vault,
           asset: args.asset,
-          amount: args.memoAmountCryptoBaseUnit,
+          amount: args.amount,
           memo: args.memo,
           expiry: args.expiry,
         })
@@ -429,6 +429,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         assetId &&
         poolAssetId &&
         asset &&
+        feeAsset &&
         poolAsset &&
         wallet &&
         memo &&
@@ -502,12 +503,25 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           case 'EvmCustomTx': {
             if (!inboundAddressData?.router) return
             if (assetAccountNumber === undefined) return
-            const amountOrDustAmountCryptoBaseUnit = // Reuse the savers util as a sane amount for the dust threshold
-              BigInt(
+            if (!accountAssetAddress) return undefined
+            // The amount as part of the ABI calldata, denominated in either asset value *or* token value.
+            // This is used as a directive for THORChain for the deposit/withdraw and is unrelated to the actual Tx value.
+            const abiAmountCryptoBaseUnit = BigInt(
+              isDeposit
+                ? amountCryptoBaseUnit
+                : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
+            )
+            // The *actual* Tx value, as in native asset value
+            const txValueCryptoBaseUnit = (() => {
+              // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
+              if (isToken(fromAssetId(assetId).assetReference)) return 0n
+              return BigInt(
                 isDeposit
                   ? amountCryptoBaseUnit
-                  : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId] ?? '0',
+                  : // Reuse the savers util as a sane amount for the dust threshold
+                    THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
               )
+            })()
 
             const args = (() => {
               const expiry = BigInt(dayjs().add(15, 'minute').unix())
@@ -518,7 +532,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                   zeroAddress
 
-              return { memo, amount: amountOrDustAmountCryptoBaseUnit, expiry, vault, asset }
+              return { memo, amount: abiAmountCryptoBaseUnit, expiry, vault, asset }
             })()
 
             const data = depositWithExpiry({
@@ -537,7 +551,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               data,
               value: isToken(fromAssetId(assetId).assetReference)
                 ? '0'
-                : amountOrDustAmountCryptoBaseUnit.toString(),
+                : txValueCryptoBaseUnit.toString(),
               to: inboundAddressData.router,
               wallet,
             })
@@ -605,6 +619,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     assetId,
     poolAssetId,
     asset,
+    feeAsset,
     poolAsset,
     wallet,
     memo,

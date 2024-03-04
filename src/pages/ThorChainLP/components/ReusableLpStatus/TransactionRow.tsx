@@ -79,6 +79,7 @@ type TransactionRowProps = {
   assetId?: AssetId
   poolAssetId?: AssetId
   amountCryptoPrecision: string
+  poolAmountCryptoPrecision: string | undefined
   onComplete: () => void
   isActive?: boolean
   isLast?: boolean
@@ -90,6 +91,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
   poolAssetId,
   amountCryptoPrecision,
+  poolAmountCryptoPrecision,
   onComplete,
   isActive,
   confirmedQuote,
@@ -108,6 +110,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txId, setTxId] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
+  const isSymWithdraw = poolAmountCryptoPrecision !== undefined
 
   const { currentAccountIdByChainId } = confirmedQuote
 
@@ -630,6 +633,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
         <AssetIcon size='xs' assetId={asset.assetId} />
         <Amount.Crypto fontWeight='bold' value={amountCryptoPrecision} symbol={asset.symbol} />{' '}
+        {isSymWithdraw && (
+          <>
+            <AssetIcon size='xs' assetId={poolAsset?.assetId} />
+            <Amount.Crypto
+              fontWeight='bold'
+              value={poolAmountCryptoPrecision}
+              symbol={poolAsset?.symbol ?? ''}
+            />{' '}
+          </>
+        )}
         <Flex ml='auto' alignItems='center' gap={2}>
           {txId && (
             <Button as={Link} isExternal href={txIdLink} size='xs'>

@@ -330,6 +330,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         })
 
         return {
+          // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
           amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
             ? '0'
             : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
@@ -501,6 +502,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               accountNumber: assetAccountNumber,
               adapter,
               data,
+              // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
               value: isToken(fromAssetId(assetId).assetReference)
                 ? '0'
                 : amountOrDustCryptoBaseUnit,

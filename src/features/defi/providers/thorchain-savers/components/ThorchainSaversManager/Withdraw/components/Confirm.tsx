@@ -630,6 +630,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         mixpanel?.track(MixPanelEvent.ExpiredQuote, {
           now: dayjs().format('YYYY-MM-DDTHH:mm:ss'),
           expiry: dayjs.unix(Number(expiry)).format('YYYY-MM-DDTHH:mm:ss'),
+          nowUnix: dayjs().unix(),
+          expiryUnix: expiry,
         })
         // Temporarily disabled
         // toast({
@@ -708,6 +710,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     assetId,
     opportunityData,
+    expiry,
     userAddress,
     assetReference,
     wallet,
@@ -717,19 +720,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     maybeFromUTXOAccountAddress,
     state?.withdraw.cryptoAmount,
     state?.withdraw.fiatAmount,
-    expiry,
     isTradingActive,
     refetchIsTradingActive,
     dustAmountCryptoBaseUnit,
     protocolFeeCryptoBaseUnit,
     onNext,
     assets,
-    toast,
-    translate,
+    mixpanel,
     isTokenWithdraw,
     getWithdrawInput,
     handleMultiTxSend,
     handleCustomTx,
+    toast,
+    translate,
   ])
 
   const handleCancel = useCallback(() => {

@@ -757,7 +757,6 @@
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
       "priceImpactLabel": "Preisauswirkung: %{priceImpactPercentage}%",
-      "priceImpact": "Ein Swap dieser Größenordnung kann angesichts der aktuellen Liquidität im Pool erhebliche Auswirkungen auf den Preis haben. Es kann einen großen Unterschied zwischen der Menge Ihres Eingabe-Tokens und dem, was Sie als Ausgabe-Token erhalten, geben",
       "minerFee": "Dies ist die Gebühr für die Verarbeitung der Transaktion auf der Blockchain, dies ist keine Gebühr, die von ShapeShift erhoben wird.",
       "protocol": "Dies ist das Protokoll, über das Ihr Handel geleitet wird.",
       "protocolLifi": "Dies ist das Protokoll, über das Ihr Handel geleitet wird. LI.FI führt eine Reihe von Zwischengeschäften durch, um die beste Gesamtkombination aus Preis, Sicherheit und Geschwindigkeit zu erzielen.",
@@ -766,8 +765,7 @@
       "manualReceiveAddress": "Dies ist die Adresse, an die Sie Ihr Geld erhalten. Sie wurde manuell eingegeben, bitte stellen Sie sicher, dass sie korrekt ist.",
       "amountPercentageDifference": "Dies ist die prozentuale Differenz des Gesamtbetrags von %{buyAssetSymbol}, den Sie erhalten, im Vergleich zum besten Angebot",
       "overallPercentageDifference": "Dies ist die prozentuale Differenz des Gesamtbetrags, den Sie nach Abzug aller Gebühren erhalten, im Vergleich zum besten Angebot",
-      "gasFee": "Dies ist die geschätzte Gasgebühr für den Abschluss dieses Handels.",
-      "slippage": "Wenn sich der Preis so verändert, dass Sie weniger als %{amount} erhalten, wird Ihre Transaktion rückgängig gemacht. Dies ist der Mindestbetrag, den Sie garantiert erhalten."
+      "gasFee": "Dies ist die geschätzte Gasgebühr für den Abschluss dieses Handels."
     },
     "rates": {
       "tags": {

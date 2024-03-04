@@ -61,7 +61,7 @@ export const DegradedStateBanner = memo(() => {
     const icons = uniq(
       erroredAccountIds.map((accountId: AccountId) => {
         const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
-        return assets[feeAssetId]?.icon ?? assets[feeAssetId]?.icon ?? ''
+        return assets[feeAssetId]?.networkIcon ?? assets[feeAssetId]?.icon ?? ''
       }),
     )
     return { names, icons }

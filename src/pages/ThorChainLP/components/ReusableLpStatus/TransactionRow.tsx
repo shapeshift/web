@@ -289,13 +289,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const estimateFeesArgs = useMemo(() => {
     if (!assetId || !wallet || !asset || !poolAsset || !memo || !feeAsset) return undefined
-    const transactionType = getThorchainLpTransactionType(asset.chainId)
+
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
+    const dustAmountCryptoBaseUnit =
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
+    const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
+
+    const transactionType = getThorchainLpTransactionType(asset.chainId)
 
     switch (transactionType) {
       case 'MsgDeposit': {
         return {
-          amountCryptoPrecision: isDeposit ? amountCryptoPrecision : '0',
+          amountCryptoPrecision: isDeposit ? amountCryptoPrecision : dustAmountCryptoPrecision,
           assetId: asset.assetId,
           memo,
           to: THORCHAIN_POOL_MODULE_ADDRESS,
@@ -307,48 +312,27 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       case 'EvmCustomTx': {
         if (!inboundAddressData?.router) return undefined
         if (!accountAssetAddress) return undefined
-        // The amount as part of the ABI calldata, denominated in either asset value *or* token value.
-        // This is used as a directive for THORChain for the deposit/withdraw and is unrelated to the actual Tx value.
-        const abiAmountCryptoBaseUnit = BigInt(
-          isDeposit
-            ? amountCryptoBaseUnit
-            : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
-        )
-        // The *actual* Tx value, as in native asset value
-        const txValueCryptoBaseUnit = (() => {
-          // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          if (isToken(fromAssetId(assetId).assetReference)) return 0n
-          return BigInt(
-            isDeposit
-              ? amountCryptoBaseUnit
-              : // Reuse the savers util as a sane amount for the dust threshold
-                THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
-          )
-        })()
 
-        const args = (() => {
-          const expiry = BigInt(dayjs().add(15, 'minute').unix())
-          const vault = getAddress(inboundAddressData.address)
-          const asset = isToken(fromAssetId(assetId).assetReference)
+        const amountOrDustCryptoBaseUnit = isDeposit
+          ? amountCryptoBaseUnit
+          : dustAmountCryptoBaseUnit
+
+        const data = depositWithExpiry({
+          vault: getAddress(inboundAddressData.address),
+          asset: isToken(fromAssetId(assetId).assetReference)
             ? getAddress(fromAssetId(assetId).assetReference)
             : // Native EVM assets use the 0 address as the asset address
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-              zeroAddress
-
-          return { memo, amount: abiAmountCryptoBaseUnit, expiry, vault, asset }
-        })()
-
-        const data = depositWithExpiry({
-          vault: args.vault,
-          asset: args.asset,
-          amount: args.amount,
-          memo: args.memo,
-          expiry: args.expiry,
+              zeroAddress,
+          amount: amountOrDustCryptoBaseUnit,
+          memo,
+          expiry: BigInt(dayjs().add(15, 'minute').unix()),
         })
 
         return {
-          // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          amountCryptoPrecision: fromBaseUnit(txValueCryptoBaseUnit.toString(), feeAsset.precision),
+          amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
+            ? '0'
+            : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
           // Withdraws do NOT occur a dust send to the contract address.
           // It's a regular 0-value contract-call
           assetId: isDeposit ? asset.assetId : feeAsset.assetId,
@@ -366,15 +350,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       }
       case 'Send': {
         if (!inboundAddressData || !accountAssetAddress) return undefined
-        const amountOrDustAmountCryptoPrecision = isDeposit
-          ? amountCryptoPrecision
-          : // Reuse the savers util as a sane amount for the dust threshold
-            fromBaseUnit(
-              THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-              asset.precision,
-            ) ?? '0'
         return {
-          amountCryptoPrecision: amountOrDustAmountCryptoPrecision,
+          amountCryptoPrecision: isDeposit ? amountCryptoPrecision : dustAmountCryptoPrecision,
           assetId,
           to: inboundAddressData.address,
           from: accountAssetAddress,
@@ -449,7 +426,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
       if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
       const { account } = fromAccountId(accountId)
+
       const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
+      const dustAmountCryptoBaseUnit =
+        THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
+      const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
 
       const transactionType = getThorchainLpTransactionType(asset.chainId)
 
@@ -457,25 +438,17 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         // We'll probably need to switch on chainNamespace instead here
         switch (transactionType) {
           case 'MsgDeposit': {
+            if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
             if (runeAccountNumber === undefined) throw new Error(`No account number found for RUNE`)
 
             const adapter = assertGetThorchainChainAdapter()
-
-            const estimatedFees = await estimateFees({
-              amountCryptoPrecision: isDeposit ? amountCryptoPrecision : '0',
-              assetId: asset.assetId,
-              memo,
-              to: THORCHAIN_POOL_MODULE_ADDRESS,
-              sendMax: false,
-              accountId,
-              contractAddress: undefined,
-            })
+            const estimatedFees = await estimateFees(estimateFeesArgs)
 
             // LP deposit using THOR is a MsgDeposit tx
             const { txToSign } = await adapter.buildDepositTransaction({
               from: account,
               accountNumber: runeAccountNumber,
-              value: amountCryptoBaseUnit,
+              value: isDeposit ? amountCryptoBaseUnit : dustAmountCryptoBaseUnit,
               memo,
               chainSpecific: {
                 gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
@@ -501,46 +474,25 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             break
           }
           case 'EvmCustomTx': {
-            if (!inboundAddressData?.router) return
-            if (assetAccountNumber === undefined) return
-            if (!accountAssetAddress) return undefined
-            // The amount as part of the ABI calldata, denominated in either asset value *or* token value.
-            // This is used as a directive for THORChain for the deposit/withdraw and is unrelated to the actual Tx value.
-            const abiAmountCryptoBaseUnit = BigInt(
-              isDeposit
-                ? amountCryptoBaseUnit
-                : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
-            )
-            // The *actual* Tx value, as in native asset value
-            const txValueCryptoBaseUnit = (() => {
-              // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-              if (isToken(fromAssetId(assetId).assetReference)) return 0n
-              return BigInt(
-                isDeposit
-                  ? amountCryptoBaseUnit
-                  : // Reuse the savers util as a sane amount for the dust threshold
-                    THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
-              )
-            })()
+            if (!accountAssetAddress) throw new Error('No accountAddress found')
+            if (!inboundAddressData?.address) throw new Error('No vault address found')
+            if (!inboundAddressData?.router) throw new Error('No router address found')
+            if (assetAccountNumber === undefined) throw new Error('No account number found')
 
-            const args = (() => {
-              const expiry = BigInt(dayjs().add(15, 'minute').unix())
-              const vault = getAddress(inboundAddressData.address)
-              const asset = isToken(fromAssetId(assetId).assetReference)
+            const amountOrDustCryptoBaseUnit = isDeposit
+              ? amountCryptoBaseUnit
+              : dustAmountCryptoBaseUnit
+
+            const data = depositWithExpiry({
+              vault: getAddress(inboundAddressData.address),
+              asset: isToken(fromAssetId(assetId).assetReference)
                 ? getAddress(fromAssetId(assetId).assetReference)
                 : // Native EVM assets use the 0 address as the asset address
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                  zeroAddress
-
-              return { memo, amount: abiAmountCryptoBaseUnit, expiry, vault, asset }
-            })()
-
-            const data = depositWithExpiry({
-              vault: args.vault,
-              asset: args.asset,
-              amount: args.amount,
-              memo: args.memo,
-              expiry: args.expiry,
+                  zeroAddress,
+              amount: amountOrDustCryptoBaseUnit,
+              memo,
+              expiry: BigInt(dayjs().add(15, 'minute').unix()),
             })
 
             const adapter = assertGetEvmChainAdapter(asset.chainId)
@@ -551,7 +503,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               data,
               value: isToken(fromAssetId(assetId).assetReference)
                 ? '0'
-                : txValueCryptoBaseUnit.toString(),
+                : amountOrDustCryptoBaseUnit,
               to: inboundAddressData.router,
               wallet,
             })
@@ -572,16 +524,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             // ATOM/RUNE/ UTXOs- obviously make me a switch case for things to be cleaner
             if (!accountAssetAddress) throw new Error('No accountAddress found')
             if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
-            const _amountOrDustAmountCryptoPrecision = isDeposit
-              ? amountCryptoPrecision
-              : // Reuse the savers util as a sane amount for the dust threshold
-                fromBaseUnit(
-                  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-                  asset.precision,
-                ) ?? '0'
+
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const sendInput: SendInput = {
-              amountCryptoPrecision: _amountOrDustAmountCryptoPrecision,
+              amountCryptoPrecision: isDeposit ? amountCryptoPrecision : dustAmountCryptoPrecision,
               assetId,
               to: inboundAddressData?.address,
               from: accountAssetAddress,

@@ -616,6 +616,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       getTxLink({
         defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
         txId: txId ?? '',
+        name: SwapperName.Thorchain,
       }),
     [txId],
   )

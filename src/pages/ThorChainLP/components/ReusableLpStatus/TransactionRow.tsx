@@ -307,7 +307,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       case 'EvmCustomTx': {
         if (!inboundAddressData?.router) return undefined
         if (!accountAssetAddress) return undefined
-        const amountOrDustAmountCryptoBaseUnit = (() => {
+        // The *memo* amount, denominated in either asset value *or* token value.
+        // This is used as a directive for THORChain for the deposit/withdraw and is unrelated to the actual Tx value.
+        const memoAmountCryptoBaseUnit = BigInt(
+          isDeposit
+            ? amountCryptoBaseUnit
+            : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0',
+        )
+        // The *actual* Tx value, as in native asset value
+        const txValueCryptoBaseUnit = (() => {
           // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
           if (isToken(fromAssetId(assetId).assetReference)) return 0n
           return BigInt(
@@ -327,23 +335,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
               zeroAddress
 
-          return { memo, amount: amountOrDustAmountCryptoBaseUnit, expiry, vault, asset }
+          return { memo, txValueCryptoBaseUnit, memoAmountCryptoBaseUnit, expiry, vault, asset }
         })()
 
         const data = depositWithExpiry({
           vault: args.vault,
           asset: args.asset,
-          amount: args.amount,
+          amount: args.memoAmountCryptoBaseUnit,
           memo: args.memo,
           expiry: args.expiry,
         })
 
         return {
           // Value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          amountCryptoPrecision: fromBaseUnit(
-            amountOrDustAmountCryptoBaseUnit.toString(),
-            feeAsset.precision,
-          ),
+          amountCryptoPrecision: fromBaseUnit(txValueCryptoBaseUnit.toString(), feeAsset.precision),
           // Withdraws do NOT occur a dust send to the contract address.
           // It's a regular 0-value contract-call
           assetId: isDeposit ? asset.assetId : feeAsset.assetId,

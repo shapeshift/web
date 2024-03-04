@@ -338,7 +338,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         })
 
         return {
-          amountCryptoPrecision: amountOrDustAmountCryptoBaseUnit.toString(),
+          // Dust amount is always denominated in fee asset - for tokens, we never need to send any dust
+          amountCryptoPrecision: fromBaseUnit(
+            amountOrDustAmountCryptoBaseUnit.toString(),
+            feeAsset.precision,
+          ),
           // Withdraws do NOT occur a dust send to the contract address.
           // It's a regular 0-value contract-call
           assetId: isDeposit ? asset.assetId : feeAsset.assetId,

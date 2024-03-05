@@ -8,7 +8,7 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
-  checkIsMetaMask,
+  checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
   isMetaMaskMobileWebView,
@@ -84,10 +84,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         }
 
         await (async () => {
-          const isMetaMask = await checkIsMetaMask(wallet)
+          const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
           const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
           // Wallets other than MM desktop - including MM impersonators - don't support MM snaps
-          if (!isMetaMask || isMetaMaskImpersonator || isMetaMaskMobileWebView)
+          if (!isMetaMaskDesktop || isMetaMaskImpersonator || isMetaMaskMobileWebView)
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
 

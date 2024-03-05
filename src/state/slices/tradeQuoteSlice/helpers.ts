@@ -47,10 +47,10 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
 export const getHopTotalProtocolFeesFiatPrecision = (
   tradeQuoteStep: TradeQuote['steps'][number],
   userCurrencyToUsdRate: string,
-  cryptoMarketDataById: Partial<Record<AssetId, MarketData>>,
+  cryptoMarketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
 ): string => {
   return sumProtocolFeesToDenom({
-    cryptoMarketDataById,
+    cryptoMarketDataByAssetIdUsd,
     protocolFees: tradeQuoteStep.feeData.protocolFees,
     outputExponent: 0,
     outputAssetPriceUsd: userCurrencyToUsdRate,

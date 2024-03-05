@@ -52,12 +52,12 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
  * @returns The total network fee across all hops in USD precision
  */
 const _getTotalNetworkFeeUsdPrecision = (state: ReduxState, quote: TradeQuote): BigNumber => {
-  const cryptoMarketDataById = selectCryptoMarketDataSortedByMarketCapUsd(state)
+  const cryptoMarketDataSortedByMarketCapUsd = selectCryptoMarketDataSortedByMarketCapUsd(state)
 
   const getFeeAssetUsdRate = (feeAssetId: AssetId) => {
     const feeAsset = selectFeeAssetById(state, feeAssetId)
     if (feeAsset === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
-    const feeAssetMarketData = cryptoMarketDataById[feeAsset.assetId]
+    const feeAssetMarketData = cryptoMarketDataSortedByMarketCapUsd[feeAsset.assetId]
     if (feeAssetMarketData === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
     return feeAssetMarketData.price
   }

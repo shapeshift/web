@@ -140,8 +140,8 @@ export const selectFiatPriceHistoryTimeframe = createSelector(
 export const selectUsdRateByAssetId = createCachedSelector(
   selectCryptoMarketDataSortedByMarketCapUsd,
   selectAssetId,
-  (cryptoMarketData, assetId): string | undefined => {
-    return cryptoMarketData[assetId]?.price
+  (cryptoMarketDataSortedByMarketCapUsd, assetId): string | undefined => {
+    return cryptoMarketDataSortedByMarketCapUsd[assetId]?.price
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
@@ -149,8 +149,8 @@ export const selectUserCurrencyRateByAssetId = createCachedSelector(
   selectCryptoMarketDataSortedByMarketCapUsd,
   selectUserCurrencyToUsdRate,
   selectAssetId,
-  (cryptoMarketData, userCurrencyToUsdRate, assetId): string => {
-    return bnOrZero(cryptoMarketData[assetId]?.price)
+  (cryptoMarketDataSortedByMarketCapUsd, userCurrencyToUsdRate, assetId): string => {
+    return bnOrZero(cryptoMarketDataSortedByMarketCapUsd[assetId]?.price)
       .times(userCurrencyToUsdRate)
       .toString()
   },

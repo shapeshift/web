@@ -38,18 +38,18 @@ export const selectInputSellAsset = createDeepEqualOutputSelector(
 export const selectInputSellAssetUsdRate = createSelector(
   selectInputSellAsset,
   selectCryptoMarketDataSortedByMarketCapUsd,
-  (sellAsset, cryptoMarketDataById) => {
+  (sellAsset, cryptoMarketDataSortedByMarketCapUsd) => {
     if (sellAsset === undefined) return
-    return cryptoMarketDataById[sellAsset.assetId]?.price
+    return cryptoMarketDataSortedByMarketCapUsd[sellAsset.assetId]?.price
   },
 )
 
 export const selectInputBuyAssetUsdRate = createSelector(
   selectInputBuyAsset,
   selectCryptoMarketDataSortedByMarketCapUsd,
-  (buyAsset, cryptoMarketDataById) => {
+  (buyAsset, cryptoMarketDataSortedByMarketCapUsd) => {
     if (buyAsset === undefined) return
-    return cryptoMarketDataById[buyAsset.assetId]?.price
+    return cryptoMarketDataSortedByMarketCapUsd[buyAsset.assetId]?.price
   },
 )
 

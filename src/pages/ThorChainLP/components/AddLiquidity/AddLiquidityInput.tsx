@@ -566,8 +566,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
   )
 
-  console.log({ poolAssetTxFeeCryptoPrecision })
-
   // Checks if there's enough fee asset balance to cover the transaction fees
   const hasEnoughPoolAssetFeeAssetBalanceForTx = useMemo(() => {
     if (bnOrZero(actualAssetDepositAmountCryptoPrecision).isZero()) return true
@@ -1188,14 +1186,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])
 
-  if (!poolAsset || !runeAsset) return null
+  const hasUserEnteredValue = useMemo(() => {
+    return Boolean(
+      virtualAssetDepositAmountCryptoPrecision &&
+        virtualAssetDepositAmountFiatUserCurrency &&
+        virtualRuneDepositAmountCryptoPrecision &&
+        virtualRuneDepositAmountFiatUserCurrency,
+    )
+  }, [
+    virtualAssetDepositAmountCryptoPrecision,
+    virtualAssetDepositAmountFiatUserCurrency,
+    virtualRuneDepositAmountCryptoPrecision,
+    virtualRuneDepositAmountFiatUserCurrency,
+  ])
 
-  const hasUserEnteredValue = !!(
-    virtualAssetDepositAmountCryptoPrecision &&
-    virtualAssetDepositAmountFiatUserCurrency &&
-    virtualRuneDepositAmountCryptoPrecision &&
-    virtualRuneDepositAmountFiatUserCurrency
-  )
+  if (!poolAsset || !runeAsset) return null
 
   return (
     <SlideTransition>

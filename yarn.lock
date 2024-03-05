@@ -10109,7 +10109,7 @@ __metadata:
     grapheme-splitter: ^1.0.4
     happy-dom: ^12.10.3
     html-react-parser: ^1.4.14
-    html5-qrcode: ^2.2.1
+    html5-qrcode: ^2.3.8
     http-proxy-middleware: ^2.0.6
     https-browserify: ^1.0.0
     identicon.js: ^2.3.3
@@ -23007,10 +23007,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html5-qrcode@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "html5-qrcode@npm:2.2.1"
-  checksum: 1f1753b28e6d33008b8f9c6939f3f679410b627f512d1d81239173bb3d6c2fb907d79c0de16dbaa33862c960aa88f06f337cef2afd6ad462e41308aae865a3b3
+"html5-qrcode@npm:^2.3.8":
+  version: 2.3.8
+  resolution: "html5-qrcode@npm:2.3.8"
+  checksum: 14b2bd6925c2b31670801a5eb2fe3b258cb4d1a764a52abbdc31d89e58c9a4db1949007448a2b322559fda259a2a1beb8d4def5fd635597a83a667bfaa13be2b
   languageName: node
   linkType: hard
 

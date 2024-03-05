@@ -5,21 +5,16 @@ import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import type {
   AssetSearchResult,
   GlobalSearchResult,
-  OpportunitySearchResult,
   SendResult,
   TxSearchResult,
 } from 'state/slices/search-selectors'
 
 import { ActionResults } from './ActionResults/ActionResults'
 import { AssetResults } from './AssetResults/AssetResults'
-import { LpResults } from './LpResults/LpResults'
-import { StakingResults } from './StakingResults/StakingResults'
 import { TxResults } from './TxResults/TxResults'
 
 export type SearchResultsProps = {
   assetResults: AssetSearchResult[]
-  stakingResults: OpportunitySearchResult[]
-  lpResults: OpportunitySearchResult[]
   txResults: TxSearchResult[]
   sendResults: SendResult[]
   activeIndex: number
@@ -31,8 +26,6 @@ export type SearchResultsProps = {
 export const SearchResults = memo(
   ({
     assetResults,
-    stakingResults,
-    lpResults,
     txResults,
     sendResults,
     activeIndex,
@@ -43,21 +36,8 @@ export const SearchResults = memo(
     const menuNodes = useMemo(() => new MultiRef<number, HTMLElement>(), [])
 
     const noResults = useMemo(() => {
-      return (
-        !assetResults.length &&
-        !stakingResults.length &&
-        !lpResults.length &&
-        !txResults.length &&
-        !sendResults.length &&
-        !assetResults.length
-      )
-    }, [
-      assetResults.length,
-      lpResults.length,
-      sendResults.length,
-      stakingResults.length,
-      txResults.length,
-    ])
+      return !assetResults.length && !txResults.length && !sendResults.length
+    }, [assetResults.length, sendResults.length, txResults.length])
 
     if (isSearching && noResults) {
       return <SearchEmpty searchQuery={searchQuery} />
@@ -81,27 +61,11 @@ export const SearchResults = memo(
           searchQuery={searchQuery}
           menuNodes={menuNodes}
         />
-        <StakingResults
-          results={stakingResults}
-          onClick={onClickResult}
-          activeIndex={activeIndex}
-          startingIndex={assetResults.length}
-          searchQuery={searchQuery}
-          menuNodes={menuNodes}
-        />
-        <LpResults
-          results={lpResults}
-          onClick={onClickResult}
-          activeIndex={activeIndex}
-          startingIndex={assetResults.length + stakingResults.length}
-          searchQuery={searchQuery}
-          menuNodes={menuNodes}
-        />
         <TxResults
           results={txResults}
           onClick={onClickResult}
           activeIndex={activeIndex}
-          startingIndex={assetResults.length + stakingResults.length + lpResults.length}
+          startingIndex={assetResults.length}
           searchQuery={searchQuery}
           menuNodes={menuNodes}
         />

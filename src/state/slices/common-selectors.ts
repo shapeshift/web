@@ -13,8 +13,8 @@ import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'st
 
 import { selectAssets } from './assetsSlice/selectors'
 import {
-  selectCryptoMarketDataSortedByMarketCapUsd,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUsd,
+  selectCryptoMarketDataUserCurrency,
 } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
@@ -95,7 +95,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectBalanceThreshold,
   (assetsById, marketData, balances, balanceThreshold) =>
@@ -116,7 +116,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioAccountBalancesBaseUnit,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   (assetsById, accounts, marketData) => {
     return Object.entries(accounts).reduce(
       (acc, [accountId, balanceObj]) => {
@@ -146,15 +146,15 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
   createDeepEqualOutputSelector(
     selectAssets,
     selectPortfolioUserCurrencyBalances,
-    selectCryptoMarketDataSortedByMarketCapUsd,
-    (assets, portfolioUserCurrencyBalances, cryptoMarketDataSortedByMarketCapUsd) => {
+    selectCryptoMarketDataUsd,
+    (assets, portfolioUserCurrencyBalances, cryptoMarketDataUsd) => {
       const getAssetUserCurrencyBalance = (asset: Asset) =>
         bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
       // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
       // but we actually can't - this would rug the triple-sorting
       const getAssetMarketCap = (asset: Asset) =>
-        bnOrZero(cryptoMarketDataSortedByMarketCapUsd[asset.assetId]?.marketCap).toNumber()
+        bnOrZero(cryptoMarketDataUsd[asset.assetId]?.marketCap).toNumber()
       const getAssetName = (asset: Asset) => asset.name
 
       return orderBy(

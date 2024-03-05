@@ -11,7 +11,7 @@ import { Amount } from 'components/Amount/Amount'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
@@ -52,7 +52,9 @@ type PoolButtonProps = {
 
 const PoolButton = ({ pool }: PoolButtonProps) => {
   const history = useHistory()
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
   const { data: swapsData } = useQuery({
     ...reactQueries.midgard.swapsData(pool.asset, 'hour', 7 * 24),

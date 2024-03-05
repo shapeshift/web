@@ -23,7 +23,7 @@ import type {
 } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -147,10 +147,10 @@ export const PairDepositWithAllocation = ({
     .toString()
 
   const asset0MarketData = useAppSelector(state =>
-    selectMarketDataById(state, asset0?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, asset0?.assetId ?? ''),
   )
   const asset1MarketData = useAppSelector(state =>
-    selectMarketDataById(state, asset1?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, asset1?.assetId ?? ''),
   )
 
   const icons = opportunity.icons

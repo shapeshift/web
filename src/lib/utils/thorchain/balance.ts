@@ -10,7 +10,7 @@ import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepN
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { fromThorBaseUnit } from '.'
@@ -95,7 +95,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     assetId: asset.assetId,
     accountId,
   })
-  const assetMarketData = selectMarketDataById(store.getState(), asset.assetId)
+  const assetMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), asset.assetId)
   const quote = await (async () => {
     switch (type) {
       case 'withdraw': {

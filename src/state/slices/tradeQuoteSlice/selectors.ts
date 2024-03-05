@@ -42,8 +42,8 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 
 import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
-  selectCryptoMarketDataSortedByMarketCapUsd,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUsd,
+  selectCryptoMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../selectors'
@@ -260,14 +260,14 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
   createSelector(
     selectActiveQuote,
     selectUserCurrencyToUsdRate,
-    selectCryptoMarketDataSortedByMarketCapUsd,
+    selectCryptoMarketDataUsd,
     (_state: ReduxState, step: number) => step,
-    (quote, userCurrencyToUsdRate, cryptoMarketDataSortedByMarketCapUsd, step) =>
+    (quote, userCurrencyToUsdRate, cryptoMarketDataUsd, step) =>
       quote && quote.steps[step]
         ? getHopTotalProtocolFeesFiatPrecision(
             quote.steps[step],
             userCurrencyToUsdRate,
-            cryptoMarketDataSortedByMarketCapUsd,
+            cryptoMarketDataUsd,
           )
         : undefined,
   )
@@ -432,7 +432,7 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectFirstHop,
   selectFirstHopSellFeeAsset,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   (tradeQuoteStep, feeAsset, cryptoMarketData) => {
     if (!tradeQuoteStep) return
 
@@ -458,7 +458,7 @@ export const selectSecondHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectSecondHop,
   selectSecondHopSellFeeAsset,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   (tradeQuoteStep, feeAsset, cryptoMarketData) => {
     if (!tradeQuoteStep) return
 

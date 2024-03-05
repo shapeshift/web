@@ -15,7 +15,7 @@ import type { ReduxState } from 'state/reducer'
 import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { selectPortfolioAccountBalancesBaseUnit } from 'state/slices/common-selectors'
 import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -146,7 +146,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     })()
 
     const { chainId } = fromAssetId(opportunityId)
-    const token0MarketData: MarketData = selectMarketDataById(
+    const token0MarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
       state,
       token0Address === WETH_TOKEN_CONTRACT_ADDRESS
         ? ethAssetId

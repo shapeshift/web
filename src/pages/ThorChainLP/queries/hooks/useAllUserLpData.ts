@@ -10,9 +10,9 @@ import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssets,
-  selectMarketDataById,
+  selectCryptoMarketDataUserCurrency,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccounts,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -29,8 +29,10 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   const assets = useAppSelector(selectAssets)
   const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const runeAccountIds = findAccountsByAssetId(portfolioAccounts, thorchainAssetId)
-  const marketData = useAppSelector(selectCryptoMarketDataSortedByMarketCapUserCurrency)
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
+  const runeMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
   const currentWalletId = useAppSelector(selectWalletId)
 
   const { data: pools, isSuccess } = useQuery({
@@ -76,11 +78,11 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
               .map(position =>
                 getUserLpDataPosition({
                   assetId,
-                  assetPrice: marketData[assetId]?.price ?? '0',
+                  assetPrice: marketDataUserCurrency[assetId]?.price ?? '0',
                   assets,
                   pool,
                   position,
-                  runePrice: runeMarketData.price,
+                  runePrice: runeMarketDataUserCurrency.price,
                 }),
               )
               .filter(isSome),
@@ -95,8 +97,8 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
     pools,
     portfolioAccounts,
     queryClient,
-    marketData,
-    runeMarketData?.price,
+    marketDataUserCurrency,
+    runeMarketDataUserCurrency?.price,
     runeAccountIds,
   ])
   // We do not expose this as-is, but mapReduce the queries to massage *all* data, in addition to *each* query having its selector

@@ -27,7 +27,7 @@ import type {
 import { DefiProvider, DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
-import { selectCryptoMarketDataSortedByMarketCapUserCurrency } from './../../marketDataSlice/selectors'
+import { selectCryptoMarketDataUserCurrency } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -37,10 +37,10 @@ import {
 const makeClaimableStakingRewardsAmountUserCurrency = ({
   assets,
   maybeStakingOpportunity,
-  marketData,
+  marketDataUserCurrency,
 }: {
   assets: Partial<Record<AssetId, Asset>>
-  marketData: Partial<Record<AssetId, MarketData>>
+  marketDataUserCurrency: Partial<Record<AssetId, MarketData>>
   maybeStakingOpportunity: StakingEarnOpportunityType | LpEarnOpportunityType
 }): number => {
   if (maybeStakingOpportunity.type !== DefiType.Staking) return 0
@@ -51,7 +51,7 @@ const makeClaimableStakingRewardsAmountUserCurrency = ({
     (sum, assetId, index) => {
       const asset = assets[assetId]
       if (!asset) return sum
-      const marketDataPrice = marketData[assetId]?.price
+      const marketDataPrice = marketDataUserCurrency[assetId]?.price
       const amountCryptoBaseUnit = stakingOpportunity?.rewardsCryptoBaseUnit?.amounts[index]
       const cryptoAmountPrecision = bnOrZero(
         stakingOpportunity?.rewardsCryptoBaseUnit?.claimable ? amountCryptoBaseUnit : '0',
@@ -70,7 +70,7 @@ const makeClaimableStakingRewardsAmountUserCurrency = ({
 export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
@@ -78,7 +78,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
   (
     userStakingOpportunites,
     userLpOpportunities,
-    marketData,
+    marketDataUserCurrency,
     assets,
     includeEarnBalances,
     includeRewardsBalances,
@@ -98,7 +98,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
           ...cur,
           assets,
-          marketData,
+          marketDataUserCurrency,
         })
 
         const amountFiat =
@@ -109,7 +109,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
         const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
           {
             maybeStakingOpportunity: cur,
-            marketData,
+            marketDataUserCurrency,
             assets,
           },
         )
@@ -154,7 +154,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
           const underlyingAssetBalances = getUnderlyingAssetIdsBalances({
             ...cur,
             assets,
-            marketData,
+            marketDataUserCurrency,
           })
 
           const amountFiat =
@@ -164,7 +164,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
           const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
             maybeStakingOpportunity: cur,
-            marketData,
+            marketDataUserCurrency,
             assets,
           })
 
@@ -255,7 +255,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 export const selectClaimableRewards = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesWithMetadataByFilter,
   selectAssets,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   (userStakingOpportunitesWithMetadata, assets, marketData): string => {
     return userStakingOpportunitesWithMetadata
       .reduce<BN>((totalSum, stakingOpportunityWithMetadata) => {
@@ -291,7 +291,7 @@ export const selectOpportunityApiPending = (state: ReduxState) =>
 export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
@@ -300,14 +300,14 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
   (
     userStakingOpportunites,
     userLpOpportunities,
-    marketData,
+    marketDataUserCurrency,
     assets,
     includeEarnBalances,
     includeRewardsBalances,
     chainId,
     searchQuery,
   ): AggregatedOpportunitiesByProviderReturn[] => {
-    if (isEmpty(marketData)) return []
+    if (isEmpty(marketDataUserCurrency)) return []
     const totalFiatAmountByProvider: Record<string, BN> = {}
     const projectedAnnualizedYieldByProvider: Record<string, BN> = {}
     const combined = userStakingOpportunites.concat(userLpOpportunities)
@@ -409,7 +409,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
         const maybeStakingRewardsAmountFiat = makeClaimableStakingRewardsAmountUserCurrency({
           maybeStakingOpportunity: cur,
-          marketData,
+          marketDataUserCurrency,
           assets,
         })
 
@@ -441,7 +441,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
         const maybeStakingRewardsAmountUserCurrency = makeClaimableStakingRewardsAmountUserCurrency(
           {
             maybeStakingOpportunity: cur,
-            marketData,
+            marketDataUserCurrency,
             assets,
           },
         )

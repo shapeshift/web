@@ -17,7 +17,7 @@ import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/asset
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
 import type {
   AssetIdsTuple,
@@ -520,7 +520,7 @@ export const zapper = createApi({
                     return underlyingAssetId!
                   }) as unknown as AssetIdsTuple
 
-                  const assetMarketData = selectMarketDataById(state, assetId)
+                  const assetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
                   const assetPrice =
                     // Claimable assets may not have a price, if that's the case, we use the price of the underlying asset they wrap
                     asset.groupId === 'claimable'
@@ -540,7 +540,10 @@ export const zapper = createApi({
                   }
 
                   underlyingAssetIds.forEach((underlyingAssetId, i) => {
-                    const marketData = selectMarketDataById(state, underlyingAssetId)
+                    const marketData = selectMarketDataByAssetIdUserCurrency(
+                      state,
+                      underlyingAssetId,
+                    )
                     if (marketData.price === '0') {
                       dispatch(
                         marketDataSlice.actions.setCryptoMarketData({

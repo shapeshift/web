@@ -9,7 +9,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { Text } from 'components/Text'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type ChangeTagProps = {
@@ -64,8 +64,12 @@ export const PoolInfo = ({
 }: PoolInfoProps) => {
   const asset0 = useAppSelector(state => selectAssetById(state, assetIds[0]))
   const asset1 = useAppSelector(state => selectAssetById(state, assetIds[1]))
-  const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[0]))
-  const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[1]))
+  const asset0MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetIds[0]),
+  )
+  const asset1MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetIds[1]),
+  )
 
   const volumeChangeTag: JSX.Element = useMemo(() => {
     return <ChangeTag value={volume24hChange} />

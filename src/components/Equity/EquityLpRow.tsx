@@ -15,7 +15,7 @@ import {
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
-  selectCryptoMarketDataSortedByMarketCapUserCurrency,
+  selectCryptoMarketDataUserCurrency,
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -44,7 +44,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
   const location = useLocation()
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectCryptoMarketDataSortedByMarketCapUserCurrency)
+  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
   const filter = useMemo(() => {
     return {
       assetId,
@@ -66,7 +66,7 @@ export const EquityLpRow: React.FC<EquityLpRowProps> = ({
     cryptoAmountBaseUnit: opportunity.cryptoAmountBaseUnit,
     assetId: opportunity.id,
     assets,
-    marketData,
+    marketDataUserCurrency,
   })
 
   const handleClick = useCallback(() => {

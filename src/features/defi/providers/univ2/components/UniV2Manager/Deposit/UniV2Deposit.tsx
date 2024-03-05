@@ -21,7 +21,7 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -69,7 +69,7 @@ export const UniV2Deposit: React.FC<UniV2DepositProps> = ({
   const marketData = useAppSelector(
     state =>
       earnUserLpOpportunity?.underlyingAssetId &&
-      selectMarketDataById(state, earnUserLpOpportunity?.underlyingAssetId),
+      selectMarketDataByAssetIdUserCurrency(state, earnUserLpOpportunity?.underlyingAssetId),
   )
 
   const loading = useSelector(selectPortfolioLoading)

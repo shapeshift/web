@@ -29,7 +29,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -78,7 +78,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
   const assets = useAppSelector(selectAssets)
 
   if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)

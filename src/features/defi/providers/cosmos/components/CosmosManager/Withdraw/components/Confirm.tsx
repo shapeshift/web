@@ -35,7 +35,7 @@ import {
   selectAssetById,
   selectAssets,
   selectBIP44ParamsByAccountId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
@@ -81,14 +81,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const unbondingDays = useMemo(() => assetIdToUnbondingDays(assetId), [assetId])
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const fiatAmount = useMemo(
     () =>

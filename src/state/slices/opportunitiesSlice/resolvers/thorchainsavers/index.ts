@@ -5,7 +5,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
@@ -121,7 +121,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     // we would need to revisit this by using generic keys as an opportunityId
     const asset = selectAssetById(state, assetId)
     const underlyingAsset = selectAssetById(state, assetId)
-    const marketData = selectMarketDataById(state, assetId)
+    const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
 
     if (!asset || !underlyingAsset || !marketData) continue
 

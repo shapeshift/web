@@ -5,7 +5,7 @@ import type { TradeAmountInputProps } from 'components/MultiHopTrade/components/
 import { TradeAmountInput } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -32,7 +32,7 @@ type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & { asset
 
 const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
   const { assetId, accountId } = props
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const filter = useMemo(
     () => ({

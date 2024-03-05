@@ -14,7 +14,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { calculateEarnings } from 'lib/utils/thorchain/lp'
 import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
@@ -65,7 +65,9 @@ const PositionButton = ({ poolAssetId, position }: PositionButtonProps) => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
   const poolAssetIds = useMemo(() => [assetId, thorchainAssetId], [assetId])
 

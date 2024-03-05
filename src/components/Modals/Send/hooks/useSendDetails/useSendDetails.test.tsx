@@ -25,7 +25,7 @@ import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
@@ -102,7 +102,7 @@ const setup = ({
     }
   }) as any)
 
-  vi.mocked(selectMarketDataById).mockImplementation((_state, assetId) => {
+  vi.mocked(selectMarketDataByAssetIdUserCurrency).mockImplementation((_state, assetId) => {
     const fakeMarketData = {
       [mockEthereum.assetId]: {
         price: '3500',

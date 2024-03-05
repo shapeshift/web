@@ -79,7 +79,11 @@ const navCss = {
   },
 }
 
-export const DashboardHeader = () => {
+export const DashboardHeader = ({
+  isOpportunitiesLoading,
+}: {
+  isOpportunitiesLoading: boolean
+}) => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const location = useLocation()
   const send = useModal('send')
@@ -90,7 +94,7 @@ export const DashboardHeader = () => {
     state: { isConnected },
   } = useWallet()
   const translate = useTranslate()
-  const loading = useAppSelector(selectPortfolioLoading)
+  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
@@ -140,7 +144,11 @@ export const DashboardHeader = () => {
         label: 'navBar.defi',
         path: '/dashboard/earn',
         color: 'purple',
-        rightElement: <Amount.Fiat value={earnUserCurrencyBalance} />,
+        rightElement: (
+          <Skeleton isLoaded={!isOpportunitiesLoading}>
+            <Amount.Fiat value={earnUserCurrencyBalance} />
+          </Skeleton>
+        ),
       },
       {
         label: 'navBar.rewards',
@@ -165,6 +173,7 @@ export const DashboardHeader = () => {
     claimableRewardsUserCurrencyBalance,
     earnUserCurrencyBalance,
     isNftsEnabled,
+    isOpportunitiesLoading,
     portfolioTotalUserCurrencyBalance,
     translate,
   ])
@@ -224,7 +233,7 @@ export const DashboardHeader = () => {
           <ProfileAvatar />
           <Flex flexDir='column' alignItems={portfolioTextAlignment}>
             <Text fontWeight='semibold' translation='defi.netWorth' color='text.subtle' />
-            <Skeleton isLoaded={!loading}>
+            <Skeleton isLoaded={!isPortfolioLoading && !isOpportunitiesLoading}>
               <Amount.Fiat lineHeight='shorter' value={netWorth} fontSize='4xl' fontWeight='bold' />
             </Skeleton>
           </Flex>

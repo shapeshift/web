@@ -45,8 +45,6 @@ export const NftCard: React.FC<NftCardProps> = ({ nftAssetId }) => {
 
   const { collectionId, medias, name, rarityRank } = nftItem
 
-  console.log({ nftItem })
-
   const collection = useAppSelector(state => selectNftCollectionById(state, collectionId))
   const floorPrice = collection?.floorPrice
   const mediaUrl = medias?.[0]?.originalUrl

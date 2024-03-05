@@ -12,6 +12,16 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapId = getConfig().REACT_APP_SNAP_ID
 
+// Many many user-agents to detect mobile MM and other in-app dApp browsers
+// https://github.com/MetaMask/metamask-mobile/issues/3920#issuecomment-1074188335
+const isBrowser = typeof window !== 'undefined'
+const hasEthereum = isBrowser && window.ethereum !== undefined
+const isAndroid = /(Android)/i.test(window.navigator.userAgent ?? '')
+const isIOS = /(iPhone|iPod|iPad)/i.test(window.navigator.userAgent ?? '')
+const isMobile = isIOS || isAndroid
+// Is a mobile browser and has injected window.ethereum - we assume in-app dApp browser
+export const isMetaMaskMobileWebView = isMobile && hasEthereum
+
 // https://github.com/wevm/wagmi/blob/21245be51d7c6dff1c7b285226d0c89c4a9d8cac/packages/connectors/src/utils/getInjectedName.ts#L6-L56
 // This will need to be kept up-to-date with the latest list of impersonators
 const METAMASK_IMPERSONATORS = [
@@ -81,8 +91,9 @@ export const checkIsSnapInstalled = pDebounce.promise(
   (): Promise<boolean | null> => shapeShiftSnapInstalled(snapId),
 )
 
-export const checkIsMetaMask = pMemoize(
+export const checkIsMetaMaskDesktop = pMemoize(
   async (wallet: HDWallet | null): Promise<boolean> => {
+    if (isMetaMaskMobileWebView) return false
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
     // We don't want to run this hook altogether if using any wallet other than MM
     if (!isMetaMaskMultichainWallet) return false
@@ -116,17 +127,6 @@ export const checkIsMetaMaskImpersonator = pMemoize(
   },
 )
 
-// https://github.com/MetaMask/metamask-sdk/blob/6230d8394157f53f1b020ae44601a0a69edc6155/packages/sdk/src/Platform/PlatfformManager.ts#L102C30-L111
-export const checkisMetaMaskMobileWebView = () => {
-  if (typeof window === 'undefined') {
-    return false
-  }
-
-  return (
-    Boolean(window.ReactNativeWebView) && Boolean(navigator.userAgent.endsWith('MetaMaskMobile'))
-  )
-}
-
 export const useIsSnapInstalled = (): null | boolean => {
   const [isSnapInstalled, setIsSnapInstalled] = useState<null | boolean>(null)
 
@@ -136,10 +136,10 @@ export const useIsSnapInstalled = (): null | boolean => {
 
   const checkSnapInstallation = useCallback(async () => {
     if (!isConnected || isDemoWallet) return
-    const isMetaMask = await checkIsMetaMask(wallet)
+    const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
     const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
     if (isMetaMaskImpersonator) return
-    if (!isMetaMask) return
+    if (!isMetaMaskDesktop) return
 
     const _isSnapInstalled = await checkIsSnapInstalled()
     setIsSnapInstalled(_isSnapInstalled)

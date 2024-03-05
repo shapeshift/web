@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -8,10 +8,10 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
-  checkIsMetaMask,
+  checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
-  checkisMetaMaskMobileWebView,
   checkIsSnapInstalled,
+  isMetaMaskMobileWebView,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -44,7 +44,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   }, [])
 
   const isSnapsEnabled = useFeatureFlag('Snaps')
-  const isMetaMaskMobileWebView = useMemo(() => checkisMetaMaskMobileWebView(), [])
 
   const pairDevice = useCallback(async () => {
     setError(null)
@@ -85,10 +84,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         }
 
         await (async () => {
-          const isMetaMask = await checkIsMetaMask(wallet)
+          const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
           const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
           // Wallets other than MM desktop - including MM impersonators - don't support MM snaps
-          if (!isMetaMask || isMetaMaskImpersonator || isMetaMaskMobileWebView)
+          if (!isMetaMaskDesktop || isMetaMaskImpersonator || isMetaMaskMobileWebView)
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
 
@@ -115,13 +114,13 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     dispatch,
     localWallet,
     onProviderChange,
-    isMetaMaskMobileWebView,
     isSnapsEnabled,
     showSnapModal,
     history,
   ])
 
   const handleRedirect = useCallback((): void => {
+    const METAMASK_DEEP_LINK_BASE_URL = 'https://metamask.app.link'
     // This constructs the MetaMask deep-linking target from the currently-loaded
     // window.location. The port will be blank if not specified, in which case it
     // should be omitted.
@@ -129,7 +128,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       .filter(x => !!x)
       .join(':')
 
-    return window.location.assign(`metamask://dapp//${mmDeeplinkTarget}`)
+    return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
   }, [])
 
   return isMobile && !isMetaMaskMobileWebView ? (

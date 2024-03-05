@@ -76,7 +76,6 @@ import {
   selectFirstHop,
   selectIsAnyTradeQuoteLoaded,
   selectIsUnsafeActiveQuote,
-  selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteRequestErrors,
@@ -146,7 +145,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
-  const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
@@ -699,7 +697,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                     showFiatSkeleton={isLoading}
                     label={translate('trade.youGet')}
                     onAccountIdChange={setBuyAssetAccountId}
-                    isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
                     formControlProps={formControlProps}
                     labelPostFix={buyTradeAssetSelect}
                     priceImpactPercentage={priceImpactPercentage?.toString()}

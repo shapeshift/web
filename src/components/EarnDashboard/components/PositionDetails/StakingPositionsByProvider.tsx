@@ -28,7 +28,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
-  selectCryptoMarketData,
+  selectCryptoMarketDataSortedByMarketCapUsd,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -82,7 +82,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectCryptoMarketData)
+  const marketData = useAppSelector(selectCryptoMarketDataSortedByMarketCapUsd)
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )

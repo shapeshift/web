@@ -12,7 +12,7 @@ import {
   selectAssets,
   selectMarketDataById,
   selectPortfolioAccounts,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -29,7 +29,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   const assets = useAppSelector(selectAssets)
   const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const runeAccountIds = findAccountsByAssetId(portfolioAccounts, thorchainAssetId)
-  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectCryptoMarketDataSortedByMarketCapUserCurrency)
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
   const currentWalletId = useAppSelector(selectWalletId)
 

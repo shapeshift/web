@@ -13,8 +13,8 @@ import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'st
 
 import { selectAssets } from './assetsSlice/selectors'
 import {
-  selectCryptoMarketData,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUsd,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
 } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
@@ -95,7 +95,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectBalanceThreshold,
   (assetsById, marketData, balances, balanceThreshold) =>
@@ -116,7 +116,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
 export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioAccountBalancesBaseUnit,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   (assetsById, accounts, marketData) => {
     return Object.entries(accounts).reduce(
       (acc, [accountId, balanceObj]) => {
@@ -146,7 +146,7 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
   createDeepEqualOutputSelector(
     selectAssets,
     selectPortfolioUserCurrencyBalances,
-    selectCryptoMarketData,
+    selectCryptoMarketDataSortedByMarketCapUsd,
     (assets, portfolioUserCurrencyBalances, cryptoMarketData) => {
       const getAssetUserCurrencyBalance = (asset: Asset) =>
         bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()

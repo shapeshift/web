@@ -10,7 +10,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectTxs,
 } from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -48,7 +48,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectCryptoMarketDataSortedByMarketCapUserCurrency)
   const translate = useTranslate()
   const fields = useMemo(
     () => ({

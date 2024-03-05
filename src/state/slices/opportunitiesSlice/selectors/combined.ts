@@ -27,7 +27,7 @@ import type {
 import { DefiProvider, DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
-import { selectSelectedCurrencyMarketDataSortedByMarketCap } from './../../marketDataSlice/selectors'
+import { selectCryptoMarketDataSortedByMarketCapUserCurrency } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -70,7 +70,7 @@ const makeClaimableStakingRewardsAmountUserCurrency = ({
 export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
@@ -255,7 +255,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 export const selectClaimableRewards = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesWithMetadataByFilter,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   (userStakingOpportunitesWithMetadata, assets, marketData): string => {
     return userStakingOpportunitesWithMetadata
       .reduce<BN>((totalSum, stakingOpportunityWithMetadata) => {
@@ -291,7 +291,7 @@ export const selectOpportunityApiPending = (state: ReduxState) =>
 export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,

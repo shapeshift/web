@@ -33,7 +33,7 @@ import {
   selectChainIdParamFromFilter,
 } from 'state/selectors'
 import { selectAssets, selectRelatedAssetIdsInclusive } from 'state/slices/assetsSlice/selectors'
-import { selectSelectedCurrencyMarketDataSortedByMarketCap } from 'state/slices/marketDataSlice/selectors'
+import { selectCryptoMarketDataSortedByMarketCapUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
 import {
   selectAggregatedEarnUserStakingOpportunities,
@@ -287,7 +287,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
     selectAssets,
     selectPortfolioAccountBalancesBaseUnit,
     selectPortfolioAssetBalancesBaseUnit,
-    selectSelectedCurrencyMarketDataSortedByMarketCap,
+    selectCryptoMarketDataSortedByMarketCapUserCurrency,
     selectBalanceThreshold,
     selectPortfolioAccounts,
     selectAggregatedEarnUserStakingOpportunities,
@@ -500,7 +500,7 @@ export const selectPortfolioAccountsCryptoHumanBalancesIncludingStaking =
 export const selectPortfolioAccountsUserCurrencyBalancesIncludingStaking =
   createDeepEqualOutputSelector(
     selectAssets,
-    selectSelectedCurrencyMarketDataSortedByMarketCap,
+    selectCryptoMarketDataSortedByMarketCapUserCurrency,
     selectPortfolioAccountsCryptoBalancesIncludingStaking,
     (assets, marketData, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
       const userCurrencyAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
@@ -740,7 +740,7 @@ export type AccountRowData = {
 
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioTotalUserCurrencyBalance,
   selectBalanceThreshold,
@@ -879,7 +879,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAllEarnUserLpOpportunitiesByFilter,
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectAssetIdParamFromFilter,
   selectGetReadOnlyOpportunities,
   (

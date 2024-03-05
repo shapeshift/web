@@ -9,8 +9,9 @@ import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
+  selectAssets,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectFeeAssetByChainId,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectTxById,
 } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -107,7 +108,7 @@ export const getTransfers = (
 export const useTxDetails = (txId: string): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
+  const marketData = useAppSelector(selectCryptoMarketDataSortedByMarketCapUserCurrency)
 
   const transfers = useMemo(() => getTransfers(tx, assets, marketData), [tx, assets, marketData])
 

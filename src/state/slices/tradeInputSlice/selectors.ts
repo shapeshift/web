@@ -9,7 +9,10 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectWalletAccountIds,
 } from '../common-selectors'
-import { selectCryptoMarketData, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
+import {
+  selectCryptoMarketDataSortedByMarketCapUsd,
+  selectUserCurrencyToUsdRate,
+} from '../marketDataSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectPortfolioAccountMetadata,
@@ -34,7 +37,7 @@ export const selectInputSellAsset = createDeepEqualOutputSelector(
 
 export const selectInputSellAssetUsdRate = createSelector(
   selectInputSellAsset,
-  selectCryptoMarketData,
+  selectCryptoMarketDataSortedByMarketCapUsd,
   (sellAsset, cryptoMarketDataById) => {
     if (sellAsset === undefined) return
     return cryptoMarketDataById[sellAsset.assetId]?.price
@@ -43,7 +46,7 @@ export const selectInputSellAssetUsdRate = createSelector(
 
 export const selectInputBuyAssetUsdRate = createSelector(
   selectInputBuyAsset,
-  selectCryptoMarketData,
+  selectCryptoMarketDataSortedByMarketCapUsd,
   (buyAsset, cryptoMarketDataById) => {
     if (buyAsset === undefined) return
     return cryptoMarketDataById[buyAsset.assetId]?.price

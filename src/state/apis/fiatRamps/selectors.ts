@@ -8,7 +8,7 @@ import { selectAssetIdParamFromFilter } from 'state/selectors'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
 } from 'state/slices/selectors'
 
 import { fiatRampApi } from './fiatRamps'
@@ -35,7 +35,7 @@ type AssetWithMarketData = Asset & MarketData
 
 export const selectFiatRampBuyAssetsWithMarketData = createSelector(
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataSortedByMarketCapUserCurrency,
   selectFiatBuyAssetIds,
   (assetsById, cryptoMarketData, assetIds): AssetWithMarketData[] => {
     return assetIds.reduce<AssetWithMarketData[]>((acc, assetId) => {

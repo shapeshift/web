@@ -73,7 +73,7 @@ export const RecipientAddress = () => {
     if (!isRecipientAddressEditing) return
 
     // minLength should catch this and make isValid false, but doesn't seem to on mount, even when manually triggering validation.
-    if (!value.length) {
+    if (!value?.length) {
       dispatch(tradeInput.actions.setManualReceiveAddressIsValid(false))
       return
     }
@@ -179,7 +179,7 @@ export const RecipientAddress = () => {
               pointerEvents='auto'
               color='green.500'
               aria-label='Save'
-              isDisabled={!isValid || isValidating || !value.length}
+              isDisabled={!isValid || isValidating || !value?.length}
               size='xs'
               onClick={handleFormSubmit}
               icon={checkIcon}
@@ -196,7 +196,7 @@ export const RecipientAddress = () => {
             />
           </InputRightElement>
         </InputGroup>
-        {Boolean(value.length && !isValid) && (
+        {Boolean(value?.length && !isValid) && (
           <Text translation='common.invalidAddress' color='yellow.200' mt={2} />
         )}
       </FormControl>

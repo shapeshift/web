@@ -41,7 +41,7 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
 import { assertUnreachable } from 'lib/utils'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
+import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
   estimateRemoveThorchainLiquidityPosition,
@@ -394,6 +394,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency),
     [poolAssetGasFeeFiatUserCurrency, runeGasFeeFiatUserCurrency],
   )
+
+  const protocolFeeFiatUserCurrency = useMemo(() => {
+    if (opportunityType === AsymSide.Rune) return '0'
+    return fromThorBaseUnit(inboundAddressesData?.outbound_fee ?? 0)
+      .times(poolAssetMarketData.price)
+      .toFixed()
+  }, [inboundAddressesData?.outbound_fee, poolAssetMarketData.price, opportunityType])
 
   const handlePercentageClick = useCallback((percentage: number) => {
     return () => {
@@ -836,8 +843,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           <Row.Label>{translate('common.fees')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={true}>
-              {/* There are no protocol fees when removing liquidity */}
-              <Amount.Fiat value={'0'} />
+              <Amount.Fiat value={protocolFeeFiatUserCurrency} />
             </Skeleton>
           </Row.Value>
         </Row>

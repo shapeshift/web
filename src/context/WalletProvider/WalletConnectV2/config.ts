@@ -29,6 +29,7 @@ export const WalletConnectV2Config: WalletConnectV2ConfigType = {
   icon: WalletConnectIcon,
   name: 'WalletConnect',
   description: 'v2',
+  supportsMobile: 'browser',
 }
 type ViemChain = Chain
 type AtLeastOneViemChain = [ViemChain, ...ViemChain[]]

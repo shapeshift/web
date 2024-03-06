@@ -23,6 +23,7 @@ export type RemoveLiquidityProps = {
   headerComponent: JSX.Element
   opportunityId: string
   accountId: AccountId
+  poolAssetId: string
 }
 
 export type RemoveLiquidityRoutesProps = RemoveLiquidityProps & {
@@ -34,6 +35,7 @@ export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
   headerComponent,
   opportunityId,
   accountId,
+  poolAssetId,
 }) => {
   const [confirmedQuote, setConfirmedQuote] = useState<LpConfirmedWithdrawalQuote | null>(null)
 
@@ -45,6 +47,7 @@ export const RemoveLiquidity: React.FC<RemoveLiquidityProps> = ({
         setConfirmedQuote={setConfirmedQuote}
         confirmedQuote={confirmedQuote}
         accountId={accountId}
+        poolAssetId={poolAssetId}
       />
     </MemoryRouter>
   )
@@ -56,6 +59,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   confirmedQuote,
   setConfirmedQuote,
   accountId,
+  poolAssetId,
 }) => {
   const history = useHistory()
   const location = useLocation()
@@ -67,9 +71,10 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
         confirmedQuote={confirmedQuote}
         setConfirmedQuote={setConfirmedQuote}
         accountId={accountId}
+        poolAssetId={poolAssetId}
       />
     ),
-    [confirmedQuote, headerComponent, opportunityId, accountId, setConfirmedQuote],
+    [confirmedQuote, headerComponent, opportunityId, accountId, setConfirmedQuote, poolAssetId],
   )
   const renderRemoveLiquidityConfirm = useCallback(
     () => (confirmedQuote ? <RemoveLiquidityConfirm confirmedQuote={confirmedQuote} /> : <></>),

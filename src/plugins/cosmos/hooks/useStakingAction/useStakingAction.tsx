@@ -7,7 +7,7 @@ import {
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
-  checkIsMetaMask,
+  checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -46,11 +46,13 @@ export const useStakingAction = () => {
     try {
       // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
 
-      const isMetaMask = await checkIsMetaMask(wallet)
+      const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
       const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
       if (
         !wallet.supportsOfflineSigning() &&
-        (!isMetaMask || isMetaMaskImpersonator || (isMetaMask && !(await checkIsSnapInstalled())))
+        (!isMetaMaskDesktop ||
+          isMetaMaskImpersonator ||
+          (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
       ) {
         throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
       }

@@ -1,54 +1,49 @@
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
-dayjs.extend(duration)
-const ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS = 12.08
+export const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 
 export const findClosestFoxDiscountDelayBlockNumber = async (
   delayHours: number,
 ): Promise<number> => {
-  const currentBlock = await getEthersProvider().getBlockNumber()
+  const latestBlock = await getEthersProvider().getBlock('latest')
+  if (!latestBlock) throw new Error('Could not get latest block')
 
   // No-op - if delay is zero, we don't need to perform any logic to find the closest FOX discounts delay block number
   // Since the block we're interested in is the current one
-  if (delayHours === 0) return currentBlock
+  if (delayHours === 0) return latestBlock.number
 
-  const targetTimestamp = dayjs().subtract(delayHours, 'hours').unix()
-  // Define a tolerance window as half of the average block time.
+  const historicalBlock = await getEthersProvider().getBlock(
+    latestBlock.number - AVERAGE_BLOCK_TIME_BLOCKS,
+  )
+  if (!historicalBlock)
+    throw new Error(`Could not get block ${AVERAGE_BLOCK_TIME_BLOCKS} blocks ago`)
 
-  let startBlock = currentBlock
-  let closestBlockNumber: number | null = null
+  const averageBlockTimeSeconds =
+    (latestBlock.timestamp - historicalBlock.timestamp) / AVERAGE_BLOCK_TIME_BLOCKS
 
-  // Interpolate to find a smarter starting point.
-  const currentBlockInfo = await getEthersProvider().getBlock(currentBlock)
-  if (!currentBlockInfo) throw new Error('Could not get current block info')
+  const delaySeconds = 60 * 60 * delayHours
+  const targetBlocksToMove = Math.floor(delaySeconds / averageBlockTimeSeconds)
+  const targetTimestamp = latestBlock.timestamp - delaySeconds
 
-  const timeDifference = currentBlockInfo.timestamp - targetTimestamp
-  const blocksToMove = Math.floor(timeDifference / ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS)
+  let blockNumber = latestBlock.number - targetBlocksToMove
+  while (true) {
+    const block = await getEthersProvider().getBlock(blockNumber)
+    if (!block) throw new Error(`Could not get block ${blockNumber}`)
 
-  startBlock -= blocksToMove
+    const timeDifference = targetTimestamp - block.timestamp
 
-  while (closestBlockNumber === null) {
-    const startBlockInfo = await getEthersProvider().getBlock(startBlock)
-    if (!startBlockInfo) throw new Error('Could not get start block info')
+    // Block is within 1 block before the target timestamp and can be used for fox discount snapshot
+    if (timeDifference >= 0 && timeDifference <= averageBlockTimeSeconds) {
+      return blockNumber
+    }
 
-    if (
-      Math.abs(targetTimestamp - startBlockInfo.timestamp) <= ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS
-    ) {
-      closestBlockNumber = startBlock
+    // Calculate how many blocks to move based on time difference and average block time
+    const blocksToMove = Math.ceil(Math.abs(timeDifference) / averageBlockTimeSeconds)
+
+    if (block.timestamp > targetTimestamp) {
+      blockNumber -= blocksToMove
     } else {
-      // Calculate how many blocks to jump based on time difference and average block time
-      const timeDifference = Math.abs(targetTimestamp - startBlockInfo.timestamp)
-      const blocksToJump = Math.floor(timeDifference / ETHEREUM_AVERAGE_BLOCK_TIME_SECONDS)
-
-      if (startBlockInfo.timestamp > targetTimestamp) {
-        startBlock -= blocksToJump || 1 // In case blocksToJump calculates to 0, default to 1
-      } else {
-        startBlock += blocksToJump || 1 // In case blocksToJump calculates to 0, default to 1
-      }
+      blockNumber += blocksToMove
     }
   }
-
-  return closestBlockNumber
 }

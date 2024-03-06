@@ -777,7 +777,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const walletSupportsRune = useMemo(() => {
     const chainId = thorchainChainId
     const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })

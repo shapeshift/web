@@ -5,6 +5,8 @@ import type { Route } from 'Routes/helpers'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 
+const pageHeight = { base: '100vh', md: 'calc(100% - 72px)' }
+
 type PageProps = {
   children: ReactNode
   loading?: boolean
@@ -24,7 +26,7 @@ export const Page: React.FC<PageProps> = ({
   ...rest
 }: PageProps) => {
   return (
-    <Flex flex={1} flexDir='column' height='calc(100% - 72px)' {...rest}>
+    <Flex flex={1} flexDir='column' pt='env(safe-area-inset-top)' minHeight={pageHeight} {...rest}>
       {error && !loading ? renderError() : loading ? renderLoading() : children}
     </Flex>
   )

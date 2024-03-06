@@ -21,7 +21,6 @@ import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { QRCodeIcon } from 'components/Icons/QRCode'
-import { SwapIcon } from 'components/Icons/SwapIcon'
 import { SideNavContent } from 'components/Layout/Header/SideNavContent'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -55,29 +54,16 @@ export type TabItem = {
   hide?: boolean
 }
 
-const IconButtonAfter = {
-  content: 'attr(aria-label)',
-  position: 'absolute',
-  bottom: '-1.5rem',
-  fontSize: '12px',
-  overflow: 'hidden',
-  width: '100%',
-  textOverflow: 'ellipsis',
-  color: 'text.base',
-}
-
 const qrCodeIcon = <QRCodeIcon />
 const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const ioSwapVerticalSharpIcon = <IoSwapVerticalSharp />
-const swapIcon = <SwapIcon />
 
-const ButtonRowDisplay = { base: 'none', md: 'none' }
+const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
 const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const containerPadding = { base: 6, '2xl': 8 }
 const containerGap = { base: 6, md: 6 }
-const containerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', xl: 'row' }
 const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
 const portfolioTextAlignment: ResponsiveValue<Property.AlignItems> = {
   base: 'center',
@@ -96,6 +82,11 @@ const balanceFlexDir: ResponsiveValue<Property.FlexDirection> = {
   base: 'column-reverse',
   md: 'column',
 }
+
+const headerPosition: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
+
+const profileGridColumn = { base: 2, md: 1 }
+const profileGridTemplate = { base: '1fr 1fr 1fr', md: '1fr 1fr' }
 
 export const DashboardHeader = ({
   isOpportunitiesLoading,
@@ -244,7 +235,7 @@ export const DashboardHeader = ({
   }, [avatarImage])
 
   return (
-    <Box position='sticky' top={0} zIndex='sticky' _after={headerAfter}>
+    <Box position={headerPosition} top={0} zIndex='sticky' _after={headerAfter}>
       <Stack
         spacing={0}
         borderColor='border.base'
@@ -257,7 +248,7 @@ export const DashboardHeader = ({
         <Container
           width='full'
           display='grid'
-          gridTemplateColumns='1fr 1fr 1fr'
+          gridTemplateColumns={profileGridTemplate}
           maxWidth='container.4xl'
           px={containerPadding}
           pt={4}
@@ -265,9 +256,13 @@ export const DashboardHeader = ({
           alignItems='flex-start'
           justifyContent='space-between'
           gap={containerGap}
-          flexDir={containerFlexDir}
         >
-          <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={2}>
+          <Flex
+            alignItems='center'
+            flexDir={containerInnerFlexDir}
+            gap={4}
+            gridColumn={profileGridColumn}
+          >
             <ProfileAvatar />
             <Flex flexDir={balanceFlexDir} alignItems={portfolioTextAlignment}>
               <Text fontWeight='medium' translation='defi.netWorth' color='text.subtle' />
@@ -281,7 +276,13 @@ export const DashboardHeader = ({
               </Skeleton>
             </Flex>
           </Flex>
-          <Flex gap={4} flexWrap={'wrap'} justifyContent={'center'} display={buttonGroupDisplay}>
+          <Flex
+            gridColumn={3}
+            gap={4}
+            flexWrap={'wrap'}
+            justifyContent={'center'}
+            display={buttonGroupDisplay}
+          >
             <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={qrCodeIcon}>
               {translate('modals.send.qrCode')}
             </Button>
@@ -295,57 +296,13 @@ export const DashboardHeader = ({
               {translate('navBar.tradeShort')}
             </Button>
           </Flex>
-          <Flex justifyContent='flex-end' alignItems='flex-start' gridColumn={3}>
+          <Flex
+            justifyContent='flex-end'
+            alignItems='flex-start'
+            gridColumn={3}
+            display={ButtonRowDisplay}
+          >
             <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
-          </Flex>
-          <Flex width='full' display={ButtonRowDisplay}>
-            <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
-              <IconButton
-                icon={arrowUpIcon}
-                size='lg'
-                isRound
-                aria-label={translate('common.send')}
-                _after={IconButtonAfter}
-                onClick={handleSendClick}
-                isDisabled={!isConnected}
-                colorScheme='blue'
-              />
-            </Flex>
-            <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
-              <IconButton
-                icon={arrowDownIcon}
-                size='lg'
-                isRound
-                aria-label={translate('common.receive')}
-                _after={IconButtonAfter}
-                onClick={handleReceiveClick}
-                isDisabled={!isConnected}
-                colorScheme='blue'
-              />
-            </Flex>
-            <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
-              <IconButton
-                icon={swapIcon}
-                size='lg'
-                isRound
-                aria-label={translate('navBar.tradeShort')}
-                _after={IconButtonAfter}
-                onClick={handleTradeClick}
-                colorScheme='blue'
-              />
-            </Flex>
-            <Flex flex={1} alignItems='center' justifyContent='center' mb={6}>
-              <IconButton
-                icon={qrCodeIcon}
-                size='lg'
-                isRound
-                aria-label={translate('modals.send.qrCode')}
-                _after={IconButtonAfter}
-                onClick={handleQrCodeClick}
-                isDisabled={!isConnected}
-                colorScheme='blue'
-              />
-            </Flex>
           </Flex>
         </Container>
         <Flex

@@ -21,6 +21,7 @@ import { WalletDashboard } from './WalletDashboard'
 
 const direction: StackDirection = { base: 'column', xl: 'row' }
 const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
+const pageProps = { pt: 0 }
 
 export const Dashboard = memo(() => {
   const translate = useTranslate()
@@ -37,7 +38,7 @@ export const Dashboard = memo(() => {
 
   if (isDefiDashboardEnabled)
     return (
-      <Main headerComponent={dashboardHeader}>
+      <Main headerComponent={dashboardHeader} pageProps={pageProps}>
         <SEO title={translate('navBar.dashboard')} />
         <Switch>
           <Route exact path={`${path}`}>

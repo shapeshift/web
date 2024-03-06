@@ -24,7 +24,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
           {viewMoreLink && (
             <Button
               as={NavLink}
-              to='/dashboard/activity'
+              to='/wallet/activity'
               variant='link'
               size='sm'
               colorScheme='blue'

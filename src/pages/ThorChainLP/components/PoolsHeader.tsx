@@ -40,6 +40,8 @@ export const PoolsHeader = () => {
         justifyContent='space-between'
         alignItems='center'
         maxWidth='container.4xl'
+        flexWrap='wrap'
+        gap={4}
         px={containerPadding}
         pt={8}
         pb={4}

@@ -221,37 +221,24 @@ export const ButtonStyle: ComponentStyleConfig = {
       minWidth: 'auto',
       pointerEvents: 'none',
     },
-    'nav-link': (props: StyleFunctionProps) => {
-      const { colorScheme: c, theme } = props
-      const darkActiveBg = transparentize(`${c}.200`, 0.25)(theme)
-      if (c === 'gray') {
-        return {
-          color: 'darkNeutral.400',
-          height: '48px',
-          _active: {
-            bg: mode('gray.200', 'gray.700')(props),
-            color: mode('gray.800', 'white')(props),
-            svg: {
-              color: mode('blue.500', 'blue.200')(props),
-            },
-            _checked: {
-              bg: mode('gray.200', 'gray.700')(props),
-            },
-          },
-        }
-      }
-      return {
-        color: mode(`${c}.500`, `${c}.200`)(props),
-        height: '48px',
-        _active: {
-          bg: mode(`${c}.200`, darkActiveBg)(props),
-          color: mode('white', `${c}.200`)(props),
+    'nav-link': {
+      color: 'darkNeutral.400',
+      height: '48px',
+      _active: {
+        transform: 'scale(0.9)',
+      },
+      _hover: {
+        bg: 'transparent',
+        color: 'darkNeutral.400',
+      },
+      _focusVisible: {},
+      '&[data-active]': {
+        color: 'text.base',
+        svg: {
+          color: 'text.base',
         },
-        _checked: {
-          bg: mode(`${c}.200`, 'gray.700')(props),
-          color: mode('white', `${c}.200`)(props),
-        },
-      }
+        transform: 'scale(1)',
+      },
     },
   },
   // default values for 'size', 'variant' and 'colorScheme'

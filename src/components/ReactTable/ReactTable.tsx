@@ -147,22 +147,13 @@ export const ReactTable = <T extends {}>({
     visibleColumns.length,
   ])
 
-  const scrollToTableTop = useCallback(() => {
-    if (tableRef.current) {
-      const scrollY = tableRef.current.offsetTop - 80
-      window.scrollTo(0, scrollY)
-    }
-  }, [])
-
   const handlePrevious = useCallback(() => {
     previousPage()
-    scrollToTableTop()
-  }, [previousPage, scrollToTableTop])
+  }, [previousPage])
 
   const handleNext = useCallback(() => {
     nextPage()
-    scrollToTableTop()
-  }, [nextPage, scrollToTableTop])
+  }, [nextPage])
 
   return (
     <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>

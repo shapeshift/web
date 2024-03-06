@@ -46,7 +46,7 @@ export const EquityAccountRow = ({
   )
 
   const path = generatePath(
-    assetId ? '/dashboard/accounts/:accountId/:assetId' : '/dashboard/accounts/:accountId',
+    assetId ? '/wallet/accounts/:accountId/:assetId' : '/wallet/accounts/:accountId',
     filter,
   )
 

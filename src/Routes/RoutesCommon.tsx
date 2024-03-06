@@ -173,7 +173,7 @@ export const routes: NestedRoute[] = [
   },
   {
     path: '/wallet',
-    label: 'navBar.wallet',
+    label: 'navBar.myWallet',
     shortLabel: 'navBar.wallet',
     icon: <WalletIcon />,
     main: Dashboard,

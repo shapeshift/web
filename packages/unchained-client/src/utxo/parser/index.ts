@@ -47,7 +47,7 @@ export class BaseTransactionParser<T extends utxo.Tx> {
     })()
 
     const parsedTx: ParsedTx = {
-      address,
+      pubkey: address,
       blockHash: tx.blockHash,
       blockHeight: tx.blockHeight,
       blockTime: tx.timestamp,

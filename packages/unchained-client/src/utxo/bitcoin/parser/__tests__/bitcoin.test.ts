@@ -58,7 +58,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -92,7 +92,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -125,7 +125,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -155,7 +155,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -184,7 +184,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -226,7 +226,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -277,7 +277,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -324,7 +324,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -358,7 +358,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -396,7 +396,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -443,7 +443,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -477,7 +477,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -509,7 +509,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -545,7 +545,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -591,7 +591,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -625,7 +625,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -657,7 +657,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -701,7 +701,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -747,7 +747,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -781,7 +781,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -813,7 +813,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -859,7 +859,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -891,7 +891,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         fee: {
           assetId: btcAssetId,
@@ -937,7 +937,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -971,7 +971,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {
@@ -1005,7 +1005,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: btcChainId,
         transfers: [
           {

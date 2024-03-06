@@ -93,7 +93,7 @@ vi.mock('lib/address/ens')
 const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',
   [SendFormFields.From]: '',
-  [SendFormFields.To]: EthSend.address,
+  [SendFormFields.To]: EthSend.pubkey,
   [SendFormFields.VanityAddress]: '',
   [SendFormFields.AssetId]: ethAssetId,
   [SendFormFields.AmountFieldError]: '',

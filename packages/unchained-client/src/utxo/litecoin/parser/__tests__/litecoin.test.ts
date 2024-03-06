@@ -37,7 +37,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,
@@ -71,7 +71,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,
@@ -104,7 +104,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: ltcChainId,
         transfers: [
           {
@@ -134,7 +134,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: ltcChainId,
         transfers: [
           {
@@ -163,7 +163,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,
@@ -205,7 +205,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: ltcChainId,
         fee: {
           assetId: ltcAssetId,

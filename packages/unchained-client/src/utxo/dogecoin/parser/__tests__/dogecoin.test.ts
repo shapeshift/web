@@ -41,7 +41,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,
@@ -75,7 +75,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,
@@ -108,7 +108,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: dogeChainId,
         transfers: [
           {
@@ -138,7 +138,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: dogeChainId,
         transfers: [
           {
@@ -167,7 +167,7 @@ describe('parseTx', () => {
         blockTime: txMempool.timestamp,
         confirmations: txMempool.confirmations,
         status: TxStatus.Pending,
-        address,
+        pubkey: address,
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,
@@ -209,7 +209,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: dogeChainId,
         fee: {
           assetId: dogeAssetId,

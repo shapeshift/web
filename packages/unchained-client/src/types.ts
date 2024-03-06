@@ -62,7 +62,7 @@ export interface BaseTxMetadata {
 }
 
 export interface StandardTx {
-  address: string
+  pubkey: string
   blockHash?: string
   blockHeight: number
   blockTime: number

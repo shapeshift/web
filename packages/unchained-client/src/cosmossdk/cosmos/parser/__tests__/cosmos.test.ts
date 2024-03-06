@@ -63,7 +63,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       fee: {
         assetId: cosmosAssetId,
@@ -97,7 +97,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       transfers: [
         {
@@ -127,7 +127,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       fee: {
         assetId: cosmosAssetId,
@@ -169,7 +169,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       fee: {
         assetId: cosmosAssetId,
@@ -211,7 +211,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       fee: {
         assetId: cosmosAssetId,
@@ -245,7 +245,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       fee: {
         assetId: cosmosAssetId,
@@ -295,7 +295,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       fee: {
         assetId: cosmosAssetId,
@@ -338,7 +338,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      address,
+      pubkey: address,
       chainId: cosmosChainId,
       transfers: [
         {
@@ -379,7 +379,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         fee: {
           assetId: cosmosAssetId,
@@ -418,7 +418,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -452,7 +452,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -484,7 +484,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         fee: {
           assetId: cosmosAssetId,
@@ -523,7 +523,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -557,7 +557,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -589,7 +589,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         fee: {
           assetId: cosmosAssetId,
@@ -625,7 +625,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         fee: {
           assetId: cosmosAssetId,
@@ -663,7 +663,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -697,7 +697,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -729,7 +729,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         fee: {
           assetId: cosmosAssetId,
@@ -765,7 +765,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         fee: {
           assetId: cosmosAssetId,
@@ -803,7 +803,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -837,7 +837,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -871,7 +871,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {
@@ -903,7 +903,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         fee: {
           assetId: cosmosAssetId,
@@ -941,7 +941,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        address,
+        pubkey: address,
         chainId: cosmosChainId,
         transfers: [
           {

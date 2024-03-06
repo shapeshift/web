@@ -42,7 +42,7 @@ vi.mock('state/slices/selectors', async () => {
       },
     }),
     selectAssetById: vi.fn(() => mockEthereum),
-    selectMarketDataById: () => ({ price: '2000' }),
+    selectMarketDataByAssetIdUserCurrency: () => ({ price: '2000' }),
   }
 })
 

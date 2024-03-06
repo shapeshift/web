@@ -59,7 +59,7 @@ vi.mock('state/slices/selectors', async () => {
     selectPortfolioCryptoPrecisionBalanceByFilter: vi.fn(),
     selectPortfolioCryptoBalanceBaseUnitByFilter: vi.fn(),
     selectPortfolioUserCurrencyBalanceByFilter: vi.fn(),
-    selectMarketDataById: vi.fn(() => ({
+    selectMarketDataByAssetIdUserCurrency: vi.fn(() => ({
       [ethAssetId]: { price: '2000' },
     })),
   }

@@ -758,7 +758,7 @@
     "customRecipientAddressDescription": "Saisissez une adresse de destinataire personnalisée pour cet échange",
     "thisIsYourCustomRecipientAddress": "Il s'agit de l'adresse personnalisée du destinataire",
     "enterCustomRecipientAddress": "Saisissez l'adresse de destinataire personnalisée",
-    "receiveAtLeast": "Vous recevez au moins",
+    "receiveAtLeast": "Recevez au moins",
     "tooltip": {
       "changeQuote": "Changer de devis",
       "rate": "C'est le taux estimé pour cette paire d'échange.",

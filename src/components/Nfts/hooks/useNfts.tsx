@@ -3,15 +3,10 @@ import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
-export const useFetchNfts = () => {
+export const useNfts = () => {
   const requestedAccountIds = useAppSelector(selectWalletAccountIds)
 
-  const {
-    isUninitialized,
-    isLoading: isNftUserTokensQueryLoading,
-    isFetching,
-    data,
-  } = useGetNftUserTokensQuery(
+  const { isUninitialized, isLoading, isFetching, data } = useGetNftUserTokensQuery(
     {
       accountIds: requestedAccountIds,
     },
@@ -20,13 +15,9 @@ export const useFetchNfts = () => {
 
   return useMemo(
     () => ({
-      isLoading:
-        requestedAccountIds.length === 0 ||
-        isUninitialized ||
-        isNftUserTokensQueryLoading ||
-        isFetching,
+      isLoading: requestedAccountIds.length === 0 || isUninitialized || isLoading || isFetching,
       data,
     }),
-    [data, isFetching, isNftUserTokensQueryLoading, isUninitialized, requestedAccountIds.length],
+    [data, isFetching, isLoading, isUninitialized, requestedAccountIds.length],
   )
 }

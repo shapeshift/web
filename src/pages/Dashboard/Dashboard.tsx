@@ -28,7 +28,7 @@ export const Dashboard = memo(() => {
   const { path } = useRouteMatch()
   const isNftsEnabled = useFeatureFlag('Jaypegz')
 
-  const isOpportunitiesLoading = useFetchOpportunities()
+  const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
 
   const dashboardHeader = useMemo(
     () => <DashboardHeader isOpportunitiesLoading={isOpportunitiesLoading} />,

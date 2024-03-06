@@ -1,30 +1,18 @@
 import { Box, Button, Center, useDisclosure } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { EditPen } from 'components/Icons/EditPen'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
-import { selectSelectedNftAvatarUrl } from 'state/apis/nft/selectors'
-import { selectWalletId } from 'state/slices/common-selectors'
-import { useAppSelector } from 'state/store'
+import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
 
 import { AvatarSelectModal } from './AvatarSelectModal'
 
 const groupOverFullOpacity = { opacity: 1 }
 const groupHoverHalfOpacity = { opacity: '0.5' }
-const avatarSize = { base: 'md', md: 'xl' }
+const avatarSize = { base: 'lg', md: 'xl' }
 const groupActive = { outline: '2px solid var(--chakra-colors-chakra-body-text)' }
 
 export const ProfileAvatar = () => {
-  const walletId = useAppSelector(selectWalletId)
-  const selectedNftAvatarUrl = useAppSelector(selectSelectedNftAvatarUrl)
   const { isOpen, onClose, onOpen } = useDisclosure()
-  const walletImage = useMemo(() => {
-    if (!walletId) return ''
-    if (selectedNftAvatarUrl) return selectedNftAvatarUrl
-    /* This needs to be a min of 15 characters so we added a string to ensure its always at least 15 */
-    return makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`)
-  }, [selectedNftAvatarUrl, walletId])
-  if (!walletId) return null
+  const walletImage = useProfileAvatar()
   return (
     <Box>
       <Button

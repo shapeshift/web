@@ -12,10 +12,7 @@ export const CardStyle = {
       },
       header: {
         py: 4,
-        px: {
-          base: 4,
-          md: 6,
-        },
+        px: 6,
       },
       body: {
         py: 4,

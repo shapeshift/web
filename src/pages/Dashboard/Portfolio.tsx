@@ -39,6 +39,7 @@ const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', 
 const displayMdBlock = { base: 'none', md: 'block' }
 const justifyContentMdFlexStart = { base: 'center', md: 'flex-start' }
 const displayMdNone = { base: 'block', md: 'none' }
+const displayMdFlex = { base: 'none', md: 'flex' }
 const timeControlsButtonGroupProps = {
   display: 'flex',
   width: 'full',
@@ -46,7 +47,10 @@ const timeControlsButtonGroupProps = {
   px: 6,
   py: 4,
 }
-const cardBodyPx = { base: 2, md: 2 }
+const cardBodyPx = { base: 4, md: 2 }
+const accountHeaderPaddingBottom = { base: 0, md: 4 }
+const accountHeaderPaddingTop = { base: 6, md: 4 }
+const stackSpacing = { base: 0, md: 6 }
 
 export const Portfolio = memo(() => {
   const userChartTimeframe = useAppSelector(selectChartTimeframe)
@@ -76,10 +80,10 @@ export const Portfolio = memo(() => {
   const toggleChartType = useCallback(() => setIsRainbowChart(!isRainbowChart), [isRainbowChart])
 
   return (
-    <Stack spacing={6} width='full'>
+    <Stack spacing={stackSpacing} width='full'>
       <Card variant='dashboard'>
         <CardHeader
-          display='flex'
+          display={displayMdFlex}
           justifyContent={justifyContentMdSpaceBetween}
           alignItems='center'
           textAlign={textAlignMdInherit}
@@ -96,7 +100,7 @@ export const Portfolio = memo(() => {
             <TimeControls defaultTime={timeframe} onChange={handleTimeframeChange} />
           </Skeleton>
         </CardHeader>
-        <Flex flexDir='column' justifyContent='center' alignItems='center'>
+        <Flex flexDir='column' justifyContent='center' alignItems='center' display={displayMdFlex}>
           <Heading as='div' color='text.subtle'>
             <Skeleton isLoaded={isLoaded}>
               <Text translation='defi.walletBalance' />
@@ -135,9 +139,9 @@ export const Portfolio = memo(() => {
       <MaybeChartUnavailable assetIds={assetIds} />
       <PortfolioBreakdown />
       <Card variant='dashboard'>
-        <CardHeader>
-          <Heading as='h5'>
-            <Text translation='dashboard.portfolio.yourAssets' />
+        <CardHeader pb={accountHeaderPaddingBottom} pt={accountHeaderPaddingTop}>
+          <Heading as='h6'>
+            <Text translation='dashboard.portfolio.myAssets' />
           </Heading>
         </CardHeader>
         <CardBody px={cardBodyPx} pt={0} pb={0}>

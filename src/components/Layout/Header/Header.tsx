@@ -1,17 +1,5 @@
-import { HamburgerIcon, InfoIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Drawer,
-  DrawerContent,
-  DrawerOverlay,
-  Flex,
-  HStack,
-  IconButton,
-  useDisclosure,
-  useMediaQuery,
-  usePrevious,
-  useToast,
-} from '@chakra-ui/react'
+import { InfoIcon } from '@chakra-ui/icons'
+import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useScroll } from 'framer-motion'
@@ -43,7 +31,6 @@ import { ChainMenu } from './NavBar/ChainMenu'
 import { MobileNavBar } from './NavBar/MobileNavBar'
 import { Notifications } from './NavBar/Notifications'
 import { UserMenu } from './NavBar/UserMenu'
-import { SideNavContent } from './SideNavContent'
 import { TxWindow } from './TxWindow/TxWindow'
 
 const WalletConnectToDappsHeaderButton = lazy(() =>
@@ -60,10 +47,7 @@ const displayProp = { base: 'block', md: 'none' }
 const displayProp2 = { base: 'none', md: 'block' }
 const widthProp = { base: 'auto', md: 'full' }
 
-const hamburgerIcon = <HamburgerIcon />
-
 export const Header = memo(() => {
-  const { onToggle, isOpen, onClose } = useDisclosure()
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const snapModal = useModal('snaps')
   const isSnapInstalled = useIsSnapInstalled()
@@ -172,6 +156,9 @@ export const Header = memo(() => {
     [isDemoWallet],
   )
 
+  // Hide the header on mobile
+  if (!isLargerThanMd) return null
+
   return (
     <>
       {isDemoWallet && (
@@ -213,14 +200,6 @@ export const Header = memo(() => {
       >
         <HStack height='4.5rem' width='full' px={4}>
           <HStack width='full' margin='0 auto' px={pxProp} spacing={0} columnGap={4}>
-            <Box flex={1} display={displayProp}>
-              <IconButton
-                aria-label={translate('navBar.openMenu')}
-                onClick={onToggle}
-                icon={hamburgerIcon}
-              />
-            </Box>
-
             <Box display={displayProp} mx='auto'>
               <AppLoadingIcon />
             </Box>
@@ -252,16 +231,6 @@ export const Header = memo(() => {
           </HStack>
         </HStack>
       </Flex>
-      <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
-        <DrawerOverlay />
-        <DrawerContent
-          paddingTop='env(safe-area-inset-top)'
-          paddingBottom='max(1rem, env(safe-area-inset-top))'
-          overflowY='auto'
-        >
-          <SideNavContent onClose={onClose} />
-        </DrawerContent>
-      </Drawer>
       <MobileNavBar />
     </>
   )

@@ -4,7 +4,18 @@ import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
 
-const activeProp = { bg: 'transparent', svg: { color: 'blue.200' } }
+const activeProp = { bg: 'transparent', transform: 'scale(0.8)' }
+const hoverProps = {}
+
+const navLinkStyle = {
+  '&:hover, &:focus': {},
+  '&[data-active]': {
+    background: 'transparent',
+    color: 'text.base',
+    svg: { color: 'text.base' },
+    transform: 'scale(1)',
+  },
+}
 
 export const MobileNavLink = memo(({ label, shortLabel, path, icon }: Route) => {
   const translate = useTranslate()
@@ -29,20 +40,28 @@ export const MobileNavLink = memo(({ label, shortLabel, path, icon }: Route) => 
       as={ReactRouterLink}
       to={path}
       flexDir='column'
-      fontSize='2xl'
+      fontSize='24px'
       gap={2}
       height='auto'
       variant='nav-link'
       isActive={isActive}
       fontWeight='medium'
       onClick={handleClick}
+      _hover={hoverProps}
       _active={activeProp}
-      py={2}
-      width='full'
+      pb={4}
+      pt={6}
+      flex={1}
       zIndex='sticky'
+      sx={navLinkStyle}
     >
       {icon}
-      <Flex flexDir='column' fontSize='xs' color={isActive ? 'white' : 'text.subtle'}>
+      <Flex
+        flexDir='column'
+        fontSize='11px'
+        letterSpacing='-0.020em'
+        color={isActive ? 'white' : 'text.subtle'}
+      >
         {translate(shortLabel ?? label)}
       </Flex>
     </Button>

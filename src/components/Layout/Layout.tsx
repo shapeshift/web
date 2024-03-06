@@ -3,6 +3,7 @@ import { Container, Flex } from '@chakra-ui/react'
 import React from 'react'
 
 import { Header } from './Header/Header'
+import { MobileNavBar } from './Header/NavBar/MobileNavBar'
 import { SideNav } from './Header/SideNav'
 
 const pbProp = { base: '72px', md: 0 }
@@ -27,6 +28,7 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
       >
         <Header />
         {children}
+        <MobileNavBar />
       </Container>
     </Flex>
   )

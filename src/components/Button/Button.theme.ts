@@ -223,16 +223,11 @@ export const ButtonStyle: ComponentStyleConfig = {
     },
     'nav-link': (props: StyleFunctionProps) => {
       const { colorScheme: c, theme } = props
-      const darkHoverBg = transparentize(`${c}.200`, 0.12)(theme)
       const darkActiveBg = transparentize(`${c}.200`, 0.25)(theme)
       if (c === 'gray') {
         return {
-          color: 'text.subtle',
+          color: 'darkNeutral.400',
           height: '48px',
-          _hover: {
-            color: mode('inherit', 'whiteAlpha.800')(props),
-            bg: mode('gray.100', 'gray.750')(props),
-          },
           _active: {
             bg: mode('gray.200', 'gray.700')(props),
             color: mode('gray.800', 'white')(props),
@@ -248,10 +243,6 @@ export const ButtonStyle: ComponentStyleConfig = {
       return {
         color: mode(`${c}.500`, `${c}.200`)(props),
         height: '48px',
-        _hover: {
-          bg: mode(`${c}.50`, darkHoverBg)(props),
-          color: mode(`${c}.500`, `${c}.200`)(props),
-        },
         _active: {
           bg: mode(`${c}.200`, darkActiveBg)(props),
           color: mode('white', `${c}.200`)(props),

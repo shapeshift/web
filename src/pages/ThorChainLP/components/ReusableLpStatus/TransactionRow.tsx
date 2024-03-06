@@ -551,7 +551,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
 
             setTxId(txId)
-            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, txId, accountAssetAddress!))
+            setSerializedTxIndex(
+              serializeTxIndex(poolAssetAccountId, txId, fromAccountId(poolAssetAccountId).account),
+            )
 
             break
           }

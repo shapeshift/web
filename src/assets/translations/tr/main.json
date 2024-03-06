@@ -15,6 +15,7 @@
     "continue": "Devam et",
     "reward": "Ödül",
     "claimable": "Toplanabilir",
+    "comingSoon": "Yakında...",
     "approve": "Onayla",
     "confirm": "Onaylayın",
     "seeDetails": "Detayları gör",
@@ -127,7 +128,10 @@
     "yourBalance": "Bakiyeniz",
     "signTransaction": "İşlemi imzala",
     "halted": "Durduruldu",
+    "staged": "Aşamalı",
     "poolHalted": "Havuz Durduruldu",
+    "symmetric": "Simetrik",
+    "asymmetric": "Asimetrik (%{assetSymbol})",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -561,6 +565,7 @@
   "transactionRow": {
     "send": "Gönderilen",
     "receive": "Alınan",
+    "common": "İşlem",
     "moreDetails": "Daha Fazla Detay",
     "date": "Tarih",
     "txid": "İşlem ID",
@@ -664,8 +669,7 @@
         "join_pool": "Havuza Katılın",
         "exit_pool": "Havuzdan Çık"
       }
-    },
-    "unknown": "İşlem"
+    }
   },
   "bridge": {
     "confirm": "Köprüyü Onayla",
@@ -734,6 +738,7 @@
     "receiveInclFee": "Al (ücretler dahil)",
     "approvingAsset": "%{symbol} onaylanıyor",
     "viewTransaction": "İşlemi Görüntüle",
+    "availableQuotes": "Mevcut Fiyat Teklifleri",
     "unlimited": "Limitsiz",
     "streamStatus": "Yayın Durumu",
     "swapsFailed": "%{failedSwaps} takas başarısız oldu",
@@ -753,10 +758,14 @@
     "customRecipientAddressDescription": "Bu takas için özel bir alıcı adresi girin",
     "thisIsYourCustomRecipientAddress": "Bu sizin özel alıcı adresinizdir",
     "enterCustomRecipientAddress": "Özel alıcı adresini girin",
+    "receiveAtLeast": "En azdan al",
     "tooltip": {
+      "changeQuote": "Teklifi değiştir",
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
       "priceImpactLabel": "Fiyat hareketi: %{priceImpactPercentage}%",
+      "priceImpact": "İşleminizin bu havuzun piyasa fiyatı üzerindeki etkisi.",
+      "priceImpactWarning": "Havuzdaki mevcut likidite göz önüne alındığında, bu büyüklükteki bir takasın fiyat etkisi yüksek olabilir. Giriş jetonunuzun miktarı ile çıkış jetonunda alacağınız miktar arasında büyük bir fark olabilir.",
       "minerFee": "Bu, blok zincirindeki işlemi işlemek için alınan ücrettir, ShapeShift tarafından alınan bir ücret değildir.",
       "protocol": "Bu, ticaretinizin yönlendirildiği protokoldür.",
       "protocolLifi": "Bu, ticaretinizin yönlendirildiği protokoldür. LI.FI, fiyat, güvenlik ve hızın en iyi genel kombinasyonu için başlık altında bir dizi aracı işlem yürütür.",
@@ -765,7 +774,11 @@
       "manualReceiveAddress": "Bu, fonunuzu çekeceğiniz adrestir. Manuel olarak girilmiştir, lütfen doğru olduğundan emin olun.",
       "amountPercentageDifference": "En iyi fiyat teklifiyle karşılaştırıldığında alacağınız toplam %{buyAssetSymbol} tutarındaki yüzde farkıdır",
       "overallPercentageDifference": "En iyi teklifle karşılaştırıldığında, tüm ücretler düşüldükten sonra alınan toplam tutardaki yüzdelik farktır.",
-      "gasFee": "Bu ticareti tamamlamak için gereken tahmini gaz ücretidir."
+      "priceImpactDifference": "Girdi ve çıktı tutarlarının USD değerleri arasındaki tahmini fark.",
+      "gasFee": "Bu ticareti tamamlamak için gereken tahmini gaz ücretidir.",
+      "slippageWithAmount": "Fiyat, %{amount} tutarından daha azını alacak şekilde hareket ederse işleminiz geri alınacaktır. Bu, alacağınız garanti edilen minimum tutardır.",
+      "slippage": "Fiyatın bu yüzdeden daha fazla olumsuz yönde değişmesi durumunda işleminiz geri alınacaktır.",
+      "noRelatedAssets": "Bu varlık yalnızca %{chainDisplayName} üzerinde mevcuttur"
     },
     "rates": {
       "tags": {
@@ -2196,11 +2209,12 @@
   "pools": {
     "pools": "Havuzlar",
     "pool": "Havuz",
+    "positions": "Pozisyonlar",
     "tvl": "TVL",
     "volume24h": "Hacim 24S",
     "volume7d": "Hacim 7G",
     "balance": "Bakiye",
-    "unclaimedFees": "Talep Edilmeyen Ücretler",
+    "earnings": "Kazançlar",
     "poolShare": "Havuz Paylaşımı",
     "yourPosition": "Pozisyon",
     "poolInformation": "Havuz Bilgileri",
@@ -2228,8 +2242,11 @@
     "totalTokensLocked": "Toplam Kilitli Jetonlar",
     "chainFee": "%{chain} Ücret",
     "supplying": "Tedarik",
+    "withdrawing": "Çekim",
     "confirmAndDeposit": "Onayla ve Para Yatır",
+    "confirmAndWithdraw": "Onayla ve Çek",
     "removeAmounts": "Tutar(lar) Kaldır",
+    "stagedTooltip": "Aşamalı havuzlar likiditeyi kabul eden yeni havuzlardır ancak Kullanılabilir hale gelene kadar herhangi bir kazanç tahakkuk etmeyecektir.",
     "yourPositions": {
       "yourPositions": "Pozisyonlarınız",
       "emptyTitle": "Aktif pozisyon yok",

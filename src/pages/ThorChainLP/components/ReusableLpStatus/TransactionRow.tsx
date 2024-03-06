@@ -319,11 +319,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
         const data = depositWithExpiry({
           vault: getAddress(inboundAddressData.address),
-          asset: isToken(fromAssetId(assetId).assetReference)
-            ? getAddress(fromAssetId(assetId).assetReference)
-            : // Native EVM assets use the 0 address as the asset address
-              // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-              zeroAddress,
+          asset:
+            // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
+            // which is *not* what we want for withdraws, see
+            // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
+            isToken(fromAssetId(assetId).assetReference) && isDeposit
+              ? getAddress(fromAssetId(assetId).assetReference)
+              : // Native EVM assets use the 0 address as the asset address
+                // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+                zeroAddress,
           amount: amountOrDustCryptoBaseUnit,
           memo,
           expiry: BigInt(dayjs().add(15, 'minute').unix()),
@@ -486,11 +490,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
             const data = depositWithExpiry({
               vault: getAddress(inboundAddressData.address),
-              asset: isToken(fromAssetId(assetId).assetReference)
-                ? getAddress(fromAssetId(assetId).assetReference)
-                : // Native EVM assets use the 0 address as the asset address
-                  // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                  zeroAddress,
+              // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
+              // which is *not* what we want for withdraws, see
+              // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
+              asset:
+                isToken(fromAssetId(assetId).assetReference) && isDeposit
+                  ? getAddress(fromAssetId(assetId).assetReference)
+                  : // Native EVM assets use the 0 address as the asset address
+                    // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+                    zeroAddress,
               amount: amountOrDustCryptoBaseUnit,
               memo,
               expiry: BigInt(dayjs().add(15, 'minute').unix()),

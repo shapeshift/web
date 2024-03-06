@@ -51,6 +51,7 @@ export enum SupportedZapperNetworkIncludeUnsupported {
   Cronos = 'cronos',
   Aurora = 'aurora',
   Evmos = 'evmos',
+  Blast = 'blast',
 }
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {

@@ -9,7 +9,7 @@ import {
   fromAccountId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { setTimeoutAsync } from 'lib/utils'
@@ -37,7 +37,7 @@ export const useFetchOpportunities = () => {
 
   const [isLoading, setIsLoading] = useState(true)
 
-  // TODO: this needs to be split up into separate react-queries so we aren't refetching when moving around the app
+  // TODO: this needs to be split up into separate RTK queries so we aren't refetching when moving around the app
   useEffect(() => {
     ;(async () => {
       if (!requestedAccountIds.length) return
@@ -87,5 +87,5 @@ export const useFetchOpportunities = () => {
     portfolioAssetIds,
   ])
 
-  return isLoading
+  return useMemo(() => ({ isLoading }), [isLoading])
 }

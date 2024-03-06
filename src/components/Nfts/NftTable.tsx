@@ -11,7 +11,7 @@ import { selectPortfolioNftItemsWithCollectionExcludeSpams } from 'state/apis/nf
 import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { useAppSelector } from 'state/store'
 
-import { useFetchNfts } from './hooks/useFetchNfts'
+import { useNfts } from './hooks/useNfts'
 import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 import { NftNetworkFilter } from './NftNetworkFilter'
@@ -36,7 +36,7 @@ export const NftTable = () => {
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
-  const { isLoading } = useFetchNfts()
+  const { isLoading } = useNfts()
   const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
   const availableChainIds = useMemo(

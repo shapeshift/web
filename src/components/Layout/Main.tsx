@@ -60,7 +60,7 @@ export const Main: React.FC<MainProps> = memo(
           </Box>
         )}
         {headerComponent}
-        <Container maxW='container.4xl' py={8} px={contentPaddingX} {...rest}>
+        <Container maxW='container.4xl' pt={8} pb={12} px={contentPaddingX} {...rest}>
           {children}
         </Container>
       </Page>

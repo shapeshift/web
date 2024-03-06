@@ -16,10 +16,7 @@ export const CardStyle = {
       },
       body: {
         py: 4,
-        px: {
-          base: 4,
-          md: 6,
-        },
+        px: 6,
       },
       footer: {
         py: 4,

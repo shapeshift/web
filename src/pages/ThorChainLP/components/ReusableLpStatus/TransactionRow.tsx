@@ -335,9 +335,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
         return {
           // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
-            ? '0'
-            : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
+          amountCryptoPrecision:
+            isToken(fromAssetId(assetId).assetReference) && isDeposit
+              ? '0'
+              : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
           // Withdraws do NOT occur a dust send to the contract address.
           // It's a regular 0-value contract-call
           assetId: isDeposit ? asset.assetId : feeAsset.assetId,
@@ -511,9 +512,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               adapter,
               data,
               // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-              value: isToken(fromAssetId(assetId).assetReference)
-                ? '0'
-                : amountOrDustCryptoBaseUnit,
+              value:
+                isToken(fromAssetId(assetId).assetReference) && isDeposit
+                  ? '0'
+                  : amountOrDustCryptoBaseUnit,
               to: inboundAddressData.router,
               wallet,
             })

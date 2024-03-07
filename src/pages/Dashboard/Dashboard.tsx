@@ -9,7 +9,6 @@ import { type SlideRenderProps, virtualize } from 'react-swipeable-views-utils'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { NftTable } from 'components/Nfts/NftTable'
-import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpportunities'
 import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { isMobile } from 'lib/globals'
@@ -27,7 +26,7 @@ import { WalletDashboard } from './WalletDashboard'
 
 const direction: StackDirection = { base: 'column', xl: 'row' }
 const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
-const pageProps = { pt: 0 }
+const mainPadding = { base: 0, md: 4 }
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
 const CustomTab = (props: TabProps) => (
@@ -66,8 +65,6 @@ export const Dashboard = memo(() => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const appIsMobile = isMobile || !isLargerThanMd
 
-  const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
-
   const handleSlideChange = (index: number) => {
     setSlideIndex(index)
   }
@@ -86,10 +83,8 @@ export const Dashboard = memo(() => {
   }, [slideIndex])
 
   const dashboardHeader = useMemo(
-    () => (
-      <DashboardHeader isOpportunitiesLoading={isOpportunitiesLoading} tabComponent={mobileTabs} />
-    ),
-    [isOpportunitiesLoading, mobileTabs],
+    () => <DashboardHeader tabComponent={appIsMobile && mobileTabs} />,
+    [appIsMobile, mobileTabs],
   )
 
   const slideRenderer = (props: SlideRenderProps) => {
@@ -114,7 +109,7 @@ export const Dashboard = memo(() => {
 
   if (appIsMobile) {
     return (
-      <Main headerComponent={dashboardHeader} pageProps={pageProps} pt={0} pb={0}>
+      <Main headerComponent={dashboardHeader} pt={0} pb={0}>
         <VirtualizedSwipableViews
           index={slideIndex}
           slideRenderer={slideRenderer}
@@ -129,7 +124,7 @@ export const Dashboard = memo(() => {
 
   if (isDefiDashboardEnabled)
     return (
-      <Main headerComponent={dashboardHeader} pageProps={pageProps}>
+      <Main headerComponent={dashboardHeader} py={mainPadding}>
         <SEO title={translate('navBar.dashboard')} />
         <Switch>
           <Route exact path={`${path}`}>

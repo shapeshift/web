@@ -26,7 +26,14 @@ export const Page: React.FC<PageProps> = ({
   ...rest
 }: PageProps) => {
   return (
-    <Flex flex={1} flexDir='column' pt='env(safe-area-inset-top)' minHeight={pageHeight} {...rest}>
+    <Flex
+      flex={1}
+      flexDir='column'
+      pt='env(safe-area-inset-top)'
+      pb='var(--mobile-nav-offset)'
+      minHeight={pageHeight}
+      {...rest}
+    >
       {error && !loading ? renderError() : loading ? renderLoading() : children}
     </Flex>
   )

@@ -325,7 +325,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
             isToken(fromAssetId(assetId).assetReference) && isDeposit
               ? getAddress(fromAssetId(assetId).assetReference)
-              : // Native EVM assets use the 0 address as the asset address
+              : // Native EVM asset deposits and token withdraws use the 0 address as the asset address
                 // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                 zeroAddress,
           amount: amountOrDustCryptoBaseUnit,
@@ -497,7 +497,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               asset:
                 isToken(fromAssetId(assetId).assetReference) && isDeposit
                   ? getAddress(fromAssetId(assetId).assetReference)
-                  : // Native EVM assets use the 0 address as the asset address
+                  : // Native EVM asset deposits and token withdraws use the 0 address as the asset address
                     // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                     zeroAddress,
               amount: amountOrDustCryptoBaseUnit,

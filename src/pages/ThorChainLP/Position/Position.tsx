@@ -220,7 +220,7 @@ export const Position = () => {
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='md' />
                 <Skeleton isLoaded={Boolean(pool || position)}>
-                  <Heading as='h3'>{pool?.name ?? position?.name ?? ''}</Heading>
+                  <Heading as='h3'>{position?.name ?? pool?.name ?? ''}</Heading>
                 </Skeleton>
                 <Tag size={'lg'}>{poolTypeText}</Tag>
               </Flex>

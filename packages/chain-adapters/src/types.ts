@@ -111,7 +111,8 @@ export type TxMetadata =
   | unchained.cosmossdk.TxMetadata
   | unchained.utxo.TxMetadata
 
-export type Transaction = Omit<unchained.StandardTx, 'transfers'> & {
+export type Transaction = Omit<unchained.StandardTx, 'address' | 'transfers'> & {
+  pubkey: string
   transfers: TxTransfer[]
   data?: TxMetadata
 }

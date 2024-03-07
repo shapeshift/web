@@ -59,7 +59,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       transfers: [
         {
@@ -95,7 +95,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       transfers: [
         {
@@ -126,7 +126,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,
@@ -165,7 +165,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       transfers: [
         {
@@ -199,7 +199,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       transfers: [
         {
@@ -231,7 +231,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,
@@ -270,7 +270,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       transfers: [
         {
@@ -304,7 +304,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       transfers: [
         {
@@ -336,7 +336,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,
@@ -372,7 +372,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,
@@ -416,7 +416,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,
@@ -462,7 +462,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       transfers: [
         {
@@ -494,7 +494,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,
@@ -530,7 +530,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,
@@ -574,7 +574,7 @@ describe('parseTx', () => {
       blockTime: tx.timestamp,
       confirmations: tx.confirmations,
       status: TxStatus.Confirmed,
-      pubkey: address,
+      address,
       chainId: thorchainChainId,
       fee: {
         assetId: thorchainAssetId,

@@ -156,7 +156,7 @@ describe('parseTx', () => {
           txid: txMempool.txid,
           blockHeight: txMempool.blockHeight,
           blockTime: txMempool.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: txMempool.confirmations,
           status: TxStatus.Pending,
@@ -178,7 +178,7 @@ describe('parseTx', () => {
           blockHash: tx.blockHash,
           blockHeight: tx.blockHeight,
           blockTime: tx.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
@@ -223,7 +223,7 @@ describe('parseTx', () => {
           txid: txMempool.txid,
           blockHeight: txMempool.blockHeight,
           blockTime: txMempool.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: txMempool.confirmations,
           status: TxStatus.Pending,
@@ -245,7 +245,7 @@ describe('parseTx', () => {
           blockHash: tx.blockHash,
           blockHeight: tx.blockHeight,
           blockTime: tx.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
@@ -288,7 +288,7 @@ describe('parseTx', () => {
           txid: txMempool.txid,
           blockHeight: txMempool.blockHeight,
           blockTime: txMempool.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: txMempool.confirmations,
           status: TxStatus.Pending,
@@ -310,7 +310,7 @@ describe('parseTx', () => {
           blockHash: tx.blockHash,
           blockHeight: tx.blockHeight,
           blockTime: tx.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
@@ -355,7 +355,7 @@ describe('parseTx', () => {
           txid: txMempool.txid,
           blockHeight: txMempool.blockHeight,
           blockTime: txMempool.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: txMempool.confirmations,
           status: TxStatus.Pending,
@@ -377,7 +377,7 @@ describe('parseTx', () => {
           blockHash: tx.blockHash,
           blockHeight: tx.blockHeight,
           blockTime: tx.timestamp,
-          pubkey: address,
+          address,
           chainId: 'eip155:1',
           confirmations: tx.confirmations,
           status: TxStatus.Confirmed,
@@ -432,7 +432,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
@@ -460,7 +460,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -498,7 +498,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -538,7 +538,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -573,7 +573,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -606,7 +606,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -647,7 +647,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -683,7 +683,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -722,7 +722,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -762,7 +762,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -797,7 +797,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -830,7 +830,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -871,7 +871,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -907,7 +907,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -946,7 +946,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -983,7 +983,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1022,7 +1022,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1057,7 +1057,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1090,7 +1090,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1128,7 +1128,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1167,7 +1167,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1203,7 +1203,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1237,7 +1237,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1274,7 +1274,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1313,7 +1313,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1348,7 +1348,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1381,7 +1381,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1419,7 +1419,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1458,7 +1458,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1494,7 +1494,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1529,7 +1529,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1568,7 +1568,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1603,7 +1603,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1636,7 +1636,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1675,7 +1675,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1710,7 +1710,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1745,7 +1745,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1779,7 +1779,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1819,7 +1819,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1853,7 +1853,7 @@ describe('parseTx', () => {
         blockTime: tx.timestamp,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         fee: {
           assetId: ethAssetId,
@@ -1899,7 +1899,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         confirmations: tx.confirmations,
         status: TxStatus.Confirmed,
-        pubkey: address,
+        address,
         chainId: ethChainId,
         transfers: [
           {
@@ -1957,7 +1957,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: { parser: 'zrx' },
@@ -2005,7 +2005,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: { parser: 'zrx' },
@@ -2054,7 +2054,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: { parser: 'zrx' },
@@ -2126,7 +2126,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2158,7 +2158,7 @@ describe('parseTx', () => {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
         blockTime: txMempool.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: undefined,
@@ -2198,7 +2198,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
@@ -2241,7 +2241,7 @@ describe('parseTx', () => {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
         blockTime: txMempool.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: undefined,
@@ -2283,7 +2283,7 @@ describe('parseTx', () => {
         blockHash: tx.blockHash,
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
@@ -2331,7 +2331,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2363,7 +2363,7 @@ describe('parseTx', () => {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
         blockTime: txMempool.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: {
@@ -2412,7 +2412,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2468,7 +2468,7 @@ describe('parseTx', () => {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
         blockTime: txMempool.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: {
@@ -2504,7 +2504,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2564,7 +2564,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: undefined,
@@ -2600,7 +2600,7 @@ describe('parseTx', () => {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
         blockTime: txMempool.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: {
@@ -2626,7 +2626,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2665,7 +2665,7 @@ describe('parseTx', () => {
         txid: txMempool.txid,
         blockHeight: txMempool.blockHeight,
         blockTime: txMempool.timestamp,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: txMempool.confirmations,
         data: {
@@ -2691,7 +2691,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2742,7 +2742,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2792,7 +2792,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2842,7 +2842,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2892,7 +2892,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2936,7 +2936,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {
@@ -2992,7 +2992,7 @@ describe('parseTx', () => {
         blockHeight: tx2.blockHeight,
         blockTime: tx2.timestamp,
         blockHash: tx2.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx2.confirmations,
         data: {
@@ -3058,7 +3058,7 @@ describe('parseTx', () => {
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
-        pubkey: address,
+        address,
         chainId: 'eip155:1',
         confirmations: tx.confirmations,
         data: {

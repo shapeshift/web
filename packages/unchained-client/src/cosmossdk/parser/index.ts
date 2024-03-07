@@ -46,7 +46,7 @@ export class BaseTransactionParser<T extends Tx> {
     })()
 
     const parsedTx: ParsedTx = {
-      pubkey: address,
+      address,
       blockHash: tx.blockHash,
       blockHeight: tx.blockHeight ?? -1,
       blockTime: tx.timestamp ?? Math.floor(Date.now() / 1000),

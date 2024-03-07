@@ -3,9 +3,9 @@ import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
-import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 
 const containerPadding = { base: 6, '2xl': 8 }
 

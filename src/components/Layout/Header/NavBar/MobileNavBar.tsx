@@ -1,6 +1,6 @@
 import { Flex, useColorModeValue } from '@chakra-ui/react'
 import { union } from 'lodash'
-import { memo, useMemo } from 'react'
+import { memo, useLayoutEffect, useMemo } from 'react'
 import { routes } from 'Routes/RoutesCommon'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -59,6 +59,23 @@ export const MobileNavBar = memo(() => {
         .sort((a, b) => bnOrZero(a.priority!).minus(b.priority!).toNumber()),
     [pluginRoutes],
   )
+  useLayoutEffect(() => {
+    const body = document.body
+    const nav = document.querySelector('.mobile-nav')
+    if (window.visualViewport) {
+      const vv = window.visualViewport
+      const fixPosition = () => {
+        if (body && nav) {
+          body.style.setProperty('--mobile-nav-offset', `${nav.clientHeight}px`)
+        }
+      }
+      vv.addEventListener('resize', fixPosition)
+      fixPosition()
+      return () => {
+        window.removeEventListener('resize', fixPosition)
+      }
+    }
+  }, [])
 
   return (
     <Flex
@@ -71,6 +88,7 @@ export const MobileNavBar = memo(() => {
       zIndex='banner'
       paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px)'
       display={displayProp}
+      className='mobile-nav'
     >
       {allRoutes.map(route => (
         <MobileNavLink key={route.path} {...route} />

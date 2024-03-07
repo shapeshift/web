@@ -12,10 +12,10 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { DonutChart } from 'components/DonutChart/DonutChart'
+import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
 

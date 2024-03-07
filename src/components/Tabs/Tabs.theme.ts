@@ -5,7 +5,17 @@ export const TabsStyle = {
   // Styles for the base style
   baseStyle: {},
   // Styles for the size variations
-  sizes: {},
+  sizes: {
+    sm: {
+      tablist: {
+        paddingLeft: 6,
+        paddingRight: 6,
+      },
+      tab: {
+        borderRadius: 'full',
+      },
+    },
+  },
   // Styles for the visual style variations
   variants: {
     line: {
@@ -72,18 +82,10 @@ export const TabsStyle = {
       },
     }),
     'soft-rounded': (props: Record<string, any>) => ({
-      tablist: {
-        bg: 'background.surface.raised.base',
-        margin: 2,
-        padding: 1,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border.base',
-        borderRadius: '2xl',
-      },
       tab: {
         borderRadius: 'xl',
         color: 'text.subtle',
+        bg: 'background.surface.raised.base',
         _hover: {
           color: mode('gray.800', 'white')(props),
         },

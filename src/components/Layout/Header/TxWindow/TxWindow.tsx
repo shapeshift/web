@@ -45,7 +45,7 @@ type TxsByStatusProps = {
   txStatus: TxStatus
   limit: string
 }
-const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
+export const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
   const translate = useTranslate()
   const filter = useMemo(() => ({ txStatus }), [txStatus])
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))

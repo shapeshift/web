@@ -1,4 +1,5 @@
 import { Box, Button, Center, useDisclosure } from '@chakra-ui/react'
+import { memo } from 'react'
 import { EditPen } from 'components/Icons/EditPen'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
@@ -10,7 +11,7 @@ const groupHoverHalfOpacity = { opacity: '0.5' }
 const avatarSize = { base: 'lg', md: 'xl' }
 const groupActive = { outline: '2px solid var(--chakra-colors-chakra-body-text)' }
 
-export const ProfileAvatar = () => {
+export const ProfileAvatar = memo(() => {
   const { isOpen, onClose, onOpen } = useDisclosure()
   const walletImage = useProfileAvatar()
   return (
@@ -56,4 +57,4 @@ export const ProfileAvatar = () => {
       <AvatarSelectModal walletImage={walletImage} isOpen={isOpen} onClose={onClose} />
     </Box>
   )
-}
+})

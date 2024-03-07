@@ -74,14 +74,14 @@ export const Dashboard = memo(() => {
     return (
       <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideChange}>
         <TabList>
-          <CustomTab>Overview</CustomTab>
+          <CustomTab>{translate('navBar.overview')}</CustomTab>
           <CustomTab>NFTs</CustomTab>
-          <CustomTab>Activity</CustomTab>
+          <CustomTab>{translate('navBar.activity')}</CustomTab>
         </TabList>
         <TabIndicator mt='-1.5px' height='2px' bg='blue.500' borderRadius='1px' />
       </Tabs>
     )
-  }, [slideIndex])
+  }, [slideIndex, translate])
 
   const dashboardHeader = useMemo(
     () => <DashboardHeader tabComponent={appIsMobile && mobileTabs} />,

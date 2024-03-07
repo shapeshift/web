@@ -579,7 +579,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     let transaction = {} as Omit<Transaction, 'transfers'>
     const transfers: Record<TransferType, TxTransfer[]> = { Contract: [], Send: [], Receive: [] }
     for (const address of ownedAddresses) {
-      const parsedTx = await this.parser.parse(tx, address)
+      const { address: _, ...parsedTx } = await this.parser.parse(tx, address)
 
       // create transaction object with all shared properties
       if (!Object.keys(transaction).length) {

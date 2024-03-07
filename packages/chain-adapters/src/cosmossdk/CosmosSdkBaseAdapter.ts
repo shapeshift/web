@@ -400,7 +400,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   }
 
   private async parseTx(tx: unchained.cosmossdk.Tx, pubkey: string): Promise<Transaction> {
-    const parsedTx = await this.parser.parse(tx, pubkey)
+    const { address: _, ...parsedTx } = await this.parser.parse(tx, pubkey)
 
     return {
       ...parsedTx,

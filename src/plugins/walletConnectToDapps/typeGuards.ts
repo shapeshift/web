@@ -52,4 +52,8 @@ export const isTransactionParams = (
   !!transaction.from &&
   !!transaction.to &&
   !!transaction.data &&
-  ((!!transaction.gasLimit && !!transaction.gasPrice) || !!transaction.gas)
+  Boolean(
+    (transaction.gasLimit !== undefined && transaction.gasPrice !== undefined) ||
+      transaction.gas !== undefined ||
+      (transaction.maxFeePerGas !== undefined && transaction.maxPriorityFeePerGas !== undefined),
+  )

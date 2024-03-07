@@ -90,6 +90,11 @@ export const approveEIP155Request = async ({
       const fees = await getFeesForTx(sendTransaction, chainAdapter, accountId)
       const senderAddress = await chainAdapter.getAddress({ accountNumber, wallet })
       const gasData = getGasData(customTransactionData, fees)
+      const gasLimit = (() => {
+        if (customTransactionData.gasLimit) return customTransactionData.gasLimit
+        if (sendTransaction.gasLimit) return sendTransaction.gasLimit
+        return '90000' // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
+      })()
       const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
         wallet,
         accountNumber,
@@ -97,7 +102,7 @@ export const approveEIP155Request = async ({
         data: sendTransaction.data,
         value: sendTransaction.value ?? '0',
         // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
-        gasLimit: customTransactionData.gasLimit ?? sendTransaction.gasLimit ?? '90000',
+        gasLimit,
         ...gasData,
       })
       const txToSign = {

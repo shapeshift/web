@@ -24,7 +24,7 @@ const portfolioTextAlignment: ResponsiveValue<Property.AlignItems> = {
   md: 'flex-start',
 }
 export const WalletBalance = memo(() => {
-  const isOpportunitiesLoading = useFetchOpportunities()
+  const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
   const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
   const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
   const claimableRewardsUserCurrencyBalance = useAppSelector(state =>

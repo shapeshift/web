@@ -1,5 +1,5 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import type { ButtonProps } from '@chakra-ui/react'
+import type { AvatarProps, ButtonProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
@@ -19,39 +19,63 @@ import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircleIcon } from 'components/Icons/Circle'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
-export type ChainMenuProps<T extends string> = {
+export type ChainMenuProps<T extends ChainId | 'All'> = {
   chainIds: T[]
   activeChainId: T | undefined
   isActiveChainIdSupported: boolean
   isDisabled: boolean
   buttonProps?: ButtonProps
-  onMenuOptionClick: (chainId: ChainId) => void
+  onMenuOptionClick: (chainId: T) => void
 }
 
-const ChainMenuItem: React.FC<{
-  chainId: ChainId
-  onClick: (chainId: ChainId) => void
-  isConnected: boolean
-}> = ({ chainId, onClick, isConnected }) => {
-  const { nativeAssetId, chainName } = useMemo(() => {
+const ChainIcon = (props: { chainId: ChainId } & AvatarProps) => {
+  const { chainId, avatarProps } = useMemo(() => {
+    const { chainId, ...avatarProps } = props
+    return { chainId, avatarProps }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
+
+  const feeAssetId = useMemo(() => {
     const chainAdapterManager = getChainAdapterManager()
     const adapter = chainAdapterManager.get(chainId)
-    return { chainName: adapter?.getDisplayName(), nativeAssetId: adapter?.getFeeAssetId() }
+    const feeAssetId = adapter?.getFeeAssetId()
+    return feeAssetId
   }, [chainId])
 
-  const nativeAsset = useAppSelector(state => selectAssetById(state, nativeAssetId ?? ''))
+  return <AssetIcon showNetworkIcon assetId={feeAssetId} {...avatarProps} />
+}
+
+const ChainMenuItem = <T extends ChainId | 'All'>({
+  chainId,
+  onClick,
+  isConnected,
+}: {
+  chainId: T
+  onClick: (chainId: T) => void
+  isConnected: boolean
+}) => {
+  const { assetIcon, chainName } = useMemo(() => {
+    if (chainId === 'All') {
+      return {
+        chainName: 'All',
+        assetIcon: undefined,
+      }
+    }
+
+    const chainAdapterManager = getChainAdapterManager()
+    const adapter = chainAdapterManager.get(chainId)
+
+    return {
+      chainName: adapter?.getDisplayName(),
+      assetIcon: <ChainIcon chainId={chainId} width='6' height='auto' />,
+    }
+  }, [chainId])
+
   const connectedIconColor = useColorModeValue('green.500', 'green.200')
   const connectedChainBgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.50')
-  const assetIcon = useMemo(
-    () => <AssetIcon assetId={nativeAssetId} showNetworkIcon width='6' height='auto' />,
-    [nativeAssetId],
-  )
-  const handleClick = useCallback(() => onClick(chainId), [chainId, onClick])
 
-  if (!nativeAsset) return null
+  const handleClick = useCallback(() => onClick(chainId), [chainId, onClick])
 
   return (
     <MenuItem
@@ -68,7 +92,31 @@ const ChainMenuItem: React.FC<{
   )
 }
 
-export const ChainMenu = <T extends string>({
+const MenuIcon = <T extends ChainId | 'All'>({
+  activeChainId,
+  isActiveChainIdSupported,
+}: {
+  activeChainId?: T
+  isActiveChainIdSupported: boolean
+}) => {
+  const translate = useTranslate()
+
+  if (!activeChainId) {
+    return
+  }
+
+  if (!isActiveChainIdSupported) {
+    return <WarningIcon color='yellow.300' boxSize='4' />
+  }
+
+  if (activeChainId === 'All') {
+    return translate('common.all')
+  }
+
+  return <ChainIcon chainId={activeChainId} width='6' height='auto' />
+}
+
+export const ChainMenu = <T extends ChainId | 'All'>({
   chainIds,
   activeChainId,
   isActiveChainIdSupported,
@@ -77,11 +125,6 @@ export const ChainMenu = <T extends string>({
   buttonProps,
 }: ChainMenuProps<T>) => {
   const translate = useTranslate()
-
-  const activeChainFeeAssetId = useMemo(() => {
-    const chainAdapterManager = getChainAdapterManager()
-    return chainAdapterManager.get(activeChainId ?? '')?.getFeeAssetId()
-  }, [activeChainId])
 
   return (
     <Menu autoSelect={false}>
@@ -93,11 +136,10 @@ export const ChainMenu = <T extends string>({
       >
         <MenuButton as={Button} {...buttonProps}>
           <Flex alignItems='center' justifyContent='center'>
-            {isActiveChainIdSupported ? (
-              <AssetIcon assetId={activeChainFeeAssetId} showNetworkIcon size='xs' />
-            ) : (
-              <WarningIcon color='yellow.300' boxSize='4' />
-            )}
+            <MenuIcon<T>
+              activeChainId={activeChainId}
+              isActiveChainIdSupported={isActiveChainIdSupported}
+            />
           </Flex>
         </MenuButton>
       </Tooltip>
@@ -105,7 +147,7 @@ export const ChainMenu = <T extends string>({
       <MenuList p='10px' zIndex={2}>
         <MenuGroup title={translate('common.selectNetwork')} ml={3} color='text.subtle'>
           {chainIds.map(chainId => (
-            <ChainMenuItem
+            <ChainMenuItem<T>
               isConnected={chainId === activeChainId}
               key={chainId}
               chainId={chainId}

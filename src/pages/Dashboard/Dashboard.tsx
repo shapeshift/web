@@ -105,7 +105,11 @@ export const Dashboard = memo(() => {
         content = null
         break
     }
-    return <ScrollView key={key}>{content}</ScrollView>
+    return (
+      <ScrollView id={`scroll-view-${key}`} key={key}>
+        {content}
+      </ScrollView>
+    )
   }
 
   if (appIsMobile) {

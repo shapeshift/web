@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const defaultAmount = 10
 
@@ -6,11 +6,15 @@ export const useInfiniteScroll = (array: any[]) => {
   const [amount, setAmount] = useState(defaultAmount)
 
   const next = useCallback(() => {
-    setAmount(amount + defaultAmount)
-  }, [amount])
+    setAmount(prevAmount => prevAmount + defaultAmount)
+  }, [])
 
   const data = useMemo(() => array.slice(0, amount), [amount, array])
   const hasMore = useMemo(() => array.length !== data.length, [data, array])
+
+  useEffect(() => {
+    console.log(array, data)
+  }, [array, data])
 
   return {
     next,

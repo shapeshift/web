@@ -665,6 +665,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
     return {
       ...parsedTx,
+      pubkey,
       transfers: parsedTx.transfers.map(transfer => ({
         assetId: transfer.assetId,
         from: [transfer.from],

@@ -404,6 +404,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
     return {
       ...parsedTx,
+      pubkey,
       transfers: parsedTx.transfers.map(transfer => ({
         assetId: transfer.assetId,
         from: [transfer.from],

@@ -8,7 +8,7 @@ import difference from 'lodash/difference'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useFetchNfts } from 'components/Nfts/hooks/useFetchNfts'
+import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
@@ -60,7 +60,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()
   const isSnapInstalled = useIsSnapInstalled()
-  useFetchNfts()
+  useNfts()
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()

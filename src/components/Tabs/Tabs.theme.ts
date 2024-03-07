@@ -13,6 +13,8 @@ export const TabsStyle = {
       },
       tab: {
         borderRadius: 'full',
+        paddingTop: 2,
+        paddingBottom: 2,
       },
     },
   },
@@ -83,9 +85,9 @@ export const TabsStyle = {
     }),
     'soft-rounded': (props: Record<string, any>) => ({
       tab: {
-        borderRadius: 'xl',
+        borderRadius: 'full',
         color: 'text.subtle',
-        bg: 'background.surface.raised.base',
+        bg: 'background.button.secondary.base',
         _hover: {
           color: mode('gray.800', 'white')(props),
         },

@@ -9,7 +9,7 @@ export const MobileActivity = memo(() => {
   return (
     <Stack>
       <Tabs variant='soft-rounded' isLazy size='sm'>
-        <TabList m={0} gap={4} bg='transparent' borderWidth={0}>
+        <TabList m={0} gap={3} bg='transparent' borderWidth={0}>
           <Tab>{translate('transactionRow.pending')}</Tab>
           <Tab>{translate('transactionRow.confirmed')}</Tab>
           <Tab>{translate('transactionRow.failed')}</Tab>

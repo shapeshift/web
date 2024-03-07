@@ -194,7 +194,6 @@ export const Position = () => {
     [stepIndex],
   )
 
-  console.log({ pool, position })
   if (!pool) return null
 
   return (

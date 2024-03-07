@@ -33,6 +33,7 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { calculateEarnings } from 'lib/utils/thorchain/lp'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -44,6 +45,7 @@ import { PoolInfo } from '../components/PoolInfo'
 import { RemoveLiquidity } from '../components/RemoveLiquidity/RemoveLiquidity'
 import { usePool } from '../queries/hooks/usePool'
 import { useUserLpData } from '../queries/hooks/useUserLpData'
+import { fromOpportunityId } from '../utils'
 
 type MatchParams = {
   poolAssetId: string
@@ -194,7 +196,20 @@ export const Position = () => {
     [stepIndex],
   )
 
-  if (!pool) return null
+  const poolTypeText = useMemo(() => {
+    const { type } = fromOpportunityId(opportunityId)
+
+    if (type === 'sym') return <Text translation='common.symmetric' />
+
+    const positionAsset = type === AsymSide.Asset ? asset : runeAsset
+    if (!positionAsset) return null
+    return (
+      <Text
+        // eslint-disable-next-line react-memo/require-usememo
+        translation={['common.asymmetric', { assetSymbol: positionAsset.symbol }]}
+      />
+    )
+  }, [asset, opportunityId, runeAsset])
 
   return (
     <Main headerComponent={headerComponent}>
@@ -204,20 +219,10 @@ export const Position = () => {
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='md' />
-                <Heading as='h3'>{pool.name}</Heading>
-                <Tag size={'lg'}>
-                  {position?.asym ? (
-                    <Text
-                      // eslint-disable-next-line react-memo/require-usememo
-                      translation={[
-                        'common.asymmetric',
-                        { assetSymbol: position.asym.asset.symbol },
-                      ]}
-                    />
-                  ) : (
-                    <Text translation='common.symmetric' />
-                  )}
-                </Tag>
+                <Skeleton isLoaded={Boolean(pool || position)}>
+                  <Heading as='h3'>{pool?.name ?? position?.name ?? ''}</Heading>
+                </Skeleton>
+                <Tag size={'lg'}>{poolTypeText}</Tag>
               </Flex>
             </CardHeader>
             <CardBody gap={6} display='flex' flexDir='column' px={8} pb={8} pt={0}>

@@ -87,3 +87,7 @@ export type GetFeeDataInput = {
   pubkey: string
   opReturnData?: string
 }
+
+export type GetUtxosInput = {
+  pubkey: string
+}

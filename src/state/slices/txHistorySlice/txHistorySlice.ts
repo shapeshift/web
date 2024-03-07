@@ -4,6 +4,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, gnosisChainId, isNft, polygonChainId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import orderBy from 'lodash/orderBy'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -105,7 +106,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
 
   if (checkIsSpam(tx)) return
 
-  const txIndex = serializeTxIndex(accountId, tx.txid, tx.address, tx.data)
+  const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
 
   const isNew = !txs.byId[txIndex]
 
@@ -116,7 +117,7 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   if (isNew) {
     const orderedTxs = orderBy(txs.byId, 'blockTime', ['desc'])
     const index = orderedTxs.findIndex(
-      tx => serializeTxIndex(accountId, tx.txid, tx.address, tx.data) === txIndex,
+      tx => serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data) === txIndex,
     )
     txs.ids.splice(index, 0, txIndex)
   }
@@ -223,7 +224,17 @@ export const txHistoryApi = createApi({
 
                 const newTxs: Transaction[] = []
                 for (const tx of transactions) {
-                  if (txsById[serializeTxIndex(accountId, tx.txid, tx.address, tx.data)]) break
+                  const maybeFoundTx =
+                    txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)]
+
+                  // don't fetch any more transactions if we already have the completed tx in store (prevent overfetch)
+                  if (
+                    maybeFoundTx?.status === TxStatus.Confirmed ||
+                    maybeFoundTx?.status === TxStatus.Failed
+                  ) {
+                    break
+                  }
+
                   newTxs.push(tx)
                 }
 

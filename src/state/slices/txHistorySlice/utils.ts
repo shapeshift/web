@@ -6,7 +6,7 @@ type TxIndex = string
 type TxDescriptor = {
   accountId: AccountId
   txid: Tx['txid']
-  address: Tx['address']
+  pubkey: Tx['pubkey']
   data?: Tx['data']
 }
 
@@ -43,15 +43,15 @@ export const UNIQUE_TX_ID_DELIMITER = '*'
 export const serializeTxIndex = (
   accountId: TxDescriptor['accountId'],
   txid: TxDescriptor['txid'],
-  address: TxDescriptor['address'],
+  pubkey: TxDescriptor['pubkey'],
   data?: TxDescriptor['data'],
 ): TxIndex => {
   // special case for thorchain transactions sent back in multiple parts
-  if (data && data.parser === 'thorchain' && address.toLowerCase().startsWith('thor')) {
-    return [accountId, txid, address.toLowerCase(), data.memo].join(UNIQUE_TX_ID_DELIMITER)
+  if (data && data.parser === 'thorchain' && pubkey.toLowerCase().startsWith('thor')) {
+    return [accountId, txid, pubkey.toLowerCase(), data.memo].join(UNIQUE_TX_ID_DELIMITER)
   }
 
-  return [accountId, txid, address.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
+  return [accountId, txid, pubkey.toLowerCase()].join(UNIQUE_TX_ID_DELIMITER)
 }
 
 export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
@@ -61,7 +61,7 @@ export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
   const result: TxDescriptor = {
     accountId: parts[0],
     txid: parts[1],
-    address: parts[2],
+    pubkey: parts[2],
   }
 
   // If there are four parts, the fourth is the data, and we know it's a thorchain transaction with a memo

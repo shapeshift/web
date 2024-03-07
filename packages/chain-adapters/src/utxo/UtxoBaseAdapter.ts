@@ -13,7 +13,6 @@ import {
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
-import type { GetUtxosRequest, Utxo } from '@shapeshiftoss/unchained-client/src/generated/bitcoin'
 import WAValidator from 'multicoin-address-validator'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -50,7 +49,7 @@ import {
 import { bn, bnOrZero } from '../utils/bignumber'
 import { validateAddress } from '../utils/validateAddress'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
-import type { GetAddressInput } from './types'
+import type { GetAddressInput, GetUtxosInput } from './types'
 import { getAddresses } from './utils'
 import { utxoSelect } from './utxoSelect'
 
@@ -557,7 +556,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     return publicKeys[0]
   }
 
-  async getUtxos(input: GetUtxosRequest): Promise<Utxo[]> {
+  async getUtxos(input: GetUtxosInput): Promise<unchained.utxo.types.Utxo[]> {
     const utxos = await this.providers.http.getUtxos(input)
     return utxos
   }
@@ -580,11 +579,11 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     let transaction = {} as Omit<Transaction, 'transfers'>
     const transfers: Record<TransferType, TxTransfer[]> = { Contract: [], Send: [], Receive: [] }
     for (const address of ownedAddresses) {
-      const parsedTx = await this.parser.parse(tx, address)
+      const { address: _, ...parsedTx } = await this.parser.parse(tx, address)
 
       // create transaction object with all shared properties
       if (!Object.keys(transaction).length) {
-        transaction = { ...parsedTx, address: pubkey }
+        transaction = { ...parsedTx, pubkey }
       }
 
       // add fee if it exists on any of the parsed transactions

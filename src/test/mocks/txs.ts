@@ -5,7 +5,7 @@ import { zeroAddress } from 'viem'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 
 export const EthSend: Tx = {
-  address: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
+  pubkey: '0x9124248f2AD8c94fC4a403588BE7a77984B34bb8',
   blockHash: '0x5edb4bbd1c33026053bd886b898bf6424b36e4b8fe3f4c8e2b6abc83079ed89b',
   blockHeight: 13468273,
   blockTime: 1634917507,
@@ -26,7 +26,7 @@ export const EthSend: Tx = {
 }
 
 export const EthReceive: Tx = {
-  address: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
+  pubkey: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
   blockHash: '0x5edb4bbd1c33026053bd886b898bf6424b36e4b8fe3f4c8e2b6abc83079ed89b',
   blockHeight: 13468273,
   blockTime: 1634917507,
@@ -48,7 +48,7 @@ export const EthReceive: Tx = {
 
 export const BtcSend: Tx = {
   accountType: UtxoAccountType.SegwitNative,
-  address: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
+  pubkey: 'bc1q2v8pww5t2qmgwteypn535hxa0uegrc7hvper7w',
   blockHash: 'e12cb64834058bb785b7b8932f079deafc3633f999f722779ee9de351273af65',
   blockHeight: 13468273,
   blockTime: 1634917507,
@@ -76,7 +76,7 @@ export const BtcSend: Tx = {
 }
 
 export const FOXSend: Tx = {
-  address: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
+  pubkey: '0x2d44C8B87D0Ec0D19A5249aDccf3BaCc43c5afe6',
   blockHash: '0x8e93bec969f88f472da18a88d68eaac9a4f4b6025a9e4699aedebfa8a08969c4',
   blockHeight: 13011202,
   // unchained uses seconds, Z gives UTC timezone
@@ -101,7 +101,7 @@ export const FOXSend: Tx = {
 }
 
 export const TradeTx: Tx = {
-  address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+  pubkey: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
   blockHash: '0x17d278ffcb1fb940d69e72287339607445d373d0c6a654a61526b0bc805cf10c',
   blockHeight: 13730189,
   blockTime: 1638487560,
@@ -137,7 +137,7 @@ export const TradeTx: Tx = {
 
 // these test txs were on an account with a start date jan 2021
 const test1: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  pubkey: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0xc2f42f9dfbeb1c600ecd13dbcd624af1ea70631e13ad4d972b83a2a7c805360c',
   blockHeight: 1,
   blockTime: 1637201790,
@@ -161,7 +161,7 @@ const test1: Tx = {
 }
 
 const test2: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  pubkey: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x2761caf9c664bb0dc9b59b18f24e7a29974c867b1181cbcefd415f881801a16e',
   blockHeight: 2,
   blockTime: 1637201791,
@@ -185,7 +185,7 @@ const test2: Tx = {
 }
 
 const test3: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  pubkey: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0xe594af3d97c1ee001ab72a16671a0e05edf1ae50201eb6645dd4e5fd406e48a7',
   blockHeight: 3,
   blockTime: 1637201792,
@@ -205,7 +205,7 @@ const test3: Tx = {
 }
 
 const test4: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  pubkey: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x4e427bef8984df1c1cffcd88bbc4b3f5a62c51a3f0a315cf2c49d8783d0c7603',
   blockHeight: 4,
   blockTime: 1637201793,
@@ -229,7 +229,7 @@ const test4: Tx = {
 }
 
 const test5: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  pubkey: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x238168ad84a353e0245399f779ee20ef352ce303ef78681c70c5c269574375e9',
   blockHeight: 5,
   blockTime: 1637201794,
@@ -249,7 +249,7 @@ const test5: Tx = {
 }
 
 const test6: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  pubkey: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0xe6c0ce54e78c22c2297fe8d058ba3cf944b35185016a2047974532cfe0627d17',
   blockHeight: 6,
   blockTime: 1637201795,
@@ -270,7 +270,7 @@ const test6: Tx = {
 
 // THIS IS THE NAUGHTY ONE
 const test7: Tx = {
-  address: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
+  pubkey: '0xA44C286BA83Bb771cd0107B2c1Df678435Bd1535',
   blockHash: '0x9f24e77cfe543625ca98539f73d3f2a60d475b715a759bb5dc43334d0fa660dd',
   blockHeight: 7,
   blockTime: 1637201796,
@@ -301,7 +301,7 @@ const test7: Tx = {
 }
 
 export const yearnVaultDeposit: Tx = {
-  address: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
+  pubkey: '0x934be745172066EDF795ffc5EA9F28f19b440c63',
   blockHash: '0x17d278ffcb1fb940d69e72287339607445d373d0c6a654a61526b0bc805cf10c',
   blockHeight: 13730189,
   blockTime: 1638487560,
@@ -334,7 +334,7 @@ export const yearnVaultDeposit: Tx = {
 export const createMockEthTxs = (account: string): Tx[] => {
   // UNI -> yvUNI
   const deposit: Tx = {
-    address: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
+    pubkey: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
     blockHash: '0x82b844c05ff2275c5182db86f7ab1acc4b83796e22816fbee278abcfc50ffe03',
     blockHeight: 14393924,
     blockTime: 1647384181,
@@ -365,7 +365,7 @@ export const createMockEthTxs = (account: string): Tx[] => {
 
   // Converted yvAAVE tx: yvUNI -> UNI
   const withdraw: Tx = {
-    address: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
+    pubkey: '0x8BEDaB5f8dDCAc46013a15F9CD015Ee2174E3e2A',
     blockHash: '0x82b844c05ff2275c5182db86f7ab1acc4b83796e22816fbee278abcfc50ffe03',
     blockHeight: 14400000,
     blockTime: 1647816181,

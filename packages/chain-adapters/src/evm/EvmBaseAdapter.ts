@@ -661,10 +661,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   private async parseTx(tx: unchained.evm.types.Tx, pubkey: string): Promise<Transaction> {
-    const parsedTx = await this.parser.parse(tx, pubkey)
+    const { address: _, ...parsedTx } = await this.parser.parse(tx, pubkey)
 
     return {
       ...parsedTx,
+      pubkey,
       transfers: parsedTx.transfers.map(transfer => ({
         assetId: transfer.assetId,
         from: [transfer.from],

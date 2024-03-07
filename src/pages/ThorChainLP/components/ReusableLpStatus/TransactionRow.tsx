@@ -319,11 +319,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
         const data = depositWithExpiry({
           vault: getAddress(inboundAddressData.address),
-          asset: isToken(fromAssetId(assetId).assetReference)
-            ? getAddress(fromAssetId(assetId).assetReference)
-            : // Native EVM assets use the 0 address as the asset address
-              // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-              zeroAddress,
+          asset:
+            // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
+            // which is *not* what we want for withdrawals, see
+            // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
+            isToken(fromAssetId(assetId).assetReference) && isDeposit
+              ? getAddress(fromAssetId(assetId).assetReference)
+              : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
+                // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+                zeroAddress,
           amount: amountOrDustCryptoBaseUnit,
           memo,
           expiry: BigInt(dayjs().add(15, 'minute').unix()),
@@ -331,10 +335,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
         return {
           // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
-            ? '0'
-            : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
-          // Withdraws do NOT occur a dust send to the contract address.
+          // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
+          amountCryptoPrecision:
+            isToken(fromAssetId(assetId).assetReference) && isDeposit
+              ? '0'
+              : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
+          // Withdrawals do NOT occur a dust send to the contract address.
           // It's a regular 0-value contract-call
           assetId: isDeposit ? asset.assetId : feeAsset.assetId,
           to: inboundAddressData.router,
@@ -486,11 +492,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
             const data = depositWithExpiry({
               vault: getAddress(inboundAddressData.address),
-              asset: isToken(fromAssetId(assetId).assetReference)
-                ? getAddress(fromAssetId(assetId).assetReference)
-                : // Native EVM assets use the 0 address as the asset address
-                  // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                  zeroAddress,
+              // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
+              // which is *not* what we want for withdrawals, see
+              // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
+              asset:
+                isToken(fromAssetId(assetId).assetReference) && isDeposit
+                  ? getAddress(fromAssetId(assetId).assetReference)
+                  : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
+                    // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+                    zeroAddress,
               amount: amountOrDustCryptoBaseUnit,
               memo,
               expiry: BigInt(dayjs().add(15, 'minute').unix()),
@@ -503,9 +513,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               adapter,
               data,
               // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-              value: isToken(fromAssetId(assetId).assetReference)
-                ? '0'
-                : amountOrDustCryptoBaseUnit,
+              // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
+              value:
+                isToken(fromAssetId(assetId).assetReference) && isDeposit
+                  ? '0'
+                  : amountOrDustCryptoBaseUnit,
               to: inboundAddressData.router,
               wallet,
             })
@@ -551,7 +563,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
 
             setTxId(txId)
-            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, txId, accountAssetAddress!))
+            setSerializedTxIndex(
+              serializeTxIndex(poolAssetAccountId, txId, fromAccountId(poolAssetAccountId).account),
+            )
 
             break
           }

@@ -10,6 +10,7 @@ import {
   Flex,
   Heading,
   IconButton,
+  Skeleton,
   Stack,
   TabPanel,
   TabPanels,
@@ -141,7 +142,9 @@ export const Position = () => {
   }, [params.opportunityId])
 
   const { data: pool } = usePool(poolAssetId ?? '')
-  const { data: userLpData } = useUserLpData({ assetId: assetId ?? '' })
+  const { data: userLpData, isLoading: isUserLpDataLoading } = useUserLpData({
+    assetId: assetId ?? '',
+  })
 
   const position = useMemo(() => {
     if (!userLpData) return
@@ -161,7 +164,7 @@ export const Position = () => {
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
 
-  const { data: earnings } = useQuery({
+  const { data: earnings, isLoading: isEarningsLoading } = useQuery({
     ...reactQueries.thorchainLp.earnings(position?.dateFirstAdded),
     enabled: Boolean(position),
     select: data => {
@@ -191,7 +194,8 @@ export const Position = () => {
     [stepIndex],
   )
 
-  if (!position) return null
+  console.log({ pool, position })
+  if (!pool) return null
 
   return (
     <Main headerComponent={headerComponent}>
@@ -201,7 +205,7 @@ export const Position = () => {
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='md' />
-                <Heading as='h3'>{position.name}</Heading>
+                <Heading as='h3'>{pool.name}</Heading>
                 <Tag size={'lg'}>
                   {position?.asym ? (
                     <Text
@@ -241,10 +245,12 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={position.underlyingAssetAmountCryptoPrecision}
-                          symbol={asset?.symbol ?? ''}
-                        />
+                        <Skeleton isLoaded={!isUserLpDataLoading}>
+                          <Amount.Crypto
+                            value={position?.underlyingAssetAmountCryptoPrecision ?? '0'}
+                            symbol={asset?.symbol ?? ''}
+                          />
+                        </Skeleton>
                       </Flex>
                       <Flex
                         fontSize='sm'
@@ -258,10 +264,12 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[1]} />
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={position.underlyingRuneAmountCryptoPrecision}
-                          symbol={runeAsset?.symbol ?? ''}
-                        />
+                        <Skeleton isLoaded={!isUserLpDataLoading}>
+                          <Amount.Crypto
+                            value={position?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                            symbol={runeAsset?.symbol ?? ''}
+                          />
+                        </Skeleton>
                       </Flex>
                     </Stack>
                   </Card>
@@ -287,11 +295,13 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={earnings?.assetEarningsCryptoPrecision ?? '0'}
-                          symbol={asset?.symbol ?? ''}
-                          whiteSpace='nowrap'
-                        />
+                        <Skeleton isLoaded={!isEarningsLoading}>
+                          <Amount.Crypto
+                            value={earnings?.assetEarningsCryptoPrecision ?? '0'}
+                            symbol={asset?.symbol ?? ''}
+                            whiteSpace='nowrap'
+                          />
+                        </Skeleton>
                       </Flex>
                       <Flex
                         fontSize='sm'
@@ -305,10 +315,12 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[1]} />
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={earnings?.runeEarningsCryptoPrecision ?? '0'}
-                          symbol={runeAsset?.symbol ?? ''}
-                        />
+                        <Skeleton isLoaded={!isEarningsLoading}>
+                          <Amount.Crypto
+                            value={earnings?.runeEarningsCryptoPrecision ?? '0'}
+                            symbol={runeAsset?.symbol ?? ''}
+                          />
+                        </Skeleton>
                       </Flex>
                     </Stack>
                   </Card>

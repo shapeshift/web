@@ -34,7 +34,7 @@ export const PoolsHeader = () => {
   }, [history])
 
   return (
-    <Stack>
+    <Stack mb={4}>
       <Container
         display='flex'
         justifyContent='space-between'

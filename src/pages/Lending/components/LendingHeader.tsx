@@ -44,7 +44,7 @@ export const LendingHeader = () => {
     useAllLendingPositionsData()
   const ltv = bnOrZero(debtValueUserCurrency).div(collateralValueUserCurrency).toNumber()
   return (
-    <Stack>
+    <Stack mb={4}>
       <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
         <Stack>
           <Heading>{translate('lending.lending')}</Heading>

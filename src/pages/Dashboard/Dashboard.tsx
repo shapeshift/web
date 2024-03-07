@@ -29,6 +29,7 @@ const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
 const mainPadding = { base: 0, md: 4 }
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
+const pageProps = { paddingTop: 0 }
 const CustomTab = (props: TabProps) => (
   <Tab
     fontWeight='semibold'
@@ -109,7 +110,7 @@ export const Dashboard = memo(() => {
 
   if (appIsMobile) {
     return (
-      <Main headerComponent={dashboardHeader} pt={0} pb={0}>
+      <Main headerComponent={dashboardHeader} pt={0} pb={0} pageProps={pageProps}>
         <VirtualizedSwipableViews
           index={slideIndex}
           slideRenderer={slideRenderer}

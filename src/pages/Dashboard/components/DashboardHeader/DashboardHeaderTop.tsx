@@ -1,26 +1,17 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import {
-  Button,
-  Container,
-  Drawer,
-  DrawerContent,
-  DrawerOverlay,
-  Flex,
-  IconButton,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Button, Container, Flex, IconButton, useDisclosure } from '@chakra-ui/react'
 import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
 import { memo, useCallback } from 'react'
 import { IoEllipsisHorizontal, IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { QRCodeIcon } from 'components/Icons/QRCode'
-import { SideNavContent } from 'components/Layout/Header/SideNavContent'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
+import { DashboardDrawer } from './DashboardDrawer'
 import { WalletBalance } from './WalletBalance'
 
 const qrCodeIcon = <QRCodeIcon />
@@ -117,16 +108,7 @@ export const DashboardHeaderTop = memo(() => {
       >
         <IconButton isRound icon={moreIcon} aria-label='Settings' onClick={onOpen} />
       </Flex>
-      <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
-        <DrawerOverlay />
-        <DrawerContent
-          paddingTop='env(safe-area-inset-top)'
-          paddingBottom='max(1rem, env(safe-area-inset-top))'
-          overflowY='auto'
-        >
-          <SideNavContent onClose={onClose} />
-        </DrawerContent>
-      </Drawer>
+      <DashboardDrawer isOpen={isOpen} onClose={onClose} />
     </Container>
   )
 })

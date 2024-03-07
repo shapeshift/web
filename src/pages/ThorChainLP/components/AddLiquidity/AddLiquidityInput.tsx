@@ -81,7 +81,6 @@ import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
-  selectFeeAssetByChainId,
   selectFeeAssetById,
   selectMarketDataById,
   selectPortfolioAccountIdsByAssetId,
@@ -271,9 +270,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const pool = useMemo(() => pools?.find(pool => pool.assetId === assetId), [assetId, pools])
 
   const _poolAsset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, _poolAsset?.chainId ?? ''),
-  )
 
   useEffect(() => _poolAsset && setPoolAsset(_poolAsset), [_poolAsset])
 
@@ -556,16 +552,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [runeAccountId, thorchainNotationPoolAssetId])
 
   const estimateFeesArgs = useMemo(() => {
-    if (
-      !assetId ||
-      !wallet ||
-      !poolAsset ||
-      !poolAsset ||
-      !memo ||
-      !feeAsset ||
-      !poolAssetAccountAddress
-    )
-      return undefined
+    if (!assetId || !wallet || !poolAsset || !memo || !poolAssetAccountAddress) return undefined
 
     const amountCryptoBaseUnit = toBaseUnit(
       actualAssetDepositAmountCryptoPrecision,
@@ -630,7 +617,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     wallet,
     poolAsset,
     memo,
-    feeAsset,
     poolAssetAccountAddress,
     actualAssetDepositAmountCryptoPrecision,
     inboundAddressesData,

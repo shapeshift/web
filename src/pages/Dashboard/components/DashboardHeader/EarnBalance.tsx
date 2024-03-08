@@ -5,7 +5,7 @@ import { selectEarnBalancesUserCurrencyAmountFull } from 'state/slices/selectors
 import { useAppSelector } from 'state/store'
 
 export const EarnBalance = () => {
-  const isOpportunitiesLoading = useFetchOpportunities()
+  const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
   const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
   return (
     <Skeleton isLoaded={!isOpportunitiesLoading}>

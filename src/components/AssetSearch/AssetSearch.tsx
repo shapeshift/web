@@ -1,6 +1,14 @@
-import { SearchIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
-import { Box, Divider, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
+import {
+  Flex,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  ModalBody,
+  ModalHeader,
+  Stack,
+} from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import uniq from 'lodash/uniq'
@@ -23,17 +31,17 @@ import { SearchTermAssetList } from './components/SearchTermAssetList'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 
 const buttonProps = {
-  ml: 4,
+  rightIcon: <ChevronDownIcon />,
 }
 
 const assetButtonProps = {
-  height: '40px',
   justifyContent: 'flex-end',
-  px: 2,
-  py: 2,
-  margin: 2,
+  pl: 1.5,
+  pr: 3,
+  py: 1.5,
   size: 'sm',
   borderRadius: 'full',
+  height: 'auto',
 }
 
 const NUM_QUICK_ACCESS_ASSETS = 5
@@ -88,6 +96,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       placeholder: translate('common.searchAsset'),
       pl: 10,
       variant: 'filled',
+      borderWidth: 0,
       autoComplete: 'off',
       autoFocus: true,
     }),
@@ -125,59 +134,68 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   return (
     <>
-      <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit} {...formProps}>
-        <InputGroup size='lg'>
-          {/* Override zIndex to prevent element displaying on overlay components */}
-          <InputLeftElement pointerEvents='none' zIndex={1}>
-            <SearchIcon color='gray.300' />
-          </InputLeftElement>
-          <Input {...inputProps} />
-          <ChainMenu<ChainId | 'All'>
-            activeChainId={activeChain}
-            chainIds={chainIds}
-            isActiveChainIdSupported={true}
-            isDisabled={false}
-            onMenuOptionClick={setActiveChain}
-            buttonProps={buttonProps}
-          />
-        </InputGroup>
-        {isPopularAssetIdsLoading &&
-          Array(NUM_QUICK_ACCESS_ASSETS)
-            .fill(null)
-            .map((_, i) => {
-              return <AssetMenuButton key={i} isLoading isDisabled buttonProps={assetButtonProps} />
-            })}
-        {quickAccessAssets.map(({ assetId }) => {
-          return (
-            <AssetMenuButton
-              key={assetId}
-              assetId={assetId}
-              onAssetClick={handleClick}
-              buttonProps={assetButtonProps}
-              isLoading={isPopularAssetIdsLoading}
+      <ModalHeader pt={0} borderBottomWidth={1} borderColor='border.base'>
+        <Stack gap={4} as='form' visibility='visible' onSubmit={handleSubmit} {...formProps}>
+          <Flex gap={2} alignItems='center'>
+            <InputGroup>
+              {/* Override zIndex to prevent element displaying on overlay components */}
+              <InputLeftElement pointerEvents='none' zIndex={1}>
+                <SearchIcon color='gray.300' />
+              </InputLeftElement>
+              <Input {...inputProps} />
+            </InputGroup>
+            <ChainMenu<ChainId | 'All'>
+              activeChainId={activeChain}
+              chainIds={chainIds}
+              isActiveChainIdSupported={true}
               isDisabled={false}
-              showNetworkIcon
+              onMenuOptionClick={setActiveChain}
+              buttonProps={buttonProps}
             />
-          )
-        })}
-      </Box>
-      <Divider />
-      {searching ? (
-        <SearchTermAssetList
-          activeChainId={activeChain}
-          searchString={searchString}
-          onClickItem={handleClick}
-          isLoading={isPopularAssetIdsLoading}
-        />
-      ) : (
-        <DefaultAssetList
-          portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalance}
-          popularAssets={popularAssets}
-          onClickItem={handleClick}
-          isPopularAssetIdsLoading={isPopularAssetIdsLoading}
-          isPortfolioLoading={isPortfolioLoading}
-        />
-      )}
+          </Flex>
+          <Flex flexWrap='wrap' gap={2}>
+            {isPopularAssetIdsLoading &&
+              Array(NUM_QUICK_ACCESS_ASSETS)
+                .fill(null)
+                .map((_, i) => {
+                  return (
+                    <AssetMenuButton key={i} isLoading isDisabled buttonProps={assetButtonProps} />
+                  )
+                })}
+            {quickAccessAssets.map(({ assetId }) => {
+              return (
+                <AssetMenuButton
+                  key={assetId}
+                  assetId={assetId}
+                  onAssetClick={handleClick}
+                  buttonProps={assetButtonProps}
+                  isLoading={isPopularAssetIdsLoading}
+                  isDisabled={false}
+                  showNetworkIcon
+                />
+              )
+            })}
+          </Flex>
+        </Stack>
+      </ModalHeader>
+      <ModalBody px={2} pt={0} pb={0}>
+        {searching ? (
+          <SearchTermAssetList
+            activeChainId={activeChain}
+            searchString={searchString}
+            onClickItem={handleClick}
+            isLoading={isPopularAssetIdsLoading}
+          />
+        ) : (
+          <DefaultAssetList
+            portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalance}
+            popularAssets={popularAssets}
+            onClickItem={handleClick}
+            isPopularAssetIdsLoading={isPopularAssetIdsLoading}
+            isPortfolioLoading={isPortfolioLoading}
+          />
+        )}
+      </ModalBody>
     </>
   )
 }

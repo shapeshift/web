@@ -1,11 +1,13 @@
 import { Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback } from 'react'
+import { Fragment, useCallback } from 'react'
 import { GroupedVirtuoso } from 'react-virtuoso'
 import { Text } from 'components/Text'
 
 import { GroupedAssetRow } from './components/GroupedAssetRow'
 import { GroupedAssetRowLoading } from './components/GroupedAssetRowLoading'
+
+const components = { TopItemList: Fragment }
 
 export type GroupedAssetListProps = {
   assets: Asset[]
@@ -31,9 +33,10 @@ export const GroupedAssetList = ({
           <Text
             backgroundColor='background.surface.overlay.base'
             color='text.subtle'
-            boxShadow='md'
+            fontWeight='medium'
             pt={4}
             pb={4}
+            px={4}
             translation={groups[index]}
           />
           {!groupIsLoading[index] && groupCounts[index] <= 0 && (
@@ -73,6 +76,7 @@ export const GroupedAssetList = ({
       groupCounts={groupCounts}
       groupContent={renderGroupContent}
       itemContent={renderItem}
+      components={components}
     />
   )
 }

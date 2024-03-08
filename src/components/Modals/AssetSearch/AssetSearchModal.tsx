@@ -1,6 +1,5 @@
 import {
   Modal,
-  ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
@@ -55,9 +54,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
-          <AssetSearch onClick={handleClick} assets={assets} />
-        </ModalBody>
+        <AssetSearch onClick={handleClick} assets={assets} />
       </ModalContent>
     </Modal>
   )

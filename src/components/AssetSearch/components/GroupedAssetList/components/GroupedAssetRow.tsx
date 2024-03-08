@@ -64,34 +64,40 @@ export const GroupedAssetRow = ({
         <AssetIcon assetId={asset.assetId} size='sm' />
         <Box textAlign='left'>
           <Text
-            lineHeight={1}
+            lineHeight='normal'
             textOverflow='ellipsis'
             whiteSpace='nowrap'
             maxWidth='200px'
             overflow='hidden'
+            fontWeight='semibold'
+            color='text.base'
           >
             {asset.name}
           </Text>
-          <Flex alignItems='center' gap={2}>
-            <Text fontWeight='normal' fontSize='sm' color={color}>
-              {asset.symbol}
-            </Text>
-            {asset.id && (
-              <Text fontWeight='normal' fontSize='sm' color={color}>
-                {middleEllipsis(asset.id)}
-              </Text>
+          <Flex alignItems='center' gap={2} fontSize='sm' fontWeight='medium' color='text.subtle'>
+            {hideAssetBalance ? (
+              <>
+                <Text color={color}>{asset.symbol}</Text>
+                {asset.id && <Text>{middleEllipsis(asset.id)}</Text>}
+              </>
+            ) : (
+              <Amount.Crypto
+                fontSize='sm'
+                fontWeight='medium'
+                value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+                symbol={asset.symbol}
+              />
             )}
           </Flex>
         </Box>
       </Flex>
       {(isConnected || isDemoWallet) && !hideAssetBalance && (
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
-          <Amount.Fiat color='var(--chakra-colors-chakra-body-text)' value={userCurrencyBalance} />
-          <Amount.Crypto
-            fontSize='sm'
-            fontWeight='normal'
-            value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
-            symbol={asset.symbol}
+          <Amount.Fiat
+            color='text.base'
+            fontWeight='semibold'
+            lineHeight='normal'
+            value={userCurrencyBalance}
           />
         </Flex>
       )}

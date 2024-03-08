@@ -1015,7 +1015,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             : virtualAssetDepositAmountFiatUserCurrency
 
           const accountId = currentAccountIdByChainId[asset.chainId]
-          console.log({ accountId })
 
           return (
             <TradeAssetInput

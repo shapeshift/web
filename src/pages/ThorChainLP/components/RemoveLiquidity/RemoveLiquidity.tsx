@@ -1,16 +1,45 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { Suspense, useCallback, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
+import { makeSuspenseful } from 'utils/makeSuspenseful'
 import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 
-import { RemoveLiquidityConfirm } from './RemoveLiquidityConfirm'
-import { RemoveLiquidityInput } from './RemoveLiquidityInput'
-import { RemoveLiquidityStatus } from './RemoveLiquidityStatus'
-import { RemoveLiquiditySweep } from './RemoveLiquiditySweep'
 import { RemoveLiquidityRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
+
+const RemoveLiquidityConfirm = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquidityConfirm').then(({ RemoveLiquidityConfirm }) => ({
+      default: RemoveLiquidityConfirm,
+    })),
+  ),
+)
+
+const RemoveLiquidityInput = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquidityInput').then(({ RemoveLiquidityInput }) => ({
+      default: RemoveLiquidityInput,
+    })),
+  ),
+)
+
+const RemoveLiquidityStatus = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquidityStatus').then(({ RemoveLiquidityStatus }) => ({
+      default: RemoveLiquidityStatus,
+    })),
+  ),
+)
+
+const RemoveLiquiditySweep = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquiditySweep').then(({ RemoveLiquiditySweep }) => ({
+      default: RemoveLiquiditySweep,
+    })),
+  ),
+)
 
 const RemoveLiquidityEntries = [
   RemoveLiquidityRoutePaths.Input,

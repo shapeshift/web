@@ -242,7 +242,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   useEffect(() => {
     if (!txId) return
 
-    // Avoids this hook's mutate fn running too many times
+    // Return if the status has been set to confirmed or failed
+    // - Confirmed means we got a successful status from thorchain and should not trigger the mutation again
+    // - Failed means the inbound transaction failed and there is no reason to trigger the mutation as it will never be picked up by thorchain
     if (status === TxStatus.Confirmed || status === TxStatus.Failed) return
 
     // Consider rune transactions pending after broadcast and start polling thorchain right away

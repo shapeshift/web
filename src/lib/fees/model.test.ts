@@ -92,7 +92,7 @@ describe('calculateFees', () => {
     expect(foxDiscountPercent).toEqual(bn(100))
   })
 
-  it('should return FEE_CURVE_MAX_FEE_BPS - 1 for missing foxHeld and above no fee threshold', () => {
+  it('should return FEE_CURVE_MAX_FEE_BPS  for missing foxHeld and above no fee threshold', () => {
     const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD + 0.01)
     const foxHeld = undefined
     const { feeBps, foxDiscountPercent } = calculateFees({
@@ -100,7 +100,7 @@ describe('calculateFees', () => {
       foxHeld,
       feeModel: 'SWAPPER',
     })
-    expect(feeBps.toNumber()).toEqual(FEE_CURVE_MAX_FEE_BPS - 1)
+    expect(feeBps.toNumber()).toEqual(FEE_CURVE_MAX_FEE_BPS)
     expect(foxDiscountPercent).toEqual(bn(0))
   })
 })

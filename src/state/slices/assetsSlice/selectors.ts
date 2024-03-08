@@ -1,6 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
@@ -10,7 +9,6 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
 
 import { selectMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/selectors'
-import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
 export const selectAssetById = createCachedSelector(
@@ -76,18 +74,6 @@ export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
 
     return sortedAssets
   },
-)
-
-export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(
-  selectAssetsSortedByMarketCap,
-  (sortedAssets: Asset[]): ChainId[] =>
-    sortedAssets.reduce<ChainId[]>((acc, { assetId }) => {
-      const feeAssetId = assetIdToFeeAssetId(assetId)
-      if (feeAssetId !== assetId) return acc
-      const { chainId } = fromAssetId(feeAssetId)
-      if (!acc.includes(chainId)) acc.push(chainId)
-      return acc
-    }, []),
 )
 
 export const selectFeeAssetByChainId = createCachedSelector(

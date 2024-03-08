@@ -1,55 +1,65 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
-import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import intersection from 'lodash/intersection'
+import { Box, Divider, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
+import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
+import { ChainMenu } from 'components/ChainMenu'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
-  selectChainIdsByMarketCap,
+  selectPortfolioAssetsSortedByBalance,
+  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AssetList } from './AssetList'
-import { ChainList } from './Chains/ChainList'
-import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { DefaultAssetList } from './components/DefaultAssetList'
+import { SearchTermAssetList } from './components/SearchTermAssetList'
+import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
+
+const buttonProps = {
+  ml: 4,
+}
+
+const assetButtonProps = {
+  height: '40px',
+  justifyContent: 'flex-end',
+  px: 2,
+  py: 2,
+  margin: 2,
+  size: 'sm',
+  borderRadius: 'full',
+}
+
+const NUM_QUICK_ACCESS_ASSETS = 5
+
 export type AssetSearchProps = {
   assets?: Asset[]
   onClick?: (asset: Asset) => void
-  disableUnsupported?: boolean
   formProps?: BoxProps
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
   assets: selectedAssets,
   onClick,
-  disableUnsupported,
   formProps,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const assets = useAppSelector(
     state => selectedAssets ?? selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state),
   )
-  /**
-   * assets filtered by selected chain ids
-   */
-  const filteredAssets = useMemo(
-    () =>
-      activeChain === 'All'
-        ? assets.filter(a => !isNft(a.assetId))
-        : assets.filter(a => a.chainId === activeChain && !isNft(a.assetId)),
-    [activeChain, assets],
-  )
+  const portfolioAssetsSortedByBalance = useAppSelector(selectPortfolioAssetsSortedByBalance)
+  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
+
+  const { data: popularAssetsByChainId, isLoading: isPopularAssetIdsLoading } =
+    useGetPopularAssetsQuery()
+
   // If a custom click handler isn't provided navigate to the asset's page
   const defaultClickHandler = useCallback(
     (asset: Asset) => {
@@ -61,31 +71,16 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     [history],
   )
   const handleClick = onClick ?? defaultClickHandler
-  const [searchTermAssets, setSearchTermAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
       search: '',
     },
   })
-  const searchString = watch('search')
+  const searchString = watch('search').trim()
   const searching = useMemo(() => searchString.length > 0, [searchString])
-  useEffect(() => {
-    if (filteredAssets) {
-      setSearchTermAssets(
-        searching ? filterAssetsBySearchTerm(searchString, filteredAssets) : filteredAssets,
-      )
-    }
-  }, [searchString, searching, filteredAssets])
-  const listAssets = searching ? searchTermAssets : filteredAssets
-  /**
-   * display a list of chain icon filters, based on a unique list of chain ids,
-   * derived from the output of the filterBy function, sorted by market cap
-   */
-  const filteredChainIdsByMarketCap: ChainId[] = useMemo(
-    () => intersection(chainIdsByMarketCap, uniq(assets.map(a => a.chainId))),
-    [chainIdsByMarketCap, assets],
-  )
+
+  const chainIds: ChainId[] = useMemo(() => ['All', ...uniq(assets.map(a => a.chainId))], [assets])
   const inputProps: InputProps = useMemo(
     () => ({
       ...register('search'),
@@ -98,23 +93,38 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     }),
     [register, translate],
   )
-  const handleChainClick = useCallback(
-    (e: React.MouseEvent) => (chainId: ChainId | 'All') => {
-      e.preventDefault()
-      return setActiveChain(chainId)
-    },
-    [],
-  )
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
+  const popularAssets = useMemo(() => {
+    return popularAssetsByChainId?.[activeChain] ?? []
+  }, [activeChain, popularAssetsByChainId])
+
+  const quickAccessAssets = useMemo(() => {
+    if (activeChain !== 'All') {
+      return popularAssets.slice(0, 5)
+    }
+
+    // if we selected 'All' chains, we'll dedupe EVM assets in favor of ethereum mainnet
+    const resultMap: Record<AssetId, Asset> = {}
+    for (const asset of popularAssets) {
+      if (Object.keys(resultMap).length === NUM_QUICK_ACCESS_ASSETS) {
+        break
+      }
+
+      const key = asset.relatedAssetKey ?? asset.assetId
+
+      // set first occurrence, overwrite if eth mainnet
+      if (resultMap[key] === undefined || asset.chainId === KnownChainIds.EthereumMainnet) {
+        resultMap[key] = asset
+      }
+    }
+
+    return Object.values(resultMap)
+  }, [activeChain, popularAssets])
+
   return (
     <>
-      <ChainList
-        chainIds={filteredChainIdsByMarketCap}
-        onClick={handleChainClick}
-        activeChain={activeChain}
-      />
       <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit} {...formProps}>
         <InputGroup size='lg'>
           {/* Override zIndex to prevent element displaying on overlay components */}
@@ -122,17 +132,51 @@ export const AssetSearch: FC<AssetSearchProps> = ({
             <SearchIcon color='gray.300' />
           </InputLeftElement>
           <Input {...inputProps} />
-        </InputGroup>
-      </Box>
-      {listAssets && (
-        <Box flex={1}>
-          <AssetList
-            mb='10'
-            assets={listAssets}
-            handleClick={handleClick}
-            disableUnsupported={disableUnsupported}
+          <ChainMenu<ChainId | 'All'>
+            activeChainId={activeChain}
+            chainIds={chainIds}
+            isActiveChainIdSupported={true}
+            isDisabled={false}
+            onMenuOptionClick={setActiveChain}
+            buttonProps={buttonProps}
           />
-        </Box>
+        </InputGroup>
+        {isPopularAssetIdsLoading &&
+          Array(NUM_QUICK_ACCESS_ASSETS)
+            .fill(null)
+            .map((_, i) => {
+              return <AssetMenuButton key={i} isLoading isDisabled buttonProps={assetButtonProps} />
+            })}
+        {quickAccessAssets.map(({ assetId }) => {
+          return (
+            <AssetMenuButton
+              key={assetId}
+              assetId={assetId}
+              onAssetClick={handleClick}
+              buttonProps={assetButtonProps}
+              isLoading={isPopularAssetIdsLoading}
+              isDisabled={false}
+              showNetworkIcon
+            />
+          )
+        })}
+      </Box>
+      <Divider />
+      {searching ? (
+        <SearchTermAssetList
+          activeChainId={activeChain}
+          searchString={searchString}
+          onClickItem={handleClick}
+          isLoading={isPopularAssetIdsLoading}
+        />
+      ) : (
+        <DefaultAssetList
+          portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalance}
+          popularAssets={popularAssets}
+          onClickItem={handleClick}
+          isPopularAssetIdsLoading={isPopularAssetIdsLoading}
+          isPortfolioLoading={isPortfolioLoading}
+        />
       )}
     </>
   )

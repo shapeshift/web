@@ -1,0 +1,52 @@
+import type { Asset } from '@shapeshiftoss/types'
+import { useMemo } from 'react'
+
+import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
+
+export type DefaultAssetListProps = {
+  isPortfolioLoading: boolean
+  isPopularAssetIdsLoading: boolean
+  portfolioAssetsSortedByBalance: Asset[]
+  popularAssets: Asset[]
+  onClickItem: (asset: Asset) => void
+}
+
+export const DefaultAssetList = ({
+  isPortfolioLoading,
+  isPopularAssetIdsLoading,
+  portfolioAssetsSortedByBalance,
+  popularAssets,
+  onClickItem,
+}: DefaultAssetListProps) => {
+  const groupIsLoading = useMemo(() => {
+    return [isPortfolioLoading, isPopularAssetIdsLoading]
+  }, [isPopularAssetIdsLoading, isPortfolioLoading])
+
+  const { allAssets, groups, groupCounts } = useMemo(() => {
+    // only show popular assets if user wallet is empty
+    if (portfolioAssetsSortedByBalance.length === 0) {
+      return {
+        groups: ['modals.assetSearch.popularAssets'],
+        groupCounts: [popularAssets.length],
+        allAssets: popularAssets,
+      }
+    }
+
+    return {
+      groups: ['modals.assetSearch.myAssets', 'modals.assetSearch.popularAssets'],
+      groupCounts: [portfolioAssetsSortedByBalance.length, popularAssets.length],
+      allAssets: portfolioAssetsSortedByBalance.concat(popularAssets),
+    }
+  }, [popularAssets, portfolioAssetsSortedByBalance])
+
+  return (
+    <GroupedAssetList
+      assets={allAssets}
+      groups={groups}
+      groupCounts={groupCounts}
+      hideZeroBalanceAmounts={true}
+      groupIsLoading={groupIsLoading}
+      onClickItem={onClickItem}
+    />
+  )
+}

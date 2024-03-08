@@ -32,7 +32,6 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   close,
   isOpen,
   assets,
-  disableUnsupported,
   title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
@@ -57,11 +56,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
         <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
-          <AssetSearch
-            onClick={handleClick}
-            assets={assets}
-            disableUnsupported={disableUnsupported}
-          />
+          <AssetSearch onClick={handleClick} assets={assets} />
         </ModalBody>
       </ModalContent>
     </Modal>

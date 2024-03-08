@@ -63,7 +63,6 @@ export const FiatForm: React.FC<FiatFormProps> = ({
       assetSearch.open({
         onClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
         assets: fiatRampAction === FiatRampAction.Buy ? buyAssets : sellAssets,
-        disableUnsupported: true,
       })
     },
     [wallet, assetSearch, buyAssets, sellAssets],

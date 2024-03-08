@@ -39,6 +39,7 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
@@ -119,7 +120,8 @@ const GetTradeQuotes = () => {
 
 export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
-    state: { wallet },
+    dispatch: walletDispatch,
+    state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
   const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
@@ -178,7 +180,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         // but just in case
         return getQuoteErrorTranslation(tradeQuoteError!)
       default:
-        return 'trade.previewTrade'
+        // We got a happy path quote, but we may still be in the context of the demo wallet
+        return !isConnected || isDemoWallet ? 'common.connectWallet' : 'trade.previewTrade'
     }
   }, [
     quoteRequestErrors,
@@ -186,6 +189,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     activeQuoteErrors,
     isAnyTradeQuoteLoaded,
     hasUserEnteredAmount,
+    isConnected,
+    isDemoWallet,
   ])
 
   const setBuyAsset = useCallback(
@@ -329,7 +334,16 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     selectBuyAmountBeforeFeesCryptoPrecision,
   )
 
+  const handleConnect = useCallback(() => {
+    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [walletDispatch])
+
   const onSubmit = useCallback(() => {
+    // No preview happening if wallet isn't connected i.e is using the demo wallet
+    if (!isConnected || isDemoWallet) {
+      return handleConnect()
+    }
+
     setIsConfirmationLoading(true)
     try {
       const eventData = getMixpanelEventData()
@@ -355,7 +369,18 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }
 
     setIsConfirmationLoading(false)
-  }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
+  }, [
+    activeQuote,
+    dispatch,
+    handleConnect,
+    history,
+    isConnected,
+    isDemoWallet,
+    mixpanel,
+    showErrorToast,
+    tradeQuoteStep,
+    wallet,
+  ])
 
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,

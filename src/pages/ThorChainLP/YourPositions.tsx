@@ -76,7 +76,7 @@ const PositionButton = ({ poolAssetId, position }: PositionButtonProps) => {
     // That ensures new active listeners always get fresh earnings data
     staleTime: 0,
     select: data => {
-      const poolEarnings = data.meta.pools.find(pool => pool.pool === poolAssetId)
+      const poolEarnings = data?.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!poolEarnings) return null
 
       return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)

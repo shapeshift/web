@@ -172,7 +172,7 @@ export const Position = () => {
     select: data => {
       if (!position) return null
 
-      const poolEarnings = data.meta.pools.find(pool => pool.pool === poolAssetId)
+      const poolEarnings = data?.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!poolEarnings) return null
 
       return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)

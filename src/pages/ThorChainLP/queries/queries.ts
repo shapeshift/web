@@ -56,6 +56,7 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
   earnings: (from: string | undefined) => ({
     queryKey: ['thorchainearnings', from],
     queryFn: async () => {
+      if (!from) return null
       const { data } = await axios.get<MidgardEarningsHistoryResponse>(
         `${midgardUrl}/history/earnings?from=${from}`,
       )

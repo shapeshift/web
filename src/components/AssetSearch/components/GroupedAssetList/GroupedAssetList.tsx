@@ -1,4 +1,4 @@
-import { Center } from '@chakra-ui/react'
+import { Box, Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { Fragment, useCallback } from 'react'
 import { GroupedVirtuoso } from 'react-virtuoso'
@@ -7,7 +7,9 @@ import { Text } from 'components/Text'
 import { GroupedAssetRow } from './components/GroupedAssetRow'
 import { GroupedAssetRowLoading } from './components/GroupedAssetRowLoading'
 
-const components = { TopItemList: Fragment }
+const Footer = () => <Box height='0.5rem' />
+
+const components = { TopItemList: Fragment, Footer }
 
 export type GroupedAssetListProps = {
   assets: Asset[]

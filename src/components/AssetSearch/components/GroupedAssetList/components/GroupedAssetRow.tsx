@@ -57,7 +57,8 @@ export const GroupedAssetRow = ({
       justifyContent='space-between'
       isDisabled={!isSupported}
       height={16}
-      width='100%'
+      width='stretch'
+      mx={2}
       _focus={focus}
     >
       <Flex gap={4} alignItems='center'>

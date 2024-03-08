@@ -1,14 +1,6 @@
 import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
-import {
-  Flex,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  ModalBody,
-  ModalHeader,
-  Stack,
-} from '@chakra-ui/react'
+import { Flex, Input, InputGroup, InputLeftElement, ModalHeader, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import uniq from 'lodash/uniq'
@@ -178,24 +170,22 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           </Flex>
         </Stack>
       </ModalHeader>
-      <ModalBody px={2} pt={0} pb={0}>
-        {searching ? (
-          <SearchTermAssetList
-            activeChainId={activeChain}
-            searchString={searchString}
-            onClickItem={handleClick}
-            isLoading={isPopularAssetIdsLoading}
-          />
-        ) : (
-          <DefaultAssetList
-            portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalance}
-            popularAssets={popularAssets}
-            onClickItem={handleClick}
-            isPopularAssetIdsLoading={isPopularAssetIdsLoading}
-            isPortfolioLoading={isPortfolioLoading}
-          />
-        )}
-      </ModalBody>
+      {searching ? (
+        <SearchTermAssetList
+          activeChainId={activeChain}
+          searchString={searchString}
+          onClickItem={handleClick}
+          isLoading={isPopularAssetIdsLoading}
+        />
+      ) : (
+        <DefaultAssetList
+          portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalance}
+          popularAssets={popularAssets}
+          onClickItem={handleClick}
+          isPopularAssetIdsLoading={isPopularAssetIdsLoading}
+          isPortfolioLoading={isPortfolioLoading}
+        />
+      )}
     </>
   )
 }

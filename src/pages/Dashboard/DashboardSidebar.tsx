@@ -11,7 +11,7 @@ import { EligibleCarousel } from 'pages/Defi/components/EligibleCarousel'
 
 import { RecentTransactions } from './RecentTransactions'
 
-const displayMdFlex = { base: 'none', md: 'flex' }
+const displayXlFlex = { base: 'none', xl: 'flex' }
 
 const promoData: PromoItem[] = [
   {
@@ -64,7 +64,7 @@ export const DashboardSidebar = memo(() => {
     <Flex width='full' flexDir='column' gap={6}>
       <PromoCard data={promoData} />
       <EligibleCarousel />
-      <RecentTransactions limit={8} viewMoreLink display={displayMdFlex} />
+      <RecentTransactions limit={8} viewMoreLink display={displayXlFlex} />
     </Flex>
   )
 })

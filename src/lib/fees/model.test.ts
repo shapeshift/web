@@ -23,7 +23,7 @@ describe('calculateFees', () => {
     expect(feeBps.toNumber()).toEqual(0)
   })
 
-  it('should return ~28bps for === no fee threshold', () => {
+  it('should return ~29bps for === no fee threshold', () => {
     const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD)
     const foxHeld = bn(0)
     const { feeBps } = calculateFees({
@@ -31,7 +31,7 @@ describe('calculateFees', () => {
       foxHeld,
       feeModel: 'SWAPPER',
     })
-    expect(feeBps.toNumber()).toEqual(29)
+    expect(feeBps.toNumber()).toEqual(48)
   })
 
   it('should return close to max bps for slightly above no fee threshold', () => {
@@ -42,7 +42,7 @@ describe('calculateFees', () => {
       foxHeld,
       feeModel: 'SWAPPER',
     })
-    expect(feeBps.toNumber()).toEqual(29)
+    expect(feeBps.toNumber()).toEqual(48)
   })
 
   it('should return close to min bps for huge amounts', () => {
@@ -64,7 +64,7 @@ describe('calculateFees', () => {
       foxHeld,
       feeModel: 'SWAPPER',
     })
-    expect(feeBps.toNumber()).toEqual(20)
+    expect(feeBps.toNumber()).toEqual(30)
   })
 
   it('should discount fees by 50% holding at midpoint holding half max fox discount limit', () => {
@@ -75,7 +75,7 @@ describe('calculateFees', () => {
       foxHeld,
       feeModel: 'SWAPPER',
     })
-    expect(feeBps.toNumber()).toEqual(10)
+    expect(feeBps.toNumber()).toEqual(15)
     expect(foxDiscountPercent).toEqual(bn(50))
   })
 

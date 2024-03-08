@@ -1,6 +1,6 @@
 import type { FeeCurveParameters } from './types'
 
-const FEE_CURVE_MAX_FEE_BPS = 29 // basis points
+const FEE_CURVE_MAX_FEE_BPS = 49 // basis points
 const FEE_CURVE_MIN_FEE_BPS = 10 // basis points
 const FEE_CURVE_NO_FEE_THRESHOLD_USD = 1_000 // usd
 const FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD = 1_000_000 // fox

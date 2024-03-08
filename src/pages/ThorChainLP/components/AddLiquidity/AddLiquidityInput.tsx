@@ -1015,9 +1015,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             : virtualAssetDepositAmountFiatUserCurrency
 
           const accountId = currentAccountIdByChainId[asset.chainId]
+          console.log({ accountId })
 
           return (
             <TradeAssetInput
+              autoSelectHighestBalance={false}
               isAccountSelectionDisabled
               accountId={accountId}
               key={asset.assetId}
@@ -1026,6 +1028,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               assetSymbol={asset?.symbol ?? ''}
               // eslint-disable-next-line react-memo/require-usememo
               onAccountIdChange={(accountId: AccountId) => {
+                console.log({ accountId })
                 handleAccountIdChange(accountId, asset?.assetId)
               }}
               percentOptions={percentOptions}

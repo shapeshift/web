@@ -1018,6 +1018,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
           return (
             <TradeAssetInput
+              autoSelectHighestBalance={false}
               isAccountSelectionDisabled
               accountId={accountId}
               key={asset.assetId}

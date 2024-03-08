@@ -56,6 +56,7 @@ const CryptoInput = (props: InputProps) => {
 }
 
 export type TradeAmountInputProps = {
+  autoSelectHighestBalance?: boolean
   assetId?: AssetId
   accountId?: AccountId
   assetSymbol: string
@@ -95,6 +96,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     assetId,
     accountId,
     assetSymbol,
+    autoSelectHighestBalance = true,
     onChange,
     onMaxClick,
     onPercentOptionClick,
@@ -217,7 +219,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               assetId={assetId}
               onChange={onAccountIdChange}
               disabled={isAccountSelectionDisabled}
-              autoSelectHighestBalance
+              autoSelectHighestBalance={autoSelectHighestBalance}
               buttonProps={buttonProps}
               boxProps={boxProps}
               showLabel={false}
@@ -315,7 +317,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   assetId={assetId}
                   onChange={onAccountIdChange}
                   disabled={isAccountSelectionDisabled}
-                  autoSelectHighestBalance
+                  autoSelectHighestBalance={autoSelectHighestBalance}
                   buttonProps={buttonProps}
                   boxProps={boxProps}
                   showLabel={false}

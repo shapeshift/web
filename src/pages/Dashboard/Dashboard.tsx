@@ -66,13 +66,9 @@ export const Dashboard = memo(() => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const appIsMobile = isMobile || !isLargerThanMd
 
-  const handleSlideChange = (index: number) => {
-    setSlideIndex(index)
-  }
-
   const mobileTabs = useMemo(() => {
     return (
-      <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideChange}>
+      <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={setSlideIndex}>
         <TabList>
           <CustomTab>{translate('navBar.overview')}</CustomTab>
           <CustomTab>NFTs</CustomTab>
@@ -121,7 +117,7 @@ export const Dashboard = memo(() => {
           slideCount={3}
           overscanSlideBefore={1}
           overscanSlideAfter={1}
-          onChangeIndex={handleSlideChange}
+          onChangeIndex={setSlideIndex}
         />
       </Main>
     )

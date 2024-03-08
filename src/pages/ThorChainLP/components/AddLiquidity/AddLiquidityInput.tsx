@@ -18,7 +18,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -545,11 +545,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [poolAsset])
 
   const memo = useMemo(() => {
-    if (!runeAccountId) return undefined
-    if (thorchainNotationPoolAssetId === undefined) return undefined
+    if (thorchainNotationPoolAssetId === undefined) return
+
+    if (opportunityType === 'sym') {
+      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`
+    }
+
+    return `+:${thorchainNotationPoolAssetId}::ss:50`
     // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
-    return `+:${thorchainNotationPoolAssetId}:${fromAccountId(runeAccountId).account ?? ''}:ss:50`
-  }, [runeAccountId, thorchainNotationPoolAssetId])
+  }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
   const estimateFeesArgs = useMemo(() => {
     if (!assetId || !wallet || !poolAsset || !memo || !poolAssetAccountAddress) return undefined

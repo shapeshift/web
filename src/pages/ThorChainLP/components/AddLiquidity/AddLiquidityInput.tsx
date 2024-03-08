@@ -1028,7 +1028,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               assetSymbol={asset?.symbol ?? ''}
               // eslint-disable-next-line react-memo/require-usememo
               onAccountIdChange={(accountId: AccountId) => {
-                console.log({ accountId })
                 handleAccountIdChange(accountId, asset?.assetId)
               }}
               percentOptions={percentOptions}

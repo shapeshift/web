@@ -28,6 +28,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
+import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
@@ -239,26 +240,32 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   })
 
   useEffect(() => {
-    if (!(txId && tx)) return
+    if (!txId) return
 
-    if (tx?.status === TxStatus.Pending) {
+    // Avoids this hook's mutate fn running too many times
+    if (status === TxStatus.Confirmed || status === TxStatus.Failed) return
+
+    // Consider rune transactions pending after broadcast and start polling thorchain right away
+    if (isRuneTx) {
+      if (status === TxStatus.Unknown) {
+        setStatus(TxStatus.Pending)
+        ;(async () => await mutateAsync({ txId }))()
+      }
+      return
+    }
+
+    if (!tx) return
+
+    // Track pending and failed status
+    if (tx.status === TxStatus.Pending || tx.status === TxStatus.Failed) {
       setStatus(tx.status)
       return
     }
 
-    // Avoids this hook's mutate fn running too many times
-    if (status === TxStatus.Confirmed) return
-
-    if (tx?.status === TxStatus.Confirmed) {
-      // The Tx is confirmed, but we still need to introspect completion from THOR itself
-      // so we set the status as pending in the meantime
-      setStatus(TxStatus.Pending)
-      ;(async () => {
-        await mutateAsync({ txId })
-      })()
-      return
+    if (tx.status === TxStatus.Confirmed) {
+      ;(async () => await mutateAsync({ txId }))()
     }
-  }, [mutateAsync, onComplete, status, tx, txId])
+  }, [mutateAsync, onComplete, status, tx, txId, isRuneTx])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -574,7 +581,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         }
       })()
     })().then(() => {
-      setStatus(TxStatus.Pending)
       setIsSubmitting(false)
     })
   }, [
@@ -615,6 +621,38 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return translate('common.signTransaction')
   }, [isTradingActive, translate])
 
+  const txStatusIndicator = useMemo(() => {
+    if (status === TxStatus.Confirmed) {
+      return (
+        <Center
+          bg='background.success'
+          boxSize='24px'
+          borderRadius='full'
+          color='text.success'
+          fontSize='xs'
+        >
+          <FaCheck />
+        </Center>
+      )
+    }
+
+    if (status === TxStatus.Failed) {
+      return (
+        <Center
+          bg='background.error'
+          boxSize='24px'
+          borderRadius='full'
+          color='text.error'
+          fontSize='xs'
+        >
+          <FaX />
+        </Center>
+      )
+    }
+
+    return <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
+  }, [status])
+
   if (!asset || !feeAsset) return null
 
   return (
@@ -638,21 +676,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               {translate('common.seeDetails')}
             </Button>
           )}
-          {status === TxStatus.Confirmed ? (
-            <>
-              <Center
-                bg='background.success'
-                boxSize='24px'
-                borderRadius='full'
-                color='text.success'
-                fontSize='xs'
-              >
-                <FaCheck />
-              </Center>
-            </>
-          ) : (
-            <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
-          )}
+          {txStatusIndicator}
         </Flex>
       </CardHeader>
       <Collapse in={isActive}>

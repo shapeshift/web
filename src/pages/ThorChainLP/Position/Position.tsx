@@ -168,7 +168,7 @@ export const Position = () => {
 
   const { data: earnings, isLoading: isEarningsLoading } = useQuery({
     ...reactQueries.thorchainLp.earnings(position?.dateFirstAdded),
-    enabled: Boolean(position),
+    enabled: Boolean(position?.dateFirstAdded),
     select: data => {
       if (!position) return null
 

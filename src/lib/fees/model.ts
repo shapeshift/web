@@ -55,7 +55,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {
     if (isFree) return bn(100)
-    // No discount if we cannot fetch FOX holdings - apply fees as-is
+    // No discount if we cannot fetch FOX holdings
     if (isFallbackFees) return bn(0)
 
     return BigNumber.minimum(

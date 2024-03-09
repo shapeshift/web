@@ -65,28 +65,33 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   })()
 
   // the fee bps before the fox discount is applied, as a floating point number
-  const feeBpsBeforeDiscountFloat = isFallbackFees
-    ? bn(FEE_CURVE_MAX_FEE_BPS)
-    : minFeeBps.plus(
-        maxFeeBps
-          .minus(minFeeBps)
-          .div(
-            bn(1).plus(
-              bn(
-                Math.exp(
-                  bn(1).div(feeCurveSteepness).times(tradeAmountUsd.minus(midpointUsd)).toNumber(),
+  const feeBpsBeforeDiscountFloat =
+    isFallbackFees && !isFree
+      ? bn(FEE_CURVE_MAX_FEE_BPS)
+      : minFeeBps.plus(
+          maxFeeBps
+            .minus(minFeeBps)
+            .div(
+              bn(1).plus(
+                bn(
+                  Math.exp(
+                    bn(1)
+                      .div(feeCurveSteepness)
+                      .times(tradeAmountUsd.minus(midpointUsd))
+                      .toNumber(),
+                  ),
                 ),
               ),
             ),
-          ),
-      )
+        )
 
-  const feeBpsFloat = isFallbackFees
-    ? bn(FEE_CURVE_MAX_FEE_BPS)
-    : BigNumber.maximum(
-        feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),
-        bn(0),
-      )
+  const feeBpsFloat =
+    isFallbackFees && !isFree
+      ? bn(FEE_CURVE_MAX_FEE_BPS)
+      : BigNumber.maximum(
+          feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),
+          bn(0),
+        )
 
   const feeBpsBeforeDiscount = feeBpsBeforeDiscountFloat.decimalPlaces(0)
   const feeBpsAfterDiscount = feeBpsFloat.decimalPlaces(0)

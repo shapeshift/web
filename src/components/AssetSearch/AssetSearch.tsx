@@ -13,7 +13,7 @@ import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuB
 import { ChainMenu } from 'components/ChainMenu'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
-  selectPortfolioAssetsSortedByBalance,
+  selectPortfolioFungibleAssetsSortedByBalance,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -54,7 +54,9 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const assets = useAppSelector(
     state => selectedAssets ?? selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state),
   )
-  const portfolioAssetsSortedByBalance = useAppSelector(selectPortfolioAssetsSortedByBalance)
+  const portfolioAssetsSortedByBalance = useAppSelector(
+    selectPortfolioFungibleAssetsSortedByBalance,
+  )
   const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
 
   const { data: popularAssetsByChainId, isLoading: isPopularAssetIdsLoading } =

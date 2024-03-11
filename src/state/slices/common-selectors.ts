@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
@@ -173,7 +173,7 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
   return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
 })
 
-export const selectPortfolioAssetsSortedByBalance = createDeepEqualOutputSelector(
+export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioUserCurrencyBalances,
   selectAssets,
   (portfolioUserCurrencyBalances, assets) => {
@@ -189,5 +189,6 @@ export const selectPortfolioAssetsSortedByBalance = createDeepEqualOutputSelecto
         return assets[assetId]
       })
       .filter(isSome)
+      .filter(asset => !isNft(asset.assetId))
   },
 )

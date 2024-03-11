@@ -124,6 +124,14 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     return Object.values(resultMap)
   }, [activeChain, popularAssets])
 
+  const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
+    if (activeChain === 'All') {
+      return portfolioAssetsSortedByBalance
+    }
+
+    return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChain)
+  }, [activeChain, portfolioAssetsSortedByBalance])
+
   return (
     <>
       <ModalHeader pt={0} borderBottomWidth={1} borderColor='border.base'>
@@ -179,7 +187,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
         />
       ) : (
         <DefaultAssetList
-          portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalance}
+          portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
           popularAssets={popularAssets}
           onClickItem={handleClick}
           isPopularAssetIdsLoading={isPopularAssetIdsLoading}

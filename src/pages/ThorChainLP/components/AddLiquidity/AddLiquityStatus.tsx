@@ -14,7 +14,7 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
   const history = useHistory()
 
   const handleGoBack = useCallback(() => {
-    history.push(AddLiquidityRoutePaths.Input)
+    history.push(AddLiquidityRoutePaths.Confirm)
   }, [history])
 
   return (

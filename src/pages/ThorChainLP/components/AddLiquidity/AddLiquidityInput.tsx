@@ -897,7 +897,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       ),
     )
 
-    if (!votingPower) return
     if (!slippageFiatUserCurrency) return
     if (!activeOpportunityId) return
     if (!poolAssetInboundAddress) return

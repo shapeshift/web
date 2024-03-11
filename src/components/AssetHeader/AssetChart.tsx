@@ -3,7 +3,7 @@ import { Box, Card, CardHeader, Flex, Heading, Skeleton, useMediaQuery } from '@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -11,14 +11,14 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectMarketDataById,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { AssetActions } from './AssetActions'
@@ -47,17 +47,27 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const {
     number: { toFiat },
   } = useLocaleFormatter()
+  const dispatch = useAppDispatch()
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const [percentChange, setPercentChange] = useState(0)
   const [fiatChange, setFiatChange] = useState(0)
   const userChartTimeframe = useAppSelector(selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
-  const handleTimeframeChange = useTimeframeChange(setTimeframe)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
+
+  const handleTimeframeChange = useCallback(
+    (newTimeframe: HistoryTimeframe) => {
+      // Usually used to set the component state to the new timeframe
+      setTimeframe(newTimeframe)
+      // Save the new timeframe in the user preferences
+      dispatch(preferences.actions.setChartTimeframe({ timeframe: newTimeframe }))
+    },
+    [dispatch],
+  )
 
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 

@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
-import { ChainMenu } from 'components/ChainMenu'
+import { AllChainMenu } from 'components/ChainMenu'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectPortfolioFungibleAssetsSortedByBalance,
@@ -146,7 +146,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
               </InputLeftElement>
               <Input {...inputProps} />
             </InputGroup>
-            <ChainMenu<ChainId | 'All'>
+            <AllChainMenu
               activeChainId={activeChain}
               chainIds={chainIds}
               isActiveChainIdSupported={true}

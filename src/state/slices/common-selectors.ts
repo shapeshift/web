@@ -54,10 +54,16 @@ export const selectPortfolioAssetBalancesBaseUnit = createDeepEqualOutputSelecto
   selectPortfolioAccountBalancesBaseUnit,
   (accountBalancesById): Record<AssetId, string> =>
     Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAssetId) => {
-      Object.entries(byAssetId).forEach(
-        ([assetId, balance]) =>
-          (acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance)).toFixed()),
-      )
+      Object.entries(byAssetId).forEach(([assetId, balance]) => {
+        const bnBalance = bnOrZero(balance)
+
+        // don't include assets with zero crypto balance
+        if (bnBalance.isZero()) {
+          return
+        }
+
+        acc[assetId] = bnOrZero(acc[assetId]).plus(bnBalance).toFixed()
+      })
       return acc
     }, {}),
 )

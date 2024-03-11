@@ -62,7 +62,7 @@ export const useEvm = () => {
       connectedEvmChainId,
       isEvmChainId,
       isLoading,
-      setEthNetwork: setChainId,
+      setChainId,
       supportedEvmChainIds,
     }),
     [connectedEvmChainId, isEvmChainId, isLoading, supportedEvmChainIds],

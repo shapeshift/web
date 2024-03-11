@@ -24,7 +24,7 @@ type ChainMenuProps = BoxProps
 
 export const ChainMenu = memo((props: ChainMenuProps) => {
   const { state, load } = useWallet()
-  const { connectedEvmChainId, isEvmChainId, isLoading, setEthNetwork, supportedEvmChainIds } =
+  const { connectedEvmChainId, isEvmChainId, isLoading, setChainId, supportedEvmChainIds } =
     useEvm()
   const chainAdapterManager = getChainAdapterManager()
 
@@ -61,13 +61,13 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
           rpcUrls: [...maybeGnosisOfficialRpcUrl, requestedChainRpcUrl],
           blockExplorerUrls: [requestedChainFeeAsset.explorer],
         })
-        setEthNetwork(requestedChainId)
+        setChainId(requestedChainId)
         load()
       } catch (e) {
         console.error(e)
       }
     },
-    [assets, isEvmChainId, load, setEthNetwork, state.wallet],
+    [assets, isEvmChainId, load, setChainId, state.wallet],
   )
 
   const currentChainNativeAssetId = useMemo(

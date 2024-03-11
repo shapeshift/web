@@ -63,7 +63,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
 
       const tvlCryptoPrecision = fromThorBaseUnit(poolInfo.loan_collateral)
       const maxSupplyCryptoPrecision = fromThorBaseUnit(poolInfo.loan_collateral).plus(
-        poolInfo.loan_collateral_remaining,
+        fromThorBaseUnit(poolInfo.loan_collateral_remaining),
       )
 
       const tvl = tvlCryptoPrecision.times(poolAssetMarketData.price).toFixed()

@@ -81,7 +81,8 @@ type TransactionRowProps = {
   poolAssetId?: AssetId
   amountCryptoPrecision: string
   poolAmountCryptoPrecision: string | undefined
-  onComplete: () => void
+  onComplete: (status: TxStatus) => void
+  onStart: () => void
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
@@ -94,6 +95,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   amountCryptoPrecision,
   poolAmountCryptoPrecision,
   onComplete,
+  onStart,
   isActive,
   confirmedQuote,
   asymSide,
@@ -235,7 +237,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
 
       setStatus(TxStatus.Confirmed)
-      return onComplete()
+      onComplete(TxStatus.Confirmed)
     },
   })
 
@@ -258,9 +260,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     if (!tx) return
 
-    // Track pending and failed status
-    if (tx.status === TxStatus.Pending || tx.status === TxStatus.Failed) {
+    // Track pending status
+    if (tx.status === TxStatus.Pending) {
       setStatus(tx.status)
+      return
+    }
+
+    // Track failed status and handle onComplete
+    if (tx.status === TxStatus.Failed) {
+      setStatus(tx.status)
+      onComplete(TxStatus.Failed)
       return
     }
 
@@ -583,6 +592,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         }
       })()
     })().then(() => {
+      onStart()
       setIsSubmitting(false)
     })
   }, [
@@ -605,6 +615,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     accountAssetAddress,
     estimateFeesArgs,
     selectedCurrency,
+    onStart,
   ])
 
   const txIdLink = useMemo(

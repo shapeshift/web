@@ -205,6 +205,7 @@ export type LpConfirmedDepositQuote = {
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
   feeAmountFiatUserCurrency: string
+  feeAmountUSD: string
   assetAddress?: string
   quoteInboundAddress: string
   // For informative purposes only at confirm step - to be recalculated before signing

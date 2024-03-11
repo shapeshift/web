@@ -25,6 +25,7 @@ export type ChainMenuProps<T extends ChainId | 'All'> = {
   isActiveChainIdSupported: boolean
   isDisabled: boolean
   buttonProps?: ButtonProps
+  disableTooltip?: boolean
   onMenuOptionClick: (chainId: T) => void
 }
 
@@ -122,6 +123,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
   isActiveChainIdSupported,
   onMenuOptionClick,
   isDisabled,
+  disableTooltip,
   buttonProps,
 }: ChainMenuProps<T>) => {
   const translate = useTranslate()
@@ -132,7 +134,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
         label={translate(
           isActiveChainIdSupported ? 'common.switchNetwork' : 'common.unsupportedNetwork',
         )}
-        isDisabled={isDisabled}
+        isDisabled={disableTooltip || isDisabled}
       >
         <MenuButton as={Button} {...buttonProps}>
           <Flex alignItems='center' justifyContent='center'>

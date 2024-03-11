@@ -153,6 +153,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
               isDisabled={false}
               onMenuOptionClick={setActiveChain}
               buttonProps={buttonProps}
+              disableTooltip
             />
           </Flex>
           <Flex flexWrap='wrap' gap={2}>

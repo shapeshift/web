@@ -29,16 +29,18 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   DAI: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
   USDT: [
     'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
-    'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+    'eip155:10/erc20:0x94b008aa00579c1307b0ef2c499ad98a8ce58e58',
     'eip155:100/erc20:0x4ecaba5870353805a9f068101a40e0f32ed605c6',
+    'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+    'eip155:42161/erc20:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
   ],
   USDC: [
     'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-    'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
     'eip155:10/erc20:0x7f5c764cbc14f9669b88837ca1490cca17c31607',
     'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
     'eip155:100/erc20:0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
     'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+    'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
   ],
   jEUR: [
     'eip155:1/erc20:0x0f17bc9a994b87b5225cfb6a2cd4d667adb4f20b',
@@ -47,8 +49,8 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   ],
   jCHF: [
     'eip155:1/erc20:0x53dfea0a8cc2a2a2e425e1c174bc162999723ea0',
-    'eip155:137/erc20:0xbd1463f02f61676d53fd183c2b19282bff93d099',
     'eip155:100/erc20:0x2d5563da42b06fbbf9c67b7dc073cf6a7842239e',
+    'eip155:137/erc20:0xbd1463f02f61676d53fd183c2b19282bff93d099',
   ],
   jGBP: [
     'eip155:1/erc20:0x7409856cae628f5d578b285b45669b36e7005283',
@@ -56,7 +58,9 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   ],
   WBTC: [
     'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    'eip155:10/erc20:0x68f180fcce6836688e9084f035309e29bf0a2095',
     'eip155:100/erc20:0x8e5bbbb09ed1ebde8674cda39a0c169401db4252',
+    'eip155:42161/erc20:0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
   ],
   AVAX: [avalancheAssetId],
   EURS: [
@@ -70,8 +74,8 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   ],
   FRAX: [
     'eip155:1/erc20:0x853d955acef822db058eb8505911ed77f175b99e',
-    'eip155:43114/erc20:0xd24c2ad096400b6fbcd2ad8b24e7acbc21a1da64',
     'eip155:137/erc20:0x45c32fa6df82ead1e2ef74d17b76547eddfaff89',
+    'eip155:43114/erc20:0xd24c2ad096400b6fbcd2ad8b24e7acbc21a1da64',
   ],
   UST: ['eip155:1/erc20:0xa693b19d2931d498c5b318df961919bb4aee87a5'],
   EUROC: ['eip155:1/erc20:0x1abaea1f7c830bd89acc67ec4af516284b1bc33c'],

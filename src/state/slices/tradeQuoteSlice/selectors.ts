@@ -262,12 +262,12 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
     selectUserCurrencyToUsdRate,
     selectMarketDataUsd,
     (_state: ReduxState, step: number) => step,
-    (quote, userCurrencyToUsdRate, cryptoMarketDataUsd, step) =>
+    (quote, userCurrencyToUsdRate, marketDataUsd, step) =>
       quote && quote.steps[step]
         ? getHopTotalProtocolFeesFiatPrecision(
             quote.steps[step],
             userCurrencyToUsdRate,
-            cryptoMarketDataUsd,
+            marketDataUsd,
           )
         : undefined,
   )

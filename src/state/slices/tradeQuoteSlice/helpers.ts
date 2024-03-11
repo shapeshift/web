@@ -50,7 +50,7 @@ export const getHopTotalProtocolFeesFiatPrecision = (
   cryptoMarketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
 ): string => {
   return sumProtocolFeesToDenom({
-    cryptoMarketDataByAssetIdUsd,
+    marketDataByAssetIdUsd: cryptoMarketDataByAssetIdUsd,
     protocolFees: tradeQuoteStep.feeData.protocolFees,
     outputExponent: 0,
     outputAssetPriceUsd: userCurrencyToUsdRate,

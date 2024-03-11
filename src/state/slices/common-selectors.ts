@@ -144,14 +144,14 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
     selectAssets,
     selectPortfolioUserCurrencyBalances,
     selectMarketDataUsd,
-    (assets, portfolioUserCurrencyBalances, cryptoMarketDataUsd) => {
+    (assets, portfolioUserCurrencyBalances, marketDataUsd) => {
       const getAssetUserCurrencyBalance = (asset: Asset) =>
         bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
       // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
       // but we actually can't - this would rug the triple-sorting
       const getAssetMarketCap = (asset: Asset) =>
-        bnOrZero(cryptoMarketDataUsd[asset.assetId]?.marketCap).toNumber()
+        bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
       const getAssetName = (asset: Asset) => asset.name
 
       return orderBy(

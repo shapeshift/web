@@ -22,7 +22,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -50,7 +50,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
   const filteredDown = lpOpportunities.filter(

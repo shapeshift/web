@@ -13,7 +13,7 @@ import {
   WETH,
 } from 'lib/swapper/swappers/utils/test-data/assets'
 
-export const cryptoMarketDataByAssetIdUsd = {
+export const marketDataByAssetIdUsd = {
   [FOX_MAINNET.assetId]: { price: '0.04' },
   [FOX_GNOSIS.assetId]: { price: '0.04' },
   [ETH.assetId]: { price: '1300' },

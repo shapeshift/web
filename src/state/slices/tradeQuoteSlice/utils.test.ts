@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
 import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
 import { BTC, ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
-import { cryptoMarketDataByAssetIdUsd } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
+import { marketDataByAssetIdUsd } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
 import {
   subtractBasisPointAmount,
   sumProtocolFeesToDenom,
@@ -15,9 +15,9 @@ describe('sumProtocolFeesToDenom', () => {
     const protocolFees: Record<AssetId, ProtocolFee> = {}
 
     const result = sumProtocolFeesToDenom({
-      cryptoMarketDataByAssetIdUsd,
+      marketDataByAssetIdUsd,
       outputExponent: FOX_MAINNET.precision,
-      outputAssetPriceUsd: cryptoMarketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
+      outputAssetPriceUsd: marketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
       protocolFees,
     })
 
@@ -39,17 +39,17 @@ describe('sumProtocolFeesToDenom', () => {
     }
 
     const result = sumProtocolFeesToDenom({
-      cryptoMarketDataByAssetIdUsd,
+      marketDataByAssetIdUsd,
       outputExponent: FOX_MAINNET.precision,
-      outputAssetPriceUsd: cryptoMarketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
+      outputAssetPriceUsd: marketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
       protocolFees,
     })
 
-    const btcToFoxPriceRatio = bn(cryptoMarketDataByAssetIdUsd[BTC.assetId].price).div(
-      cryptoMarketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
+    const btcToFoxPriceRatio = bn(marketDataByAssetIdUsd[BTC.assetId].price).div(
+      marketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
     )
-    const ethToFoxPriceRatio = bn(cryptoMarketDataByAssetIdUsd[ETH.assetId].price).div(
-      cryptoMarketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
+    const ethToFoxPriceRatio = bn(marketDataByAssetIdUsd[ETH.assetId].price).div(
+      marketDataByAssetIdUsd[FOX_MAINNET.assetId].price,
     )
 
     expect(btcToFoxPriceRatio.gt(0)).toBe(true)
@@ -87,7 +87,7 @@ describe('sumProtocolFeesToDenom', () => {
     }
 
     const result = sumProtocolFeesToDenom({
-      cryptoMarketDataByAssetIdUsd,
+      marketDataByAssetIdUsd,
       outputExponent: 0,
       outputAssetPriceUsd: '1',
       protocolFees,
@@ -96,12 +96,12 @@ describe('sumProtocolFeesToDenom', () => {
     const btcAmountInUsd = baseUnitToHuman({
       value: '3000000',
       inputExponent: BTC.precision,
-    }).times(cryptoMarketDataByAssetIdUsd[BTC.assetId].price)
+    }).times(marketDataByAssetIdUsd[BTC.assetId].price)
 
     const ethAmountInUsd = baseUnitToHuman({
       value: '500000000000000000',
       inputExponent: ETH.precision,
-    }).times(cryptoMarketDataByAssetIdUsd[ETH.assetId].price)
+    }).times(marketDataByAssetIdUsd[ETH.assetId].price)
 
     const expectation = btcAmountInUsd.plus(ethAmountInUsd).toString()
 

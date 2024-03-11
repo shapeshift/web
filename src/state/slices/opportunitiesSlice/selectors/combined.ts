@@ -27,7 +27,7 @@ import type {
 import { DefiProvider, DefiType } from '../types'
 import { getOpportunityAccessor, getUnderlyingAssetIdsBalances } from '../utils'
 import { selectAssets } from './../../assetsSlice/selectors'
-import { selectCryptoMarketDataUserCurrency } from './../../marketDataSlice/selectors'
+import { selectMarketDataUserCurrency } from './../../marketDataSlice/selectors'
 import { selectAggregatedEarnUserLpOpportunities } from './lpSelectors'
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -70,7 +70,7 @@ const makeClaimableStakingRewardsAmountUserCurrency = ({
 export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
@@ -255,7 +255,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 export const selectClaimableRewards = createDeepEqualOutputSelector(
   selectUserStakingOpportunitiesWithMetadataByFilter,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   (userStakingOpportunitesWithMetadata, assets, marketData): string => {
     return userStakingOpportunitesWithMetadata
       .reduce<BN>((totalSum, stakingOpportunityWithMetadata) => {
@@ -291,7 +291,7 @@ export const selectOpportunityApiPending = (state: ReduxState) =>
 export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutputSelector(
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAggregatedEarnUserLpOpportunities,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   selectAssets,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,

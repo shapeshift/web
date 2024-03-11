@@ -28,7 +28,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -85,7 +85,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardAssetId}`)
 
   const lpMarketData = useAppSelector(state =>
-    selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, opportunity?.underlyingAssetId ?? ''),
   )
 
   // user info

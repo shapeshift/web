@@ -2,6 +2,7 @@ import {
   Button,
   CardBody,
   CardFooter,
+  CardHeader,
   Center,
   CircularProgress,
   CircularProgressLabel,
@@ -18,6 +19,7 @@ import { Fragment, useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
@@ -250,6 +252,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   return (
     <SlideTransition>
+      <CardHeader>
+        <WithBackButton onBack={handleBack}>
+          <Heading as='h5' textAlign='center'>
+            <Text translation='Confirm' />
+          </Heading>
+        </WithBackButton>
+      </CardHeader>
       {renderBody}
       <CardFooter flexDir='column' px={4}>
         {assetCards}

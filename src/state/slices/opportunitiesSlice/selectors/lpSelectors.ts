@@ -21,7 +21,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '../../common-selectors'
-import { selectSelectedCurrencyMarketDataSortedByMarketCap } from '../../marketDataSlice/selectors'
+import { selectCryptoMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType } from './../types'
 
@@ -35,18 +35,18 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpIdParamFromFilter,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataUserCurrency,
   (
     lpOpportunitiesById,
     lpId,
     lpAssetBalanceCryptoBaseUnit,
     assets,
-    marketData,
+    marketDataUserCurrency,
   ): LpEarnOpportunityType | undefined => {
     if (!lpId) return
 
     const lpAsset = assets[lpId as AssetId]
-    const marketDataPrice = marketData[lpId as AssetId]?.price
+    const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
     const opportunityMetadata = lpOpportunitiesById[lpId]
 
     if (!(opportunityMetadata && lpAsset)) return
@@ -110,17 +110,17 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
   selectLpIdParamFromFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataUserCurrency,
   (
     lpOpportunitiesById,
     lpId,
     aggregatedLpAssetBalance,
     assets,
-    marketData,
+    marketDataUserCurrency,
   ): LpEarnOpportunityType | undefined => {
     if (!lpId || !aggregatedLpAssetBalance) return
 
-    const marketDataPrice = marketData[lpId as AssetId]?.price
+    const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
     const opportunityMetadata = lpOpportunitiesById[lpId]
 
     if (!opportunityMetadata) return
@@ -192,13 +192,13 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectLpOpportunitiesById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataUserCurrency,
   (
     lpId,
     lpOpportunitiesById,
     lpAssetBalancePrecision,
     assets,
-    marketData,
+    marketDataUserCurrency,
   ): AssetWithBalance[] | undefined => {
     if (!lpId) return
     const opportunityMetadata = lpOpportunitiesById[lpId]
@@ -215,7 +215,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
       underlyingAssetRatiosBaseUnit: opportunityMetadata.underlyingAssetRatiosBaseUnit,
       assets,
       assetId: lpId,
-      marketData,
+      marketDataUserCurrency,
     })
     const underlyingAssetsIcons = opportunityMetadata.underlyingAssetIds
       .map(assetId => assets[assetId]?.icon)
@@ -241,12 +241,12 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
   selectLpOpportunitiesById,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataUserCurrency,
   (
     lpOpportunitiesById,
     portfolioAssetBalancesById,
     assets,
-    marketData,
+    marketDataUserCurrency,
   ): LpEarnOpportunityType[] => {
     const opportunities: LpEarnOpportunityType[] = []
 
@@ -259,7 +259,7 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
 
       if (!lpAsset) continue
 
-      const marketDataPrice = marketData[lpId as AssetId]?.price
+      const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
       const aggregatedLpAssetBalance = portfolioAssetBalancesById[lpId]
 
       /* Get amounts of each underlying token (in base units, eg. wei) */
@@ -326,7 +326,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (
@@ -334,7 +334,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
     portfolioAccountBalanceById,
     portfolioAssetBalancesById,
     assets,
-    marketData,
+    marketDataUserCurrency,
     assetId,
     accountId,
   ): LpEarnOpportunityType[] => {
@@ -342,7 +342,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
     const opportunities: LpEarnOpportunityType[] = Object.entries(lpOpportunitiesById).reduce(
       (opportunities: LpEarnOpportunityType[], [lpId, opportunityMetadata]) => {
         if (!opportunityMetadata) return opportunities
-        const marketDataPrice = marketData[lpId as AssetId]?.price
+        const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
         let opportunityBalance = bnOrZero(portfolioAssetBalancesById[lpId]).toString()
         if (accountId) {
           opportunityBalance = bnOrZero(portfolioAccountBalanceById[accountId][lpId]).toString()

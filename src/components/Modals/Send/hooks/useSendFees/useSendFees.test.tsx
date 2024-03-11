@@ -21,7 +21,7 @@ vi.mock('state/slices/selectors', () => ({
   ...vi.importActual('state/slices/selectors'),
   selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
   selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
-  selectMarketDataById: () => ({ price: '3500' }),
+  selectMarketDataByAssetIdUserCurrency: () => ({ price: '3500' }),
   selectPortfolioAssetIds: () => [],
 }))
 

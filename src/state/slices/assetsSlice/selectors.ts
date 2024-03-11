@@ -9,7 +9,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
 
-import { selectCryptoMarketDataIds } from '../marketDataSlice/selectors'
+import { selectCryptoMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/selectors'
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
@@ -64,8 +64,8 @@ export const selectAssets = createDeepEqualOutputSelector(
 export const selectAssetIds = (state: ReduxState) => state.assets.ids
 export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
 
-export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
-  selectCryptoMarketDataIds,
+export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
+  selectCryptoMarketDataIdsSortedByMarketCapUsd,
   selectAssets,
   (marketDataAssetIds, assets): Asset[] => {
     const sortedAssets = marketDataAssetIds.reduce<Asset[]>((acc, assetId) => {
@@ -79,7 +79,7 @@ export const selectAssetsByMarketCap = createDeepEqualOutputSelector(
 )
 
 export const selectChainIdsByMarketCap = createDeepEqualOutputSelector(
-  selectAssetsByMarketCap,
+  selectAssetsSortedByMarketCap,
   (sortedAssets: Asset[]): ChainId[] =>
     sortedAssets.reduce<ChainId[]>((acc, { assetId }) => {
       const feeAssetId = assetIdToFeeAssetId(assetId)
@@ -106,7 +106,7 @@ export const selectFeeAssetById = createCachedSelector(
 ) => ReturnType<typeof getFeeAssetByAssetId>
 
 export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
-  selectAssetsByMarketCap,
+  selectAssetsSortedByMarketCap,
   selectSearchQueryFromFilter,
   (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
     if (!searchQuery) return sortedAssets

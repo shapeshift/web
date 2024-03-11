@@ -5,7 +5,7 @@ import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import type { ReduxState } from 'state/reducer'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 
 import type {
@@ -92,7 +92,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
 
         const asset = selectAssetById(state, assetId)
         if (!asset) throw new Error(`No asset found for AssetId: ${assetId}`)
-        const marketData = selectMarketDataById(state, assetId)
+        const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
 
         const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
 

@@ -4,7 +4,7 @@ import type { AssetWithBalance } from 'features/defi/components/Overview/Overvie
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const UnderlyingAsset: React.FC<AssetWithBalance> = ({
@@ -13,7 +13,7 @@ export const UnderlyingAsset: React.FC<AssetWithBalance> = ({
   icon,
 }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const fiatAmount = useMemo(() => {
     return bnOrZero(cryptoBalancePrecision)

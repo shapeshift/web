@@ -97,7 +97,9 @@ export const createMtPelerinUrl = ({
   params.set('net', network)
   // List of authorized networks
   params.set('nets', network)
+  // Integration authentication
   params.set('rfr', getConfig().REACT_APP_MTPELERIN_REFERRAL_CODE)
+  params.set('_ctkn', getConfig().REACT_APP_MTPELERIN_INTEGRATION_KEY)
   //@TODO: Figure out how to sign a message using the wallet for us to be able to do this.
   //https://developers.mtpelerin.com/integration-guides/options
   // params.set('addr', address)

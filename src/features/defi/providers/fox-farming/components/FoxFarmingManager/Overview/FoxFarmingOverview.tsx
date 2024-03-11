@@ -28,9 +28,9 @@ import {
 import {
   selectAssetById,
   selectAssets,
+  selectCryptoMarketDataUserCurrency,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
@@ -54,7 +54,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAsset = assets[foxEthLpAssetId]
   if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
 
-  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
+  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, rewardId } = query
 
@@ -114,10 +114,11 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
       bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
       stakingAsset.precision,
     )
-    const foxEthLpFiatPrice = marketData?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
+    const foxEthLpFiatPrice =
+      marketDataUserCurrency?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
   }, [
-    marketData,
+    marketDataUserCurrency,
     opportunityData?.stakedAmountCryptoBaseUnit,
     opportunityData?.underlyingAssetId,
     stakingAsset,

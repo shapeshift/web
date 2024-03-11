@@ -21,14 +21,14 @@ import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
-import { useTimeframeChange } from 'hooks/useTimeframeChange/useTimeframeChange'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectChartTimeframe,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AccountTable } from './components/AccountList/AccountTable'
 import { PortfolioBreakdown } from './PortfolioBreakdown'
@@ -51,7 +51,16 @@ const cardBodyPx = { base: 2, md: 2 }
 export const Portfolio = memo(() => {
   const userChartTimeframe = useAppSelector(selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
-  const handleTimeframeChange = useTimeframeChange(setTimeframe)
+  const dispatch = useAppDispatch()
+  const handleTimeframeChange = useCallback(
+    (newTimeframe: HistoryTimeframe) => {
+      // Usually used to set the component state to the new timeframe
+      setTimeframe(newTimeframe)
+      // Save the new timeframe in the user preferences
+      dispatch(preferences.actions.setChartTimeframe({ timeframe: newTimeframe }))
+    },
+    [dispatch],
+  )
 
   const [percentChange, setPercentChange] = useState(0)
 

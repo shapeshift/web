@@ -5,7 +5,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { bn } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type PairRatesProps = {
@@ -47,8 +47,12 @@ export const PairRates: React.FC<PairRatesProps> = ({ assetIds }) => {
   const history = useHistory()
   const asset0 = useAppSelector(state => selectAssetById(state, assetIds[0]))
   const asset1 = useAppSelector(state => selectAssetById(state, assetIds[1]))
-  const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[0]))
-  const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetIds[1]))
+  const asset0MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetIds[0]),
+  )
+  const asset1MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetIds[1]),
+  )
 
   const asset0PricePerAsset1 = bn(asset1MarketData.price).div(asset0MarketData.price).toString()
   const asset1PricePerAsset0 = bn(asset0MarketData.price).div(asset1MarketData.price).toString()

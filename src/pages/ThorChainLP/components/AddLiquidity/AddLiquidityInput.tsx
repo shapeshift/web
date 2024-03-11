@@ -82,7 +82,7 @@ import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -273,7 +273,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   useEffect(() => _poolAsset && setPoolAsset(_poolAsset), [_poolAsset])
 
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+  )
   const poolAssetAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
   )
@@ -303,7 +305,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const poolAssetFeeAssetMarktData = useAppSelector(state =>
-    selectMarketDataById(state, poolAssetFeeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
   )
   const poolAssetFeeAssetBalanceFilter = useMemo(() => {
     return { assetId: poolAssetFeeAsset?.assetId, accountId: poolAssetAccountId }
@@ -313,7 +315,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
@@ -901,7 +905,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       ),
     )
 
-    if (!votingPower) return
     if (!slippageFiatUserCurrency) return
     if (!activeOpportunityId) return
     if (!poolAssetInboundAddress) return

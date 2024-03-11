@@ -47,34 +47,51 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   const midpointUsd = bn(FEE_CURVE_MIDPOINT_USD)
   const feeCurveSteepness = bn(FEE_CURVE_STEEPNESS_K)
 
-  // failure to fetch fox discount results in free trades.
   // trades below the fee threshold are free.
-  const isFree = foxHeld === undefined || tradeAmountUsd.lt(noFeeThresholdUsd)
+  const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
+  // failure to fetch fox discount results in free trades.
+  const isFallbackFees = foxHeld === undefined
 
   // the fox discount before any other logic is applied
-  const foxBaseDiscountPercent = isFree
-    ? bn(100)
-    : BigNumber.minimum(bn(100), foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)))
+  const foxBaseDiscountPercent = (() => {
+    if (isFree) return bn(100)
+    // No discount if we cannot fetch FOX holdings
+    if (isFallbackFees) return bn(0)
+
+    return BigNumber.minimum(
+      bn(100),
+      foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
+    )
+  })()
 
   // the fee bps before the fox discount is applied, as a floating point number
-  const feeBpsBeforeDiscountFloat = minFeeBps.plus(
-    maxFeeBps
-      .minus(minFeeBps)
-      .div(
-        bn(1).plus(
-          bn(
-            Math.exp(
-              bn(1).div(feeCurveSteepness).times(tradeAmountUsd.minus(midpointUsd)).toNumber(),
+  const feeBpsBeforeDiscountFloat =
+    isFallbackFees && !isFree
+      ? bn(FEE_CURVE_MAX_FEE_BPS)
+      : minFeeBps.plus(
+          maxFeeBps
+            .minus(minFeeBps)
+            .div(
+              bn(1).plus(
+                bn(
+                  Math.exp(
+                    bn(1)
+                      .div(feeCurveSteepness)
+                      .times(tradeAmountUsd.minus(midpointUsd))
+                      .toNumber(),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
-  )
+        )
 
-  const feeBpsFloat = BigNumber.maximum(
-    feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),
-    bn(0),
-  )
+  const feeBpsFloat =
+    isFallbackFees && !isFree
+      ? bn(FEE_CURVE_MAX_FEE_BPS)
+      : BigNumber.maximum(
+          feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),
+          bn(0),
+        )
 
   const feeBpsBeforeDiscount = feeBpsBeforeDiscountFloat.decimalPlaces(0)
   const feeBpsAfterDiscount = feeBpsFloat.decimalPlaces(0)

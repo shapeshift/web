@@ -19,31 +19,31 @@ export const selectMarketDataDidLoad = (state: ReduxState) =>
     query => query?.endpointName === 'findAll' && query?.status === QueryStatus.fulfilled,
   )
 
-// TODO(woodenfurniture): rename this to clarify that prices are in USD not fiat
-export const selectCryptoMarketData = ((state: ReduxState) => state.marketData.crypto.byId) as (
-  state: ReduxState,
-) => MarketDataById<AssetId>
-export const selectCryptoMarketDataIds = (state: ReduxState) => state.marketData.crypto.ids
+export const selectCryptoMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
+  state.marketData.crypto.ids
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
-// TODO(woodenfurniture): rename this to clarify that prices are in fiat not USD
-export const selectSelectedCurrencyMarketDataSortedByMarketCap = createDeepEqualOutputSelector(
-  selectCryptoMarketData,
-  selectCryptoMarketDataIds,
+export const selectCryptoMarketDataUsd = ((state: ReduxState) => state.marketData.crypto.byId) as (
+  state: ReduxState,
+) => MarketDataById<AssetId>
+
+export const selectCryptoMarketDataUserCurrency = createDeepEqualOutputSelector(
+  selectCryptoMarketDataUsd,
+  selectCryptoMarketDataIdsSortedByMarketCapUsd,
   selectFiatMarketData,
   selectSelectedCurrency,
   (
-    cryptoMarketData,
-    marketDataAssetIds,
+    cryptoMarketDataUsd,
+    marketDataAssetIdsSortedByMarketCapUsd,
     fiatMarketData,
     selectedCurrency,
   ): MarketDataById<AssetId> => {
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
     // No currency conversion needed
     return selectedCurrency === 'USD'
-      ? cryptoMarketData
-      : marketDataAssetIds.reduce<MarketDataById<AssetId>>((acc, assetId) => {
-          const assetMarketData = cryptoMarketData[assetId]
+      ? cryptoMarketDataUsd
+      : marketDataAssetIdsSortedByMarketCapUsd.reduce<MarketDataById<AssetId>>((acc, assetId) => {
+          const assetMarketData = cryptoMarketDataUsd[assetId]
           // Market data massaged to the selected currency
           const selectedCurrencyAssetMarketData = Object.assign({}, assetMarketData ?? {}, {
             price: bnOrZero(assetMarketData?.price)
@@ -74,8 +74,8 @@ export const selectUserCurrencyToUsdRate = createSelector(
 
 const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 
-export const selectMarketDataById = createCachedSelector(
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+export const selectMarketDataByAssetIdUserCurrency = createCachedSelector(
+  selectCryptoMarketDataUserCurrency,
   selectAssetId,
   (cryptoMarketData, assetId): MarketData => {
     return cryptoMarketData[assetId] ?? defaultMarketData
@@ -83,7 +83,7 @@ export const selectMarketDataById = createCachedSelector(
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectMarketDataByFilter = createCachedSelector(
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
   (cryptoMarketData, assetId): MarketData => {
     return cryptoMarketData[assetId ?? ''] ?? defaultMarketData
@@ -139,19 +139,19 @@ export const selectFiatPriceHistoryTimeframe = createSelector(
 )
 
 export const selectUsdRateByAssetId = createCachedSelector(
-  selectCryptoMarketData,
+  selectCryptoMarketDataUsd,
   selectAssetId,
-  (cryptoMarketData, assetId): string | undefined => {
-    return cryptoMarketData[assetId]?.price
+  (cryptoMarketDataUsd, assetId): string | undefined => {
+    return cryptoMarketDataUsd[assetId]?.price
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectUserCurrencyRateByAssetId = createCachedSelector(
-  selectCryptoMarketData,
+  selectCryptoMarketDataUsd,
   selectUserCurrencyToUsdRate,
   selectAssetId,
-  (cryptoMarketData, userCurrencyToUsdRate, assetId): string => {
-    return bnOrZero(cryptoMarketData[assetId]?.price)
+  (cryptoMarketDataUsd, userCurrencyToUsdRate, assetId): string => {
+    return bnOrZero(cryptoMarketDataUsd[assetId]?.price)
       .times(userCurrencyToUsdRate)
       .toString()
   },

@@ -34,7 +34,7 @@ import { RawText, Text } from 'components/Text'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { calculateEarnings } from 'lib/utils/thorchain/lp'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -164,7 +164,9 @@ export const Position = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
   const { data: earnings, isLoading: isEarningsLoading } = useQuery({
     ...reactQueries.thorchainLp.earnings(position?.dateFirstAdded),

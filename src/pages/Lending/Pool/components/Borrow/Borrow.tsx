@@ -6,7 +6,7 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { BorrowRoutePaths } from './types'
@@ -60,7 +60,7 @@ export const Borrow = ({
   const collateralAssetId = useRouteAssetId()
 
   const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
   )
   const handleDepositAmountChange = useCallback(
     (value: string, isFiat?: boolean) => {

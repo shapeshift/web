@@ -27,7 +27,7 @@ import {
   selectAssetById,
   selectAssets,
   selectBIP44ParamsByAccountId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,7 +54,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))
   const assetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, opportunity.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, opportunity.assetId ?? ''),
   )
   const feeAssetId = toAssetId({
     chainId,
@@ -62,7 +62,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetReference,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const claimAmount = bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]).toString()
   const claimFiatAmount = useMemo(

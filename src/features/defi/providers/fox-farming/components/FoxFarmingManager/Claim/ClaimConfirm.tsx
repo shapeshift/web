@@ -42,7 +42,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -93,13 +93,17 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
   if (!feeAssetId) throw new Error(`Cannot get fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const claimFiatAmount = useMemo(
     () => bnOrZero(amount).times(assetMarketData.price).toString(),

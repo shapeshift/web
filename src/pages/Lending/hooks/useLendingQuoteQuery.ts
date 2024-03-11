@@ -22,7 +22,7 @@ import type {
 } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -192,11 +192,13 @@ export const useLendingQuoteOpenQuery = ({
   )
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
   const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
   )
 
   const borrowAsset = useAppSelector(state => selectAssetById(state, _borrowAssetId))
-  const borrowAssetMarketData = useAppSelector(state => selectMarketDataById(state, _borrowAssetId))
+  const borrowAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, _borrowAssetId),
+  )
 
   const getBorrowAssetReceiveAddress = useCallback(async () => {
     if (!wallet || !_borrowAccountId || !destinationAccountMetadata || !borrowAsset) return

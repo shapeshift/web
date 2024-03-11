@@ -16,7 +16,7 @@ import {
   selectAssetById,
   selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -55,7 +55,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   const userChartTimeframe = useAppSelector(selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const { price } = marketData || {}
   const assetPrice = toFiat(price) ?? 0
 

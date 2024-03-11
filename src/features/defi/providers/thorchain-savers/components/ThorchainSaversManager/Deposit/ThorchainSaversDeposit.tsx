@@ -28,7 +28,7 @@ import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
@@ -67,7 +67,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     assetReference,
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   // user info
   const loading = useSelector(selectPortfolioLoading)

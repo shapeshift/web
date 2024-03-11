@@ -21,7 +21,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 interface ClaimStatusState {
@@ -91,7 +91,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const dispatch = useAppDispatch()
   // TODO: maybeRefetchOpportunities heuristics

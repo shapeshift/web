@@ -23,7 +23,7 @@ import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
   selectAssetById,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
@@ -64,7 +64,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.AccountId,
   })
 
-  const price = bnOrZero(useAppSelector(state => selectMarketDataById(state, assetId)).price)
+  const price = bnOrZero(
+    useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId)).price,
+  )
 
   const chainAdapterManager = getChainAdapterManager()
   const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()

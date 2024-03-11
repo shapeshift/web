@@ -20,7 +20,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -61,7 +61,7 @@ export const Withdraw: React.FC<
 
   const withdrawTypeValue = watch(Field.WithdrawType)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])

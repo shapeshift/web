@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
@@ -31,7 +31,7 @@ const display = { base: 'none', md: 'block' }
 const contentPaddingY = { base: 0, md: 8 }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
 
   const assetHeader = useMemo(

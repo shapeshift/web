@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import {
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -29,7 +29,9 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
     () => ['thorchainLendingPosition', { accountId, assetId }],
     [accountId, assetId],
   )
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
 
   const lendingPositionData = useQuery({
     // This is on purpose. We want lending position data to be cached forever

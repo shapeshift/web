@@ -35,7 +35,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -69,14 +69,18 @@ export const ClaimConfirm = ({
 
   // Asset Info
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
+  )
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace: 'slip44',
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)

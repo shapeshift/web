@@ -31,7 +31,7 @@ import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectAssets,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -80,7 +80,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   // user info
   const { state: walletState } = useWallet()

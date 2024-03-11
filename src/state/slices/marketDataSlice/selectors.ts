@@ -19,7 +19,7 @@ export const selectMarketDataDidLoad = (state: ReduxState) =>
     query => query?.endpointName === 'findAll' && query?.status === QueryStatus.fulfilled,
   )
 
-export const selectCryptoMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
+export const selectMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
   state.marketData.crypto.ids
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
@@ -29,7 +29,7 @@ export const selectMarketDataUsd = ((state: ReduxState) => state.marketData.cryp
 
 export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
   selectMarketDataUsd,
-  selectCryptoMarketDataIdsSortedByMarketCapUsd,
+  selectMarketDataIdsSortedByMarketCapUsd,
   selectFiatMarketData,
   selectSelectedCurrency,
   (

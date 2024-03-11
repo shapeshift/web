@@ -1459,7 +1459,7 @@
       "errors": {
         "unknown": "An unexpected error occurred communicating with XDEFI",
         "connectFailure": "Unable to connect XDEFI wallet",
-        "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed and switched on? Make sure to prioritize XDEFI in the settings and press pair again."
+        "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed and switched on? Prioritize XDEFI in settings and press pair again."
       },
       "connect": {
         "header": "Pair XDEFI",

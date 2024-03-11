@@ -14,7 +14,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { Fragment, useCallback, useMemo, useRef } from 'react'
+import { Fragment, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
@@ -147,14 +147,6 @@ export const ReactTable = <T extends {}>({
     visibleColumns.length,
   ])
 
-  const handlePrevious = useCallback(() => {
-    previousPage()
-  }, [previousPage])
-
-  const handleNext = useCallback(() => {
-    nextPage()
-  }, [nextPage])
-
   return (
     <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
       {displayHeaders && (
@@ -208,7 +200,7 @@ export const ReactTable = <T extends {}>({
                   icon={arrowBackIcon}
                   size='sm'
                   isDisabled={!canPreviousPage}
-                  onClick={handlePrevious}
+                  onClick={previousPage}
                   variant='ghost'
                   aria-label={translate('common.table.prevPage')}
                 />
@@ -217,7 +209,7 @@ export const ReactTable = <T extends {}>({
                   icon={arrowForwardIcon}
                   size='sm'
                   isDisabled={!canNextPage}
-                  onClick={handleNext}
+                  onClick={nextPage}
                   variant='ghost'
                   aria-label={translate('common.table.nextPage')}
                 />

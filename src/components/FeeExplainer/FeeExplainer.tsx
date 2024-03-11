@@ -248,8 +248,8 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) 
 }
 
 export type FeeSlidersProps = {
-  tradeSize: number
-  setTradeSize: (val: number) => void
+  tradeSizeUSD: number
+  setTradeSizeUSD: (val: number) => void
   foxHolding: number
   setFoxHolding: (val: number) => void
   currentFoxHoldings: string
@@ -258,24 +258,20 @@ export type FeeSlidersProps = {
 }
 
 type FeeOutputProps = {
-  tradeSize: number
+  tradeSizeUSD: number
   foxHolding: number
   feeModel: ParameterModel
 }
 
-export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, feeModel }) => {
+export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, feeModel }) => {
   const { feeUsd, feeBps, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
     calculateFees({
-      tradeAmountUsd: bn(tradeSize),
+      tradeAmountUsd: bn(tradeSizeUSD),
       foxHeld: bn(foxHolding),
       feeModel,
     })
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const feeUserCurrency = useMemo(() => {
-    return feeUsd.times(userCurrencyToUsdRate)
-  }, [feeUsd, userCurrencyToUsdRate])
 
   const feeUserCurrencyBeforeDiscount = useMemo(() => {
     return feeUsdBeforeDiscount.times(userCurrencyToUsdRate)
@@ -293,7 +289,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, fee
     [feeUserCurrencyBeforeDiscount, feeBpsBeforeDiscount],
   )
 
-  const isFree = useMemo(() => bnOrZero(feeUserCurrency).lte(0), [feeUserCurrency])
+  const isFree = useMemo(() => bnOrZero(feeUsd).lte(0), [feeUsd])
 
   return (
     <Flex fontWeight='medium' pb={0}>
@@ -306,8 +302,9 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSize, foxHolding, fee
             ) : (
               <Flex gap={2} align='center'>
                 <Amount.Fiat
+                  fiatType='USD'
                   fontSize='3xl'
-                  value={feeUserCurrency.toString()}
+                  value={feeUsd.toString()}
                   color={'green.500'}
                 />
                 <Amount
@@ -353,9 +350,10 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
 
-  const [tradeSize, setTradeSize] = useState(
+  const [tradeSizeUSD, setTradeSizeUSD] = useState(
     props.inputAmountUsd ? Number.parseFloat(props.inputAmountUsd) : FEE_CURVE_NO_FEE_THRESHOLD_USD,
   )
+
   const [foxHolding, setFoxHolding] = useState(bnOrZero(votingPower).toNumber())
   const translate = useTranslate()
 
@@ -368,8 +366,8 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
           </Heading>
           <Text color='text.subtle' translation='foxDiscounts.simulateBody' />
           <FeeSliders
-            tradeSize={tradeSize}
-            setTradeSize={setTradeSize}
+            tradeSizeUSD={tradeSizeUSD}
+            setTradeSizeUSD={setTradeSizeUSD}
             foxHolding={foxHolding}
             setFoxHolding={setFoxHolding}
             currentFoxHoldings={votingPower ?? '0'}
@@ -379,8 +377,12 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
       </Card>
       <Card borderTopRadius={0} borderTopWidth={1} borderColor='border.base' {...props}>
         <CardBody p={feeExplainerCardBody}>
-          <FeeOutput tradeSize={tradeSize} foxHolding={foxHolding} feeModel={props.feeModel} />
-          <FeeChart tradeSize={tradeSize} foxHolding={foxHolding} feeModel={props.feeModel} />
+          <FeeOutput
+            tradeSizeUSD={tradeSizeUSD}
+            foxHolding={foxHolding}
+            feeModel={props.feeModel}
+          />
+          <FeeChart tradeSize={tradeSizeUSD} foxHolding={foxHolding} feeModel={props.feeModel} />
         </CardBody>
       </Card>
     </Stack>

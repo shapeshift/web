@@ -16,7 +16,7 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { FeeBreakdown } from './FeeBreakdown'
 
 export type FeeModalProps = {
-  affiliateFeeAmountUserCurrency: string
+  affiliateFeeAmountUsd: string
   inputAmountUsd: string | undefined
   isOpen: boolean
   onClose: () => void
@@ -24,7 +24,7 @@ export type FeeModalProps = {
 }
 
 export const FeeModal = ({
-  affiliateFeeAmountUserCurrency,
+  affiliateFeeAmountUsd,
   inputAmountUsd,
   isOpen,
   onClose: handleClose,
@@ -46,7 +46,7 @@ export const FeeModal = ({
             <TabPanel p={0}>
               <FeeBreakdown
                 feeModel={feeModel}
-                affiliateFeeAmountUserCurrency={affiliateFeeAmountUserCurrency}
+                affiliateFeeAmountUsd={affiliateFeeAmountUsd}
                 inputAmountUsd={inputAmountUsd}
               />
             </TabPanel>

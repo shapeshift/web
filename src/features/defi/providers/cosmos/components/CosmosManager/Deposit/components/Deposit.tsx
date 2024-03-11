@@ -25,7 +25,7 @@ import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
@@ -66,7 +66,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const apy = useMemo(() => state?.apy ?? '', [state])
 

@@ -19,8 +19,8 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
+  selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
-  selectMarketDataById,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
 import {
@@ -83,7 +83,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
     const buyAssetMarketData = useAppSelector(state =>
-      selectMarketDataById(state, buyAsset.assetId ?? ''),
+      selectMarketDataByAssetIdUserCurrency(state, buyAsset.assetId ?? ''),
     )
 
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)

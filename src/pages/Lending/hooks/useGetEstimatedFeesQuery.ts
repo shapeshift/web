@@ -5,7 +5,7 @@ import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 // For use outside of react with queryClient.fetchQuery()
@@ -28,7 +28,7 @@ export const useGetEstimatedFeesQuery = ({
 }: EstimateFeesInput & { enabled: boolean; disableRefetch?: boolean }) => {
   const asset = useAppSelector(state => selectAssetById(state, estimateFeesInput.assetId))
   const assetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, estimateFeesInput.assetId),
+    selectMarketDataByAssetIdUserCurrency(state, estimateFeesInput.assetId),
   )
 
   const estimatedFeesQueryKey: EstimatedFeesQueryKey = useMemo(

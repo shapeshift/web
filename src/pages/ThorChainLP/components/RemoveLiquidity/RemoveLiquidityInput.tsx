@@ -66,7 +66,7 @@ import {
   selectAccountIdsByAssetId,
   selectAssetById,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -150,14 +150,18 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const poolAssetFeeAssetMarktData = useAppSelector(state =>
-    selectMarketDataById(state, poolAssetFeeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
   const { data: inboundAddressesData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),

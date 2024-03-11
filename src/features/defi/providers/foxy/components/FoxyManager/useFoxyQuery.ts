@@ -6,7 +6,7 @@ import type {
 import { useMemo } from 'react'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectStakingOpportunityByFilter } from 'state/slices/opportunitiesSlice/selectors'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
@@ -38,7 +38,9 @@ export const useFoxyQuery = () => {
     assetReference: ASSET_REFERENCE.Ethereum,
   })
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   if (!stakingAsset) throw new Error(`Asset not found for AssetId ${stakingAssetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)

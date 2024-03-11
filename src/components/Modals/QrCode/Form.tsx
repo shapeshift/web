@@ -13,7 +13,7 @@ import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -103,7 +103,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           methods.setValue(SendFormFields.Input, address)
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           if (maybeUrlResult.amountCryptoPrecision) {
-            const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
+            const marketData = selectMarketDataByAssetIdUserCurrency(
+              store.getState(),
+              maybeUrlResult.assetId ?? '',
+            )
             methods.setValue(
               SendFormFields.AmountCryptoPrecision,
               maybeUrlResult.amountCryptoPrecision,

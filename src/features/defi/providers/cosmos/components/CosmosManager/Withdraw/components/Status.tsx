@@ -24,7 +24,7 @@ import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -59,7 +59,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   })
   const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const underlyingAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, underlyingAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, underlyingAssetId),
   )
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 

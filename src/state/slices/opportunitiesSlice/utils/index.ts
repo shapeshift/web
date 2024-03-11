@@ -70,7 +70,7 @@ type GetUnderlyingAssetIdsBalancesArgs = {
   assetId: AssetId
   cryptoAmountBaseUnit: string
   assets: Partial<Record<AssetId, Asset>>
-  marketData: Partial<Record<AssetId, MarketData>>
+  marketDataUserCurrency: Partial<Record<AssetId, MarketData>>
 } & Pick<OpportunityMetadataBase, 'underlyingAssetRatiosBaseUnit' | 'underlyingAssetIds'>
 
 export type UnderlyingAssetIdsBalances = { fiatAmount: string; cryptoBalancePrecision: string }
@@ -86,13 +86,13 @@ export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
   cryptoAmountBaseUnit,
   assets,
   assetId,
-  marketData,
+  marketDataUserCurrency,
 }) => {
   return Object.values(underlyingAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
     (acc, underlyingAssetId, index) => {
       const underlyingAsset = assets[underlyingAssetId]
       const asset = assets[assetId ?? '']
-      const marketDataPrice = marketData[underlyingAssetId]?.price
+      const marketDataPrice = marketDataUserCurrency[underlyingAssetId]?.price
 
       if (!(underlyingAsset && asset)) {
         acc[underlyingAssetId] = {
@@ -118,7 +118,7 @@ export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
 }
 type GetRewardBalancesArgs = {
   assets: Partial<Record<AssetId, Asset>>
-  marketData: Partial<Record<AssetId, MarketData>>
+  marketDataUserCurrency: Partial<Record<AssetId, MarketData>>
 } & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsCryptoBaseUnit'>
 
 type GetRewardBalances = (args: GetRewardBalancesArgs) => GetUnderlyingAssetIdsBalancesReturn
@@ -126,14 +126,14 @@ export const getRewardBalances: GetRewardBalances = ({
   rewardsCryptoBaseUnit,
   rewardAssetIds,
   assets,
-  marketData,
+  marketDataUserCurrency,
 }) => {
   if (!rewardAssetIds) return {}
   return Array.from(rewardAssetIds).reduce<GetUnderlyingAssetIdsBalancesReturn>(
     (acc, assetId, index) => {
       const rewardAsset = assets[assetId]
       if (!rewardAsset) return acc
-      const marketDataPrice = bnOrZero(marketData[assetId]?.price)
+      const marketDataPrice = bnOrZero(marketDataUserCurrency[assetId]?.price)
       const cryptoBalancePrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index])
         .div(bn(10).pow(rewardAsset?.precision))
         .toString()

@@ -12,7 +12,7 @@ import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
-import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export type EstimatedFeesQueryKey = [
@@ -82,7 +82,9 @@ export const useQuoteEstimatedFeesQuery = ({
     [_repaymentAmountCryptoPrecision, confirmedQuote],
   )
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
-  const feeAssetMarketData = useAppSelector(state => selectMarketDataById(state, collateralAssetId))
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
+  )
   const estimateFeesArgs = useMemo(() => {
     const supportedEvmChainIds = getSupportedEvmChainIds()
     const amountCryptoPrecision =

@@ -55,7 +55,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectOpportunitiesApiQueriesByFilter,
   selectStakingOpportunityByFilter,
   selectTxsByFilter,
@@ -110,7 +110,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     })()
   }, [asset, assetId])
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace, assetReference }),

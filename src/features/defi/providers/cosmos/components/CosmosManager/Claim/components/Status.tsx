@@ -19,7 +19,11 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { selectAssetById, selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectAssets,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TxStatus } from '../ClaimCommon'
@@ -57,7 +61,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId)) // TODO: diff denom for rewards
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 

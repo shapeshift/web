@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { makeAmountOrDefault } from '../utils'
@@ -24,7 +24,9 @@ export const ApprovalAmount = ({
   const translate = useTranslate()
 
   const approvedAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const approvedAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const approvedAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const amountOrDefault = useMemo(
     () => makeAmountOrDefault(value, approvedAssetMarketData, approvedAsset, parser),
     [parser, approvedAsset, approvedAssetMarketData, value],

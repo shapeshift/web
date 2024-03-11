@@ -23,7 +23,7 @@ import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -43,7 +43,9 @@ export const Status = () => {
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
   const validatorId = toValidatorId({ chainId, account: contractAddress })

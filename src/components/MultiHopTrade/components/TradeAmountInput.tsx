@@ -85,6 +85,7 @@ export type TradeAmountInputProps = {
   hideAmounts?: boolean
   layout?: 'inline' | 'stacked'
   isAccountSelectionDisabled?: boolean
+  isAccountSelectionHidden?: boolean
   isInputtingFiatSellAmount?: boolean
   handleIsInputtingFiatSellAmountChange?: (isInputtingFiatSellAmount: boolean) => void
 } & PropsWithChildren
@@ -102,6 +103,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     onPercentOptionClick,
     onAccountIdChange,
     isAccountSelectionDisabled,
+    isAccountSelectionHidden = false,
     cryptoAmount,
     isReadOnly,
     isSendMaxDisabled,
@@ -213,7 +215,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               </FormLabel>
             </Flex>
           )}
-          {balance && assetId && label && (
+          {balance && assetId && label && !isAccountSelectionHidden && (
             <AccountDropdown
               defaultAccountId={accountId}
               assetId={assetId}

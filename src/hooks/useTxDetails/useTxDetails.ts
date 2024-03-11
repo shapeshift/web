@@ -9,8 +9,8 @@ import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
-  selectMarketDataUserCurrency,
   selectFeeAssetByChainId,
+  selectMarketDataUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'

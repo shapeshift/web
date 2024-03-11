@@ -24,9 +24,9 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataUserCurrency,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

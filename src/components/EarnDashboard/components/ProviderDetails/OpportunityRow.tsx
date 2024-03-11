@@ -16,11 +16,7 @@ import {
   getUnderlyingAssetIdsBalances,
 } from 'state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
-import {
-  selectAssetById,
-  selectAssets,
-  selectMarketDataUserCurrency,
-} from 'state/slices/selectors'
+import { selectAssetById, selectAssets, selectMarketDataUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { NestedAsset } from './NestedAsset'

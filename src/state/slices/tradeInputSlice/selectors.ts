@@ -9,10 +9,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectWalletAccountIds,
 } from '../common-selectors'
-import {
-  selectMarketDataUsd,
-  selectUserCurrencyToUsdRate,
-} from '../marketDataSlice/selectors'
+import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectPortfolioAccountMetadata,

@@ -28,9 +28,9 @@ import {
 import {
   selectAssetById,
   selectAssets,
-  selectMarketDataUserCurrency,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
+  selectMarketDataUserCurrency,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'

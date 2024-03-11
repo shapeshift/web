@@ -28,8 +28,8 @@ import {
   selectWalletAccountIds,
 } from '../../common-selectors'
 import {
-  selectMarketDataUserCurrency,
   selectMarketDataByFilter,
+  selectMarketDataUserCurrency,
 } from '../../marketDataSlice/selectors'
 import { foxEthLpAssetId } from '../constants'
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'

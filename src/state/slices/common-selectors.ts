@@ -12,10 +12,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
 import { selectAssets } from './assetsSlice/selectors'
-import {
-  selectMarketDataUsd,
-  selectMarketDataUserCurrency,
-} from './marketDataSlice/selectors'
+import { selectMarketDataUsd, selectMarketDataUserCurrency } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
 

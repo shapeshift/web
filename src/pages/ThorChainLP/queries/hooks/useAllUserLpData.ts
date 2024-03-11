@@ -10,8 +10,8 @@ import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssets,
-  selectMarketDataUserCurrency,
   selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataUserCurrency,
   selectPortfolioAccounts,
   selectWalletId,
 } from 'state/slices/selectors'

@@ -7,7 +7,7 @@ import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectUsdRateByAssetId,
 } from 'state/slices/marketDataSlice/selectors'
 
@@ -52,7 +52,7 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
  * @returns The total network fee across all hops in USD precision
  */
 const _getTotalNetworkFeeUsdPrecision = (state: ReduxState, quote: TradeQuote): BigNumber => {
-  const cryptoMarketDataUsd = selectCryptoMarketDataUsd(state)
+  const cryptoMarketDataUsd = selectMarketDataUsd(state)
 
   const getFeeAssetUsdRate = (feeAssetId: AssetId) => {
     const feeAsset = selectFeeAssetById(state, feeAssetId)

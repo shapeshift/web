@@ -42,7 +42,7 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 
 import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
@@ -260,7 +260,7 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
   createSelector(
     selectActiveQuote,
     selectUserCurrencyToUsdRate,
-    selectCryptoMarketDataUsd,
+    selectMarketDataUsd,
     (_state: ReduxState, step: number) => step,
     (quote, userCurrencyToUsdRate, cryptoMarketDataUsd, step) =>
       quote && quote.steps[step]

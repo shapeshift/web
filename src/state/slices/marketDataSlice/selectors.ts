@@ -23,12 +23,12 @@ export const selectCryptoMarketDataIdsSortedByMarketCapUsd = (state: ReduxState)
   state.marketData.crypto.ids
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
-export const selectCryptoMarketDataUsd = ((state: ReduxState) => state.marketData.crypto.byId) as (
+export const selectMarketDataUsd = ((state: ReduxState) => state.marketData.crypto.byId) as (
   state: ReduxState,
 ) => MarketDataById<AssetId>
 
 export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectCryptoMarketDataIdsSortedByMarketCapUsd,
   selectFiatMarketData,
   selectSelectedCurrency,
@@ -139,7 +139,7 @@ export const selectFiatPriceHistoryTimeframe = createSelector(
 )
 
 export const selectUsdRateByAssetId = createCachedSelector(
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectAssetId,
   (cryptoMarketDataUsd, assetId): string | undefined => {
     return cryptoMarketDataUsd[assetId]?.price
@@ -147,7 +147,7 @@ export const selectUsdRateByAssetId = createCachedSelector(
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectUserCurrencyRateByAssetId = createCachedSelector(
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   selectAssetId,
   (cryptoMarketDataUsd, userCurrencyToUsdRate, assetId): string => {

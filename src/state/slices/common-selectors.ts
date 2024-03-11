@@ -13,7 +13,7 @@ import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'st
 
 import { selectAssets } from './assetsSlice/selectors'
 import {
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectMarketDataUserCurrency,
 } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
@@ -146,7 +146,7 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
   createDeepEqualOutputSelector(
     selectAssets,
     selectPortfolioUserCurrencyBalances,
-    selectCryptoMarketDataUsd,
+    selectMarketDataUsd,
     (assets, portfolioUserCurrencyBalances, cryptoMarketDataUsd) => {
       const getAssetUserCurrencyBalance = (asset: Asset) =>
         bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()

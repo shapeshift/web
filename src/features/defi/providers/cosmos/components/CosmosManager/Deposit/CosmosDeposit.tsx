@@ -23,7 +23,7 @@ import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitie
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -53,7 +53,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   // user info
   const { state: walletState } = useWallet()

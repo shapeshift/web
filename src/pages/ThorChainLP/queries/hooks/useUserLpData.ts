@@ -11,7 +11,7 @@ import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getPoolShare } from 'lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAssetId, selectAssets, selectWalletId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -99,8 +99,12 @@ export const useUserLpData = ({
   const accountIds = [...(accountId ? [accountId] : assetAccountIds), ...thorchainAccountIds]
   const currentWalletId = useAppSelector(selectWalletId)
 
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
   const { data: pool } = useQuery({
     ...reactQueries.thornode.poolData(assetId),

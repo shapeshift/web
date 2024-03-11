@@ -29,7 +29,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -80,7 +80,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   if (!feeAssetId) throw new Error(`Fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   // user info
   const {

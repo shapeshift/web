@@ -27,7 +27,7 @@ import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectAssets,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -76,7 +76,9 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const handleApprove = useCallback(async () => {
     if (

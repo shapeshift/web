@@ -28,6 +28,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
+import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
@@ -239,26 +240,34 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   })
 
   useEffect(() => {
-    if (!(txId && tx)) return
+    if (!txId) return
 
-    if (tx?.status === TxStatus.Pending) {
+    // Return if the status has been set to confirmed or failed
+    // - Confirmed means we got a successful status from thorchain and should not trigger the mutation again
+    // - Failed means the inbound transaction failed and there is no reason to trigger the mutation as it will never be picked up by thorchain
+    if (status === TxStatus.Confirmed || status === TxStatus.Failed) return
+
+    // Consider rune transactions pending after broadcast and start polling thorchain right away
+    if (isRuneTx) {
+      if (status === TxStatus.Unknown) {
+        setStatus(TxStatus.Pending)
+        ;(async () => await mutateAsync({ txId }))()
+      }
+      return
+    }
+
+    if (!tx) return
+
+    // Track pending and failed status
+    if (tx.status === TxStatus.Pending || tx.status === TxStatus.Failed) {
       setStatus(tx.status)
       return
     }
 
-    // Avoids this hook's mutate fn running too many times
-    if (status === TxStatus.Confirmed) return
-
-    if (tx?.status === TxStatus.Confirmed) {
-      // The Tx is confirmed, but we still need to introspect completion from THOR itself
-      // so we set the status as pending in the meantime
-      setStatus(TxStatus.Pending)
-      ;(async () => {
-        await mutateAsync({ txId })
-      })()
-      return
+    if (tx.status === TxStatus.Confirmed) {
+      ;(async () => await mutateAsync({ txId }))()
     }
-  }, [mutateAsync, onComplete, status, tx, txId])
+  }, [mutateAsync, onComplete, status, tx, txId, isRuneTx])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -319,11 +328,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
         const data = depositWithExpiry({
           vault: getAddress(inboundAddressData.address),
-          asset: isToken(fromAssetId(assetId).assetReference)
-            ? getAddress(fromAssetId(assetId).assetReference)
-            : // Native EVM assets use the 0 address as the asset address
-              // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-              zeroAddress,
+          asset:
+            // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
+            // which is *not* what we want for withdrawals, see
+            // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
+            isToken(fromAssetId(assetId).assetReference) && isDeposit
+              ? getAddress(fromAssetId(assetId).assetReference)
+              : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
+                // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+                zeroAddress,
           amount: amountOrDustCryptoBaseUnit,
           memo,
           expiry: BigInt(dayjs().add(15, 'minute').unix()),
@@ -331,10 +344,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
         return {
           // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
-            ? '0'
-            : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
-          // Withdraws do NOT occur a dust send to the contract address.
+          // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
+          amountCryptoPrecision:
+            isToken(fromAssetId(assetId).assetReference) && isDeposit
+              ? '0'
+              : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
+          // Withdrawals do NOT occur a dust send to the contract address.
           // It's a regular 0-value contract-call
           assetId: isDeposit ? asset.assetId : feeAsset.assetId,
           to: inboundAddressData.router,
@@ -486,11 +501,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
             const data = depositWithExpiry({
               vault: getAddress(inboundAddressData.address),
-              asset: isToken(fromAssetId(assetId).assetReference)
-                ? getAddress(fromAssetId(assetId).assetReference)
-                : // Native EVM assets use the 0 address as the asset address
-                  // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                  zeroAddress,
+              // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
+              // which is *not* what we want for withdrawals, see
+              // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
+              asset:
+                isToken(fromAssetId(assetId).assetReference) && isDeposit
+                  ? getAddress(fromAssetId(assetId).assetReference)
+                  : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
+                    // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+                    zeroAddress,
               amount: amountOrDustCryptoBaseUnit,
               memo,
               expiry: BigInt(dayjs().add(15, 'minute').unix()),
@@ -503,9 +522,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               adapter,
               data,
               // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-              value: isToken(fromAssetId(assetId).assetReference)
-                ? '0'
-                : amountOrDustCryptoBaseUnit,
+              // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
+              value:
+                isToken(fromAssetId(assetId).assetReference) && isDeposit
+                  ? '0'
+                  : amountOrDustCryptoBaseUnit,
               to: inboundAddressData.router,
               wallet,
             })
@@ -551,7 +572,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
 
             setTxId(txId)
-            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, txId, accountAssetAddress!))
+            setSerializedTxIndex(
+              serializeTxIndex(poolAssetAccountId, txId, fromAccountId(poolAssetAccountId).account),
+            )
 
             break
           }
@@ -560,7 +583,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         }
       })()
     })().then(() => {
-      setStatus(TxStatus.Pending)
       setIsSubmitting(false)
     })
   }, [
@@ -601,6 +623,38 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return translate('common.signTransaction')
   }, [isTradingActive, translate])
 
+  const txStatusIndicator = useMemo(() => {
+    if (status === TxStatus.Confirmed) {
+      return (
+        <Center
+          bg='background.success'
+          boxSize='24px'
+          borderRadius='full'
+          color='text.success'
+          fontSize='xs'
+        >
+          <FaCheck />
+        </Center>
+      )
+    }
+
+    if (status === TxStatus.Failed) {
+      return (
+        <Center
+          bg='background.error'
+          boxSize='24px'
+          borderRadius='full'
+          color='text.error'
+          fontSize='xs'
+        >
+          <FaX />
+        </Center>
+      )
+    }
+
+    return <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
+  }, [status])
+
   if (!asset || !feeAsset) return null
 
   return (
@@ -624,21 +678,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               {translate('common.seeDetails')}
             </Button>
           )}
-          {status === TxStatus.Confirmed ? (
-            <>
-              <Center
-                bg='background.success'
-                boxSize='24px'
-                borderRadius='full'
-                color='text.success'
-                fontSize='xs'
-              >
-                <FaCheck />
-              </Center>
-            </>
-          ) : (
-            <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
-          )}
+          {txStatusIndicator}
         </Flex>
       </CardHeader>
       <Collapse in={isActive}>

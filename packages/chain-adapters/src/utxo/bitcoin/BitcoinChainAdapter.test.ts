@@ -235,7 +235,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -282,7 +282,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -329,7 +329,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -380,7 +380,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -430,7 +430,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -471,7 +471,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -523,7 +523,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -579,7 +579,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -645,7 +645,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -693,7 +693,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -741,7 +741,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -792,7 +792,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -846,7 +846,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -890,7 +890,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -950,7 +950,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,
@@ -1010,7 +1010,7 @@ describe('BitcoinChainAdapter', () => {
             pubkey,
             transactions: [
               {
-                address: pubkey,
+                pubkey,
                 blockHash: tx.blockHash,
                 blockHeight: tx.blockHeight,
                 blockTime: tx.timestamp,

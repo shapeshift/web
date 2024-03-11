@@ -73,7 +73,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -160,7 +160,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])

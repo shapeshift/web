@@ -1,5 +1,8 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
   ButtonGroup,
   CardFooter,
@@ -23,6 +26,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { BiErrorCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -36,7 +40,9 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
@@ -57,9 +63,10 @@ import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
+  selectAccountIdsByAssetId,
   selectAssetById,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -104,6 +111,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const wallet = useWallet().state.wallet
+  const isSnapInstalled = useIsSnapInstalled()
 
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
@@ -138,15 +146,22 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const { data: pool } = usePool(poolAssetId)
   const { data: userLpData } = useUserLpData({ assetId })
 
+  const runeAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const poolAssetFeeAssetMarktData = useAppSelector(state =>
-    selectMarketDataById(state, poolAssetFeeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
   const { data: inboundAddressesData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -766,6 +781,41 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
 
+  const walletSupportsRune = useMemo(() => {
+    const chainId = thorchainChainId
+    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
+    return walletSupport && runeAccountIds.length > 0
+  }, [isSnapInstalled, runeAccountIds.length, wallet])
+
+  const isUnsupportedSymWithdraw = useMemo(
+    () => opportunityType === 'sym' && !walletSupportsRune,
+    [opportunityType, walletSupportsRune],
+  )
+
+  const errorCopy = useMemo(() => {
+    if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
+    return null
+  }, [isUnsupportedSymWithdraw, translate])
+
+  const maybeOpportunityNotSupportedExplainer = useMemo(() => {
+    if (!poolAsset || !runeAsset) return null
+    if (!isUnsupportedSymWithdraw) return null
+
+    return (
+      <Alert status='error' mx={-2} width='auto'>
+        <AlertIcon as={BiErrorCircle} />
+        <AlertDescription fontSize='sm' fontWeight='medium'>
+          {translate('pools.unsupportedNetworkExplainer', { network: runeAsset.networkName })}
+        </AlertDescription>
+      </Alert>
+    )
+  }, [isUnsupportedSymWithdraw, poolAsset, runeAsset, translate])
+
+  const confirmCopy = useMemo(() => {
+    if (errorCopy) return errorCopy
+    return translate('pools.removeLiquidity')
+  }, [errorCopy, translate])
+
   if (!poolAsset || !runeAsset) return null
 
   return (
@@ -857,12 +907,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        {maybeOpportunityNotSupportedExplainer}
         <Button
           mx={-2}
           size='lg'
-          colorScheme='blue'
+          colorScheme={errorCopy ? 'red' : 'blue'}
           onClick={handleSubmit}
           isDisabled={
+            isUnsupportedSymWithdraw ||
             isTradingActive === false ||
             !confirmedQuote ||
             (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
@@ -877,7 +929,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             isSweepNeededLoading
           }
         >
-          {translate('pools.removeLiquidity')}
+          {confirmCopy}
         </Button>
       </CardFooter>
     </SlideTransition>

@@ -46,7 +46,7 @@ import {
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -104,7 +104,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const isTokenDeposit = isToken(assetReference)
 
   const feeMarketData = useAppSelector(state =>
-    selectMarketDataById(state, feeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
   const { routerContractAddress: saversRouterContractAddress } = useRouterContractAddress({

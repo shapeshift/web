@@ -23,7 +23,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -99,13 +99,17 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const feeAssetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
   if (!feeAssetId) throw new Error(`Cannot get fee AssetId not found for ChainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),

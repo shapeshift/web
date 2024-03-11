@@ -16,7 +16,7 @@ import { middleEllipsis, tokenOrUndefined } from 'lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -39,7 +39,9 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+  )
   const {
     number: { toFiat },
   } = useLocaleFormatter()

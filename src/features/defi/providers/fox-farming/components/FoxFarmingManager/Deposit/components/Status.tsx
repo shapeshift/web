@@ -27,7 +27,7 @@ import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectAssets,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -71,7 +71,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const asset = useAppSelector(state =>
     selectAssetById(state, foxFarmingOpportunity?.underlyingAssetId ?? ''),
   )
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   if (!asset)
     throw new Error(`Asset not found for AssetId ${foxFarmingOpportunity?.underlyingAssetId}`)

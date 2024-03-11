@@ -19,7 +19,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAssetById,
   selectAssets,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectCryptoMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,7 +56,7 @@ export const OpportunityRow: React.FC<
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
+  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
 
   const rewardsBalances = useMemo(() => {
     if (!(opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) return []
@@ -66,9 +66,9 @@ export const OpportunityRow: React.FC<
       rewardAssetIds: earnOpportunity.rewardAssetIds,
       rewardsCryptoBaseUnit: earnOpportunity.rewardsCryptoBaseUnit,
       assets,
-      marketData,
+      marketDataUserCurrency,
     })
-  }, [assets, marketData, opportunity])
+  }, [assets, marketDataUserCurrency, opportunity])
 
   const underlyingAssetBalances = useMemo(() => {
     return getUnderlyingAssetIdsBalances({
@@ -77,13 +77,13 @@ export const OpportunityRow: React.FC<
       underlyingAssetRatiosBaseUnit,
       cryptoAmountBaseUnit,
       assets,
-      marketData,
+      marketDataUserCurrency,
     })
   }, [
     assetId,
     assets,
     cryptoAmountBaseUnit,
-    marketData,
+    marketDataUserCurrency,
     underlyingAssetIds,
     underlyingAssetRatiosBaseUnit,
   ])
@@ -239,7 +239,7 @@ export const OpportunityRow: React.FC<
               lineHeight='shorter'
             />
             <Amount.Percent
-              value={bnOrZero(marketData[asset.assetId]?.changePercent24Hr)
+              value={bnOrZero(marketDataUserCurrency[asset.assetId]?.changePercent24Hr)
                 .div(100)
                 .toString()}
               autoColor

@@ -9,7 +9,10 @@ import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from 'components/SelectAssets/SelectAssetRouter'
 import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataById, selectSelectedCurrency } from 'state/slices/selectors'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectSelectedCurrency,
+} from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
 import { useFormSend } from './hooks/useFormSend/useFormSend'
@@ -103,7 +106,10 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         methods.setValue(SendFormFields.Input, address)
 
         if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
-          const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
+          const marketData = selectMarketDataByAssetIdUserCurrency(
+            store.getState(),
+            maybeUrlResult.assetId ?? '',
+          )
           methods.setValue(
             SendFormFields.AmountCryptoPrecision,
             maybeUrlResult.amountCryptoPrecision,

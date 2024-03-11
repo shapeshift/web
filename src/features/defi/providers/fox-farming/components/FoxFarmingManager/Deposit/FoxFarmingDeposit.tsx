@@ -21,7 +21,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -48,7 +48,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
   const { assetNamespace, chainId, contractAddress, assetReference } = query
 
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const { farmingAccountId } = useFoxEth()
 

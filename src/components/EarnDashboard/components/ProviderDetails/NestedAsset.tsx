@@ -7,7 +7,7 @@ import { NestedListItem } from 'components/List/NestedListItem'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { opportunityRowGrid } from './OpportunityTableHeader'
@@ -34,7 +34,7 @@ export const NestedAsset: React.FC<NestedAssetProps> = ({
 }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const subTextJoined = useMemo(() => {
     const typeElement = <RawText>{type}</RawText>

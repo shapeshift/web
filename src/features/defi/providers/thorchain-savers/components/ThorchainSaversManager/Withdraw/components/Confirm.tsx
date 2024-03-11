@@ -74,7 +74,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -144,9 +144,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+  )
   const feeMarketData = useAppSelector(state =>
-    selectMarketDataById(state, feeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])

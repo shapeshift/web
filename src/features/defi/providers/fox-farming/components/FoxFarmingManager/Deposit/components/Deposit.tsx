@@ -28,7 +28,7 @@ import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
   selectAssets,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -112,7 +112,9 @@ export const Deposit: React.FC<DepositProps> = ({
   })
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId ?? ''))
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, underlyingAssetId ?? ''),
+  )
 
   // notify
   const toast = useToast()

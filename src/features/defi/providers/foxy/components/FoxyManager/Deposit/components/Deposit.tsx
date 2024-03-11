@@ -13,7 +13,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -44,7 +44,7 @@ export const Deposit: React.FC<DepositProps> = ({
     stakingAsset: asset,
   } = useFoxyQuery()
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const opportunity = useMemo(() => state?.foxyOpportunity, [state])
 

@@ -549,11 +549,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [poolAsset])
 
   const memo = useMemo(() => {
-    if (!runeAccountId) return undefined
+    const accountId = runeAccountId || poolAssetAccountId
+    if (!accountId) return undefined
     if (thorchainNotationPoolAssetId === undefined) return undefined
-    // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
-    return `+:${thorchainNotationPoolAssetId}:${fromAccountId(runeAccountId).account ?? ''}:ss:50`
-  }, [runeAccountId, thorchainNotationPoolAssetId])
+    // Note, this memo is just used to estimate fees, and should *not* be set in the confirmedQuote
+    // All we care about is having a rough estimation of the length of the *memo* arg in calldata
+    // The actual bps and address may be different at confirm time
+    return `+:${thorchainNotationPoolAssetId}:${fromAccountId(accountId).account ?? ''}:ss:50`
+  }, [poolAssetAccountId, runeAccountId, thorchainNotationPoolAssetId])
 
   const estimateFeesArgs = useMemo(() => {
     if (!assetId || !wallet || !poolAsset || !memo || !poolAssetAccountAddress) return undefined

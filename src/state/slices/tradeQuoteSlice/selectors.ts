@@ -43,7 +43,7 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
   selectCryptoMarketDataUsd,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../selectors'
@@ -432,7 +432,7 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectFirstHop,
   selectFirstHopSellFeeAsset,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   (tradeQuoteStep, feeAsset, cryptoMarketData) => {
     if (!tradeQuoteStep) return
 
@@ -458,7 +458,7 @@ export const selectSecondHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectSecondHop,
   selectSecondHopSellFeeAsset,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   (tradeQuoteStep, feeAsset, cryptoMarketData) => {
     if (!tradeQuoteStep) return
 

@@ -28,7 +28,7 @@ import {
 import {
   selectAssetById,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
@@ -54,7 +54,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAsset = assets[foxEthLpAssetId]
   if (!lpAsset) throw new Error(`Asset not found for AssetId ${foxEthLpAssetId}`)
 
-  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress, rewardId } = query
 

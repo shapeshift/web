@@ -19,7 +19,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAssetById,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,7 +56,7 @@ export const OpportunityRow: React.FC<
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
-  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
 
   const rewardsBalances = useMemo(() => {
     if (!(opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) return []

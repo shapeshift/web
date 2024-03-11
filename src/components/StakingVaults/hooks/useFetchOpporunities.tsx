@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { setTimeoutAsync } from 'lib/utils'
-import { zapper } from 'state/apis/zapper/zapperApi'
+import { useGetZapperAppsBalancesOutputQuery, zapper } from 'state/apis/zapper/zapperApi'
 import {
   fetchAllOpportunitiesIdsByChainId,
   fetchAllOpportunitiesMetadataByChainId,
@@ -37,6 +37,8 @@ export const useFetchOpportunities = () => {
 
   const [isLoading, setIsLoading] = useState(true)
 
+  const { isLoading: isZapperAppsBalancesOutputLoading } = useGetZapperAppsBalancesOutputQuery()
+
   // TODO: this needs to be split up into separate RTK queries so we aren't refetching when moving around the app
   useEffect(() => {
     ;(async () => {
@@ -44,8 +46,6 @@ export const useFetchOpportunities = () => {
       if (portfolioLoadingStatus === 'loading') return
 
       setIsLoading(true)
-
-      dispatch(zapper.endpoints.getZapperAppsBalancesOutput.initiate())
 
       const maybeFetchZapperData = DynamicLpAssets
         ? dispatch(zapper.endpoints.getZapperUniV2PoolAssetIds.initiate())
@@ -87,5 +87,8 @@ export const useFetchOpportunities = () => {
     portfolioAssetIds,
   ])
 
-  return useMemo(() => ({ isLoading }), [isLoading])
+  return useMemo(
+    () => ({ isLoading: isLoading || isZapperAppsBalancesOutputLoading }),
+    [isLoading, isZapperAppsBalancesOutputLoading],
+  )
 }

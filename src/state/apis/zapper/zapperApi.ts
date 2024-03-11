@@ -732,3 +732,4 @@ export const zapper = createApi({
 })
 
 export const { useGetZapperNftUserTokensQuery } = zapperApi
+export const { useGetZapperAppsBalancesOutputQuery } = zapper

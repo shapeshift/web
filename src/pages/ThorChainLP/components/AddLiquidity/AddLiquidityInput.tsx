@@ -550,7 +550,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const memo = useMemo(() => {
     const accountId = runeAccountId || poolAssetAccountId
-    if (!accountId) return ''
+    if (!accountId) return undefined
     if (thorchainNotationPoolAssetId === undefined) return undefined
     // Note, this memo is just used to estimate fees, and should *not* be set in the confirmedQuote
     // All we care about is having a rough estimation of the length of the *memo* arg in calldata

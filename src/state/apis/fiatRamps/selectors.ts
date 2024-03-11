@@ -34,12 +34,12 @@ export const selectFiatRampBuyAssetsWithMarketData = createSelector(
   selectAssets,
   selectMarketDataUserCurrency,
   selectFiatBuyAssetIds,
-  (assetsById, cryptoMarketData, assetIds): AssetWithMarketData[] => {
+  (assetsById, marketData, assetIds): AssetWithMarketData[] => {
     return assetIds.reduce<AssetWithMarketData[]>((acc, assetId) => {
       const assetData = assetsById[assetId]
       if (!assetData) return acc
-      const marketData = cryptoMarketData[assetId] ?? defaultMarketData
-      acc.push({ ...assetData, ...marketData })
+      const marketDataForAsset = marketData[assetId] ?? defaultMarketData
+      acc.push({ ...assetData, ...marketDataForAsset })
       return acc
     }, [])
   },

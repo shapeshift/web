@@ -433,7 +433,7 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
   selectFirstHop,
   selectFirstHopSellFeeAsset,
   selectMarketDataUserCurrency,
-  (tradeQuoteStep, feeAsset, cryptoMarketData) => {
+  (tradeQuoteStep, feeAsset, marketData) => {
     if (!tradeQuoteStep) return
 
     if (feeAsset === undefined) {
@@ -441,7 +441,7 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
     }
 
     const getFeeAssetUserCurrencyRate = () => {
-      return cryptoMarketData[feeAsset?.assetId ?? '']?.price ?? '0'
+      return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
     }
 
     return getHopTotalNetworkFeeUserCurrencyPrecision(
@@ -459,14 +459,14 @@ export const selectSecondHopNetworkFeeUserCurrencyPrecision: Selector<
   selectSecondHop,
   selectSecondHopSellFeeAsset,
   selectMarketDataUserCurrency,
-  (tradeQuoteStep, feeAsset, cryptoMarketData) => {
+  (tradeQuoteStep, feeAsset, marketData) => {
     if (!tradeQuoteStep) return
 
     if (feeAsset === undefined) {
       throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
     }
     const getFeeAssetUserCurrencyRate = () => {
-      return cryptoMarketData[feeAsset?.assetId ?? '']?.price ?? '0'
+      return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
     }
 
     return getHopTotalNetworkFeeUserCurrencyPrecision(

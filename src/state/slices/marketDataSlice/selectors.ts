@@ -77,16 +77,16 @@ const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 export const selectMarketDataByAssetIdUserCurrency = createCachedSelector(
   selectMarketDataUserCurrency,
   selectAssetId,
-  (cryptoMarketData, assetId): MarketData => {
-    return cryptoMarketData[assetId] ?? defaultMarketData
+  (marketData, assetId): MarketData => {
+    return marketData[assetId] ?? defaultMarketData
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectMarketDataByFilter = createCachedSelector(
   selectMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
-  (cryptoMarketData, assetId): MarketData => {
-    return cryptoMarketData[assetId ?? ''] ?? defaultMarketData
+  (marketData, assetId): MarketData => {
+    return marketData[assetId ?? ''] ?? defaultMarketData
   },
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 

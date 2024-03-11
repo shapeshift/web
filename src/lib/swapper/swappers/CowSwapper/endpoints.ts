@@ -1,5 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { type EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   type CowSwapOrder,
   type EvmMessageToSign,

@@ -1,7 +1,7 @@
 import type { BoxProps, ButtonProps } from '@chakra-ui/react'
 import { Box } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId, gnosisChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { memo, useCallback, useMemo } from 'react'
@@ -44,11 +44,6 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
         if (!requestedChainFeeAsset)
           throw new Error(`Asset not found for AssetId ${requestedChainFeeAssetId}`)
 
-        // Temporary hack to add the official Gnosis RPC to wallets until stabilized - we don't want to bork users' wallets
-        // https://docs.metamask.io/wallet/reference/rpc-api/#parameters-1
-        // "rpcUrls - An array of RPC URL strings. At least one item is required, and only the first item is used."
-        const maybeGnosisOfficialRpcUrl =
-          requestedChainId === gnosisChainId ? ['https://rpc.gnosischain.com'] : []
         const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
         await (state.wallet as ETHWallet).ethSwitchChain?.({
           chainId: toHex(Number(fromChainId(requestedChainId).chainReference)),
@@ -58,7 +53,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
             symbol: requestedChainFeeAsset.symbol,
             decimals: 18,
           },
-          rpcUrls: [...maybeGnosisOfficialRpcUrl, requestedChainRpcUrl],
+          rpcUrls: [requestedChainRpcUrl],
           blockExplorerUrls: [requestedChainFeeAsset.explorer],
         })
         setChainId(requestedChainId)

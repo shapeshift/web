@@ -116,7 +116,7 @@ const MenuIcon = <T extends ChainId | 'All'>({
   return <ChainIcon chainId={activeChainId} width='6' height='auto' />
 }
 
-export const ChainMenu = <T extends ChainId | 'All'>({
+const GenericChainMenu = <T extends ChainId | 'All'>({
   chainIds,
   activeChainId,
   isActiveChainIdSupported,
@@ -159,3 +159,6 @@ export const ChainMenu = <T extends ChainId | 'All'>({
     </Menu>
   )
 }
+
+export const ChainMenu = GenericChainMenu<ChainId>
+export const AllChainMenu = GenericChainMenu<ChainId | 'All'>

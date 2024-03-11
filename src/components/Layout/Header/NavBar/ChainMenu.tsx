@@ -24,8 +24,13 @@ type ChainMenuProps = BoxProps
 
 export const ChainMenu = memo((props: ChainMenuProps) => {
   const { state, load } = useWallet()
-  const { connectedEvmChainId, isEvmChainId, isLoading, setChainId, supportedEvmChainIds } =
-    useEvm()
+  const {
+    connectedEvmChainId,
+    isSupportedEvmChainId,
+    isLoading,
+    setChainId,
+    supportedEvmChainIds,
+  } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
 
   const assets = useAppSelector(selectAssets)
@@ -33,7 +38,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
   const handleChainClick = useCallback(
     async (requestedChainId: ChainId) => {
       try {
-        if (!isEvmChainId(requestedChainId)) {
+        if (!isSupportedEvmChainId(requestedChainId)) {
           throw new Error(`Unsupported EVM network: ${requestedChainId}`)
         }
 
@@ -62,7 +67,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
         console.error(e)
       }
     },
-    [assets, isEvmChainId, load, setChainId, state.wallet],
+    [assets, isSupportedEvmChainId, load, setChainId, state.wallet],
   )
 
   const currentChainNativeAssetId = useMemo(

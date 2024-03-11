@@ -1,18 +1,12 @@
 import { CHAIN_NAMESPACE, type ChainId, isChainReference, toChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
-
-const evmChainIdFromChainId = (
-  maybeEvmChainId: ChainId | undefined,
-  supportedEvmChainIds: ChainId[],
-): ChainId | undefined => {
-  if (!maybeEvmChainId) return
-  return supportedEvmChainIds.find(chainId => chainId === maybeEvmChainId)
-}
 
 export const useEvm = () => {
   const {
@@ -27,8 +21,14 @@ export const useEvm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [featureFlags],
   )
-  const isEvmChainId = useCallback(
-    (chainId: ChainId) => evmChainIdFromChainId(chainId, supportedEvmChainIds) !== undefined,
+  const isSupportedEvmChainId = useCallback(
+    (chainId?: ChainId) => {
+      return (
+        chainId !== undefined &&
+        supportedEvmChainIds.includes(chainId as KnownChainIds) &&
+        isEvmChainId(chainId)
+      )
+    },
     [supportedEvmChainIds],
   )
 
@@ -54,17 +54,19 @@ export const useEvm = () => {
       setIsLoading(false)
     }
 
-    return evmChainIdFromChainId(chainId, supportedEvmChainIds)
-  }, [isLoading, chainId, supportedEvmChainIds])
+    if (!isSupportedEvmChainId(chainId)) return
+
+    return chainId
+  }, [chainId, isLoading, isSupportedEvmChainId])
 
   return useMemo(
     () => ({
       connectedEvmChainId,
-      isEvmChainId,
+      isSupportedEvmChainId,
       isLoading,
       setChainId,
       supportedEvmChainIds,
     }),
-    [connectedEvmChainId, isEvmChainId, isLoading, supportedEvmChainIds],
+    [connectedEvmChainId, isLoading, isSupportedEvmChainId, supportedEvmChainIds],
   )
 }

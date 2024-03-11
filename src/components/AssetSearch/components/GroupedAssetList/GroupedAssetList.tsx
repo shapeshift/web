@@ -1,6 +1,7 @@
 import { Box, Center } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { Fragment, useCallback } from 'react'
+import { useCallback } from 'react'
+import type { TopItemListProps } from 'react-virtuoso'
 import { GroupedVirtuoso } from 'react-virtuoso'
 import { Text } from 'components/Text'
 
@@ -8,8 +9,8 @@ import { GroupedAssetRow } from './components/GroupedAssetRow'
 import { GroupedAssetRowLoading } from './components/GroupedAssetRowLoading'
 
 const Footer = () => <Box height='0.5rem' />
-
-const components = { TopItemList: Fragment, Footer }
+const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div> // this cannot be Fragment as styles are applied
+const components = { TopItemList, Footer }
 
 export type GroupedAssetListProps = {
   assets: Asset[]

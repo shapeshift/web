@@ -160,5 +160,9 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
   )
 }
 
-export const ChainMenu = GenericChainMenu<ChainId>
-export const AllChainMenu = GenericChainMenu<ChainId | 'All'>
+export const ChainMenu = (props: ChainMenuProps<ChainId>) => (
+  <GenericChainMenu<ChainId> {...props} />
+)
+export const AllChainMenu = (props: ChainMenuProps<ChainId | 'All'>) => (
+  <GenericChainMenu<ChainId | 'All'> {...props} />
+)

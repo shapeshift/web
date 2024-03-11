@@ -122,8 +122,6 @@ export const useUserLpData = ({
     queryFn: async ({ queryKey }) => {
       const [, , , { assetId }] = queryKey
 
-      console.log('useUserLpData query')
-
       return (
         await Promise.all(
           accountIds.map(accountId =>

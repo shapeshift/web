@@ -17,11 +17,16 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
     history.push(AddLiquidityRoutePaths.Confirm)
   }, [history])
 
+  const handleGoInput = useCallback(() => {
+    history.push(AddLiquidityRoutePaths.Input)
+  }, [history])
+
   return (
     <ReusableLpStatus
       confirmedQuote={confirmedQuote}
       baseAssetId={thorchainAssetId}
       handleBack={handleGoBack}
+      handleRestart={handleGoInput}
     />
   )
 }

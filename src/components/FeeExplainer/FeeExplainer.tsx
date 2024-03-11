@@ -27,7 +27,6 @@ import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
@@ -271,22 +270,14 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
       feeModel,
     })
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const feeUserCurrencyBeforeDiscount = useMemo(() => {
-    return feeUsdBeforeDiscount.times(userCurrencyToUsdRate)
-  }, [feeUsdBeforeDiscount, userCurrencyToUsdRate])
-
   const basedOnFeeTranslation: TextPropTypes['translation'] = useMemo(
     () => [
       'foxDiscounts.basedOnFee',
       {
-        fee: `$${feeUserCurrencyBeforeDiscount.toFixed(2)} (${feeBpsBeforeDiscount.toFixed(
-          0,
-        )} bps)`,
+        fee: `$${feeUsdBeforeDiscount.toFixed(2)} (${feeBpsBeforeDiscount.toFixed(0)} bps)`,
       },
     ],
-    [feeUserCurrencyBeforeDiscount, feeBpsBeforeDiscount],
+    [feeUsdBeforeDiscount, feeBpsBeforeDiscount],
   )
 
   const isFree = useMemo(() => bnOrZero(feeUsd).lte(0), [feeUsd])

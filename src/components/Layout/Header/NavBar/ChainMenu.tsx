@@ -1,27 +1,12 @@
-import { WarningIcon } from '@chakra-ui/icons'
-import type { BoxProps } from '@chakra-ui/react'
-import {
-  Box,
-  Button,
-  Flex,
-  Menu,
-  MenuButton,
-  MenuGroup,
-  MenuItem,
-  MenuList,
-  Text,
-  Tooltip,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import type { BoxProps, ButtonProps } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId, gnosisChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
 import { memo, useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { toHex } from 'viem'
-import { AssetIcon } from 'components/AssetIcon'
-import { CircleIcon } from 'components/Icons/Circle'
+import { ChainMenu as BasicChainMenu } from 'components/ChainMenu'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -29,42 +14,10 @@ import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const menuButtonWidth = { base: 'full', md: 'auto' }
-
-const ChainMenuItem: React.FC<{
-  chainId: ChainId
-  onClick: (chainId: ChainId) => void
-  isConnected: boolean
-}> = ({ chainId, onClick, isConnected }) => {
-  const chainAdapterManager = getChainAdapterManager()
-  const chainName = chainAdapterManager.get(chainId)?.getDisplayName()
-  const { chainReference: ethNetwork } = fromChainId(chainId)
-  const nativeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
-  const nativeAsset = useAppSelector(state => selectAssetById(state, nativeAssetId ?? ''))
-
-  const connectedIconColor = useColorModeValue('green.500', 'green.200')
-  const connectedChainBgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.50')
-  const assetIcon = useMemo(
-    () => <AssetIcon assetId={nativeAssetId} showNetworkIcon width='6' height='auto' />,
-    [nativeAssetId],
-  )
-  const handleClick = useCallback(() => onClick(ethNetwork), [ethNetwork, onClick])
-
-  if (!nativeAsset) return null
-
-  return (
-    <MenuItem
-      icon={assetIcon}
-      backgroundColor={isConnected ? connectedChainBgColor : undefined}
-      onClick={handleClick}
-      borderRadius='lg'
-    >
-      <Flex justifyContent={'space-between'}>
-        <Text>{chainName}</Text>
-        <Box>{isConnected && <CircleIcon color={connectedIconColor} w={2} />}</Box>
-      </Flex>
-    </MenuItem>
-  )
+const buttonProps: ButtonProps = {
+  iconSpacing: 2,
+  px: 2,
+  width: { base: 'full', md: 'auto' },
 }
 
 type ChainMenuProps = BoxProps
@@ -73,23 +26,20 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
   const { state, load } = useWallet()
   const {
     connectedEvmChainId,
-    getChainIdFromEthNetwork,
+    isSupportedEvmChainId,
     isLoading,
-    setEthNetwork,
+    setChainId,
     supportedEvmChainIds,
   } = useEvm()
   const chainAdapterManager = getChainAdapterManager()
-  const translate = useTranslate()
 
   const assets = useAppSelector(selectAssets)
 
   const handleChainClick = useCallback(
-    async (requestedEthNetwork: string) => {
+    async (requestedChainId: ChainId) => {
       try {
-        const requestedChainId = getChainIdFromEthNetwork(requestedEthNetwork)
-
-        if (!requestedChainId) {
-          throw new Error(`Unsupported EVM network: ${requestedEthNetwork}`)
+        if (!isSupportedEvmChainId(requestedChainId)) {
+          throw new Error(`Unsupported EVM network: ${requestedChainId}`)
         }
 
         const requestedChainChainAdapter = assertGetEvmChainAdapter(requestedChainId)
@@ -99,30 +49,25 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
         if (!requestedChainFeeAsset)
           throw new Error(`Asset not found for AssetId ${requestedChainFeeAssetId}`)
 
-        // Temporary hack to add the official Gnosis RPC to wallets until stabilized - we don't want to bork users' wallets
-        // https://docs.metamask.io/wallet/reference/rpc-api/#parameters-1
-        // "rpcUrls - An array of RPC URL strings. At least one item is required, and only the first item is used."
-        const maybeGnosisOfficialRpcUrl =
-          requestedChainId === gnosisChainId ? ['https://rpc.gnosischain.com'] : []
         const requestedChainRpcUrl = requestedChainChainAdapter.getRpcUrl()
         await (state.wallet as ETHWallet).ethSwitchChain?.({
-          chainId: toHex(Number(requestedEthNetwork)),
+          chainId: toHex(Number(fromChainId(requestedChainId).chainReference)),
           chainName: requestedChainChainAdapter.getDisplayName(),
           nativeCurrency: {
             name: requestedChainFeeAsset.name,
             symbol: requestedChainFeeAsset.symbol,
             decimals: 18,
           },
-          rpcUrls: [...maybeGnosisOfficialRpcUrl, requestedChainRpcUrl],
+          rpcUrls: [requestedChainRpcUrl],
           blockExplorerUrls: [requestedChainFeeAsset.explorer],
         })
-        setEthNetwork(requestedEthNetwork)
+        setChainId(requestedChainId)
         load()
       } catch (e) {
         console.error(e)
       }
     },
-    [assets, getChainIdFromEthNetwork, load, setEthNetwork, state.wallet],
+    [assets, isSupportedEvmChainId, load, setChainId, state.wallet],
   )
 
   const currentChainNativeAssetId = useMemo(
@@ -137,6 +82,7 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
     () => !isLoading && (supportedEvmChainIds.length > 1 || !connectedEvmChainId),
     [isLoading, connectedEvmChainId, supportedEvmChainIds.length],
   )
+
   if (!state.wallet) return null
   if (!supportsEthSwitchChain(state.wallet)) return null
 
@@ -145,37 +91,14 @@ export const ChainMenu = memo((props: ChainMenuProps) => {
 
   return (
     <Box {...props}>
-      <Menu autoSelect={false}>
-        <Tooltip
-          label={translate(
-            currentChainNativeAsset ? 'common.switchNetwork' : 'common.unsupportedNetwork',
-          )}
-          isDisabled={!canSwitchChains}
-        >
-          <MenuButton as={Button} iconSpacing={2} px={2} width={menuButtonWidth}>
-            <Flex alignItems='center' justifyContent='center'>
-              {currentChainNativeAsset ? (
-                <AssetIcon assetId={currentChainNativeAssetId} showNetworkIcon size='xs' />
-              ) : (
-                <WarningIcon color='yellow.300' boxSize='4' />
-              )}
-            </Flex>
-          </MenuButton>
-        </Tooltip>
-
-        <MenuList p='10px' zIndex={2}>
-          <MenuGroup title={translate('common.selectNetwork')} ml={3} color='text.subtle'>
-            {supportedEvmChainIds.map(chainId => (
-              <ChainMenuItem
-                isConnected={chainId === connectedEvmChainId}
-                key={chainId}
-                chainId={chainId}
-                onClick={handleChainClick}
-              />
-            ))}
-          </MenuGroup>
-        </MenuList>
-      </Menu>
+      <BasicChainMenu
+        activeChainId={connectedEvmChainId}
+        chainIds={supportedEvmChainIds}
+        isActiveChainIdSupported={currentChainNativeAsset !== undefined}
+        isDisabled={!canSwitchChains}
+        buttonProps={buttonProps}
+        onMenuOptionClick={handleChainClick}
+      />
     </Box>
   )
 })

@@ -164,24 +164,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       )
     }
 
-    if (isFailed) {
-      return (
-        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
-          <Center
-            bg='background.error'
-            boxSize='80px'
-            borderRadius='full'
-            color='text.error'
-            fontSize='xl'
-            my={8}
-          >
-            <FaX />
-          </Center>
-          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
-        </CardBody>
-      )
-    }
-
     const supplyAssets = poolAssets.map((asset, i) => {
       const amountCryptoPrecision =
         asset.assetId === thorchainAssetId

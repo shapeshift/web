@@ -243,9 +243,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         type: 'all',
       })
 
-      setIsSubmitting(false)
       setStatus(TxStatus.Confirmed)
       onComplete(TxStatus.Confirmed)
+      setIsSubmitting(false)
     },
   })
 
@@ -274,10 +274,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
     }
 
-    // Track failed status and handle onComplete
+    // Track failed status, reset isSubmitting (tx failed and won't be picked up by thorchain), and handle onComplete
     if (tx.status === TxStatus.Failed) {
       setStatus(tx.status)
       onComplete(TxStatus.Failed)
+      setIsSubmitting(false)
       return
     }
 
@@ -599,7 +600,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })()
     })().then(() => {
       onStart()
-      setIsSubmitting(false)
     })
   }, [
     assetId,
@@ -721,7 +721,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             onClick={handleSignTx}
             isDisabled={isTradingActive === false || status === TxStatus.Failed}
             isLoading={
-              status === TxStatus.Pending ||
               isInboundAddressLoading ||
               isTradingActiveLoading ||
               isEstimatedFeesDataLoading ||

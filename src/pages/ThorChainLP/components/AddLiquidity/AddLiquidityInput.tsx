@@ -16,6 +16,7 @@ import {
   Stack,
   StackDivider,
   useColorModeValue,
+  usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
@@ -161,6 +162,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
+  const previousOpportunityId = usePrevious(activeOpportunityId)
+
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
   const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
     undefined,
@@ -1015,6 +1018,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             marketData,
             isRune,
           )
+          // Reset inputs on OpportunityId change
+          if (activeOpportunityId !== previousOpportunityId) {
+            handleAddLiquidityInputChange('0', false)
+          }
+
           const cryptoAmount = isRune
             ? virtualRuneDepositAmountCryptoPrecision
             : virtualAssetDepositAmountCryptoPrecision
@@ -1051,10 +1059,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     poolAsset,
     runeAsset,
+    opportunityType,
     pairDivider,
     runeMarketData,
     poolAssetMarketData,
     createHandleAddLiquidityInputChange,
+    activeOpportunityId,
+    previousOpportunityId,
     virtualRuneDepositAmountCryptoPrecision,
     virtualAssetDepositAmountCryptoPrecision,
     virtualRuneDepositAmountFiatUserCurrency,
@@ -1062,7 +1073,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     currentAccountIdByChainId,
     percentOptions,
     handleAccountIdChange,
-    opportunityType,
   ])
 
   const symAlert = useMemo(() => {

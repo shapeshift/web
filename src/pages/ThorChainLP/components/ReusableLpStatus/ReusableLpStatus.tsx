@@ -30,10 +30,7 @@ import type {
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import {
-  isLpConfirmedDepositQuote,
-  isLpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/utils'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -60,9 +57,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const [isFailed, setIsFailed] = useState(false)
 
   const { opportunityId } = confirmedQuote
-  const { assetId, type: opportunityType } = fromOpportunityId(opportunityId)
+  const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
 
-  const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
+  const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
 
   const poolAssets: Asset[] = useMemo(() => {
@@ -167,9 +164,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       )
     }
 
-    const supplyAssets = poolAssets.map((_asset, i) => {
+    const supplyAssets = poolAssets.map((asset, i) => {
       const amountCryptoPrecision =
-        _asset.assetId === thorchainAssetId
+        asset.assetId === thorchainAssetId
           ? isLpConfirmedDepositQuote(confirmedQuote)
             ? confirmedQuote.runeDepositAmountCryptoPrecision
             : confirmedQuote.runeWithdrawAmountCryptoPrecision
@@ -177,10 +174,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           ? confirmedQuote.assetDepositAmountCryptoPrecision
           : confirmedQuote.assetWithdrawAmountCryptoPrecision
       return (
-        <Fragment key={`amount-${_asset.assetId}`}>
+        <Fragment key={`amount-${asset.assetId}`}>
           <Amount.Crypto
             value={amountCryptoPrecision}
-            symbol={_asset.symbol}
+            symbol={asset.symbol}
             maximumFractionDigits={4}
           />
           {i < poolAssets.length - 1 && (
@@ -234,9 +231,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const assetCards = useMemo(() => {
     return (
       <Stack mt={4}>
-        {txAssets.map((_asset, index) => {
+        {txAssets.map((asset, index) => {
           const amountCryptoPrecision =
-            _asset.assetId === thorchainAssetId
+            asset.assetId === thorchainAssetId
               ? isLpConfirmedDepositQuote(confirmedQuote)
                 ? confirmedQuote.runeDepositAmountCryptoPrecision
                 : confirmedQuote.runeWithdrawAmountCryptoPrecision
@@ -244,30 +241,17 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               ? confirmedQuote.assetDepositAmountCryptoPrecision
               : confirmedQuote.assetWithdrawAmountCryptoPrecision
 
-          const isSymWithdraw =
-            isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
-
-          /*
-            Symmetrical withdrawals withdraw both asset amounts in a single TX.
-            In this case, we want to provide the pool asset amount to TransactionRow in additional to the rune amount
-            so we render both for the user.
-          */
-          const poolAmountCryptoPrecision = isSymWithdraw
-            ? confirmedQuote.assetWithdrawAmountCryptoPrecision
-            : undefined
-
           return (
             <TransactionRow
-              key={_asset.assetId}
-              assetId={_asset.assetId}
-              poolAssetId={poolAsset?.assetId}
+              key={asset.assetId}
+              assetId={asset.assetId}
+              poolAssetId={poolAssetId}
               amountCryptoPrecision={amountCryptoPrecision}
-              poolAmountCryptoPrecision={poolAmountCryptoPrecision}
               onStart={handleStart}
               onComplete={handleComplete}
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
-              asymSide={opportunityType !== 'sym' ? opportunityType : undefined}
+              opportunityType={opportunityType}
             />
           )
         })}
@@ -276,12 +260,12 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   }, [
     txAssets,
     confirmedQuote,
-    poolAsset?.assetId,
-    handleComplete,
+    poolAssetId,
     handleStart,
+    handleComplete,
     activeStepIndex,
-    opportunityType,
     isFailed,
+    opportunityType,
   ])
 
   if (!(poolAsset && baseAsset)) return null

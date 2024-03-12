@@ -18,7 +18,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -549,14 +549,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [poolAsset])
 
   const memo = useMemo(() => {
-    const accountId = runeAccountId || poolAssetAccountId
-    if (!accountId) return undefined
-    if (thorchainNotationPoolAssetId === undefined) return undefined
-    // Note, this memo is just used to estimate fees, and should *not* be set in the confirmedQuote
-    // All we care about is having a rough estimation of the length of the *memo* arg in calldata
-    // The actual bps and address may be different at confirm time
-    return `+:${thorchainNotationPoolAssetId}:${fromAccountId(accountId).account ?? ''}:ss:50`
-  }, [poolAssetAccountId, runeAccountId, thorchainNotationPoolAssetId])
+    if (thorchainNotationPoolAssetId === undefined) return
+
+    if (opportunityType === 'sym') {
+      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`
+    }
+
+    return `+:${thorchainNotationPoolAssetId}::ss:50`
+    // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
+  }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
   const estimateFeesArgs = useMemo(() => {
     if (!assetId || !wallet || !poolAsset || !memo || !poolAssetAccountAddress) return undefined

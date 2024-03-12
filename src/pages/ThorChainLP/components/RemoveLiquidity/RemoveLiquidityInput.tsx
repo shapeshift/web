@@ -954,7 +954,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('trade.protocolFee')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={Boolean(confirmedQuote?.assetOutboundFeeFiatUserCurrency)}>
+            <Skeleton
+              isLoaded={Boolean(
+                opportunityType !== AsymSide.Rune &&
+                  confirmedQuote?.assetOutboundFeeFiatUserCurrency,
+              )}
+            >
               <Amount.Fiat value={confirmedQuote?.assetOutboundFeeFiatUserCurrency ?? '0'} />
             </Skeleton>
           </Row.Value>

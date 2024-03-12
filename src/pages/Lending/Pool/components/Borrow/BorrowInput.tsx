@@ -131,7 +131,7 @@ export const BorrowInput = ({
 
   const handleBorrowAssetClick = useCallback(() => {
     buyAssetSearch.open({
-      onClick: setBorrowAsset,
+      onAssetClick: setBorrowAsset,
       title: 'lending.borrow',
       assets: borrowAssets,
     })

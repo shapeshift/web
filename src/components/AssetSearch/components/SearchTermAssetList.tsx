@@ -11,14 +11,14 @@ export type SearchTermAssetListProps = {
   isLoading?: boolean
   activeChainId: ChainId | 'All'
   searchString: string
-  onClickItem: (asset: Asset) => void
+  onAssetClick: (asset: Asset) => void
 }
 
 export const SearchTermAssetList = ({
   isLoading,
   activeChainId,
   searchString,
-  onClickItem,
+  onAssetClick,
 }: SearchTermAssetListProps) => {
   const assets = useAppSelector(selectAssetsSortedByName)
   const groupIsLoading = useMemo(() => {
@@ -48,7 +48,7 @@ export const SearchTermAssetList = ({
       groupCounts={groupCounts}
       hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
-      onClickItem={onClickItem}
+      onAssetClick={onAssetClick}
     />
   )
 }

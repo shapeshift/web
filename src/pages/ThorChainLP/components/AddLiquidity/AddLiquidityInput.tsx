@@ -1197,7 +1197,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const buyAssetSearch = useModal('buyAssetSearch')
   const handlePoolAssetClick = useCallback(() => {
     buyAssetSearch.open({
-      onClick: handleAssetChange,
+      onAssetClick: handleAssetChange,
       title: 'pools.pool',
       assets: poolAssets,
     })

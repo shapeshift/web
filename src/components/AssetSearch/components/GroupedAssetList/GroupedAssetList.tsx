@@ -17,7 +17,7 @@ export type GroupedAssetListProps = {
   groups: string[]
   groupCounts: number[]
   groupIsLoading: boolean[]
-  onClickItem: (asset: Asset) => void
+  onAssetClick: (asset: Asset) => void
   hideZeroBalanceAmounts: boolean
 }
 
@@ -26,7 +26,7 @@ export const GroupedAssetList = ({
   groups,
   groupCounts,
   groupIsLoading,
-  onClickItem,
+  onAssetClick,
   hideZeroBalanceAmounts,
 }: GroupedAssetListProps) => {
   const renderGroupContent = useCallback(
@@ -65,13 +65,13 @@ export const GroupedAssetList = ({
       return (
         <GroupedAssetRow
           index={index}
-          onClick={onClickItem}
+          onClick={onAssetClick}
           assets={assets}
           hideZeroBalanceAmounts={hideZeroBalanceAmounts}
         />
       )
     },
-    [assets, hideZeroBalanceAmounts, onClickItem],
+    [assets, hideZeroBalanceAmounts, onAssetClick],
   )
 
   return (

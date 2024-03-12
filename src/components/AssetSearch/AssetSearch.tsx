@@ -40,17 +40,17 @@ const NUM_QUICK_ACCESS_ASSETS = 5
 
 export type AssetSearchProps = {
   assets?: Asset[]
-  onClick?: (asset: Asset) => void
+  onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
   assets: selectedAssets,
-  onClick,
+  onAssetClick,
   formProps,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
+  const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
   const assets = useAppSelector(
     state => selectedAssets ?? selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state),
   )
@@ -72,7 +72,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     },
     [history],
   )
-  const handleClick = onClick ?? defaultClickHandler
+  const handleAssetClick = onAssetClick ?? defaultClickHandler
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
@@ -100,11 +100,11 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
   const popularAssets = useMemo(() => {
-    return popularAssetsByChainId?.[activeChain] ?? []
-  }, [activeChain, popularAssetsByChainId])
+    return popularAssetsByChainId?.[activeChainId] ?? []
+  }, [activeChainId, popularAssetsByChainId])
 
   const quickAccessAssets = useMemo(() => {
-    if (activeChain !== 'All') {
+    if (activeChainId !== 'All') {
       return popularAssets.slice(0, 5)
     }
 
@@ -124,15 +124,15 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     }
 
     return Object.values(resultMap)
-  }, [activeChain, popularAssets])
+  }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
-    if (activeChain === 'All') {
+    if (activeChainId === 'All') {
       return portfolioAssetsSortedByBalance
     }
 
-    return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChain)
-  }, [activeChain, portfolioAssetsSortedByBalance])
+    return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
+  }, [activeChainId, portfolioAssetsSortedByBalance])
 
   return (
     <>
@@ -147,11 +147,11 @@ export const AssetSearch: FC<AssetSearchProps> = ({
               <Input {...inputProps} />
             </InputGroup>
             <AllChainMenu
-              activeChainId={activeChain}
+              activeChainId={activeChainId}
               chainIds={chainIds}
               isActiveChainIdSupported={true}
               isDisabled={false}
-              onMenuOptionClick={setActiveChain}
+              onMenuOptionClick={setActiveChainId}
               buttonProps={buttonProps}
               disableTooltip
             />
@@ -170,7 +170,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
                 <AssetMenuButton
                   key={assetId}
                   assetId={assetId}
-                  onAssetClick={handleClick}
+                  onAssetClick={handleAssetClick}
                   buttonProps={assetButtonProps}
                   isLoading={isPopularAssetIdsLoading}
                   isDisabled={false}
@@ -183,16 +183,16 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       </ModalHeader>
       {searching ? (
         <SearchTermAssetList
-          activeChainId={activeChain}
+          activeChainId={activeChainId}
           searchString={searchString}
-          onClickItem={handleClick}
+          onAssetClick={handleAssetClick}
           isLoading={isPopularAssetIdsLoading}
         />
       ) : (
         <DefaultAssetList
           portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
           popularAssets={popularAssets}
-          onClickItem={handleClick}
+          onAssetClick={handleAssetClick}
           isPopularAssetIdsLoading={isPopularAssetIdsLoading}
           isPortfolioLoading={isPortfolioLoading}
         />

@@ -209,7 +209,7 @@ export const RepayInput = ({
     if (!lendingSupportedAssets?.length) return
 
     buyAssetSearch.open({
-      onClick: setRepaymentAsset,
+      onAssetClick: setRepaymentAsset,
       title: 'lending.repay',
       assets: lendingSupportedAssets,
     })

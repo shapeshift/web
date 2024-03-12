@@ -322,7 +322,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   const handleSellAssetClick = useCallback(() => {
     sellAssetSearch.open({
-      onClick: setSellAsset,
+      onAssetClick: setSellAsset,
       title: 'trade.tradeFrom',
       assets: supportedSellAssets,
     })
@@ -330,7 +330,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   const handleBuyAssetClick = useCallback(() => {
     buyAssetSearch.open({
-      onClick: setBuyAsset,
+      onAssetClick: setBuyAsset,
       title: 'trade.tradeTo',
       assets: supportedBuyAssets,
     })

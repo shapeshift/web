@@ -18,7 +18,7 @@ import { breakpoints } from 'theme/theme'
 
 export type AssetSearchModalProps = AssetSearchProps & {
   title?: string
-  onClick: Required<AssetSearchProps>['onClick']
+  onAssetClick: Required<AssetSearchProps>['onAssetClick']
 }
 
 type AssetSearchModalBaseProps = AssetSearchModalProps & {
@@ -27,7 +27,7 @@ type AssetSearchModalBaseProps = AssetSearchModalProps & {
 }
 
 export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
-  onClick,
+  onAssetClick,
   close,
   isOpen,
   assets,
@@ -37,12 +37,12 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { height: windowHeight } = useWindowSize()
 
-  const handleClick = useCallback(
+  const handleAssetClick = useCallback(
     (asset: Asset) => {
-      onClick(asset)
+      onAssetClick(asset)
       close()
     },
-    [close, onClick],
+    [close, onAssetClick],
   )
   const modalHeight = windowHeight
     ? // Converts pixel units to vh for Modal component
@@ -54,7 +54,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <AssetSearch onClick={handleClick} assets={assets} />
+        <AssetSearch onAssetClick={handleAssetClick} assets={assets} />
       </ModalContent>
     </Modal>
   )

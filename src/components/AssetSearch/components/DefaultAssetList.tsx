@@ -8,7 +8,7 @@ export type DefaultAssetListProps = {
   isPopularAssetIdsLoading: boolean
   portfolioAssetsSortedByBalance: Asset[]
   popularAssets: Asset[]
-  onClickItem: (asset: Asset) => void
+  onAssetClick: (asset: Asset) => void
 }
 
 export const DefaultAssetList = ({
@@ -16,7 +16,7 @@ export const DefaultAssetList = ({
   isPopularAssetIdsLoading,
   portfolioAssetsSortedByBalance,
   popularAssets,
-  onClickItem,
+  onAssetClick,
 }: DefaultAssetListProps) => {
   const groupIsLoading = useMemo(() => {
     return [isPortfolioLoading, isPopularAssetIdsLoading]
@@ -46,7 +46,7 @@ export const DefaultAssetList = ({
       groupCounts={groupCounts}
       hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
-      onClickItem={onClickItem}
+      onAssetClick={onAssetClick}
     />
   )
 }

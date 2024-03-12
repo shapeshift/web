@@ -45,7 +45,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
 import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
@@ -68,6 +68,7 @@ import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -154,13 +155,25 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, assetId),
   )
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
-  const poolAssetFeeAssetMarktData = useAppSelector(state =>
+  const poolAssetFeeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
+  )
+  const poolAssetFeeAssetBalanceFilter = useMemo(() => {
+    return { assetId: poolAssetFeeAsset?.assetId, accountId }
+  }, [poolAssetFeeAsset, accountId])
+  const poolAssetFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, poolAssetFeeAssetBalanceFilter),
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
+  const runeBalanceFilter = useMemo(() => {
+    return { assetId: runeAsset?.assetId, accountId: runeAccountId }
+  }, [runeAsset, runeAccountId])
+  const runeBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
   )
 
   const { data: inboundAddressesData } = useQuery({
@@ -344,6 +357,20 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     )
   }, [percentageSelection, position])
 
+  const poolAssetFeeAssetDustAmountCryptoPrecision = useMemo(() => {
+    if (!poolAssetFeeAsset) return '0'
+    const dustAmountCryptoBaseUnit =
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[poolAssetFeeAsset?.assetId] ?? '0'
+    return fromBaseUnit(dustAmountCryptoBaseUnit, poolAssetFeeAsset?.precision)
+  }, [poolAssetFeeAsset])
+
+  const runeDustAmountCryptoPrecision = useMemo(() => {
+    if (!runeAsset) return '0'
+    const dustAmountCryptoBaseUnit =
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[runeAsset?.assetId] ?? '0'
+    return fromBaseUnit(dustAmountCryptoBaseUnit, runeAsset?.precision)
+  }, [runeAsset])
+
   // We reuse lending utils here since all this does is estimating fees for a given withdrawal amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
   // however that's fine for now until accurate fees estimation is implemented
@@ -356,10 +383,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     collateralAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
     repaymentAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
     repaymentAsset: runeAsset ?? null,
-    repaymentAmountCryptoPrecision: fromBaseUnit(
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[thorchainAssetId] ?? '0',
-      THORCHAIN_FIXED_PRECISION,
-    ),
+    repaymentAmountCryptoPrecision: runeDustAmountCryptoPrecision,
     confirmedQuote,
   })
 
@@ -370,16 +394,18 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   } = useQuoteEstimatedFeesQuery({
     // Sym opportunities do *not* require a pool asset Tx, all we need is a RUNE Tx to trigger the withdraw
     enabled: opportunityType !== 'sym',
-    collateralAssetId: poolAsset?.assetId ?? '',
+    collateralAssetId: poolAssetFeeAsset?.assetId ?? '',
     collateralAccountId: accountId,
     repaymentAccountId: accountId,
-    repaymentAsset: poolAsset ?? null,
+    repaymentAsset: poolAssetFeeAsset ?? null,
     confirmedQuote,
-    repaymentAmountCryptoPrecision: fromBaseUnit(
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[poolAsset?.assetId ?? ''] ?? '0',
-      poolAsset?.precision ?? 0,
-    ),
+    repaymentAmountCryptoPrecision: poolAssetFeeAssetDustAmountCryptoPrecision,
   })
+
+  const poolAssetProtocolFeeCryptoPrecision = useMemo(() => {
+    if (opportunityType === AsymSide.Rune) return bn(0)
+    return fromThorBaseUnit(inboundAddressesData?.outbound_fee ?? '0')
+  }, [inboundAddressesData?.outbound_fee, opportunityType])
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
@@ -390,14 +416,19 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
   )
 
+  const poolAssetGasFeeFiatUserCurrency = useMemo(
+    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarketData.price),
+    [poolAssetFeeAssetMarketData.price, poolAssetTxFeeCryptoPrecision],
+  )
+
+  const runeProtocolFeeCryptoPrecision = useMemo(() => {
+    if (opportunityType === AsymSide.Asset) return bn(0)
+    return fromThorBaseUnit(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT)
+  }, [opportunityType])
+
   const runeTxFeeCryptoPrecision = useMemo(
     () => fromBaseUnit(estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0, runeAsset?.precision ?? 0),
     [estimatedRuneFeesData?.txFeeCryptoBaseUnit, runeAsset?.precision],
-  )
-
-  const poolAssetGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarktData.price),
-    [poolAssetFeeAssetMarktData.price, poolAssetTxFeeCryptoPrecision],
   )
 
   const runeGasFeeFiatUserCurrency = useMemo(
@@ -405,17 +436,25 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [runeMarketData.price, runeTxFeeCryptoPrecision],
   )
 
+  const totalProtocolFeeFiatUserCurrency = useMemo(() => {
+    const poolAssetProtocolFeeFiatUserCurrency = poolAssetProtocolFeeCryptoPrecision.times(
+      poolAssetMarketData.price,
+    )
+    const runeProtocolFeeFiatUserCurrency = runeProtocolFeeCryptoPrecision.times(
+      runeMarketData.price,
+    )
+    return poolAssetProtocolFeeFiatUserCurrency.plus(runeProtocolFeeFiatUserCurrency).toFixed()
+  }, [
+    poolAssetMarketData.price,
+    poolAssetProtocolFeeCryptoPrecision,
+    runeMarketData.price,
+    runeProtocolFeeCryptoPrecision,
+  ])
+
   const totalGasFeeFiatUserCurrency = useMemo(
     () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency),
     [poolAssetGasFeeFiatUserCurrency, runeGasFeeFiatUserCurrency],
   )
-
-  const protocolFeeFiatUserCurrency = useMemo(() => {
-    if (opportunityType === AsymSide.Rune) return '0'
-    return fromThorBaseUnit(inboundAddressesData?.outbound_fee ?? 0)
-      .times(poolAssetMarketData.price)
-      .toFixed()
-  }, [inboundAddressesData?.outbound_fee, poolAssetMarketData.price, opportunityType])
 
   const handlePercentageClick = useCallback((percentage: number) => {
     return () => {
@@ -792,10 +831,68 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [opportunityType, walletSupportsRune],
   )
 
+  const hasEnoughPoolAssetFeeAssetBalanceForTx = useMemo(() => {
+    // only asym asset withdrawals result in an asset transaction
+    if (opportunityType !== AsymSide.Asset) return true
+    if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).isZero()) return true
+    if (!poolAssetFeeAsset) return false
+
+    const poolAssetFeeAssetBalanceCryptoPrecision = fromBaseUnit(
+      poolAssetFeeAssetBalanceCryptoBaseUnit,
+      poolAssetFeeAsset?.precision,
+    )
+
+    return bnOrZero(poolAssetTxFeeCryptoPrecision)
+      .plus(poolAssetFeeAssetDustAmountCryptoPrecision)
+      .lte(poolAssetFeeAssetBalanceCryptoPrecision)
+  }, [
+    actualAssetWithdrawAmountCryptoPrecision,
+    opportunityType,
+    poolAssetFeeAsset,
+    poolAssetFeeAssetBalanceCryptoBaseUnit,
+    poolAssetFeeAssetDustAmountCryptoPrecision,
+    poolAssetTxFeeCryptoPrecision,
+  ])
+
+  const hasEnoughRuneBalanceForTx = useMemo(() => {
+    // only sym and asym rune withdrawals result in a rune transaction
+    if (opportunityType === AsymSide.Asset) return true
+    if (bnOrZero(actualRuneWithdrawAmountCryptoPrecision).isZero()) return true
+    if (!runeAsset) return false
+
+    const runeBalanceCryptoPrecision = fromBaseUnit(runeBalanceCryptoBaseUnit, runeAsset?.precision)
+
+    return bnOrZero(runeTxFeeCryptoPrecision)
+      .plus(runeDustAmountCryptoPrecision)
+      .lte(runeBalanceCryptoPrecision)
+  }, [
+    actualRuneWithdrawAmountCryptoPrecision,
+    opportunityType,
+    runeAsset,
+    runeBalanceCryptoBaseUnit,
+    runeDustAmountCryptoPrecision,
+    runeTxFeeCryptoPrecision,
+  ])
+
   const errorCopy = useMemo(() => {
     if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
+    if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
+      return translate('modals.send.errors.notEnoughNativeToken', {
+        asset: poolAssetFeeAsset.symbol,
+      })
+    if (runeAsset && !hasEnoughRuneBalanceForTx)
+      return translate('modals.send.errors.notEnoughNativeToken', {
+        asset: runeAsset.symbol,
+      })
     return null
-  }, [isUnsupportedSymWithdraw, translate])
+  }, [
+    hasEnoughPoolAssetFeeAssetBalanceForTx,
+    hasEnoughRuneBalanceForTx,
+    isUnsupportedSymWithdraw,
+    poolAssetFeeAsset,
+    runeAsset,
+    translate,
+  ])
 
   const maybeOpportunityNotSupportedExplainer = useMemo(() => {
     if (!poolAsset || !runeAsset) return null
@@ -816,7 +913,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     return translate('pools.removeLiquidity')
   }, [errorCopy, translate])
 
-  if (!poolAsset || !runeAsset) return null
+  if (!poolAsset || !poolAssetFeeAsset || !runeAsset) return null
 
   return (
     <SlideTransition>
@@ -890,11 +987,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           </Row.Value>
         </Row>
         <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.fees')}</Row.Label>
+          <Row.Label>{translate('trade.protocolFee')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
-              <Amount.Fiat value={protocolFeeFiatUserCurrency} />
-            </Skeleton>
+            <Amount.Fiat value={totalProtocolFeeFiatUserCurrency} />
           </Row.Value>
         </Row>
       </CardFooter>
@@ -916,6 +1011,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           isDisabled={
             isUnsupportedSymWithdraw ||
             isTradingActive === false ||
+            !hasEnoughPoolAssetFeeAssetBalanceForTx ||
+            !hasEnoughRuneBalanceForTx ||
             !confirmedQuote ||
             (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
             (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||

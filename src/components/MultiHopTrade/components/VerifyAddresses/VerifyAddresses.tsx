@@ -74,7 +74,7 @@ export const VerifyAddresses = () => {
 
   const shouldVerifyBuyAddress = useMemo(
     () =>
-      maybeManualReceiveAddress ||
+      !maybeManualReceiveAddress ||
       (buyAssetAccountId &&
         buyAccountMetadata &&
         walletSupportsChain({ chainId: buyAsset.chainId, wallet, isSnapInstalled: false })),
@@ -90,8 +90,8 @@ export const VerifyAddresses = () => {
     [isAddressVerified, sellAddress],
   )
   const buyVerified = useMemo(
-    () => isAddressVerified(buyAddress ?? ''),
-    [buyAddress, isAddressVerified],
+    () => !shouldVerifyBuyAddress || isAddressVerified(buyAddress ?? ''),
+    [buyAddress, isAddressVerified, shouldVerifyBuyAddress],
   )
 
   const handleContinue = useCallback(() => {

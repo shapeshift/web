@@ -39,6 +39,7 @@ import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -407,6 +408,22 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     contractAddress: estimateOutboundFeesArgs?.contractAddress ?? '',
     enabled: !!estimateOutboundFeesArgs,
   })
+
+  // https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/querier_quotes.go#L490
+  const minimumWithdrawAmountCryptoPrecision = useMemo(
+    () =>
+      bnOrZero(confirmedQuote?.assetOutboundFeeCryptoPrecision)
+        .times(4)
+        .toFixed(),
+    [confirmedQuote?.assetOutboundFeeCryptoPrecision],
+  )
+
+  const isBelowMinimumWithdrawAmount = useMemo(
+    () =>
+      bnOrZero(actualAssetWithdrawAmountCryptoPrecision).gt(0) &&
+      bnOrZero(actualAssetWithdrawAmountCryptoPrecision).lt(minimumWithdrawAmountCryptoPrecision),
+    [actualAssetWithdrawAmountCryptoPrecision, minimumWithdrawAmountCryptoPrecision],
+  )
 
   const {
     data: estimatedPoolAssetFeesData,
@@ -971,6 +988,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        {isBelowMinimumWithdrawAmount && (
+          <Alert status='warning' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={'defi.modals.saversVaults.dangerousWithdrawWarning'} />
+          </Alert>
+        )}
+
         {maybeOpportunityNotSupportedExplainer}
         <Button
           mx={-2}
@@ -984,7 +1008,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
             (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
             !validInputAmount ||
-            isSweepNeededLoading
+            isSweepNeededLoading ||
+            isEstimatedPoolAssetOutboundFeesDataLoading ||
+            isBelowMinimumWithdrawAmount
           }
           isLoading={
             isEstimatedPoolAssetOutboundFeesDataLoading ||

@@ -36,9 +36,17 @@ export type EstimateFeesInput = {
   from?: string
   to: string
   sendMax: boolean
-  accountId: string
   contractAddress: string | undefined
-}
+} & (
+  | {
+      accountId: string
+      pubkey?: undefined
+    }
+  | {
+      accountId?: undefined
+      pubkey: string
+    }
+)
 
 export const estimateFees = ({
   amountCryptoPrecision,
@@ -48,9 +56,14 @@ export const estimateFees = ({
   to,
   sendMax,
   accountId,
+  pubkey: _pubkey,
   contractAddress,
 }: EstimateFeesInput): Promise<FeeDataEstimate<ChainId>> => {
-  const { account } = fromAccountId(accountId)
+  const pubkey = (() => {
+    if (accountId) return fromAccountId(accountId).account
+    return _pubkey
+  })()
+  if (!pubkey) throw new Error('accountId or pubkey required to estimate fees')
   const state = store.getState()
   const asset = selectAssetById(state, assetId)
   if (!asset) throw new Error(`Asset not found for ${assetId}`)
@@ -72,7 +85,7 @@ export const estimateFees = ({
         to,
         value,
         chainSpecific: {
-          from: account,
+          from: pubkey,
           contractAddress,
           data: memo,
         },
@@ -85,7 +98,7 @@ export const estimateFees = ({
       const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
         to,
         value,
-        chainSpecific: { from, pubkey: account },
+        chainSpecific: { from, pubkey },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)

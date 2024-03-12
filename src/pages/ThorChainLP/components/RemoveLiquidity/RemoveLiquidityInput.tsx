@@ -21,7 +21,7 @@ import {
   StackDivider,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -46,7 +46,7 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
-import { assertUnreachable } from 'lib/utils'
+import { assertUnreachable, isToken, tokenOrUndefined } from 'lib/utils'
 import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
@@ -56,6 +56,7 @@ import {
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
+import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePool } from 'pages/ThorChainLP/queries/hooks/usePool'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
@@ -363,6 +364,51 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     confirmedQuote,
   })
 
+  // Estimates *pool asset* outbound fees only for now
+  // TODO(gomes) - For the sake of simplicity, RUNE is not included in the estimation, we assume outbound fees are free which they aren't
+  // But once I get this working, I'll add the RUNE fees estimation, assuming we can get the rotating addresses from the pool module
+  // and estimations works from them
+  const estimateOutboundFeesArgs = useMemo(() => {
+    if (opportunityType === AsymSide.Rune) return undefined
+    if (!assetId || !wallet || !poolAsset || !poolAssetAccountAddress) return undefined
+    if (!inboundAddressesData) return undefined
+
+    const amountCryptoPrecision = actualAssetWithdrawAmountCryptoPrecision
+
+    return {
+      amountCryptoPrecision,
+      assetId: poolAsset.assetId,
+      to: poolAssetAccountAddress,
+      sendMax: false,
+      // Router holds tokens, inbound address holds native asset
+      pubkey: isToken(fromAssetId(poolAsset.assetId).assetReference)
+        ? inboundAddressesData.router
+        : inboundAddressesData.address,
+      contractAddress: tokenOrUndefined(fromAssetId(poolAsset.assetId).assetReference),
+    }
+  }, [
+    assetId,
+    inboundAddressesData,
+    opportunityType,
+    poolAsset,
+    poolAssetAccountAddress,
+    actualAssetWithdrawAmountCryptoPrecision,
+    wallet,
+  ])
+
+  const {
+    data: estimatedPoolAssetOutboundFeesData,
+    isLoading: isEstimatedPoolAssetOutboundFeesDataLoading,
+  } = useGetEstimatedFeesQuery({
+    amountCryptoPrecision: estimateOutboundFeesArgs?.amountCryptoPrecision ?? '0',
+    assetId: estimateOutboundFeesArgs?.assetId ?? '',
+    to: estimateOutboundFeesArgs?.to ?? '',
+    sendMax: estimateOutboundFeesArgs?.sendMax ?? false,
+    pubkey: estimateOutboundFeesArgs?.pubkey ?? '',
+    contractAddress: estimateOutboundFeesArgs?.contractAddress ?? '',
+    enabled: !!estimateOutboundFeesArgs,
+  })
+
   const {
     data: estimatedPoolAssetFeesData,
     isLoading: isEstimatedPoolAssetFeesDataLoading,
@@ -583,6 +629,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!actualRuneWithdrawAmountFiatUserCurrency) return
     if (!shareOfPoolDecimalPercent) return
     if (!poolAssetInboundAddress) return
+    if (!estimatedPoolAssetOutboundFeesData || !poolAssetFeeAsset) return
 
     setConfirmedQuote({
       assetWithdrawAmountCryptoPrecision: actualAssetWithdrawAmountCryptoPrecision,
@@ -600,6 +647,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       withdrawalBps: bnOrZero(percentageSelection).times(100).toString(),
       currentAccountIdByChainId,
       assetAddress: poolAssetAccountAddress,
+      // TODO(gomes): we probably want to store this as-is and only the *4 dance when adding the minimum flow
+      assetOutboundFeeCryptoPrecision: fromBaseUnit(
+        bn(estimatedPoolAssetOutboundFeesData.txFeeCryptoBaseUnit).times(4),
+        poolAssetFeeAsset.precision,
+      ),
+      assetOutboundFeeFiatUserCurrency: bn(estimatedPoolAssetOutboundFeesData.txFeeFiatUserCurrency)
+        .times(4)
+        .toFixed(),
     })
   }, [
     actualAssetWithdrawAmountCryptoPrecision,
@@ -620,6 +675,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     totalGasFeeFiatUserCurrency,
     currentAccountIdByChainId,
     poolAssetAccountAddress,
+    estimatedPoolAssetOutboundFeesData,
+    poolAssetFeeAsset,
   ])
 
   const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])
@@ -897,6 +954,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
+        <Row fontSize='sm' fontWeight='medium'>
+          <Row.Label>{translate('trade.protocolFee')}</Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={Boolean(confirmedQuote?.assetOutboundFeeFiatUserCurrency)}>
+              <Amount.Fiat value={confirmedQuote?.assetOutboundFeeFiatUserCurrency ?? '0'} />
+            </Skeleton>
+          </Row.Value>
+        </Row>
       </CardFooter>
       <CardFooter
         borderTopWidth={1}
@@ -923,6 +988,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             isSweepNeededLoading
           }
           isLoading={
+            isEstimatedPoolAssetOutboundFeesDataLoading ||
             isTradingActiveLoading ||
             (isEstimatedPoolAssetFeesDataLoading && opportunityType !== AsymSide.Rune) ||
             (isEstimatedRuneFeesDataLoading && opportunityType !== AsymSide.Asset) ||

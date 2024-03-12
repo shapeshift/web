@@ -194,7 +194,7 @@ export const Sweep = ({
             <Row.Value>
               <Skeleton isLoaded={isEstimatedFeesDataSuccess}>
                 <Box textAlign='right'>
-                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiatUserCurrency ?? '0'} />
                   <Amount.Crypto
                     color='text.subtle'
                     value={fromBaseUnit(

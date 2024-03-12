@@ -5,21 +5,38 @@ import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 // For use outside of react with queryClient.fetchQuery()
 export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
   const { estimateFeesInput, asset, assetMarketData } = queryKey[1]
 
   // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-  if (!asset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
+  if (
+    !asset ||
+    !estimateFeesInput?.to ||
+    !(estimateFeesInput.accountId || estimateFeesInput.pubkey)
+  )
+    return
+
+  const feeAsset = selectFeeAssetById(store.getState(), asset.assetId)
+
+  if (!feeAsset) return
 
   const estimatedFees = await estimateFees(estimateFeesInput)
-  const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
+  const txFeeFiatUserCurrency = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
     .times(assetMarketData.price)
     .toString()
-  return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
+  return {
+    estimatedFees,
+    txFeeFiatUserCurrency,
+    txFeeCryptoBaseUnit: estimatedFees.fast.txFee,
+  }
 }
 
 export const useGetEstimatedFeesQuery = ({
@@ -48,7 +65,11 @@ export const useGetEstimatedFeesQuery = ({
     queryKey: estimatedFeesQueryKey,
     staleTime: 30_000,
     queryFn,
-    enabled: enabled && Boolean(estimateFeesInput.to && estimateFeesInput.accountId && asset),
+    enabled:
+      enabled &&
+      Boolean(
+        estimateFeesInput.to && (estimateFeesInput.accountId || estimateFeesInput.pubkey) && asset,
+      ),
     ...(enabled
       ? {
           // Ensures fees are refetched at an interval, including when the app is in the background

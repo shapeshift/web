@@ -564,7 +564,7 @@ export const BorrowInput = ({
                   <Skeleton
                     isLoaded={Boolean(isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData)}
                   >
-                    <Amount.Fiat value={estimatedSweepFeesData?.txFeeFiat ?? '0'} />
+                    <Amount.Fiat value={estimatedSweepFeesData?.txFeeFiatUserCurrency ?? '0'} />
                   </Skeleton>
                 </Row.Value>
               </Row>

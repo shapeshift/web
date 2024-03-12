@@ -721,6 +721,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             onClick={handleSignTx}
             isDisabled={isTradingActive === false || status === TxStatus.Failed}
             isLoading={
+              status === TxStatus.Pending ||
               isInboundAddressLoading ||
               isTradingActiveLoading ||
               isEstimatedFeesDataLoading ||

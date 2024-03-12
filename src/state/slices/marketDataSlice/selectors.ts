@@ -19,21 +19,21 @@ export const selectMarketDataDidLoad = (state: ReduxState) =>
     query => query?.endpointName === 'findAll' && query?.status === QueryStatus.fulfilled,
   )
 
-export const selectCryptoMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
+export const selectMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
   state.marketData.crypto.ids
 const selectFiatMarketData = (state: ReduxState) => state.marketData.fiat.byId
 
-export const selectCryptoMarketDataUsd = ((state: ReduxState) => state.marketData.crypto.byId) as (
+export const selectMarketDataUsd = ((state: ReduxState) => state.marketData.crypto.byId) as (
   state: ReduxState,
 ) => MarketDataById<AssetId>
 
-export const selectCryptoMarketDataUserCurrency = createDeepEqualOutputSelector(
-  selectCryptoMarketDataUsd,
-  selectCryptoMarketDataIdsSortedByMarketCapUsd,
+export const selectMarketDataUserCurrency = createDeepEqualOutputSelector(
+  selectMarketDataUsd,
+  selectMarketDataIdsSortedByMarketCapUsd,
   selectFiatMarketData,
   selectSelectedCurrency,
   (
-    cryptoMarketDataUsd,
+    marketDataUsd,
     marketDataAssetIdsSortedByMarketCapUsd,
     fiatMarketData,
     selectedCurrency,
@@ -41,9 +41,9 @@ export const selectCryptoMarketDataUserCurrency = createDeepEqualOutputSelector(
     const fiatPrice = bnOrZero(fiatMarketData[selectedCurrency]?.price ?? 1) // fallback to USD
     // No currency conversion needed
     return selectedCurrency === 'USD'
-      ? cryptoMarketDataUsd
+      ? marketDataUsd
       : marketDataAssetIdsSortedByMarketCapUsd.reduce<MarketDataById<AssetId>>((acc, assetId) => {
-          const assetMarketData = cryptoMarketDataUsd[assetId]
+          const assetMarketData = marketDataUsd[assetId]
           // Market data massaged to the selected currency
           const selectedCurrencyAssetMarketData = Object.assign({}, assetMarketData ?? {}, {
             price: bnOrZero(assetMarketData?.price)
@@ -75,18 +75,18 @@ export const selectUserCurrencyToUsdRate = createSelector(
 const selectAssetId = (_state: ReduxState, assetId: AssetId) => assetId
 
 export const selectMarketDataByAssetIdUserCurrency = createCachedSelector(
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   selectAssetId,
-  (cryptoMarketData, assetId): MarketData => {
-    return cryptoMarketData[assetId] ?? defaultMarketData
+  (marketData, assetId): MarketData => {
+    return marketData[assetId] ?? defaultMarketData
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectMarketDataByFilter = createCachedSelector(
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
-  (cryptoMarketData, assetId): MarketData => {
-    return cryptoMarketData[assetId ?? ''] ?? defaultMarketData
+  (marketData, assetId): MarketData => {
+    return marketData[assetId ?? ''] ?? defaultMarketData
   },
 )((_s: ReduxState, filter) => filter?.assetId ?? 'assetId')
 
@@ -139,19 +139,19 @@ export const selectFiatPriceHistoryTimeframe = createSelector(
 )
 
 export const selectUsdRateByAssetId = createCachedSelector(
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectAssetId,
-  (cryptoMarketDataUsd, assetId): string | undefined => {
-    return cryptoMarketDataUsd[assetId]?.price
+  (marketDataUsd, assetId): string | undefined => {
+    return marketDataUsd[assetId]?.price
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
 
 export const selectUserCurrencyRateByAssetId = createCachedSelector(
-  selectCryptoMarketDataUsd,
+  selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
   selectAssetId,
-  (cryptoMarketDataUsd, userCurrencyToUsdRate, assetId): string => {
-    return bnOrZero(cryptoMarketDataUsd[assetId]?.price)
+  (marketDataUsd, userCurrencyToUsdRate, assetId): string => {
+    return bnOrZero(marketDataUsd[assetId]?.price)
       .times(userCurrencyToUsdRate)
       .toString()
   },

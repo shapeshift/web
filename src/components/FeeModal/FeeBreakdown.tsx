@@ -8,29 +8,28 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const divider = <Divider />
 
-const AmountOrFree = ({ isFree, amountFiat }: { isFree: boolean; amountFiat: string }) => {
+const AmountOrFree = ({ isFree, amountUSD }: { isFree: boolean; amountUSD: string }) => {
   return isFree ? (
     <Text translation='common.free' color='text.success' />
   ) : (
-    <Amount.Fiat value={amountFiat} />
+    <Amount.Fiat fiatType='USD' value={amountUSD} />
   )
 }
 
 type FeeBreakdownProps = {
   feeModel: ParameterModel
   inputAmountUsd: string | undefined
-  affiliateFeeAmountUserCurrency: string
+  affiliateFeeAmountUsd: string
 }
 
 export const FeeBreakdown = ({
   feeModel,
   inputAmountUsd,
-  affiliateFeeAmountUserCurrency,
+  affiliateFeeAmountUsd,
 }: FeeBreakdownProps) => {
   const translate = useTranslate()
   const votingPowerParams: { feeModel: ParameterModel } = useMemo(() => ({ feeModel }), [feeModel])
@@ -42,24 +41,15 @@ export const FeeBreakdown = ({
       feeModel,
     })
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const feeBeforeDiscountUserCurrency = useMemo(() => {
-    return feeUsdBeforeDiscount.times(userCurrencyToUsdRate).toFixed(2)
-  }, [feeUsdBeforeDiscount, userCurrencyToUsdRate])
-
-  const isFree = useMemo(
-    () => bnOrZero(affiliateFeeAmountUserCurrency).eq(0),
-    [affiliateFeeAmountUserCurrency],
-  )
+  const isFree = useMemo(() => bnOrZero(affiliateFeeAmountUsd).eq(0), [affiliateFeeAmountUsd])
 
   const isFeeUnsupported = useMemo(() => {
-    return affiliateFeeAmountUserCurrency === '0' && bnOrZero(feeBeforeDiscountUserCurrency).gt(0)
-  }, [affiliateFeeAmountUserCurrency, feeBeforeDiscountUserCurrency])
+    return affiliateFeeAmountUsd === '0' && bnOrZero(feeUsdBeforeDiscount).gt(0)
+  }, [affiliateFeeAmountUsd, feeUsdBeforeDiscount])
 
-  const feeDiscountUserCurrency = useMemo(() => {
-    return isFeeUnsupported ? '0.00' : foxDiscountUsd.times(userCurrencyToUsdRate).toFixed(2)
-  }, [foxDiscountUsd, isFeeUnsupported, userCurrencyToUsdRate])
+  const feeDiscountUsd = useMemo(() => {
+    return isFeeUnsupported ? '0.00' : foxDiscountUsd.toFixed(2)
+  }, [foxDiscountUsd, isFeeUnsupported])
 
   return (
     <Stack spacing={0}>
@@ -71,7 +61,7 @@ export const FeeBreakdown = ({
         <Row>
           <Row.Label>{translate('foxDiscounts.tradeFee')}</Row.Label>
           <Row.Value textAlign='right'>
-            <AmountOrFree isFree={isFeeUnsupported} amountFiat={feeBeforeDiscountUserCurrency} />
+            <AmountOrFree isFree={isFeeUnsupported} amountUSD={feeUsdBeforeDiscount.toFixed(2)} />
             <Amount
               color='text.subtle'
               fontSize='sm'
@@ -90,7 +80,7 @@ export const FeeBreakdown = ({
           <Row>
             <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
             <Row.Value textAlign='right'>
-              <Amount.Fiat value={feeDiscountUserCurrency} />
+              <Amount.Fiat fiatType='USD' value={feeDiscountUsd} />
               <Amount.Percent
                 fontSize='sm'
                 value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
@@ -104,7 +94,7 @@ export const FeeBreakdown = ({
       <Row px={8} py={4}>
         <Row.Label color='text.base'>{translate('foxDiscounts.totalTradeFee')}</Row.Label>
         <Row.Value fontSize='lg'>
-          <AmountOrFree isFree={isFree} amountFiat={affiliateFeeAmountUserCurrency} />
+          <AmountOrFree isFree={isFree} amountUSD={affiliateFeeAmountUsd} />
         </Row.Value>
       </Row>
     </Stack>

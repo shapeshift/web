@@ -16,9 +16,10 @@ import {
   Stack,
   StackDivider,
   useColorModeValue,
+  usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -161,6 +162,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
+  const previousOpportunityId = usePrevious(activeOpportunityId)
+
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
   const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
     undefined,
@@ -549,14 +552,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [poolAsset])
 
   const memo = useMemo(() => {
-    const accountId = runeAccountId || poolAssetAccountId
-    if (!accountId) return undefined
-    if (thorchainNotationPoolAssetId === undefined) return undefined
-    // Note, this memo is just used to estimate fees, and should *not* be set in the confirmedQuote
-    // All we care about is having a rough estimation of the length of the *memo* arg in calldata
-    // The actual bps and address may be different at confirm time
-    return `+:${thorchainNotationPoolAssetId}:${fromAccountId(accountId).account ?? ''}:ss:50`
-  }, [poolAssetAccountId, runeAccountId, thorchainNotationPoolAssetId])
+    if (thorchainNotationPoolAssetId === undefined) return
+
+    if (opportunityType === 'sym') {
+      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`
+    }
+
+    return `+:${thorchainNotationPoolAssetId}::ss:50`
+    // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
+  }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
   const estimateFeesArgs = useMemo(() => {
     if (!assetId || !wallet || !poolAsset || !memo || !poolAssetAccountAddress) return undefined
@@ -939,6 +943,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalAmountUsd,
       feeBps: feeBps.toFixed(0),
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
+      feeAmountUSD: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
       runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
@@ -1013,6 +1018,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             marketData,
             isRune,
           )
+          // Reset inputs on OpportunityId change
+          if (activeOpportunityId !== previousOpportunityId) {
+            handleAddLiquidityInputChange('0', false)
+          }
+
           const cryptoAmount = isRune
             ? virtualRuneDepositAmountCryptoPrecision
             : virtualAssetDepositAmountCryptoPrecision
@@ -1049,10 +1059,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     poolAsset,
     runeAsset,
+    opportunityType,
     pairDivider,
     runeMarketData,
     poolAssetMarketData,
     createHandleAddLiquidityInputChange,
+    activeOpportunityId,
+    previousOpportunityId,
     virtualRuneDepositAmountCryptoPrecision,
     virtualAssetDepositAmountCryptoPrecision,
     virtualRuneDepositAmountFiatUserCurrency,
@@ -1060,7 +1073,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     currentAccountIdByChainId,
     percentOptions,
     handleAccountIdChange,
-    opportunityType,
   ])
 
   const symAlert = useMemo(() => {
@@ -1441,7 +1453,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </Button>
       </CardFooter>
       <FeeModal
-        affiliateFeeAmountUserCurrency={confirmedQuote?.feeAmountFiatUserCurrency ?? '0'}
+        affiliateFeeAmountUsd={confirmedQuote?.feeAmountUSD ?? '0'}
         isOpen={showFeeModal}
         onClose={toggleFeeModal}
         inputAmountUsd={confirmedQuote?.totalAmountUsd}

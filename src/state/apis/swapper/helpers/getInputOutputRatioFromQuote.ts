@@ -6,10 +6,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import {
-  selectCryptoMarketDataUsd,
-  selectUsdRateByAssetId,
-} from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataUsd, selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
@@ -52,12 +49,12 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
  * @returns The total network fee across all hops in USD precision
  */
 const _getTotalNetworkFeeUsdPrecision = (state: ReduxState, quote: TradeQuote): BigNumber => {
-  const cryptoMarketDataUsd = selectCryptoMarketDataUsd(state)
+  const marketDataUsd = selectMarketDataUsd(state)
 
   const getFeeAssetUsdRate = (feeAssetId: AssetId) => {
     const feeAsset = selectFeeAssetById(state, feeAssetId)
     if (feeAsset === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
-    const feeAssetMarketData = cryptoMarketDataUsd[feeAsset.assetId]
+    const feeAssetMarketData = marketDataUsd[feeAsset.assetId]
     if (feeAssetMarketData === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
     return feeAssetMarketData.price
   }

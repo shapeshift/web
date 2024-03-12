@@ -24,9 +24,9 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -47,7 +47,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
-  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

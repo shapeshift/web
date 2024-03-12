@@ -951,19 +951,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('trade.protocolFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton
-              isLoaded={Boolean(
-                opportunityType !== AsymSide.Rune &&
-                  confirmedQuote?.assetOutboundFeeFiatUserCurrency,
-              )}
-            >
-              <Amount.Fiat value={confirmedQuote?.assetOutboundFeeFiatUserCurrency ?? '0'} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
+        {opportunityType !== AsymSide.Rune && (
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('trade.protocolFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={Boolean(confirmedQuote?.assetOutboundFeeFiatUserCurrency)}>
+                <Amount.Fiat value={confirmedQuote?.assetOutboundFeeFiatUserCurrency ?? '0'} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        )}
       </CardFooter>
       <CardFooter
         borderTopWidth={1}

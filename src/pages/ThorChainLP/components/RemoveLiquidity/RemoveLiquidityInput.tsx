@@ -646,16 +646,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       withdrawalBps: bnOrZero(percentageSelection).times(100).toString(),
       currentAccountIdByChainId,
       assetAddress: poolAssetAccountAddress,
-      // TODO(gomes): we probably want to store this as-is and only the *4 dance when adding the minimum flow
       assetOutboundFeeCryptoPrecision: fromBaseUnit(
-        bnOrZero(estimatedPoolAssetOutboundFeesData?.txFeeCryptoBaseUnit).times(4),
+        estimatedPoolAssetOutboundFeesData?.txFeeCryptoBaseUnit ?? '0',
         poolAssetFeeAsset.precision,
       ),
-      assetOutboundFeeFiatUserCurrency: bnOrZero(
-        estimatedPoolAssetOutboundFeesData?.txFeeFiatUserCurrency,
-      )
-        .times(4)
-        .toFixed(),
+      assetOutboundFeeFiatUserCurrency:
+        estimatedPoolAssetOutboundFeesData?.txFeeFiatUserCurrency ?? '0',
     })
   }, [
     actualAssetWithdrawAmountCryptoPrecision,

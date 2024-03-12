@@ -39,7 +39,7 @@ export const GroupedAssetRow = ({
   const assetId = asset?.assetId
   const filter = useMemo(() => ({ assetId }), [assetId])
   const isSupported = assetId && wallet && isAssetSupportedByWallet(assetId, wallet)
-  const cryptoHumanBalance = useAppSelector(s =>
+  const cryptoPrecisionBalance = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
   )
   const userCurrencyBalance =
@@ -48,7 +48,7 @@ export const GroupedAssetRow = ({
 
   if (!asset) return null
 
-  const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
+  const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
 
   return (
     <Button
@@ -85,7 +85,7 @@ export const GroupedAssetRow = ({
               <Amount.Crypto
                 fontSize='sm'
                 fontWeight='medium'
-                value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+                value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
                 symbol={asset.symbol}
               />
             )}

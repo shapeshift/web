@@ -80,7 +80,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     },
   })
   const searchString = watch('search').trim()
-  const searching = useMemo(() => searchString.length > 0, [searchString])
+  const isSearching = useMemo(() => searchString.length > 0, [searchString])
 
   const chainIds: ChainId[] = useMemo(() => ['All', ...uniq(assets.map(a => a.chainId))], [assets])
   const inputProps: InputProps = useMemo(
@@ -181,7 +181,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           </Flex>
         </Stack>
       </ModalHeader>
-      {searching ? (
+      {isSearching ? (
         <SearchTermAssetList
           activeChainId={activeChainId}
           searchString={searchString}

@@ -9,7 +9,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
 
-import { selectCryptoMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/selectors'
+import { selectMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/selectors'
 import { assetIdToFeeAssetId } from '../portfolioSlice/utils'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'
 
@@ -65,7 +65,7 @@ export const selectAssetIds = (state: ReduxState) => state.assets.ids
 export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
 
 export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
-  selectCryptoMarketDataIdsSortedByMarketCapUsd,
+  selectMarketDataIdsSortedByMarketCapUsd,
   selectAssets,
   (marketDataAssetIds, assets): Asset[] => {
     const sortedAssets = marketDataAssetIds.reduce<Asset[]>((acc, assetId) => {

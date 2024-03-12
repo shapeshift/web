@@ -22,8 +22,8 @@ import { CHART_TRADE_SIZE_MAX_FOX, CHART_TRADE_SIZE_MAX_USD, labelStyles } from 
 import type { FeeSlidersProps } from './FeeExplainer'
 
 export const FeeSliders: React.FC<FeeSlidersProps> = ({
-  tradeSize,
-  setTradeSize,
+  tradeSizeUSD,
+  setTradeSizeUSD,
   foxHolding,
   setFoxHolding,
   isLoading,
@@ -90,18 +90,27 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
       <Stack width='full' spacing={4}>
         <Flex width='full' justifyContent='space-between' fontWeight='medium'>
           <Text translation='foxDiscounts.tradeSize' />
-          <Amount.Fiat value={tradeSize} fontWeight='bold' />
+          <Amount.Fiat fiatType='USD' value={tradeSizeUSD} fontWeight='bold' />
         </Flex>
         <Stack width='100%' pb={8}>
-          <Slider min={0} max={CHART_TRADE_SIZE_MAX_USD} value={tradeSize} onChange={setTradeSize}>
+          <Slider
+            min={0}
+            max={CHART_TRADE_SIZE_MAX_USD}
+            value={tradeSizeUSD}
+            onChange={setTradeSizeUSD}
+          >
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
-              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
+              <Amount.Fiat fiatType='USD' value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />
             </SliderMark>
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.5} {...labelStyles}>
-              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.5} abbreviated />
+              <Amount.Fiat fiatType='USD' value={CHART_TRADE_SIZE_MAX_USD * 0.5} abbreviated />
             </SliderMark>
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.8} {...labelStyles}>
-              <Amount.Fiat value={CHART_TRADE_SIZE_MAX_USD * 0.8} abbreviated={true} />
+              <Amount.Fiat
+                fiatType='USD'
+                value={CHART_TRADE_SIZE_MAX_USD * 0.8}
+                abbreviated={true}
+              />
             </SliderMark>
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
@@ -113,7 +122,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
       <Flex alignItems='center' justifyContent='center' width='full' flexWrap='wrap' gap={2}>
         <RawText fontSize='sm'>
           {translate('foxDiscounts.freeUnderThreshold', {
-            threshold: toFiat(FEE_CURVE_NO_FEE_THRESHOLD_USD),
+            threshold: toFiat(FEE_CURVE_NO_FEE_THRESHOLD_USD, { fiatType: 'USD' }),
           })}
         </RawText>
         <Flex gap={2} alignItems='center' justifyContent='space-between' fontSize='sm'>

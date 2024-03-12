@@ -14,9 +14,11 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { PropsWithChildren } from 'react'
 import { Fragment, useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
+import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
@@ -37,6 +39,7 @@ import { TransactionRow } from './TransactionRow'
 
 type ReusableLpStatusProps = {
   handleBack: () => void
+  handleRestart: () => void
   baseAssetId: AssetId
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
 } & PropsWithChildren
@@ -45,10 +48,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   baseAssetId,
   confirmedQuote,
   handleBack,
+  handleRestart,
   children,
 }) => {
   const translate = useTranslate()
   const [activeStepIndex, setActiveStepIndex] = useState(0)
+  const [canGoBack, setCanGoBack] = useState(true)
+  const [isFailed, setIsFailed] = useState(false)
 
   const { opportunityId } = confirmedQuote
   const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
@@ -88,9 +94,17 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     }
   }, [poolAsset, baseAsset, confirmedQuote, opportunityType])
 
-  const handleComplete = useCallback(() => {
-    setActiveStepIndex(activeStepIndex + 1)
-  }, [activeStepIndex])
+  const handleComplete = useCallback(
+    (status: TxStatus) => {
+      if (status === TxStatus.Failed) return setIsFailed(true)
+      if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
+    },
+    [activeStepIndex],
+  )
+
+  const handleStart = useCallback(() => {
+    setCanGoBack(false)
+  }, [setCanGoBack])
 
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown
@@ -128,6 +142,42 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
             <FaCheck />
           </Center>
           <Heading as='h4'>{translate('pools.transactionSubmitted')}</Heading>
+        </CardBody>
+      )
+    }
+
+    if (isFailed) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center
+            bg='background.error'
+            boxSize='80px'
+            borderRadius='full'
+            color='text.error'
+            fontSize='xl'
+            my={8}
+          >
+            <FaX />
+          </Center>
+          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
+        </CardBody>
+      )
+    }
+
+    if (isFailed) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center
+            bg='background.error'
+            boxSize='80px'
+            borderRadius='full'
+            color='text.error'
+            fontSize='xl'
+            my={8}
+          >
+            <FaX />
+          </Center>
+          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
         </CardBody>
       )
     }
@@ -187,6 +237,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   }, [
     txAssets.length,
     isComplete,
+    isFailed,
     poolAssets,
     stepProgress,
     activeStepIndex,
@@ -214,8 +265,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               assetId={asset.assetId}
               poolAssetId={poolAssetId}
               amountCryptoPrecision={amountCryptoPrecision}
+              onStart={handleStart}
               onComplete={handleComplete}
-              isActive={index === activeStepIndex}
+              isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
               opportunityType={opportunityType}
             />
@@ -223,14 +275,23 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         })}
       </Stack>
     )
-  }, [txAssets, confirmedQuote, poolAssetId, handleComplete, activeStepIndex, opportunityType])
+  }, [
+    txAssets,
+    confirmedQuote,
+    poolAssetId,
+    handleStart,
+    handleComplete,
+    activeStepIndex,
+    isFailed,
+    opportunityType,
+  ])
 
   if (!(poolAsset && baseAsset)) return null
 
   return (
     <SlideTransition>
       <CardHeader>
-        <WithBackButton onBack={handleBack}>
+        <WithBackButton onBack={canGoBack ? handleBack : undefined}>
           <Heading as='h5' textAlign='center'>
             <Text translation='Confirm' />
           </Heading>
@@ -245,9 +306,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           {children}
         </CardFooter>
       )}
-      {isComplete && (
+      {(isComplete || isFailed) && (
         <CardFooter flexDir='column'>
-          <Button size='lg' mx={-2} onClick={handleBack}>
+          <Button size='lg' mx={-2} onClick={handleRestart}>
             {translate('common.goBack')}
           </Button>
         </CardFooter>

@@ -11,6 +11,7 @@ import {
   fromAccountId,
   fromAssetId,
   ltcAssetId,
+  thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -54,6 +55,7 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT = {
   [avalancheAssetId]: '10000000000',
   [bscAssetId]: '10000000000',
   [cosmosAssetId]: '1', // the inbound address dust_threshold is '0', but LP withdrawls fail without a dust value
+  [thorchainAssetId]: '1', // partial LP withdrawls fail without a dust value
   [binanceAssetId]: '0',
   [usdcEthereumAssetId]: '0',
   [usdtEthereumAssetId]: '0',

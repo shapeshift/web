@@ -42,8 +42,8 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 
 import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
-  selectCryptoMarketDataUsd,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUsd,
+  selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../selectors'
@@ -260,14 +260,14 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
   createSelector(
     selectActiveQuote,
     selectUserCurrencyToUsdRate,
-    selectCryptoMarketDataUsd,
+    selectMarketDataUsd,
     (_state: ReduxState, step: number) => step,
-    (quote, userCurrencyToUsdRate, cryptoMarketDataUsd, step) =>
+    (quote, userCurrencyToUsdRate, marketDataUsd, step) =>
       quote && quote.steps[step]
         ? getHopTotalProtocolFeesFiatPrecision(
             quote.steps[step],
             userCurrencyToUsdRate,
-            cryptoMarketDataUsd,
+            marketDataUsd,
           )
         : undefined,
   )
@@ -432,8 +432,8 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectFirstHop,
   selectFirstHopSellFeeAsset,
-  selectCryptoMarketDataUserCurrency,
-  (tradeQuoteStep, feeAsset, cryptoMarketData) => {
+  selectMarketDataUserCurrency,
+  (tradeQuoteStep, feeAsset, marketData) => {
     if (!tradeQuoteStep) return
 
     if (feeAsset === undefined) {
@@ -441,7 +441,7 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
     }
 
     const getFeeAssetUserCurrencyRate = () => {
-      return cryptoMarketData[feeAsset?.assetId ?? '']?.price ?? '0'
+      return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
     }
 
     return getHopTotalNetworkFeeUserCurrencyPrecision(
@@ -458,15 +458,15 @@ export const selectSecondHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectSecondHop,
   selectSecondHopSellFeeAsset,
-  selectCryptoMarketDataUserCurrency,
-  (tradeQuoteStep, feeAsset, cryptoMarketData) => {
+  selectMarketDataUserCurrency,
+  (tradeQuoteStep, feeAsset, marketData) => {
     if (!tradeQuoteStep) return
 
     if (feeAsset === undefined) {
       throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
     }
     const getFeeAssetUserCurrencyRate = () => {
-      return cryptoMarketData[feeAsset?.assetId ?? '']?.price ?? '0'
+      return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
     }
 
     return getHopTotalNetworkFeeUserCurrencyPrecision(

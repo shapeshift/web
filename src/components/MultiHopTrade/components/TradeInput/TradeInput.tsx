@@ -704,6 +704,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                     <Divider />
                   </Flex>
                   <TradeAssetInput
+                    // Disable account selection when user set a manual receive address
+                    isAccountSelectionHidden={Boolean(manualReceiveAddress)}
                     isReadOnly={true}
                     accountId={initialBuyAssetAccountId}
                     assetId={buyAsset.assetId}

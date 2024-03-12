@@ -83,7 +83,8 @@ type TransactionRowProps = {
   assetId: AssetId
   poolAssetId: AssetId
   amountCryptoPrecision: string
-  onComplete: () => void
+  onComplete: (status: TxStatus) => void
+  onStart: () => void
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
@@ -95,6 +96,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   poolAssetId,
   amountCryptoPrecision,
   onComplete,
+  onStart,
   isActive,
   confirmedQuote,
   opportunityType,
@@ -243,8 +245,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
       setIsSubmitting(false)
       setStatus(TxStatus.Confirmed)
-
-      return onComplete()
+      onComplete(TxStatus.Confirmed)
     },
   })
 
@@ -273,17 +274,17 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
     }
 
-    // Track failed status and reset isSubmitting (tx failed and won't be picked up by thorchain)
+    // Track failed status and handle onComplete
     if (tx.status === TxStatus.Failed) {
       setStatus(tx.status)
-      setIsSubmitting(false)
+      onComplete(TxStatus.Failed)
       return
     }
 
     if (tx.status === TxStatus.Confirmed) {
       ;(async () => await mutateAsync({ txId }))()
     }
-  }, [mutateAsync, status, tx, txId, isRuneTx])
+  }, [mutateAsync, status, tx, txId, isRuneTx, onComplete])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -596,7 +597,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             assertUnreachable(transactionType)
         }
       })()
-    })()
+    })().then(() => {
+      onStart()
+      setIsSubmitting(false)
+    })
   }, [
     assetId,
     poolAssetId,
@@ -617,6 +621,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     assetAddress,
     estimateFeesArgs,
     selectedCurrency,
+    onStart,
   ])
 
   const txIdLink = useMemo(

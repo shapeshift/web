@@ -21,7 +21,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '../../common-selectors'
-import { selectCryptoMarketDataUserCurrency } from '../../marketDataSlice/selectors'
+import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType } from './../types'
 
@@ -35,7 +35,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
   selectLpIdParamFromFilter,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   (
     lpOpportunitiesById,
     lpId,
@@ -110,7 +110,7 @@ export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelect
   selectLpIdParamFromFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   (
     lpOpportunitiesById,
     lpId,
@@ -192,7 +192,7 @@ export const selectUnderlyingLpAssetsWithBalancesAndIcons = createSelector(
   selectLpOpportunitiesById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   (
     lpId,
     lpOpportunitiesById,
@@ -241,7 +241,7 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
   selectLpOpportunitiesById,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   (
     lpOpportunitiesById,
     portfolioAssetBalancesById,
@@ -326,7 +326,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAssets,
-  selectCryptoMarketDataUserCurrency,
+  selectMarketDataUserCurrency,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   (

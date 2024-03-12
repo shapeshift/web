@@ -16,11 +16,7 @@ import {
   getUnderlyingAssetIdsBalances,
 } from 'state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
-import {
-  selectAssetById,
-  selectAssets,
-  selectCryptoMarketDataUserCurrency,
-} from 'state/slices/selectors'
+import { selectAssetById, selectAssets, selectMarketDataUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { NestedAsset } from './NestedAsset'
@@ -56,7 +52,7 @@ export const OpportunityRow: React.FC<
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
-  const marketDataUserCurrency = useAppSelector(selectCryptoMarketDataUserCurrency)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
 
   const rewardsBalances = useMemo(() => {
     if (!(opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) return []

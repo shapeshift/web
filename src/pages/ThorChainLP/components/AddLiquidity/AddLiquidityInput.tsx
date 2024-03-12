@@ -940,6 +940,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalAmountUsd,
       feeBps: feeBps.toFixed(0),
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
+      feeAmountUSD: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
       runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
@@ -1442,7 +1443,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </Button>
       </CardFooter>
       <FeeModal
-        affiliateFeeAmountUserCurrency={confirmedQuote?.feeAmountFiatUserCurrency ?? '0'}
+        affiliateFeeAmountUsd={confirmedQuote?.feeAmountUSD ?? '0'}
         isOpen={showFeeModal}
         onClose={toggleFeeModal}
         inputAmountUsd={confirmedQuote?.totalAmountUsd}

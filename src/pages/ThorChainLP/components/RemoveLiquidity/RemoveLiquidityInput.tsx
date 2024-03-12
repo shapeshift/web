@@ -365,9 +365,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   })
 
   // Estimates *pool asset* outbound fees only for now
-  // TODO(gomes) - For the sake of simplicity, RUNE is not included in the estimation, we assume outbound fees are free which they aren't
-  // But once I get this working, I'll add the RUNE fees estimation, assuming we can get the rotating addresses from the pool module
-  // and estimations works from them
+  // While RUNE outboundFee does exist, it's a constant 0.02 RUNE (0.2$ at the time of writing), so we simplify it
+  // as non-existent for the sake of simplicity
   const estimateOutboundFeesArgs = useMemo(() => {
     if (opportunityType === AsymSide.Rune) return undefined
     if (!assetId || !wallet || !poolAsset || !poolAssetAccountAddress) return undefined
@@ -629,7 +628,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!actualRuneWithdrawAmountFiatUserCurrency) return
     if (!shareOfPoolDecimalPercent) return
     if (!poolAssetInboundAddress) return
-    if (!estimatedPoolAssetOutboundFeesData || !poolAssetFeeAsset) return
+    if (!poolAssetFeeAsset) return
 
     setConfirmedQuote({
       assetWithdrawAmountCryptoPrecision: actualAssetWithdrawAmountCryptoPrecision,
@@ -649,10 +648,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       assetAddress: poolAssetAccountAddress,
       // TODO(gomes): we probably want to store this as-is and only the *4 dance when adding the minimum flow
       assetOutboundFeeCryptoPrecision: fromBaseUnit(
-        bn(estimatedPoolAssetOutboundFeesData.txFeeCryptoBaseUnit).times(4),
+        bnOrZero(estimatedPoolAssetOutboundFeesData?.txFeeCryptoBaseUnit).times(4),
         poolAssetFeeAsset.precision,
       ),
-      assetOutboundFeeFiatUserCurrency: bn(estimatedPoolAssetOutboundFeesData.txFeeFiatUserCurrency)
+      assetOutboundFeeFiatUserCurrency: bnOrZero(
+        estimatedPoolAssetOutboundFeesData?.txFeeFiatUserCurrency,
+      )
         .times(4)
         .toFixed(),
     })

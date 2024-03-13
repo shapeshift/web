@@ -59,6 +59,7 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectAccountIdsByAssetId,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
@@ -480,7 +481,17 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }
   }, [isCompact, isCompactQuoteListOpen, isSmallerThanXl])
 
+  const buyAssetAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: buyAsset.assetId }),
+  )
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
+  const shouldShowManualReceiveAddressInput = useMemo(() => {
+    // Ledger "supports" all chains, but may not have them connected
+    if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length && !activeQuote
+    // We want to display the manual address entry if the wallet doesn't support the buy asset chain,
+    // but stop displaying it as soon as we have a quote
+    return !walletSupportsBuyAssetChain && !activeQuote
+  }, [activeQuote, buyAssetAccountIds.length, wallet, walletSupportsBuyAssetChain])
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
@@ -531,7 +542,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         >
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
           <WithLazyMount
-            shouldUse={hasUserEnteredAmount && !walletSupportsBuyAssetChain}
+            shouldUse={shouldShowManualReceiveAddressInput}
             component={ManualAddressEntry}
           />
           {maybeUnsafeTradeWarning}
@@ -577,7 +588,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       slippageDecimal,
       priceImpactPercentage,
       receiveAddress,
-      walletSupportsBuyAssetChain,
+      shouldShowManualReceiveAddressInput,
       maybeUnsafeTradeWarning,
       isUnsafeQuote,
       isUnsafeQuoteNoticeDismissed,

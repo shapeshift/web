@@ -1,5 +1,17 @@
 import { createMutationKeys, createQueryKeys, mergeQueryKeys } from '@lukemorales/query-key-factory'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import {
+  type AssetId,
+  avalancheChainId,
+  bchChainId,
+  bscChainId,
+  btcChainId,
+  cosmosChainId,
+  dogeChainId,
+  fromAccountId,
+  fromAssetId,
+  ltcChainId,
+} from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -8,13 +20,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import type {
-  InboundAddressResponse,
-  MidgardPoolResponse,
-  ThornodePoolResponse,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
+import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assertGetChainAdapter } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -23,18 +29,25 @@ import {
   getErc20Allowance,
   getFees,
 } from 'lib/utils/evm'
-import type { ThorchainBlock, ThorchainMimir } from 'lib/utils/thorchain/lending/types'
 import type {
   MidgardPoolStats,
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
 } from 'lib/utils/thorchain/lp/types'
 import { thorchainLp } from 'pages/ThorChainLP/queries/queries'
+import {
+  fetchAllOpportunitiesIdsByChainId,
+  fetchAllOpportunitiesMetadataByChainId,
+  fetchAllOpportunitiesUserDataByAccountId,
+} from 'state/slices/opportunitiesSlice/thunks'
+import type { PortfolioAccount } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import type { PortfolioLoadingStatus } from 'state/slices/selectors'
+import type { AppDispatch } from 'state/store'
 
+import { thornode } from './queries/thornode'
 import { GetAllowanceErr } from './types'
 
 const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
-const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 
 const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -194,72 +207,54 @@ const midgard = createQueryKeys('midgard', {
   }),
 })
 
-// Feature-agnostic, abstracts away THORNode endpoints
-const thornode = createQueryKeys('thornode', {
-  poolData: (assetId: AssetId | undefined) => ({
-    queryKey: ['thornodePoolData', assetId],
-    queryFn: async () => {
-      if (!assetId) throw new Error('assetId is required')
-
-      const poolAssetId = assetIdToPoolAssetId({ assetId })
-      const { data } = await axios.get<ThornodePoolResponse>(
-        `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
-      )
-
-      return data
-    },
-  }),
-  poolsData: () => ({
-    queryKey: ['thornodePoolsData'],
-    queryFn: async () => {
-      const poolResponse = await thorService.get<ThornodePoolResponse[]>(
-        `${thornodeUrl}/lcd/thorchain/pools`,
-      )
-
-      if (poolResponse.isOk()) {
-        return poolResponse.unwrap().data
-      }
-
-      return []
-    },
-  }),
-  mimir: () => {
+const opportunities = createQueryKeys('opportunities', {
+  all: (
+    dispatch: AppDispatch,
+    requestedAccountIds: AccountId[],
+    portfolioAssetIds: AssetId[],
+    portfolioAccounts: Record<AccountId, PortfolioAccount>,
+    portfolioLoadingStatus: PortfolioLoadingStatus,
+  ) => {
     return {
-      queryKey: ['thorchainMimir'],
+      queryKey: ['allOpportunities', { requestedAccountIds, portfolioAssetIds, portfolioAccounts }],
       queryFn: async () => {
-        const { data } = await axios.get<ThorchainMimir>(`${thornodeUrl}/lcd/thorchain/mimir`)
-        return data
-      },
-    }
-  },
-  block: () => {
-    return {
-      queryKey: ['thorchainBlockHeight'],
-      queryFn: async () => {
-        const { data } = await axios.get<ThorchainBlock>(`${thornodeUrl}/lcd/thorchain/block`)
-        return data
-      },
-    }
-  },
-  inboundAddresses: () => {
-    return {
-      queryKey: ['thorchainInboundAddress'],
-      queryFn: async () => {
-        return (
-          // Get all inbound addresses
-          (
-            await thorService.get<InboundAddressResponse[]>(
-              `${thornodeUrl}/lcd/thorchain/inbound_addresses`,
-            )
-          ).andThen(({ data: inboundAddresses }) => {
-            // Exclude halted
-            const activeInboundAddresses = inboundAddresses.filter(a => !a.halted)
-            return Ok(activeInboundAddresses)
-          })
+        await Promise.all(
+          requestedAccountIds.map(async accountId => {
+            const { chainId } = fromAccountId(accountId)
+            switch (chainId) {
+              case btcChainId:
+              case ltcChainId:
+              case dogeChainId:
+              case bchChainId:
+              case cosmosChainId:
+              case bscChainId:
+              case avalancheChainId:
+                await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
+                await fetchAllOpportunitiesMetadataByChainId(dispatch, chainId)
+                await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)
+                break
+              default:
+                break
+            }
+          }),
         )
+
+        // We *have* to return a value other than undefined from react-query queries, see
+        // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
+        return null
       },
+      enabled: portfolioLoadingStatus !== 'loading' && requestedAccountIds.length > 0,
+      staleTime: Infinity,
+      gcTime: Infinity,
     }
   },
 })
 
-export const reactQueries = mergeQueryKeys(common, mutations, midgard, thornode, thorchainLp)
+export const reactQueries = mergeQueryKeys(
+  common,
+  mutations,
+  midgard,
+  thornode,
+  thorchainLp,
+  opportunities,
+)

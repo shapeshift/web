@@ -1,6 +1,6 @@
 import type { AvatarProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 
@@ -23,7 +23,7 @@ export const PoolIcon: React.FC<PoolIconProps> = ({ assetIds, size = 'md' }) => 
         key={assetId}
         size={size}
         assetId={assetId}
-        showNetworkIcon={false}
+        showNetworkIcon={assetId !== thorchainAssetId}
         _last={lastStyle}
         _first={firstStyle}
       />

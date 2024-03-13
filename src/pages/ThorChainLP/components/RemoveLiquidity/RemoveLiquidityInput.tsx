@@ -26,7 +26,6 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { BiErrorCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -874,6 +873,21 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     runeTxFeeCryptoPrecision,
   ])
 
+  const isBelowMinimumWithdrawAmount = useMemo(() => {
+    const totalWithdrawAmountFiatUserCurrency = bnOrZero(
+      actualAssetWithdrawAmountFiatUserCurrency,
+    ).plus(bnOrZero(actualRuneWithdrawAmountFiatUserCurrency))
+
+    return bnOrZero(slippageFiatUserCurrency)
+      .plus(totalProtocolFeeFiatUserCurrency)
+      .gte(totalWithdrawAmountFiatUserCurrency)
+  }, [
+    actualAssetWithdrawAmountFiatUserCurrency,
+    actualRuneWithdrawAmountFiatUserCurrency,
+    slippageFiatUserCurrency,
+    totalProtocolFeeFiatUserCurrency,
+  ])
+
   const errorCopy = useMemo(() => {
     if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
     if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
@@ -900,7 +914,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
     return (
       <Alert status='error' mx={-2} width='auto'>
-        <AlertIcon as={BiErrorCircle} />
+        <AlertIcon />
         <AlertDescription fontSize='sm' fontWeight='medium'>
           {translate('pools.unsupportedNetworkExplainer', { network: runeAsset.networkName })}
         </AlertDescription>
@@ -1002,6 +1016,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        {isBelowMinimumWithdrawAmount && (
+          <Alert status='warning' mx={-2} width='auto'>
+            <AlertIcon />
+            <AlertDescription fontSize='sm' fontWeight='medium'>
+              {translate('defi.modals.saversVaults.dangerousWithdrawWarning')}
+            </AlertDescription>
+          </Alert>
+        )}
         {maybeOpportunityNotSupportedExplainer}
         <Button
           mx={-2}
@@ -1017,7 +1039,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
             (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
             !validInputAmount ||
-            isSweepNeededLoading
+            isSweepNeededLoading ||
+            isBelowMinimumWithdrawAmount
           }
           isLoading={
             isTradingActiveLoading ||

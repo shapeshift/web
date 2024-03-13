@@ -19,13 +19,14 @@ import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAccountIdsByChainId,
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { SearchEmpty } from './SearchEmpty'
 
@@ -97,13 +98,17 @@ export const PositionTable: React.FC<PositionTableProps> = ({
 
   const filteredPositions = useMemo(
     () =>
-      positions.filter(position =>
-        walletSupportsChain({
+      positions.filter(position => {
+        const chainAccountIds = selectAccountIdsByChainId(store.getState(), {
+          chainId: fromAssetId(position.assetId).chainId,
+        })
+        return walletSupportsChain({
+          chainAccountIds,
           chainId: fromAssetId(position.assetId).chainId,
           wallet,
           isSnapInstalled,
-        }),
-      ),
+        })
+      }),
     [isSnapInstalled, positions, wallet],
   )
 

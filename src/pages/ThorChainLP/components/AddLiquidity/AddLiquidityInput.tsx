@@ -84,7 +84,6 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
@@ -195,76 +194,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
     useIsSmartContractAddress(poolAssetAccountAddress ?? '')
 
-  const accountIdsByAssetId = useAppSelector(selectPortfolioAccountIdsByAssetId)
-
-  const getDefaultOpportunityType = useCallback(
-    (assetId: AssetId) => {
-      const walletSupportsRune = walletSupportsChain({
-        chainId: thorchainChainId,
-        wallet,
-        isSnapInstalled,
-      })
-
-      const walletSupportsAsset = walletSupportsChain({
-        chainId: fromAssetId(assetId).chainId,
-        wallet,
-        isSnapInstalled,
-      })
-
-      const runeSupport = Boolean(
-        walletSupportsRune && accountIdsByAssetId[thorchainAssetId]?.length,
-      )
-      const assetSupport = Boolean(walletSupportsAsset && accountIdsByAssetId[assetId]?.length)
-
-      if (runeSupport && assetSupport) return 'sym'
-      if (assetSupport) return AsymSide.Asset
-      if (runeSupport) return AsymSide.Rune
-      return 'sym'
-    },
-    [wallet, isSnapInstalled, accountIdsByAssetId],
-  )
-
-  // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
-  // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
-  // - When a user deposits symetrically, they can then deposit asymetrically, but only on the asset side
-  // - When a user deposits asymetrically, no matter the side, they *can* deposit symetrically on the other side
-  //   - They can also deposit asymetrically after that, but with one caveat: they can do so only if they deposited asym on the *asset* side only
-  //     In other words, if they have an active asym. RUNE position, they can't deposit symetrically after that unless they withdraw
-  //     The reason for that is that the RUNE side memo performs a nameservice operation, registering the asset address (or a placeholder)
-  //
-  //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
-  //     and not allowing them to select the sure-to-fail deposit types
-  useEffect(() => {
-    if (!pools?.length) return
-    if (activeOpportunityId) return
-
-    const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
-
-    const walletSupportedOpportunity = pools.find(pool => {
-      const { chainId } = fromAssetId(pool.assetId)
-      return walletSupportsChain({ chainId, wallet, isSnapInstalled })
-    })
-
-    const opportunityType = getDefaultOpportunityType(
-      assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
-    )
-
-    const defaultOpportunityId = toOpportunityId({
-      assetId: assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
-      type: opportunityType,
-    })
-
-    setActiveOpportunityId(opportunityId || defaultOpportunityId)
-  }, [
-    pools,
-    opportunityId,
-    activeOpportunityId,
-    getDefaultOpportunityType,
-    poolAssetId,
-    isSnapInstalled,
-    wallet,
-  ])
-
   const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
     if (!activeOpportunityId) return {}
     return fromOpportunityId(activeOpportunityId)
@@ -335,18 +264,69 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
   )
 
-  const walletSupportsRune = useMemo(() => {
-    const chainId = thorchainChainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
-    return walletSupport && runeAccountIds.length > 0
-  }, [isSnapInstalled, runeAccountIds.length, wallet])
+  const walletSupportsRune = useMemo(
+    () =>
+      walletSupportsChain({
+        chainId: thorchainChainId,
+        wallet,
+        isSnapInstalled,
+        chainAccountIds: runeAccountIds,
+      }),
+    [isSnapInstalled, runeAccountIds, wallet],
+  )
 
   const walletSupportsAsset = useMemo(() => {
     if (!assetId) return false
+
     const chainId = fromAssetId(assetId).chainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
-    return walletSupport && poolAssetAccountIds.length > 0
-  }, [isSnapInstalled, assetId, poolAssetAccountIds.length, wallet])
+    return walletSupportsChain({
+      chainId,
+      wallet,
+      isSnapInstalled,
+      chainAccountIds: poolAssetAccountIds,
+    })
+  }, [assetId, wallet, isSnapInstalled, poolAssetAccountIds])
+
+  const getDefaultOpportunityType = useCallback(() => {
+    if (walletSupportsRune && walletSupportsAsset) return 'sym'
+    if (walletSupportsAsset) return AsymSide.Asset
+    if (walletSupportsRune) return AsymSide.Rune
+    return 'sym'
+  }, [walletSupportsRune, walletSupportsAsset])
+
+  // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
+  // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
+  // - When a user deposits symetrically, they can then deposit asymetrically, but only on the asset side
+  // - When a user deposits asymetrically, no matter the side, they *can* deposit symetrically on the other side
+  //   - They can also deposit asymetrically after that, but with one caveat: they can do so only if they deposited asym on the *asset* side only
+  //     In other words, if they have an active asym. RUNE position, they can't deposit symetrically after that unless they withdraw
+  //     The reason for that is that the RUNE side memo performs a nameservice operation, registering the asset address (or a placeholder)
+  //
+  //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
+  //     and not allowing them to select the sure-to-fail deposit types
+  useEffect(() => {
+    if (!pools?.length) return
+    if (activeOpportunityId) return
+
+    const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
+
+    const opportunityType = getDefaultOpportunityType()
+
+    const defaultOpportunityId = toOpportunityId({
+      assetId: assetId || pools[0].assetId,
+      type: opportunityType,
+    })
+
+    setActiveOpportunityId(opportunityId || defaultOpportunityId)
+  }, [
+    pools,
+    opportunityId,
+    activeOpportunityId,
+    getDefaultOpportunityType,
+    poolAssetId,
+    isSnapInstalled,
+    wallet,
+  ])
 
   // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
   // - as a default pool, so we can show some input and not some seemingly broken blank state
@@ -1127,7 +1107,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const handleAssetChange = useCallback(
     (asset: Asset) => {
-      const type = getDefaultOpportunityType(asset.assetId)
+      const type = getDefaultOpportunityType()
       setActiveOpportunityId(toOpportunityId({ assetId: asset.assetId, type }))
     },
     [getDefaultOpportunityType],

@@ -781,11 +781,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
 
-  const walletSupportsRune = useMemo(() => {
-    const chainId = thorchainChainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
-    return walletSupport && runeAccountIds.length > 0
-  }, [isSnapInstalled, runeAccountIds.length, wallet])
+  const walletSupportsRune = useMemo(
+    () =>
+      walletSupportsChain({
+        chainId: thorchainChainId,
+        wallet,
+        isSnapInstalled,
+        chainAccountIds: runeAccountIds,
+      }),
+    [isSnapInstalled, runeAccountIds, wallet],
+  )
 
   const isUnsupportedSymWithdraw = useMemo(
     () => opportunityType === 'sym' && !walletSupportsRune,

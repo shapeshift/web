@@ -56,7 +56,7 @@ export const walletSupportsChain = ({
   const shortCircuitFeatureDetection =
     !isMetaMaskMultichainWallet ||
     (isMetaMaskMultichainWallet && isSnapInstalled) ||
-    Boolean(isLedger(wallet) && !chainAccountIds.length)
+    Boolean(isLedger(wallet) && chainAccountIds.length)
   switch (chainId) {
     case btcChainId:
     case bchChainId:
@@ -101,6 +101,8 @@ export const useWalletSupportsChain = (
   const isSnapInstalled = useIsSnapInstalled()
 
   const chainAccountIds = useAppSelector(state => selectAccountIdsByChainId(state, { chainId }))
+
+  console.log({ chainAccountIds })
 
   const result = useMemo(() => {
     return walletSupportsChain({ isSnapInstalled, chainId, wallet, chainAccountIds })

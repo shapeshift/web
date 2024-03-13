@@ -711,6 +711,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return hasEnoughPoolAssetBalanceForTx && hasEnoughPoolAssetFeeAssetBalanceForTx
   }, [hasEnoughPoolAssetBalanceForTx, hasEnoughPoolAssetFeeAssetBalanceForTx])
 
+  const isSweepNeededEnabled = useMemo(() => {
+    return Boolean(
+      poolAsset &&
+        bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
+        hasEnoughPoolAssetBalanceForTxPlusFees &&
+        poolAssetTxFeeCryptoBaseUnit,
+    )
+  }, [
+    poolAsset,
+    actualAssetDepositAmountCryptoPrecision,
+    hasEnoughPoolAssetBalanceForTxPlusFees,
+    poolAssetTxFeeCryptoBaseUnit,
+  ])
+
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
@@ -723,27 +737,26 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit!,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
-      enabled: Boolean(
-        !!poolAsset &&
-          bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
-          hasEnoughPoolAssetBalanceForTxPlusFees &&
-          poolAssetTxFeeCryptoBaseUnit,
-      ),
+      enabled: isSweepNeededEnabled,
     }),
     [
+      actualAssetDepositAmountCryptoPrecision,
+      isSweepNeededEnabled,
       poolAsset,
       poolAssetAccountAddress,
-      actualAssetDepositAmountCryptoPrecision,
       poolAssetTxFeeCryptoBaseUnit,
-      hasEnoughPoolAssetBalanceForTxPlusFees,
     ],
   )
 
-  const { data: _isSweepNeeded, isLoading: isSweepNeededLoading } =
-    useIsSweepNeededQuery(isSweepNeededArgs)
+  const {
+    data: _isSweepNeeded,
+    isLoading: isSweepNeededLoading,
+    isError: isSweepNeededError,
+  } = useIsSweepNeededQuery(isSweepNeededArgs)
 
   useEffect(() => {
-    if (_isSweepNeeded !== undefined) setIsSweepNeeded(_isSweepNeeded)
+    if (_isSweepNeeded === undefined) return
+    setIsSweepNeeded(_isSweepNeeded)
   }, [_isSweepNeeded])
 
   // Rune balance / gas data and checks
@@ -1423,9 +1436,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance ||
             isApprovalTxPending ||
-            isSweepNeeded === undefined ||
+            (isSweepNeededEnabled && isSweepNeeded === undefined) ||
             poolAssetTxFeeCryptoBaseUnit === undefined ||
             runeTxFeeCryptoBaseUnit === undefined ||
+            isSweepNeededError ||
             isEstimatedPoolAssetFeesDataError ||
             isEstimatedRuneFeesDataError ||
             bnOrZero(actualAssetDepositAmountCryptoPrecision)

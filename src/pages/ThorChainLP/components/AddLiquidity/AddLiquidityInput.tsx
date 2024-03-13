@@ -841,14 +841,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           setVirtualRuneDepositAmountFiatUserCurrency(amountFiatUserCurrency)
           setVirtualAssetDepositAmountFiatUserCurrency(amountFiatUserCurrency)
           setVirtualAssetDepositAmountCryptoPrecision(
-            bnOrZero(amountCryptoPrecision).div(bnOrZero(runePerAsset)).toFixed(),
+            amountCryptoPrecision
+              ? bnOrZero(amountCryptoPrecision).div(bnOrZero(runePerAsset)).toFixed()
+              : '',
           )
         } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
           setVirtualAssetDepositAmountCryptoPrecision(amountCryptoPrecision)
           setVirtualAssetDepositAmountFiatUserCurrency(amountFiatUserCurrency)
           setVirtualRuneDepositAmountFiatUserCurrency(amountFiatUserCurrency)
           setVirtualRuneDepositAmountCryptoPrecision(
-            bnOrZero(amountCryptoPrecision).times(bnOrZero(runePerAsset)).toFixed(),
+            amountCryptoPrecision
+              ? bnOrZero(amountCryptoPrecision).times(bnOrZero(runePerAsset)).toFixed()
+              : '',
           )
         }
       }
@@ -1018,9 +1022,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             marketData,
             isRune,
           )
-          // Reset inputs on OpportunityId change
-          if (activeOpportunityId !== previousOpportunityId) {
-            handleAddLiquidityInputChange('0', false)
+
+          const previousAssetId = previousOpportunityId
+            ? fromOpportunityId(previousOpportunityId).assetId
+            : undefined
+
+          // Reset inputs on asset change
+          if (assetId !== previousAssetId) {
+            handleAddLiquidityInputChange('', false)
           }
 
           const cryptoAmount = isRune
@@ -1064,7 +1073,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeMarketData,
     poolAssetMarketData,
     createHandleAddLiquidityInputChange,
-    activeOpportunityId,
+    assetId,
     previousOpportunityId,
     virtualRuneDepositAmountCryptoPrecision,
     virtualAssetDepositAmountCryptoPrecision,

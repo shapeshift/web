@@ -48,14 +48,17 @@ export const useGetEstimatedFeesQuery = ({
     queryKey: estimatedFeesQueryKey,
     staleTime: 30_000,
     queryFn,
-    enabled: enabled && Boolean(estimateFeesInput.to && estimateFeesInput.accountId && asset),
-    ...(enabled
-      ? {
-          // Ensures fees are refetched at an interval, including when the app is in the background
-          refetchIntervalInBackground: true,
-          refetchInterval: estimateFeesInput.disableRefetch ? false : 5000,
-        }
-      : {}),
+    enabled:
+      enabled &&
+      Boolean(
+        asset &&
+          estimateFeesInput.to &&
+          estimateFeesInput.accountId &&
+          estimateFeesInput.amountCryptoPrecision,
+      ),
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    refetchInterval: estimateFeesInput.disableRefetch ? false : 5000,
   })
 
   return getEstimatedFeesQuery

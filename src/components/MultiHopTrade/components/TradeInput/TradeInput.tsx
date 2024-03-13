@@ -530,10 +530,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
           borderBottomRadius='xl'
         >
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
-          <WithLazyMount
-            shouldUse={hasUserEnteredAmount && !walletSupportsBuyAssetChain}
-            component={ManualAddressEntry}
-          />
+          <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
           {maybeUnsafeTradeWarning}
           {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
             <Button

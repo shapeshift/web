@@ -54,14 +54,16 @@ export const walletSupportsChain = ({
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   // Naming is slightly weird there, but the intent is if this evaluates to false, it acts as a short circuit
   const shortCircuitFeatureDetection = (() => {
-    if (Boolean(isLedger(wallet) && chainAccountIds.length)) return true
-    if (isMetaMaskMultichainWallet && isSnapInstalled) return true
+    if (Boolean(isLedger(wallet) && !chainAccountIds.length)) return false
+    if (isMetaMaskMultichainWallet && !isSnapInstalled) return false
     if (!isMetaMaskMultichainWallet) return true
 
     // Do *not* short circuit the supportsXYZ methods
-    // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or KK/native
+    // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
+    // any other wallet, which supports static wallet feature-detection
     return true
   })()
+
   switch (chainId) {
     case btcChainId:
     case bchChainId:

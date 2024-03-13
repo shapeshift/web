@@ -890,6 +890,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const errorCopy = useMemo(() => {
     if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
+    if (isTradingActive === false) return translate('common.poolHalted')
     if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
       return translate('modals.send.errors.notEnoughNativeToken', {
         asset: poolAssetFeeAsset.symbol,
@@ -902,6 +903,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [
     hasEnoughPoolAssetFeeAssetBalanceForTx,
     hasEnoughRuneBalanceForTx,
+    isTradingActive,
     isUnsupportedSymWithdraw,
     poolAssetFeeAsset,
     runeAsset,

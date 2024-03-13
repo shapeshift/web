@@ -53,10 +53,15 @@ export const walletSupportsChain = ({
   if (!wallet) return false
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   // Naming is slightly weird there, but the intent is if this evaluates to false, it acts as a short circuit
-  const shortCircuitFeatureDetection =
-    !isMetaMaskMultichainWallet ||
-    (isMetaMaskMultichainWallet && isSnapInstalled) ||
-    Boolean(isLedger(wallet) && chainAccountIds.length)
+  const shortCircuitFeatureDetection = (() => {
+    if (Boolean(isLedger(wallet) && chainAccountIds.length)) return true
+    if (isMetaMaskMultichainWallet && isSnapInstalled) return true
+    if (!isMetaMaskMultichainWallet) return true
+
+    // Do *not* short circuit the supportsXYZ methods
+    // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or KK/native
+    return true
+  })()
   switch (chainId) {
     case btcChainId:
     case bchChainId:
@@ -101,8 +106,6 @@ export const useWalletSupportsChain = (
   const isSnapInstalled = useIsSnapInstalled()
 
   const chainAccountIds = useAppSelector(state => selectAccountIdsByChainId(state, { chainId }))
-
-  console.log({ chainAccountIds })
 
   const result = useMemo(() => {
     return walletSupportsChain({ isSnapInstalled, chainId, wallet, chainAccountIds })

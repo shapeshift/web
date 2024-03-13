@@ -90,7 +90,8 @@ export const VerifyAddresses = () => {
     [isAddressVerified, sellAddress],
   )
   const buyVerified = useMemo(
-    () => maybeManualReceiveAddress || isAddressVerified(buyAddress ?? ''),
+    () => Boolean(maybeManualReceiveAddress) || isAddressVerified(buyAddress ?? ''),
+
     [buyAddress, isAddressVerified, maybeManualReceiveAddress],
   )
 

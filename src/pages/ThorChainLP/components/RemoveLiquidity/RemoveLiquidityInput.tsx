@@ -406,6 +406,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     return fromThorBaseUnit(inboundAddressesData?.outbound_fee ?? '0')
   }, [inboundAddressesData?.outbound_fee, opportunityType])
 
+  const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
+    return poolAssetProtocolFeeCryptoPrecision.times(poolAssetMarketData.price)
+  }, [poolAssetMarketData, poolAssetProtocolFeeCryptoPrecision])
+
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
       fromBaseUnit(
@@ -425,6 +429,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     return fromThorBaseUnit(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT)
   }, [opportunityType])
 
+  const runeProtocolFeeFiatUserCurrency = useMemo(() => {
+    return runeProtocolFeeCryptoPrecision.times(runeMarketData.price)
+  }, [runeMarketData, runeProtocolFeeCryptoPrecision])
+
   const runeTxFeeCryptoPrecision = useMemo(
     () => fromBaseUnit(estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0, runeAsset?.precision ?? 0),
     [estimatedRuneFeesData?.txFeeCryptoBaseUnit, runeAsset?.precision],
@@ -436,19 +444,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const totalProtocolFeeFiatUserCurrency = useMemo(() => {
-    const poolAssetProtocolFeeFiatUserCurrency = poolAssetProtocolFeeCryptoPrecision.times(
-      poolAssetMarketData.price,
-    )
-    const runeProtocolFeeFiatUserCurrency = runeProtocolFeeCryptoPrecision.times(
-      runeMarketData.price,
-    )
     return poolAssetProtocolFeeFiatUserCurrency.plus(runeProtocolFeeFiatUserCurrency).toFixed()
-  }, [
-    poolAssetMarketData.price,
-    poolAssetProtocolFeeCryptoPrecision,
-    runeMarketData.price,
-    runeProtocolFeeCryptoPrecision,
-  ])
+  }, [poolAssetProtocolFeeFiatUserCurrency, runeProtocolFeeFiatUserCurrency])
 
   const totalGasFeeFiatUserCurrency = useMemo(
     () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency),
@@ -878,14 +875,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       actualAssetWithdrawAmountFiatUserCurrency,
     ).plus(bnOrZero(actualRuneWithdrawAmountFiatUserCurrency))
 
+    // Protocol fee buffers explained here: https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/querier_quotes.go#L461
     return bnOrZero(slippageFiatUserCurrency)
-      .plus(totalProtocolFeeFiatUserCurrency)
+      .plus(bnOrZero(poolAssetProtocolFeeFiatUserCurrency).times(4))
+      .plus(bnOrZero(runeProtocolFeeFiatUserCurrency).times(2))
       .gte(totalWithdrawAmountFiatUserCurrency)
   }, [
     actualAssetWithdrawAmountFiatUserCurrency,
     actualRuneWithdrawAmountFiatUserCurrency,
+    poolAssetProtocolFeeFiatUserCurrency,
+    runeProtocolFeeFiatUserCurrency,
     slippageFiatUserCurrency,
-    totalProtocolFeeFiatUserCurrency,
   ])
 
   const errorCopy = useMemo(() => {

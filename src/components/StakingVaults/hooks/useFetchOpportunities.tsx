@@ -57,8 +57,6 @@ export const useFetchOpportunities = () => {
   const { isLoading } = useQuery({
     queryKey,
     queryFn: async ({ queryKey: [_, { requestedAccountIds }] }) => {
-      if (!requestedAccountIds.length) return
-
       await Promise.all(
         requestedAccountIds.map(async accountId => {
           const { chainId } = fromAccountId(accountId)
@@ -85,8 +83,10 @@ export const useFetchOpportunities = () => {
       return null
     },
     // once the portfolio is loaded, fetch opportunities data
-    enabled: portfolioLoadingStatus !== 'loading',
+    enabled: portfolioLoadingStatus !== 'loading' && requestedAccountIds.length > 0,
     refetchInterval: false,
+    staleTime: Infinity,
+    gcTime: Infinity,
   })
 
   return useMemo(

@@ -589,7 +589,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
       const estimate = await estimateRemoveThorchainLiquidityPosition({
         liquidityUnits: position?.liquidityUnits,
-        bps: bnOrZero(sliderValue).times(100).toFixed(),
+        bps: bnOrZero(percentageSelection).times(100).toFixed(),
         assetId: poolAsset.assetId,
         runeAmountThorBaseUnit,
         assetAmountThorBaseUnit,
@@ -606,10 +606,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [
     position,
     poolAsset,
-    sliderValue,
     runeMarketData.price,
     actualAssetWithdrawAmountCryptoPrecision,
     actualRuneWithdrawAmountCryptoPrecision,
+    percentageSelection,
   ])
 
   useEffect(() => {

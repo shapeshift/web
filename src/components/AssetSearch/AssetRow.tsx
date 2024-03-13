@@ -75,7 +75,7 @@ export const AssetRow: FC<ListChildComponentProps<AssetData>> = memo(
             </Flex>
           </Box>
         </Flex>
-        {isConnected && !isDemoWallet && !hideAssetBalance && (
+        {(isConnected || isDemoWallet) && !hideAssetBalance && (
           <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
             <Amount.Fiat
               color='var(--chakra-colors-chakra-body-text)'

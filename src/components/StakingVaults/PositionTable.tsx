@@ -25,6 +25,7 @@ import {
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
   selectOpportunityApiPending,
+  selectPortfolioAccounts,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -95,6 +96,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const isSnapInstalled = useIsSnapInstalled()
+  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
 
   const filteredPositions = useMemo(
     () =>
@@ -109,7 +111,9 @@ export const PositionTable: React.FC<PositionTableProps> = ({
           isSnapInstalled,
         })
       }),
-    [isSnapInstalled, positions, wallet],
+    // Since we *have* to use the non-reactive store.getState() above, this ensure the hook reruns on accounts referential invalidation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isSnapInstalled, positions, portfolioAccounts, wallet],
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(

@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -29,12 +29,16 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 type WalletSupportsChainArgs = {
   isSnapInstalled: boolean | null
+  chainAccountIds: AccountId[] // allows dynamic chain-support detection for Ledger
   chainId: ChainId
   wallet: HDWallet | null
 }
@@ -42,6 +46,7 @@ type WalletSupportsChainArgs = {
 // use outside react
 export const walletSupportsChain = ({
   chainId,
+  chainAccountIds,
   wallet,
   isSnapInstalled,
 }: WalletSupportsChainArgs): boolean | null => {
@@ -49,7 +54,9 @@ export const walletSupportsChain = ({
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   // Naming is slightly weird there, but the intent is if this evaluates to false, it acts as a short circuit
   const shortCircuitFeatureDetection =
-    !isMetaMaskMultichainWallet || (isMetaMaskMultichainWallet && isSnapInstalled)
+    !isMetaMaskMultichainWallet ||
+    (isMetaMaskMultichainWallet && isSnapInstalled) ||
+    Boolean(isLedger(wallet) && !chainAccountIds.length)
   switch (chainId) {
     case btcChainId:
     case bchChainId:
@@ -93,9 +100,11 @@ export const useWalletSupportsChain = (
   // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
   const isSnapInstalled = useIsSnapInstalled()
 
+  const chainAccountIds = useAppSelector(state => selectAccountIdsByChainId(state, { chainId }))
+
   const result = useMemo(() => {
-    return walletSupportsChain({ isSnapInstalled, chainId, wallet })
-  }, [chainId, isSnapInstalled, wallet])
+    return walletSupportsChain({ isSnapInstalled, chainId, wallet, chainAccountIds })
+  }, [chainAccountIds, chainId, isSnapInstalled, wallet])
 
   return result
 }

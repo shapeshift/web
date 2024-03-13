@@ -653,7 +653,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     memo: estimateFeesArgs?.memo ?? '',
     accountId: estimateFeesArgs?.accountId ?? '',
     contractAddress: estimateFeesArgs?.contractAddress ?? '',
-    enabled: !!estimateFeesArgs,
+    enabled: Boolean(estimateFeesArgs && !isApprovalRequired),
   })
 
   useEffect(() => {
@@ -1446,8 +1446,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !hasEnoughRuneBalance ||
             isApprovalTxPending ||
             (isSweepNeededEnabled && isSweepNeeded === undefined) ||
-            poolAssetTxFeeCryptoBaseUnit === undefined ||
-            runeTxFeeCryptoBaseUnit === undefined ||
             isSweepNeededError ||
             isEstimatedPoolAssetFeesDataError ||
             isEstimatedRuneFeesDataError ||

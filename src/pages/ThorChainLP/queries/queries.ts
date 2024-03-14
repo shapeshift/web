@@ -81,10 +81,14 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
         const accountPosition = await (async () => {
           if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
             const address = fromAccountId(accountId).account
-            return queryClient.fetchQuery(liquidityMember(address))
+            return queryClient.fetchQuery({ ...liquidityMember(address), staleTime: 0, gcTime: 0 })
           }
 
-          const allMembers = await queryClient.fetchQuery(liquidityMembers())
+          const allMembers = await queryClient.fetchQuery({
+            ...liquidityMembers(),
+            staleTime: 0,
+            gcTime: 0,
+          })
 
           if (!allMembers.length) {
             throw new Error('No THORChain members found')
@@ -95,7 +99,11 @@ export const thorchainLp = createQueryKeys('thorchainLp', {
 
           if (!foundMember) return null
 
-          return queryClient.fetchQuery(liquidityMember(foundMember))
+          return queryClient.fetchQuery({
+            ...liquidityMember(foundMember),
+            staleTime: 0,
+            gcTime: 0,
+          })
         })()
 
         if (!accountPosition) return null

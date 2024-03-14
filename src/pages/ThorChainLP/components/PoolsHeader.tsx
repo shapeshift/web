@@ -1,4 +1,6 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Button, Container, Heading, Stack } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -7,7 +9,9 @@ import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
 
-const containerPadding = { base: 6, '2xl': 8 }
+const containerPadding = { base: 4, '2xl': 8 }
+const flexDirection: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const alignItems = { base: 'flex-start', md: 'center' }
 
 export const PoolsHeader = () => {
   const translate = useTranslate()
@@ -38,11 +42,11 @@ export const PoolsHeader = () => {
       <Container
         display='flex'
         justifyContent='space-between'
-        alignItems='center'
+        alignItems={alignItems}
         maxWidth='container.4xl'
-        flexWrap='wrap'
-        gap={4}
+        gap={2}
         px={containerPadding}
+        flexDir={flexDirection}
         pt={8}
         pb={4}
       >

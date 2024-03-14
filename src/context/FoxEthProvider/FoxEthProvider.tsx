@@ -43,10 +43,12 @@ export const FoxEthProvider = ({ children }: FoxEthProviderProps) => {
     await Promise.all(
       stakingAccountIds.map(
         async accountId =>
-          await fetchAllStakingOpportunitiesUserDataByAccountId(accountId, { forceRefetch: true }),
+          await fetchAllStakingOpportunitiesUserDataByAccountId(dispatch, accountId, {
+            forceRefetch: true,
+          }),
       ),
     )
-  }, [stakingAccountIds])
+  }, [dispatch, stakingAccountIds])
 
   const transaction = useAppSelector(gs => selectTxById(gs, ongoingTxId ?? ''))
 

@@ -9,14 +9,9 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import {
-  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
-  selectPortfolioAccountMetadata,
-  selectWalletAccountIds,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadata, selectWalletAccountIds } from 'state/slices/selectors'
 
-import { FiatRampAction } from '../FiatRampsCommon'
+import type { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
 
 type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputReturn>>
@@ -34,7 +29,6 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const sortedAssets = useSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
@@ -43,30 +37,15 @@ export const FiatForm: React.FC<FiatFormProps> = ({
     state: { wallet, isDemoWallet },
   } = useWallet()
 
-  const { data: ramps } = useGetFiatRampsQuery()
   const assetSearch = useModal('assetSearch')
 
-  const buyAssets: Asset[] = useMemo(() => {
-    const buyAssetIdsSet = new Set(ramps?.buyAssetIds ?? [])
-    return sortedAssets.filter(asset => buyAssetIdsSet.has(asset.assetId))
-  }, [ramps?.buyAssetIds, sortedAssets])
+  const handleIsSelectingAsset = useCallback(() => {
+    if (!wallet) return
 
-  const sellAssets: Asset[] = useMemo(() => {
-    const sellAssetIdsSet = new Set(ramps?.sellAssetIds ?? [])
-    return sortedAssets.filter(asset => sellAssetIdsSet.has(asset.assetId))
-  }, [ramps?.sellAssetIds, sortedAssets])
-
-  const handleIsSelectingAsset = useCallback(
-    (fiatRampAction: FiatRampAction) => {
-      if (!wallet) return
-
-      assetSearch.open({
-        onAssetClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
-        assets: fiatRampAction === FiatRampAction.Buy ? buyAssets : sellAssets,
-      })
-    },
-    [wallet, assetSearch, buyAssets, sellAssets],
-  )
+    assetSearch.open({
+      onAssetClick: (asset: Asset) => setSelectedAssetId(asset.assetId),
+    })
+  }, [wallet, assetSearch])
 
   /**
    * preload all addresses, and reverse resolved vanity addresses for all account ids

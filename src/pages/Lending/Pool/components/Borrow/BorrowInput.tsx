@@ -133,9 +133,8 @@ export const BorrowInput = ({
     buyAssetSearch.open({
       onAssetClick: setBorrowAsset,
       title: 'lending.borrow',
-      assets: borrowAssets,
     })
-  }, [borrowAssets, buyAssetSearch, setBorrowAsset])
+  }, [buyAssetSearch, setBorrowAsset])
 
   const handleDepositInputChange = useCallback(
     (value: string, isFiat?: boolean) => {

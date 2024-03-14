@@ -4,7 +4,6 @@ import { Flex, Input, InputGroup, InputLeftElement, ModalHeader, Stack } from '@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
-import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -41,13 +40,11 @@ const assetButtonProps = {
 const NUM_QUICK_ACCESS_ASSETS = 5
 
 export type AssetSearchProps = {
-  assets?: Asset[]
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
-  assets,
   onAssetClick,
   formProps,
   allowWalletUnsupportedAssets,
@@ -140,10 +137,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
-      if (assets) {
-        return uniq(assets.map(a => a.chainId))
-      }
-
       if (allowWalletUnsupportedAssets) {
         return Object.values(KnownChainIds)
       }
@@ -164,7 +157,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     )
 
     return ['All', ...sortedChainIds]
-  }, [assets, walletSupportedChainIds, allowWalletUnsupportedAssets])
+  }, [walletSupportedChainIds, allowWalletUnsupportedAssets])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {

@@ -30,7 +30,6 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   onAssetClick,
   close,
   isOpen,
-  assets,
   allowWalletUnsupportedAssets,
   title = 'common.selectAsset',
 }) => {
@@ -57,7 +56,6 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
         <ModalCloseButton />
         <AssetSearch
           onAssetClick={handleAssetClick}
-          assets={assets}
           allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         />
       </ModalContent>

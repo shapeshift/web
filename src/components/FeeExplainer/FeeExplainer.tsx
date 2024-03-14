@@ -23,7 +23,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bn } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
-import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
+import { FEE_CURVE_PARAMETERS, FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -337,6 +337,24 @@ type FeeExplainerProps = CardProps & {
 }
 
 export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
+  const translate = useTranslate()
+  const feature = translate(FEE_MODEL_TO_FEATURE_NAME[props.feeModel])
+  const simulateBodyTranslation: TextPropTypes['translation'] = useMemo(
+    () => [
+      'foxDiscounts.simulateBody',
+      {
+        feature,
+        // Only lowercase the featuer if it's a one-word one e.g trade
+        // Assume multiple words should keep their capitalization to keep things simple and avoid more translation strings
+        featureLowerCase:
+          feature.split(' ').length > 1 && feature !== feature.toLowerCase()
+            ? feature
+            : feature.toLowerCase(),
+      },
+    ],
+    [feature],
+  )
+
   const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[props.feeModel]
   const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
@@ -346,7 +364,6 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   )
 
   const [foxHolding, setFoxHolding] = useState(bnOrZero(votingPower).toNumber())
-  const translate = useTranslate()
 
   return (
     <Stack maxWidth='600px' width='full' mx='auto' spacing={0}>
@@ -355,7 +372,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
           <Heading as='h5' mb={2}>
             {translate('foxDiscounts.simulateTitle')}
           </Heading>
-          <Text color='text.subtle' translation='foxDiscounts.simulateBody' />
+          <Text color='text.subtle' translation={simulateBodyTranslation} />
           <FeeSliders
             tradeSizeUSD={tradeSizeUSD}
             setTradeSizeUSD={setTradeSizeUSD}

@@ -134,6 +134,30 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, portfolioAssetsSortedByBalance])
 
+  const quickAccessAssetButtons = useMemo(() => {
+    if (isPopularAssetIdsLoading) {
+      return Array(NUM_QUICK_ACCESS_ASSETS)
+        .fill(null)
+        .map((_, i) => {
+          return <AssetMenuButton key={i} isLoading isDisabled buttonProps={assetButtonProps} />
+        })
+    }
+
+    return quickAccessAssets.map(({ assetId }) => {
+      return (
+        <AssetMenuButton
+          key={assetId}
+          assetId={assetId}
+          onAssetClick={handleAssetClick}
+          buttonProps={assetButtonProps}
+          isLoading={isPopularAssetIdsLoading}
+          isDisabled={false}
+          showNetworkIcon
+        />
+      )
+    })
+  }, [handleAssetClick, isPopularAssetIdsLoading, quickAccessAssets])
+
   return (
     <>
       <ModalHeader pt={0} borderBottomWidth={1} borderColor='border.base'>
@@ -157,27 +181,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
             />
           </Flex>
           <Flex flexWrap='wrap' gap={2}>
-            {isPopularAssetIdsLoading &&
-              Array(NUM_QUICK_ACCESS_ASSETS)
-                .fill(null)
-                .map((_, i) => {
-                  return (
-                    <AssetMenuButton key={i} isLoading isDisabled buttonProps={assetButtonProps} />
-                  )
-                })}
-            {quickAccessAssets.map(({ assetId }) => {
-              return (
-                <AssetMenuButton
-                  key={assetId}
-                  assetId={assetId}
-                  onAssetClick={handleAssetClick}
-                  buttonProps={assetButtonProps}
-                  isLoading={isPopularAssetIdsLoading}
-                  isDisabled={false}
-                  showNetworkIcon
-                />
-              )
-            })}
+            {quickAccessAssetButtons}
           </Flex>
         </Stack>
       </ModalHeader>

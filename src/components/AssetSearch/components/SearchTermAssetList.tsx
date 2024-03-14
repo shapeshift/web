@@ -8,7 +8,7 @@ import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/fi
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
 export type SearchTermAssetListProps = {
-  isLoading?: boolean
+  isLoading: boolean
   activeChainId: ChainId | 'All'
   searchString: string
   onAssetClick: (asset: Asset) => void

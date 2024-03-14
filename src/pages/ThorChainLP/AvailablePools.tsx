@@ -33,7 +33,9 @@ const mobileDisplay = {
   lg: 'flex',
 }
 
-const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }] }
+const stackPadding = { base: 2, md: 0 }
+
+const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSize: 5000 }
 
 type RowProps = Row<Pool>
 
@@ -53,7 +55,6 @@ export const AvailablePools = () => {
       {
         Header: translate('pools.pool'),
         accessor: 'name',
-        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row, value }: { value: string; row: RowProps }) => {
           const pool = row.original
 
@@ -93,23 +94,23 @@ export const AvailablePools = () => {
             <Skeleton isLoaded={!!value}>
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='sm' />
-                <RawText fontWeight='semibold'>{pool.name}</RawText>
-                <Skeleton isLoaded={!isTradingActiveLoading}>
-                  <Tag size='sm'>
-                    <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
-                    {statusContent.element}
-                  </Tag>
-                </Skeleton>
+                <Flex gap={2} flexWrap='wrap' flex='0 1 auto'>
+                  <RawText fontWeight='semibold'>{pool.name}</RawText>
+                  <Skeleton isLoaded={!isTradingActiveLoading}>
+                    <Tag size='sm'>
+                      <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
+                      {statusContent.element}
+                    </Tag>
+                  </Skeleton>
+                </Flex>
               </Flex>
             </Skeleton>
           )
         },
-        disableSortBy: true,
       },
       {
         Header: translate('pools.tvl'),
         accessor: 'tvlFiat',
-        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value }: { value: string; row: RowProps }) => {
           return (
             <Skeleton isLoaded={!!value}>
@@ -185,7 +186,7 @@ export const AvailablePools = () => {
 
   return (
     <Main headerComponent={headerComponent}>
-      <Stack>
+      <Stack px={stackPadding}>
         {isLoading || !pools ? (
           new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
         ) : (

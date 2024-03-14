@@ -162,6 +162,16 @@ export const useGetTradeQuotes = () => {
   )
 
   useEffect(() => {
+    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
+    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
+    // That effectively means we'll unsubscribe to queries, considering them stale
+    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+
+    // Clear the slice before asynchronously generating the input and running the request.
+    // This is to ensure the initial state change is done synchronously to prevent race conditions
+    // and losing sync on loading state etc.
+    dispatch(tradeQuoteSlice.actions.clear())
+
     // Early exit on any invalid state
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
@@ -172,20 +182,9 @@ export const useGetTradeQuotes = () => {
       isVotingPowerLoading
     ) {
       setTradeQuoteInput(skipToken)
-      dispatch(tradeQuoteSlice.actions.clear())
       dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
       return
     }
-
-    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
-    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
-    // That effectively means we'll unsubscribe to queries, considering them stale
-    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
-
-    // Clear the slice before asynchronously generating the input and running the request.
-    // This is to ensure the initial state change is done synchronously to prevent race conditions
-    // and losing sync on loading state etc.
-    dispatch(tradeQuoteSlice.actions.clear())
     ;(async () => {
       const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
       const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params

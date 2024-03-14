@@ -1446,8 +1446,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !hasEnoughRuneBalance ||
             isApprovalTxPending ||
             (isSweepNeededEnabled && isSweepNeeded === undefined) ||
-            poolAssetTxFeeCryptoBaseUnit === undefined ||
-            runeTxFeeCryptoBaseUnit === undefined ||
+            (opportunityType !== AsymSide.Rune && poolAssetTxFeeCryptoBaseUnit === undefined) ||
+            (opportunityType !== AsymSide.Asset && runeTxFeeCryptoBaseUnit === undefined) ||
             isSweepNeededError ||
             isEstimatedPoolAssetFeesDataError ||
             isEstimatedRuneFeesDataError ||

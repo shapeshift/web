@@ -120,7 +120,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
       } else if (shouldRefetchAllOpportunities) return
       ;(async () => {
         // We don't know the chainId of the Tx, so we refetch all opportunities
-        await fetchAllOpportunitiesUserDataByAccountId(accountId, { forceRefetch: true })
+        await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId, { forceRefetch: true })
       })()
     },
     // TODO: This is drunk and will evaluate stakingOpportunitiesById to an empty object despite not being empty when debugged in its outer scope

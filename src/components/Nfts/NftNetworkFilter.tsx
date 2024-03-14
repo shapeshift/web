@@ -102,7 +102,7 @@ export const NftNetworkFilter = ({
   const handleClose = useCallback(() => setIsOpen(false), [])
 
   return (
-    <Popover closeOnBlur={false} isOpen={isOpen} placement='bottom-start'>
+    <Popover isLazy closeOnBlur={false} isOpen={isOpen} placement='bottom-start'>
       <>
         <PopoverTrigger>
           <ButtonGroup isAttached variant='ghost-filled'>

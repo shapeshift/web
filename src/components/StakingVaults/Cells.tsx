@@ -97,11 +97,11 @@ export const AssetCell = ({
         </Popover>
       )}
       <HStack flex={1}>
-        <SkeletonCircle isLoaded={!!asset} mr={2} width='auto'>
+        <SkeletonCircle isLoaded={!!asset} mr={2} width='auto' height='auto'>
           {icons && icons.length > 1 ? (
             <PairIcons icons={icons} iconSize='sm' bg='none' />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='sm' />
+            <AssetIcon assetId={asset.assetId} size='md' />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>
@@ -117,7 +117,7 @@ export const AssetCell = ({
                 _after={rowTitleBoxAfter}
               >
                 <RawText
-                  fontWeight='medium'
+                  fontWeight='semibold'
                   as='span'
                   position='absolute'
                   lineHeight='shorter'

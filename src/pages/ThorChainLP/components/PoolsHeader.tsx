@@ -5,9 +5,9 @@ import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
-import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 
 const containerPadding = { base: 4, '2xl': 8 }
 const flexDirection: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -38,7 +38,7 @@ export const PoolsHeader = () => {
   }, [history])
 
   return (
-    <Stack>
+    <Stack mb={4}>
       <Container
         display='flex'
         justifyContent='space-between'

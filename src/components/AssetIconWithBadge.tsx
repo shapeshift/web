@@ -17,7 +17,7 @@ import {
   topClipPath,
 } from './AssetIcon'
 
-const StatusStyle = { svg: { width: '0.95em', height: '0.95em' } }
+const StatusStyle = { svg: { transform: 'scale(0.8)' } }
 
 type AssetIconWithBadgeProps = {
   size?: AvatarProps['size']

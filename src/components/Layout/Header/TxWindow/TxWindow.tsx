@@ -45,7 +45,7 @@ type TxsByStatusProps = {
   txStatus: TxStatus
   limit: string
 }
-const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
+export const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
   const translate = useTranslate()
   const filter = useMemo(() => ({ txStatus }), [txStatus])
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
@@ -56,7 +56,7 @@ const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => {
   if (limitTxIds.length === 0) {
     const translatedStatus = translate(`transactionRow.${txStatus.toLowerCase()}`)
     return (
-      <RawText px={paddingProp} color='text.subtle'>
+      <RawText px={6} color='text.subtle'>
         {translate('transactionRow.emptyMessage', { status: translatedStatus })}
       </RawText>
     )

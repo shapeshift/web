@@ -37,8 +37,6 @@ export const TableStyle = {
           th: {
             paddingLeft: 2,
             paddingRight: 2,
-            paddingTop: 4,
-            paddingBottom: 4,
           },
         },
       },

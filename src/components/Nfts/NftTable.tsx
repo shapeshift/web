@@ -2,7 +2,7 @@ import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
@@ -31,7 +31,7 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 
 const narwalIcon = <NarwhalIcon color='pink.200' />
 
-export const NftTable = () => {
+export const NftTable = memo(() => {
   const [searchQuery, setSearchQuery] = useState('')
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
@@ -125,4 +125,4 @@ export const NftTable = () => {
       )}
     </>
   )
-}
+})

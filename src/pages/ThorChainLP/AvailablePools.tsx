@@ -46,7 +46,6 @@ export const AvailablePools = () => {
       {
         Header: translate('pools.pool'),
         accessor: 'name',
-        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row, value }: { value: string; row: RowProps }) => {
           const pool = row.original
 

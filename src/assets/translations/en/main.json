@@ -2206,7 +2206,7 @@
     "simulateFee": "Simulate Discount",
     "freeUnderThreshold": "%{feature} under %{threshold} are always FREE",
     "breakdownHeader": "Your FOX Power Discount",
-    "breakdownBody": "Below is a breakdown of your %{feature} fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
+    "breakdownBody": "Below is a breakdown of your %{featureLowerCase} fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
     "featureFee": "%{feature} Fee",
     "totalFeatureFee": "Total %{feature} Fee"
   },

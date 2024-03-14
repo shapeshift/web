@@ -4,8 +4,6 @@ import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
 
-const activeProp = { bg: 'transparent', svg: { color: 'blue.200' } }
-
 export const MobileNavLink = memo(({ label, shortLabel, path, icon }: Route) => {
   const translate = useTranslate()
   const location = useLocation()
@@ -29,20 +27,20 @@ export const MobileNavLink = memo(({ label, shortLabel, path, icon }: Route) => 
       as={ReactRouterLink}
       to={path}
       flexDir='column'
-      fontSize='2xl'
+      fontSize='24px'
       gap={2}
       height='auto'
       variant='nav-link'
       isActive={isActive}
       fontWeight='medium'
       onClick={handleClick}
-      _active={activeProp}
-      py={2}
-      width='full'
+      pb={4}
+      pt={6}
+      flex={1}
       zIndex='sticky'
     >
       {icon}
-      <Flex flexDir='column' fontSize='xs' color={isActive ? 'white' : 'text.subtle'}>
+      <Flex flexDir='column' fontSize='11px' letterSpacing='-0.020em'>
         {translate(shortLabel ?? label)}
       </Flex>
     </Button>

@@ -3,9 +3,9 @@ import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
-import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 
 const containerPadding = { base: 6, '2xl': 8 }
 
@@ -34,12 +34,14 @@ export const PoolsHeader = () => {
   }, [history])
 
   return (
-    <Stack>
+    <Stack mb={4}>
       <Container
         display='flex'
         justifyContent='space-between'
         alignItems='center'
         maxWidth='container.4xl'
+        flexWrap='wrap'
+        gap={4}
         px={containerPadding}
         pt={8}
         pb={4}

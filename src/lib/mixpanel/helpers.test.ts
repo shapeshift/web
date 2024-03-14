@@ -15,17 +15,17 @@ describe('mixpanel helpers', () => {
   }
   describe('mapMixpanelPathname', () => {
     it('can handle base accounts path', () => {
-      const pathname = '/dashboard/accounts'
-      expect(mapMixpanelPathname(pathname, assets)).toEqual('/dashboard/accounts')
+      const pathname = '/wallet/accounts'
+      expect(mapMixpanelPathname(pathname, assets)).toEqual('/wallet/accounts')
     })
 
     it('should flag path with account id', () => {
-      const pathname = '/dashboard/accounts/eip155:1:0xa4..35/eip155:1%2Fslip44:60'
+      const pathname = '/wallet/accounts/eip155:1:0xa4..35/eip155:1%2Fslip44:60'
       expect(mapMixpanelPathname(pathname, assets)).toEqual(null)
     })
 
     it('should flag path with account id and asset id', () => {
-      const pathname = '/dashboard/accounts/eip155:1:0xa4..35'
+      const pathname = '/wallet/accounts/eip155:1:0xa4..35'
       expect(mapMixpanelPathname(pathname, assets)).toEqual(null)
     })
 

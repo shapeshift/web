@@ -180,14 +180,12 @@ export const TableStyle = {
               pointerEvents: 'none',
             },
             _hover: {
-              color: mode('inherit', 'whiteAlpha.800')(props),
               bg: 'background.surface.raised.base',
               textDecoration: 'none',
               _disabled: {
                 bg: 'initial',
               },
             },
-            color: 'text.subtle',
             _active: {
               bg: 'background.surface.raised.base',
               color: mode('gray.800', 'white')(props),

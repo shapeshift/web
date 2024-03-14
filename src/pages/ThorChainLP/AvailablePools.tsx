@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Box, Flex, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
+import { Flex, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
@@ -32,6 +32,8 @@ const mobileDisplay = {
   base: 'none',
   lg: 'flex',
 }
+
+const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }] }
 
 type RowProps = Row<Pool>
 
@@ -90,10 +92,8 @@ export const AvailablePools = () => {
           return (
             <Skeleton isLoaded={!!value}>
               <Flex gap={4} alignItems='center'>
-                <Box minWidth='58px'>
-                  <PoolIcon assetIds={poolAssetIds} size='sm' />
-                </Box>
-                <RawText>{pool.name}</RawText>
+                <PoolIcon assetIds={poolAssetIds} size='sm' />
+                <RawText fontWeight='semibold'>{pool.name}</RawText>
                 <Skeleton isLoaded={!isTradingActiveLoading}>
                   <Tag size='sm'>
                     <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
@@ -192,6 +192,7 @@ export const AvailablePools = () => {
           <ReactTable
             data={pools}
             columns={columns}
+            initialState={reactTableInitialState}
             onRowClick={handlePoolClick}
             variant='clickable'
           />

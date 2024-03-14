@@ -31,6 +31,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   close,
   isOpen,
   assets,
+  allowWalletUnsupportedAssets,
   title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
@@ -54,7 +55,11 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <AssetSearch onAssetClick={handleAssetClick} assets={assets} />
+        <AssetSearch
+          onAssetClick={handleAssetClick}
+          assets={assets}
+          allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+        />
       </ModalContent>
     </Modal>
   )
@@ -74,5 +79,6 @@ export const SellAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
 
 export const BuyAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
   const buyAssetSearch = useModal('buyAssetSearch')
-  return <AssetSearchModalBase {...props} {...buyAssetSearch} />
+  // Assets unsupported by the wallet are allowed when buying
+  return <AssetSearchModalBase {...props} {...buyAssetSearch} allowWalletUnsupportedAssets />
 })

@@ -15,6 +15,7 @@ import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectPortfolioFungibleAssetsSortedByBalance,
   selectPortfolioLoading,
+  selectWalletSupportedChainIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -42,11 +43,13 @@ export type AssetSearchProps = {
   assets?: Asset[]
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
+  allowWalletUnsupportedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
   assets: selectedAssets,
   onAssetClick,
   formProps,
+  allowWalletUnsupportedAssets,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
@@ -58,6 +61,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     selectPortfolioFungibleAssetsSortedByBalance,
   )
   const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
+  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
   const { data: popularAssetsByChainId, isLoading: isPopularAssetIdsLoading } =
     useGetPopularAssetsQuery()
@@ -100,8 +104,10 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
   const popularAssets = useMemo(() => {
-    return popularAssetsByChainId?.[activeChainId] ?? []
-  }, [activeChainId, popularAssetsByChainId])
+    const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
+    if (allowWalletUnsupportedAssets) return unfilteredPopularAssets
+    return unfilteredPopularAssets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
+  }, [activeChainId, popularAssetsByChainId, walletSupportedChainIds, allowWalletUnsupportedAssets])
 
   const quickAccessAssets = useMemo(() => {
     if (activeChainId !== 'All') {

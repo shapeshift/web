@@ -3,6 +3,7 @@ import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Flex, Input, InputGroup, InputLeftElement, ModalHeader, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { orderBy } from 'lodash'
 import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -11,8 +12,8 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from 'components/ChainMenu'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
-  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectPortfolioFungibleAssetsSortedByBalance,
   selectPortfolioLoading,
   selectWalletSupportedChainIds,
@@ -46,7 +47,7 @@ export type AssetSearchProps = {
   allowWalletUnsupportedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
-  assets: selectedAssets,
+  assets,
   onAssetClick,
   formProps,
   allowWalletUnsupportedAssets,
@@ -54,9 +55,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const translate = useTranslate()
   const history = useHistory()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
-  const assets = useAppSelector(
-    state => selectedAssets ?? selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state),
-  )
+
   const portfolioAssetsSortedByBalance = useAppSelector(
     selectPortfolioFungibleAssetsSortedByBalance,
   )
@@ -86,7 +85,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const searchString = watch('search').trim()
   const isSearching = useMemo(() => searchString.length > 0, [searchString])
 
-  const chainIds: ChainId[] = useMemo(() => ['All', ...uniq(assets.map(a => a.chainId))], [assets])
   const inputProps: InputProps = useMemo(
     () => ({
       ...register('search'),
@@ -139,6 +137,34 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
     return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, portfolioAssetsSortedByBalance])
+
+  const chainIds: (ChainId | 'All')[] = useMemo(() => {
+    const unsortedChainIds = (() => {
+      if (assets) {
+        return uniq(assets.map(a => a.chainId))
+      }
+
+      if (allowWalletUnsupportedAssets) {
+        return Object.values(KnownChainIds)
+      }
+
+      return walletSupportedChainIds
+    })()
+
+    const manager = getChainAdapterManager()
+    const unsortedChainIdsWithName = unsortedChainIds.map(chainId => {
+      return {
+        chainId,
+        displayName: manager.get(chainId)?.getDisplayName(),
+      }
+    })
+
+    const sortedChainIds = orderBy(unsortedChainIdsWithName, 'displayName', 'asc').map(
+      ({ chainId }) => chainId,
+    )
+
+    return ['All', ...sortedChainIds]
+  }, [assets, walletSupportedChainIds, allowWalletUnsupportedAssets])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {

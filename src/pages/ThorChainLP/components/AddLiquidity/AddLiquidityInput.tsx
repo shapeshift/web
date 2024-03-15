@@ -837,8 +837,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       return handleApprove()
     }
 
+    if (isSweepNeeded) {
+      return history.push(AddLiquidityRoutePaths.Sweep)
+    }
+
     mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
-    history.push(isSweepNeeded ? AddLiquidityRoutePaths.Sweep : AddLiquidityRoutePaths.Confirm)
+    history.push(AddLiquidityRoutePaths.Confirm)
   }, [confirmedQuote, handleApprove, history, isApprovalRequired, isSweepNeeded, mixpanel])
 
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])

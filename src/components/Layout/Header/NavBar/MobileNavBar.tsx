@@ -13,6 +13,7 @@ import {
 import { union } from 'lodash'
 import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaRegCreditCard } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { routes } from 'Routes/RoutesCommon'
 import { QRCodeIcon } from 'components/Icons/QRCode'
@@ -70,10 +71,10 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       _hover={actionMenuButtonHover}
       _active={actionButtonActive}
     >
-      <Center bg={iconColor} boxSize='48px' borderRadius='full' fontSize='xl'>
+      <Center flexShrink={0} bg={iconColor} boxSize='48px' borderRadius='full' fontSize='xl'>
         {icon}
       </Center>
-      <Stack spacing={1}>
+      <Stack spacing={1} flex={1}>
         <RawText fontWeight='semibold'>{title}</RawText>
         <RawText color='text.subtle' fontWeight='normal'>
           {body}
@@ -84,6 +85,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
 }
 
 export const MobileNavBar = memo(() => {
+  const translate = useTranslate()
   const bg = useColorModeValue(
     `linear-gradient(
       to top,
@@ -223,34 +225,34 @@ export const MobileNavBar = memo(() => {
           <ActionMenuButton
             onClick={handleSendClick}
             icon={sendIcon}
-            title='Send'
-            body='Send your crypto'
+            title={translate('navBar.actionMenu.send.title')}
+            body={translate('navBar.actionMenu.send.body')}
           />
           <ActionMenuButton
             onClick={handleReceiveClick}
             iconColor='green.600'
             icon={receiveIcon}
-            title='Receive'
-            body='Receive crypto'
+            title={translate('navBar.actionMenu.receive.title')}
+            body={translate('navBar.actionMenu.receive.body')}
           />
           <ActionMenuButton
             onClick={handleTradeClick}
-            title='Trade/Bridge'
-            body='Trade or bridge your crypto'
             iconColor='purple.500'
             icon={swapIcon}
+            title={translate('navBar.actionMenu.trade.title')}
+            body={translate('navBar.actionMenu.trade.body')}
           />
           <ActionMenuButton
             onClick={handleBuyClick}
             icon={buyIcon}
-            title='Buy/Sell Crypto'
-            body='Buy or sell cryto with credit card'
+            title={translate('navBar.actionMenu.buy.title')}
+            body={translate('navBar.actionMenu.buy.body')}
           />
           <ActionMenuButton
             onClick={handleQrCodeClick}
             icon={qrCodeIcon}
-            title='Scan QR Code'
-            body='Easily scan to send or receive'
+            title={translate('navBar.actionMenu.qrcode.title')}
+            body={translate('navBar.actionMenu.qrcode.body')}
           />
         </DialogBody>
       </Dialog>

@@ -37,7 +37,7 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
 const DialogWindow: React.FC<DialogProps> = ({
   isOpen,
   onClose,
-  height = '100%',
+  height,
   isFullScreen,
   children,
 }) => {
@@ -46,7 +46,7 @@ const DialogWindow: React.FC<DialogProps> = ({
 
   const contentStyle = {
     maxHeight: isFullScreen ? '100vh' : 'calc(100% - env(safe-area-inset-top))',
-    height,
+    height: isFullScreen ? '100dvh' : height,
     paddingTop: isFullScreen ? 'env(safe-area-inset-top)' : 0,
   }
 

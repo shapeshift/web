@@ -1,5 +1,3 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { IconButton } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
@@ -15,31 +13,18 @@ type SelectAssetsProps = {
   onBack?: () => void
 }
 
-const arrowBackIcon = <ArrowBackIcon />
-
-export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps) => {
+export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
   const translate = useTranslate()
   const handleClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
   return (
     <>
       <DialogHeader>
         <DialogHeader.Left>
-          <IconButton
-            variant='ghost'
-            icon={arrowBackIcon}
-            aria-label={translate('common.back')}
-            fontSize='xl'
-            size='sm'
-            isRound
-            onClick={handleBack}
-          />
+          <DialogCloseButton />
         </DialogHeader.Left>
         <DialogHeader.Middle>
           <DialogTitle>{translate('common.selectAsset')}</DialogTitle>
         </DialogHeader.Middle>
-        <DialogHeader.Right>
-          <DialogCloseButton />
-        </DialogHeader.Right>
       </DialogHeader>
       <DialogBody height='600px' px={2} display='flex' flexDir='column' flex='auto'>
         <AssetSearch onClick={handleClick} />

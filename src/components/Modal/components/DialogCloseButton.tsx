@@ -1,13 +1,13 @@
-import { SmallCloseIcon } from '@chakra-ui/icons'
 import type { ModalCloseButtonProps } from '@chakra-ui/react'
 import { IconButton, ModalCloseButton, useMediaQuery } from '@chakra-ui/react'
 import { isMobile } from 'react-device-detect'
+import { FaX } from 'react-icons/fa6'
 import { Drawer } from 'vaul'
 import { breakpoints } from 'theme/theme'
 
 type DialogCloseButtonProps = ModalCloseButtonProps
 
-const closeIcon = <SmallCloseIcon />
+const closeIcon = <FaX />
 
 export const DialogCloseButton: React.FC<DialogCloseButtonProps> = ({ children, ...rest }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })

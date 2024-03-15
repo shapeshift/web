@@ -1,3 +1,4 @@
+import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
@@ -25,6 +26,12 @@ import { selectAssets } from '../assetsSlice/selectors'
 import { selectWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
+
+const selectTxHistoryApiQueries = (state: ReduxState) => state.txHistoryApi.queries
+export const selectIsAnyTxHistoryApiQueryPending = createDeepEqualOutputSelector(
+  selectTxHistoryApiQueries,
+  queries => Object.values(queries).some(query => query?.status === QueryStatus.pending),
+)
 
 export const selectTxs = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.txs.byId,

@@ -834,8 +834,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) {
-      handleApprove()
-      return
+      return handleApprove()
     }
 
     mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)

@@ -8,7 +8,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { Property } from 'csstype'
-import { range } from 'lodash'
+import { range, truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
@@ -45,7 +45,10 @@ export const AccountTable = memo(() => {
         accessor: 'assetId',
         disableSortBy: true,
         Cell: ({ row }: { row: RowProps }) => (
-          <AssetCell assetId={row.original.assetId} subText={row.original.symbol} />
+          <AssetCell
+            assetId={row.original.assetId}
+            subText={truncate(row.original.symbol, { length: 6 })}
+          />
         ),
       },
       {
@@ -66,9 +69,10 @@ export const AccountTable = memo(() => {
               lineHeight='shorter'
               fontWeight='normal'
               fontSize='sm'
+              whiteSpace='nowrap'
               data-test={`account-row-asset-crypto-${row.original.symbol}`}
               value={row.original.cryptoAmount}
-              symbol={row.original.symbol}
+              symbol={truncate(row.original.symbol, { length: 6 })}
             />
           </Stack>
         ),

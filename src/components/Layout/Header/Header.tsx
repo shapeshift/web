@@ -161,7 +161,7 @@ export const Header = memo(() => {
 
   return (
     <>
-      {isDemoWallet && (
+      {!isDemoWallet && (
         <Box
           bg='blue.500'
           width='full'

@@ -5,7 +5,7 @@ import type { Route } from 'Routes/helpers'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 
-const pageHeight = { base: '100vh', md: 'calc(100% - 72px)' }
+const pageHeight = { base: '100dvh', md: 'calc(100% - 72px)' }
 
 type PageProps = {
   children: ReactNode

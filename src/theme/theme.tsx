@@ -49,14 +49,14 @@ const styles = {
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
       overflowX: 'hidden',
-      height: '100%',
+      minHeight: '100%',
     },
     '#root': {
       background: 'background.surface.base',
     },
     html: {
       scrollBehavior: 'smooth',
-      height: '100%',
+      minHeight: '100vh',
     },
     h1: {
       fontSize: '4xl',

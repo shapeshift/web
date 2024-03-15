@@ -11,6 +11,7 @@ export type DialogProps = {
   isOpen: boolean
   onClose: () => void
   height?: string
+  isFullScreen?: boolean
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)`
@@ -19,7 +20,7 @@ const CustomDrawerContent = styled(Drawer.Content)`
   flex-direction: column;
   border-radius: 24px 24px 0 0;
   height: auto;
-  margin-top: 6rem;
+  margin-top: env(safe-area-inset-top);
   position: fixed;
   bottom: 0;
   left: 0;
@@ -33,11 +34,21 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   background-color: rgba(0, 0, 0, 0.8);
 `
 
-const DialogWindow: React.FC<DialogProps> = ({ isOpen, onClose, height, children }) => {
+const DialogWindow: React.FC<DialogProps> = ({
+  isOpen,
+  onClose,
+  height = '100%',
+  isFullScreen,
+  children,
+}) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { snapPoint } = useDialog()
 
-  const contentStyle = { maxHeight: '95%', height: '100%' }
+  const contentStyle = {
+    maxHeight: isFullScreen ? '100vh' : 'calc(100% - env(safe-area-inset-top))',
+    height,
+    paddingTop: isFullScreen ? 'env(safe-area-inset-top)' : 0,
+  }
 
   if (isMobile || !isLargerThanMd) {
     return (
@@ -45,7 +56,7 @@ const DialogWindow: React.FC<DialogProps> = ({ isOpen, onClose, height, children
         open={isOpen}
         onClose={onClose}
         activeSnapPoint={snapPoint}
-        shouldScaleBackground
+        shouldScaleBackground={!isFullScreen}
       >
         <Drawer.Portal>
           <CustomDrawerOverlay />

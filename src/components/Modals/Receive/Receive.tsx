@@ -18,7 +18,7 @@ const Receive = ({ asset, accountId }: ReceivePropsType) => {
   const { close, isOpen } = useModal('receive')
 
   return (
-    <Dialog isOpen={isOpen} onClose={close}>
+    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
       <MemoryRouter initialEntries={entries}>
         <ReceiveRouter assetId={asset?.assetId} accountId={accountId} />
       </MemoryRouter>

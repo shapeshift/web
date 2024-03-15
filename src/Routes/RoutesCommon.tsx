@@ -117,6 +117,7 @@ export const routes: NestedRoute[] = [
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
     mobileNav: true,
+    mobileOrder: 2,
     priority: 2,
     main: Trade,
     category: RouteCategory.Featured,
@@ -154,6 +155,7 @@ export const routes: NestedRoute[] = [
     main: StakingVaults,
     category: RouteCategory.Featured,
     mobileNav: true,
+    mobileOrder: 4,
     priority: 3,
   },
   {
@@ -164,6 +166,7 @@ export const routes: NestedRoute[] = [
     main: Buy,
     category: RouteCategory.Featured,
     mobileNav: true,
+    mobileOrder: 5,
     priority: 4,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Buy Asset',
@@ -179,6 +182,7 @@ export const routes: NestedRoute[] = [
     main: Dashboard,
     category: RouteCategory.Wallet,
     mobileNav: true,
+    mobileOrder: 1,
     priority: 0,
     routes: [
       {

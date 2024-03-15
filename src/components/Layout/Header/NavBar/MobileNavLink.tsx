@@ -4,7 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { Link as ReactRouterLink, matchPath, useLocation } from 'react-router-dom'
 import type { Route } from 'Routes/helpers'
 
-export const MobileNavLink = memo(({ label, shortLabel, path, icon }: Route) => {
+export const MobileNavLink = memo(({ label, shortLabel, path, icon, mobileOrder }: Route) => {
   const translate = useTranslate()
   const location = useLocation()
   const isActive = useMemo(() => {
@@ -30,6 +30,7 @@ export const MobileNavLink = memo(({ label, shortLabel, path, icon }: Route) => 
       fontSize='24px'
       gap={2}
       height='auto'
+      order={mobileOrder}
       variant='nav-link'
       isActive={isActive}
       fontWeight='medium'

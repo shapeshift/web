@@ -22,6 +22,7 @@ export type Route = {
   path: string
   label: string
   shortLabel?: string
+  mobileOrder?: number
   main: React.ElementType<{ route?: Route }> | null
   parent?: Route | null
   routes?: Route[]

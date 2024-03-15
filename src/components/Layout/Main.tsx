@@ -1,4 +1,4 @@
-import type { ContainerProps } from '@chakra-ui/react'
+import type { ContainerProps, FlexProps } from '@chakra-ui/react'
 import { Box, Container, HStack, Stack } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import type { ReactNode } from 'react'
@@ -15,12 +15,13 @@ export type MainProps = {
   titleComponent?: ReactNode
   headerComponent?: ReactNode
   hideBreadcrumbs?: boolean
+  pageProps?: FlexProps
 } & ContainerProps
 
 const containerPaddingX = { base: 4, xl: 16 }
 
 export const Main: React.FC<MainProps> = memo(
-  ({ children, titleComponent, headerComponent, hideBreadcrumbs = false, ...rest }) => {
+  ({ children, titleComponent, headerComponent, hideBreadcrumbs = false, pageProps, ...rest }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { currentRoute } = useBrowserRouter()
     const [y, setY] = useState(0)
@@ -30,7 +31,7 @@ export const Main: React.FC<MainProps> = memo(
       return scrollY.onChange(() => setY(scrollY.get()))
     }, [scrollY])
     return (
-      <Page>
+      <Page {...pageProps}>
         {titleComponent && (
           <Box
             width='full'
@@ -59,7 +60,7 @@ export const Main: React.FC<MainProps> = memo(
           </Box>
         )}
         {headerComponent}
-        <Container maxW='container.4xl' py={8} px={contentPaddingX} {...rest}>
+        <Container maxW='container.4xl' px={contentPaddingX} {...rest}>
           {children}
         </Container>
       </Page>

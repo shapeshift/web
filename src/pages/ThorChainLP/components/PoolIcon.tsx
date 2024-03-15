@@ -9,13 +9,6 @@ type PoolIconProps = {
   size?: AvatarProps['size']
 }
 
-const lastStyle = {
-  marginLeft: '-0.5em',
-}
-const firstStyle = {
-  marginLeft: '0em',
-}
-
 export const PoolIcon: React.FC<PoolIconProps> = ({ assetIds, size = 'md' }) => {
   const renderIcons = useMemo(() => {
     return assetIds.map(assetId => (
@@ -24,8 +17,6 @@ export const PoolIcon: React.FC<PoolIconProps> = ({ assetIds, size = 'md' }) => 
         size={size}
         assetId={assetId}
         showNetworkIcon={assetId !== thorchainAssetId}
-        _last={lastStyle}
-        _first={firstStyle}
       />
     ))
   }, [assetIds, size])

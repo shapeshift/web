@@ -10,7 +10,7 @@ const maxWidth = { base: 'full', xl: 'sm' }
 
 export const WalletDashboard = memo(() => {
   return (
-    <Stack alignItems='flex-start' spacing={6} mx='auto' direction={direction}>
+    <Stack alignItems='flex-start' spacing={6} direction={direction}>
       <Stack spacing={4} flex='1 1 0%' width='full'>
         <Portfolio />
       </Stack>

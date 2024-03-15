@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { reactQueries } from 'react-queries'
+import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -33,7 +33,7 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
   const thorchainPools = await queryClient.fetchQuery({
-    ...reactQueries.thornode.poolsData(),
+    ...thornode.poolsData(),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // Infinity staleTime as we handle halted state JIT
     staleTime: Infinity,
@@ -94,7 +94,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   const thorchainPools = await queryClient.fetchQuery({
-    ...reactQueries.thornode.poolsData(),
+    ...thornode.poolsData(),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // Infinity staleTime as we handle halted state JIT
     staleTime: Infinity,

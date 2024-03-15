@@ -124,7 +124,7 @@ export const selectAccountNumberByAccountId = createCachedSelector(
   (bip44Params): number | undefined => bip44Params?.accountNumber,
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 
-type PortfolioLoadingStatus = 'loading' | 'success' | 'error'
+export type PortfolioLoadingStatus = 'loading' | 'success' | 'error'
 
 type PortfolioLoadingStatusGranular = {
   [k: AccountId]: PortfolioLoadingStatus

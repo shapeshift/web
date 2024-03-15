@@ -719,10 +719,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     useIsSweepNeededQuery(isSweepNeededArgs)
 
   const handleSubmit = useCallback(() => {
-    if (isSweepNeeded) {
-      history.push(RemoveLiquidityRoutePaths.Sweep)
-      return
-    }
+    if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
 
     mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
     history.push(RemoveLiquidityRoutePaths.Confirm)

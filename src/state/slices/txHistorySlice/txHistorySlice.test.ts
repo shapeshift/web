@@ -42,7 +42,7 @@ describe('txHistorySlice', () => {
       const ethChainId = EthSend.chainId
       const accountId = `${ethChainId}:0xdef1cafe`
       // expected transaction order
-      const expected = map(transactions, tx => serializeTxIndex(accountId, tx.txid, tx.address))
+      const expected = map(transactions, tx => serializeTxIndex(accountId, tx.txid, tx.pubkey))
 
       store.dispatch(txHistory.actions.clear())
 
@@ -77,12 +77,12 @@ describe('txHistorySlice', () => {
       // eth data exists
       expect(
         store.getState().txHistory.txs.byId[
-          serializeTxIndex(ethAccountId, EthSend.txid, EthSend.address)
+          serializeTxIndex(ethAccountId, EthSend.txid, EthSend.pubkey)
         ],
       ).toEqual(EthSend)
       expect(
         store.getState().txHistory.txs.byId[
-          serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.address)
+          serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.pubkey)
         ],
       ).toEqual(EthReceive)
 
@@ -120,12 +120,12 @@ describe('txHistorySlice', () => {
       // btc data exists
       expect(
         store.getState().txHistory.txs.byId[
-          serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.address)
+          serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.pubkey)
         ],
       ).toEqual(BtcSend)
       expect(
         store.getState().txHistory.txs.byId[
-          serializeTxIndex(segwitAccountId, BtcSendSegwit.txid, BtcSendSegwit.address)
+          serializeTxIndex(segwitAccountId, BtcSendSegwit.txid, BtcSendSegwit.pubkey)
         ],
       ).toEqual(BtcSendSegwit)
     })
@@ -142,14 +142,14 @@ describe('txHistorySlice', () => {
 
       expect(
         store.getState().txHistory.txs.byId[
-          serializeTxIndex(ethAccountId, EthReceivePending.txid, EthReceivePending.address)
+          serializeTxIndex(ethAccountId, EthReceivePending.txid, EthReceivePending.pubkey)
         ].status,
       ).toBe(TxStatus.Pending)
 
       store.dispatch(txHistory.actions.onMessage({ message: EthReceive, accountId: ethAccountId }))
       expect(
         store.getState().txHistory.txs.byId[
-          serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.address)
+          serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.pubkey)
         ].status,
       ).toBe(TxStatus.Confirmed)
     })
@@ -184,19 +184,17 @@ describe('txHistorySlice', () => {
       expect(
         store.getState().txHistory.txs.byAccountIdAssetId[ethAccountId]?.[ethAssetId],
       ).toStrictEqual([
-        serializeTxIndex(ethAccountId, EthSend.txid, EthSend.address),
-        serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.address),
+        serializeTxIndex(ethAccountId, EthSend.txid, EthSend.pubkey),
+        serializeTxIndex(ethAccountId, EthReceive.txid, EthReceive.pubkey),
       ])
 
       expect(
         store.getState().txHistory.txs.byAccountIdAssetId[segwitNativeAccountId]?.[btcAssetId],
-      ).toStrictEqual([serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.address)])
+      ).toStrictEqual([serializeTxIndex(segwitNativeAccountId, BtcSend.txid, BtcSend.pubkey)])
 
       expect(
         store.getState().txHistory.txs.byAccountIdAssetId?.[segwitAccountId]?.[btcAssetId],
-      ).toStrictEqual([
-        serializeTxIndex(segwitAccountId, BtcSendSegwit.txid, BtcSendSegwit.address),
-      ])
+      ).toStrictEqual([serializeTxIndex(segwitAccountId, BtcSendSegwit.txid, BtcSendSegwit.pubkey)])
     })
   })
 

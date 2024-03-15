@@ -39,6 +39,7 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
@@ -58,6 +59,7 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectAccountIdsByAssetId,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
@@ -76,7 +78,6 @@ import {
   selectFirstHop,
   selectIsAnyTradeQuoteLoaded,
   selectIsUnsafeActiveQuote,
-  selectSwapperSupportsCrossAccountTrade,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteRequestErrors,
@@ -120,7 +121,8 @@ const GetTradeQuotes = () => {
 
 export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const {
-    state: { wallet },
+    dispatch: walletDispatch,
+    state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
   const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
@@ -146,7 +148,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
-  const swapperSupportsCrossAccountTrade = useAppSelector(selectSwapperSupportsCrossAccountTrade)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
@@ -179,6 +180,9 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         // this should never occur because users shouldn't be able to select an errored quote
         // but just in case
         return getQuoteErrorTranslation(tradeQuoteError!)
+      case !isConnected || isDemoWallet:
+        // We got a happy path quote, but we may still be in the context of the demo wallet
+        return 'common.connectWallet'
       default:
         return 'trade.previewTrade'
     }
@@ -188,6 +192,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     activeQuoteErrors,
     isAnyTradeQuoteLoaded,
     hasUserEnteredAmount,
+    isConnected,
+    isDemoWallet,
   ])
 
   const setBuyAsset = useCallback(
@@ -331,7 +337,16 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     selectBuyAmountBeforeFeesCryptoPrecision,
   )
 
+  const handleConnect = useCallback(() => {
+    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [walletDispatch])
+
   const onSubmit = useCallback(() => {
+    // No preview happening if wallet isn't connected i.e is using the demo wallet
+    if (!isConnected || isDemoWallet) {
+      return handleConnect()
+    }
+
     setIsConfirmationLoading(true)
     try {
       const eventData = getMixpanelEventData()
@@ -357,7 +372,18 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }
 
     setIsConfirmationLoading(false)
-  }, [activeQuote, dispatch, history, mixpanel, showErrorToast, tradeQuoteStep, wallet])
+  }, [
+    activeQuote,
+    dispatch,
+    handleConnect,
+    history,
+    isConnected,
+    isDemoWallet,
+    mixpanel,
+    showErrorToast,
+    tradeQuoteStep,
+    wallet,
+  ])
 
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
@@ -455,7 +481,17 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     }
   }, [isCompact, isCompactQuoteListOpen, isSmallerThanXl])
 
+  const buyAssetAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: buyAsset.assetId }),
+  )
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
+  const shouldShowManualReceiveAddressInput = useMemo(() => {
+    // Ledger "supports" all chains, but may not have them connected
+    if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length && !activeQuote
+    // We want to display the manual address entry if the wallet doesn't support the buy asset chain,
+    // but stop displaying it as soon as we have a quote
+    return !walletSupportsBuyAssetChain && !activeQuote
+  }, [activeQuote, buyAssetAccountIds.length, wallet, walletSupportsBuyAssetChain])
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
@@ -506,7 +542,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         >
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
           <WithLazyMount
-            shouldUse={hasUserEnteredAmount && !walletSupportsBuyAssetChain}
+            shouldUse={shouldShowManualReceiveAddressInput}
             component={ManualAddressEntry}
           />
           {maybeUnsafeTradeWarning}
@@ -552,7 +588,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       slippageDecimal,
       priceImpactPercentage,
       receiveAddress,
-      walletSupportsBuyAssetChain,
+      shouldShowManualReceiveAddressInput,
       maybeUnsafeTradeWarning,
       isUnsafeQuote,
       isUnsafeQuoteNoticeDismissed,
@@ -679,6 +715,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                     <Divider />
                   </Flex>
                   <TradeAssetInput
+                    // Disable account selection when user set a manual receive address
+                    isAccountSelectionHidden={Boolean(manualReceiveAddress)}
                     isReadOnly={true}
                     accountId={initialBuyAssetAccountId}
                     assetId={buyAsset.assetId}
@@ -699,7 +737,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                     showFiatSkeleton={isLoading}
                     label={translate('trade.youGet')}
                     onAccountIdChange={setBuyAssetAccountId}
-                    isAccountSelectionDisabled={!swapperSupportsCrossAccountTrade}
                     formControlProps={formControlProps}
                     labelPostFix={buyTradeAssetSelect}
                     priceImpactPercentage={priceImpactPercentage?.toString()}

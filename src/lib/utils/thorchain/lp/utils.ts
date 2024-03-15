@@ -1,14 +1,14 @@
 import type { LpConfirmedDepositQuote, LpConfirmedWithdrawalQuote } from './types'
 
 export function isLpConfirmedDepositQuote(
-  quote: Record<string, unknown>,
+  quote: Record<string, unknown> | null,
 ): quote is LpConfirmedDepositQuote {
   return (
-    quote &&
-    quote.assetCryptoDepositAmount !== undefined &&
-    quote.assetFiatDepositAmount !== undefined &&
-    quote.runeCryptoDepositAmount !== undefined &&
-    quote.runeFiatDepositAmount !== undefined
+    quote !== null &&
+    quote.assetDepositAmountCryptoPrecision !== undefined &&
+    quote.assetDepositAmountFiatUserCurrency !== undefined &&
+    quote.runeDepositAmountCryptoPrecision !== undefined &&
+    quote.runeDepositAmountFiatUserCurrency !== undefined
   )
 }
 
@@ -17,9 +17,9 @@ export function isLpConfirmedWithdrawalQuote(
 ): quote is LpConfirmedWithdrawalQuote {
   return (
     quote &&
-    quote.assetCryptoWithdrawAmount !== undefined &&
-    quote.assetFiatWithdrawAmount !== undefined &&
-    quote.runeCryptoWithdrawAmount !== undefined &&
-    quote.runeFiatWithdrawAmount !== undefined
+    quote.assetWithdrawAmountCryptoPrecision !== undefined &&
+    quote.assetWithdrawAmountFiatUserCurrency !== undefined &&
+    quote.runeWithdrawAmountCryptoPrecision !== undefined &&
+    quote.runeWithdrawAmountFiatUserCurrency !== undefined
   )
 }

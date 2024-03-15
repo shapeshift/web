@@ -1,17 +1,46 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { Suspense, useCallback, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
+import { makeSuspenseful } from 'utils/makeSuspenseful'
 import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 
-import { AddLiquidityConfirm } from './AddLiquidityConfirm'
-import { AddLiquidityInput } from './AddLiquidityInput'
-import { AddLiquiditySweep } from './AddLiquiditySweep'
-import { AddLiquidityStatus } from './AddLiquityStatus'
 import { AddLiquidityRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
+
+const AddLiquidityConfirm = makeSuspenseful(
+  lazy(() =>
+    import('./AddLiquidityConfirm').then(({ AddLiquidityConfirm }) => ({
+      default: AddLiquidityConfirm,
+    })),
+  ),
+)
+
+const AddLiquidityInput = makeSuspenseful(
+  lazy(() =>
+    import('./AddLiquidityInput').then(({ AddLiquidityInput }) => ({
+      default: AddLiquidityInput,
+    })),
+  ),
+)
+
+const AddLiquidityStatus = makeSuspenseful(
+  lazy(() =>
+    import('./AddLiquidityStatus').then(({ AddLiquidityStatus }) => ({
+      default: AddLiquidityStatus,
+    })),
+  ),
+)
+
+const AddLiquiditySweep = makeSuspenseful(
+  lazy(() =>
+    import('./AddLiquiditySweep').then(({ AddLiquiditySweep }) => ({
+      default: AddLiquiditySweep,
+    })),
+  ),
+)
 
 const AddLiquidityEntries = [
   AddLiquidityRoutePaths.Input,

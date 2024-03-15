@@ -2,6 +2,8 @@ import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/
 import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback } from 'react'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 
 type Props = {
   initialUri?: string
@@ -18,8 +20,13 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
 
   const handleConnectV2 = useCallback(
     async (uri: string) => {
-      const connectionResult = await pair?.({ uri })
-      if (connectionResult) onClose()
+      try {
+        const connectionResult = await pair?.({ uri })
+        if (connectionResult) onClose()
+      } catch (error: unknown) {
+        console.debug(error)
+        getMixPanel()?.track(MixPanelEvent.Error, { error })
+      }
     },
     [onClose, pair],
   )

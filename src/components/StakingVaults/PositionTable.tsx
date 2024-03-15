@@ -21,7 +21,7 @@ import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opport
 import {
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
-  selectAssetsByMarketCap,
+  selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
@@ -71,7 +71,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   searchQuery,
 }) => {
   const translate = useTranslate()
-  const assets = useAppSelector(selectAssetsByMarketCap)
+  const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const isLoading = useAppSelector(selectOpportunityApiPending)
   const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
     () => ({

@@ -14,6 +14,10 @@ export const RemoveLiquidityStatus = ({ confirmedQuote }: RemoveLiquidityStatusP
   const history = useHistory()
 
   const handleGoBack = useCallback(() => {
+    history.push(RemoveLiquidityRoutePaths.Confirm)
+  }, [history])
+
+  const handleGoInput = useCallback(() => {
     history.push(RemoveLiquidityRoutePaths.Input)
   }, [history])
 
@@ -22,6 +26,7 @@ export const RemoveLiquidityStatus = ({ confirmedQuote }: RemoveLiquidityStatusP
       confirmedQuote={confirmedQuote}
       baseAssetId={thorchainAssetId}
       handleBack={handleGoBack}
+      handleRestart={handleGoInput}
     />
   )
 }

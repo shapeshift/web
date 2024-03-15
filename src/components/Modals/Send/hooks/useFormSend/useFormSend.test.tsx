@@ -42,7 +42,7 @@ vi.mock('state/slices/selectors', async () => {
       },
     }),
     selectAssetById: vi.fn(() => mockEthereum),
-    selectMarketDataById: () => ({ price: '2000' }),
+    selectMarketDataByAssetIdUserCurrency: () => ({ price: '2000' }),
   }
 })
 
@@ -93,7 +93,7 @@ vi.mock('lib/address/ens')
 const formData: SendInput<KnownChainIds.EthereumMainnet> = {
   [SendFormFields.Input]: '',
   [SendFormFields.From]: '',
-  [SendFormFields.To]: EthSend.address,
+  [SendFormFields.To]: EthSend.pubkey,
   [SendFormFields.VanityAddress]: '',
   [SendFormFields.AssetId]: ethAssetId,
   [SendFormFields.AmountFieldError]: '',
@@ -127,7 +127,7 @@ const formData: SendInput<KnownChainIds.EthereumMainnet> = {
       },
     },
   },
-  [SendFormFields.CryptoAmount]: '1',
+  [SendFormFields.AmountCryptoPrecision]: '1',
   [SendFormFields.FiatAmount]: '3500',
   [SendFormFields.FiatSymbol]: 'USD',
   [SendFormFields.SendMax]: false,

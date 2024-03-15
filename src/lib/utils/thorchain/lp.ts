@@ -3,7 +3,8 @@ import { type AssetId, cosmosChainId, thorchainChainId } from '@shapeshiftoss/ca
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { type BN, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { BN } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
@@ -11,11 +12,12 @@ import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 import { getSupportedEvmChainIds } from '../evm'
 import { fromThorBaseUnit } from '.'
+import { THOR_PRECISION } from './constants'
 import type {
   MidgardEarningsHistoryPoolItem,
   PoolShareDetail,
+  SlippageDetails,
   ThorchainLiquidityProvidersResponseSuccess,
-  UserLpDataPosition,
 } from './lp/types'
 
 const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
@@ -38,34 +40,35 @@ export const getAllThorchainLiquidityProviderPositions = async (
   return data
 }
 
+// formula: P(Ra + rA) / 2RA
 // https://dev.thorchain.org/concepts/math.html#lp-units-add
 export const getLiquidityUnits = ({
   pool,
-  assetAmountCryptoThorPrecision,
-  runeAmountCryptoThorPrecision,
+  assetAmountThorBaseUnit,
+  runeAmountThorBaseUnit,
 }: {
   pool: ThornodePoolResponse
-  assetAmountCryptoThorPrecision: string
-  runeAmountCryptoThorPrecision: string
+  assetAmountThorBaseUnit: string
+  runeAmountThorBaseUnit: string
 }): BN => {
-  const P = pool.LP_units
-  const a = assetAmountCryptoThorPrecision
-  const r = runeAmountCryptoThorPrecision
-  const R = pool.balance_rune
+  const a = assetAmountThorBaseUnit
+  const r = runeAmountThorBaseUnit
   const A = pool.balance_asset
+  const R = pool.balance_rune
+  const P = pool.pool_units
+
   const part1 = bnOrZero(R).times(a)
   const part2 = bnOrZero(r).times(A)
-
   const numerator = bnOrZero(P).times(part1.plus(part2))
   const denominator = bnOrZero(R).times(A).times(2)
-  const result = numerator.div(denominator)
-  return result
+
+  return numerator.div(denominator)
 }
 
+// pool share formula: L/P = S
+// asset share formula: A*S
+// rune share formula: R*S
 export const getPoolShare = (pool: ThornodePoolResponse, liquidityUnits: BN): PoolShareDetail => {
-  // pool share: L/P = S
-  // asset share: A*S
-  // rune share: R*S
   const L = liquidityUnits
   const P = pool.pool_units
   const R = pool.balance_rune
@@ -79,92 +82,60 @@ export const getPoolShare = (pool: ThornodePoolResponse, liquidityUnits: BN): Po
   }
 }
 
-// https://dev.thorchain.org/concepts/math.html#slippage
-export const getSlipOnLiquidity = ({
-  runeAmountCryptoThorPrecision,
-  assetAmountCryptoThorPrecision,
+// formula: (Ra - Ar) / (Ar + RA)
+// https://gitlab.com/thorchain/asgardex-common/asgardex-util/-/blob/274a08d7e3bb9bdfaf283015f4054ddcb6c0bc6c/src/calc/stake.ts#L46
+export const getSlippage = ({
   pool,
+  assetAmountThorBaseUnit,
+  runeAmountThorBaseUnit,
 }: {
-  runeAmountCryptoThorPrecision: string
-  assetAmountCryptoThorPrecision: string
   pool: ThornodePoolResponse
-}): BN => {
-  // formula: (t * R - T * r)/ (T*r + R*T)
-  const r = runeAmountCryptoThorPrecision
-  const t = assetAmountCryptoThorPrecision
+  assetAmountThorBaseUnit: string
+  runeAmountThorBaseUnit: string
+}): SlippageDetails => {
+  const r = bnOrZero(runeAmountThorBaseUnit)
+  const a = bnOrZero(assetAmountThorBaseUnit)
   const R = pool.balance_rune
-  const T = pool.balance_asset
-  const numerator = bnOrZero(t).times(R).minus(bnOrZero(T).times(r))
-  const denominator = bnOrZero(T).times(r).plus(bnOrZero(R).times(T))
-  const result = numerator.div(denominator).abs()
-  return result
-}
+  const A = pool.balance_asset
 
-// Estimates a liquidity position for given crypto amount value, both asymmetrical and symetrical
-// https://dev.thorchain.org/concepts/math.html#lp-units-add
-export const estimateAddThorchainLiquidityPosition = async ({
-  runeAmountCryptoThorPrecision,
-  assetId,
-  assetAmountCryptoThorPrecision,
-}: {
-  runeAmountCryptoThorPrecision: string
-  assetId: AssetId
-  assetAmountCryptoThorPrecision: string
-}) => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
+  const numerator = bnOrZero(R).times(a).minus(bnOrZero(A).times(r))
+  const denominator = bnOrZero(A).times(r).plus(bnOrZero(R).times(A))
 
-  const poolResult = await thorService.get<ThornodePoolResponse>(
-    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
-  )
+  const slippageBps = numerator.div(denominator).abs()
+  const assetPriceInRune = bnOrZero(pool.balance_rune).div(pool.balance_asset)
 
-  if (poolResult.isErr()) throw poolResult.unwrapErr()
-  const pool = poolResult.unwrap().data
+  if (a.gt(0) && r.eq(0)) {
+    const aInRune = a.times(assetPriceInRune)
+    return {
+      decimalPercent: slippageBps.times(100).toFixed(),
+      runeAmountCryptoPrecision: fromThorBaseUnit(aInRune.times(slippageBps)).toFixed(
+        THOR_PRECISION,
+      ),
+    }
+  }
 
-  const liquidityUnitsCryptoThorPrecision = getLiquidityUnits({
-    pool,
-    assetAmountCryptoThorPrecision,
-    runeAmountCryptoThorPrecision,
-  })
-  const poolShare = getPoolShare(pool, liquidityUnitsCryptoThorPrecision)
+  if (r.gt(0) && a.eq(0)) {
+    return {
+      decimalPercent: slippageBps.times(100).toFixed(),
+      runeAmountCryptoPrecision: fromThorBaseUnit(r.times(slippageBps)).toFixed(THOR_PRECISION),
+    }
+  }
 
-  const assetInboundFee = bn(0) // TODO
-  const runeInboundFee = bn(0) // TODO
-  const totalFees = assetInboundFee.plus(runeInboundFee)
-
-  const slip = getSlipOnLiquidity({
-    runeAmountCryptoThorPrecision,
-    assetAmountCryptoThorPrecision,
-    pool,
-  })
-
+  // symmetrical lp positions incur no slippage as there is no rebalancing swap occuring
   return {
-    assetPool: pool.asset,
-    slipPercent: slip.times(100).toFixed(),
-    poolShareAsset: poolShare.assetShareThorBaseUnit.toFixed(),
-    poolShareRune: poolShare.runeShareThorBaseUnit.toFixed(),
-    poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
-    liquidityUnits: liquidityUnitsCryptoThorPrecision.toFixed(),
-    inbound: {
-      fees: {
-        asset: assetInboundFee.toFixed(),
-        rune: runeInboundFee.toFixed(),
-        total: totalFees.toFixed(),
-      },
-    },
+    decimalPercent: '0',
+    runeAmountCryptoPrecision: '0',
   }
 }
 
-// https://dev.thorchain.org/concepts/math.html#lp-units-withdrawn
-export const estimateRemoveThorchainLiquidityPosition = async ({
+export const estimateAddThorchainLiquidityPosition = async ({
   assetId,
-  userData,
-  runeAmountCryptoThorPrecision,
-  assetAmountCryptoThorPrecision,
+  assetAmountThorBaseUnit,
+  runeAmountThorBaseUnit,
 }: {
   assetId: AssetId
-  userData: UserLpDataPosition
-  runeAmountCryptoThorPrecision: string
-  assetAmountCryptoThorPrecision: string
+  assetAmountThorBaseUnit: string
+  runeAmountThorBaseUnit: string
 }) => {
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
@@ -175,40 +146,61 @@ export const estimateRemoveThorchainLiquidityPosition = async ({
   if (poolResult.isErr()) throw poolResult.unwrapErr()
   const pool = poolResult.unwrap().data
 
-  const liquidityUnitsCryptoThorPrecision = getLiquidityUnits({
+  const liquidityUnits = getLiquidityUnits({
     pool,
-    assetAmountCryptoThorPrecision,
-    runeAmountCryptoThorPrecision,
+    assetAmountThorBaseUnit,
+    runeAmountThorBaseUnit,
   })
 
-  const poolShare = getPoolShare(pool, liquidityUnitsCryptoThorPrecision)
+  const poolShare = getPoolShare(pool, liquidityUnits)
 
-  const slip = getSlipOnLiquidity({
-    runeAmountCryptoThorPrecision,
-    assetAmountCryptoThorPrecision,
+  const slippage = getSlippage({
+    runeAmountThorBaseUnit,
+    assetAmountThorBaseUnit,
     pool,
   })
-
-  const assetInboundFee = bn(0) // TODO
-  const runeInboundFee = bn(0) // TODO
-  const totalFees = assetInboundFee.plus(runeInboundFee)
 
   return {
-    assetPool: pool.asset,
-    slipPercent: slip.times(100).toFixed(),
-    poolShareAssetCryptoThorPrecision: poolShare.assetShareThorBaseUnit.toFixed(),
-    poolShareRuneCryptoThorPrecision: poolShare.runeShareThorBaseUnit.toFixed(),
+    slippageDecimalPercent: slippage.decimalPercent,
+    slippageRuneCryptoPrecision: slippage.runeAmountCryptoPrecision,
     poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
-    liquidityUnitsCryptoThorPrecision: userData.liquidityUnits,
-    assetAmountCryptoThorPrecision: poolShare.assetShareThorBaseUnit.toFixed(),
-    runeAmountCryptoThorPrecision: poolShare.runeShareThorBaseUnit.toFixed(),
-    inbound: {
-      fees: {
-        asset: assetInboundFee.toFixed(),
-        rune: runeInboundFee.toFixed(),
-        total: totalFees.toFixed(),
-      },
-    },
+  }
+}
+
+export const estimateRemoveThorchainLiquidityPosition = async ({
+  bps,
+  assetId,
+  liquidityUnits,
+  runeAmountThorBaseUnit,
+  assetAmountThorBaseUnit,
+}: {
+  bps: string
+  assetId: AssetId
+  liquidityUnits: string
+  runeAmountThorBaseUnit: string
+  assetAmountThorBaseUnit: string
+}) => {
+  const poolAssetId = assetIdToPoolAssetId({ assetId })
+
+  const poolResult = await thorService.get<ThornodePoolResponse>(
+    `${thornodeUrl}/lcd/thorchain/pool/${poolAssetId}`,
+  )
+
+  if (poolResult.isErr()) throw poolResult.unwrapErr()
+  const pool = poolResult.unwrap().data
+
+  const poolShare = getPoolShare(pool, bnOrZero(liquidityUnits).times(bps).div(10000))
+
+  const slippage = getSlippage({
+    runeAmountThorBaseUnit,
+    assetAmountThorBaseUnit,
+    pool,
+  })
+
+  return {
+    slippageDecimalPercent: slippage.decimalPercent,
+    slippageRuneCryptoPrecision: slippage.runeAmountCryptoPrecision,
+    poolShareDecimalPercent: poolShare.poolShareDecimalPercent,
   }
 }
 

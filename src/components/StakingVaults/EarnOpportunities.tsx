@@ -130,7 +130,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         </HStack>
       </CardHeader>
       {Boolean(allRows?.length) && (
-        <CardBody pt={0} px={2}>
+        <CardBody pt={0} px={4}>
           <StakingTable data={allRows} onClick={handleClick} />
         </CardBody>
       )}

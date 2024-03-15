@@ -1,28 +1,19 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, type ChainId, isChainReference, toChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn } from 'lib/bignumber/bignumber'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 import { useAppSelector } from 'state/store'
-
-const chainIdFromEthNetwork = (
-  ethNetwork: string | undefined,
-  supportedEvmChainIds: ChainId[],
-): ChainId | undefined => {
-  if (!ethNetwork) return
-
-  return supportedEvmChainIds.find(chainId => fromChainId(chainId).chainReference === ethNetwork)
-}
 
 export const useEvm = () => {
   const {
     state: { wallet },
   } = useWallet()
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [ethNetwork, setEthNetwork] = useState<string>()
+  const [chainId, setChainId] = useState<ChainId>()
   const featureFlags = useAppSelector(selectFeatureFlags)
   const supportedEvmChainIds = useMemo(
     () => getSupportedEvmChainIds(),
@@ -30,32 +21,52 @@ export const useEvm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [featureFlags],
   )
-  const getChainIdFromEthNetwork = useCallback(
-    (ethNetwork: string) => chainIdFromEthNetwork(ethNetwork, supportedEvmChainIds),
+  const isSupportedEvmChainId = useCallback(
+    (chainId?: ChainId) => {
+      return (
+        chainId !== undefined &&
+        supportedEvmChainIds.includes(chainId as KnownChainIds) &&
+        isEvmChainId(chainId)
+      )
+    },
     [supportedEvmChainIds],
   )
 
   useEffect(() => {
     ;(async () => {
       setIsLoading(true)
-      const ethNetwork = await (wallet as ETHWallet)?.ethGetChainId?.()
-      ethNetwork && setEthNetwork(bn(ethNetwork).toString())
+      const maybeChainReference = (await (wallet as ETHWallet)?.ethGetChainId?.())?.toString() ?? ''
+      const chainNamespace = CHAIN_NAMESPACE.Evm
+
+      if (isChainReference(maybeChainReference)) {
+        setChainId(
+          toChainId({
+            chainNamespace,
+            chainReference: maybeChainReference,
+          }),
+        )
+      }
     })()
   }, [wallet])
 
   const connectedEvmChainId = useMemo(() => {
-    if (ethNetwork && isLoading) {
+    if (chainId && isLoading) {
       setIsLoading(false)
     }
 
-    return chainIdFromEthNetwork(ethNetwork, supportedEvmChainIds)
-  }, [isLoading, ethNetwork, supportedEvmChainIds])
+    if (!isSupportedEvmChainId(chainId)) return
 
-  return {
-    connectedEvmChainId,
-    getChainIdFromEthNetwork,
-    isLoading,
-    setEthNetwork,
-    supportedEvmChainIds,
-  }
+    return chainId
+  }, [chainId, isLoading, isSupportedEvmChainId])
+
+  return useMemo(
+    () => ({
+      connectedEvmChainId,
+      isSupportedEvmChainId,
+      isLoading,
+      setChainId,
+      supportedEvmChainIds,
+    }),
+    [connectedEvmChainId, isLoading, isSupportedEvmChainId, supportedEvmChainIds],
+  )
 }

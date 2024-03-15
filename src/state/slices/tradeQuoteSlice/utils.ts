@@ -15,7 +15,7 @@ export const convertBasisPointsToPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(100)
 
 type SumProtocolFeesToDenomArgs = {
-  cryptoMarketDataById: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
+  marketDataByAssetIdUsd: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
   outputAssetPriceUsd: BigNumber.Value
   outputExponent: number
   protocolFees: PartialRecord<AssetId, ProtocolFee>
@@ -72,7 +72,7 @@ export const addBasisPointAmount = (
 // this converts the collection of protocol fees denominated in various assets to the sum of all of
 // their values denominated in single asset and precision
 export const sumProtocolFeesToDenom = ({
-  cryptoMarketDataById,
+  marketDataByAssetIdUsd,
   outputAssetPriceUsd,
   outputExponent,
   protocolFees,
@@ -81,7 +81,7 @@ export const sumProtocolFeesToDenom = ({
     .reduce((acc: BigNumber, [assetId, protocolFee]: [AssetId, ProtocolFee | undefined]) => {
       if (!protocolFee) return acc
       const inputExponent = protocolFee.asset.precision
-      const priceUsd = cryptoMarketDataById[assetId]?.price
+      const priceUsd = marketDataByAssetIdUsd[assetId]?.price
 
       if (!inputExponent || !priceUsd) return acc
 

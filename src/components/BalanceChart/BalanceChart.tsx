@@ -6,6 +6,8 @@ import { Graph } from 'components/Graph/Graph'
 import { useBalanceChartData } from 'hooks/useBalanceChartData/useBalanceChartData'
 import { calculatePercentChange } from 'lib/charts'
 
+const chartHeight = { base: '250px', md: '350px' }
+
 type BalanceChartArgs = {
   assetId?: AssetId
   accountId?: AccountId
@@ -36,7 +38,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
   return (
-    <Box height='350px'>
+    <Box height={chartHeight}>
       <Graph
         color={color}
         data={balanceChartData}

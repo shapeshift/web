@@ -16,6 +16,7 @@ import {
   Stack,
   StackDivider,
   useColorModeValue,
+  usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
@@ -23,6 +24,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -33,6 +35,7 @@ import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
+import { getAddress, zeroAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FeeModal } from 'components/FeeModal/FeeModal'
@@ -52,7 +55,10 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import {
+  assetIdToPoolAssetId,
+  poolAssetIdToAssetId,
+} from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
@@ -62,6 +68,8 @@ import {
   getThorchainLpTransactionType,
 } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
+import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
@@ -75,7 +83,7 @@ import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -150,32 +158,33 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const [showFeeModal, toggleShowFeeModal] = useState(false)
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
-  const [slippageRune, setSlippageRune] = useState<string | undefined>()
+  const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
+  const [isSweepNeeded, setIsSweepNeeded] = useState<boolean | undefined>()
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
+  const previousOpportunityId = usePrevious(activeOpportunityId)
+
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
+  const [runeTxFeeCryptoBaseUnit, setRuneTxFeeCryptoBaseUnit] = useState<string | undefined>()
   const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
     undefined,
   )
+  const [poolAssetTxFeeCryptoBaseUnit, setPoolAssetTxFeeCryptoBaseUnit] = useState<
+    string | undefined
+  >()
 
   // Virtual as in, these are the amounts if depositing symetrically. But a user may deposit asymetrically, so these are not the *actual* amounts
   // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
   // while using the *actual* amounts whenever we do things like checking for asset balance
-  const [virtualAssetCryptoLiquidityAmount, setVirtualAssetCryptoLiquidityAmount] = useState<
-    string | undefined
-  >()
-  const [
-    virtualAssetLiquidityAmountFiatUserCurrency,
-    setVirtualAssetLiquidityAmountFiatUserCurrency,
-  ] = useState<string | undefined>()
-  const [virtualRuneCryptoLiquidityAmount, setVirtualRuneCryptoLiquidityAmount] = useState<
-    string | undefined
-  >()
-  const [
-    virtualRuneLiquidityAmountFiatUserCurrency,
-    setVirtualVirtualLiquidityAmountFiatUserCurrency,
-  ] = useState<string | undefined>()
+  const [virtualAssetDepositAmountCryptoPrecision, setVirtualAssetDepositAmountCryptoPrecision] =
+    useState<string | undefined>()
+  const [virtualAssetDepositAmountFiatUserCurrency, setVirtualAssetDepositAmountFiatUserCurrency] =
+    useState<string | undefined>()
+  const [virtualRuneDepositAmountCryptoPrecision, setVirtualRuneDepositAmountCryptoPrecision] =
+    useState<string | undefined>()
+  const [virtualRuneDepositAmountFiatUserCurrency, setVirtualRuneDepositAmountFiatUserCurrency] =
+    useState<string | undefined>()
 
   const { data: pools } = usePools()
   const assets = useAppSelector(selectAssets)
@@ -231,8 +240,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
   //     and not allowing them to select the sure-to-fail deposit types
   useEffect(() => {
-    if (!pools?.length) return
     if (activeOpportunityId) return
+    if (opportunityId) return setActiveOpportunityId(opportunityId)
+
+    if (!pools?.length) return
 
     const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
 
@@ -250,7 +261,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       type: opportunityType,
     })
 
-    setActiveOpportunityId(opportunityId || defaultOpportunityId)
+    setActiveOpportunityId(defaultOpportunityId)
   }, [
     pools,
     opportunityId,
@@ -266,11 +277,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return fromOpportunityId(activeOpportunityId)
   }, [activeOpportunityId])
 
+  const pool = useMemo(() => pools?.find(pool => pool.assetId === assetId), [assetId, pools])
+
   const _poolAsset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   useEffect(() => _poolAsset && setPoolAsset(_poolAsset), [_poolAsset])
 
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId ?? ''))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+  )
   const poolAssetAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
   )
@@ -300,7 +315,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const poolAssetFeeAssetMarktData = useAppSelector(state =>
-    selectMarketDataById(state, poolAssetFeeAsset?.assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
   )
   const poolAssetFeeAssetBalanceFilter = useMemo(() => {
     return { assetId: poolAssetFeeAsset?.assetId, accountId: poolAssetAccountId }
@@ -310,7 +325,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
@@ -324,10 +341,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runeBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
   )
-
-  const isAsym = useMemo(() => opportunityType !== 'sym', [opportunityType])
-  const isAsymAssetSide = useMemo(() => opportunityType === AsymSide.Asset, [opportunityType])
-  const isAsymRuneSide = useMemo(() => opportunityType === AsymSide.Rune, [opportunityType])
 
   const walletSupportsRune = useMemo(() => {
     const chainId = thorchainChainId
@@ -361,37 +374,53 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     toggleShowFeeModal(!showFeeModal)
   }, [showFeeModal])
 
-  const actualAssetCryptoLiquidityAmount = useMemo(() => {
+  const actualAssetDepositAmountCryptoPrecision = useMemo(() => {
     // Symmetrical & Asym Asset: assetAmount = virtual amount (no rebalance, so use values as is)
+    if (opportunityType === 'sym') return virtualAssetDepositAmountCryptoPrecision
+    if (opportunityType === AsymSide.Asset) return virtualAssetDepositAmountCryptoPrecision
+
     // Asym Rune: assetAmount = '0' (will be rebalanced by thorchain)
-    return !isAsym || isAsymAssetSide ? virtualAssetCryptoLiquidityAmount : '0'
-  }, [isAsym, isAsymAssetSide, virtualAssetCryptoLiquidityAmount])
+    return '0'
+  }, [opportunityType, virtualAssetDepositAmountCryptoPrecision])
 
-  const actualRuneCryptoLiquidityAmount = useMemo(() => {
+  const actualRuneDepositAmountCryptoPrecision = useMemo(() => {
     // Symmetrical & Asym Rune: runeAmount = virtual amount (no rebalance, so use values as is)
-    // Asym Asset: runeAmount = '0' (will be rebalanced by thorchain)
-    return !isAsym || isAsymRuneSide ? virtualRuneCryptoLiquidityAmount : '0'
-  }, [isAsym, isAsymRuneSide, virtualRuneCryptoLiquidityAmount])
+    if (opportunityType === 'sym') return virtualRuneDepositAmountCryptoPrecision
+    if (opportunityType === AsymSide.Rune) return virtualRuneDepositAmountCryptoPrecision
 
-  const actualAssetLiquidityAmountFiatUserCurrency = useMemo(() => {
+    // Asym Asset: runeAmount = '0' (will be rebalanced by thorchain)
+    return '0'
+  }, [opportunityType, virtualRuneDepositAmountCryptoPrecision])
+
+  const actualAssetDepositAmountFiatUserCurrency = useMemo(() => {
     // Symmetrical & Asym Asset: assetAmount = virtual amount (no rebalance, so use values as is)
-    // Asym Rune: assetAmount = '0' (will be rebalanced by thorchain)
-    return !isAsym || isAsymAssetSide ? virtualAssetLiquidityAmountFiatUserCurrency : '0'
-  }, [isAsym, isAsymAssetSide, virtualAssetLiquidityAmountFiatUserCurrency])
+    if (opportunityType === 'sym') return virtualAssetDepositAmountFiatUserCurrency
+    if (opportunityType === AsymSide.Asset) return virtualAssetDepositAmountFiatUserCurrency
 
-  const actualRuneLiquidityAmountFiatUserCurrency = useMemo(() => {
+    // Asym Rune: assetAmount = '0' (will be rebalanced by thorchain)
+    return '0'
+  }, [opportunityType, virtualAssetDepositAmountFiatUserCurrency])
+
+  const actualRuneDepositAmountFiatUserCurrency = useMemo(() => {
     // Symmetrical & Asym Rune: runeAmount = virtual amount (no rebalance, so use values as is)
+    if (opportunityType === 'sym') return virtualRuneDepositAmountFiatUserCurrency
+    if (opportunityType === AsymSide.Rune) return virtualRuneDepositAmountFiatUserCurrency
+
     // Asym Asset: runeAmount = '0' (will be rebalanced by thorchain)
-    return !isAsym || isAsymRuneSide ? virtualRuneLiquidityAmountFiatUserCurrency : '0'
-  }, [isAsym, isAsymRuneSide, virtualRuneLiquidityAmountFiatUserCurrency])
+    return '0'
+  }, [opportunityType, virtualRuneDepositAmountFiatUserCurrency])
 
   const hasEnoughAssetBalance = useMemo(() => {
     const assetBalanceCryptoPrecision = fromBaseUnit(
       poolAssetBalanceCryptoBaseUnit,
       poolAsset?.precision ?? 0,
     )
-    return bnOrZero(actualAssetCryptoLiquidityAmount).lte(assetBalanceCryptoPrecision)
-  }, [poolAssetBalanceCryptoBaseUnit, poolAsset?.precision, actualAssetCryptoLiquidityAmount])
+    return bnOrZero(actualAssetDepositAmountCryptoPrecision).lte(assetBalanceCryptoPrecision)
+  }, [
+    poolAssetBalanceCryptoBaseUnit,
+    poolAsset?.precision,
+    actualAssetDepositAmountCryptoPrecision,
+  ])
 
   const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -427,7 +456,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId: poolAsset?.assetId,
       spender: inboundAddressesData?.router,
       from: poolAssetAccountAddress,
-      amount: toBaseUnit(actualAssetCryptoLiquidityAmount, poolAsset?.precision ?? 0),
+      amount: toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset?.precision ?? 0),
       wallet,
       accountNumber: poolAssetAccountNumber,
     }),
@@ -480,8 +509,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       return false
 
     const allowanceCryptoPrecision = fromBaseUnit(allowanceData ?? '0', poolAsset.precision)
-    return bnOrZero(actualAssetCryptoLiquidityAmount).gt(allowanceCryptoPrecision)
-  }, [actualAssetCryptoLiquidityAmount, allowanceData, poolAsset, confirmedQuote])
+    return bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(allowanceCryptoPrecision)
+  }, [actualAssetDepositAmountCryptoPrecision, allowanceData, poolAsset, confirmedQuote])
 
   useEffect(() => {
     if (!(wallet && poolAsset && activeOpportunityId && poolAssetAccountMetadata)) return
@@ -522,20 +551,115 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     }
   }, [poolAsset, inboundAddressesData?.address])
 
-  // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
-  // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
-  // however that's fine for now until accurate fees estimation is implemented
+  const thorchainNotationPoolAssetId = useMemo(() => {
+    if (!poolAsset) return undefined
+    return assetIdToPoolAssetId({
+      assetId: poolAsset.assetId,
+    })
+  }, [poolAsset])
+
+  const memo = useMemo(() => {
+    if (thorchainNotationPoolAssetId === undefined) return
+
+    if (opportunityType === 'sym') {
+      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`
+    }
+
+    return `+:${thorchainNotationPoolAssetId}::ss:50`
+    // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
+  }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
+
+  const estimateFeesArgs = useMemo(() => {
+    if (!assetId || !wallet || !poolAsset || !memo || !poolAssetAccountAddress) return undefined
+
+    const amountCryptoBaseUnit = toBaseUnit(
+      actualAssetDepositAmountCryptoPrecision,
+      poolAsset.precision,
+    )
+
+    const transactionType = getThorchainLpTransactionType(poolAsset.chainId)
+
+    switch (transactionType) {
+      case 'EvmCustomTx': {
+        if (!inboundAddressesData?.router) return undefined
+
+        const data = depositWithExpiry({
+          vault: getAddress(inboundAddressesData.address),
+          asset: isToken(fromAssetId(assetId).assetReference)
+            ? getAddress(fromAssetId(assetId).assetReference)
+            : // Native EVM asset deposits use the 0 address as the asset address
+              // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
+              zeroAddress,
+          amount: amountCryptoBaseUnit,
+          memo,
+          expiry: BigInt(dayjs().add(15, 'minute').unix()),
+        })
+
+        return {
+          // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
+          amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
+            ? '0'
+            : actualAssetDepositAmountCryptoPrecision,
+          // It's a regular 0-value contract-call
+          assetId: poolAsset?.assetId,
+          to: inboundAddressesData.router,
+          from: poolAssetAccountAddress,
+          sendMax: false,
+          // This is an ERC-20, we abuse the memo field for the actual hex-encoded calldata
+          memo: data,
+          accountId: poolAssetAccountId,
+          // Note, this is NOT a send.
+          // contractAddress is only needed when doing a send and the account interacts *directly* with the token's contract address.
+          // Here, the LP contract is approved beforehand to spend the token value, which it will when calling depositWithExpiry()
+          contractAddress: undefined,
+        }
+      }
+      case 'Send': {
+        if (!inboundAddressesData) return undefined
+        return {
+          amountCryptoPrecision: actualAssetDepositAmountCryptoPrecision,
+          assetId: poolAsset.assetId,
+          to: inboundAddressesData.address,
+          from: poolAssetAccountAddress,
+          sendMax: false,
+          memo,
+          accountId: poolAssetAccountId,
+          contractAddress: undefined,
+        }
+      }
+      default:
+        return undefined
+    }
+  }, [
+    assetId,
+    wallet,
+    poolAsset,
+    memo,
+    poolAssetAccountAddress,
+    actualAssetDepositAmountCryptoPrecision,
+    inboundAddressesData,
+    poolAssetAccountId,
+  ])
+
   const {
     data: estimatedPoolAssetFeesData,
     isLoading: isEstimatedPoolAssetFeesDataLoading,
     isError: isEstimatedPoolAssetFeesDataError,
-    isSuccess: isEstimatedPoolAssetFeesDataSuccess,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId: poolAsset?.assetId ?? '',
-    collateralAccountId: poolAssetAccountId,
-    depositAmountCryptoPrecision: actualAssetCryptoLiquidityAmount ?? '0',
-    confirmedQuote,
+  } = useGetEstimatedFeesQuery({
+    amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
+    assetId: estimateFeesArgs?.assetId ?? '',
+    to: estimateFeesArgs?.to ?? '',
+    sendMax: estimateFeesArgs?.sendMax ?? false,
+    memo: estimateFeesArgs?.memo ?? '',
+    accountId: estimateFeesArgs?.accountId ?? '',
+    contractAddress: estimateFeesArgs?.contractAddress ?? '',
+    enabled: Boolean(estimateFeesArgs && !isApprovalRequired),
   })
+
+  useEffect(() => {
+    if (!estimatedPoolAssetFeesData) return
+    setPoolAssetTxFeeCryptoBaseUnit(estimatedPoolAssetFeesData.txFeeCryptoBaseUnit)
+  }, [estimatedPoolAssetFeesData])
 
   // Checks if there's enough pool asset balance for the transaction, excluding fees
   const hasEnoughPoolAssetBalanceForTx = useMemo(() => {
@@ -546,47 +670,40 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       poolAsset.precision ?? 0,
     )
 
-    return bnOrZero(actualAssetCryptoLiquidityAmount).lte(amountAvailableCryptoPrecision)
-  }, [actualAssetCryptoLiquidityAmount, poolAsset, poolAssetBalanceCryptoBaseUnit])
+    return bnOrZero(actualAssetDepositAmountCryptoPrecision).lte(amountAvailableCryptoPrecision)
+  }, [actualAssetDepositAmountCryptoPrecision, poolAsset, poolAssetBalanceCryptoBaseUnit])
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
-    () =>
-      fromBaseUnit(
-        estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit ?? 0,
-        poolAssetFeeAsset?.precision ?? 0,
-      ),
-    [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
+    () => fromBaseUnit(poolAssetTxFeeCryptoBaseUnit ?? 0, poolAssetFeeAsset?.precision ?? 0),
+    [poolAssetTxFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
   )
 
   // Checks if there's enough fee asset balance to cover the transaction fees
   const hasEnoughPoolAssetFeeAssetBalanceForTx = useMemo(() => {
-    if (bnOrZero(actualAssetCryptoLiquidityAmount).isZero()) return true
+    if (bnOrZero(actualAssetDepositAmountCryptoPrecision).isZero()) return true
 
-    if (!isEstimatedPoolAssetFeesDataSuccess || !poolAsset) return false
+    if (!poolAssetTxFeeCryptoBaseUnit || !poolAsset) return false
 
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
     if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) {
-      const assetAmountCryptoPrecision = toBaseUnit(
-        actualAssetCryptoLiquidityAmount!,
+      const assetAmountCryptoBaseUnit = toBaseUnit(
+        actualAssetDepositAmountCryptoPrecision!,
         poolAsset?.precision,
       )
-      return bnOrZero(assetAmountCryptoPrecision)
-        .plus(estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit)
+      return bnOrZero(assetAmountCryptoBaseUnit)
+        .plus(poolAssetTxFeeCryptoBaseUnit)
         .lte(poolAssetBalanceCryptoBaseUnit)
     }
 
     // For tokens, check if the fee asset balance is enough to cover the fees - that's all we need, we don't need to account
     // for the asset itself in the calculation
-    return bnOrZero(estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit).lte(
-      poolAssetFeeAssetBalanceCryptoBaseUnit,
-    )
+    return bnOrZero(poolAssetTxFeeCryptoBaseUnit).lte(poolAssetFeeAssetBalanceCryptoBaseUnit)
   }, [
-    actualAssetCryptoLiquidityAmount,
-    isEstimatedPoolAssetFeesDataSuccess,
+    actualAssetDepositAmountCryptoPrecision,
     poolAsset,
-    estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
-    poolAssetFeeAssetBalanceCryptoBaseUnit,
     poolAssetBalanceCryptoBaseUnit,
+    poolAssetFeeAssetBalanceCryptoBaseUnit,
+    poolAssetTxFeeCryptoBaseUnit,
   ])
 
   // Combines the checks for pool asset balance and fee asset balance to ensure both are sufficient
@@ -594,60 +711,76 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return hasEnoughPoolAssetBalanceForTx && hasEnoughPoolAssetFeeAssetBalanceForTx
   }, [hasEnoughPoolAssetBalanceForTx, hasEnoughPoolAssetFeeAssetBalanceForTx])
 
+  const isSweepNeededEnabled = useMemo(() => {
+    return Boolean(
+      poolAsset &&
+        bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
+        hasEnoughPoolAssetBalanceForTxPlusFees &&
+        poolAssetTxFeeCryptoBaseUnit,
+    )
+  }, [
+    poolAsset,
+    actualAssetDepositAmountCryptoPrecision,
+    hasEnoughPoolAssetBalanceForTxPlusFees,
+    poolAssetTxFeeCryptoBaseUnit,
+  ])
+
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
       address: poolAssetAccountAddress ?? null,
       amountCryptoBaseUnit: toBaseUnit(
-        actualAssetCryptoLiquidityAmount ?? 0,
+        actualAssetDepositAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
       // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit!,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
-      enabled: Boolean(
-        !!poolAsset?.assetId &&
-          bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
-          isEstimatedPoolAssetFeesDataSuccess &&
-          hasEnoughPoolAssetBalanceForTxPlusFees &&
-          estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
-      ),
+      enabled: isSweepNeededEnabled,
     }),
     [
+      actualAssetDepositAmountCryptoPrecision,
+      isSweepNeededEnabled,
+      poolAsset,
       poolAssetAccountAddress,
-      actualAssetCryptoLiquidityAmount,
-      poolAsset?.assetId,
-      poolAsset?.precision,
-      estimatedPoolAssetFeesData,
-      hasEnoughPoolAssetBalanceForTxPlusFees,
-      isEstimatedPoolAssetFeesDataSuccess,
+      poolAssetTxFeeCryptoBaseUnit,
     ],
   )
 
-  const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
-    useIsSweepNeededQuery(isSweepNeededArgs)
+  const {
+    data: _isSweepNeeded,
+    isLoading: isSweepNeededLoading,
+    isError: isSweepNeededError,
+  } = useIsSweepNeededQuery(isSweepNeededArgs)
+
+  useEffect(() => {
+    if (_isSweepNeeded === undefined) return
+    setIsSweepNeeded(_isSweepNeeded)
+  }, [_isSweepNeeded])
 
   // Rune balance / gas data and checks
 
   // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
-  // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
-  // however that's fine for now until accurate fees estimation is implemented
   const {
     data: estimatedRuneFeesData,
     isLoading: isEstimatedRuneFeesDataLoading,
     isError: isEstimatedRuneFeesDataError,
-    isSuccess: isEstimatedRuneFeesDataSuccess,
   } = useQuoteEstimatedFeesQuery({
     collateralAssetId: thorchainAssetId,
     collateralAccountId: runeAccountId,
-    depositAmountCryptoPrecision: actualRuneCryptoLiquidityAmount ?? '0',
+    depositAmountCryptoPrecision: actualRuneDepositAmountCryptoPrecision ?? '0',
     confirmedQuote,
   })
 
+  useEffect(() => {
+    if (!estimatedRuneFeesData) return
+    setRuneTxFeeCryptoBaseUnit(estimatedRuneFeesData.txFeeCryptoBaseUnit)
+  }, [estimatedRuneFeesData])
+
   const runeTxFeeCryptoPrecision = useMemo(
-    () => fromBaseUnit(estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0, runeAsset?.precision ?? 0),
-    [estimatedRuneFeesData?.txFeeCryptoBaseUnit, runeAsset?.precision],
+    () => fromBaseUnit(runeTxFeeCryptoBaseUnit ?? 0, runeAsset?.precision ?? 0),
+    [runeTxFeeCryptoBaseUnit, runeAsset?.precision],
   )
 
   const hasEnoughRuneBalance = useMemo(() => {
@@ -655,25 +788,26 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       runeBalanceCryptoBaseUnit,
       runeAsset?.precision ?? 0,
     )
-    return bnOrZero(actualRuneCryptoLiquidityAmount).lte(runeBalanceCryptoPrecision)
-  }, [runeBalanceCryptoBaseUnit, runeAsset?.precision, actualRuneCryptoLiquidityAmount])
+    return bnOrZero(actualRuneDepositAmountCryptoPrecision).lte(runeBalanceCryptoPrecision)
+  }, [runeBalanceCryptoBaseUnit, runeAsset?.precision, actualRuneDepositAmountCryptoPrecision])
 
   const hasEnoughRuneFeeBalanceForTx = useMemo(() => {
-    if (bnOrZero(actualRuneCryptoLiquidityAmount).isZero()) return true
-    if (!isEstimatedRuneFeesDataSuccess || !runeAsset) return false
+    if (bnOrZero(actualRuneDepositAmountCryptoPrecision).isZero()) return true
 
-    const runeAmountCryptoPrecision = toBaseUnit(
-      actualRuneCryptoLiquidityAmount!,
+    if (!runeAsset) return false
+    if (!runeTxFeeCryptoBaseUnit) return false
+
+    const runeAmountCryptoBaseUnit = toBaseUnit(
+      actualRuneDepositAmountCryptoPrecision!,
       runeAsset?.precision,
     )
 
-    return bnOrZero(runeAmountCryptoPrecision)
-      .plus(estimatedRuneFeesData?.txFeeCryptoBaseUnit)
+    return bnOrZero(runeAmountCryptoBaseUnit)
+      .plus(runeTxFeeCryptoBaseUnit)
       .lte(runeBalanceCryptoBaseUnit)
   }, [
-    actualRuneCryptoLiquidityAmount,
-    estimatedRuneFeesData?.txFeeCryptoBaseUnit,
-    isEstimatedRuneFeesDataSuccess,
+    actualRuneDepositAmountCryptoPrecision,
+    runeTxFeeCryptoBaseUnit,
     runeAsset,
     runeBalanceCryptoBaseUnit,
   ])
@@ -689,7 +823,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const totalGasFeeFiatUserCurrency = useMemo(
-    () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency).toFixed(2),
+    () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency),
     [poolAssetGasFeeFiatUserCurrency, runeGasFeeFiatUserCurrency],
   )
 
@@ -703,52 +837,44 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     history.push(isSweepNeeded ? AddLiquidityRoutePaths.Sweep : AddLiquidityRoutePaths.Confirm)
   }, [handleApprove, history, isApprovalRequired, isSweepNeeded])
 
-  const runePerAsset = useMemo(() => {
-    if (!poolAssetMarketData || !runeMarketData) return undefined
-    return bn(poolAssetMarketData.price).div(bn(runeMarketData.price)).toFixed()
-  }, [poolAssetMarketData, runeMarketData])
-
-  const totalAmountUsd = useMemo(
-    () =>
-      bnOrZero(actualAssetLiquidityAmountFiatUserCurrency)
-        .times(isAsym ? 1 : 2)
-        .div(userCurrencyToUsdRate)
-        .toFixed(),
-    [actualAssetLiquidityAmountFiatUserCurrency, isAsym, userCurrencyToUsdRate],
-  )
+  const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
   const createHandleAddLiquidityInputChange = useCallback(
     (marketData: MarketData, isRune: boolean) => {
       return (value: string, isFiat?: boolean) => {
-        if (!poolAsset || !marketData) return undefined
-        const crypto = (() => {
+        if (!poolAsset || !marketData) return
+
+        const amountCryptoPrecision = (() => {
           if (!isFiat) return value
-          const valueCryptoPrecision = bnOrZero(value)
+          return bnOrZero(value)
             .div(bn(marketData.price ?? '0'))
             .toFixed()
-          return valueCryptoPrecision
         })()
-        const fiat = (() => {
+
+        const amountFiatUserCurrency = (() => {
           if (isFiat) return value
-          const valueFiatUserCurrency = bnOrZero(value)
+          return bnOrZero(value)
             .times(bn(marketData.price ?? '0'))
             .toFixed()
-          return valueFiatUserCurrency
         })()
 
         if (isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
-          setVirtualRuneCryptoLiquidityAmount(crypto)
-          setVirtualVirtualLiquidityAmountFiatUserCurrency(fiat)
-          setVirtualAssetLiquidityAmountFiatUserCurrency(fiat)
-          setVirtualAssetCryptoLiquidityAmount(
-            bnOrZero(crypto).div(bnOrZero(runePerAsset)).toFixed(),
+          setVirtualRuneDepositAmountCryptoPrecision(amountCryptoPrecision)
+          setVirtualRuneDepositAmountFiatUserCurrency(amountFiatUserCurrency)
+          setVirtualAssetDepositAmountFiatUserCurrency(amountFiatUserCurrency)
+          setVirtualAssetDepositAmountCryptoPrecision(
+            amountCryptoPrecision
+              ? bnOrZero(amountCryptoPrecision).div(bnOrZero(runePerAsset)).toFixed()
+              : '',
           )
         } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
-          setVirtualAssetCryptoLiquidityAmount(crypto)
-          setVirtualAssetLiquidityAmountFiatUserCurrency(fiat)
-          setVirtualVirtualLiquidityAmountFiatUserCurrency(fiat)
-          setVirtualRuneCryptoLiquidityAmount(
-            bnOrZero(crypto).times(bnOrZero(runePerAsset)).toFixed(),
+          setVirtualAssetDepositAmountCryptoPrecision(amountCryptoPrecision)
+          setVirtualAssetDepositAmountFiatUserCurrency(amountFiatUserCurrency)
+          setVirtualRuneDepositAmountFiatUserCurrency(amountFiatUserCurrency)
+          setVirtualRuneDepositAmountCryptoPrecision(
+            amountCryptoPrecision
+              ? bnOrZero(amountCryptoPrecision).times(bnOrZero(runePerAsset)).toFixed()
+              : '',
           )
         }
       }
@@ -758,58 +884,45 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   useEffect(() => {
     ;(async () => {
-      if (
-        !actualRuneCryptoLiquidityAmount ||
-        !actualAssetCryptoLiquidityAmount ||
-        !poolAsset ||
-        isTradingActive === false
-      )
-        return
+      if (!poolAsset) return
+      if (!isTradingActive) return
+      if (!actualRuneDepositAmountCryptoPrecision) return
+      if (!actualAssetDepositAmountCryptoPrecision) return
 
       setIsSlippageLoading(true)
 
-      const runeAmountCryptoThorPrecision = convertPrecision({
-        value: actualRuneCryptoLiquidityAmount,
+      const runeAmountThorBaseUnit = convertPrecision({
+        value: actualRuneDepositAmountCryptoPrecision,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
-      const assetAmountCryptoThorPrecision = convertPrecision({
-        value: actualAssetCryptoLiquidityAmount,
+      const assetAmountThorBaseUnit = convertPrecision({
+        value: actualAssetDepositAmountCryptoPrecision,
         inputExponent: 0,
         outputExponent: THOR_PRECISION,
       }).toFixed()
 
       const estimate = await estimateAddThorchainLiquidityPosition({
-        runeAmountCryptoThorPrecision,
-        assetAmountCryptoThorPrecision,
+        runeAmountThorBaseUnit,
+        assetAmountThorBaseUnit,
         assetId: poolAsset.assetId,
       })
 
-      /*
-        Slippage is denominated in RUNE. Since the virtual RUNE amount is always half of the total pool amount
-        (for both sym and asym pools), and we want to display the total slippage across the entire position,
-        we multiply the slippage by 2 to get the total slippage for the pool.
-        */
-      const slippageRune = bnOrZero(estimate.slipPercent)
-        .div(100)
-        .times(virtualRuneLiquidityAmountFiatUserCurrency ?? 0)
-        .times(2)
+      const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
+        .times(runeMarketData.price)
         .toFixed()
-      setSlippageRune(slippageRune)
+
+      setSlippageFiatUserCurrency(_slippageFiatUserCurrency)
       setIsSlippageLoading(false)
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
   }, [
-    actualAssetCryptoLiquidityAmount,
-    actualRuneCryptoLiquidityAmount,
-    actualRuneLiquidityAmountFiatUserCurrency,
+    actualAssetDepositAmountCryptoPrecision,
+    actualRuneDepositAmountCryptoPrecision,
     poolAsset,
-    isAsym,
-    isAsymAssetSide,
-    isAsymRuneSide,
-    virtualRuneLiquidityAmountFiatUserCurrency,
     isTradingActive,
+    runeMarketData,
   ])
 
   useEffect(() => {
@@ -821,20 +934,22 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       ),
     )
 
-    if (
-      !(
-        actualAssetCryptoLiquidityAmount &&
-        actualAssetLiquidityAmountFiatUserCurrency &&
-        actualRuneCryptoLiquidityAmount &&
-        actualRuneLiquidityAmountFiatUserCurrency &&
-        shareOfPoolDecimalPercent &&
-        slippageRune &&
-        activeOpportunityId &&
-        poolAssetInboundAddress &&
-        votingPower
-      )
-    )
-      return
+    if (!slippageFiatUserCurrency) return
+    if (!activeOpportunityId) return
+    if (!poolAssetInboundAddress) return
+    if (!actualAssetDepositAmountCryptoPrecision) return
+    if (!actualAssetDepositAmountFiatUserCurrency) return
+    if (!actualRuneDepositAmountCryptoPrecision) return
+    if (!actualRuneDepositAmountFiatUserCurrency) return
+    if (!shareOfPoolDecimalPercent) return
+
+    const totalAmountFiatUserCurrency = bnOrZero(actualAssetDepositAmountFiatUserCurrency)
+      .plus(actualRuneDepositAmountFiatUserCurrency)
+      .toFixed()
+
+    const totalAmountUsd = bnOrZero(totalAmountFiatUserCurrency)
+      .div(userCurrencyToUsdRate)
+      .toFixed()
 
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
@@ -843,47 +958,41 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
 
     setConfirmedQuote({
-      assetCryptoDepositAmount: actualAssetCryptoLiquidityAmount,
-      assetFiatDepositAmount: actualAssetLiquidityAmountFiatUserCurrency,
-      runeCryptoDepositAmount: actualRuneCryptoLiquidityAmount,
-      runeFiatDepositAmount: actualRuneLiquidityAmountFiatUserCurrency,
+      assetDepositAmountCryptoPrecision: actualAssetDepositAmountCryptoPrecision,
+      assetDepositAmountFiatUserCurrency: actualAssetDepositAmountFiatUserCurrency,
+      runeDepositAmountCryptoPrecision: actualRuneDepositAmountCryptoPrecision,
+      runeDepositAmountFiatUserCurrency: actualRuneDepositAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
-      slippageRune,
+      slippageFiatUserCurrency,
       opportunityId: activeOpportunityId,
       currentAccountIdByChainId,
       totalAmountUsd,
       feeBps: feeBps.toFixed(0),
-      feeAmountUsd: feeUsd.toFixed(2),
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
+      feeAmountUSD: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,
       quoteInboundAddress: poolAssetInboundAddress,
       runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
-      totalGasFeeFiatUserCurrency,
+      totalGasFeeFiatUserCurrency: totalGasFeeFiatUserCurrency.toFixed(2),
     })
   }, [
     currentAccountIdByChainId,
     activeOpportunityId,
-    actualAssetCryptoLiquidityAmount,
-    actualAssetLiquidityAmountFiatUserCurrency,
-    actualRuneCryptoLiquidityAmount,
-    actualRuneLiquidityAmountFiatUserCurrency,
+    actualAssetDepositAmountCryptoPrecision,
+    actualAssetDepositAmountFiatUserCurrency,
+    actualRuneDepositAmountCryptoPrecision,
+    actualRuneDepositAmountFiatUserCurrency,
     dispatch,
-    isAsym,
     poolAssetAccountAddress,
-    poolAssetFeeAssetMarktData.price,
     poolAssetGasFeeFiatUserCurrency,
     poolAssetInboundAddress,
-    poolAssetTxFeeCryptoPrecision,
     runeGasFeeFiatUserCurrency,
-    runeMarketData.price,
-    runeTxFeeCryptoPrecision,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
-    slippageRune,
+    slippageFiatUserCurrency,
     totalGasFeeFiatUserCurrency,
     votingPower,
-    totalAmountUsd,
     userCurrencyToUsdRate,
   ])
 
@@ -935,17 +1044,29 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             marketData,
             isRune,
           )
+
+          const previousAssetId = previousOpportunityId
+            ? fromOpportunityId(previousOpportunityId).assetId
+            : undefined
+
+          // Reset inputs on asset change
+          if (assetId !== previousAssetId) {
+            handleAddLiquidityInputChange('', false)
+          }
+
           const cryptoAmount = isRune
-            ? virtualRuneCryptoLiquidityAmount
-            : virtualAssetCryptoLiquidityAmount
+            ? virtualRuneDepositAmountCryptoPrecision
+            : virtualAssetDepositAmountCryptoPrecision
           const fiatAmount = isRune
-            ? virtualRuneLiquidityAmountFiatUserCurrency
-            : virtualAssetLiquidityAmountFiatUserCurrency
+            ? virtualRuneDepositAmountFiatUserCurrency
+            : virtualAssetDepositAmountFiatUserCurrency
 
           const accountId = currentAccountIdByChainId[asset.chainId]
 
           return (
             <TradeAssetInput
+              autoSelectHighestBalance={false}
+              isAccountSelectionDisabled
               accountId={accountId}
               key={asset.assetId}
               assetId={asset?.assetId}
@@ -969,18 +1090,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     poolAsset,
     runeAsset,
+    opportunityType,
     pairDivider,
     runeMarketData,
     poolAssetMarketData,
     createHandleAddLiquidityInputChange,
-    virtualRuneCryptoLiquidityAmount,
-    virtualAssetCryptoLiquidityAmount,
-    virtualRuneLiquidityAmountFiatUserCurrency,
-    virtualAssetLiquidityAmountFiatUserCurrency,
+    assetId,
+    previousOpportunityId,
+    virtualRuneDepositAmountCryptoPrecision,
+    virtualAssetDepositAmountCryptoPrecision,
+    virtualRuneDepositAmountFiatUserCurrency,
+    virtualAssetDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     percentOptions,
     handleAccountIdChange,
-    opportunityType,
   ])
 
   const symAlert = useMemo(() => {
@@ -1101,11 +1224,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const notEnoughFeeAssetError = useMemo(
     () =>
       poolAssetFeeAsset &&
-      bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
+      bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
       !isEstimatedPoolAssetFeesDataLoading &&
       hasEnoughPoolAssetFeeAssetBalanceForTx === false,
     [
-      actualAssetCryptoLiquidityAmount,
+      actualAssetDepositAmountCryptoPrecision,
       hasEnoughPoolAssetFeeAssetBalanceForTx,
       isEstimatedPoolAssetFeesDataLoading,
       poolAssetFeeAsset,
@@ -1114,23 +1237,27 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const notEnoughRuneFeeError = useMemo(
     () =>
-      bnOrZero(actualRuneCryptoLiquidityAmount).gt(0) &&
+      bnOrZero(actualRuneDepositAmountCryptoPrecision).gt(0) &&
       !isEstimatedRuneFeesDataLoading &&
       hasEnoughRuneFeeBalanceForTx === false,
-    [actualRuneCryptoLiquidityAmount, hasEnoughRuneFeeBalanceForTx, isEstimatedRuneFeesDataLoading],
+    [
+      actualRuneDepositAmountCryptoPrecision,
+      hasEnoughRuneFeeBalanceForTx,
+      isEstimatedRuneFeesDataLoading,
+    ],
   )
 
   const notEnoughPoolAssetError = useMemo(
     () =>
       poolAsset &&
-      bnOrZero(actualAssetCryptoLiquidityAmount).gt(0) &&
+      bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
       hasEnoughPoolAssetBalanceForTx === false,
-    [actualAssetCryptoLiquidityAmount, poolAsset, hasEnoughPoolAssetBalanceForTx],
+    [actualAssetDepositAmountCryptoPrecision, poolAsset, hasEnoughPoolAssetBalanceForTx],
   )
 
   const notEnoughRuneError = useMemo(
-    () => bnOrZero(actualRuneCryptoLiquidityAmount).gt(0) && hasEnoughRuneBalance === false,
-    [actualRuneCryptoLiquidityAmount, hasEnoughRuneBalance],
+    () => bnOrZero(actualRuneDepositAmountCryptoPrecision).gt(0) && hasEnoughRuneBalance === false,
+    [actualRuneDepositAmountCryptoPrecision, hasEnoughRuneBalance],
   )
 
   const errorCopy = useMemo(() => {
@@ -1203,14 +1330,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])
 
-  if (!poolAsset || !runeAsset) return null
+  const hasUserEnteredValue = useMemo(() => {
+    return Boolean(
+      virtualAssetDepositAmountCryptoPrecision &&
+        virtualAssetDepositAmountFiatUserCurrency &&
+        virtualRuneDepositAmountCryptoPrecision &&
+        virtualRuneDepositAmountFiatUserCurrency,
+    )
+  }, [
+    virtualAssetDepositAmountCryptoPrecision,
+    virtualAssetDepositAmountFiatUserCurrency,
+    virtualRuneDepositAmountCryptoPrecision,
+    virtualRuneDepositAmountFiatUserCurrency,
+  ])
 
-  const hasUserEnteredValue = !!(
-    virtualAssetCryptoLiquidityAmount &&
-    virtualAssetLiquidityAmountFiatUserCurrency &&
-    virtualRuneCryptoLiquidityAmount &&
-    virtualRuneLiquidityAmountFiatUserCurrency
-  )
+  if (!poolAsset || !runeAsset) return null
 
   return (
     <SlideTransition>
@@ -1238,70 +1372,56 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
           isLoading={isSlippageLoading}
         />
-      </Collapse>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        py={4}
-        bg='background.surface.raised.accent'
-      >
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isSlippageLoading}>
-              <Amount.Crypto value={slippageRune ?? ''} symbol={runeAsset.symbol} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.gasFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton
-              isLoaded={Boolean(
-                !isEstimatedPoolAssetFeesDataLoading &&
-                  !isEstimatedRuneFeesDataLoading &&
-                  confirmedQuote,
-              )}
-            >
-              <Amount.Fiat value={totalGasFeeFiatUserCurrency} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row
-          fontSize='sm'
-          fontWeight='medium'
-          isLoading={Boolean(
-            isEstimatedPoolAssetFeesDataLoading ||
-              isEstimatedRuneFeesDataLoading ||
-              !confirmedQuote,
-          )}
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          py={4}
+          bg='background.surface.raised.accent'
         >
-          <Row.Label display='flex'>
-            <Text translation={shapeshiftFeeTranslation} />
-            {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
-              <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
-            )}
-          </Row.Label>
-          <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
-            <Flex alignItems='center' gap={2}>
-              {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
-                <>
-                  <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
-                  <QuestionIcon />
-                </>
-              ) : (
-                <>
-                  <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                  <QuestionIcon color={greenColor} />
-                </>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isSlippageLoading}>
+                <Amount.Fiat value={slippageFiatUserCurrency ?? ''} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.gasFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={Boolean(confirmedQuote)}>
+                <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium' isLoading={Boolean(!confirmedQuote)}>
+            <Row.Label display='flex'>
+              <Text translation={shapeshiftFeeTranslation} />
+              {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
+                <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
               )}
-            </Flex>
-          </Row.Value>
-        </Row>
-      </CardFooter>
+            </Row.Label>
+            <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+              <Flex alignItems='center' gap={2}>
+                {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
+                  <>
+                    <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
+                    <QuestionIcon />
+                  </>
+                ) : (
+                  <>
+                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                    <QuestionIcon color={greenColor} />
+                  </>
+                )}
+              </Flex>
+            </Row.Value>
+          </Row>
+        </CardFooter>
+      </Collapse>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
@@ -1325,27 +1445,28 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             !hasEnoughAssetBalance ||
             !hasEnoughRuneBalance ||
             isApprovalTxPending ||
-            isSweepNeededLoading ||
+            (isSweepNeededEnabled && isSweepNeeded === undefined) ||
+            isSweepNeededError ||
             isEstimatedPoolAssetFeesDataError ||
             isEstimatedRuneFeesDataError ||
-            isEstimatedPoolAssetFeesDataLoading ||
-            bnOrZero(actualAssetCryptoLiquidityAmount)
-              .plus(actualRuneCryptoLiquidityAmount ?? 0)
+            bnOrZero(actualAssetDepositAmountCryptoPrecision)
+              .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
               .isZero() ||
             notEnoughFeeAssetError ||
             notEnoughRuneFeeError ||
             !walletSupportsOpportunity
           }
           isLoading={
+            (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
             isVotingPowerLoading ||
             isInboundAddressesDataLoading ||
             isTradingActiveLoading ||
             isSmartContractAccountAddressLoading ||
             isAllowanceDataLoading ||
             isApprovalTxPending ||
-            isSweepNeededLoading ||
+            (isSweepNeeded === undefined && isSweepNeededLoading) ||
             isInboundAddressesDataLoading ||
-            isEstimatedPoolAssetFeesDataLoading
+            (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
           }
           onClick={handleSubmit}
         >
@@ -1353,10 +1474,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </Button>
       </CardFooter>
       <FeeModal
-        affiliateFeeAmountUserCurrency={confirmedQuote?.feeAmountFiatUserCurrency ?? '0'}
+        affiliateFeeAmountUsd={confirmedQuote?.feeAmountUSD ?? '0'}
         isOpen={showFeeModal}
         onClose={toggleFeeModal}
-        inputAmountUsd={totalAmountUsd}
+        inputAmountUsd={confirmedQuote?.totalAmountUsd}
         feeModel='THORCHAIN_LP'
       />
     </SlideTransition>

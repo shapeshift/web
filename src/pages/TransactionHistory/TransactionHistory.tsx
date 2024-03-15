@@ -1,4 +1,4 @@
-import { Card, Flex, Heading } from '@chakra-ui/react'
+import { Flex, Stack } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useRouteMatch } from 'react-router'
@@ -16,6 +16,7 @@ import { TransactionHistoryFilter } from './TransactionHistoryFilter'
 import { TransactionHistorySearch } from './TransactionHistorySearch'
 
 const headingPadding = [2, 3, 6]
+const stackMargin = { base: 0, xl: -4, '2xl': -6 }
 
 export const TransactionHistory = memo(() => {
   const translate = useTranslate()
@@ -45,23 +46,21 @@ export const TransactionHistory = memo(() => {
   return (
     <Switch>
       <Route exact path={`${path}/`}>
-        <Card>
+        <Stack mx={stackMargin}>
           <SEO title={translate('transactionHistory.transactionHistory')} />
-          <Heading p={headingPadding}>
-            <Flex justifyContent='space-between'>
-              <Flex>
-                <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
-                <TransactionHistoryFilter
-                  resetFilters={handleReset}
-                  setFilters={setFilters}
-                  hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
-                />
-              </Flex>
-              <DownloadButton txIds={txIds} />
+          <Flex width='full' justifyContent='space-between' p={headingPadding}>
+            <Flex>
+              <TransactionHistorySearch ref={inputRef} handleInputChange={handleInputChange} />
+              <TransactionHistoryFilter
+                resetFilters={handleReset}
+                setFilters={setFilters}
+                hasAppliedFilter={!!Object.values(filters).filter(isSome).length}
+              />
             </Flex>
-          </Heading>
+            <DownloadButton txIds={txIds} />
+          </Flex>
           <TransactionHistoryList txIds={txIds} />
-        </Card>
+        </Stack>
       </Route>
       <Route path={`${path}/transaction/:txId`}>
         <SingleTransaction />

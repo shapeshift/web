@@ -146,20 +146,20 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
             if (isLpConfirmedDepositQuote(confirmedQuote)) {
               cryptoAmount =
                 _asset.assetId === thorchainAssetId
-                  ? confirmedQuote.runeCryptoDepositAmount
-                  : confirmedQuote.assetCryptoDepositAmount
+                  ? confirmedQuote.runeDepositAmountCryptoPrecision
+                  : confirmedQuote.assetDepositAmountCryptoPrecision
               amountFiatUserCurrency =
                 _asset.assetId === thorchainAssetId
-                  ? confirmedQuote.runeFiatDepositAmount
-                  : confirmedQuote.assetFiatDepositAmount
+                  ? confirmedQuote.runeDepositAmountFiatUserCurrency
+                  : confirmedQuote.assetDepositAmountFiatUserCurrency
             } else if (isLpConfirmedWithdrawalQuote(confirmedQuote)) {
               cryptoAmount =
                 _asset.assetId === thorchainAssetId
-                  ? confirmedQuote.runeCryptoWithdrawAmount
-                  : confirmedQuote.assetCryptoWithdrawAmount
+                  ? confirmedQuote.runeWithdrawAmountCryptoPrecision
+                  : confirmedQuote.assetWithdrawAmountCryptoPrecision
               amountFiatUserCurrency =
                 _asset.assetId === thorchainAssetId
-                  ? confirmedQuote.runeFWithdrawAmountFiatUserCurrency
+                  ? confirmedQuote.runeWithdrawAmountFiatUserCurrency
                   : confirmedQuote.assetWithdrawAmountFiatUserCurrency
             }
 
@@ -265,7 +265,10 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
               <Row fontSize='sm'>
                 <Row.Label>{translate('pools.shareOfPool')}</Row.Label>
                 <Row.Value>
-                  <Amount.Percent value={confirmedQuote.shareOfPoolDecimalPercent} />
+                  <Amount.Percent
+                    options={{ maximumFractionDigits: 8 }}
+                    value={confirmedQuote.shareOfPoolDecimalPercent}
+                  />
                 </Row.Value>
               </Row>
             </TimelineItem>
@@ -295,11 +298,8 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         <Row fontSize='sm' fontWeight='medium'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
-              <Amount.Crypto
-                value={confirmedQuote.slippageRune ?? 'TODO - loading'}
-                symbol={baseAsset.symbol}
-              />
+            <Skeleton isLoaded={Boolean(confirmedQuote.slippageFiatUserCurrency)}>
+              <Amount.Fiat value={confirmedQuote.slippageFiatUserCurrency} />
             </Skeleton>
           </Row.Value>
         </Row>

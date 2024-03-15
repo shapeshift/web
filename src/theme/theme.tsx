@@ -3,6 +3,7 @@ import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { mode } from '@chakra-ui/theme-tools'
 import { AccordionStyle as Accordion } from 'components/Accordion/Accordion.theme'
 import { AlertStyle as Alert } from 'components/Alert/Alert.theme'
+import { AvatarStyle as Avatar } from 'components/Avatar/Avatar.theme'
 import { ButtonStyle as Button } from 'components/Button/Button.theme'
 import { CardStyle as Card } from 'components/Card/Card.theme'
 import { DividerStyle as Divider } from 'components/Divider/Divider.theme'
@@ -59,21 +60,48 @@ const styles = {
     },
     h1: {
       fontSize: '4xl',
+      fontWeight: 'semibold',
     },
     h2: {
       fontSize: '3xl',
+      fontWeight: 'semibold',
     },
     h3: {
       fontSize: '2xl',
+      fontWeight: 'semibold',
     },
     h4: {
       fontSize: 'xl',
+      fontWeight: 'semibold',
     },
     h5: {
       fontSize: 'lg',
+      fontWeight: 'semibold',
     },
     h6: {
       fontSize: 'md',
+      fontWeight: 'semibold',
+    },
+    '.bottom-gradient': {
+      backgroundImage: `linear-gradient(
+        to top,
+        hsl(210, 11%, 7%) 0%,
+        hsla(210, 11%, 7%, 0.987) 7.5%,
+        hsla(210, 11%, 7%, 0.951) 13.3%,
+        hsla(210, 11%, 7%, 0.896) 17.9%,
+        hsla(210, 11%, 7%, 0.825) 21.5%,
+        hsla(210, 11%, 7%, 0.741) 24.6%,
+        hsla(210, 11%, 7%, 0.648) 27.4%,
+        hsla(210, 11%, 7%, 0.55) 30.4%,
+        hsla(210, 11%, 7%, 0.45) 33.8%,
+        hsla(210, 11%, 7%, 0.352) 38%,
+        hsla(210, 11%, 7%, 0.259) 43.4%,
+        hsla(210, 11%, 7%, 0.175) 50.3%,
+        hsla(210, 11%, 7%, 0.104) 59.1%,
+        hsla(210, 11%, 7%, 0.049) 70%,
+        hsla(210, 11%, 7%, 0.013) 83.6%,
+        hsla(210, 11%, 7%, 0) 100%
+      );`,
     },
     '.flex': {
       display: 'flex',
@@ -132,6 +160,7 @@ export const theme = extendTheme({
   components: {
     Accordion,
     Alert,
+    Avatar,
     Button,
     Menu,
     Spinner,

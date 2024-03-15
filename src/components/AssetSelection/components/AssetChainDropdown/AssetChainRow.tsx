@@ -14,10 +14,20 @@ import {
 import { useAppSelector } from 'state/store'
 
 type AssetChainRowProps = {
+  mainImplementationAssetId: AssetId
   assetId: AssetId
   hideBalances?: boolean
+  hideSymbol?: boolean
 }
-export const AssetChainRow: React.FC<AssetChainRowProps> = ({ assetId, hideBalances }) => {
+export const AssetChainRow: React.FC<AssetChainRowProps> = ({
+  mainImplementationAssetId,
+  assetId,
+  hideSymbol,
+  hideBalances,
+}) => {
+  const mainImplementationAsset = useAppSelector(state =>
+    selectAssetById(state, mainImplementationAssetId),
+  )
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
@@ -32,13 +42,14 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({ assetId, hideBalan
 
   const hideAssetBalance = hideBalances || bnOrZero(cryptoHumanBalance).isZero()
 
-  if (!feeAsset) return null
+  if (!feeAsset || !asset || !mainImplementationAsset) return null
 
   return (
     <Flex alignItems='center' justifyContent='space-between' width='100%' height={10}>
       <Flex alignItems='center' gap={4}>
         <LazyLoadAvatar src={iconSrc} size='xs' />
         {feeAsset.networkName ?? feeAsset.name}
+        {!hideSymbol && mainImplementationAsset.symbol !== asset.symbol && ` (${asset.symbol})`}
       </Flex>
       {!hideAssetBalance && (
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' paddingLeft={12}>

@@ -57,7 +57,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -157,7 +157,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const fiatAmountAvailable = useMemo(
     () => bnOrZero(amountAvailableCryptoPrecision).times(assetMarketData.price),
     [amountAvailableCryptoPrecision, assetMarketData.price],
@@ -404,7 +406,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     isLoading: isEstimatedFeesDataLoading,
     isSuccess: isEstimatedFeesDataSuccess,
   } = useGetEstimatedFeesQuery({
-    cryptoAmount: dustAmountCryptoBaseUnit,
+    amountCryptoPrecision: dustAmountCryptoBaseUnit,
     assetId,
     to: thorchainSaversWithdrawQuote?.inbound_address ?? '',
     sendMax: false,

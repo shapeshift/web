@@ -30,7 +30,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -76,7 +76,9 @@ export const Confirm = ({ accountId, onNext }: ConfirmProps) => {
 
   const feeAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
-  const ethMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const ethMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, ethAssetId),
+  )
   const asset1 = useAppSelector(state => {
     return selectAssetById(state, assetId1)
   })

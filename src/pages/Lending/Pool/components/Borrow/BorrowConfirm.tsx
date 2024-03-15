@@ -53,7 +53,7 @@ import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -103,7 +103,7 @@ export const BorrowConfirm = ({
   )
 
   const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
   )
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
@@ -292,7 +292,7 @@ export const BorrowConfirm = ({
     const maybeTxId = await (() => {
       // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
       const sendInput: SendInput = {
-        cryptoAmount: depositAmount ?? '0',
+        amountCryptoPrecision: depositAmount ?? '0',
         assetId: collateralAssetId,
         to: confirmedQuote.quoteInboundAddress,
         from,

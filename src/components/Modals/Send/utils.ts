@@ -13,7 +13,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import {
-  checkIsMetaMask,
+  checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -28,7 +28,7 @@ import { store } from 'state/store'
 import type { SendInput } from './Form'
 
 export type EstimateFeesInput = {
-  cryptoAmount: string
+  amountCryptoPrecision: string
   assetId: AssetId
   // Optional hex-encoded calldata
   // for ERC-20s, use me in place of `data`
@@ -41,7 +41,7 @@ export type EstimateFeesInput = {
 }
 
 export const estimateFees = ({
-  cryptoAmount,
+  amountCryptoPrecision,
   assetId,
   from,
   memo,
@@ -54,7 +54,9 @@ export const estimateFees = ({
   const state = store.getState()
   const asset = selectAssetById(state, assetId)
   if (!asset) throw new Error(`Asset not found for ${assetId}`)
-  const value = bnOrZero(cryptoAmount).times(bn(10).exponentiatedBy(asset.precision)).toFixed(0)
+  const value = bnOrZero(amountCryptoPrecision)
+    .times(bn(10).exponentiatedBy(asset.precision))
+    .toFixed(0)
 
   const { chainNamespace } = fromChainId(asset.chainId)
 
@@ -107,18 +109,20 @@ export const handleSend = async ({
   if (!asset) return ''
   const acccountMetadataFilter = { accountId: sendInput.accountId }
   const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
-  const isMetaMask = await checkIsMetaMask(wallet)
+  const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
   const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
     !wallet.supportsOfflineSigning() &&
     // MM impersonators don't support Cosmos SDK chains
-    (!isMetaMask || isMetaMaskImpersonator || (isMetaMask && !(await checkIsSnapInstalled())))
+    (!isMetaMaskDesktop ||
+      isMetaMaskImpersonator ||
+      (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
   ) {
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }
 
-  const value = bnOrZero(sendInput.cryptoAmount)
+  const value = bnOrZero(sendInput.amountCryptoPrecision)
     .times(bn(10).exponentiatedBy(asset.precision))
     .toFixed(0)
 

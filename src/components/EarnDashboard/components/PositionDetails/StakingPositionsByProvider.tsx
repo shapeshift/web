@@ -28,7 +28,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
-  selectCryptoMarketData,
+  selectMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -43,7 +43,7 @@ export type RowProps = Row<StakingEarnOpportunityType>
 
 type CalculateRewardFiatAmountArgs = {
   assets: Partial<Record<AssetId, Asset>>
-  marketData: Partial<Record<AssetId, MarketData>>
+  marketDataUserCurrency: Partial<Record<AssetId, MarketData>>
 } & Pick<StakingEarnOpportunityType, 'rewardAssetIds' | 'rewardsCryptoBaseUnit'>
 
 type CalculateRewardFiatAmount = (args: CalculateRewardFiatAmountArgs) => number
@@ -55,13 +55,13 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   rewardsCryptoBaseUnit,
   rewardAssetIds,
   assets,
-  marketData,
+  marketDataUserCurrency,
 }) => {
   if (!rewardAssetIds) return 0
   return Array.from(rewardAssetIds).reduce((sum, assetId, index) => {
     const asset = assets[assetId]
     if (!asset) return sum
-    const marketDataPrice = bnOrZero(marketData[assetId]?.price)
+    const marketDataPrice = bnOrZero(marketDataUserCurrency[assetId]?.price)
     const cryptoAmountPrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index]).div(
       bn(10).pow(asset?.precision),
     )
@@ -82,7 +82,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectCryptoMarketData)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
@@ -190,7 +190,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             underlyingAssetRatiosBaseUnit: opportunity.underlyingAssetRatiosBaseUnit,
             cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit ?? '0',
             assets,
-            marketData,
+            marketDataUserCurrency,
           })
 
           const cryptoAmountPrecision = isUnderlyingAsset
@@ -232,7 +232,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             rewardAssetIds: row.original.rewardAssetIds,
             rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
             assets,
-            marketData,
+            marketDataUserCurrency,
           })
           const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
           return hasRewardsBalance && row.original.isClaimableRewards ? (
@@ -261,13 +261,13 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             rewardAssetIds: a.original.rewardAssetIds,
             rewardsCryptoBaseUnit: a.original.rewardsCryptoBaseUnit,
             assets,
-            marketData,
+            marketDataUserCurrency,
           })
           const bFiatPrice = calculateRewardFiatAmount({
             rewardAssetIds: b.original.rewardAssetIds,
             rewardsCryptoBaseUnit: b.original.rewardsCryptoBaseUnit,
             assets,
-            marketData,
+            marketDataUserCurrency,
           })
           return aFiatPrice - bFiatPrice
         },
@@ -293,7 +293,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         ),
       },
     ],
-    [assetId, assets, handleClick, marketData, translate],
+    [assetId, assets, handleClick, marketDataUserCurrency, translate],
   )
 
   if (!filteredDown.length) return null

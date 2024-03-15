@@ -25,7 +25,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -49,9 +49,13 @@ export const FoxyWithdraw: React.FC<{
   const { assetReference: foxyStakingContractAddress } = query
   const { feeAssetId, underlyingAsset, underlyingAssetId, stakingAsset } = useFoxyQuery()
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, underlyingAssetId))
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, underlyingAssetId),
+  )
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
 

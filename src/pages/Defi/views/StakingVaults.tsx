@@ -3,6 +3,7 @@ import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
+import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpportunities'
 
 import { EligibleSlider } from '../components/EligibleSlider'
 
@@ -19,6 +20,8 @@ const defiHeader = <DefiHeader />
 
 export const StakingVaults = () => {
   const translate = useTranslate()
+
+  useFetchOpportunities()
 
   return (
     <Main titleComponent={defiHeader} hideBreadcrumbs>

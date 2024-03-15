@@ -1,7 +1,7 @@
 import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { store } from 'state/store'
+import type { AppDispatch } from 'state/store'
 
 import { foxEthStakingIds } from '../opportunitiesSlice/constants'
 import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
@@ -9,6 +9,7 @@ import { opportunitiesApi } from './opportunitiesApiSlice'
 import { DefiProvider, DefiType } from './types'
 
 export const fetchAllLpOpportunitiesMetadataByChainId = async (
+  dispatch: AppDispatch,
   chainId: ChainId,
   options?: StartQueryActionCreatorOptions,
 ) => {
@@ -18,7 +19,7 @@ export const fetchAllLpOpportunitiesMetadataByChainId = async (
 
   const lpQueries = queries.filter(query => query.defiType === DefiType.LiquidityPool)
 
-  await store.dispatch(
+  await dispatch(
     getOpportunitiesMetadata.initiate(
       lpQueries,
       // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
@@ -28,6 +29,7 @@ export const fetchAllLpOpportunitiesMetadataByChainId = async (
 }
 
 export const fetchAllStakingOpportunitiesMetadataByChainId = async (
+  dispatch: AppDispatch,
   chainId: ChainId,
   options?: StartQueryActionCreatorOptions,
 ) => {
@@ -45,20 +47,21 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
   })
 
   await Promise.allSettled([
-    store.dispatch(
+    dispatch(
       getOpportunitiesMetadata.initiate(
         stakingQueries,
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
         { forceRefetch: false, ...options },
       ),
     ),
-    store.dispatch(
+    dispatch(
       getOpportunityMetadata.initiate(ethFoxStakingQueries, { forceRefetch: true, ...options }),
     ),
   ])
 }
 
 export const fetchAllOpportunitiesIdsByChainId = async (
+  dispatch: AppDispatch,
   chainId: ChainId,
   options?: StartQueryActionCreatorOptions,
 ) => {
@@ -67,23 +70,25 @@ export const fetchAllOpportunitiesIdsByChainId = async (
   const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
 
   for (const query of queries) {
-    await store.dispatch(getOpportunityIds.initiate(query, options))
+    await dispatch(getOpportunityIds.initiate(query, options))
   }
 
   return
 }
 
 export const fetchAllOpportunitiesMetadataByChainId = async (
+  dispatch: AppDispatch,
   chainId: ChainId,
   options?: StartQueryActionCreatorOptions,
 ) => {
   // Don't Promise.all() me - parallel execution would be better, but the market data of the LP tokens gets populated when fetching LP opportunities
   // Without it, we won't have all we need to populate the staking one - which is relying on the market data of the staked LP token for EVM chains LP token farming
-  await fetchAllLpOpportunitiesMetadataByChainId(chainId, options)
-  await fetchAllStakingOpportunitiesMetadataByChainId(chainId, options)
+  await fetchAllLpOpportunitiesMetadataByChainId(dispatch, chainId, options)
+  await fetchAllStakingOpportunitiesMetadataByChainId(dispatch, chainId, options)
 }
 
 export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
+  dispatch: AppDispatch,
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
@@ -108,14 +113,14 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
   })
 
   await Promise.allSettled([
-    store.dispatch(
+    dispatch(
       getOpportunitiesUserData.initiate(
         stakingQueries,
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
         { forceRefetch: false, ...options },
       ),
     ),
-    store.dispatch(
+    dispatch(
       getOpportunityUserData.initiate(
         ethFoxStakingQueries,
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
@@ -126,16 +131,18 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
 }
 
 export const fetchAllLpOpportunitiesUserdataByAccountId = (
+  _dispatch: AppDispatch,
   _accountId: AccountId,
   _options?: StartQueryActionCreatorOptions,
   // User data for all our current LP opportunities is held as a portfolio balance, there's no need to fetch it
 ) => Promise.resolve()
 
 export const fetchAllOpportunitiesUserDataByAccountId = (
+  dispatch: AppDispatch,
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) =>
   Promise.allSettled([
-    fetchAllLpOpportunitiesUserdataByAccountId(accountId, options),
-    fetchAllStakingOpportunitiesUserDataByAccountId(accountId, options),
+    fetchAllLpOpportunitiesUserdataByAccountId(dispatch, accountId, options),
+    fetchAllStakingOpportunitiesUserDataByAccountId(dispatch, accountId, options),
   ])

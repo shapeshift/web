@@ -31,7 +31,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -89,7 +89,9 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
   if (!asset1) throw new Error('Asset 1 not found')
   if (!feeAsset) throw new Error('Fee asset not found')
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, ethAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, ethAssetId),
+  )
 
   // user info
   const {

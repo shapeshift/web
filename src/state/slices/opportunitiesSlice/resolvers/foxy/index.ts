@@ -6,7 +6,7 @@ import { foxyApi } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectBIP44ParamsByAccountId } from 'state/slices/portfolioSlice/selectors'
 
 import type {
@@ -60,7 +60,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
     const assetId = toAssetId(toAssetIdParts)
     const opportunityId = toOpportunityId(toAssetIdParts)
     const underlyingAsset = selectAssetById(state, tokenAssetId)
-    const marketData = selectMarketDataById(state, tokenAssetId)
+    const marketData = selectMarketDataByAssetIdUserCurrency(state, tokenAssetId)
 
     if (!underlyingAsset) continue
 

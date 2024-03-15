@@ -12,7 +12,7 @@ import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
-import { selectFeeAssetById, selectMarketDataById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export type EstimatedFeesQueryKey = [
@@ -26,6 +26,7 @@ export type EstimatedFeesQueryKey = [
 ]
 
 type UseQuoteEstimatedFeesProps = {
+  enabled?: boolean
   collateralAssetId: AssetId
 } & (
   | {
@@ -72,6 +73,7 @@ export const useQuoteEstimatedFeesQuery = ({
   repaymentAsset,
   confirmedQuote,
   repaymentAmountCryptoPrecision: _repaymentAmountCryptoPrecision,
+  enabled: _enabled = true,
 }: UseQuoteEstimatedFeesProps) => {
   const repaymentAmountCryptoPrecision = useMemo(
     () =>
@@ -80,10 +82,13 @@ export const useQuoteEstimatedFeesQuery = ({
     [_repaymentAmountCryptoPrecision, confirmedQuote],
   )
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
-  const feeAssetMarketData = useAppSelector(state => selectMarketDataById(state, collateralAssetId))
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
+  )
   const estimateFeesArgs = useMemo(() => {
     const supportedEvmChainIds = getSupportedEvmChainIds()
-    const cryptoAmount = depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision ?? '0'
+    const amountCryptoPrecision =
+      depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision ?? '0'
     const assetId = repaymentAsset?.assetId ?? collateralAssetId
     const quoteMemo =
       confirmedQuote && 'quoteMemo' in confirmedQuote ? confirmedQuote.quoteMemo : ''
@@ -98,7 +103,7 @@ export const useQuoteEstimatedFeesQuery = ({
     const accountId = repaymentAccountId ?? collateralAccountId
 
     return {
-      cryptoAmount,
+      amountCryptoPrecision,
       assetId,
       memo,
       to,
@@ -125,12 +130,14 @@ export const useQuoteEstimatedFeesQuery = ({
   const enabled = useMemo(
     () =>
       Boolean(
-        feeAsset &&
+        _enabled &&
+          feeAsset &&
           confirmedQuote &&
           (collateralAssetId || repaymentAsset) &&
-          bnOrZero(depositAmountCryptoPrecision ?? repaymentAmountCryptoPrecision).gt(0),
+          (bnOrZero(depositAmountCryptoPrecision).gt(0) || !!repaymentAmountCryptoPrecision),
       ),
     [
+      _enabled,
       collateralAssetId,
       confirmedQuote,
       depositAmountCryptoPrecision,

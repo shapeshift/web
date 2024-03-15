@@ -50,6 +50,14 @@ export enum MixPanelEvent {
   SnapInstalled = 'Snap Installed',
   StartAddSnap = 'Start Add Snap',
   NoActionableQuotes = 'No Actionable Quotes',
+  LpDepositConfirm = 'LP Deposit Confirm',
+  LpDepositInitiated = 'LP Deposit Initiated',
+  LpDepositSuccess = 'LP Deposit Success',
+  LpDepositFailed = 'LP Deposit Failed',
+  LpWithdrawConfirm = 'LP Withdraw Confirm',
+  LpWithdrawInitiated = 'LP Withdraw Initiated',
+  LpWithdrawSuccess = 'LP Withdraw Success',
+  LpWithdrawFailed = 'LP Withdraw Failed',
 }
 
 export type TrackOpportunityProps = {

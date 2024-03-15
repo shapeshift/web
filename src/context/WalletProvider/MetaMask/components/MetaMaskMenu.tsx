@@ -2,7 +2,7 @@ import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import {
-  checkIsMetaMask,
+  checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
   useIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -22,9 +22,9 @@ export const MetaMaskMenu = () => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      const _isMetaMask = await checkIsMetaMask(wallet)
+      const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
       const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
-      setIsMetaMask(_isMetaMask && !isMetaMaskImpersonator)
+      setIsMetaMask(isMetaMaskDesktop && !isMetaMaskImpersonator)
     })()
   }, [wallet])
 

@@ -10,6 +10,7 @@ import {
   Flex,
   Heading,
   IconButton,
+  Skeleton,
   Stack,
   TabPanel,
   TabPanels,
@@ -32,17 +33,19 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { calculateEarnings } from 'lib/utils/thorchain/lp'
-import { selectMarketDataById } from 'state/slices/marketDataSlice/selectors'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AddLiquidity } from '../components/AddLiquitity/AddLiquidity'
+import { AddLiquidity } from '../components/AddLiquidity/AddLiquidity'
 import { Faq } from '../components/Faq'
 import { PoolIcon } from '../components/PoolIcon'
 import { PoolInfo } from '../components/PoolInfo'
 import { RemoveLiquidity } from '../components/RemoveLiquidity/RemoveLiquidity'
 import { usePool } from '../queries/hooks/usePool'
 import { useUserLpData } from '../queries/hooks/useUserLpData'
+import { fromOpportunityId } from '../utils'
 
 type MatchParams = {
   poolAssetId: string
@@ -141,7 +144,9 @@ export const Position = () => {
   }, [params.opportunityId])
 
   const { data: pool } = usePool(poolAssetId ?? '')
-  const { data: userLpData } = useUserLpData({ assetId: assetId ?? '' })
+  const { data: userLpData, isLoading: isUserLpDataLoading } = useUserLpData({
+    assetId: assetId ?? '',
+  })
 
   const position = useMemo(() => {
     if (!userLpData) return
@@ -159,15 +164,17 @@ export const Position = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
 
-  const { data: earnings } = useQuery({
+  const { data: earnings, isLoading: isEarningsLoading } = useQuery({
     ...reactQueries.thorchainLp.earnings(position?.dateFirstAdded),
     enabled: Boolean(position),
     select: data => {
       if (!position) return null
 
-      const poolEarnings = data.meta.pools.find(pool => pool.pool === poolAssetId)
+      const poolEarnings = data?.meta.pools.find(pool => pool.pool === poolAssetId)
       if (!poolEarnings) return null
 
       return calculateEarnings(poolEarnings, position.poolShare, runeMarketData.price)
@@ -191,7 +198,20 @@ export const Position = () => {
     [stepIndex],
   )
 
-  if (!position) return null
+  const poolTypeText = useMemo(() => {
+    const { type } = fromOpportunityId(opportunityId)
+
+    if (type === 'sym') return <Text translation='common.symmetric' />
+
+    const positionAsset = type === AsymSide.Asset ? asset : runeAsset
+    if (!positionAsset) return null
+    return (
+      <Text
+        // eslint-disable-next-line react-memo/require-usememo
+        translation={['common.asymmetric', { assetSymbol: positionAsset.symbol }]}
+      />
+    )
+  }, [asset, opportunityId, runeAsset])
 
   return (
     <Main headerComponent={headerComponent}>
@@ -201,20 +221,10 @@ export const Position = () => {
             <CardHeader px={8} py={8}>
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='md' />
-                <Heading as='h3'>{position.name}</Heading>
-                <Tag size={'lg'}>
-                  {position?.asym ? (
-                    <Text
-                      // eslint-disable-next-line react-memo/require-usememo
-                      translation={[
-                        'common.asymmetric',
-                        { assetSymbol: position.asym.asset.symbol },
-                      ]}
-                    />
-                  ) : (
-                    <Text translation='common.symmetric' />
-                  )}
-                </Tag>
+                <Skeleton isLoaded={Boolean(pool || position)}>
+                  <Heading as='h3'>{position?.name ?? pool?.name ?? ''}</Heading>
+                </Skeleton>
+                <Tag size={'lg'}>{poolTypeText}</Tag>
               </Flex>
             </CardHeader>
             <CardBody gap={6} display='flex' flexDir='column' px={8} pb={8} pt={0}>
@@ -241,10 +251,12 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={position.underlyingAssetAmountCryptoPrecision}
-                          symbol={asset?.symbol ?? ''}
-                        />
+                        <Skeleton isLoaded={!isUserLpDataLoading}>
+                          <Amount.Crypto
+                            value={position?.underlyingAssetAmountCryptoPrecision ?? '0'}
+                            symbol={asset?.symbol ?? ''}
+                          />
+                        </Skeleton>
                       </Flex>
                       <Flex
                         fontSize='sm'
@@ -258,10 +270,12 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[1]} />
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={position.underlyingRuneAmountCryptoPrecision}
-                          symbol={runeAsset?.symbol ?? ''}
-                        />
+                        <Skeleton isLoaded={!isUserLpDataLoading}>
+                          <Amount.Crypto
+                            value={position?.underlyingRuneAmountCryptoPrecision ?? '0'}
+                            symbol={runeAsset?.symbol ?? ''}
+                          />
+                        </Skeleton>
                       </Flex>
                     </Stack>
                   </Card>
@@ -287,11 +301,13 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[0]} />
                           <RawText>{asset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={earnings?.assetEarningsCryptoPrecision ?? '0'}
-                          symbol={asset?.symbol ?? ''}
-                          whiteSpace='nowrap'
-                        />
+                        <Skeleton isLoaded={!isEarningsLoading}>
+                          <Amount.Crypto
+                            value={earnings?.assetEarningsCryptoPrecision ?? '0'}
+                            symbol={asset?.symbol ?? ''}
+                            whiteSpace='nowrap'
+                          />
+                        </Skeleton>
                       </Flex>
                       <Flex
                         fontSize='sm'
@@ -305,10 +321,12 @@ export const Position = () => {
                           <AssetIcon size='xs' assetId={poolAssetIds[1]} />
                           <RawText>{runeAsset?.symbol ?? ''}</RawText>
                         </Flex>
-                        <Amount.Crypto
-                          value={earnings?.runeEarningsCryptoPrecision ?? '0'}
-                          symbol={runeAsset?.symbol ?? ''}
-                        />
+                        <Skeleton isLoaded={!isEarningsLoading}>
+                          <Amount.Crypto
+                            value={earnings?.runeEarningsCryptoPrecision ?? '0'}
+                            symbol={runeAsset?.symbol ?? ''}
+                          />
+                        </Skeleton>
                       </Flex>
                     </Stack>
                   </Card>
@@ -350,6 +368,7 @@ export const Position = () => {
                   <TabPanel px={0} py={0}>
                     <RemoveLiquidity
                       headerComponent={TabHeader}
+                      poolAssetId={poolAssetId}
                       opportunityId={opportunityId}
                       accountId={accountId}
                     />

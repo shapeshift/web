@@ -25,7 +25,7 @@ import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/consta
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -69,7 +69,9 @@ export const useUniV2LiquidityPool = ({
   const filter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
   const wallet = useWallet().state.wallet
-  const asset0Price = useAppSelector(state => selectMarketDataById(state, assetId0OrWeth)).price
+  const asset0Price = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId0OrWeth),
+  ).price
 
   const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
 

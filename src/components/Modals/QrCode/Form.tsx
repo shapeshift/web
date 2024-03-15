@@ -13,7 +13,7 @@ import { parseAddressInputWithChainId, parseMaybeUrl } from 'lib/address/address
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -48,7 +48,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       vanityAddress: '',
       assetId: '',
       feeType: FeeDataKey.Average,
-      cryptoAmount: '',
+      amountCryptoPrecision: '',
       fiatAmount: '',
       fiatSymbol: selectedCurrency,
     },
@@ -103,8 +103,14 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           methods.setValue(SendFormFields.Input, address)
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           if (maybeUrlResult.amountCryptoPrecision) {
-            const marketData = selectMarketDataById(store.getState(), maybeUrlResult.assetId ?? '')
-            methods.setValue(SendFormFields.CryptoAmount, maybeUrlResult.amountCryptoPrecision)
+            const marketData = selectMarketDataByAssetIdUserCurrency(
+              store.getState(),
+              maybeUrlResult.assetId ?? '',
+            )
+            methods.setValue(
+              SendFormFields.AmountCryptoPrecision,
+              maybeUrlResult.amountCryptoPrecision,
+            )
             methods.setValue(
               SendFormFields.FiatAmount,
               bnOrZero(maybeUrlResult.amountCryptoPrecision).times(marketData.price).toString(),

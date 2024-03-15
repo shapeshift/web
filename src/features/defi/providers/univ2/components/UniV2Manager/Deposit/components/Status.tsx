@@ -25,7 +25,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -79,7 +79,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
   if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const serializedTxIndex = useMemo(() => {
     if (!(state?.txid && accountAddress && accountId)) return ''

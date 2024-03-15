@@ -23,7 +23,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -81,7 +81,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   if (!feeAsset) throw new Error(`Asset not found for AssetId ${feeAssetId}`)
 
   const marketData = useAppSelector(state =>
-    selectMarketDataById(state, opportunity?.underlyingAssetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, opportunity?.underlyingAssetId ?? ''),
   )
 
   const amountAvailableCryptoPrecision = useMemo(

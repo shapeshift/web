@@ -100,7 +100,7 @@ export const GlobalSearchModal = memo(
             break
           }
           case GlobalSearchResultType.Transaction: {
-            const path = generatePath('/dashboard/activity/transaction/:txId', {
+            const path = generatePath('/wallet/activity/transaction/:txId', {
               txId: item.id,
             })
             history.push(path)

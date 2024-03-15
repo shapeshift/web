@@ -12,10 +12,10 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { DonutChart } from 'components/DonutChart/DonutChart'
+import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { TabItem } from 'pages/Dashboard/components/DashboardHeader'
 
 import { useAllLendingPositionsData } from '../hooks/useAllLendingPositionsData'
 
@@ -44,7 +44,7 @@ export const LendingHeader = () => {
     useAllLendingPositionsData()
   const ltv = bnOrZero(debtValueUserCurrency).div(collateralValueUserCurrency).toNumber()
   return (
-    <Stack>
+    <Stack mb={4}>
       <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
         <Stack>
           <Heading>{translate('lending.lending')}</Heading>

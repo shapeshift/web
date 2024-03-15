@@ -43,6 +43,8 @@ import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isToken } from 'lib/utils'
@@ -105,6 +107,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const translate = useTranslate()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const wallet = useWallet().state.wallet
+  const mixpanel = getMixPanel()
 
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -437,6 +440,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const handleSignTx = useCallback(() => {
     setIsSubmitting(true)
+    mixpanel?.track(
+      isDeposit ? MixPanelEvent.LpDepositInitiated : MixPanelEvent.LpWithdrawInitiated,
+      confirmedQuote,
+    )
     if (
       !(
         assetId &&
@@ -605,6 +612,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       onStart()
     })
   }, [
+    mixpanel,
+    isDeposit,
+    confirmedQuote,
     assetId,
     poolAssetId,
     asset,
@@ -613,16 +623,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     memo,
     isRuneTx,
-    inboundAddressData,
+    inboundAddressData?.address,
+    inboundAddressData?.router,
     refetchIsTradingActive,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,
-    runeAccountNumber,
-    isDeposit,
-    poolAssetAccountNumber,
-    assetAddress,
     estimateFeesArgs,
+    runeAccountNumber,
+    assetAddress,
+    poolAssetAccountNumber,
     selectedCurrency,
     onStart,
   ])

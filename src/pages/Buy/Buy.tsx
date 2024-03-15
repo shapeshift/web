@@ -41,6 +41,7 @@ const textAlignXlLeft: ResponsiveValue<Property.TextAlign> = { base: 'center', x
 const headingFontSize = { base: '4xl', xl: '6xl' }
 const cardMxOffsetBase = { base: -4, md: 0 }
 const displayXlBlock = { base: 'none', xl: 'block' }
+const pageProps = { pt: 0 }
 
 export const Buy = () => {
   // load fiat ramps
@@ -75,9 +76,14 @@ export const Buy = () => {
   )
 
   return (
-    <Main p={0} style={layoutMainStyle}>
+    <Main p={0} style={layoutMainStyle} pageProps={pageProps}>
       <SEO title={translate('navBar.buyCrypto')} description={translate('buyPage.body')} />
-      <Box bgImg={AuroraBg} backgroundSize='cover' backgroundPosition='top center'>
+      <Box
+        bgImg={AuroraBg}
+        backgroundSize='cover'
+        backgroundPosition='top center'
+        pt='env(safe-area-inset-top)'
+      >
         <PageContainer pt={pageContainerPt} pb={pageContainerPb}>
           <Flex
             flexDir={flexDirXlRow}

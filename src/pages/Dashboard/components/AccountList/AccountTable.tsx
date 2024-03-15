@@ -1,29 +1,42 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Stack, Stat, StatArrow, StatNumber, useColorModeValue } from '@chakra-ui/react'
+import {
+  Stack,
+  Stat,
+  StatArrow,
+  StatNumber,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { Property } from 'csstype'
-import { range } from 'lodash'
+import { range, truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 import { LoadingRow } from 'components/AccountRow/LoadingRow'
 import { Amount } from 'components/Amount/Amount'
-import { ReactTable } from 'components/ReactTable/ReactTable'
+import { InfiniteTable } from 'components/ReactTable/InfiniteTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
+import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AccountRowData } from 'state/slices/selectors'
 import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/slices/selectors'
+import { breakpoints } from 'theme/theme'
 
 type RowProps = Row<AccountRowData>
 
 const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'right', lg: 'left' }
-const reactTableInitialState = { sortBy: [{ id: 'balance', desc: true }] }
 
 export const AccountTable = memo(() => {
   const loading = useSelector(selectPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
+  const sortedRows = useMemo(() => {
+    return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
+  }, [rowData])
+  const { hasMore, next, data } = useInfiniteScroll(sortedRows)
   const textColor = useColorModeValue('black', 'white')
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const history = useHistory()
   const columns: Column<AccountRowData>[] = useMemo(
     () => [
@@ -32,7 +45,10 @@ export const AccountTable = memo(() => {
         accessor: 'assetId',
         disableSortBy: true,
         Cell: ({ row }: { row: RowProps }) => (
-          <AssetCell assetId={row.original.assetId} subText={row.original.symbol} />
+          <AssetCell
+            assetId={row.original.assetId}
+            subText={truncate(row.original.symbol, { length: 6 })}
+          />
         ),
       },
       {
@@ -42,14 +58,21 @@ export const AccountTable = memo(() => {
         justifyContent: { base: 'flex-end', lg: 'flex-start' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => (
           <Stack spacing={0} fontWeight='medium' textAlign={stackTextAlign}>
-            <Amount.Fiat color={textColor} lineHeight='tall' value={value} />
+            <Amount.Fiat
+              fontWeight='semibold'
+              color={textColor}
+              lineHeight='shorter'
+              height='20px'
+              value={value}
+            />
             <Amount.Crypto
               lineHeight='shorter'
               fontWeight='normal'
               fontSize='sm'
+              whiteSpace='nowrap'
               data-test={`account-row-asset-crypto-${row.original.symbol}`}
               value={row.original.cryptoAmount}
-              symbol={row.original.symbol}
+              symbol={truncate(row.original.symbol, { length: 6 })}
             />
           </Stack>
         ),
@@ -119,12 +142,15 @@ export const AccountTable = memo(() => {
   return loading ? (
     loadingRows
   ) : (
-    <ReactTable
+    <InfiniteTable
       columns={columns}
-      data={rowData}
-      initialState={reactTableInitialState}
+      data={data}
       onRowClick={handleRowClick}
+      displayHeaders={isLargerThanMd}
       variant='clickable'
+      hasMore={hasMore}
+      loadMore={next}
+      scrollableTarget='scroll-view-0'
     />
   )
 })

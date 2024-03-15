@@ -33,7 +33,7 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         <AccountBalance
           assetId={assetId}
           accountId={accountId}
-          backPath='/dashboard/accounts'
+          backPath='/wallet/accounts'
           backLabel={translate('navBar.accounts')}
         />
         <Equity assetId={assetId} accountId={accountId} />

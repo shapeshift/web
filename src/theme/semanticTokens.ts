@@ -6,6 +6,10 @@ export const semanticTokens = {
           default: 'white',
           _dark: 'darkNeutral.950',
         },
+        alpha: {
+          default: 'rgba(255, 255, 255, .8)',
+          _dark: 'rgba(16, 17, 20, 0.8)',
+        },
         hover: {
           default: 'gray.100',
           _dark: 'darkNeutral.800',

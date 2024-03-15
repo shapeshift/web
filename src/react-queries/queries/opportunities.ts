@@ -8,6 +8,7 @@ import {
   btcChainId,
   cosmosChainId,
   dogeChainId,
+  ethChainId,
   fromAccountId,
   ltcChainId,
 } from '@shapeshiftoss/caip'
@@ -17,7 +18,6 @@ import {
   fetchAllOpportunitiesUserDataByAccountId,
 } from 'state/slices/opportunitiesSlice/thunks'
 import type { PortfolioAccount } from 'state/slices/portfolioSlice/portfolioSliceCommon'
-import type { PortfolioLoadingStatus } from 'state/slices/selectors'
 import type { AppDispatch } from 'state/store'
 
 export const opportunities = createQueryKeys('opportunities', {
@@ -26,7 +26,6 @@ export const opportunities = createQueryKeys('opportunities', {
     requestedAccountIds: AccountId[],
     portfolioAssetIds: AssetId[],
     portfolioAccounts: Record<AccountId, PortfolioAccount>,
-    portfolioLoadingStatus: PortfolioLoadingStatus,
   ) => {
     return {
       queryKey: ['allOpportunities', { requestedAccountIds, portfolioAssetIds, portfolioAccounts }],
@@ -42,6 +41,7 @@ export const opportunities = createQueryKeys('opportunities', {
               case cosmosChainId:
               case bscChainId:
               case avalancheChainId:
+              case ethChainId:
                 await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
                 await fetchAllOpportunitiesMetadataByChainId(dispatch, chainId)
                 await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)
@@ -56,9 +56,6 @@ export const opportunities = createQueryKeys('opportunities', {
         // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
         return null
       },
-      enabled: portfolioLoadingStatus !== 'loading' && requestedAccountIds.length > 0,
-      staleTime: Infinity,
-      gcTime: Infinity,
     }
   },
 })

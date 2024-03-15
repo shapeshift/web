@@ -56,6 +56,8 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
@@ -140,6 +142,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
@@ -847,11 +850,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) {
-      handleApprove()
-      return
+      return handleApprove()
     }
-    history.push(isSweepNeeded ? AddLiquidityRoutePaths.Sweep : AddLiquidityRoutePaths.Confirm)
-  }, [handleApprove, history, isApprovalRequired, isSweepNeeded])
+
+    if (isSweepNeeded) {
+      return history.push(AddLiquidityRoutePaths.Sweep)
+    }
+
+    mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
+    history.push(AddLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, handleApprove, history, isApprovalRequired, isSweepNeeded, mixpanel])
 
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 

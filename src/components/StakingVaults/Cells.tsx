@@ -121,6 +121,7 @@ export const AssetCell = ({
                   as='span'
                   position='absolute'
                   lineHeight='shorter'
+                  whiteSpace='nowrap'
                   noOfLines={1}
                   display='block'
                   maxWidth='100%'

@@ -29,20 +29,33 @@ export const useFetchOpportunities = () => {
     { skip: !DynamicLpAssets },
   )
 
-  const { isLoading } = useQuery(
-    reactQueries.opportunities.all(
+  const { isLoading } = useQuery({
+    ...reactQueries.opportunities.all(
       dispatch,
       requestedAccountIds,
       portfolioAssetIds,
       portfolioAccounts,
-      portfolioLoadingStatus,
     ),
-  )
+    enabled: Boolean(portfolioLoadingStatus !== 'loading' && requestedAccountIds.length),
+    staleTime: Infinity,
+    // Note the default gcTime of react-query below. Doesn't need to be explicit, but given how bug-prone this is, leaving  here as explicit so it
+    // can be easily updated if needed
+    gcTime: 60 * 1000 * 5,
+  })
 
   return useMemo(
     () => ({
-      isLoading: isLoading || isZapperAppsBalancesOutputLoading || isZapperUniV2PoolAssetIdsLoading,
+      isLoading:
+        isLoading ||
+        portfolioLoadingStatus === 'loading' ||
+        isZapperAppsBalancesOutputLoading ||
+        isZapperUniV2PoolAssetIdsLoading,
     }),
-    [isLoading, isZapperAppsBalancesOutputLoading, isZapperUniV2PoolAssetIdsLoading],
+    [
+      isLoading,
+      isZapperAppsBalancesOutputLoading,
+      isZapperUniV2PoolAssetIdsLoading,
+      portfolioLoadingStatus,
+    ],
   )
 }

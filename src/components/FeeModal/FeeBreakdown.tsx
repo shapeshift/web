@@ -62,10 +62,7 @@ export const FeeBreakdown = ({
           {translate('foxDiscounts.breakdownBody', {
             // Only lowercase the feature if it's a one-word one e.g trade
             // Assume multiple words should keep their capitalization to keep things simple and avoid more translation strings
-            featureLowerCase:
-              feature.split(' ').length > 1 && feature !== feature.toLowerCase()
-                ? feature
-                : feature.toLowerCase(),
+            featureLowerCase: feature.split(' ').length > 1 ? feature : feature.toLowerCase(),
           })}
         </RawText>
       </Stack>

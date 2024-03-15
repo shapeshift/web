@@ -10,6 +10,8 @@ import {
   Flex,
   IconButton,
   Select,
+  Skeleton,
+  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -23,7 +25,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { RawText } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { selectTxIdsByFilter } from 'state/slices/selectors'
+import { selectIsAnyTxHistoryApiQueryPending, selectTxIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const paddingProp = { base: 4, md: 6 }
@@ -49,9 +51,19 @@ export const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => 
   const translate = useTranslate()
   const filter = useMemo(() => ({ txStatus }), [txStatus])
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
+  const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
   const limitTxIds = useMemo(() => {
     return txIds.slice(0, Number(limit))
   }, [limit, txIds])
+
+  if (isAnyTxHistoryApiQueryPending && !limitTxIds.length)
+    return (
+      <Stack px={2} spacing={2}>
+        {new Array(2).fill(null).map((_, i) => (
+          <Skeleton key={i} height={16} />
+        ))}
+      </Stack>
+    )
 
   if (limitTxIds.length === 0) {
     const translatedStatus = translate(`transactionRow.${txStatus.toLowerCase()}`)

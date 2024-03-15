@@ -29,7 +29,7 @@ const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
 const mainPadding = { base: 0, md: 4 }
 const customTabActive = { color: 'text.base' }
 const customTabLast = { marginRight: 0 }
-const pageProps = { paddingTop: 0 }
+const pageProps = { paddingTop: 0, pb: 0 }
 const CustomTab = (props: TabProps) => (
   <Tab
     fontWeight='semibold'
@@ -49,7 +49,7 @@ const ScrollView = (props: FlexProps) => (
     width='100vw'
     pt='calc(var(--mobile-header-offset) + 1rem)'
     pb='var(--mobile-nav-offset)'
-    height='100vh'
+    height='100dvh'
     overflowY='auto'
     {...props}
   />

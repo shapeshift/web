@@ -49,6 +49,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
@@ -149,6 +150,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
+  const [runeIsFiat, toggleRuneIsFiat] = useToggle(false)
+  const [poolAssetIsFiat, togglePoolAssetIsFiat] = useToggle(false)
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
@@ -368,6 +371,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityType === AsymSide.Rune) return walletSupportsRune
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
   }, [opportunityType, walletSupportsAsset, walletSupportsRune])
+
+  const handleToggleRuneIsFiat = useCallback(
+    (_isFiat: boolean) => {
+      toggleRuneIsFiat()
+    },
+    [toggleRuneIsFiat],
+  )
+  const handleTogglePoolAssetIsFiat = useCallback(
+    (_isFiat: boolean) => {
+      togglePoolAssetIsFiat()
+    },
+    [togglePoolAssetIsFiat],
+  )
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -1088,6 +1104,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}
               onChange={handleAddLiquidityInputChange}
+              handleIsInputtingFiatSellAmountChange={
+                isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat
+              }
+              isInputtingFiatSellAmount={isRune ? runeIsFiat : poolAssetIsFiat}
               cryptoAmount={cryptoAmount}
               fiatAmount={fiatAmount}
             />
@@ -1103,14 +1123,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeMarketData,
     poolAssetMarketData,
     createHandleAddLiquidityInputChange,
-    assetId,
     previousOpportunityId,
+    assetId,
     virtualRuneDepositAmountCryptoPrecision,
     virtualAssetDepositAmountCryptoPrecision,
     virtualRuneDepositAmountFiatUserCurrency,
     virtualAssetDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     percentOptions,
+    handleToggleRuneIsFiat,
+    handleTogglePoolAssetIsFiat,
+    runeIsFiat,
+    poolAssetIsFiat,
     handleAccountIdChange,
   ])
 

@@ -115,7 +115,7 @@ export const YourPositions = () => {
         accessor: 'totalValueFiatUserCurrency',
         Cell: ({ value, row }: { value: string; row: RowProps }) => {
           const position = row.original
-          const { assetId } = useMemo(() => position, [position])
+          const { assetId } = position
           const asset = useAppSelector(state => selectAssetById(state, assetId))
 
           if (!asset || !runeAsset) return null

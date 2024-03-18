@@ -9526,6 +9526,7 @@ __metadata:
     bech32: ^2.0.0
     coinselect: ^3.1.13
     multicoin-address-validator: ^0.5.12
+    p-queue: ^8.0.1
     web3-utils: 1.7.4
   languageName: unknown
   linkType: soft

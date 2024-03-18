@@ -188,7 +188,7 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
-        const queue = new PQueue({ concurrency: 1 })
+        const requestQueue = new PQueue({ concurrency: 1 })
         const results: TransactionsByAccountId = {}
         await Promise.all(
           accountIds.map(async accountId => {
@@ -216,13 +216,12 @@ export const txHistoryApi = createApi({
                 })()
 
                 const requestCursor = currentCursor
-                const { cursor, transactions } = await queue.add(() =>
-                  adapter.getTxHistory({
-                    cursor: requestCursor,
-                    pubkey,
-                    pageSize,
-                  }),
-                )
+                const { cursor, transactions } = await adapter.getTxHistory({
+                  cursor: requestCursor,
+                  pubkey,
+                  pageSize,
+                  requestQueue,
+                })
 
                 const state = getState() as State
                 const txsById = state.txHistory.txs.byId

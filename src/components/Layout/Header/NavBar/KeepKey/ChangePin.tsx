@@ -22,7 +22,9 @@ const gridProps = { spacing: 2 }
 export const ChangePin = () => {
   const { handleBackClick } = useMenuRoutes()
   const translate = useTranslate()
-  const { keepKeyWallet } = useKeepKey()
+  const {
+    state: { keepKeyWallet },
+  } = useKeepKey()
   const {
     dispatch,
     state: {

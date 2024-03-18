@@ -17,7 +17,7 @@ import type {
 } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -196,11 +196,11 @@ export const useLendingQuoteCloseQuery = ({
   )
   const repaymentAsset = useAppSelector(state => selectAssetById(state, repaymentAssetId))
   const repaymentAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, repaymentAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, repaymentAssetId),
   )
 
   const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
   )
 
   const query = useQuery({

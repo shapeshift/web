@@ -16,6 +16,7 @@ import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
+import { bn } from 'lib/bignumber/bignumber'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
@@ -60,7 +61,12 @@ export const cowApi: SwapperApi = {
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
       tradeQuote.steps[stepIndex]
-    const { receiveAddress, slippageTolerancePercentageDecimal } = tradeQuote
+    const {
+      receiveAddress,
+      slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
+        SwapperName.CowSwap,
+      ),
+    } = tradeQuote
 
     const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
       ? fromAssetId(buyAsset.assetId).assetReference
@@ -72,10 +78,7 @@ export const cowApi: SwapperApi = {
     const network = maybeNetwork.unwrap()
     const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
-    const { appData, appDataHash } = await getFullAppData(
-      slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap),
-    )
+    const { appData, appDataHash } = await getFullAppData(slippageTolerancePercentageDecimal)
     // https://api.cow.fi/docs/#/default/post_api_v1_quote
     const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
       `${baseUrl}/${network}/api/v1/quote/`,
@@ -98,8 +101,24 @@ export const cowApi: SwapperApi = {
     const { data: cowSwapQuoteResponse } = maybeQuoteResponse.unwrap()
 
     const { id, quote } = cowSwapQuoteResponse
+    // Note: While CowSwap returns us a quote, and we have slippageBips in the appData, this isn't enough.
+    // For the slippage actually to be enforced, the final message to be signed needs to have slippage deducted.
+    // Failure to do so means orders may take forever to be filled, or never be filled at all.
+    const quoteBuyAmount = quote.buyAmount
+    const slippageDeductedBuyAmount = bn(quoteBuyAmount).minus(
+      bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal),
+    )
+    // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order
+    // This was previously working as-is with fees being deducted from the sell amount at protocol-level, but we now we need to add them into the order
+    // In other words, this means what was previously CoW being "feeless" as far as we're concerned
+    // i.e no additional fees to account for when doing balance checks, no longer holds true
+    //
+    // This also makes CoW the first and currently *only* swapper where max token swaps aren't full balance
+    const sellAmountPlusProtocolFees = bn(quote.sellAmount).plus(quote.feeAmount)
     const orderToSign: CowSwapOrder = {
       ...quote,
+      buyAmount: slippageDeductedBuyAmount.toFixed(0),
+      sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
       sellTokenBalance: ERC20_TOKEN_BALANCE,
       buyTokenBalance: ERC20_TOKEN_BALANCE,

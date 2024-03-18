@@ -22,7 +22,7 @@ import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/ge
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAssets,
-  selectCryptoMarketData,
+  selectMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -50,7 +50,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
     dispatch,
   } = useWallet()
   const assets = useAppSelector(selectAssets)
-  const marketData = useAppSelector(selectCryptoMarketData)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
   const filteredDown = lpOpportunities.filter(
@@ -148,7 +148,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
             underlyingAssetRatiosBaseUnit: row.original.underlyingAssetRatiosBaseUnit,
             cryptoAmountBaseUnit: row.original.cryptoAmountBaseUnit,
             assets,
-            marketData,
+            marketDataUserCurrency,
           })
           return (
             <Flex direction='column'>
@@ -200,7 +200,7 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
         ),
       },
     ],
-    [assetId, assets, handleClick, marketData, translate],
+    [assetId, assets, handleClick, marketDataUserCurrency, translate],
   )
 
   if (!filteredDown.length) return null

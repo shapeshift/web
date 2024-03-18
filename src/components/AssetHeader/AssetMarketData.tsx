@@ -16,7 +16,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataById } from 'state/slices/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetMarketDataProps = {
@@ -61,7 +61,7 @@ const StatValue = ({ isLoaded, ...rest }: StatProps) => (
 
 export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => {
   const translate = useTranslate()
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const percentChange = bnOrZero(marketData?.changePercent24Hr)
   const isLoaded = !!marketData
 

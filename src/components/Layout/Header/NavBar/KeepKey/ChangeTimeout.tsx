@@ -25,8 +25,7 @@ const radioButtonGroupProps = {
 export const ChangeTimeout = () => {
   const translate = useTranslate()
   const {
-    keepKeyWallet,
-    state: { deviceTimeout },
+    state: { deviceTimeout, keepKeyWallet },
   } = useKeepKey()
   const {
     state: {

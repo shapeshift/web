@@ -10,30 +10,19 @@ import {
 } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
-import { generatePath, useHistory, useLocation } from 'react-router'
+import { generatePath, useHistory } from 'react-router'
 import scrollIntoView from 'scroll-into-view-if-needed'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInput } from 'lib/address/address'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import type { GlobalSearchResult, SendResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slices/search-selectors'
-import {
-  selectAggregatedEarnUserLpOpportunities,
-  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectAssets,
-} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SearchResults } from './SearchResults'
-import { makeOpportunityRouteDetails } from './utils'
 
 const inputGroupProps = { size: 'xl' }
 const sxProp2 = { p: 0 }
@@ -52,20 +41,10 @@ export const GlobalSearchModal = memo(
     const [menuNodes] = useState(() => new MultiRef<number, HTMLElement>())
     const eventRef = useRef<'mouse' | 'keyboard' | null>(null)
     const history = useHistory()
-    const location = useLocation()
-    const {
-      state: { isConnected, isDemoWallet },
-      dispatch,
-    } = useWallet()
 
-    const assets = useAppSelector(selectAssets)
-    const stakingOpportunities = useAppSelector(
-      selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-    )
-    const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
     const globalSearchFilter = useMemo(() => ({ searchQuery }), [searchQuery])
     const results = useAppSelector(state => selectGlobalItemsFromFilter(state, globalSearchFilter))
-    const [assetResults, stakingResults, lpResults, txResults] = results
+    const [assetResults, txResults] = results
     const flatResults = useMemo(() => [...results, sendResults].flat(), [results, sendResults])
     const resultsCount = flatResults.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
@@ -120,31 +99,8 @@ export const GlobalSearchModal = memo(
             onToggle()
             break
           }
-          case GlobalSearchResultType.LpOpportunity:
-          case GlobalSearchResultType.StakingOpportunity: {
-            if (!isConnected && isDemoWallet) {
-              dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-              return
-            }
-            const data = makeOpportunityRouteDetails({
-              opportunityId: item.id as OpportunityId,
-              opportunityType:
-                item.type === GlobalSearchResultType.StakingOpportunity
-                  ? DefiType.Staking
-                  : DefiType.LiquidityPool,
-              action: DefiAction.Overview,
-              location,
-              stakingOpportunities,
-              lpOpportunities,
-              assets,
-            })
-            if (!data) return
-            history.push(data)
-            onToggle()
-            break
-          }
           case GlobalSearchResultType.Transaction: {
-            const path = generatePath('/dashboard/activity/transaction/:txId', {
+            const path = generatePath('/wallet/activity/transaction/:txId', {
               txId: item.id,
             })
             history.push(path)
@@ -155,19 +111,7 @@ export const GlobalSearchModal = memo(
             break
         }
       },
-      [
-        assets,
-        dispatch,
-        history,
-        isConnected,
-        isDemoWallet,
-        location,
-        lpOpportunities,
-        onToggle,
-        searchQuery,
-        send,
-        stakingOpportunities,
-      ],
+      [history, onToggle, searchQuery, send],
     )
 
     const onKeyDown = useCallback(
@@ -256,8 +200,6 @@ export const GlobalSearchModal = memo(
           <ModalBody px={0} ref={menuRef}>
             <SearchResults
               assetResults={assetResults}
-              stakingResults={stakingResults}
-              lpResults={lpResults}
               txResults={txResults}
               sendResults={sendResults}
               activeIndex={activeIndex}

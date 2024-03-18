@@ -26,7 +26,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -84,8 +84,12 @@ export const Deposit: React.FC<DepositProps> = ({
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
-  const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetId1))
-  const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetId0))
+  const asset1MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId1),
+  )
+  const asset0MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId0),
+  )
   const assets = useAppSelector(selectAssets)
 
   if (!lpAsset) throw new Error(`Asset not found for AssetId ${lpAssetId}`)

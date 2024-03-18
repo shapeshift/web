@@ -17,7 +17,9 @@ export enum WalletConnectedRoutes {
 
 export const useMenuRoutes = () => {
   const history = useHistory()
-  const { keepKeyWallet } = useKeepKey()
+  const {
+    state: { keepKeyWallet },
+  } = useKeepKey()
   const { setDeviceState } = useWallet()
   const toast = useToast()
   const translate = useTranslate()

@@ -34,7 +34,7 @@ import {
   selectAssets,
   selectHasClaimByUserStakingId,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectSelectedLocale,
   selectStakingOpportunityByFilter,
   selectUserStakingOpportunityByUserStakingId,
@@ -132,7 +132,9 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     [userStakingOpportunity],
   )
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
+  )
   const cryptoAmountAvailable = totalBondings.div(bn(10).pow(stakingAsset.precision))
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(marketData.price)
 

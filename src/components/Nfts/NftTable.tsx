@@ -2,18 +2,16 @@ import type { SimpleGridProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
-import {
-  selectGetNftUserTokensPending,
-  selectPortfolioNftItemsWithCollectionExcludeSpams,
-} from 'state/apis/nft/selectors'
+import { selectPortfolioNftItemsWithCollectionExcludeSpams } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
 import { useAppSelector } from 'state/store'
 
+import { useNfts } from './hooks/useNfts'
 import { NftCard } from './NftCard'
 import { NftCardLoading } from './NftLoadingCard'
 import { NftNetworkFilter } from './NftNetworkFilter'
@@ -33,12 +31,12 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 
 const narwalIcon = <NarwhalIcon color='pink.200' />
 
-export const NftTable = () => {
+export const NftTable = memo(() => {
   const [searchQuery, setSearchQuery] = useState('')
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
 
-  const isLoading = useAppSelector(selectGetNftUserTokensPending)
+  const { isLoading } = useNfts()
   const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
   const availableChainIds = useMemo(
@@ -127,4 +125,4 @@ export const NftTable = () => {
       )}
     </>
   )
-}
+})

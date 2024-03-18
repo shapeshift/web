@@ -67,7 +67,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   )
 
   const onClick = useCallback(
-    () => history.push(generatePath('/dashboard/accounts/:accountId/:assetId', filter)),
+    () => history.push(generatePath('/wallet/accounts/:accountId/:assetId', filter)),
     [history, filter],
   )
 

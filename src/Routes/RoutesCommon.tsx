@@ -4,11 +4,11 @@ import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
-import { DashboardIcon } from 'components/Icons/Dashboard'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
+import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 
 import type { Route as NestedRoute } from './helpers'
@@ -172,10 +172,10 @@ export const routes: NestedRoute[] = [
     })),
   },
   {
-    path: '/dashboard',
+    path: '/wallet',
     label: 'navBar.myWallet',
-    shortLabel: 'navBar.dashboardShort',
-    icon: <DashboardIcon />,
+    shortLabel: 'navBar.wallet',
+    icon: <WalletIcon />,
     main: Dashboard,
     category: RouteCategory.Wallet,
     mobileNav: true,

@@ -44,6 +44,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   icon,
   src,
   showNetworkIcon = true,
+  size,
   ...rest
 }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -59,16 +60,19 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
             position='absolute'
             left='-8%'
             top='-8%'
-            boxSize='40%'
+            transform='scale(0.4)'
+            transformOrigin='top left'
             icon={icon}
             fontSize='inherit'
             src={feeAsset?.networkIcon ?? feeAsset?.icon}
+            size={size}
           />
         )}
         <Avatar
           src={iconSrc}
           icon={icon}
           border={0}
+          size={size}
           clipPath={showNetwork && showNetworkIcon ? defaultClipPath : ''}
           {...rest}
         />

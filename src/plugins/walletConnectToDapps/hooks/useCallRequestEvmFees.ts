@@ -8,7 +8,7 @@ import type { FeePrice } from 'components/Modals/Send/views/Confirm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectAssets, selectMarketDataById } from 'state/slices/selectors'
+import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export function useCallRequestEvmFees(state: WalletConnectState) {
@@ -28,7 +28,8 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
     return feeAsset
   }, [assets, chainId])
   const feeAssetPrice =
-    useAppSelector(state => selectMarketDataById(state, feeAsset?.assetId ?? ''))?.price ?? '0'
+    useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''))
+      ?.price ?? '0'
 
   useEffect(() => {
     if (!transaction || !accountId || !chainId) return

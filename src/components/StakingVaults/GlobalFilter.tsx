@@ -19,12 +19,23 @@ type GlobalFilterProps = {
   searchQuery: any
   inputGroupProps?: InputGroupProps
 } & InputProps
-export const GlobalFilter: React.FC<GlobalFilterProps> = ({
-  setSearchQuery,
-  searchQuery = '',
-  inputGroupProps,
-  ...rest
-}) => {
+export const GlobalFilter: React.FC<GlobalFilterProps> = props => {
+  const {
+    setSearchQuery,
+    searchQuery = '',
+    inputGroupProps,
+    inputProps,
+  } = useMemo(() => {
+    const { setSearchQuery, searchQuery, inputGroupProps, ...inputProps } = props
+
+    return {
+      setSearchQuery,
+      searchQuery,
+      inputGroupProps,
+      inputProps,
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
   const translate = useTranslate()
   const [value, setValue] = useState(searchQuery)
   const [loading, setLoading] = useState(false)
@@ -67,7 +78,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = ({
         placeholder='Search'
         onChange={handleInputChange}
         value={value}
-        {...rest}
+        {...inputProps}
       />
       {value && (
         <InputRightElement>

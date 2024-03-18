@@ -14,6 +14,10 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
   const history = useHistory()
 
   const handleGoBack = useCallback(() => {
+    history.push(AddLiquidityRoutePaths.Confirm)
+  }, [history])
+
+  const handleGoInput = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Input)
   }, [history])
 
@@ -22,6 +26,7 @@ export const AddLiquidityStatus = ({ confirmedQuote }: AddLiquidityStatusProps) 
       confirmedQuote={confirmedQuote}
       baseAssetId={thorchainAssetId}
       handleBack={handleGoBack}
+      handleRestart={handleGoInput}
     />
   )
 }

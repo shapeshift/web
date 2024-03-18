@@ -23,7 +23,7 @@ import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -60,13 +60,15 @@ export const CosmosWithdraw: React.FC<CosmosWithdrawProps> = ({
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
   if (!underlyingAsset) throw new Error(`Asset not found for AssetId ${underlyingAssetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const feeAssetId = toAssetId({
     chainId,
     assetNamespace,
     assetReference,
   })
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   // user info
   const chainAdapterManager = getChainAdapterManager()

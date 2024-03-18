@@ -15,6 +15,7 @@
     "continue": "Continuar",
     "reward": "Recompensa",
     "claimable": "Reclamable",
+    "comingSoon": "Muy pronto ...",
     "approve": "Aprobar",
     "confirm": "Confirmar",
     "seeDetails": "Ver detalles",
@@ -127,7 +128,10 @@
     "yourBalance": "Tu balance",
     "signTransaction": "Firmar transacción",
     "halted": "Detenido",
+    "staged": "Staged",
     "poolHalted": "Pool Detenida",
+    "symmetric": "Simétrico",
+    "asymmetric": "Asimétrico (%{assetSymbol})",
     "carousel": {
       "next": "Siguiente",
       "prev": "Anterior",
@@ -561,6 +565,7 @@
   "transactionRow": {
     "send": "Enviado",
     "receive": "Recibido",
+    "common": "Transacción",
     "moreDetails": "Más Detalles",
     "date": "Fecha",
     "txid": "ID Transacción",
@@ -664,8 +669,7 @@
         "join_pool": "Unirse al Pool",
         "exit_pool": "Salir del Pool"
       }
-    },
-    "unknown": "Transacción"
+    }
   },
   "bridge": {
     "confirm": "Confirmar Bridge",
@@ -734,6 +738,7 @@
     "receiveInclFee": "Recibir (incl. tarifas)",
     "approvingAsset": "Aprobando %{symbol}",
     "viewTransaction": "Ver Transacción",
+    "availableQuotes": "Cotizaciones Disponibles",
     "unlimited": "Ilimitado",
     "streamStatus": "Estado Stream",
     "swapsFailed": "%{failedSwaps} intercambios fallidos",
@@ -753,11 +758,14 @@
     "customRecipientAddressDescription": "Ingrese una dirección de destinatario personalizada para la transacción",
     "thisIsYourCustomRecipientAddress": "Esta es su dirección de destino personalizada",
     "enterCustomRecipientAddress": "Ingrese la dirección del destinatario personalizado",
+    "receiveAtLeast": "Recibe al menos",
     "tooltip": {
+      "changeQuote": "Cambiar cotización",
       "rate": "Esta es la tasa esperada para este intercambio.",
       "noRateAvailable": "Esto a menudo se debe a una liquidez muy limitada o nula en el par comercial.",
       "priceImpactLabel": "Impacto en precio: %{priceImpactPercentage}%",
-      "priceImpact": "Un intercambio de este tamaño puede tener un alto impacto en el precio dada la liquidez actual en el pool. Puede haber una gran diferencia entre la cantidad de su token y lo que recibirá",
+      "priceImpact": "Impacto que tiene su operación en precio de mercado del pool.",
+      "priceImpactWarning": "Un swap de este tamaño puede tener un alto impacto en el precio dada la liquidez actual. Puede haber una gran diferencia entre la cantidad de su token de entrada y lo que recibirá de salida.",
       "minerFee": "Esta es la tarifa para procesar la transacción en la blockchain, no es una tarifa cobrada por ShapeShift.",
       "protocol": "Este es el protocolo donde se enruta su intercambio.",
       "protocolLifi": "Este es el protocolo donde se enruta su comercio. LI.FI ejecuta una serie de transacciones intermediarias para obtener la mejor combinación general de precio, seguridad y velocidad.",
@@ -766,8 +774,11 @@
       "manualReceiveAddress": "Esta es la dirección que recibirá los fondos. Se introdujo manualmente, asegúrese que sea correcta.",
       "amountPercentageDifference": "Esta es la diferencia porcentual en la cantidad total de %{buyAssetSymbol} que recibirá, en comparación con la mejor cotización.",
       "overallPercentageDifference": "Esta es la diferencia porcentual en el monto total recibido después de deducir todas las tarifas, en comparación con la mejor cotización.",
+      "priceImpactDifference": "La diferencia estimada entre los valores USD de las cantidades de insumos y productos.",
       "gasFee": "Esta es la tarifa de gas estimada para el intercambio.",
-      "slippage": "Si el precio se mueve de modo que usted reciba menos de %{amount}, su transacción se revertirá. Esta es la cantidad mínima que tiene garantizado recibir."
+      "slippageWithAmount": "Si el precio se mueve de modo que usted reciba menos de %{amount}, su transacción se revertirá. Esta es la cantidad mínima que tiene garantizado recibir.",
+      "slippage": "Su transacción revertirá si el precio cambia desfavorablemente más de este porcentaje.",
+      "noRelatedAssets": "Este activo solo está disponible en %{chainDisplayName}"
     },
     "rates": {
       "tags": {
@@ -2198,11 +2209,12 @@
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
+    "positions": "Posiciones",
     "tvl": "TVL",
     "volume24h": "Volumen 24H",
     "volume7d": "Volumen 7D",
     "balance": "Balance",
-    "unclaimedFees": "Tarifas No Reclamadas",
+    "earnings": "Ganancias",
     "poolShare": "Porcentaje de Pool",
     "yourPosition": "Su posición",
     "poolInformation": "Información de Pool",
@@ -2230,8 +2242,11 @@
     "totalTokensLocked": "Total de Tokens Bloqueados",
     "chainFee": "Tarifa %{chain}",
     "supplying": "Agregar",
+    "withdrawing": "Retirándose",
     "confirmAndDeposit": "Confirmar y Depositar",
+    "confirmAndWithdraw": "Confirmar y Retirar",
     "removeAmounts": "Eliminar Monto(s)",
+    "stagedTooltip": "Los pools Staged son pools nuevos que aceptan liquidez, pero no acumularán ganancias hasta que estén Disponibles.",
     "yourPositions": {
       "yourPositions": "Tus Posiciones",
       "emptyTitle": "No hay posiciones activas",

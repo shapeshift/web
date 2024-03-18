@@ -1,5 +1,8 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
   ButtonGroup,
   CardFooter,
@@ -36,12 +39,16 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { THORCHAIN_FIXED_PRECISION } from 'lib/swapper/swappers/ThorchainSwapper/utils/constants'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
+import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
+import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
   estimateRemoveThorchainLiquidityPosition,
@@ -57,10 +64,12 @@ import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
+  selectAccountIdsByAssetId,
   selectAssetById,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -100,10 +109,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   accountId,
   poolAssetId,
 }) => {
+  const mixpanel = getMixPanel()
   const history = useHistory()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const wallet = useWallet().state.wallet
+  const isSnapInstalled = useIsSnapInstalled()
 
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
@@ -138,15 +149,34 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const { data: pool } = usePool(poolAssetId)
   const { data: userLpData } = useUserLpData({ assetId })
 
+  const runeAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
-  const poolAssetFeeAssetMarktData = useAppSelector(state =>
-    selectMarketDataById(state, poolAssetFeeAsset?.assetId ?? ''),
+  const poolAssetFeeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
+  )
+  const poolAssetFeeAssetBalanceFilter = useMemo(() => {
+    return { assetId: poolAssetFeeAsset?.assetId, accountId }
+  }, [poolAssetFeeAsset, accountId])
+  const poolAssetFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, poolAssetFeeAssetBalanceFilter),
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeMarketData = useAppSelector(state => selectMarketDataById(state, thorchainAssetId))
+  const runeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
+  const runeBalanceFilter = useMemo(() => {
+    return { assetId: runeAsset?.assetId, accountId: runeAccountId }
+  }, [runeAsset, runeAccountId])
+  const runeBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
+  )
 
   const { data: inboundAddressesData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
@@ -329,6 +359,20 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     )
   }, [percentageSelection, position])
 
+  const poolAssetFeeAssetDustAmountCryptoPrecision = useMemo(() => {
+    if (!poolAssetFeeAsset) return '0'
+    const dustAmountCryptoBaseUnit =
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[poolAssetFeeAsset?.assetId] ?? '0'
+    return fromBaseUnit(dustAmountCryptoBaseUnit, poolAssetFeeAsset?.precision)
+  }, [poolAssetFeeAsset])
+
+  const runeDustAmountCryptoPrecision = useMemo(() => {
+    if (!runeAsset) return '0'
+    const dustAmountCryptoBaseUnit =
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[runeAsset?.assetId] ?? '0'
+    return fromBaseUnit(dustAmountCryptoBaseUnit, runeAsset?.precision)
+  }, [runeAsset])
+
   // We reuse lending utils here since all this does is estimating fees for a given withdrawal amount with a memo
   // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
   // however that's fine for now until accurate fees estimation is implemented
@@ -341,10 +385,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     collateralAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
     repaymentAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
     repaymentAsset: runeAsset ?? null,
-    repaymentAmountCryptoPrecision: fromBaseUnit(
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[thorchainAssetId] ?? '0',
-      THORCHAIN_FIXED_PRECISION,
-    ),
+    repaymentAmountCryptoPrecision: runeDustAmountCryptoPrecision,
     confirmedQuote,
   })
 
@@ -355,16 +396,22 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   } = useQuoteEstimatedFeesQuery({
     // Sym opportunities do *not* require a pool asset Tx, all we need is a RUNE Tx to trigger the withdraw
     enabled: opportunityType !== 'sym',
-    collateralAssetId: poolAsset?.assetId ?? '',
+    collateralAssetId: poolAssetFeeAsset?.assetId ?? '',
     collateralAccountId: accountId,
     repaymentAccountId: accountId,
-    repaymentAsset: poolAsset ?? null,
+    repaymentAsset: poolAssetFeeAsset ?? null,
     confirmedQuote,
-    repaymentAmountCryptoPrecision: fromBaseUnit(
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[poolAsset?.assetId ?? ''] ?? '0',
-      poolAsset?.precision ?? 0,
-    ),
+    repaymentAmountCryptoPrecision: poolAssetFeeAssetDustAmountCryptoPrecision,
   })
+
+  const poolAssetProtocolFeeCryptoPrecision = useMemo(() => {
+    if (opportunityType === AsymSide.Rune) return bn(0)
+    return fromThorBaseUnit(inboundAddressesData?.outbound_fee ?? '0')
+  }, [inboundAddressesData?.outbound_fee, opportunityType])
+
+  const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
+    return poolAssetProtocolFeeCryptoPrecision.times(poolAssetFeeAssetMarketData.price)
+  }, [poolAssetFeeAssetMarketData.price, poolAssetProtocolFeeCryptoPrecision])
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
@@ -375,20 +422,33 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
   )
 
+  const poolAssetGasFeeFiatUserCurrency = useMemo(
+    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarketData.price),
+    [poolAssetFeeAssetMarketData.price, poolAssetTxFeeCryptoPrecision],
+  )
+
+  const runeProtocolFeeCryptoPrecision = useMemo(() => {
+    if (opportunityType === AsymSide.Asset) return bn(0)
+    return fromThorBaseUnit(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT)
+  }, [opportunityType])
+
+  const runeProtocolFeeFiatUserCurrency = useMemo(() => {
+    return runeProtocolFeeCryptoPrecision.times(runeMarketData.price)
+  }, [runeMarketData, runeProtocolFeeCryptoPrecision])
+
   const runeTxFeeCryptoPrecision = useMemo(
     () => fromBaseUnit(estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0, runeAsset?.precision ?? 0),
     [estimatedRuneFeesData?.txFeeCryptoBaseUnit, runeAsset?.precision],
-  )
-
-  const poolAssetGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarktData.price),
-    [poolAssetFeeAssetMarktData.price, poolAssetTxFeeCryptoPrecision],
   )
 
   const runeGasFeeFiatUserCurrency = useMemo(
     () => bnOrZero(runeTxFeeCryptoPrecision).times(runeMarketData.price),
     [runeMarketData.price, runeTxFeeCryptoPrecision],
   )
+
+  const totalProtocolFeeFiatUserCurrency = useMemo(() => {
+    return poolAssetProtocolFeeFiatUserCurrency.plus(runeProtocolFeeFiatUserCurrency).toFixed()
+  }, [poolAssetProtocolFeeFiatUserCurrency, runeProtocolFeeFiatUserCurrency])
 
   const totalGasFeeFiatUserCurrency = useMemo(
     () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency),
@@ -528,7 +588,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
       const estimate = await estimateRemoveThorchainLiquidityPosition({
         liquidityUnits: position?.liquidityUnits,
-        bps: bnOrZero(sliderValue).times(100).toFixed(),
+        bps: bnOrZero(percentageSelection).times(100).toFixed(),
         assetId: poolAsset.assetId,
         runeAmountThorBaseUnit,
         assetAmountThorBaseUnit,
@@ -545,10 +605,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [
     position,
     poolAsset,
-    sliderValue,
     runeMarketData.price,
     actualAssetWithdrawAmountCryptoPrecision,
     actualRuneWithdrawAmountCryptoPrecision,
+    percentageSelection,
   ])
 
   useEffect(() => {
@@ -659,10 +719,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     useIsSweepNeededQuery(isSweepNeededArgs)
 
   const handleSubmit = useCallback(() => {
-    history.push(
-      isSweepNeeded ? RemoveLiquidityRoutePaths.Sweep : RemoveLiquidityRoutePaths.Confirm,
-    )
-  }, [history, isSweepNeeded])
+    if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
+
+    mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
+    history.push(RemoveLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, history, isSweepNeeded, mixpanel])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && opportunityType)) return null
@@ -759,7 +820,120 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
 
-  if (!poolAsset || !runeAsset) return null
+  const walletSupportsRune = useMemo(() => {
+    const chainId = thorchainChainId
+    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
+    return walletSupport && runeAccountIds.length > 0
+  }, [isSnapInstalled, runeAccountIds.length, wallet])
+
+  const isUnsupportedSymWithdraw = useMemo(
+    () => opportunityType === 'sym' && !walletSupportsRune,
+    [opportunityType, walletSupportsRune],
+  )
+
+  const hasEnoughPoolAssetFeeAssetBalanceForTx = useMemo(() => {
+    // only asym asset withdrawals result in an asset transaction
+    if (opportunityType !== AsymSide.Asset) return true
+    if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).isZero()) return true
+    if (!poolAssetFeeAsset) return false
+
+    const poolAssetFeeAssetBalanceCryptoPrecision = fromBaseUnit(
+      poolAssetFeeAssetBalanceCryptoBaseUnit,
+      poolAssetFeeAsset?.precision,
+    )
+
+    return bnOrZero(poolAssetTxFeeCryptoPrecision)
+      .plus(poolAssetFeeAssetDustAmountCryptoPrecision)
+      .lte(poolAssetFeeAssetBalanceCryptoPrecision)
+  }, [
+    actualAssetWithdrawAmountCryptoPrecision,
+    opportunityType,
+    poolAssetFeeAsset,
+    poolAssetFeeAssetBalanceCryptoBaseUnit,
+    poolAssetFeeAssetDustAmountCryptoPrecision,
+    poolAssetTxFeeCryptoPrecision,
+  ])
+
+  const hasEnoughRuneBalanceForTx = useMemo(() => {
+    // only sym and asym rune withdrawals result in a rune transaction
+    if (opportunityType === AsymSide.Asset) return true
+    if (bnOrZero(actualRuneWithdrawAmountCryptoPrecision).isZero()) return true
+    if (!runeAsset) return false
+
+    const runeBalanceCryptoPrecision = fromBaseUnit(runeBalanceCryptoBaseUnit, runeAsset?.precision)
+
+    return bnOrZero(runeTxFeeCryptoPrecision)
+      .plus(runeDustAmountCryptoPrecision)
+      .lte(runeBalanceCryptoPrecision)
+  }, [
+    actualRuneWithdrawAmountCryptoPrecision,
+    opportunityType,
+    runeAsset,
+    runeBalanceCryptoBaseUnit,
+    runeDustAmountCryptoPrecision,
+    runeTxFeeCryptoPrecision,
+  ])
+
+  const isBelowMinimumWithdrawAmount = useMemo(() => {
+    const totalWithdrawAmountFiatUserCurrency = bnOrZero(
+      actualAssetWithdrawAmountFiatUserCurrency,
+    ).plus(bnOrZero(actualRuneWithdrawAmountFiatUserCurrency))
+
+    // Protocol fee buffers explained here: https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/querier_quotes.go#L461
+    return bnOrZero(slippageFiatUserCurrency)
+      .plus(bnOrZero(poolAssetProtocolFeeFiatUserCurrency).times(4))
+      .plus(bnOrZero(runeProtocolFeeFiatUserCurrency).times(2))
+      .gte(totalWithdrawAmountFiatUserCurrency)
+  }, [
+    actualAssetWithdrawAmountFiatUserCurrency,
+    actualRuneWithdrawAmountFiatUserCurrency,
+    poolAssetProtocolFeeFiatUserCurrency,
+    runeProtocolFeeFiatUserCurrency,
+    slippageFiatUserCurrency,
+  ])
+
+  const errorCopy = useMemo(() => {
+    if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
+    if (isTradingActive === false) return translate('common.poolHalted')
+    if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
+      return translate('modals.send.errors.notEnoughNativeToken', {
+        asset: poolAssetFeeAsset.symbol,
+      })
+    if (runeAsset && !hasEnoughRuneBalanceForTx)
+      return translate('modals.send.errors.notEnoughNativeToken', {
+        asset: runeAsset.symbol,
+      })
+    return null
+  }, [
+    hasEnoughPoolAssetFeeAssetBalanceForTx,
+    hasEnoughRuneBalanceForTx,
+    isTradingActive,
+    isUnsupportedSymWithdraw,
+    poolAssetFeeAsset,
+    runeAsset,
+    translate,
+  ])
+
+  const maybeOpportunityNotSupportedExplainer = useMemo(() => {
+    if (!poolAsset || !runeAsset) return null
+    if (!isUnsupportedSymWithdraw) return null
+
+    return (
+      <Alert status='error' mx={-2} width='auto'>
+        <AlertIcon />
+        <AlertDescription fontSize='sm' fontWeight='medium'>
+          {translate('pools.unsupportedNetworkExplainer', { network: runeAsset.networkName })}
+        </AlertDescription>
+      </Alert>
+    )
+  }, [isUnsupportedSymWithdraw, poolAsset, runeAsset, translate])
+
+  const confirmCopy = useMemo(() => {
+    if (errorCopy) return errorCopy
+    return translate('pools.removeLiquidity')
+  }, [errorCopy, translate])
+
+  if (!poolAsset || !poolAssetFeeAsset || !runeAsset) return null
 
   return (
     <SlideTransition>
@@ -833,12 +1007,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           </Row.Value>
         </Row>
         <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.fees')}</Row.Label>
+          <Row.Label>{translate('trade.protocolFee')}</Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={true}>
-              {/* There are no protocol fees when removing liquidity */}
-              <Amount.Fiat value={'0'} />
-            </Skeleton>
+            <Amount.Fiat value={totalProtocolFeeFiatUserCurrency} />
           </Row.Value>
         </Row>
       </CardFooter>
@@ -851,18 +1022,31 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        {isBelowMinimumWithdrawAmount && (
+          <Alert status='warning' mx={-2} width='auto'>
+            <AlertIcon />
+            <AlertDescription fontSize='sm' fontWeight='medium'>
+              {translate('defi.modals.saversVaults.dangerousWithdrawWarning')}
+            </AlertDescription>
+          </Alert>
+        )}
+        {maybeOpportunityNotSupportedExplainer}
         <Button
           mx={-2}
           size='lg'
-          colorScheme='blue'
+          colorScheme={errorCopy ? 'red' : 'blue'}
           onClick={handleSubmit}
           isDisabled={
+            isUnsupportedSymWithdraw ||
             isTradingActive === false ||
+            !hasEnoughPoolAssetFeeAssetBalanceForTx ||
+            !hasEnoughRuneBalanceForTx ||
             !confirmedQuote ||
             (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
             (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
             !validInputAmount ||
-            isSweepNeededLoading
+            isSweepNeededLoading ||
+            isBelowMinimumWithdrawAmount
           }
           isLoading={
             isTradingActiveLoading ||
@@ -871,7 +1055,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             isSweepNeededLoading
           }
         >
-          {translate('pools.removeLiquidity')}
+          {confirmCopy}
         </Button>
       </CardFooter>
     </SlideTransition>

@@ -4,7 +4,10 @@ import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
-import { selectMarketDataById, selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
 export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
@@ -13,7 +16,9 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
     [poolAssetId],
   )
 
-  const poolAssetMarketData = useAppSelector(state => selectMarketDataById(state, poolAssetId))
+  const poolAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, poolAssetId),
+  )
 
   const poolDataQuery = useQuery({
     // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
@@ -58,7 +63,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
 
       const tvlCryptoPrecision = fromThorBaseUnit(poolInfo.loan_collateral)
       const maxSupplyCryptoPrecision = fromThorBaseUnit(poolInfo.loan_collateral).plus(
-        poolInfo.loan_collateral_remaining,
+        fromThorBaseUnit(poolInfo.loan_collateral_remaining),
       )
 
       const tvl = tvlCryptoPrecision.times(poolAssetMarketData.price).toFixed()

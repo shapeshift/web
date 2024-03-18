@@ -32,7 +32,7 @@ import {
   selectAssetById,
   selectAssets,
   selectBIP44ParamsByAccountId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
@@ -71,9 +71,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const wallet = useWallet().state.wallet
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  const feeMarketData = useAppSelector(state => selectMarketDataById(state, feeAssetId))
+  const feeMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
 
   const cryptoAmount = useMemo(
     () => bnOrZero(state?.deposit.cryptoAmount).toString(),
@@ -101,7 +105,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
   )
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const { handleStakingAction } = useStakingAction()
 

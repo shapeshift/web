@@ -14,7 +14,6 @@ import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swappe
 import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import { isCrossAccountTradeSupported } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
@@ -43,8 +42,8 @@ import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSl
 
 import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
-  selectCryptoMarketData,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
+  selectMarketDataUsd,
+  selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../selectors'
@@ -257,31 +256,18 @@ export const selectActiveQuoteWarnings: Selector<
   ErrorWithMeta<TradeQuoteWarning>[] | undefined
 > = createDeepEqualOutputSelector(selectActiveSwapperApiResponse, response => response?.warnings)
 
-/*
-  Cross-account trading means trades that are either:
-    - Trades between assets on the same chain but different accounts
-    - Trades between assets on different chains (and possibly different accounts)
-   When adding a new swapper, ensure that `true` is returned here if either of the above apply.
-   */
-export const selectSwapperSupportsCrossAccountTrade: Selector<ReduxState, boolean | undefined> =
-  createSelector(selectActiveSwapperName, activeSwapperName => {
-    if (activeSwapperName === undefined) return undefined
-
-    return isCrossAccountTradeSupported(activeSwapperName)
-  })
-
 export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
     selectActiveQuote,
     selectUserCurrencyToUsdRate,
-    selectCryptoMarketData,
+    selectMarketDataUsd,
     (_state: ReduxState, step: number) => step,
-    (quote, userCurrencyToUsdRate, cryptoMarketDataById, step) =>
+    (quote, userCurrencyToUsdRate, marketDataUsd, step) =>
       quote && quote.steps[step]
         ? getHopTotalProtocolFeesFiatPrecision(
             quote.steps[step],
             userCurrencyToUsdRate,
-            cryptoMarketDataById,
+            marketDataUsd,
           )
         : undefined,
   )
@@ -446,8 +432,8 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectFirstHop,
   selectFirstHopSellFeeAsset,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
-  (tradeQuoteStep, feeAsset, cryptoMarketData) => {
+  selectMarketDataUserCurrency,
+  (tradeQuoteStep, feeAsset, marketData) => {
     if (!tradeQuoteStep) return
 
     if (feeAsset === undefined) {
@@ -455,7 +441,7 @@ export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
     }
 
     const getFeeAssetUserCurrencyRate = () => {
-      return cryptoMarketData[feeAsset?.assetId ?? '']?.price ?? '0'
+      return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
     }
 
     return getHopTotalNetworkFeeUserCurrencyPrecision(
@@ -472,15 +458,15 @@ export const selectSecondHopNetworkFeeUserCurrencyPrecision: Selector<
 > = createSelector(
   selectSecondHop,
   selectSecondHopSellFeeAsset,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
-  (tradeQuoteStep, feeAsset, cryptoMarketData) => {
+  selectMarketDataUserCurrency,
+  (tradeQuoteStep, feeAsset, marketData) => {
     if (!tradeQuoteStep) return
 
     if (feeAsset === undefined) {
       throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
     }
     const getFeeAssetUserCurrencyRate = () => {
-      return cryptoMarketData[feeAsset?.assetId ?? '']?.price ?? '0'
+      return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
     }
 
     return getHopTotalNetworkFeeUserCurrencyPrecision(

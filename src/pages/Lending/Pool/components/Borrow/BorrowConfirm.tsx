@@ -53,7 +53,7 @@ import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectSelectedCurrency,
 } from 'state/slices/selectors'
@@ -103,7 +103,7 @@ export const BorrowConfirm = ({
   )
 
   const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataById(state, collateralAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
   )
   const { mutateAsync } = useMutation({
     mutationKey: [txId],

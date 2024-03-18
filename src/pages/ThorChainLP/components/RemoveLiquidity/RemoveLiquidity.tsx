@@ -1,16 +1,47 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { Suspense, useCallback, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
+import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 
-import { RemoveLiquidityConfirm } from './RemoveLiquidityConfirm'
-import { RemoveLiquidityInput } from './RemoveLiquidityInput'
-import { RemoveLiquidityStatus } from './RemoveLiquidityStatus'
-import { RemoveLiquiditySweep } from './RemoveLiquiditySweep'
 import { RemoveLiquidityRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
+
+const RemoveLiquidityConfirm = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquidityConfirm').then(({ RemoveLiquidityConfirm }) => ({
+      default: RemoveLiquidityConfirm,
+    })),
+  ),
+)
+
+const RemoveLiquidityInput = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquidityInput').then(({ RemoveLiquidityInput }) => ({
+      default: RemoveLiquidityInput,
+    })),
+  ),
+)
+
+const RemoveLiquidityStatus = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquidityStatus').then(({ RemoveLiquidityStatus }) => ({
+      default: RemoveLiquidityStatus,
+    })),
+  ),
+)
+
+const RemoveLiquiditySweep = makeSuspenseful(
+  lazy(() =>
+    import('./RemoveLiquiditySweep').then(({ RemoveLiquiditySweep }) => ({
+      default: RemoveLiquiditySweep,
+    })),
+  ),
+)
 
 const RemoveLiquidityEntries = [
   RemoveLiquidityRoutePaths.Input,
@@ -61,6 +92,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   accountId,
   poolAssetId,
 }) => {
+  const mixpanel = getMixPanel()
   const history = useHistory()
   const location = useLocation()
   const renderRemoveLiquidityInput = useCallback(
@@ -92,6 +124,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
           confirmedQuote={confirmedQuote}
           // eslint-disable-next-line react-memo/require-usememo
           onSweepSeen={() => {
+            mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
             history.push(RemoveLiquidityRoutePaths.Confirm)
           }}
           // eslint-disable-next-line react-memo/require-usememo
@@ -100,7 +133,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
           }}
         />
       ) : null,
-    [confirmedQuote, history],
+    [confirmedQuote, history, mixpanel],
   )
 
   return (

@@ -25,9 +25,9 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectSelectedCurrencyMarketDataSortedByMarketCap,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -47,7 +47,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
-  const marketData = useAppSelector(selectSelectedCurrencyMarketDataSortedByMarketCap)
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const { state, dispatch } = useContext(WithdrawContext)
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -103,9 +103,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
   if (!asset1) throw new Error(`Asset not found for AssetId ${assetId1}`)
 
-  const assetMarketData = useAppSelector(state => selectMarketDataById(state, lpAsset?.assetId))
-  const asset0MarketData = useAppSelector(state => selectMarketDataById(state, assetId0))
-  const asset1MarketData = useAppSelector(state => selectMarketDataById(state, assetId1))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, lpAsset?.assetId),
+  )
+  const asset0MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId0),
+  )
+  const asset1MarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId1),
+  )
 
   const asset1AmountCryptoPrecision = useMemo(
     () => fromBaseUnit(asset1AmountCryptoBaseUnit, asset1.precision),
@@ -118,7 +124,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const fiatAmountAvailable = bn(
     fromBaseUnit(bnOrZero(uniV2Opportunity?.cryptoAmountBaseUnit), lpAsset.precision),
-  ).times(marketData?.[lpAssetId]?.price ?? '0')
+  ).times(marketDataUserCurrency?.[lpAssetId]?.price ?? '0')
 
   // user info
   const filter = useMemo(

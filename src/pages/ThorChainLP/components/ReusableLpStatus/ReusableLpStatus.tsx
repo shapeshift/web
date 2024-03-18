@@ -2,6 +2,7 @@ import {
   Button,
   CardBody,
   CardFooter,
+  CardHeader,
   Center,
   CircularProgress,
   CircularProgressLabel,
@@ -13,23 +14,25 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { PropsWithChildren } from 'react'
-import { Fragment, useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
+import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertUnreachable } from 'lib/utils'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import {
-  isLpConfirmedDepositQuote,
-  isLpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/utils'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,6 +41,7 @@ import { TransactionRow } from './TransactionRow'
 
 type ReusableLpStatusProps = {
   handleBack: () => void
+  handleRestart: () => void
   baseAssetId: AssetId
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
 } & PropsWithChildren
@@ -46,16 +50,23 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   baseAssetId,
   confirmedQuote,
   handleBack,
+  handleRestart,
   children,
 }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const [activeStepIndex, setActiveStepIndex] = useState(0)
+  const [canGoBack, setCanGoBack] = useState(true)
+  const [isFailed, setIsFailed] = useState(false)
+  const hasTrackedStatus = useRef(false)
 
   const { opportunityId } = confirmedQuote
-  const { assetId, type: opportunityType } = fromOpportunityId(opportunityId)
+  const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
 
-  const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
+  const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
+
+  const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
 
   const poolAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
@@ -74,8 +85,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
-
-    const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
     if (opportunityType === 'sym' && isDeposit) return [baseAsset, poolAsset]
 
     switch (opportunityType) {
@@ -87,11 +96,19 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       default:
         assertUnreachable(opportunityType)
     }
-  }, [poolAsset, baseAsset, confirmedQuote, opportunityType])
+  }, [poolAsset, baseAsset, opportunityType, isDeposit])
 
-  const handleComplete = useCallback(() => {
-    setActiveStepIndex(activeStepIndex + 1)
-  }, [activeStepIndex])
+  const handleComplete = useCallback(
+    (status: TxStatus) => {
+      if (status === TxStatus.Failed) return setIsFailed(true)
+      if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
+    },
+    [activeStepIndex],
+  )
+
+  const handleStart = useCallback(() => {
+    setCanGoBack(false)
+  }, [setCanGoBack])
 
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown
@@ -100,6 +117,22 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     () => activeStepIndex === txAssets.length,
     [activeStepIndex, txAssets.length],
   )
+
+  useEffect(() => {
+    // Prevent from firing multiple MixPanel events for the same outcome
+    const hasTrackedStatusValue = hasTrackedStatus.current
+    if (isComplete && !hasTrackedStatusValue)
+      mixpanel?.track(
+        isDeposit ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
+        confirmedQuote,
+      )
+
+    if (isFailed && !hasTrackedStatusValue)
+      mixpanel?.track(
+        isDeposit ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
+        confirmedQuote,
+      )
+  }, [confirmedQuote, isComplete, isDeposit, isFailed, mixpanel])
 
   const hStackDivider = useMemo(() => {
     if (opportunityType) return <></>
@@ -133,9 +166,27 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       )
     }
 
-    const supplyAssets = poolAssets.map((_asset, i) => {
+    if (isFailed) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center
+            bg='background.error'
+            boxSize='80px'
+            borderRadius='full'
+            color='text.error'
+            fontSize='xl'
+            my={8}
+          >
+            <FaX />
+          </Center>
+          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
+        </CardBody>
+      )
+    }
+
+    const supplyAssets = poolAssets.map((asset, i) => {
       const amountCryptoPrecision =
-        _asset.assetId === thorchainAssetId
+        asset.assetId === thorchainAssetId
           ? isLpConfirmedDepositQuote(confirmedQuote)
             ? confirmedQuote.runeDepositAmountCryptoPrecision
             : confirmedQuote.runeWithdrawAmountCryptoPrecision
@@ -143,10 +194,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           ? confirmedQuote.assetDepositAmountCryptoPrecision
           : confirmedQuote.assetWithdrawAmountCryptoPrecision
       return (
-        <Fragment key={`amount-${_asset.assetId}`}>
+        <Fragment key={`amount-${asset.assetId}`}>
           <Amount.Crypto
             value={amountCryptoPrecision}
-            symbol={_asset.symbol}
+            symbol={asset.symbol}
             maximumFractionDigits={4}
           />
           {i < poolAssets.length - 1 && (
@@ -188,6 +239,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   }, [
     txAssets.length,
     isComplete,
+    isFailed,
     poolAssets,
     stepProgress,
     activeStepIndex,
@@ -199,9 +251,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const assetCards = useMemo(() => {
     return (
       <Stack mt={4}>
-        {txAssets.map((_asset, index) => {
+        {txAssets.map((asset, index) => {
           const amountCryptoPrecision =
-            _asset.assetId === thorchainAssetId
+            asset.assetId === thorchainAssetId
               ? isLpConfirmedDepositQuote(confirmedQuote)
                 ? confirmedQuote.runeDepositAmountCryptoPrecision
                 : confirmedQuote.runeWithdrawAmountCryptoPrecision
@@ -209,29 +261,17 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               ? confirmedQuote.assetDepositAmountCryptoPrecision
               : confirmedQuote.assetWithdrawAmountCryptoPrecision
 
-          const isSymWithdraw =
-            isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
-
-          /*
-            Symmetrical withdrawals withdraw both asset amounts in a single TX.
-            In this case, we want to provide the pool asset amount to TransactionRow in additional to the rune amount
-            so we render both for the user.
-          */
-          const poolAmountCryptoPrecision = isSymWithdraw
-            ? confirmedQuote.assetWithdrawAmountCryptoPrecision
-            : undefined
-
           return (
             <TransactionRow
-              key={_asset.assetId}
-              assetId={_asset.assetId}
-              poolAssetId={poolAsset?.assetId}
+              key={asset.assetId}
+              assetId={asset.assetId}
+              poolAssetId={poolAssetId}
               amountCryptoPrecision={amountCryptoPrecision}
-              poolAmountCryptoPrecision={poolAmountCryptoPrecision}
+              onStart={handleStart}
               onComplete={handleComplete}
-              isActive={index === activeStepIndex}
+              isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
-              asymSide={opportunityType !== 'sym' ? opportunityType : undefined}
+              opportunityType={opportunityType}
             />
           )
         })}
@@ -240,9 +280,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   }, [
     txAssets,
     confirmedQuote,
-    poolAsset?.assetId,
+    poolAssetId,
+    handleStart,
     handleComplete,
     activeStepIndex,
+    isFailed,
     opportunityType,
   ])
 
@@ -250,6 +292,13 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   return (
     <SlideTransition>
+      <CardHeader>
+        <WithBackButton onBack={canGoBack ? handleBack : undefined}>
+          <Heading as='h5' textAlign='center'>
+            <Text translation='Confirm' />
+          </Heading>
+        </WithBackButton>
+      </CardHeader>
       {renderBody}
       <CardFooter flexDir='column' px={4}>
         {assetCards}
@@ -259,9 +308,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           {children}
         </CardFooter>
       )}
-      {isComplete && (
+      {(isComplete || isFailed) && (
         <CardFooter flexDir='column'>
-          <Button size='lg' mx={-2} onClick={handleBack}>
+          <Button size='lg' mx={-2} onClick={handleRestart}>
             {translate('common.goBack')}
           </Button>
         </CardFooter>

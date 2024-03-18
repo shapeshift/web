@@ -1,12 +1,7 @@
-import { QueryStatus } from '@reduxjs/toolkit/query'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
-import {
-  selectEndpointNameParamFromFilter,
-  selectQueryStatusParamFromFilter,
-} from 'state/selectors'
 import { selectWalletId } from 'state/slices/common-selectors'
 import { selectPortfolioAssetIds } from 'state/slices/selectors'
 
@@ -15,27 +10,6 @@ import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 const selectNfts = (state: ReduxState) => state.nft.nfts.byId
 export const selectNftCollections = (state: ReduxState) => state.nft.collections.byId
 export const selectNftApiQueries = (state: ReduxState) => state.nftApi.queries
-
-export const selectNftApiQueriesByEndpointAndStatus = createSelector(
-  selectNftApiQueries,
-  selectEndpointNameParamFromFilter,
-  selectQueryStatusParamFromFilter,
-  (queries, endpointName, status) =>
-    Object.values(queries).filter(
-      query =>
-        (!endpointName || query?.endpointName === endpointName) &&
-        (!status || query?.status === status),
-    ),
-)
-
-export const selectGetNftUserTokensPending = createSelector(
-  (state: ReduxState) =>
-    selectNftApiQueriesByEndpointAndStatus(state, {
-      endpointName: 'getNftUserTokens',
-      queryStatus: QueryStatus.pending,
-    }),
-  queries => Boolean(queries.length),
-)
 
 export const selectPortfolioNftItemsWithCollectionExcludeSpams = createSelector(
   selectNfts,

@@ -31,7 +31,7 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataById,
+  selectMarketDataByAssetIdUserCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -116,7 +116,9 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     [foxyEarnOpportunityData],
   )
 
-  const marketData = useAppSelector(state => selectMarketDataById(state, stakingAssetId))
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
+  )
   const cryptoAmountAvailablePrecision = bnOrZero(
     foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit,
   ).div(bn(10).pow(stakingAsset?.precision ?? 0))

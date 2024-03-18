@@ -20,6 +20,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid } from 'react-window'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
+import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
@@ -27,7 +28,6 @@ import { RawText } from 'components/Text'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 import { nft } from 'state/apis/nft/nftApi'
 import {
-  selectGetNftUserTokensPending,
   selectPortfolioNftItemsWithCollectionExcludeSpams,
   selectSelectedNftAvatar,
 } from 'state/apis/nft/selectors'
@@ -54,7 +54,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const selectedNftAvatar = useAppSelector(selectSelectedNftAvatar)
   const columnCount = useBreakpointValue({ base: 2, md: 3 }, { ssr: false }) ?? 2
 
-  const isLoading = useAppSelector(selectGetNftUserTokensPending)
+  const { isLoading } = useNfts()
   const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
   const defaultWalletImage = useMemo(

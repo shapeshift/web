@@ -22,13 +22,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
             <Text translation={'dashboard.recentTransactions.recentTransactions'} />
           </Heading>
           {viewMoreLink && (
-            <Button
-              as={NavLink}
-              to='/dashboard/activity'
-              variant='link'
-              size='sm'
-              colorScheme='blue'
-            >
+            <Button as={NavLink} to='/wallet/activity' variant='link' size='sm' colorScheme='blue'>
               {translate('common.viewAll')}
             </Button>
           )}

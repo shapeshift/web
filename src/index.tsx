@@ -14,7 +14,7 @@ const rootElement = document.getElementById('root')!
 const root = createRoot(rootElement)
 
 rootElement.setAttribute('vaul-drawer-wrapper', '')
-rootElement.classList.add('min-h-100dvh')
+rootElement.classList.add('app-height')
 
 root.render(
   <React.StrictMode>

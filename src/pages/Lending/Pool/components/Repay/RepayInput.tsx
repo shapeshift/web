@@ -205,19 +205,6 @@ export const RepayInput = ({
 
   const buyAssetSearch = useModal('buyAssetSearch')
 
-  const handleToggleRepaymentAssetIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      toggleRepaymentAssetIsFiat()
-    },
-    [toggleRepaymentAssetIsFiat],
-  )
-  const handleToggleCollateralAssetIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      toggleCollateralAssetIsFiat()
-    },
-    [toggleCollateralAssetIsFiat],
-  )
-
   const handleRepaymentAssetClick = useCallback(() => {
     if (!lendingSupportedAssets?.length) return
 
@@ -423,7 +410,7 @@ export const RepayInput = ({
         fiatAmount={lendingQuoteCloseData?.repaymentAmountFiatUserCurrency ?? '0'}
         isSendMaxDisabled={false}
         isReadOnly
-        handleIsInputtingFiatSellAmountChange={handleToggleRepaymentAssetIsFiat}
+        handleIsInputtingFiatSellAmountChange={toggleRepaymentAssetIsFiat}
         isInputtingFiatSellAmount={repaymentAssetIsFiat}
         percentOptions={percentOptions}
         showInputSkeleton={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
@@ -484,7 +471,7 @@ export const RepayInput = ({
         label={translate('lending.unlockedCollateral')}
         onAccountIdChange={handleCollateralAccountIdChange}
         isReadOnly
-        handleIsInputtingFiatSellAmountChange={handleToggleCollateralAssetIsFiat}
+        handleIsInputtingFiatSellAmountChange={toggleCollateralAssetIsFiat}
         isInputtingFiatSellAmount={collateralAssetIsFiat}
         // When repaying 100% of the loan, the user gets their collateral back
         hideAmounts={bn(repaymentPercent).lt(100)}

@@ -129,19 +129,6 @@ export const BorrowInput = ({
 
   const buyAssetSearch = useModal('buyAssetSearch')
 
-  const handleToggleBorrowAssetIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      toggleBorrowAssetIsFiat()
-    },
-    [toggleBorrowAssetIsFiat],
-  )
-  const handleToggleCollateralAssetIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      toggleCollateralAssetIsFiat()
-    },
-    [toggleCollateralAssetIsFiat],
-  )
-
   const handleBorrowAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onClick: setBorrowAsset,
@@ -485,7 +472,7 @@ export const BorrowInput = ({
           assetSymbol={collateralAsset.symbol}
           assetIcon={collateralAsset.icon}
           onChange={handleDepositInputChange}
-          handleIsInputtingFiatSellAmountChange={handleToggleCollateralAssetIsFiat}
+          handleIsInputtingFiatSellAmountChange={toggleCollateralAssetIsFiat}
           isInputtingFiatSellAmount={collateralAssetIsFiat}
           cryptoAmount={depositAmountCryptoPrecision ?? '0'}
           fiatAmount={fiatDepositAmount ?? '0'}
@@ -521,7 +508,7 @@ export const BorrowInput = ({
           cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
           fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
           isReadOnly
-          handleIsInputtingFiatSellAmountChange={handleToggleBorrowAssetIsFiat}
+          handleIsInputtingFiatSellAmountChange={toggleBorrowAssetIsFiat}
           isInputtingFiatSellAmount={borrowAssetIsFiat}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}

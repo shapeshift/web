@@ -9,6 +9,7 @@ import { useHistory, useRouteMatch } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 
@@ -129,6 +130,7 @@ export const AvailablePools = () => {
 
   return (
     <Main headerComponent={headerComponent}>
+      <SEO title={translate('navBar.lending')} />
       <Stack>
         <SimpleGrid
           gridTemplateColumns={lendingRowGrid}

@@ -88,7 +88,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
         rightElement: <Amount.Fiat value={claimableRewardsUserCurrencyBalance} />,
       },
       {
-        label: 'NFTs',
+        label: 'dashboard.nfts',
         path: '/wallet/nfts',
         color: 'pink',
         rightElement: translate('common.new'),

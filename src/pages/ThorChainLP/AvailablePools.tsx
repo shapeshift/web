@@ -12,6 +12,7 @@ import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
@@ -186,6 +187,7 @@ export const AvailablePools = () => {
 
   return (
     <Main headerComponent={headerComponent}>
+      <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
         {isLoading || !pools ? (
           new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)

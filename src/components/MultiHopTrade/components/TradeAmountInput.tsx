@@ -86,8 +86,8 @@ export type TradeAmountInputProps = {
   layout?: 'inline' | 'stacked'
   isAccountSelectionDisabled?: boolean
   isAccountSelectionHidden?: boolean
-  isInputtingFiatSellAmount?: boolean
-  handleIsInputtingFiatSellAmountChange?: (isInputtingFiatSellAmount: boolean) => void
+  isFiat?: boolean
+  onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -123,8 +123,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     labelPostFix,
     hideAmounts,
     layout = 'stacked',
-    isInputtingFiatSellAmount: isFiat,
-    handleIsInputtingFiatSellAmountChange,
+    isFiat,
+    onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
   }) => {
     const {
       number: { localeParts },

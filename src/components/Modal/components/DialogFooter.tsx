@@ -13,7 +13,7 @@ export const DialogFooter: React.FC<DialogFooterProps> = props => {
         px={4}
         pb='calc(env(safe-area-inset-bottom) + 1rem)'
         alignItems='center'
-        mt={6}
+        mt='auto'
         {...props}
       />
     )

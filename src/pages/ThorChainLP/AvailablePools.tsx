@@ -2,10 +2,8 @@ import type { GridProps } from '@chakra-ui/react'
 import { Flex, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
 import type { Column, Row } from 'react-table'
@@ -15,12 +13,9 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import { getVolumeStats, selectSwapsData } from './queries/hooks/usePool'
 import type { Pool } from './queries/hooks/usePools'
 import { usePools } from './queries/hooks/usePools'
 
@@ -46,10 +41,6 @@ export const AvailablePools = () => {
   const translate = useTranslate()
 
   const headerComponent = useMemo(() => <PoolsHeader />, [])
-
-  const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
 
   const columns: Column<Pool>[] = useMemo(
     () => [
@@ -122,60 +113,32 @@ export const AvailablePools = () => {
       },
       {
         Header: translate('pools.volume24h'),
-        // TODO(gomes): expose me in the Pool interface so this can be used for sorting
-        // accessor: 'volume24h',
+        accessor: 'volume24hFiat',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ row }: { value: string | undefined; row: RowProps }) => {
-          const pool = row.original
-
-          const { data: swapsData } = useQuery({
-            ...reactQueries.midgard.swapsData(pool.asset, 'hour', 7 * 24),
-            select: selectSwapsData,
-          })
-
-          const volumeStats = useMemo(() => {
-            if (!swapsData) return
-            return getVolumeStats(swapsData, runeMarketData.price)
-          }, [swapsData])
-
-          return (
-            <Skeleton isLoaded={!!volumeStats}>
-              <Skeleton isLoaded={!!volumeStats} display={mobileDisplay}>
-                <Amount.Fiat value={volumeStats?.volume24hFiat ?? '0'} />
-              </Skeleton>
+        Cell: ({ value: volume24hFiat }: { value: string | undefined; row: RowProps }) => (
+          <Skeleton isLoaded={!!volume24hFiat}>
+            <Skeleton isLoaded={!!volume24hFiat} display={mobileDisplay}>
+              <Amount.Fiat value={volume24hFiat ?? '0'} />
             </Skeleton>
-          )
-        },
+          </Skeleton>
+        ),
       },
       {
         Header: translate('pools.volume7d'),
-        // TODO(gomes): expose me in the Pool interface so this can be used for sorting
-        // accessor: 'volume7d',
+        accessor: 'volume7dFiat',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ row }: { value: string | undefined; row: RowProps }) => {
-          const pool = row.original
-
-          const { data: swapsData } = useQuery({
-            ...reactQueries.midgard.swapsData(pool.asset, 'hour', 7 * 24),
-            select: selectSwapsData,
-          })
-
-          const volumeStats = useMemo(() => {
-            if (!swapsData) return
-            return getVolumeStats(swapsData, runeMarketData.price)
-          }, [swapsData])
-
+        Cell: ({ value: volume7dFiat }: { value: string | undefined; row: RowProps }) => {
           return (
-            <Skeleton isLoaded={!!volumeStats}>
-              <Skeleton isLoaded={!!volumeStats} display={mobileDisplay}>
-                <Amount.Fiat value={volumeStats?.volume7dFiat ?? '0'} />
+            <Skeleton isLoaded={!!volume7dFiat}>
+              <Skeleton isLoaded={!!volume7dFiat} display={mobileDisplay}>
+                <Amount.Fiat value={volume7dFiat ?? '0'} />
               </Skeleton>
             </Skeleton>
           )
         },
       },
     ],
-    [runeMarketData.price, translate],
+    [translate],
   )
 
   const handlePoolClick = useCallback(

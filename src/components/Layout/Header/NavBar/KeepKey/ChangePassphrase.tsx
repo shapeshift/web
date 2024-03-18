@@ -18,8 +18,13 @@ import type { AwaitKeepKeyProps } from 'components/Layout/Header/NavBar/KeepKey/
 import { AwaitKeepKey } from 'components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { LastDeviceInteractionStatus } from 'components/Layout/Header/NavBar/KeepKey/LastDeviceInteractionStatus'
 import { SubmenuHeader } from 'components/Layout/Header/NavBar/SubmenuHeader'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { selectWalletId } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SubMenuBody } from '../SubMenuBody'
 import { SubMenuContainer } from '../SubMenuContainer'
@@ -31,6 +36,8 @@ const awaitKeepkeyButtonPromptTranslation: AwaitKeepKeyProps['translation'] = [
 ]
 
 export const ChangePassphrase = () => {
+  const appDispatch = useAppDispatch()
+  const walletId = useAppSelector(selectWalletId)
   const translate = useTranslate()
   const toast = useToast()
   const {
@@ -39,14 +46,19 @@ export const ChangePassphrase = () => {
     state: { hasPassphrase },
   } = useKeepKey()
   const {
+    connect,
+    dispatch,
     state: {
       deviceState: { awaitingDeviceInteraction },
     },
   } = useWallet()
 
   const handleToggle = useCallback(async () => {
+    if (!walletId || !keepKeyWallet) return
+
     const currentValue = !!hasPassphrase
-    setHasPassphrase(!hasPassphrase)
+    const newHasPassphrase = !hasPassphrase
+    setHasPassphrase(newHasPassphrase)
     await keepKeyWallet?.applySettings({ usePassphrase: !currentValue }).catch(e => {
       console.error(e)
       toast({
@@ -56,7 +68,23 @@ export const ChangePassphrase = () => {
         isClosable: true,
       })
     })
-  }, [hasPassphrase, keepKeyWallet, setHasPassphrase, toast, translate])
+    // Clear all previous wallet meta
+    appDispatch(portfolio.actions.clearWalletMetadata(walletId))
+    // Trigger a refresh of the wallet metadata only once the settings have been applied
+    // and the previous wallet meta is gone from the store
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    connect(KeyManager.KeepKey)
+  }, [
+    appDispatch,
+    connect,
+    dispatch,
+    hasPassphrase,
+    keepKeyWallet,
+    setHasPassphrase,
+    toast,
+    translate,
+    walletId,
+  ])
 
   const onCancel = useCallback(() => {
     setHasPassphrase(!hasPassphrase)

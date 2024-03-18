@@ -369,19 +369,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
   }, [opportunityType, walletSupportsAsset, walletSupportsRune])
 
-  const handleToggleRuneIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      toggleRuneIsFiat()
-    },
-    [toggleRuneIsFiat],
-  )
-  const handleTogglePoolAssetIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      togglePoolAssetIsFiat()
-    },
-    [togglePoolAssetIsFiat],
-  )
-
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
   }, [browserHistory])
@@ -1097,7 +1084,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               formControlProps={formControlProps}
               onChange={handleAddLiquidityInputChange}
               handleIsInputtingFiatSellAmountChange={
-                isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat
+                isRune ? toggleRuneIsFiat : togglePoolAssetIsFiat
               }
               isInputtingFiatSellAmount={isRune ? runeIsFiat : poolAssetIsFiat}
               cryptoAmount={cryptoAmount}
@@ -1123,8 +1110,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     virtualAssetDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     percentOptions,
-    handleToggleRuneIsFiat,
-    handleTogglePoolAssetIsFiat,
+    toggleRuneIsFiat,
+    togglePoolAssetIsFiat,
     runeIsFiat,
     poolAssetIsFiat,
     handleAccountIdChange,

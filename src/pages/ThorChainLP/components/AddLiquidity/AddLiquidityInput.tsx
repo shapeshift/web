@@ -75,6 +75,7 @@ import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
+import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { Opportunity } from 'pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
@@ -284,6 +285,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [activeOpportunityId])
 
   const pool = useMemo(() => pools?.find(pool => pool.assetId === assetId), [assetId, pools])
+
+  const { data: userLpData } = useUserLpData({ assetId: assetId ?? '' })
+
+  const position = useMemo(() => {
+    return userLpData?.find(data => data.opportunityId === activeOpportunityId)
+  }, [activeOpportunityId, userLpData])
 
   const _poolAsset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
@@ -991,6 +998,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       opportunityId: activeOpportunityId,
       currentAccountIdByChainId,
       totalAmountUsd,
+      positionStatus: position?.status,
       feeBps: feeBps.toFixed(0),
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
       feeAmountUSD: feeUsd.toFixed(2),
@@ -1001,23 +1009,24 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       totalGasFeeFiatUserCurrency: totalGasFeeFiatUserCurrency.toFixed(2),
     })
   }, [
-    currentAccountIdByChainId,
     activeOpportunityId,
     actualAssetDepositAmountCryptoPrecision,
     actualAssetDepositAmountFiatUserCurrency,
     actualRuneDepositAmountCryptoPrecision,
     actualRuneDepositAmountFiatUserCurrency,
+    currentAccountIdByChainId,
     dispatch,
     poolAssetAccountAddress,
     poolAssetGasFeeFiatUserCurrency,
     poolAssetInboundAddress,
+    position,
     runeGasFeeFiatUserCurrency,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,
     slippageFiatUserCurrency,
     totalGasFeeFiatUserCurrency,
-    votingPower,
     userCurrencyToUsdRate,
+    votingPower,
   ])
 
   const percentOptions = useMemo(() => [1], [])
@@ -1047,6 +1056,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!(poolAsset && runeAsset && opportunityType)) return null
 
     const assets: Asset[] = (() => {
+      // Force completion of the incomplete asset side for incomplete sym positions
+      if (position?.status.incomplete) return [position.status.incomplete.asset]
+
       switch (opportunityType) {
         case AsymSide.Rune:
           return [runeAsset]
@@ -1078,6 +1090,28 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             handleAddLiquidityInputChange('', false)
           }
 
+          // Set amount required for completion of the incomplete sym position
+          if (position?.status.incomplete) {
+            const { amountCryptoPrecision } = position.status.incomplete
+            //handleAddLiquidityInputChange(amountCryptoPrecision, false)
+
+            if (isRune) {
+              setVirtualRuneDepositAmountCryptoPrecision(amountCryptoPrecision)
+              setVirtualRuneDepositAmountFiatUserCurrency(
+                bnOrZero(amountCryptoPrecision).times(bnOrZero(marketData.price)).toFixed(),
+              )
+              setVirtualAssetDepositAmountCryptoPrecision('0')
+              setVirtualAssetDepositAmountFiatUserCurrency('0')
+            } else {
+              setVirtualAssetDepositAmountCryptoPrecision(amountCryptoPrecision)
+              setVirtualAssetDepositAmountFiatUserCurrency(
+                bnOrZero(amountCryptoPrecision).times(bnOrZero(marketData.price)).toFixed(),
+              )
+              setVirtualRuneDepositAmountCryptoPrecision('0')
+              setVirtualRuneDepositAmountFiatUserCurrency('0')
+            }
+          }
+
           const cryptoAmount = isRune
             ? virtualRuneDepositAmountCryptoPrecision
             : virtualAssetDepositAmountCryptoPrecision
@@ -1092,6 +1126,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               autoSelectHighestBalance={false}
               isAccountSelectionDisabled
               accountId={accountId}
+              isReadOnly={Boolean(position?.status.incomplete)}
               key={asset.assetId}
               assetId={asset?.assetId}
               assetIcon={asset?.icon ?? ''}
@@ -1114,26 +1149,27 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       </Stack>
     )
   }, [
-    poolAsset,
-    runeAsset,
+    assetId,
+    createHandleAddLiquidityInputChange,
+    currentAccountIdByChainId,
+    handleAccountIdChange,
+    handleTogglePoolAssetIsFiat,
+    handleToggleRuneIsFiat,
     opportunityType,
     pairDivider,
-    runeMarketData,
-    poolAssetMarketData,
-    createHandleAddLiquidityInputChange,
-    previousOpportunityId,
-    assetId,
-    virtualRuneDepositAmountCryptoPrecision,
-    virtualAssetDepositAmountCryptoPrecision,
-    virtualRuneDepositAmountFiatUserCurrency,
-    virtualAssetDepositAmountFiatUserCurrency,
-    currentAccountIdByChainId,
     percentOptions,
-    handleToggleRuneIsFiat,
-    handleTogglePoolAssetIsFiat,
-    runeIsFiat,
+    poolAsset,
     poolAssetIsFiat,
-    handleAccountIdChange,
+    poolAssetMarketData,
+    position,
+    previousOpportunityId,
+    runeAsset,
+    runeIsFiat,
+    runeMarketData,
+    virtualAssetDepositAmountCryptoPrecision,
+    virtualAssetDepositAmountFiatUserCurrency,
+    virtualRuneDepositAmountCryptoPrecision,
+    virtualRuneDepositAmountFiatUserCurrency,
   ])
 
   const symAlert = useMemo(() => {

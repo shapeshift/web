@@ -331,29 +331,37 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!position) return
 
     const {
+      pendingAssetAmountCryptoPrecision,
+      pendingAssetAmountFiatUserCurrency,
+      pendingRuneAmountCryptoPrecision,
+      pendingRuneAmountFiatUserCurrency,
       underlyingAssetAmountCryptoPrecision,
-      underlyingAssetValueFiatUserCurrency,
+      underlyingAssetAmountFiatUserCurrency,
       underlyingRuneAmountCryptoPrecision,
-      underlyingRuneValueFiatUserCurrency,
+      underlyingRuneAmountFiatUserCurrency,
     } = position
 
     setVirtualRuneWithdrawAmountCryptoPrecision(
       bnOrZero(underlyingRuneAmountCryptoPrecision)
+        .plus(pendingRuneAmountCryptoPrecision)
         .times(percentageSelection / 100)
         .toFixed(),
     )
     setVirtualRuneWithdrawAmountFiatUserCurrency(
-      bnOrZero(underlyingRuneValueFiatUserCurrency)
-        .times(percentageSelection / 100)
-        .toFixed(),
-    )
-    setVirtualAssetWithdrawAmountFiatUserCurrency(
-      bnOrZero(underlyingAssetValueFiatUserCurrency)
+      bnOrZero(underlyingRuneAmountFiatUserCurrency)
+        .plus(pendingRuneAmountFiatUserCurrency)
         .times(percentageSelection / 100)
         .toFixed(),
     )
     setVirtualAssetWithdrawAmountCryptoPrecision(
       bnOrZero(underlyingAssetAmountCryptoPrecision)
+        .plus(pendingAssetAmountCryptoPrecision)
+        .times(percentageSelection / 100)
+        .toFixed(),
+    )
+    setVirtualAssetWithdrawAmountFiatUserCurrency(
+      bnOrZero(underlyingAssetAmountFiatUserCurrency)
+        .plus(pendingAssetAmountFiatUserCurrency)
         .times(percentageSelection / 100)
         .toFixed(),
     )
@@ -774,8 +782,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
           const fiatBalance = bnOrZero(
             isRune
-              ? position?.underlyingRuneValueFiatUserCurrency
-              : position?.underlyingAssetValueFiatUserCurrency,
+              ? position?.underlyingRuneAmountFiatUserCurrency
+              : position?.underlyingAssetAmountFiatUserCurrency,
           )
             .times(opportunityType === 'sym' ? 1 : 2)
             .toFixed()

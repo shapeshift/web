@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Box, Flex, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { Box, Flex, Skeleton, Spinner, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
@@ -58,6 +58,7 @@ export const YourPositions = () => {
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
+
   const { data: pools } = usePools()
 
   const allUserLpData = useAllUserLpData()
@@ -92,6 +93,24 @@ export const YourPositions = () => {
           const { assetId } = useMemo(() => position, [position])
           const poolAssetIds = useMemo(() => [assetId, thorchainAssetId], [assetId])
 
+          const positionStatusTag = useMemo(() => {
+            if (position?.status.incomplete) {
+              return (
+                <Tag colorScheme='red'>
+                  <Text translation='common.incomplete' />
+                </Tag>
+              )
+            }
+
+            if (position?.status.isPending) {
+              return (
+                <Tag colorScheme='yellow'>
+                  <Text translation='common.pending' />
+                </Tag>
+              )
+            }
+          }, [position])
+
           return (
             <Flex gap={4} alignItems='center'>
               <PoolIcon assetIds={poolAssetIds} size='sm' />
@@ -106,6 +125,7 @@ export const YourPositions = () => {
                   <Text translation='common.symmetric' />
                 )}
               </Tag>
+              {positionStatusTag}
             </Flex>
           )
         },
@@ -255,9 +275,7 @@ export const YourPositions = () => {
   return (
     <Main headerComponent={headerComponent}>
       <Stack>
-        {!positions ? (
-          new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
-        ) : (
+        {positions ? (
           <ReactTable
             data={positions}
             columns={columns}
@@ -265,6 +283,10 @@ export const YourPositions = () => {
             onRowClick={handlePoolClick}
             variant='clickable'
           />
+        ) : (
+          <Flex gap={4} alignItems='center' justifyContent='center'>
+            <Spinner />
+          </Flex>
         )}
       </Stack>
     </Main>

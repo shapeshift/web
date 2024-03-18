@@ -410,8 +410,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [inboundAddressesData?.outbound_fee, opportunityType])
 
   const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
-    return poolAssetProtocolFeeCryptoPrecision.times(poolAssetMarketData.price)
-  }, [poolAssetMarketData, poolAssetProtocolFeeCryptoPrecision])
+    return poolAssetProtocolFeeCryptoPrecision.times(poolAssetFeeAssetMarketData.price)
+  }, [poolAssetFeeAssetMarketData.price, poolAssetProtocolFeeCryptoPrecision])
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>

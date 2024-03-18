@@ -113,6 +113,9 @@ const styles = {
     '.min-h-100vh': {
       minHeight: '100vh',
     },
+    '.min-h-100dvh': {
+      minHeight: '100dvh',
+    },
     '.scroll-container': {
       visibility: 'hidden',
       paddingRight: '12px',

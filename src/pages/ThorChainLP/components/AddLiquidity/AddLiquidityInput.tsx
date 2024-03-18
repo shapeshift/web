@@ -1083,10 +1083,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}
               onChange={handleAddLiquidityInputChange}
-              handleIsInputtingFiatSellAmountChange={
-                isRune ? toggleRuneIsFiat : togglePoolAssetIsFiat
-              }
-              isInputtingFiatSellAmount={isRune ? runeIsFiat : poolAssetIsFiat}
+              onToggleIsFiat={isRune ? toggleRuneIsFiat : togglePoolAssetIsFiat}
+              isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
               cryptoAmount={cryptoAmount}
               fiatAmount={fiatAmount}
             />

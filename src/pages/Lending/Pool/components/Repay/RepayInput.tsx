@@ -410,8 +410,8 @@ export const RepayInput = ({
         fiatAmount={lendingQuoteCloseData?.repaymentAmountFiatUserCurrency ?? '0'}
         isSendMaxDisabled={false}
         isReadOnly
-        handleIsInputtingFiatSellAmountChange={toggleRepaymentAssetIsFiat}
-        isInputtingFiatSellAmount={repaymentAssetIsFiat}
+        onToggleIsFiat={toggleRepaymentAssetIsFiat}
+        isFiat={repaymentAssetIsFiat}
         percentOptions={percentOptions}
         showInputSkeleton={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
         showFiatSkeleton={false}
@@ -471,8 +471,8 @@ export const RepayInput = ({
         label={translate('lending.unlockedCollateral')}
         onAccountIdChange={handleCollateralAccountIdChange}
         isReadOnly
-        handleIsInputtingFiatSellAmountChange={toggleCollateralAssetIsFiat}
-        isInputtingFiatSellAmount={collateralAssetIsFiat}
+        onToggleIsFiat={toggleCollateralAssetIsFiat}
+        isFiat={collateralAssetIsFiat}
         // When repaying 100% of the loan, the user gets their collateral back
         hideAmounts={bn(repaymentPercent).lt(100)}
         formControlProps={formControlProps}

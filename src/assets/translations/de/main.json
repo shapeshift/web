@@ -1458,8 +1458,7 @@
     "xdefi": {
       "errors": {
         "unknown": "Bei der Kommunikation mit XDEFI ist ein unerwarteter Fehler aufgetreten",
-        "connectFailure": "XDEFI Wallet kann nicht verbunden werden",
-        "multipleWallets": "Erkannter Ethereum-Anbieter ist nicht XDEFI. Hast du mehrere Wallets installiert?"
+        "connectFailure": "XDEFI Wallet kann nicht verbunden werden"
       },
       "connect": {
         "header": "XDEFI koppeln",
@@ -2193,16 +2192,13 @@
     "currentFoxPower": "Deine FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "Simulieren Sie Ihre FOX-Power Rabatte",
-    "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihren Handel erhalten. Passen Sie einfach die Schieberegler unten an, um die Anzahl Ihrer FOX und die Handelsgröße in Fiat anzugeben, und sehen Sie, wie sich Ihre potenziellen Einsparungen vermehren!",
     "tradeSize": "Handelsgröße",
     "totalFee": "Gesamtgebühr",
     "foxPowerDiscount": "FOX Power Rabatt",
     "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
     "feeSummary": "Gebührenübersicht",
     "simulateFee": "Rabatt simulieren",
-    "freeUnderThreshold": "Trades unter %{threshold} sind immer KOSTENLOS",
     "breakdownHeader": "Ihr FOX Power Rabatt",
-    "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer Handelsgebühren und des entsprechenden angewendeten FOX Power Rabatten. Erfahren Sie auf derRegisterkarte „Simulieren“, wie viel mehr Sie  sparen können.",
     "tradeFee": "Handelsgebühr",
     "totalTradeFee": "Gesamte Handelsgebühr"
   },

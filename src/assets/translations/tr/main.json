@@ -1458,8 +1458,7 @@
     "xdefi": {
       "errors": {
         "unknown": "XDEFI ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "XDEFI cüzdanına bağlanılamıyor",
-        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı XDEFI değil. Yüklü birden fazla cüzdanınız var mı?"
+        "connectFailure": "XDEFI cüzdanına bağlanılamıyor"
       },
       "connect": {
         "header": "XDEFI'yi eşle",
@@ -2193,16 +2192,13 @@
     "currentFoxPower": "FOX Power'ın",
     "foxPower": "FOX Power",
     "simulateTitle": "FOX Power indirimlerinizi simüle edin",
-    "simulateBody": "Toplam ücretlerinizi ve işleminizde alacağınız indirimi belirlemek için bu kullanışlı hesap makinesini kullanın. FOX sahibi tutarınızı ve fiat cinsinden işlem büyüklüğünü belirtmek için aşağıdaki kaydırıcıları ayarlamanız yeterlidir ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
     "tradeSize": "Takas Boyutu",
     "totalFee": "Toplam Ücret",
     "foxPowerDiscount": "FOX Power İndirimi",
     "basedOnFee": "Şu ücrete dayalıdır: %{fee}",
     "feeSummary": "Ücret Özeti",
     "simulateFee": "İndirim Simülasyonu",
-    "freeUnderThreshold": "%{threshold} altındaki işlemler her zaman ÜCRETSİZDİR",
     "breakdownHeader": "FOX Power İndiriminiz",
-    "breakdownBody": "Aşağıda işlem ücretlerinizin ve uygulanan FOX Power İndiriminin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",
     "tradeFee": "Takas Ücreti",
     "totalTradeFee": "Toplam Takas Ücreti"
   },

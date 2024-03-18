@@ -761,8 +761,7 @@
     "xdefi": {
       "errors": {
         "unknown": "XDEFI와의 통신 도중에 오류가 발생하였습니다",
-        "connectFailure": "XDEFI 지갑과 연결할 수 없습니다",
-        "multipleWallets": "탐지된 이더리움 공급자가 XDEFI가 아닙니다. 혹시, 여러개의 지갑을 설치하셨나요?"
+        "connectFailure": "XDEFI 지갑과 연결할 수 없습니다"
       },
       "connect": {
         "header": "XDEFI에 페어",

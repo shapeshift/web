@@ -1445,8 +1445,7 @@
     "xdefi": {
       "errors": {
         "unknown": "XDEFIとの通信で予期せぬエラーが発生しました",
-        "connectFailure": "XDEFIウォレットに接続できません",
-        "multipleWallets": "検出されたイーサリアムプロバイダーは XDEFIではありません。複数のウォレットをインストールしていますか?"
+        "connectFailure": "XDEFIウォレットに接続できません"
       },
       "connect": {
         "header": "XDEFIのペアリング",
@@ -2180,16 +2179,13 @@
     "currentFoxPower": "あなたのFOX",
     "foxPower": "FOXパワー",
     "simulateTitle": "FOX割引をシミュレーションする",
-    "simulateBody": "この便利な計算ツールを使用して、合計手数料と取引で受け取る割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での取引サイズを示すだけで、潜在的な節約額がどのように変化するかを観察してください。",
     "tradeSize": "取引規模",
     "totalFee": "合計料金",
     "foxPowerDiscount": "FOXパワー割引",
     "basedOnFee": "料金に基づく: %{fee}",
     "feeSummary": "料金概要",
     "simulateFee": "割引をシミュレーションする",
-    "freeUnderThreshold": "%{threshold} 未満の取引は常に無料です",
     "breakdownHeader": "FOX割引",
-    "breakdownBody": "以下は、取引手数料の内訳と、適用される対応するFOX割引です。 「シミュレート」タブでどれくらい割引できるかを確認してください。",
     "tradeFee": "取引手数料",
     "totalTradeFee": "合計取引手数料"
   },

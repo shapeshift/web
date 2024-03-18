@@ -1458,8 +1458,7 @@
     "xdefi": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con XDEFI",
-        "connectFailure": "No se puede conectar la billetera XDEFI",
-        "multipleWallets": "El proveedor de Ethereum detectado no es XDEFI. ¿Tienes varias carteras instaladas?"
+        "connectFailure": "No se puede conectar la billetera XDEFI"
       },
       "connect": {
         "header": "Emparejar XDEFI",
@@ -2193,16 +2192,13 @@
     "currentFoxPower": "Tu Poder FOX",
     "foxPower": "Poder FOX",
     "simulateTitle": "Simula tus descuentos de Poder FOX",
-    "simulateBody": "Utilice esta calculadora para determinar sus tarifas totales y descuentos. Simplemente ajuste el control deslizante para indicar el monto de FOX y el tamaño de su operación fiat, ¡y observe cómo se se crean sus ahorros potenciales!",
     "tradeSize": "Tamaño de intercambio",
     "totalFee": "Costo total",
     "foxPowerDiscount": "Descuento poder FOX",
     "basedOnFee": "Basado en tarifa de: %{fee}",
     "feeSummary": "Resumen Tarifas",
     "simulateFee": "Simular Descuento",
-    "freeUnderThreshold": "Operaciones debajo de %{threshold} son siempre GRATIS",
     "breakdownHeader": "Su descuento de Poder FOX",
-    "breakdownBody": "A continuación se muestra un desglose de tarifas comerciales y  descuento Poder FOX aplicado. Descubra cuánto más puede ahorrar en la pestaña de simulación.",
     "tradeFee": "Tarifa de intercambio",
     "totalTradeFee": "Tarifa total de intercambio"
   },

@@ -25,6 +25,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -92,6 +93,8 @@ export const BorrowInput = ({
   setConfirmedQuote,
 }: BorrowInputProps) => {
   const [fromAddress, setFromAddress] = useState<string | null>(null)
+  const [borrowAssetIsFiat, toggleBorrowAssetIsFiat] = useToggle(false)
+  const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
 
   const {
     state: { wallet },
@@ -125,6 +128,7 @@ export const BorrowInput = ({
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
   const buyAssetSearch = useModal('buyAssetSearch')
+
   const handleBorrowAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onClick: setBorrowAsset,
@@ -468,6 +472,8 @@ export const BorrowInput = ({
           assetSymbol={collateralAsset.symbol}
           assetIcon={collateralAsset.icon}
           onChange={handleDepositInputChange}
+          onToggleIsFiat={toggleCollateralAssetIsFiat}
+          isFiat={collateralAssetIsFiat}
           cryptoAmount={depositAmountCryptoPrecision ?? '0'}
           fiatAmount={fiatDepositAmount ?? '0'}
           isAccountSelectionDisabled={isAccountSelectionDisabled}
@@ -502,6 +508,8 @@ export const BorrowInput = ({
           cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
           fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
           isReadOnly
+          onToggleIsFiat={toggleBorrowAssetIsFiat}
+          isFiat={borrowAssetIsFiat}
           isSendMaxDisabled={false}
           percentOptions={percentOptions}
           showInputSkeleton={isLendingQuoteLoading || isLendingQuoteRefetching}

@@ -15,8 +15,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 export const KeepKeyPassphrase = () => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { state, dispatch } = useWallet()
-  const wallet = state.wallet
+  const {
+    state: { deviceId, keyring },
+    dispatch,
+  } = useWallet()
+  const wallet = keyring.get(deviceId)
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 

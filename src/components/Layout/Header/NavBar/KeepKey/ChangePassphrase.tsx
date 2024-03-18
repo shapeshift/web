@@ -41,9 +41,8 @@ export const ChangePassphrase = () => {
   const translate = useTranslate()
   const toast = useToast()
   const {
-    keepKeyWallet,
     setHasPassphrase,
-    state: { hasPassphrase },
+    state: { hasPassphrase, keepKeyWallet },
   } = useKeepKey()
   const {
     connect,

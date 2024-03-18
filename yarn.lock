@@ -9526,6 +9526,7 @@ __metadata:
     bech32: ^2.0.0
     coinselect: ^3.1.13
     multicoin-address-validator: ^0.5.12
+    p-queue: ^8.0.1
     web3-utils: 1.7.4
   languageName: unknown
   linkType: soft
@@ -10159,6 +10160,7 @@ __metadata:
     os-browserify: ^0.3.0
     p-debounce: ^4.0.0
     p-memoize: ^7.1.1
+    p-queue: ^8.0.1
     p-ratelimit: ^1.0.1
     patch-package: ^8.0.0
     path-browserify: ^1.0.1

@@ -252,9 +252,6 @@ export const YourPositions = () => {
     )
   }
 
-  // TODO(gomes): remove me
-  if (!positions) return null
-
   return (
     <Main headerComponent={headerComponent}>
       <Stack>

@@ -12,11 +12,14 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
+export const KeepKeyPassphrase = () => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { state, dispatch } = useWallet()
-  const wallet = state.keyring.get(deviceId)
+  const {
+    state: { deviceId, keyring },
+    dispatch,
+  } = useWallet()
+  const wallet = keyring.get(deviceId)
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 

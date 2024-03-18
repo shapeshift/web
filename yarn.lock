@@ -10159,6 +10159,7 @@ __metadata:
     os-browserify: ^0.3.0
     p-debounce: ^4.0.0
     p-memoize: ^7.1.1
+    p-queue: ^8.0.1
     p-ratelimit: ^1.0.1
     patch-package: ^8.0.0
     path-browserify: ^1.0.1

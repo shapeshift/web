@@ -6,6 +6,7 @@ import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import orderBy from 'lodash/orderBy'
+import PQueue from 'p-queue'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { deepUpsertArray } from 'lib/utils'
@@ -187,6 +188,7 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
+        const queue = new PQueue({ concurrency: 1 })
         const results: TransactionsByAccountId = {}
         await Promise.all(
           accountIds.map(async accountId => {
@@ -213,11 +215,14 @@ export const txHistoryApi = createApi({
                   }
                 })()
 
-                const { cursor, transactions } = await adapter.getTxHistory({
-                  cursor: currentCursor,
-                  pubkey,
-                  pageSize,
-                })
+                const requestCursor = currentCursor
+                const { cursor, transactions } = await queue.add(() =>
+                  adapter.getTxHistory({
+                    cursor: requestCursor,
+                    pubkey,
+                    pageSize,
+                  }),
+                )
 
                 const state = getState() as State
                 const txsById = state.txHistory.txs.byId

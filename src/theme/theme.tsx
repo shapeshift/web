@@ -48,15 +48,13 @@ const styles = {
       backgroundColor: 'background.surface.base',
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
-      overflowX: 'hidden',
-      minHeight: '100%',
+      minHeight: 'unset',
     },
     '#root': {
       background: 'background.surface.base',
     },
     html: {
       scrollBehavior: 'smooth',
-      minHeight: '100vh',
     },
     h1: {
       fontSize: '4xl',
@@ -111,6 +109,9 @@ const styles = {
     },
     '.h-full': {
       height: '100%',
+    },
+    '.min-h-100vh': {
+      minHeight: '100vh',
     },
     '.scroll-container': {
       visibility: 'hidden',

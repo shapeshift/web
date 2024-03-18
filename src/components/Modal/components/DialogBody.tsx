@@ -9,7 +9,7 @@ export const DialogBody: React.FC<DialogBodyProps> = ({ children, ...rest }) => 
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   if (isMobile || !isLargerThanMd) {
     return (
-      <Box px={4} overflowY='auto' {...rest}>
+      <Box px={4} overflow='auto' {...rest}>
         {children}
       </Box>
     )

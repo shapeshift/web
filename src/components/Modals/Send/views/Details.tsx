@@ -1,4 +1,3 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -6,7 +5,6 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  IconButton,
   Input,
   Stack,
   Tooltip,
@@ -25,6 +23,7 @@ import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
+import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
 import { DialogHeader } from 'components/Modal/components/DialogHeader'
@@ -55,7 +54,6 @@ const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 const controllerRules = {
   required: true,
 }
-const arrowBackIcon = <ArrowBackIcon />
 const accountDropdownButtonProps = { width: 'full', mb: 2, variant: 'solid' }
 const formHelperTextHoverStyle = { color: 'gray.400', transition: '.2s color ease' }
 
@@ -202,15 +200,7 @@ export const Details = () => {
   return (
     <SlideTransition loading={balancesLoading} className='flex flex-col h-full'>
       <DialogHeader>
-        <IconButton
-          variant='ghost'
-          icon={arrowBackIcon}
-          aria-label={translate('common.back')}
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={handleArrowBackClick}
-        />
+        <DialogBackButton onClick={handleArrowBackClick} />
         <DialogTitle textAlign='center'>
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>

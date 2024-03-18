@@ -97,6 +97,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       variant: 'filled',
       autoComplete: 'off',
       autoFocus: false,
+      transitionProperty: 'none',
     }),
     [register, translate],
   )

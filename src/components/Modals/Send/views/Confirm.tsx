@@ -1,11 +1,9 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
-  IconButton,
   Input,
   Stack,
   useColorModeValue,
@@ -22,6 +20,7 @@ import { useHistory } from 'react-router-dom'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
 import { DialogHeader } from 'components/Modal/components/DialogHeader'
@@ -46,8 +45,6 @@ export type FeePrice = {
     gasPriceGwei?: string
   }
 }
-
-const arrowBackIcon = <ArrowBackIcon />
 
 const accountDropdownButtonProps = { variant: 'ghost', height: 'auto', p: 0, size: 'md' }
 
@@ -122,15 +119,7 @@ export const Confirm = () => {
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <IconButton
-          variant='ghost'
-          icon={arrowBackIcon}
-          aria-label={translate('common.back')}
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={handleClick}
-        />
+        <DialogBackButton onClick={handleClick} />
         <DialogTitle textAlign='center'>
           <Text translation={sendAssetTranslation} />
         </DialogTitle>

@@ -26,7 +26,14 @@ export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
           <DialogTitle>{translate('common.selectAsset')}</DialogTitle>
         </DialogHeader.Middle>
       </DialogHeader>
-      <DialogBody height='600px' px={2} display='flex' flexDir='column' flex='auto'>
+      <DialogBody
+        height='600px'
+        px={2}
+        display='flex'
+        flexDir='column'
+        flex='auto'
+        overflow='hidden'
+      >
         <AssetSearch onClick={handleClick} />
       </DialogBody>
     </>

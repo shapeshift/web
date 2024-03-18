@@ -35,7 +35,8 @@ export const DialogHeader: React.FC<DialogHeaderProps> & DialogHeaderCompound = 
         alignItems='center'
         gridTemplateColumns='44px 1fr 44px'
         fontWeight='bold'
-        p={5}
+        py={4}
+        px={2}
         {...props}
       >
         {children}

@@ -1,4 +1,4 @@
-import { ArrowBackIcon, CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
+import { CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -7,7 +7,6 @@ import {
   Circle,
   Flex,
   HStack,
-  IconButton,
   LightMode,
   Link,
   Skeleton,
@@ -27,6 +26,7 @@ import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
 import { DialogHeader } from 'components/Modal/components/DialogHeader'
@@ -48,7 +48,6 @@ type ReceivePropsType = {
   accountId?: AccountId
 }
 
-const arrowBackIcon = <ArrowBackIcon />
 const accountDropdownButtonProps = { variant: 'solid', width: 'full', mt: 4 }
 const receiveAddressHover = { color: 'blue.500' }
 const receiveAddressActive = { color: 'blue.800' }
@@ -159,15 +158,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
     <>
       <DialogHeader>
         <DialogHeader.Left>
-          <IconButton
-            variant='ghost'
-            icon={arrowBackIcon}
-            aria-label={translate('common.back')}
-            fontSize='xl'
-            size='sm'
-            isRound
-            onClick={onBackClick}
-          />
+          <DialogBackButton onClick={onBackClick} />
         </DialogHeader.Left>
         <DialogHeader.Middle>
           <DialogTitle>{translate('modals.receive.receiveAsset', { asset: name })}</DialogTitle>
@@ -240,7 +231,7 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
               </CardBody>
             </Card>
           </DialogBody>
-          <DialogFooter flexDir='column'>
+          <DialogFooter flexDir='column' mt='auto'>
             <HStack pb={6} spacing={8}>
               <Button
                 onClick={handleCopyClick}

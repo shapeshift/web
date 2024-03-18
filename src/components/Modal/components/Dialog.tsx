@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Drawer } from 'vaul'
 import { useDialog, withDialogProvider } from 'context/DialogContextProvider/DialogContextProvider'
 import { isMobile } from 'lib/globals'
@@ -19,9 +19,8 @@ const CustomDrawerContent = styled(Drawer.Content)`
   display: flex;
   flex-direction: column;
   border-radius: 24px 24px 0 0;
-  height: auto;
-  margin-top: env(safe-area-inset-top);
   position: fixed;
+  max-height: 95%;
   bottom: 0;
   left: 0;
   right: 0;
@@ -32,6 +31,7 @@ const CustomDrawerOverlay = styled(Drawer.Overlay)`
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.8);
+  z-index: var(--chakra-zIndices-modal);
 `
 
 const DialogWindow: React.FC<DialogProps> = ({
@@ -42,7 +42,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   children,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { snapPoint } = useDialog()
+  const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
 
   const contentStyle = {
     maxHeight: isFullScreen ? '100vh' : 'calc(100% - env(safe-area-inset-top))',
@@ -50,14 +50,13 @@ const DialogWindow: React.FC<DialogProps> = ({
     paddingTop: isFullScreen ? 'env(safe-area-inset-top)' : 0,
   }
 
+  useEffect(() => {
+    setIsOpen(isOpen)
+  }, [isOpen, setIsOpen])
+
   if (isMobile || !isLargerThanMd) {
     return (
-      <Drawer.Root
-        open={isOpen}
-        onClose={onClose}
-        activeSnapPoint={snapPoint}
-        shouldScaleBackground={!isFullScreen}
-      >
+      <Drawer.Root open={isDialogOpen} onClose={onClose} activeSnapPoint={snapPoint}>
         <Drawer.Portal>
           <CustomDrawerOverlay />
           <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>

@@ -1,5 +1,4 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react'
+import { Button, FormControl, FormLabel, Stack } from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -7,6 +6,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { YatBanner } from 'components/Banners/YatBanner'
+import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
 import { DialogHeader } from 'components/Modal/components/DialogHeader'
@@ -23,8 +23,6 @@ import { useAppSelector } from 'state/store'
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
-
-const arrowBackIcon = <ArrowBackIcon />
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
@@ -100,15 +98,7 @@ export const Address = () => {
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <IconButton
-          variant='ghost'
-          icon={arrowBackIcon}
-          aria-label={translate('common.back')}
-          fontSize='xl'
-          size='sm'
-          isRound
-          onClick={handleClick}
-        />
+        <DialogBackButton aria-label={translate('common.back')} onClick={handleClick} />
         <DialogTitle textAlign='center'>
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>

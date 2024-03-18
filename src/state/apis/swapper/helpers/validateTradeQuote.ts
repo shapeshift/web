@@ -139,6 +139,10 @@ export const validateTradeQuote = async (
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
 
+  const firstHopAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+    assetId: firstHop.sellAsset.assetId,
+    accountId: firstHopSellAccountId ?? '',
+  })
   const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
     accountId: firstHopSellAccountId ?? '',
@@ -150,7 +154,17 @@ export const validateTradeQuote = async (
       })
     : undefined
 
-  const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
+  // const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
+  // Keeping the above commented for historical reference
+  // CowSwap fees used to be paid directly at execution-time, but they now need to be included in the order in *addition* to the amount being traded
+  const networkFeeRequiresBalance = true
+  const firstHopPayableProtocolFeeCryptoPrecision =
+    swapperName === SwapperName.CowSwap
+      ? fromBaseUnit(
+          bnOrZero(firstHop.feeData.protocolFees[firstHop.sellAsset.assetId]?.amountCryptoBaseUnit),
+          firstHop.sellAsset.precision,
+        )
+      : bn(0).toFixed()
 
   const firstHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && firstHopSellFeeAsset
@@ -175,6 +189,11 @@ export const validateTradeQuote = async (
 
   const walletSupportsIntermediaryAssetChain =
     !isMultiHopTrade || walletSupportedChainIds.includes(firstHop.buyAsset.chainId)
+
+  const firstHopHasSufficientBalanceForPayableProtocolFees = bnOrZero(firstHopAssetBalancePrecision)
+    .minus(sellAmountCryptoPrecision)
+    .minus(firstHopPayableProtocolFeeCryptoPrecision ?? 0)
+    .gte(0)
 
   const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
@@ -289,6 +308,15 @@ export const validateTradeQuote = async (
             chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
           },
         },
+      !firstHopHasSufficientBalanceForPayableProtocolFees && {
+        error: TradeQuoteValidationError.InsufficientFirstHopAssetBalance,
+        meta: {
+          assetSymbol: firstHop.sellAsset.symbol,
+          chainSymbol: firstHopSellFeeAsset
+            ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
+            : '',
+        },
+      },
       !firstHopHasSufficientBalanceForGas && {
         error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
         meta: {

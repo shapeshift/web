@@ -3,6 +3,8 @@ import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 
 import { RemoveLiquidityRoutePaths } from './types'
@@ -90,6 +92,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
   accountId,
   poolAssetId,
 }) => {
+  const mixpanel = getMixPanel()
   const history = useHistory()
   const location = useLocation()
   const renderRemoveLiquidityInput = useCallback(
@@ -121,6 +124,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
           confirmedQuote={confirmedQuote}
           // eslint-disable-next-line react-memo/require-usememo
           onSweepSeen={() => {
+            mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
             history.push(RemoveLiquidityRoutePaths.Confirm)
           }}
           // eslint-disable-next-line react-memo/require-usememo
@@ -129,7 +133,7 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
           }}
         />
       ) : null,
-    [confirmedQuote, history],
+    [confirmedQuote, history, mixpanel],
   )
 
   return (

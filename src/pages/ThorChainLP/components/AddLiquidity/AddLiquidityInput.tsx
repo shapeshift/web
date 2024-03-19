@@ -49,12 +49,15 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
@@ -139,6 +142,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
@@ -146,6 +150,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
+  const [runeIsFiat, toggleRuneIsFiat] = useToggle(false)
+  const [poolAssetIsFiat, togglePoolAssetIsFiat] = useToggle(false)
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
@@ -365,6 +371,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityType === AsymSide.Rune) return walletSupportsRune
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
   }, [opportunityType, walletSupportsAsset, walletSupportsRune])
+
+  const handleToggleRuneIsFiat = useCallback(
+    (_isFiat: boolean) => {
+      toggleRuneIsFiat()
+    },
+    [toggleRuneIsFiat],
+  )
+  const handleTogglePoolAssetIsFiat = useCallback(
+    (_isFiat: boolean) => {
+      togglePoolAssetIsFiat()
+    },
+    [togglePoolAssetIsFiat],
+  )
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -831,11 +850,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) {
-      handleApprove()
-      return
+      return handleApprove()
     }
-    history.push(isSweepNeeded ? AddLiquidityRoutePaths.Sweep : AddLiquidityRoutePaths.Confirm)
-  }, [handleApprove, history, isApprovalRequired, isSweepNeeded])
+
+    if (isSweepNeeded) {
+      return history.push(AddLiquidityRoutePaths.Sweep)
+    }
+
+    mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
+    history.push(AddLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, handleApprove, history, isApprovalRequired, isSweepNeeded, mixpanel])
 
   const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
 
@@ -1080,6 +1104,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}
               onChange={handleAddLiquidityInputChange}
+              onToggleIsFiat={isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat}
+              isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
               cryptoAmount={cryptoAmount}
               fiatAmount={fiatAmount}
             />
@@ -1095,14 +1121,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeMarketData,
     poolAssetMarketData,
     createHandleAddLiquidityInputChange,
-    assetId,
     previousOpportunityId,
+    assetId,
     virtualRuneDepositAmountCryptoPrecision,
     virtualAssetDepositAmountCryptoPrecision,
     virtualRuneDepositAmountFiatUserCurrency,
     virtualAssetDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     percentOptions,
+    handleToggleRuneIsFiat,
+    handleTogglePoolAssetIsFiat,
+    runeIsFiat,
+    poolAssetIsFiat,
     handleAccountIdChange,
   ])
 

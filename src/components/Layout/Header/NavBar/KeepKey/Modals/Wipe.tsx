@@ -20,7 +20,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 export const WipeModal = () => {
   const initRef = useRef<HTMLInputElement | null>(null)
   const finalRef = useRef<HTMLDivElement | null>(null)
-  const { keepKeyWallet } = useKeepKey()
+  const {
+    state: { keepKeyWallet },
+  } = useKeepKey()
   const { disconnect } = useWallet()
   const translate = useTranslate()
   const { close, isOpen } = useModal('keepKeyWipe')

@@ -44,6 +44,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
 import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
@@ -107,6 +109,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   accountId,
   poolAssetId,
 }) => {
+  const mixpanel = getMixPanel()
   const history = useHistory()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -407,8 +410,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [inboundAddressesData?.outbound_fee, opportunityType])
 
   const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
-    return poolAssetProtocolFeeCryptoPrecision.times(poolAssetMarketData.price)
-  }, [poolAssetMarketData, poolAssetProtocolFeeCryptoPrecision])
+    return poolAssetProtocolFeeCryptoPrecision.times(poolAssetFeeAssetMarketData.price)
+  }, [poolAssetFeeAssetMarketData.price, poolAssetProtocolFeeCryptoPrecision])
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
@@ -716,10 +719,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     useIsSweepNeededQuery(isSweepNeededArgs)
 
   const handleSubmit = useCallback(() => {
-    history.push(
-      isSweepNeeded ? RemoveLiquidityRoutePaths.Sweep : RemoveLiquidityRoutePaths.Confirm,
-    )
-  }, [history, isSweepNeeded])
+    if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
+
+    mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
+    history.push(RemoveLiquidityRoutePaths.Confirm)
+  }, [confirmedQuote, history, isSweepNeeded, mixpanel])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && opportunityType)) return null
@@ -890,6 +894,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const errorCopy = useMemo(() => {
     if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
+    if (isTradingActive === false) return translate('common.poolHalted')
     if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
       return translate('modals.send.errors.notEnoughNativeToken', {
         asset: poolAssetFeeAsset.symbol,
@@ -902,6 +907,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [
     hasEnoughPoolAssetFeeAssetBalanceForTx,
     hasEnoughRuneBalanceForTx,
+    isTradingActive,
     isUnsupportedSymWithdraw,
     poolAssetFeeAsset,
     runeAsset,

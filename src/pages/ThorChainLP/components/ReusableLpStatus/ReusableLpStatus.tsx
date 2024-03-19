@@ -16,7 +16,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { PropsWithChildren } from 'react'
-import { Fragment, useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -24,6 +24,8 @@ import { Amount } from 'components/Amount/Amount'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assertUnreachable } from 'lib/utils'
 import type {
   LpConfirmedDepositQuote,
@@ -52,15 +54,19 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   children,
 }) => {
   const translate = useTranslate()
+  const mixpanel = getMixPanel()
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [canGoBack, setCanGoBack] = useState(true)
   const [isFailed, setIsFailed] = useState(false)
+  const hasTrackedStatus = useRef(false)
 
   const { opportunityId } = confirmedQuote
   const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
+
+  const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
 
   const poolAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
@@ -79,8 +85,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
-
-    const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
     if (opportunityType === 'sym' && isDeposit) return [baseAsset, poolAsset]
 
     switch (opportunityType) {
@@ -92,7 +96,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       default:
         assertUnreachable(opportunityType)
     }
-  }, [poolAsset, baseAsset, confirmedQuote, opportunityType])
+  }, [poolAsset, baseAsset, opportunityType, isDeposit])
 
   const handleComplete = useCallback(
     (status: TxStatus) => {
@@ -113,6 +117,22 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     () => activeStepIndex === txAssets.length,
     [activeStepIndex, txAssets.length],
   )
+
+  useEffect(() => {
+    // Prevent from firing multiple MixPanel events for the same outcome
+    const hasTrackedStatusValue = hasTrackedStatus.current
+    if (isComplete && !hasTrackedStatusValue)
+      mixpanel?.track(
+        isDeposit ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
+        confirmedQuote,
+      )
+
+    if (isFailed && !hasTrackedStatusValue)
+      mixpanel?.track(
+        isDeposit ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
+        confirmedQuote,
+      )
+  }, [confirmedQuote, isComplete, isDeposit, isFailed, mixpanel])
 
   const hStackDivider = useMemo(() => {
     if (opportunityType) return <></>

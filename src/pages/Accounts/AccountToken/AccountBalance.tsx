@@ -46,7 +46,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
     selectCryptoHumanBalanceIncludingStakingByFilter(s, opportunitiesFilter),
   )
   const handleClick = useCallback(
-    () => history.push(backPath ?? `/dashboard/accounts/${accountId}`),
+    () => history.push(backPath ?? `/wallet/accounts/${accountId}`),
     [history, backPath, accountId],
   )
   const accountLabel = accountIdToLabel(accountId)

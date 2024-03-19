@@ -71,6 +71,7 @@ export enum KeepKeyActions {
   SET_DEVICE_TIMEOUT = 'SET_DEVICE_TIMEOUT',
   SET_FEATURES = 'SET_FEATURES',
   RESET_STATE = 'RESET_STATE',
+  SET_WALLET = 'SET_WALLET',
 }
 
 export interface InitialState {
@@ -90,7 +91,6 @@ const initialState: InitialState = {
 export interface IKeepKeyContext {
   state: InitialState
   setHasPassphrase: (enabled: boolean) => void
-  keepKeyWallet: KeepKeyHDWallet | undefined
 }
 
 export type KeepKeyActionTypes =
@@ -98,6 +98,7 @@ export type KeepKeyActionTypes =
   | { type: KeepKeyActions.SET_FEATURES; payload: Features.AsObject | undefined }
   | { type: KeepKeyActions.SET_DEVICE_TIMEOUT; payload: RadioOption<DeviceTimeout> | undefined }
   | { type: KeepKeyActions.RESET_STATE }
+  | { type: KeepKeyActions.SET_WALLET; payload: KeepKeyHDWallet | undefined }
 
 const reducer = (state: InitialState, action: KeepKeyActionTypes) => {
   switch (action.type) {
@@ -109,6 +110,8 @@ const reducer = (state: InitialState, action: KeepKeyActionTypes) => {
       return { ...state, deviceTimeout: action.payload }
     case KeepKeyActions.RESET_STATE:
       return initialState
+    case KeepKeyActions.SET_WALLET:
+      return { ...state, keepKeyWallet: action.payload }
     default:
       return state
   }
@@ -152,6 +155,7 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
 
   useEffect(() => {
     if (!keepKeyWallet) return
+    dispatch({ type: KeepKeyActions.SET_WALLET, payload: keepKeyWallet })
     ;(async () => {
       const features = await keepKeyWallet.getFeatures()
       dispatch({ type: KeepKeyActions.SET_FEATURES, payload: features })

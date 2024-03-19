@@ -8,6 +8,7 @@ import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
@@ -273,6 +274,7 @@ export const YourLoans = () => {
 
   return (
     <Main headerComponent={lendingHeader}>
+      <SEO title={translate('lending.yourLoans.yourLoans')} />
       <Stack>
         {renderHeader}
         {lendingRowGrids}

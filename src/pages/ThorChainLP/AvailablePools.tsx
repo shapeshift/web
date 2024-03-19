@@ -1,22 +1,21 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Box, Button, Flex, SimpleGrid, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
+import { Flex, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
-import { reactQueries } from 'react-queries'
+import { useTranslate } from 'react-polyglot'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory } from 'react-router'
+import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
+import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
-import { getVolumeStats, selectSwapsData } from './queries/hooks/usePool'
 import type { Pool } from './queries/hooks/usePools'
 import { usePools } from './queries/hooks/usePools'
 
@@ -30,147 +29,140 @@ const mobileDisplay = {
   lg: 'flex',
 }
 
-const largeDisplay = {
-  base: 'none',
-  xl: 'flex',
-}
+const stackPadding = { base: 2, md: 0 }
 
-const mobilePadding = {
-  base: 4,
-  lg: 4,
-  xl: 0,
-}
-const listMargin = {
-  base: 0,
-  lg: 0,
-  xl: -4,
-}
+const reactTableInitialState = { sortBy: [{ id: 'tvlFiat', desc: true }], pageSize: 5000 }
 
-type PoolButtonProps = {
-  pool: Pool
-}
-
-const PoolButton = ({ pool }: PoolButtonProps) => {
-  const history = useHistory()
-  const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
-
-  const { data: swapsData } = useQuery({
-    ...reactQueries.midgard.swapsData(pool.asset, 'hour', 7 * 24),
-    select: selectSwapsData,
-  })
-
-  const volumeStats = useMemo(() => {
-    if (!swapsData) return
-    return getVolumeStats(swapsData, runeMarketData.price)
-  }, [swapsData, runeMarketData.price])
-
-  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
-    assetId: pool?.assetId,
-    enabled: !!pool,
-    swapperName: SwapperName.Thorchain,
-  })
-
-  const handlePoolClick = useCallback(() => {
-    history.push(generatePath('/pools/:poolAssetId', { poolAssetId: pool.asset }))
-  }, [history, pool.asset])
-
-  const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
-
-  const statusContent = useMemo(() => {
-    switch (true) {
-      case isTradingActive === true && pool.status === 'available':
-        return {
-          color: 'green.500',
-          element: <Amount.Percent value={pool.annualPercentageRate} suffix='APY' />,
-        }
-      case isTradingActive === true && pool.status === 'staged':
-        return {
-          color: 'yellow.500',
-          element: <Text translation='common.staged' />,
-        }
-      case isTradingActive === false:
-        return {
-          color: 'red.500',
-          element: <Text translation='common.halted' />,
-        }
-      default:
-        return {
-          color: 'text.subtle',
-          element: <Amount.Percent value={pool.annualPercentageRate} />,
-        }
-    }
-  }, [isTradingActive, pool.annualPercentageRate, pool.status])
-
-  return (
-    <Button
-      variant='ghost'
-      display='grid'
-      gridTemplateColumns={lendingRowGrid}
-      columnGap={4}
-      alignItems='center'
-      textAlign='left'
-      py={4}
-      width='full'
-      height='auto'
-      color='text.base'
-      onClick={handlePoolClick}
-    >
-      <Flex gap={4} alignItems='center'>
-        <Box minWidth='58px'>
-          <PoolIcon assetIds={poolAssetIds} size='sm' />
-        </Box>
-        <RawText>{pool.name}</RawText>
-        <Skeleton isLoaded={!isTradingActiveLoading}>
-          <Tag size='sm'>
-            <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
-            {statusContent.element}
-          </Tag>
-        </Skeleton>
-      </Flex>
-      <Amount.Fiat value={pool.tvlFiat} />
-      <Skeleton isLoaded={!!volumeStats} display={mobileDisplay}>
-        <Amount.Fiat value={volumeStats?.volume24hFiat ?? '0'} />
-      </Skeleton>
-      <Skeleton isLoaded={!!volumeStats} display={largeDisplay}>
-        <Amount.Fiat value={volumeStats?.volume7dFiat ?? '0'} />
-      </Skeleton>
-    </Button>
-  )
-}
+type RowProps = Row<Pool>
 
 export const AvailablePools = () => {
+  const history = useHistory()
   const { data: pools, isLoading } = usePools()
+  const translate = useTranslate()
 
   const headerComponent = useMemo(() => <PoolsHeader />, [])
 
-  const renderRows = useMemo(() => {
-    if (isLoading) return new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
-    return pools?.map(pool => <PoolButton key={pool.asset} pool={pool} />)
-  }, [isLoading, pools])
+  const columns: Column<Pool>[] = useMemo(
+    () => [
+      {
+        Header: translate('pools.pool'),
+        accessor: 'name',
+        Cell: ({ row, value }: { value: string; row: RowProps }) => {
+          const pool = row.original
+
+          const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+            assetId: pool?.assetId,
+            enabled: !!pool,
+            swapperName: SwapperName.Thorchain,
+          })
+
+          const statusContent = useMemo(() => {
+            switch (true) {
+              case isTradingActive === true && pool.status === 'available':
+                return {
+                  color: 'green.500',
+                  element: <Amount.Percent value={pool.annualPercentageRate} suffix='APY' />,
+                }
+              case isTradingActive === true && pool.status === 'staged':
+                return {
+                  color: 'yellow.500',
+                  element: <Text translation='common.staged' />,
+                }
+              case isTradingActive === false:
+                return {
+                  color: 'red.500',
+                  element: <Text translation='common.halted' />,
+                }
+              default:
+                return {
+                  color: 'text.subtle',
+                  element: <Amount.Percent value={pool.annualPercentageRate} />,
+                }
+            }
+          }, [isTradingActive, pool.annualPercentageRate, pool.status])
+
+          const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
+          return (
+            <Skeleton isLoaded={!!value}>
+              <Flex gap={4} alignItems='center'>
+                <PoolIcon assetIds={poolAssetIds} size='sm' />
+                <Flex gap={2} flexWrap='wrap' flex='0 1 auto'>
+                  <RawText fontWeight='semibold'>{pool.name}</RawText>
+                  <Skeleton isLoaded={!isTradingActiveLoading}>
+                    <Tag size='sm'>
+                      <TagLeftIcon as={CircleIcon} boxSize='8px' color={statusContent.color} />
+                      {statusContent.element}
+                    </Tag>
+                  </Skeleton>
+                </Flex>
+              </Flex>
+            </Skeleton>
+          )
+        },
+      },
+      {
+        Header: translate('pools.tvl'),
+        accessor: 'tvlFiat',
+        Cell: ({ value }: { value: string; row: RowProps }) => {
+          return (
+            <Skeleton isLoaded={!!value}>
+              <Amount.Fiat value={value} />
+            </Skeleton>
+          )
+        },
+      },
+      {
+        Header: translate('pools.volume24h'),
+        accessor: 'volume24hFiat',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value: volume24hFiat }: { value: string | undefined; row: RowProps }) => (
+          <Skeleton isLoaded={!!volume24hFiat}>
+            <Skeleton isLoaded={!!volume24hFiat} display={mobileDisplay}>
+              <Amount.Fiat value={volume24hFiat ?? '0'} />
+            </Skeleton>
+          </Skeleton>
+        ),
+      },
+      {
+        Header: translate('pools.volume7d'),
+        accessor: 'volume7dFiat',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ value: volume7dFiat }: { value: string | undefined; row: RowProps }) => {
+          return (
+            <Skeleton isLoaded={!!volume7dFiat}>
+              <Skeleton isLoaded={!!volume7dFiat} display={mobileDisplay}>
+                <Amount.Fiat value={volume7dFiat ?? '0'} />
+              </Skeleton>
+            </Skeleton>
+          )
+        },
+      },
+    ],
+    [translate],
+  )
+
+  const handlePoolClick = useCallback(
+    ({ original: pool }: Row<Pool>) => {
+      history.push(generatePath('/pools/:poolAssetId', { poolAssetId: pool.asset }))
+    },
+    [history],
+  )
 
   return (
     <Main headerComponent={headerComponent}>
-      <Stack>
-        <SimpleGrid
-          gridTemplateColumns={lendingRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={mobilePadding}
-        >
-          <Text translation='pools.pool' />
-          <Text translation='pools.tvl' />
-          <Flex display={mobileDisplay}>
-            <Text translation='pools.volume24h' />
-          </Flex>
-          <Flex display={largeDisplay}>
-            <Text translation='pools.volume7d' />
-          </Flex>
-        </SimpleGrid>
-        <Stack mx={listMargin}>{renderRows}</Stack>
+      <SEO title={translate('navBar.pools')} />
+      <Stack px={stackPadding}>
+        {isLoading || !pools ? (
+          new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
+        ) : (
+          <ReactTable
+            data={pools}
+            columns={columns}
+            initialState={reactTableInitialState}
+            onRowClick={handlePoolClick}
+            variant='clickable'
+          />
+        )}
       </Stack>
     </Main>
   )

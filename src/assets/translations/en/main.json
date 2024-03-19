@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "Free",
+    "trade": "Trade",
+    "trades": "Trades",
+    "lpDeposit": "LP Deposit",
+    "lpDeposits": "LP Deposits",
     "back": "Back",
     "and": "and",
     "balance": "Balance",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 Rainbow",
       "totalChart": "💰 Total",
       "addAsset": "Add Asset",
-      "yourAssets": "Wallet Assets",
+      "myAssets": "My Assets",
       "asset": "Asset",
       "portfolioBalance": "Portfolio Balance",
       "balance": "Balance",
@@ -217,6 +221,7 @@
     "recentTransactions": {
       "recentTransactions": "Recent Transactions"
     },
+    "nfts": "NFTs",
     "tradeCard": {
       "trade": "Trade",
       "bridge": "Bridge",
@@ -2193,18 +2198,18 @@
     "currentFoxPower": "Your FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "Simulate your FOX power discounts",
-    "simulateBody": "Use this handy calculator to determine your total fees and the discount you'll receive on your trade. Simply adjust the sliders below to indicate your FOX holder amount and the trade size in fiat, and watch your potential savings unfold!",
-    "tradeSize": "Trade Size",
+    "simulateBody": "Use this handy calculator to determine your total fees and the discount you'll receive on your %{feature}. Simply adjust the sliders below to indicate your FOX holder amount and the %{featureLowerCase} size in fiat, and watch your potential savings unfold!",
+    "featureSize": "%{feature} Size",
     "totalFee": "Total Fee",
     "foxPowerDiscount": "FOX Power Discount",
     "basedOnFee": "Based on a fee of: %{fee}",
     "feeSummary": "Fee Summary",
     "simulateFee": "Simulate Discount",
-    "freeUnderThreshold": "Trades under %{threshold} are always FREE",
+    "freeUnderThreshold": "%{feature} under %{threshold} are always FREE",
     "breakdownHeader": "Your FOX Power Discount",
-    "breakdownBody": "Below is a breakdown of your trade fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
-    "tradeFee": "Trade Fee",
-    "totalTradeFee": "Total Trade Fee"
+    "breakdownBody": "Below is a breakdown of your %{featureLowerCase} fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
+    "featureFee": "%{feature} Fee",
+    "totalFeatureFee": "Total %{feature} Fee"
   },
   "pools": {
     "pools": "Pools",

@@ -14,7 +14,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { Fragment, useCallback, useMemo, useRef } from 'react'
+import { Fragment, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
@@ -147,23 +147,6 @@ export const ReactTable = <T extends {}>({
     visibleColumns.length,
   ])
 
-  const scrollToTableTop = useCallback(() => {
-    if (tableRef.current) {
-      const scrollY = tableRef.current.offsetTop - 80
-      window.scrollTo(0, scrollY)
-    }
-  }, [])
-
-  const handlePrevious = useCallback(() => {
-    previousPage()
-    scrollToTableTop()
-  }, [previousPage, scrollToTableTop])
-
-  const handleNext = useCallback(() => {
-    nextPage()
-    scrollToTableTop()
-  }, [nextPage, scrollToTableTop])
-
   return (
     <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
       {displayHeaders && (
@@ -217,7 +200,7 @@ export const ReactTable = <T extends {}>({
                   icon={arrowBackIcon}
                   size='sm'
                   isDisabled={!canPreviousPage}
-                  onClick={handlePrevious}
+                  onClick={previousPage}
                   variant='ghost'
                   aria-label={translate('common.table.prevPage')}
                 />
@@ -226,7 +209,7 @@ export const ReactTable = <T extends {}>({
                   icon={arrowForwardIcon}
                   size='sm'
                   isDisabled={!canNextPage}
-                  onClick={handleNext}
+                  onClick={nextPage}
                   variant='ghost'
                   aria-label={translate('common.table.nextPage')}
                 />

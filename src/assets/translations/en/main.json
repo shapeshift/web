@@ -2114,6 +2114,7 @@
   },
   "lending": {
     "lending": "Lending",
+    "assetLending": "%{asset} Lending",
     "repaymentAvailable": "Repayment available",
     "daysUntilRepayment": "%{numDays} days until repayment",
     "repaymentDays": "%{numDays} days",

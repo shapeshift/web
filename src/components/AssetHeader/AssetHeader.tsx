@@ -106,7 +106,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
           </Flex>
         </Flex>
         {walletSupportsChain ? (
-          <Flex display={displayMdFlex}>
+          <Flex display={displayMdFlex} position='static' top='42px'>
             <AssetActions
               assetId={assetId}
               accountId={accountId ? accountId : singleAccount}

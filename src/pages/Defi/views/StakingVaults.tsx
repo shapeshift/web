@@ -7,6 +7,8 @@ import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOp
 
 import { EligibleSlider } from '../components/EligibleSlider'
 
+const pageProps = { paddingTop: 'env(safe-area-inset-top)' }
+
 const DefiHeader = () => {
   const translate = useTranslate()
   return (
@@ -24,7 +26,7 @@ export const StakingVaults = () => {
   useFetchOpportunities()
 
   return (
-    <Main titleComponent={defiHeader} hideBreadcrumbs>
+    <Main titleComponent={defiHeader} hideBreadcrumbs pageProps={pageProps}>
       <SEO title={translate('defi.earn')} description={translate('navBar.defi')} />
       <EligibleSlider />
       <DeFiEarn mt={6} />

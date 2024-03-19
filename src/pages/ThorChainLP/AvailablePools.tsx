@@ -148,7 +148,7 @@ export const AvailablePools = () => {
   )
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage>
       <Stack px={stackPadding}>
         {isLoading || !pools ? (
           new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)

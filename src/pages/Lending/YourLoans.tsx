@@ -272,7 +272,7 @@ export const YourLoans = () => {
   }, [isActive, translate])
 
   return (
-    <Main headerComponent={lendingHeader}>
+    <Main headerComponent={lendingHeader} isSubPage title={translate('lending.lending')}>
       <Stack>
         {renderHeader}
         {lendingRowGrids}

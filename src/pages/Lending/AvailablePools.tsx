@@ -13,6 +13,8 @@ import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 
 import { LendingHeader } from './components/LendingHeader'
+import { LendingMenu } from './components/LendingMenu'
+import { LendingStats } from './components/LendingStats'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
 import { useLendingSupportedAssets } from './hooks/useLendingSupportedAssets'
 import { usePoolDataQuery } from './hooks/usePoolDataQuery'
@@ -128,8 +130,10 @@ export const AvailablePools = () => {
   }, [handlePoolClick, lendingSupportedAssets])
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage title={translate('lending.lending')}>
       <Stack>
+        <LendingStats />
+        <LendingMenu />
         <SimpleGrid
           gridTemplateColumns={lendingRowGrid}
           columnGap={4}

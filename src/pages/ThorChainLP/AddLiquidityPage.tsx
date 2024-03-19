@@ -21,7 +21,7 @@ export const AddLiquidityPage = () => {
   )
 
   return (
-    <Main>
+    <Main isSubPage>
       <Center>
         <Card width='full' maxWidth='md'>
           <AddLiquidity poolAssetId={poolAssetId} opportunityId={opportunityId} />

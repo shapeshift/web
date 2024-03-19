@@ -7,6 +7,7 @@ import { Breadcrumbs } from 'components/Breadcrumbs/Breadcrumbs'
 import { NestedMenu } from 'components/NestedMenu/NestedMenu'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
+import { MobileSubpageHeader } from './Header/MobileSubpageHeader'
 import { Page } from './Page'
 
 const contentPaddingX = { base: 0, xl: 4, '2xl': 8 }
@@ -16,12 +17,23 @@ export type MainProps = {
   headerComponent?: ReactNode
   hideBreadcrumbs?: boolean
   pageProps?: FlexProps
+  isSubPage?: boolean
+  title?: string
 } & ContainerProps
 
 const containerPaddingX = { base: 4, xl: 16 }
 
 export const Main: React.FC<MainProps> = memo(
-  ({ children, titleComponent, headerComponent, hideBreadcrumbs = false, pageProps, ...rest }) => {
+  ({
+    children,
+    titleComponent,
+    headerComponent,
+    hideBreadcrumbs = false,
+    pageProps,
+    isSubPage,
+    title,
+    ...rest
+  }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { currentRoute } = useBrowserRouter()
     const [y, setY] = useState(0)
@@ -31,7 +43,7 @@ export const Main: React.FC<MainProps> = memo(
       return scrollY.onChange(() => setY(scrollY.get()))
     }, [scrollY])
     return (
-      <Page {...pageProps}>
+      <Page pt={isSubPage ? 0 : 'env(safe-area-inset-top)'} {...pageProps}>
         {titleComponent && (
           <Box
             width='full'
@@ -59,7 +71,8 @@ export const Main: React.FC<MainProps> = memo(
             </>
           </Box>
         )}
-        {headerComponent}
+        {isSubPage && <MobileSubpageHeader title={title} />}
+        {!isSubPage && headerComponent}
         <Container maxW='container.4xl' px={contentPaddingX} {...rest}>
           {children}
         </Container>

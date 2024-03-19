@@ -297,7 +297,11 @@ export const Pool = () => {
   ])
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main
+      headerComponent={headerComponent}
+      isSubPage
+      title={translate('lending.assetLending', { asset: asset?.symbol ?? '' })}
+    >
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Card>

@@ -130,6 +130,35 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   )
 }
 
+const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: AccountId) => {
+  const { txs } = txHistory
+
+  const filteredIncomingTxsWithIndex = incomingTxs
+    .filter(tx => !checkIsSpam(tx))
+    .map(tx => {
+      const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
+      return { tx, txIndex }
+    })
+
+  for (const { txIndex, tx } of filteredIncomingTxsWithIndex) {
+    const isNew = !txs.byId[txIndex]
+
+    if (!isNew) continue
+
+    // update or insert tx
+    txs.byId[txIndex] = tx
+
+    // for a given tx, find all the related assetIds, and keep an index of
+    // txids related to each asset id
+    getRelatedAssetIds(tx).forEach(relatedAssetId =>
+      deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
+    )
+  }
+
+  const getBlockTime = ([_, tx]: [string, Tx]) => tx.blockTime
+  txs.ids = orderBy(Object.entries(txs.byId), getBlockTime, 'desc').map(([txIndex, _]) => txIndex)
+}
+
 const checkTxHashReceived = (state: ReduxState, txHash: string) => {
   return state.txHistory.txs.ids.some(txIndex => deserializeTxIndex(txIndex).txid === txHash)
 }
@@ -171,9 +200,7 @@ export const txHistory = createSlice({
       updateOrInsertTx(txState, payload.message, payload.accountId),
     upsertTxsByAccountId: (txState, { payload }: TxsMessage) => {
       for (const [accountId, txs] of Object.entries(payload)) {
-        for (const tx of txs) {
-          updateOrInsertTx(txState, tx, accountId)
-        }
+        updateOrInsertTxs(txState, txs, accountId)
       }
     },
   },
@@ -189,11 +216,8 @@ export const txHistoryApi = createApi({
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
         const requestQueue = new PQueue({ concurrency: 2 })
-        const results: TransactionsByAccountId = {}
         await Promise.all(
           accountIds.map(async accountId => {
-            results[accountId] = []
-
             const { chainId, account: pubkey } = fromAccountId(accountId)
             const adapter = getChainAdapterManager().get(chainId)
 
@@ -242,7 +266,8 @@ export const txHistoryApi = createApi({
                   newTxs.push(tx)
                 }
 
-                results[accountId].push(...newTxs)
+                const results: TransactionsByAccountId = { [accountId]: newTxs }
+                dispatch(txHistory.actions.upsertTxsByAccountId(results))
 
                 /**
                  * We have run into a transaction that already exists in the store, stop fetching more history
@@ -260,8 +285,6 @@ export const txHistoryApi = createApi({
             }
           }),
         )
-
-        dispatch(txHistory.actions.upsertTxsByAccountId(results))
 
         return { data: null }
       },

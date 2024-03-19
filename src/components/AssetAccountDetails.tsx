@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
@@ -14,7 +14,6 @@ import { AssetDescription } from './AssetHeader/AssetDescription'
 import { AssetHeader } from './AssetHeader/AssetHeader'
 import { AssetMarketData } from './AssetHeader/AssetMarketData'
 import { Equity } from './Equity/Equity'
-import { SubpageHeader } from './Layout/Header/SubpageHeader'
 import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
@@ -34,7 +33,6 @@ const contentPaddingY = { base: 0, md: 8 }
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
-  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const assetHeader = useMemo(
     () => <AssetHeader assetId={assetId} accountId={accountId} />,
@@ -43,7 +41,6 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
 
   return (
     <Main headerComponent={assetHeader} py={contentPaddingY}>
-      <SubpageHeader title={asset?.name} />
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />

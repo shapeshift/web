@@ -1,56 +1,73 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Flex, IconButton, SimpleGrid, useMediaQuery } from '@chakra-ui/react'
-import React, { PropsWithChildren } from 'react'
+import { Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
+import type { PropsWithChildren } from 'react'
+import React from 'react'
 import { useHistory } from 'react-router'
-import { RawText } from 'components/Text'
-import { breakpoints } from 'theme/theme'
 
 const arrowBack = <ArrowBackIcon />
+const paddingX = { base: 4, xl: 8 }
+const paddingTop = { base: 'env(safe-area-inset-top)', md: 6 }
 
-type MobileSubpageHeaderProps = {
-  title?: string
+export const PageBackButton = () => {
+  const { goBack } = useHistory()
+  return (
+    <IconButton
+      fontSize='2xl'
+      variant='ghost'
+      order='1'
+      aria-label='go back'
+      isRound
+      onClick={goBack}
+      icon={arrowBack}
+    />
+  )
 }
 
-export const SubpageHeader: React.FC<MobileSubpageHeaderProps> = ({ title }) => {
-  const { goBack } = useHistory()
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  if (isLargerThanMd) return null
+type PageHeaderCompoundProps = {
+  Left: React.FC<{ children: React.ReactNode }>
+  Middle: React.FC<{ children: React.ReactNode }>
+  Right: React.FC<{ children: React.ReactNode }>
+}
+
+export const PageHeader: React.FC<PropsWithChildren> & PageHeaderCompoundProps = ({ children }) => {
   return (
     <SimpleGrid
-      gridTemplateColumns='44px 1fr 44px'
-      px={4}
+      gridTemplateColumns='1fr 1fr 1fr'
       alignItems='center'
       position='sticky'
       top={0}
       left={0}
       right={0}
       bg='background.surface.base'
-      pt='env(safe-area-inset-top)'
+      pt={paddingTop}
       zIndex='sticky'
       pb={2}
+      width='full'
+      maxWidth='container.4xl'
+      px={paddingX}
+      marginInline='auto'
     >
-      <Flex>
-        <IconButton
-          fontSize='2xl'
-          variant='ghost'
-          order='1'
-          aria-label='go back'
-          isRound
-          onClick={goBack}
-          icon={arrowBack}
-        />
-      </Flex>
-      <RawText order='2' textAlign='center' fontWeight='semibold'>
-        {title}
-      </RawText>
+      {children}
     </SimpleGrid>
   )
 }
-const Left: React.FC<FlexProps> = props => <Flex order='1' {...props} />
+const Left: React.FC<FlexProps> = props => <Flex order='1' whiteSpace='nowrap' {...props} />
 const Middle: React.FC<FlexProps> = props => (
-  <Flex order='2' textAlign='center' fontWeight='semibold' {...props} />
+  <Flex
+    order='2'
+    textAlign='center'
+    fontWeight='semibold'
+    alignItems='center'
+    justifyContent='center'
+    whiteSpace='nowrap'
+    {...props}
+  />
 )
 const Right: React.FC<FlexProps> = props => (
-  <Flex order='3' justifyContent='flex-end' alignItems='center' {...props} />
+  <Flex order='3' justifyContent='flex-end' alignItems='center' whiteSpace='nowrap' {...props} />
 )
+
+PageHeader.Left = Left
+PageHeader.Middle = Middle
+PageHeader.Right = Right

@@ -228,21 +228,25 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
 
-      const account = await this.getAccount(
-        pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
-      )
+      const account = await (async () => {
+        if (pubKey || bip44Params.index === undefined) {
+          return this.getAccount(
+            pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
+          )
+        }
+      })()
 
       const nextIndex = bip44Params.isChange
-        ? account.chainSpecific.nextChangeAddressIndex
-        : account.chainSpecific.nextReceiveAddressIndex
+        ? account?.chainSpecific.nextChangeAddressIndex
+        : account?.chainSpecific.nextReceiveAddressIndex
 
-      const indexOrNextIndex = bip44Params.index ?? nextIndex ?? 0
+      const targetIndex = bip44Params.index ?? nextIndex ?? 0
 
       const address = await (() => {
-        if (pubKey) return account.chainSpecific.addresses?.[indexOrNextIndex]?.pubkey
+        if (pubKey) return account?.chainSpecific.addresses?.[targetIndex]?.pubkey
 
         return wallet.btcGetAddress({
-          addressNList: toAddressNList({ ...bip44Params, index: indexOrNextIndex }),
+          addressNList: toAddressNList({ ...bip44Params, index: targetIndex }),
           coin: this.coinName,
           scriptType: accountTypeToScriptType[accountType],
           showDisplay: showOnDevice,

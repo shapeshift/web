@@ -41,8 +41,11 @@ export const ScrollDisplay: React.FC<ScrollDisplayProps> & ScrollDisplayCompound
 
   return (
     <AnimatePresence mode='wait'>
-      {showDefault && <FadeTransition key='default'>{defaultContent}</FadeTransition>}
-      {!showDefault && <FadeTransition key='out-of-view'>{outOfViewContent}</FadeTransition>}
+      {showDefault ? (
+        <FadeTransition key='default'>{defaultContent}</FadeTransition>
+      ) : (
+        <FadeTransition key='out-of-view'>{outOfViewContent}</FadeTransition>
+      )}
     </AnimatePresence>
   )
 }

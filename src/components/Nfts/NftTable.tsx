@@ -3,7 +3,9 @@ import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
 import { memo, useCallback, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { NarwhalIcon } from 'components/Icons/Narwhal'
+import { SEO } from 'components/Layout/Seo'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
@@ -32,6 +34,7 @@ const NftGrid: React.FC<SimpleGridProps> = props => (
 const narwalIcon = <NarwhalIcon color='pink.200' />
 
 export const NftTable = memo(() => {
+  const translate = useTranslate()
   const [searchQuery, setSearchQuery] = useState('')
 
   const [networkFilters, setNetworkFilters] = useState<ChainId[]>([])
@@ -107,6 +110,7 @@ export const NftTable = memo(() => {
 
   return (
     <>
+      <SEO title={translate('dashboard.nfts')} />
       <Box mb={4} px={boxPaddingX}>
         <Flex gap={2}>
           <NftNetworkFilter

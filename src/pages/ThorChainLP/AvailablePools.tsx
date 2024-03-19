@@ -10,6 +10,7 @@ import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { CircleIcon } from 'components/Icons/Circle'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
 

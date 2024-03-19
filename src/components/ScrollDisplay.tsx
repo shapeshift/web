@@ -2,7 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
 import React, { useEffect, useState } from 'react'
 
-import { SlideTransitionY } from './SlideTransitionY'
+import { FadeTransition } from './FadeTransition'
 
 type ScrollDisplayProps = {
   threshold?: number // Threshold for when to switch displays, default to 72px
@@ -41,8 +41,8 @@ export const ScrollDisplay: React.FC<ScrollDisplayProps> & ScrollDisplayCompound
 
   return (
     <AnimatePresence mode='wait'>
-      {showDefault && <SlideTransitionY key='default'>{defaultContent}</SlideTransitionY>}
-      {!showDefault && <SlideTransitionY key='out-of-view'>{outOfViewContent}</SlideTransitionY>}
+      {showDefault && <FadeTransition key='default'>{defaultContent}</FadeTransition>}
+      {!showDefault && <FadeTransition key='out-of-view'>{outOfViewContent}</FadeTransition>}
     </AnimatePresence>
   )
 }

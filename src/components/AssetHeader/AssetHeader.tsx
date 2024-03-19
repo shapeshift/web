@@ -1,9 +1,8 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import type { ContainerProps, ResponsiveValue } from '@chakra-ui/react'
-import { Container, Flex, Heading, IconButton, Link } from '@chakra-ui/react'
+import type { ContainerProps } from '@chakra-ui/react'
+import { Flex, Heading, IconButton, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
-import type { Property } from 'csstype'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -27,8 +26,6 @@ import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'
 
-const paddingX = { base: 4, xl: 8 }
-
 type AssetHeaderProps = {
   assetId?: AssetId
   accountId?: AccountId
@@ -37,9 +34,8 @@ type AssetHeaderProps = {
 const externalLinkIcon = <ExternalLinkIcon />
 const displayMdFlex = { base: 'none', md: 'flex' }
 const fontSizeMd2xl = { base: 'xl', md: '2xl' }
-const flexDirLgRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
-export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ...rest }) => {
+export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)

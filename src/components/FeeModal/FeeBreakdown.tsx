@@ -24,30 +24,30 @@ const AmountOrFree = ({ isFree, amountUSD }: { isFree: boolean; amountUSD: strin
 type FeeBreakdownProps = {
   feeModel: ParameterModel
   inputAmountUsd: string | undefined
-  affiliateFeeAmountUsd: string
 }
 
-export const FeeBreakdown = ({
-  feeModel,
-  inputAmountUsd,
-  affiliateFeeAmountUsd,
-}: FeeBreakdownProps) => {
+export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) => {
   const translate = useTranslate()
   const feature = translate(FEE_MODEL_TO_FEATURE_NAME[feeModel])
   const featureFeeTranslation = translate('foxDiscounts.featureFee', { feature })
   const votingPowerParams: { feeModel: ParameterModel } = useMemo(() => ({ feeModel }), [feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const { foxDiscountUsd, foxDiscountPercent, feeUsdBeforeDiscount, feeBpsBeforeDiscount } =
-    calculateFees({
-      tradeAmountUsd: bnOrZero(inputAmountUsd),
-      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      feeModel,
-    })
+  const {
+    feeUsd: affiliateFeeAmountUsd,
+    foxDiscountUsd,
+    foxDiscountPercent,
+    feeUsdBeforeDiscount,
+    feeBpsBeforeDiscount,
+  } = calculateFees({
+    tradeAmountUsd: bnOrZero(inputAmountUsd),
+    foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+    feeModel,
+  })
 
   const isFree = useMemo(() => bnOrZero(affiliateFeeAmountUsd).eq(0), [affiliateFeeAmountUsd])
 
   const isFeeUnsupported = useMemo(() => {
-    return affiliateFeeAmountUsd === '0' && bnOrZero(feeUsdBeforeDiscount).gt(0)
+    return affiliateFeeAmountUsd.isZero() && bnOrZero(feeUsdBeforeDiscount).gt(0)
   }, [affiliateFeeAmountUsd, feeUsdBeforeDiscount])
 
   const feeDiscountUsd = useMemo(() => {
@@ -105,7 +105,7 @@ export const FeeBreakdown = ({
           {translate('foxDiscounts.totalFeatureFee', { feature })}
         </Row.Label>
         <Row.Value fontSize='lg'>
-          <AmountOrFree isFree={isFree} amountUSD={affiliateFeeAmountUsd} />
+          <AmountOrFree isFree={isFree} amountUSD={affiliateFeeAmountUsd.toString()} />
         </Row.Value>
       </Row>
     </Stack>

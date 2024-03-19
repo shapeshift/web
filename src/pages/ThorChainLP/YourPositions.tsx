@@ -10,6 +10,7 @@ import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText, Text } from 'components/Text'
@@ -274,6 +275,7 @@ export const YourPositions = () => {
 
   return (
     <Main headerComponent={headerComponent}>
+      <SEO title={translate('pools.yourPositions.yourPositions')} />
       <Stack>
         {positions ? (
           <ReactTable

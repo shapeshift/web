@@ -551,6 +551,23 @@ export const selectPortfolioAccountsUserCurrencyBalancesIncludingStaking =
     },
   )
 
+export const selectTotalPortfolioBalanceIncludeStakingUserCurrency = createCachedSelector(
+  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  (userCurrencyAccountBalances): string =>
+    Object.values(userCurrencyAccountBalances)
+      .reduce(
+        (acc, accountBalances) =>
+          acc.plus(
+            Object.values(accountBalances).reduce(
+              (innerAcc, cur) => innerAcc.plus(bnOrZero(cur)),
+              bn(0),
+            ),
+          ),
+        bn(0),
+      )
+      .toFixed(2),
+)((_s: ReduxState, _filter) => 'totalPortfolioBalanceIncludeStakingUserCurrency')
+
 export const selectUserCurrencyBalanceIncludingStakingByFilter = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   selectAssetIdParamFromFilter,

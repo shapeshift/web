@@ -228,42 +228,26 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
 
-      if (pubKey) {
-        const account = await this.getAccount(pubKey)
-        const _index = (() => {
-          if (index !== undefined) return index
-          return bip44Params.isChange
-            ? account.chainSpecific.nextChangeAddressIndex
-            : account.chainSpecific.nextReceiveAddressIndex
-        })()
+      const account = await this.getAccount(
+        pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
+      )
 
-        if (_index === undefined)
-          throw new Error(`UtxoBaseAdapter: Could not fetch address index from unchained`)
-        const address = account.chainSpecific.addresses?.[_index]?.pubkey
-        if (!address)
-          throw new Error(
-            `UtxoBaseAdapter: Could not fetch address from unchained at index ${index}`,
-          )
+      const nextIndex = bip44Params.isChange
+        ? account.chainSpecific.nextChangeAddressIndex
+        : account.chainSpecific.nextReceiveAddressIndex
 
-        return address
-      }
+      const indexOrNextIndex = bip44Params.index ?? nextIndex ?? 0
 
-      const getNextIndex = async () => {
-        const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)
-        const account = await this.getAccount(xpub)
+      const address = await (() => {
+        if (pubKey) return account.chainSpecific.addresses?.[indexOrNextIndex]?.pubkey
 
-        return bip44Params.isChange
-          ? account.chainSpecific.nextChangeAddressIndex
-          : account.chainSpecific.nextReceiveAddressIndex
-      }
-
-      const maybeNextIndex = bip44Params.index ?? (await getNextIndex())
-      const address = await wallet.btcGetAddress({
-        addressNList: toAddressNList({ ...bip44Params, index: maybeNextIndex }),
-        coin: this.coinName,
-        scriptType: accountTypeToScriptType[accountType],
-        showDisplay: showOnDevice,
-      })
+        return wallet.btcGetAddress({
+          addressNList: toAddressNList({ ...bip44Params, index: indexOrNextIndex }),
+          coin: this.coinName,
+          scriptType: accountTypeToScriptType[accountType],
+          showDisplay: showOnDevice,
+        })
+      })()
 
       if (!address) throw new Error('UtxoBaseAdapter: no address available from wallet')
 

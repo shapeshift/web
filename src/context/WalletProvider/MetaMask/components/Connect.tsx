@@ -133,7 +133,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
   }, [])
 
-  return isMobile && !checkIsMetaMaskMobileWebView ? (
+  return isMobile && !isMetaMaskMobileWebView ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}

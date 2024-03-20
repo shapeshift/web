@@ -277,7 +277,7 @@ export const YourPositions = () => {
     <Main headerComponent={headerComponent}>
       <SEO title={translate('pools.yourPositions.yourPositions')} />
       <Stack>
-        {positions ? (
+        {positions.length ? (
           <ReactTable
             data={positions}
             columns={columns}

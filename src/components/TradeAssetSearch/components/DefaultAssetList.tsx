@@ -1,23 +1,25 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
+import { selectPortfolioLoading } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
+import { useGetPopularAssetsQuery } from '../hooks/useGetPopularAssetsQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
 export type DefaultAssetListProps = {
-  isPortfolioLoading: boolean
-  isPopularAssetIdsLoading: boolean
   portfolioAssetsSortedByBalance: Asset[]
   popularAssets: Asset[]
   onAssetClick: (asset: Asset) => void
 }
 
 export const DefaultAssetList = ({
-  isPortfolioLoading,
-  isPopularAssetIdsLoading,
   portfolioAssetsSortedByBalance,
   popularAssets,
   onAssetClick,
 }: DefaultAssetListProps) => {
+  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
+  const { isLoading: isPopularAssetIdsLoading } = useGetPopularAssetsQuery()
+
   const groupIsLoading = useMemo(() => {
     return [isPortfolioLoading, isPopularAssetIdsLoading]
   }, [isPopularAssetIdsLoading, isPortfolioLoading])

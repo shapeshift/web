@@ -13,7 +13,6 @@ import { AllChainMenu } from 'components/ChainMenu'
 import { sortChainIdsByDisplayName } from 'lib/utils'
 import {
   selectPortfolioFungibleAssetsSortedByBalance,
-  selectPortfolioLoading,
   selectWalletSupportedChainIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -55,7 +54,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const portfolioAssetsSortedByBalance = useAppSelector(
     selectPortfolioFungibleAssetsSortedByBalance,
   )
-  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
   const { data: popularAssetsByChainId, isLoading: isPopularAssetIdsLoading } =
@@ -211,8 +209,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
           popularAssets={popularAssets}
           onAssetClick={handleAssetClick}
-          isPopularAssetIdsLoading={isPopularAssetIdsLoading}
-          isPortfolioLoading={isPortfolioLoading}
         />
       )}
     </>

@@ -263,8 +263,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async buildSendApiTransaction(input: BuildSendApiTxInput<T>): Promise<SignTx<T>> {
     try {
       const { to, from, value, accountNumber, chainSpecific, sendMax = false, customNonce } = input
-      const { data, contractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
-        chainSpecific
+      const {
+        data,
+        contractAddress,
+        l1GasPrice,
+        gasPrice,
+        l1GasLimit,
+        gasLimit,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      } = chainSpecific
 
       if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
       if (!value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
@@ -289,9 +297,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
         if (bnOrZero(account.balance).isZero()) throw new Error('no balance')
 
+        // optimism l1 fee if exists or 0
+        const l1Fee = bnOrZero(l1GasPrice).times(bnOrZero(l1GasLimit))
         const fee = bnOrZero(maxFeePerGas ?? gasPrice).times(bnOrZero(gasLimit))
 
-        return bnOrZero(account.balance).minus(fee).toString()
+        return bnOrZero(account.balance).minus(fee.plus(l1Fee)).toString()
       })()
 
       const fees = ((): Fees => {

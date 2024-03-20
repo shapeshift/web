@@ -153,15 +153,6 @@ export const VerifyAddresses = () => {
       if (type === 'sell') {
         setIsSellVerifying(true)
       } else if (type === 'buy') {
-        if (!shouldVerifyBuyAddress) {
-          return (
-            maybeManualReceiveAddress &&
-            setVerifiedAddresses(
-              new Set([...verifiedAddresses, maybeManualReceiveAddress.toLowerCase() ?? '']),
-            )
-          )
-        }
-
         setIsBuyVerifying(true)
       }
 

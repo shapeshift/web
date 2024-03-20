@@ -134,8 +134,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const [isCompactQuoteListOpen, setIsCompactQuoteListOpen] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-  const buyAssetSearch = useModal('buyAssetSearch')
-  const sellAssetSearch = useModal('sellAssetSearch')
+  const buyAssetSearch = useModal('buyTradeAssetSearch')
+  const sellAssetSearch = useModal('sellTradeAssetSearch')
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const percentOptions = useMemo(() => {

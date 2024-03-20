@@ -1,67 +1,51 @@
-import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
+import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
-import { Flex, Input, InputGroup, InputLeftElement, ModalHeader, Stack } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { orderBy } from 'lodash'
+import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
-import { AllChainMenu } from 'components/ChainMenu'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import {
-  selectPortfolioFungibleAssetsSortedByBalance,
-  selectPortfolioLoading,
-  selectWalletSupportedChainIds,
-} from 'state/slices/selectors'
+import { ChainList } from 'components/TradeAssetSearch/Chains/ChainList'
+import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { sortChainIdsByDisplayName } from 'lib/utils'
+import { selectWalletSupportedChainIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DefaultAssetList } from './components/DefaultAssetList'
-import { SearchTermAssetList } from './components/SearchTermAssetList'
-import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
-
-const buttonProps = {
-  rightIcon: <ChevronDownIcon />,
-}
-
-const assetButtonProps = {
-  justifyContent: 'flex-end',
-  pl: 1.5,
-  pr: 3,
-  py: 1.5,
-  size: 'sm',
-  borderRadius: 'full',
-  height: 'auto',
-}
-
-const NUM_QUICK_ACCESS_ASSETS = 5
-
+import { AssetList } from './components/AssetList'
 export type AssetSearchProps = {
+  assets: Asset[]
   onAssetClick?: (asset: Asset) => void
+  disableUnsupported?: boolean
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
+  assets,
   onAssetClick,
+  disableUnsupported,
   formProps,
   allowWalletUnsupportedAssets,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
-
-  const portfolioAssetsSortedByBalance = useAppSelector(
-    selectPortfolioFungibleAssetsSortedByBalance,
-  )
-  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
+  const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
-  const { data: popularAssetsByChainId, isLoading: isPopularAssetIdsLoading } =
-    useGetPopularAssetsQuery()
-
+  /**
+   * assets filtered by selected chain ids
+   */
+  const filteredAssets = useMemo(
+    () =>
+      activeChain === 'All'
+        ? assets.filter(a => !isNft(a.assetId))
+        : assets.filter(a => a.chainId === activeChain && !isNft(a.assetId)),
+    [activeChain, assets],
+  )
   // If a custom click handler isn't provided navigate to the asset's page
   const defaultClickHandler = useCallback(
     (asset: Asset) => {
@@ -72,15 +56,33 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     },
     [history],
   )
-  const handleAssetClick = onAssetClick ?? defaultClickHandler
+  const handleClick = onAssetClick ?? defaultClickHandler
+  const [searchTermAssets, setSearchTermAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
     defaultValues: {
       search: '',
     },
   })
-  const searchString = watch('search').trim()
-  const isSearching = useMemo(() => searchString.length > 0, [searchString])
+  const searchString = watch('search')
+  const searching = useMemo(() => searchString.length > 0, [searchString])
+  useEffect(() => {
+    if (filteredAssets) {
+      setSearchTermAssets(
+        searching ? filterAssetsBySearchTerm(searchString, filteredAssets) : filteredAssets,
+      )
+    }
+  }, [searchString, searching, filteredAssets])
+  const listAssets = searching ? searchTermAssets : filteredAssets
+
+  const chainIds: ChainId[] = useMemo(() => {
+    const unsortedChainIds = uniq(assets.map(asset => asset.chainId))
+    const filteredChainIds = allowWalletUnsupportedAssets
+      ? unsortedChainIds
+      : unsortedChainIds.filter(chainId => walletSupportedChainIds.includes(chainId))
+    const sortedChainIds = sortChainIdsByDisplayName(filteredChainIds)
+    return sortedChainIds
+  }, [allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
 
   const inputProps: InputProps = useMemo(
     () => ({
@@ -89,143 +91,41 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       placeholder: translate('common.searchAsset'),
       pl: 10,
       variant: 'filled',
-      borderWidth: 0,
       autoComplete: 'off',
       autoFocus: true,
     }),
     [register, translate],
   )
+  const handleChainClick = useCallback(
+    (e: React.MouseEvent) => (chainId: ChainId | 'All') => {
+      e.preventDefault()
+      return setActiveChain(chainId)
+    },
+    [],
+  )
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
-  const popularAssets = useMemo(() => {
-    const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    if (allowWalletUnsupportedAssets) return unfilteredPopularAssets
-    return unfilteredPopularAssets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
-  }, [activeChainId, popularAssetsByChainId, walletSupportedChainIds, allowWalletUnsupportedAssets])
-
-  const quickAccessAssets = useMemo(() => {
-    if (activeChainId !== 'All') {
-      return popularAssets.slice(0, 5)
-    }
-
-    // if we selected 'All' chains, we'll dedupe EVM assets in favor of ethereum mainnet
-    const resultMap: Record<AssetId, Asset> = {}
-    for (const asset of popularAssets) {
-      if (Object.keys(resultMap).length === NUM_QUICK_ACCESS_ASSETS) {
-        break
-      }
-
-      const key = asset.relatedAssetKey ?? asset.assetId
-
-      // set first occurrence, overwrite if eth mainnet
-      if (resultMap[key] === undefined || asset.chainId === KnownChainIds.EthereumMainnet) {
-        resultMap[key] = asset
-      }
-    }
-
-    return Object.values(resultMap)
-  }, [activeChainId, popularAssets])
-
-  const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
-    if (activeChainId === 'All') {
-      return portfolioAssetsSortedByBalance
-    }
-
-    return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, portfolioAssetsSortedByBalance])
-
-  const chainIds: (ChainId | 'All')[] = useMemo(() => {
-    const unsortedChainIds = (() => {
-      if (allowWalletUnsupportedAssets) {
-        return Object.values(KnownChainIds)
-      }
-
-      return walletSupportedChainIds
-    })()
-
-    const manager = getChainAdapterManager()
-    const unsortedChainIdsWithName = unsortedChainIds.map(chainId => {
-      return {
-        chainId,
-        displayName: manager.get(chainId)?.getDisplayName(),
-      }
-    })
-
-    const sortedChainIds = orderBy(unsortedChainIdsWithName, 'displayName', 'asc').map(
-      ({ chainId }) => chainId,
-    )
-
-    return ['All', ...sortedChainIds]
-  }, [walletSupportedChainIds, allowWalletUnsupportedAssets])
-
-  const quickAccessAssetButtons = useMemo(() => {
-    if (isPopularAssetIdsLoading) {
-      return Array(NUM_QUICK_ACCESS_ASSETS)
-        .fill(null)
-        .map((_, i) => {
-          return <AssetMenuButton key={i} isLoading isDisabled buttonProps={assetButtonProps} />
-        })
-    }
-
-    return quickAccessAssets.map(({ assetId }) => {
-      return (
-        <AssetMenuButton
-          key={assetId}
-          assetId={assetId}
-          onAssetClick={handleAssetClick}
-          buttonProps={assetButtonProps}
-          isLoading={isPopularAssetIdsLoading}
-          isDisabled={false}
-          showNetworkIcon
-        />
-      )
-    })
-  }, [handleAssetClick, isPopularAssetIdsLoading, quickAccessAssets])
-
   return (
     <>
-      <ModalHeader pt={0} borderBottomWidth={1} borderColor='border.base'>
-        <Stack gap={4} as='form' visibility='visible' onSubmit={handleSubmit} {...formProps}>
-          <Flex gap={2} alignItems='center'>
-            <InputGroup>
-              {/* Override zIndex to prevent element displaying on overlay components */}
-              <InputLeftElement pointerEvents='none' zIndex={1}>
-                <SearchIcon color='gray.300' />
-              </InputLeftElement>
-              <Input {...inputProps} />
-            </InputGroup>
-            <AllChainMenu
-              activeChainId={activeChainId}
-              chainIds={chainIds}
-              isActiveChainIdSupported={true}
-              isDisabled={false}
-              onMenuOptionClick={setActiveChainId}
-              buttonProps={buttonProps}
-              disableTooltip
-            />
-          </Flex>
-          <Flex flexWrap='wrap' gap={2}>
-            {quickAccessAssetButtons}
-          </Flex>
-        </Stack>
-      </ModalHeader>
-      {isSearching ? (
-        <SearchTermAssetList
-          activeChainId={activeChainId}
-          searchString={searchString}
-          onAssetClick={handleAssetClick}
-          isLoading={isPopularAssetIdsLoading}
+      <ChainList chainIds={chainIds} onClick={handleChainClick} activeChain={activeChain} />
+      <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit} {...formProps}>
+        <InputGroup size='lg'>
+          {/* Override zIndex to prevent element displaying on overlay components */}
+          <InputLeftElement pointerEvents='none' zIndex={1}>
+            <SearchIcon color='gray.300' />
+          </InputLeftElement>
+          <Input {...inputProps} />
+        </InputGroup>
+      </Box>
+      <Box flex={1}>
+        <AssetList
+          mb='10'
+          assets={listAssets}
+          handleClick={handleClick}
+          disableUnsupported={disableUnsupported}
         />
-      ) : (
-        <DefaultAssetList
-          portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
-          popularAssets={popularAssets}
-          onAssetClick={handleAssetClick}
-          isPopularAssetIdsLoading={isPopularAssetIdsLoading}
-          isPortfolioLoading={isPortfolioLoading}
-        />
-      )}
+      </Box>
     </>
   )
 }

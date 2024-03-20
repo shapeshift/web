@@ -4,8 +4,8 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
 import { SlideTransition } from 'components/SlideTransition'
+import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
 
 type SelectAssetsProps = {
   onClick(assetId: AssetId): void
@@ -35,7 +35,7 @@ export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps)
         <ModalCloseButton position='static' />
       </Stack>
       <ModalBody height='600px' px={2} display='flex' flexDir='column'>
-        <AssetSearch onAssetClick={handleAssetClick} />
+        <TradeAssetSearch onAssetClick={handleAssetClick} />
       </ModalBody>
     </SlideTransition>
   )

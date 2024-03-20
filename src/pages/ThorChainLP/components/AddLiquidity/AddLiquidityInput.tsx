@@ -1207,8 +1207,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     buyAssetSearch.open({
       onAssetClick: handleAssetChange,
       title: 'pools.pool',
+      assets: poolAssets,
     })
-  }, [buyAssetSearch, handleAssetChange])
+  }, [buyAssetSearch, handleAssetChange, poolAssets])
 
   const pairSelect = useMemo(() => {
     // We only want to show the pair select on standalone "Add Liquidity" - not on the position page

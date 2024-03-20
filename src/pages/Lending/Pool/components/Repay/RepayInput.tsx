@@ -37,6 +37,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
+import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import {
   selectAssetById,
   selectAssets,
@@ -188,12 +189,15 @@ export const RepayInput = ({
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
+  const { data: lendingSupportedAssets, isLoading: isLendingSupportedAssetsLoading } =
+    useLendingSupportedAssets({ type: 'borrow' })
+
   useEffect(() => {
-    if (!collateralAsset) return
+    if (!(lendingSupportedAssets && collateralAsset)) return
     if (repaymentAsset) return
 
     setRepaymentAsset(collateralAsset)
-  }, [collateralAsset, repaymentAsset, setRepaymentAsset])
+  }, [collateralAsset, lendingSupportedAssets, repaymentAsset, setRepaymentAsset])
 
   const buyAssetSearch = useModal('buyAssetSearch')
 
@@ -201,8 +205,9 @@ export const RepayInput = ({
     buyAssetSearch.open({
       onAssetClick: setRepaymentAsset,
       title: 'lending.repay',
+      assets: lendingSupportedAssets ?? [],
     })
-  }, [buyAssetSearch, setRepaymentAsset])
+  }, [buyAssetSearch, lendingSupportedAssets, setRepaymentAsset])
 
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
@@ -218,8 +223,14 @@ export const RepayInput = ({
   }, [setRepaymentAsset, handleRepaymentAssetClick, repaymentAsset?.assetId])
 
   const collateralAssetSelectComponent = useMemo(() => {
-    return <TradeAssetSelect assetId={collateralAssetId} isReadOnly />
-  }, [collateralAssetId])
+    return (
+      <TradeAssetSelect
+        assetId={collateralAssetId}
+        isReadOnly
+        isLoading={isLendingSupportedAssetsLoading}
+      />
+    )
+  }, [collateralAssetId, isLendingSupportedAssetsLoading])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 

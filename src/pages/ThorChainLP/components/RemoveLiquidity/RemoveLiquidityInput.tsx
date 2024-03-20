@@ -26,6 +26,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -269,7 +270,23 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     }
   }, [opportunityType, virtualRuneWithdrawAmountFiatUserCurrency])
 
+  const incompleteSide = useMemo(() => {
+    if (!position?.status.incomplete) return
+
+    return position.status.incomplete.asset.assetId === thorchainAssetId
+      ? AsymSide.Rune
+      : AsymSide.Asset
+  }, [position])
+
   const validInputAmount = useMemo(() => {
+    if (incompleteSide === AsymSide.Asset) {
+      return bnOrZero(virtualRuneWithdrawAmountCryptoPrecision).gt(0)
+    }
+
+    if (incompleteSide === AsymSide.Rune) {
+      return bnOrZero(virtualAssetWithdrawAmountCryptoPrecision).gt(0)
+    }
+
     switch (opportunityType) {
       case 'sym':
         return (
@@ -284,6 +301,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         assertUnreachable(opportunityType)
     }
   }, [
+    incompleteSide,
     opportunityType,
     virtualAssetWithdrawAmountCryptoPrecision,
     virtualRuneWithdrawAmountCryptoPrecision,
@@ -294,6 +312,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
     const _position = userLpData.find(data => data.opportunityId === opportunityId)
     if (!_position) return
+
+    if (_position?.status.incomplete) {
+      setSliderValue(100)
+      setPercentageSelection(100)
+    }
 
     setPosition(_position)
 
@@ -330,38 +353,27 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   useEffect(() => {
     if (!position) return
 
-    const {
-      pendingAssetAmountCryptoPrecision,
-      pendingAssetAmountFiatUserCurrency,
-      pendingRuneAmountCryptoPrecision,
-      pendingRuneAmountFiatUserCurrency,
-      underlyingAssetAmountCryptoPrecision,
-      underlyingAssetAmountFiatUserCurrency,
-      underlyingRuneAmountCryptoPrecision,
-      underlyingRuneAmountFiatUserCurrency,
-    } = position
-
     setVirtualRuneWithdrawAmountCryptoPrecision(
-      bnOrZero(underlyingRuneAmountCryptoPrecision)
-        .plus(pendingRuneAmountCryptoPrecision)
+      bnOrZero(position.underlyingRuneAmountCryptoPrecision)
+        .plus(position.pendingRuneAmountCryptoPrecision)
         .times(percentageSelection / 100)
         .toFixed(),
     )
     setVirtualRuneWithdrawAmountFiatUserCurrency(
-      bnOrZero(underlyingRuneAmountFiatUserCurrency)
-        .plus(pendingRuneAmountFiatUserCurrency)
+      bnOrZero(position.underlyingRuneAmountFiatUserCurrency)
+        .plus(position.pendingRuneAmountFiatUserCurrency)
         .times(percentageSelection / 100)
         .toFixed(),
     )
     setVirtualAssetWithdrawAmountCryptoPrecision(
-      bnOrZero(underlyingAssetAmountCryptoPrecision)
-        .plus(pendingAssetAmountCryptoPrecision)
+      bnOrZero(position.underlyingAssetAmountCryptoPrecision)
+        .plus(position.pendingAssetAmountCryptoPrecision)
         .times(percentageSelection / 100)
         .toFixed(),
     )
     setVirtualAssetWithdrawAmountFiatUserCurrency(
-      bnOrZero(underlyingAssetAmountFiatUserCurrency)
-        .plus(pendingAssetAmountFiatUserCurrency)
+      bnOrZero(position.underlyingAssetAmountFiatUserCurrency)
+        .plus(position.pendingAssetAmountFiatUserCurrency)
         .times(percentageSelection / 100)
         .toFixed(),
     )
@@ -606,17 +618,18 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         .times(runeMarketData.price)
         .toFixed()
 
-      setSlippageFiatUserCurrency(_slippageFiatUserCurrency)
+      setSlippageFiatUserCurrency(opportunityType !== 'sym' ? _slippageFiatUserCurrency : '0')
       setIsSlippageLoading(false)
       setShareOfPoolDecimalPercent(estimate.poolShareDecimalPercent)
     })()
   }, [
-    position,
-    poolAsset,
-    runeMarketData.price,
     actualAssetWithdrawAmountCryptoPrecision,
     actualRuneWithdrawAmountCryptoPrecision,
+    opportunityType,
     percentageSelection,
+    poolAsset,
+    position,
+    runeMarketData.price,
   ])
 
   useEffect(() => {
@@ -1030,6 +1043,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
+        {position?.status.incomplete && (
+          <Alert status='info' mx={-2} width='auto'>
+            <AlertIcon as={BiSolidBoltCircle} />
+            <AlertDescription fontSize='sm' fontWeight='medium'>
+              {translate('pools.incompletePositionWithdrawAlert')}
+            </AlertDescription>
+          </Alert>
+        )}
         {isBelowMinimumWithdrawAmount && (
           <Alert status='warning' mx={-2} width='auto'>
             <AlertIcon />

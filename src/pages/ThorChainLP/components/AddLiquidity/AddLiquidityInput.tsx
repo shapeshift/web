@@ -897,10 +897,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) return handleApprove()
     if (isSweepNeeded) return history.push(AddLiquidityRoutePaths.Sweep)
-    if (Boolean(incompleteSide)) return history.push(AddLiquidityRoutePaths.Status)
 
-    mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
-    history.push(AddLiquidityRoutePaths.Confirm)
+    if (Boolean(incompleteSide)) {
+      history.push(AddLiquidityRoutePaths.Status)
+      mixpanel?.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote!)
+    } else {
+      history.push(AddLiquidityRoutePaths.Confirm)
+      mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
+    }
   }, [
     confirmedQuote,
     handleApprove,
@@ -1201,7 +1205,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       <Alert status='info' mx={-2} width='auto'>
         <AlertIcon as={BiSolidBoltCircle} />
         <AlertDescription fontSize='sm' fontWeight='medium'>
-          {translate('pools.incompletePositionAlert', {
+          {translate('pools.incompletePositionDepositAlert', {
             asset: position.status.incomplete.asset.symbol,
           })}
         </AlertDescription>

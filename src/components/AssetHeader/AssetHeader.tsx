@@ -1,14 +1,17 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import type { ContainerProps, ResponsiveValue } from '@chakra-ui/react'
-import { Container, Flex, Heading, IconButton, Link } from '@chakra-ui/react'
+import type { ContainerProps } from '@chakra-ui/react'
+import { Flex, Heading, IconButton, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
-import type { Property } from 'csstype'
 import isEqual from 'lodash/isEqual'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
+import { Display } from 'components/Display'
+import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { SEO } from 'components/Layout/Seo'
+import { ScrollDisplay } from 'components/ScrollDisplay'
+import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -23,8 +26,6 @@ import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'
 
-const paddingX = { base: 4, xl: 8 }
-
 type AssetHeaderProps = {
   assetId?: AssetId
   accountId?: AccountId
@@ -33,9 +34,8 @@ type AssetHeaderProps = {
 const externalLinkIcon = <ExternalLinkIcon />
 const displayMdFlex = { base: 'none', md: 'flex' }
 const fontSizeMd2xl = { base: 'xl', md: '2xl' }
-const flexDirLgRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 
-export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ...rest }) => {
+export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
@@ -84,37 +84,56 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId, ..
   if (!assetId) return null
 
   return (
-    <Container width='full' maxWidth='container.4xl' px={paddingX} pb={4} pt={6} {...rest}>
-      <Flex alignItems='center' flexDir={flexDirLgRow} flex={1}>
-        <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
-        <Flex alignItems='center' mr='auto' flex={1}>
-          <AssetIcon assetId={asset.assetId} boxSize='40px' />
-          <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
-            <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
-              {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
-            </Heading>
+    <PageHeader>
+      <SEO title={`${asset.symbol} - ${formattedPrice}`} description={asset.description} />
+      <PageHeader.Left>
+        <Display.Desktop>
+          <Flex alignItems='center' mr='auto' flex={1}>
+            <AssetIcon assetId={asset.assetId} boxSize='40px' />
+            <Flex ml={3} textAlign='left' gap={2} alignItems='center'>
+              <Heading fontSize={fontSizeMd2xl} lineHeight='shorter'>
+                {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
+              </Heading>
 
-            <IconButton
-              as={Link}
-              isExternal
-              href={href}
-              colorScheme='blue'
-              aria-label={translate('defi.viewOnChain')}
-              variant='ghost'
-              icon={externalLinkIcon}
-            />
+              <IconButton
+                as={Link}
+                isExternal
+                href={href}
+                colorScheme='blue'
+                aria-label={translate('defi.viewOnChain')}
+                variant='ghost'
+                icon={externalLinkIcon}
+              />
+            </Flex>
           </Flex>
-        </Flex>
-        {walletSupportsChain ? (
-          <Flex display={displayMdFlex}>
-            <AssetActions
-              assetId={assetId}
-              accountId={accountId ? accountId : singleAccount}
-              cryptoBalance={cryptoBalance}
-            />
-          </Flex>
-        ) : null}
-      </Flex>
-    </Container>
+        </Display.Desktop>
+        <Display.Mobile>
+          <PageBackButton />
+        </Display.Mobile>
+      </PageHeader.Left>
+      <PageHeader.Middle>
+        <Display.Mobile>
+          <ScrollDisplay>
+            <ScrollDisplay.Default>
+              <RawText>{asset.name}</RawText>
+            </ScrollDisplay.Default>
+            <ScrollDisplay.OutOfView>{formattedPrice}</ScrollDisplay.OutOfView>
+          </ScrollDisplay>
+        </Display.Mobile>
+      </PageHeader.Middle>
+      <PageHeader.Right>
+        <Display.Desktop>
+          {walletSupportsChain ? (
+            <Flex display={displayMdFlex}>
+              <AssetActions
+                assetId={assetId}
+                accountId={accountId ? accountId : singleAccount}
+                cryptoBalance={cryptoBalance}
+              />
+            </Flex>
+          ) : null}
+        </Display.Desktop>
+      </PageHeader.Right>
+    </PageHeader>
   )
 }

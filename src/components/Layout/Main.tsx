@@ -16,12 +16,21 @@ export type MainProps = {
   headerComponent?: ReactNode
   hideBreadcrumbs?: boolean
   pageProps?: FlexProps
+  isSubPage?: boolean
 } & ContainerProps
 
 const containerPaddingX = { base: 4, xl: 16 }
 
 export const Main: React.FC<MainProps> = memo(
-  ({ children, titleComponent, headerComponent, hideBreadcrumbs = false, pageProps, ...rest }) => {
+  ({
+    children,
+    titleComponent,
+    headerComponent,
+    hideBreadcrumbs = false,
+    pageProps,
+    isSubPage,
+    ...rest
+  }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { currentRoute } = useBrowserRouter()
     const [y, setY] = useState(0)
@@ -31,7 +40,7 @@ export const Main: React.FC<MainProps> = memo(
       return scrollY.onChange(() => setY(scrollY.get()))
     }, [scrollY])
     return (
-      <Page {...pageProps}>
+      <Page isSubpage={isSubPage} {...pageProps}>
         {titleComponent && (
           <Box
             width='full'

@@ -1043,7 +1043,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       opportunityId: activeOpportunityId,
       currentAccountIdByChainId,
       totalAmountUsd,
-      positionStatus: position?.status,
       feeBps: feeBps.toFixed(0),
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
       feeAmountUSD: feeUsd.toFixed(2),
@@ -1052,6 +1051,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
       totalGasFeeFiatUserCurrency: totalGasFeeFiatUserCurrency.toFixed(2),
+      positionStatus: position?.status,
     })
   }, [
     activeOpportunityId,

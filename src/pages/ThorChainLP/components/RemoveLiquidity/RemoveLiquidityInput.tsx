@@ -659,6 +659,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       withdrawalBps: bnOrZero(percentageSelection).times(100).toString(),
       currentAccountIdByChainId,
       assetAddress: poolAssetAccountAddress,
+      positionStatus: position?.status,
     })
   }, [
     actualAssetWithdrawAmountCryptoPrecision,
@@ -671,6 +672,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     poolAsset,
     poolAssetGasFeeFiatUserCurrency,
     poolAssetInboundAddress,
+    position,
     runeAccountId,
     runeGasFeeFiatUserCurrency,
     setConfirmedQuote,

@@ -85,7 +85,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
-
     if (opportunityType === 'sym' && isDeposit) return [baseAsset, poolAsset]
 
     switch (opportunityType) {

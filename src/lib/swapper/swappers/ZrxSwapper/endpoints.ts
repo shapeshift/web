@@ -68,6 +68,8 @@ export const zrxApi: SwapperApi = {
       value,
       data,
       chainId: Number(fromChainId(chainId).chainReference),
+      // Use the higher amount of the node or the API, as the node doesn't always provide enought gas padding for
+      // total gas used.
       gasLimit: BigNumber.max(gasLimit, estimatedGas).toFixed(),
       ...feeData,
     }

@@ -36,6 +36,8 @@ import { isSome } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
+import { MobileConnect } from './MobileConnect'
+
 const IncludeChains = [
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.BitcoinCashMainnet,
@@ -131,6 +133,10 @@ export const ConnectWallet = () => {
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [dispatch],
   )
+
+  if (isMobile) {
+    return <MobileConnect />
+  }
 
   return (
     <Page>

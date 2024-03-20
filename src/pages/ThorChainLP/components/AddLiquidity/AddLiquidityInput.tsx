@@ -1504,7 +1504,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         </Button>
       </CardFooter>
       <FeeModal
-        affiliateFeeAmountUsd={confirmedQuote?.feeAmountUSD ?? '0'}
         isOpen={showFeeModal}
         onClose={toggleFeeModal}
         inputAmountUsd={confirmedQuote?.totalAmountUsd}

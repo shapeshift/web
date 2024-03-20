@@ -23,7 +23,7 @@ import { isSome } from 'lib/utils'
 import { selectInputSellAmountUsd } from 'state/slices/selectors'
 import {
   selectActiveQuoteAffiliateBps,
-  selectQuoteAffiliateFeeUserCurrency,
+  selectTradeAffiliateFeeAfterDiscountUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -74,7 +74,9 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
     // use the fee data from the actual quote in case it varies from the theoretical calculation
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
-    const amountAfterDiscountUserCurrency = useAppSelector(selectQuoteAffiliateFeeUserCurrency)
+    const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
+      selectTradeAffiliateFeeAfterDiscountUserCurrency,
+    )
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
       return items
@@ -168,15 +170,16 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
           <Row isLoading={isLoading}>
             <Row.Label display='flex'>
               <Text translation={tradeFeeSourceTranslation} />
-              {amountAfterDiscountUserCurrency !== '0' && (
+              {affiliateFeeAfterDiscountUserCurrency !== '0' && (
                 <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
               )}
             </Row.Label>
             <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
               <Flex alignItems='center' gap={2}>
-                {amountAfterDiscountUserCurrency !== '0' ? (
+                {!!affiliateFeeAfterDiscountUserCurrency &&
+                affiliateFeeAfterDiscountUserCurrency !== '0' ? (
                   <>
-                    <Amount.Fiat value={amountAfterDiscountUserCurrency} />
+                    <Amount.Fiat value={affiliateFeeAfterDiscountUserCurrency} />
                     <QuestionIcon />
                   </>
                 ) : (

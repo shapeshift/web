@@ -4,11 +4,11 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { calculateFees } from 'lib/fees/model'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectCalculatedFees } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 const divider = <Divider />
@@ -38,11 +38,7 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
     foxDiscountPercent,
     feeUsdBeforeDiscount,
     feeBpsBeforeDiscount,
-  } = calculateFees({
-    tradeAmountUsd: bnOrZero(inputAmountUsd),
-    foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-    feeModel,
-  })
+  } = useAppSelector(state => selectCalculatedFees(state, { feeModel, inputAmountUsd }))
 
   const isFree = useMemo(() => bnOrZero(affiliateFeeAmountUsd).eq(0), [affiliateFeeAmountUsd])
 

@@ -1,6 +1,7 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import type { FlexProps } from '@chakra-ui/react'
+import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import { Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
+import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
 import { useHistory } from 'react-router'
@@ -8,6 +9,7 @@ import { useHistory } from 'react-router'
 const arrowBack = <ArrowBackIcon />
 const paddingX = { base: 4, xl: 8 }
 const paddingTop = { base: 'env(safe-area-inset-top)', md: 6 }
+const position: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
 
 export const PageBackButton = () => {
   const { goBack } = useHistory()
@@ -33,9 +35,9 @@ type PageHeaderCompoundProps = {
 export const PageHeader: React.FC<PropsWithChildren> & PageHeaderCompoundProps = ({ children }) => {
   return (
     <SimpleGrid
-      gridTemplateColumns='1fr 1fr 1fr'
+      gridTemplateColumns='1fr auto 1fr'
       alignItems='center'
-      position='sticky'
+      position={position}
       top={0}
       left={0}
       right={0}

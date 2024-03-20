@@ -70,12 +70,13 @@ export const VerifyAddresses = () => {
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
-
   const buyAccountIds = useAppSelector(state =>
     selectAccountIdsByChainId(state, {
       chainId: buyAssetAccountId ? fromAccountId(buyAssetAccountId).chainId : '',
     }),
   )
+
+  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const shouldVerifyBuyAddress = useMemo(
     () =>
@@ -98,7 +99,6 @@ export const VerifyAddresses = () => {
     () => isAddressVerified(sellAddress ?? ''),
     [isAddressVerified, sellAddress],
   )
-  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const buyVerified = useMemo(
     () => Boolean(maybeManualReceiveAddress) || isAddressVerified(buyAddress ?? ''),
     [buyAddress, isAddressVerified, maybeManualReceiveAddress],

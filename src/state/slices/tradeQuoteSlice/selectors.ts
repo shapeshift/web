@@ -5,11 +5,16 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { identity } from 'lodash'
+import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { CalculateFeeBpsReturn } from 'lib/fees/model'
+import { calculateFees } from 'lib/fees/model'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { isSome } from 'lib/utils'
+import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
 import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
@@ -38,7 +43,6 @@ import {
   getTotalProtocolFeeByAsset,
   sortQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
-import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
@@ -585,24 +589,47 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
     return activeQuote.affiliateBps
   })
 
-export const selectQuoteAffiliateFeeUserCurrency = createSelector(
-  selectActiveQuote,
-  selectQuoteSellAmountUserCurrency,
+type AffiliateFeesProps = {
+  feeModel: ParameterModel
+  inputAmountUsd: string | undefined
+}
+
+export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
+  createCachedSelector(
+    (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
+    (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
+    selectVotingPower,
+
+    (feeModel, inputAmountUsd, votingPower) => {
+      const fees: CalculateFeeBpsReturn = calculateFees({
+        tradeAmountUsd: bnOrZero(inputAmountUsd),
+        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        feeModel,
+      })
+
+      return fees
+    },
+  )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
+
+export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
+  (state: ReduxState) =>
+    selectCalculatedFees(state, {
+      feeModel: 'SWAPPER',
+      inputAmountUsd: selectQuoteSellAmountUsd(state),
+    }),
   selectActiveQuoteAffiliateBps,
-  (activeQuote, sellAmountUserCurrency, affiliateBps) => {
-    if (!activeQuote) return '0'
-    const affiliatePercentage = affiliateBps
-      ? convertBasisPointsToDecimalPercentage(affiliateBps)
-      : 0
-    // The affiliate fee amount is a percentage of the sell amount
-    return bnOrZero(sellAmountUserCurrency).times(affiliatePercentage).toFixed()
+  (calculatedFees, affiliateBps) => {
+    if (!affiliateBps) return
+    return calculatedFees.feeUsd
   },
 )
-export const selectQuoteFeeAmountUsd = createSelector(
-  selectQuoteAffiliateFeeUserCurrency,
+
+export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelector(
+  selectTradeQuoteAffiliateFeeAfterDiscountUsd,
   selectUserCurrencyToUsdRate,
-  (feeAmountUserCurrency, userCurrencyToUsdRate) => {
-    return bnOrZero(feeAmountUserCurrency).div(userCurrencyToUsdRate).toFixed()
+  (tradeAffiliateFeeAfterDiscountUsd, sellUserCurrencyRate) => {
+    if (!tradeAffiliateFeeAfterDiscountUsd || !sellUserCurrencyRate) return
+    return bn(tradeAffiliateFeeAfterDiscountUsd).times(sellUserCurrencyRate).toFixed()
   },
 )
 

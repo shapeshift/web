@@ -10,8 +10,8 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
+  checkIsMetaMaskMobileWebView,
   checkIsSnapInstalled,
-  isMetaMaskMobileWebView,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -32,6 +32,7 @@ export interface MetaMaskSetupProps
 }
 
 export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
+  const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
   const { dispatch, getAdapter, onProviderChange } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
@@ -114,6 +115,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     dispatch,
     localWallet,
     onProviderChange,
+    isMetaMaskMobileWebView,
     isSnapsEnabled,
     showSnapModal,
     history,

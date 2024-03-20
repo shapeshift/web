@@ -7,8 +7,11 @@ import { FeeModal } from 'components/FeeModal/FeeModal'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectCalculatedFees, selectInputSellAmountUsd } from 'state/slices/selectors'
-import { selectActiveQuoteAffiliateBps } from 'state/slices/tradeQuoteSlice/selectors'
+import { selectInputSellAmountUsd } from 'state/slices/selectors'
+import {
+  selectActiveQuoteAffiliateBps,
+  selectCalculatedFees,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StepperStep } from './StepperStep'

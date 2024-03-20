@@ -8,7 +8,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectCalculatedFees } from 'state/slices/selectors'
+import { selectCalculatedFees } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 const divider = <Divider />

@@ -4,14 +4,9 @@ import type { Asset } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
-import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
@@ -171,25 +166,3 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
   const getAssetName = (asset: Asset) => asset.name
   return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
 })
-
-type AffiliateFeesProps = {
-  feeModel: ParameterModel
-  inputAmountUsd: string | undefined
-}
-
-export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
-  createCachedSelector(
-    (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
-    (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-    selectVotingPower,
-
-    (feeModel, inputAmountUsd, votingPower) => {
-      const fees: CalculateFeeBpsReturn = calculateFees({
-        tradeAmountUsd: bnOrZero(inputAmountUsd),
-        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-        feeModel,
-      })
-
-      return fees
-    },
-  )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)

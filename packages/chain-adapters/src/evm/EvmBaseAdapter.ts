@@ -262,17 +262,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async buildSendApiTransaction(input: BuildSendApiTxInput<T>): Promise<SignTx<T>> {
     try {
-      const { to, from, value, accountNumber, chainSpecific, sendMax = false, customNonce } = input
-      const {
-        data,
-        contractAddress,
-        l1GasPrice,
-        gasPrice,
-        l1GasLimit,
-        gasLimit,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-      } = chainSpecific
+      const { to, from, value, accountNumber, chainSpecific, customNonce } = input
+      const { data, contractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
+        chainSpecific
 
       if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
       if (!value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
@@ -281,28 +273,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const account = await this.getAccount(from)
 
       const isTokenSend = !!contractAddress
-
-      const _value = (() => {
-        if (!sendMax) return value
-
-        if (isTokenSend) {
-          const tokenBalance = account.chainSpecific.tokens?.find(token => {
-            return fromAssetId(token.assetId).assetReference === contractAddress.toLowerCase()
-          })?.balance
-
-          if (!tokenBalance) throw new Error('no balance')
-
-          return tokenBalance
-        }
-
-        if (bnOrZero(account.balance).isZero()) throw new Error('no balance')
-
-        // optimism l1 fee if exists or 0
-        const l1Fee = bnOrZero(l1GasPrice).times(bnOrZero(l1GasLimit))
-        const fee = bnOrZero(maxFeePerGas ?? gasPrice).times(bnOrZero(gasLimit))
-
-        return bnOrZero(account.balance).minus(fee.plus(l1Fee)).toString()
-      })()
 
       const fees = ((): Fees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {
@@ -322,10 +292,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const txToSign = {
         addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
-        value: numberToHex(isTokenSend ? '0' : _value),
+        value: numberToHex(isTokenSend ? '0' : value),
         to: isTokenSend ? contractAddress : to,
         chainId: Number(fromChainId(this.chainId).chainReference),
-        data: data || (await getErc20Data(to, _value, contractAddress)),
+        data: data || (await getErc20Data(to, value, contractAddress)),
         nonce,
         gasLimit: numberToHex(gasLimit),
         ...fees,

@@ -51,7 +51,7 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
 
   const { title, titleProps } = useMemo(() => {
     return bnOrZero(amountAfterDiscountUsd).gt(0)
-      ? { title: toFiat(amountAfterDiscountUsd.toString()) }
+      ? { title: toFiat(amountAfterDiscountUsd.toFixed()) }
       : { title: translate('trade.free'), titleProps: { color: 'text.success' } }
   }, [amountAfterDiscountUsd, toFiat, translate])
 

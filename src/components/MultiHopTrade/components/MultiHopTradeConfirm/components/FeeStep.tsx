@@ -34,8 +34,12 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
   const feeModel = 'SWAPPER'
+  const calculatedFeesFilter = useMemo(
+    () => ({ feeModel, inputAmountUsd }),
+    [feeModel, inputAmountUsd],
+  )
   const { feeUsd: amountAfterDiscountUsd } = useAppSelector(state =>
-    selectCalculatedFees(state, { feeModel, inputAmountUsd }),
+    selectCalculatedFees(state, calculatedFeesFilter),
   )
 
   const handleOpenFeeModal = useCallback(() => setShowFeeModal(true), [])

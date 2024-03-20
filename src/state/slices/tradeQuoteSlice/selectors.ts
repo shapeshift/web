@@ -5,16 +5,11 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { identity } from 'lodash'
-import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getEnabledSwappers } from 'lib/swapper/utils'
 import { isSome } from 'lib/utils'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
 import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
@@ -44,7 +39,11 @@ import {
   sortQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
 
-import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
+import {
+  selectCalculatedFees,
+  selectIsWalletConnected,
+  selectWalletSupportedChainIds,
+} from '../common-selectors'
 import {
   selectMarketDataUsd,
   selectMarketDataUserCurrency,
@@ -588,30 +587,6 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
     if (!activeQuote) return
     return activeQuote.affiliateBps
   })
-
-type AffiliateFeesProps = {
-  feeModel: ParameterModel
-  inputAmountUsd: string | undefined
-}
-
-export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
-  createCachedSelector(
-    [
-      (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
-      (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-      (state: ReduxState, { feeModel }: AffiliateFeesProps) =>
-        selectVotingPower(state, { feeModel }),
-    ],
-    (feeModel, inputAmountUsd, votingPower) => {
-      const fees: CalculateFeeBpsReturn = calculateFees({
-        tradeAmountUsd: bnOrZero(inputAmountUsd),
-        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-        feeModel,
-      })
-
-      return fees
-    },
-  )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
 
 export const selectTradeAffiliateFeeAfterDiscountUsd = createSelector(
   (state: ReduxState) =>

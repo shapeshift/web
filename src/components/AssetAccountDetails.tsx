@@ -40,7 +40,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
   )
 
   return (
-    <Main headerComponent={assetHeader} py={contentPaddingY}>
+    <Main headerComponent={assetHeader} py={contentPaddingY} isSubPage>
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />

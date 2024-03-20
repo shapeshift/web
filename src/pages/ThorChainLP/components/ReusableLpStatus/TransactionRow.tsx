@@ -116,7 +116,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [assetAddress, setAssetAddress] = useState<string | null>(null)
   const [pairAssetAddress, setPairAssetAddress] = useState<string | null>(null)
 
-  const { currentAccountIdByChainId } = confirmedQuote
+  const { currentAccountIdByChainId, positionStatus } = confirmedQuote
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state =>
@@ -252,6 +252,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       setIsSubmitting(false)
     },
   })
+
+  // manages incomplete sym deposits by setting the already confirmed transaction as complete
+  useEffect(() => {
+    if (status !== TxStatus.Unknown) return
+    if (!positionStatus?.incomplete) return
+    if (positionStatus.incomplete.asset.assetId === assetId) return
+
+    setStatus(TxStatus.Confirmed)
+    onComplete(TxStatus.Confirmed)
+  }, [assetId, onComplete, positionStatus?.incomplete, status])
 
   useEffect(() => {
     if (!txId) return

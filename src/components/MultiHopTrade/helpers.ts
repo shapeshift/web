@@ -10,8 +10,8 @@ import {
   selectQuoteSellAmountBeforeFeesCryptoPrecision,
   selectQuoteSellAmountUsd,
   selectQuoteSellAmountUserCurrency,
-  selectTradeAffiliateFeeAfterDiscountUsd,
-  selectTradeAffiliateFeeAfterDiscountUserCurrency,
+  selectTradeQuoteAffiliateFeeAfterDiscountUsd,
+  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { store } from 'state/store'
 
@@ -28,8 +28,8 @@ export const getMixpanelEventData = () => {
   if (!buyAsset?.precision) return
 
   const assets = selectAssets(state)
-  const shapeShiftFeeUserCurrency = selectTradeAffiliateFeeAfterDiscountUserCurrency(state)
-  const shapeshiftFeeUsd = selectTradeAffiliateFeeAfterDiscountUsd(state)
+  const shapeShiftFeeUserCurrency = selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency(state)
+  const shapeshiftFeeUsd = selectTradeQuoteAffiliateFeeAfterDiscountUsd(state)
   const sellAmountBeforeFeesUsd = selectQuoteSellAmountUsd(state)
   const sellAmountBeforeFeesUserCurrency = selectQuoteSellAmountUserCurrency(state)
   const buyAmountBeforeFeesCryptoPrecision = selectBuyAmountBeforeFeesCryptoPrecision(state)

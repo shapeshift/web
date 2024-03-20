@@ -588,7 +588,7 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
     return activeQuote.affiliateBps
   })
 
-export const selectTradeAffiliateFeeAfterDiscountUsd = createSelector(
+export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
   (state: ReduxState) =>
     selectCalculatedFees(state, {
       feeModel: 'SWAPPER',
@@ -601,8 +601,8 @@ export const selectTradeAffiliateFeeAfterDiscountUsd = createSelector(
   },
 )
 
-export const selectTradeAffiliateFeeAfterDiscountUserCurrency = createSelector(
-  selectTradeAffiliateFeeAfterDiscountUsd,
+export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelector(
+  selectTradeQuoteAffiliateFeeAfterDiscountUsd,
   selectUserCurrencyToUsdRate,
   (tradeAffiliateFeeAfterDiscountUsd, sellUserCurrencyRate) => {
     if (!tradeAffiliateFeeAfterDiscountUsd || !sellUserCurrencyRate) return

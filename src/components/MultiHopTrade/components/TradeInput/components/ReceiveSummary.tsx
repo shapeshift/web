@@ -23,7 +23,7 @@ import { isSome } from 'lib/utils'
 import { selectInputSellAmountUsd } from 'state/slices/selectors'
 import {
   selectActiveQuoteAffiliateBps,
-  selectTradeAffiliateFeeAfterDiscountUserCurrency,
+  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -75,7 +75,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     // use the fee data from the actual quote in case it varies from the theoretical calculation
     const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
     const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
-      selectTradeAffiliateFeeAfterDiscountUserCurrency,
+      selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
     )
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {

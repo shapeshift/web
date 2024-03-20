@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react'
 
 import { FadeTransition } from './FadeTransition'
 
+const defaultThreshold = 72
+
 type ScrollDisplayProps = {
   threshold?: number // Threshold for when to switch displays, default to 72px
 } & PropsWithChildren
@@ -14,7 +16,7 @@ type ScrollDisplayCompoundProps = {
 }
 
 export const ScrollDisplay: React.FC<ScrollDisplayProps> & ScrollDisplayCompoundProps = ({
-  threshold = 72,
+  threshold = defaultThreshold,
   children,
 }) => {
   const [showDefault, setShowDefault] = useState(true)

@@ -205,13 +205,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
 
-  const poolAssetAccountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
-  )
   const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
     if (!activeOpportunityId) return {}
     return fromOpportunityId(activeOpportunityId)
   }, [activeOpportunityId])
+
+  const poolAssetAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
+  )
 
   const walletSupportsRune = useMemo(
     () =>

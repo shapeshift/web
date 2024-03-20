@@ -12,6 +12,7 @@ type PageProps = {
   renderError?: () => ReactNode
   renderLoading?: () => ReactNode
   route?: Route
+  isSubpage?: boolean
 } & FlexProps
 
 export const Page: React.FC<PageProps> = ({
@@ -21,13 +22,14 @@ export const Page: React.FC<PageProps> = ({
   renderLoading = () => null,
   renderError = () => null,
   route,
+  isSubpage,
   ...rest
 }: PageProps) => {
   return (
     <Flex
       flex={1}
       flexDir='column'
-      pt='env(safe-area-inset-top)'
+      pt={isSubpage ? 0 : 'env(safe-area-inset-top)'}
       pb='var(--mobile-nav-offset)'
       {...rest}
     >

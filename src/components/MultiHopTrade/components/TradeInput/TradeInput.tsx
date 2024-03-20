@@ -77,6 +77,7 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsAnyTradeQuoteLoaded,
+  selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
@@ -162,6 +163,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
+  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
   const quoteStatusTranslation = useMemo(() => {
@@ -292,7 +294,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   const isLoading = useMemo(
     () =>
-      !isAnyTradeQuoteLoaded ||
+      (!isAnyTradeQuoteLoaded && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
@@ -303,6 +305,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       isVotingPowerLoading,
     [
       isAnyTradeQuoteLoaded,
+      isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isSupportedAssetsLoading,
       isSellAddressByteCodeLoading,

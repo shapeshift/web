@@ -21,6 +21,7 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
+import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'
 import { numberToHex } from 'web3-utils'
 
@@ -262,8 +263,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   async buildSendApiTransaction(input: BuildSendApiTxInput<T>): Promise<SignTx<T>> {
     try {
       const { to, from, value, accountNumber, chainSpecific, sendMax = false, customNonce } = input
-      const { data, contractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
-        chainSpecific
+      const {
+        data,
+        contractAddress,
+        l1GasPrice,
+        gasPrice,
+        l1GasLimit,
+        gasLimit,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      } = chainSpecific
 
       if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
       if (!value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
@@ -288,9 +297,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
         if (bnOrZero(account.balance).isZero()) throw new Error('no balance')
 
+        // optimism l1 fee if exists or 0
+        const l1Fee = bnOrZero(l1GasPrice).times(bnOrZero(l1GasLimit))
         const fee = bnOrZero(maxFeePerGas ?? gasPrice).times(bnOrZero(gasLimit))
 
-        return bnOrZero(account.balance).minus(fee).toString()
+        return bnOrZero(account.balance).minus(fee.plus(l1Fee)).toString()
       })()
 
       const fees = ((): Fees => {
@@ -407,13 +418,19 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
-    const data = await this.providers.http.getTxHistory({
-      pubkey: input.pubkey,
-      pageSize: input.pageSize,
-      cursor: input.cursor,
-    })
+    const requestQueue = input.requestQueue ?? new PQueue()
 
-    const transactions = await Promise.all(data.txs.map(tx => this.parseTx(tx, input.pubkey)))
+    const data = await requestQueue.add(() =>
+      this.providers.http.getTxHistory({
+        pubkey: input.pubkey,
+        pageSize: input.pageSize,
+        cursor: input.cursor,
+      }),
+    )
+
+    const transactions = await Promise.all(
+      data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+    )
 
     return {
       cursor: data.cursor ?? '',

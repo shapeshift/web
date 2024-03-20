@@ -128,7 +128,7 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
         protocolFees: {
           [WETH.assetId]: {
             amountCryptoBaseUnit: '14557942658757988',
-            requiresBalance: false,
+            requiresBalance: true,
             asset: WETH,
           },
         },
@@ -161,7 +161,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
         protocolFees: {
           [FOX_MAINNET.assetId]: {
             amountCryptoBaseUnit: '61804771879693983744',
-            requiresBalance: false,
+            requiresBalance: true,
             asset: FOX_MAINNET,
           },
         },
@@ -194,7 +194,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
         protocolFees: {
           [USDC_GNOSIS.assetId]: {
             amountCryptoBaseUnit: '1188',
-            requiresBalance: false,
+            requiresBalance: true,
             asset: USDC_GNOSIS,
           },
         },
@@ -227,7 +227,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
         protocolFees: {
           [WETH.assetId]: {
             amountCryptoBaseUnit: '1455794265875791',
-            requiresBalance: false,
+            requiresBalance: true,
             asset: WETH,
           },
         },

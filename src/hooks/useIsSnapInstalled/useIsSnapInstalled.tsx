@@ -14,13 +14,13 @@ const snapId = getConfig().REACT_APP_SNAP_ID
 
 // Many many user-agents to detect mobile MM and other in-app dApp browsers
 // https://github.com/MetaMask/metamask-mobile/issues/3920#issuecomment-1074188335
-const isBrowser = typeof window !== 'undefined'
-const hasEthereum = isBrowser && window.ethereum !== undefined
-const isAndroid = /(Android)/i.test(window.navigator.userAgent ?? '')
-const isIOS = /(iPhone|iPod|iPad)/i.test(window.navigator.userAgent ?? '')
-const isMobile = isIOS || isAndroid
+const isBrowser = () => typeof window !== 'undefined'
+const hasEthereum = () => isBrowser() && window.ethereum !== undefined
+const isAndroid = () => /(Android)/i.test(window.navigator.userAgent ?? '')
+const isIOS = () => /(iPhone|iPod|iPad)/i.test(window.navigator.userAgent ?? '')
+const isMobile = () => isIOS() || isAndroid()
 // Is a mobile browser and has injected window.ethereum - we assume in-app dApp browser
-export const isMetaMaskMobileWebView = isMobile && hasEthereum
+export const checkIsMetaMaskMobileWebView = () => isMobile() && hasEthereum()
 
 // https://github.com/wevm/wagmi/blob/21245be51d7c6dff1c7b285226d0c89c4a9d8cac/packages/connectors/src/utils/getInjectedName.ts#L6-L56
 // This will need to be kept up-to-date with the latest list of impersonators
@@ -93,6 +93,7 @@ export const checkIsSnapInstalled = pDebounce.promise(
 
 export const checkIsMetaMaskDesktop = pMemoize(
   async (wallet: HDWallet | null): Promise<boolean> => {
+    const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
     if (isMetaMaskMobileWebView) return false
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
     // We don't want to run this hook altogether if using any wallet other than MM

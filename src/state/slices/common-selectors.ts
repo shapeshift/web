@@ -179,12 +179,10 @@ type AffiliateFeesProps = {
 
 export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
   createCachedSelector(
-    [
-      (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
-      (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-      (state: ReduxState, { feeModel }: AffiliateFeesProps) =>
-        selectVotingPower(state, { feeModel }),
-    ],
+    (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
+    (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
+    selectVotingPower,
+
     (feeModel, inputAmountUsd, votingPower) => {
       const fees: CalculateFeeBpsReturn = calculateFees({
         tradeAmountUsd: bnOrZero(inputAmountUsd),

@@ -9,7 +9,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
 import {
   selectClaimableRewards,
-  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+  selectTotalPortfolioBalanceIncludeStakingUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -51,7 +51,7 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
     selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
   )
   const portfolioTotalUserCurrencyBalance = useAppSelector(
-    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+    selectTotalPortfolioBalanceIncludeStakingUserCurrency,
   )
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
 

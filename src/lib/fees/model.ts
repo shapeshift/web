@@ -21,7 +21,7 @@ type CalculateFeeBpsArgs = {
  * @property {BigNumber} feeUsdBeforeDiscount - The gross USD value of the fee (i.e., excluding the fox discount).
  * @property {BigNumber} feeBpsBeforeDiscount - The gross fee bps (i.e., excluding the fox discount).
  */
-type CalculateFeeBpsReturn = {
+export type CalculateFeeBpsReturn = {
   feeBps: BigNumber
   feeBpsFloat: BigNumber
   feeUsd: BigNumber

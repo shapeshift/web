@@ -194,8 +194,6 @@ export const VerifyAddresses = () => {
       }
     },
     [
-      shouldVerifyBuyAddress,
-      maybeManualReceiveAddress,
       verifiedAddresses,
       sellAsset,
       buyAsset,
@@ -298,25 +296,27 @@ export const VerifyAddresses = () => {
         </CardHeader>
 
         <CardBody display='flex' flexDir='column' gap={4}>
-          <Card overflow='hidden'>
-            <CardHeader display='flex' alignItems='center' gap={2}>
-              <AssetIcon size='xs' assetId={buyAsset.assetId} />
-              <Text translation={buyAssetAddressTranslation} />
-            </CardHeader>
-            <CardBody bg='background.surface.raised.base'>
-              <Stack>
-                <Flex alignItems='center' gap={2} justifyContent='space-between'>
-                  <Flex alignItems='center' gap={2}>
-                    <Skeleton isLoaded={!!buyAddress}>
-                      <RawText>{buyAddress}</RawText>
-                    </Skeleton>
+          {!maybeManualReceiveAddress && (
+            <Card overflow='hidden'>
+              <CardHeader display='flex' alignItems='center' gap={2}>
+                <AssetIcon size='xs' assetId={buyAsset.assetId} />
+                <Text translation={buyAssetAddressTranslation} />
+              </CardHeader>
+              <CardBody bg='background.surface.raised.base'>
+                <Stack>
+                  <Flex alignItems='center' gap={2} justifyContent='space-between'>
+                    <Flex alignItems='center' gap={2}>
+                      <Skeleton isLoaded={!!buyAddress}>
+                        <RawText>{buyAddress}</RawText>
+                      </Skeleton>
+                    </Flex>
+                    {isBuyVerifying && <Spinner boxSize={5} />}
+                    {buyVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
                   </Flex>
-                  {isBuyVerifying && <Spinner boxSize={5} />}
-                  {buyVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
-                </Flex>
-              </Stack>
-            </CardBody>
-          </Card>
+                </Stack>
+              </CardBody>
+            </Card>
+          )}
           <Card overflow='hidden'>
             <CardHeader display='flex' alignItems='center' gap={2}>
               <AssetIcon size='xs' assetId={sellAsset.assetId} />

@@ -2284,7 +2284,6 @@
         "title": "Risks and Considerations",
         "body": "While liquidity pools offer earning opportunities, it's important to be aware of the risks involved, including impermanent loss, smart contract vulnerabilities, and market volatility. Users should conduct thorough research before participating."
       }
-    },
-    "poolMissing": "Pool not available"
+    }
   }
 }

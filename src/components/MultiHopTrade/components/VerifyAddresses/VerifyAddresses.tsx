@@ -98,16 +98,16 @@ export const VerifyAddresses = () => {
     () => isAddressVerified(sellAddress ?? ''),
     [isAddressVerified, sellAddress],
   )
+  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const buyVerified = useMemo(
-    () => isAddressVerified(buyAddress ?? ''),
-    [buyAddress, isAddressVerified],
+    () => Boolean(maybeManualReceiveAddress) || isAddressVerified(buyAddress ?? ''),
+    [buyAddress, isAddressVerified, maybeManualReceiveAddress],
   )
 
   const handleContinue = useCallback(() => {
     history.push({ pathname: TradeRoutePaths.Confirm })
   }, [history])
 
-  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const fetchAddresses = useCallback(async () => {
     if (!wallet || !sellAssetAccountId || !sellAccountMetadata) return
 

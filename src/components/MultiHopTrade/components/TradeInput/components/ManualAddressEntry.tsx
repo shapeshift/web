@@ -15,6 +15,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
@@ -41,11 +42,16 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const isSnapInstalled = useIsSnapInstalled()
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAssetChainId, wallet)
   const activeQuote = useAppSelector(selectActiveQuote)
+  const buyAssetAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: buyAssetAssetId }),
+  )
   const shouldShowManualReceiveAddressInput = useMemo(() => {
+    // Ledger "supports" all chains, but may not have them connected
+    if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length && !activeQuote
     // We want to display the manual address entry if the wallet doesn't support the buy asset chain,
     // but stop displaying it as soon as we have a quote
     return !walletSupportsBuyAssetChain && !activeQuote
-  }, [activeQuote, walletSupportsBuyAssetChain])
+  }, [activeQuote, buyAssetAccountIds.length, wallet, walletSupportsBuyAssetChain])
 
   const useReceiveAddressArgs = useMemo(
     () => ({

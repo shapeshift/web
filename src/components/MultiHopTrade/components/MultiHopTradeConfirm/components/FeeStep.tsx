@@ -82,7 +82,6 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
       <FeeModal
         isOpen={showFeeModal}
         onClose={handleCloseFeeModal}
-        affiliateFeeAmountUsd={amountAfterDiscountUsd}
         inputAmountUsd={inputAmountUsd}
         feeModel='SWAPPER'
       />

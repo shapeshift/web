@@ -108,9 +108,17 @@ export const cowApi: SwapperApi = {
     const slippageDeductedBuyAmount = bn(quoteBuyAmount).minus(
       bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal),
     )
+    // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order
+    // This was previously working as-is with fees being deducted from the sell amount at protocol-level, but we now we need to add them into the order
+    // In other words, this means what was previously CoW being "feeless" as far as we're concerned
+    // i.e no additional fees to account for when doing balance checks, no longer holds true
+    //
+    // This also makes CoW the first and currently *only* swapper where max token swaps aren't full balance
+    const sellAmountPlusProtocolFees = bn(quote.sellAmount).plus(quote.feeAmount)
     const orderToSign: CowSwapOrder = {
       ...quote,
       buyAmount: slippageDeductedBuyAmount.toFixed(0),
+      sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
       sellTokenBalance: ERC20_TOKEN_BALANCE,
       buyTokenBalance: ERC20_TOKEN_BALANCE,

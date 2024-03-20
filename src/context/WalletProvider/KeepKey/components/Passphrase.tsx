@@ -11,29 +11,40 @@ import { useCallback, useRef, useState } from 'react'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectWalletId } from 'state/slices/common-selectors'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
-export const KeepKeyPassphrase = ({ deviceId }: { deviceId: string }) => {
+export const KeepKeyPassphrase = () => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const { state, dispatch } = useWallet()
-  const wallet = state.keyring.get(deviceId)
+  const {
+    state: { deviceId, keyring },
+    dispatch,
+  } = useWallet()
+  const wallet = keyring.get(deviceId)
+  const walletId = useAppSelector(selectWalletId)
+  const appDispatch = useAppDispatch()
 
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const handleSubmit = useCallback(async () => {
+    if (!wallet || !walletId) return
     setLoading(true)
     const passphrase = inputRef.current?.value
     try {
       // The event handler will pick up the response to the sendPin request
       await wallet?.sendPassphrase(passphrase ?? '')
       setError(null)
+      // Clear all previous wallet meta
+      appDispatch(portfolio.actions.clearWalletMetadata(walletId))
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {
       setError('modals.keepKey.passphrase.error')
     } finally {
       setLoading(false)
     }
-  }, [dispatch, wallet])
+  }, [appDispatch, dispatch, wallet, walletId])
 
   return (
     <>

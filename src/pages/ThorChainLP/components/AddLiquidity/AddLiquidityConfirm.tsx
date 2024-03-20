@@ -1,6 +1,8 @@
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 
 import { ReusableLpConfirm } from '../ReusableLpConfirm'
@@ -12,6 +14,7 @@ type AddLiquidityConfirmProps = {
 
 export const AddLiquidityConfirm = ({ confirmedQuote }: AddLiquidityConfirmProps) => {
   const history = useHistory()
+  const mixpanel = getMixPanel()
 
   const handleBack = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Input)
@@ -19,7 +22,8 @@ export const AddLiquidityConfirm = ({ confirmedQuote }: AddLiquidityConfirmProps
 
   const handleConfirm = useCallback(() => {
     history.push(AddLiquidityRoutePaths.Status)
-  }, [history])
+    mixpanel?.track(MixPanelEvent.LpDepositConfirm, confirmedQuote)
+  }, [confirmedQuote, history, mixpanel])
 
   return (
     <ReusableLpConfirm

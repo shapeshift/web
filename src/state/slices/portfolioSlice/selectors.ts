@@ -124,7 +124,7 @@ export const selectAccountNumberByAccountId = createCachedSelector(
   (bip44Params): number | undefined => bip44Params?.accountNumber,
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 
-type PortfolioLoadingStatus = 'loading' | 'success' | 'error'
+export type PortfolioLoadingStatus = 'loading' | 'success' | 'error'
 
 type PortfolioLoadingStatusGranular = {
   [k: AccountId]: PortfolioLoadingStatus
@@ -550,6 +550,23 @@ export const selectPortfolioAccountsUserCurrencyBalancesIncludingStaking =
       )
     },
   )
+
+export const selectTotalPortfolioBalanceIncludeStakingUserCurrency = createCachedSelector(
+  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  (userCurrencyAccountBalances): string =>
+    Object.values(userCurrencyAccountBalances)
+      .reduce(
+        (acc, accountBalances) =>
+          acc.plus(
+            Object.values(accountBalances).reduce(
+              (innerAcc, cur) => innerAcc.plus(bnOrZero(cur)),
+              bn(0),
+            ),
+          ),
+        bn(0),
+      )
+      .toFixed(2),
+)((_s: ReduxState, _filter) => 'totalPortfolioBalanceIncludeStakingUserCurrency')
 
 export const selectUserCurrencyBalanceIncludingStakingByFilter = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,

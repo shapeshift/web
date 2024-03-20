@@ -31,6 +31,8 @@ export enum TradeQuoteValidationError {
   TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
   TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
+  // Insufficient *asset* balance, handling for CoW weirdness where fees are paid in token, in *addition* to the token amount being traded.
+  InsufficientFirstHopAssetBalance = 'InsufficientFirstHopAssetBalance',
   InsufficientFirstHopFeeAssetBalance = 'InsufficientFirstHopFeeAssetBalance',
   InsufficientSecondHopFeeAssetBalance = 'InsufficientSecondHopFeeAssetBalance',
   InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',

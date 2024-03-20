@@ -43,6 +43,8 @@ import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isToken } from 'lib/utils'
@@ -105,10 +107,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const translate = useTranslate()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const wallet = useWallet().state.wallet
+  const mixpanel = getMixPanel()
 
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
+  const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
   const [assetAddress, setAssetAddress] = useState<string | null>(null)
   const [pairAssetAddress, setPairAssetAddress] = useState<string | null>(null)
 
@@ -413,27 +417,33 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
   ])
 
-  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
-    useGetEstimatedFeesQuery({
-      amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
-      assetId: estimateFeesArgs?.assetId ?? '',
-      to: estimateFeesArgs?.to ?? '',
-      sendMax: estimateFeesArgs?.sendMax ?? false,
-      memo: estimateFeesArgs?.memo ?? '',
-      accountId: estimateFeesArgs?.accountId ?? '',
-      contractAddress: estimateFeesArgs?.contractAddress ?? '',
-      enabled: !!estimateFeesArgs,
-      disableRefetch: Boolean(txId),
-    })
+  const { data: estimatedFeesData } = useGetEstimatedFeesQuery({
+    amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
+    assetId: estimateFeesArgs?.assetId ?? '',
+    to: estimateFeesArgs?.to ?? '',
+    sendMax: estimateFeesArgs?.sendMax ?? false,
+    memo: estimateFeesArgs?.memo ?? '',
+    accountId: estimateFeesArgs?.accountId ?? '',
+    contractAddress: estimateFeesArgs?.contractAddress ?? '',
+    enabled: Boolean(estimateFeesArgs),
+    disableRefetch: Boolean(txId || isSubmitting),
+  })
 
-  const estimatedFeeDataCryptoPrecision = useMemo(() => {
-    if (!estimatedFeesData || !feeAsset) return undefined
+  useEffect(() => {
+    if (!estimatedFeesData || !feeAsset) return
+    if (txId || isSubmitting) return
 
-    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset?.precision)
-  }, [estimatedFeesData, feeAsset])
+    setTxFeeCryptoPrecision(
+      fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset?.precision),
+    )
+  }, [estimatedFeesData, feeAsset, isSubmitting, txId])
 
   const handleSignTx = useCallback(() => {
     setIsSubmitting(true)
+    mixpanel?.track(
+      isDeposit ? MixPanelEvent.LpDepositInitiated : MixPanelEvent.LpWithdrawInitiated,
+      confirmedQuote,
+    )
     if (
       !(
         assetId &&
@@ -602,6 +612,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       onStart()
     })
   }, [
+    mixpanel,
+    isDeposit,
+    confirmedQuote,
     assetId,
     poolAssetId,
     asset,
@@ -610,16 +623,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
     memo,
     isRuneTx,
-    inboundAddressData,
+    inboundAddressData?.address,
+    inboundAddressData?.router,
     refetchIsTradingActive,
     runeAccountId,
     poolAssetAccountId,
     amountCryptoPrecision,
-    runeAccountNumber,
-    isDeposit,
-    poolAssetAccountNumber,
-    assetAddress,
     estimateFeesArgs,
+    runeAccountNumber,
+    assetAddress,
+    poolAssetAccountNumber,
     selectedCurrency,
     onStart,
   ])
@@ -706,11 +719,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
           <Row fontSize='sm'>
             <Row.Label>{translate('common.gasFee')}</Row.Label>
             <Row.Value>
-              <Skeleton isLoaded={Boolean(!isEstimatedFeesDataLoading && estimatedFeesData)}>
-                <Amount.Crypto
-                  value={estimatedFeeDataCryptoPrecision ?? '0'}
-                  symbol={feeAsset.symbol}
-                />
+              <Skeleton isLoaded={Boolean(txFeeCryptoPrecision)}>
+                <Amount.Crypto value={txFeeCryptoPrecision ?? '0'} symbol={feeAsset.symbol} />
               </Skeleton>
             </Row.Value>
           </Row>
@@ -723,7 +733,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             isLoading={
               isInboundAddressLoading ||
               isTradingActiveLoading ||
-              isEstimatedFeesDataLoading ||
+              !Boolean(txFeeCryptoPrecision) ||
               isSubmitting
             }
           >

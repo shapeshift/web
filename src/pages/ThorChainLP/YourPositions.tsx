@@ -110,6 +110,8 @@ export const YourPositions = () => {
                 </Tag>
               )
             }
+
+            return null
           }, [position])
 
           return (

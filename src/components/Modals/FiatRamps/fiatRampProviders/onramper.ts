@@ -150,6 +150,7 @@ export const createOnRamperUrl = ({
   action,
   assetId,
   address,
+  fiatCurrency,
   options: { language, mode, currentUrl },
 }: CreateUrlProps): string => {
   const onRamperSymbols = adapters.assetIdToOnRamperTokenList(assetId)
@@ -176,6 +177,7 @@ export const createOnRamperUrl = ({
     params.set('isAddressEditable', 'false')
   }
   params.set('language', language)
+  params.set('defaultFiat', fiatCurrency)
 
   params.set('themeName', mode === 'dark' ? 'dark' : 'light')
   currentUrl && params.set('redirectURL', currentUrl)

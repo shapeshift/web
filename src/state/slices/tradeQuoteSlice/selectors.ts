@@ -5,6 +5,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { identity } from 'lodash'
+import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { CalculateFeeBpsReturn } from 'lib/fees/model'
@@ -593,22 +594,24 @@ type AffiliateFeesProps = {
   inputAmountUsd: string | undefined
 }
 
-export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> = createSelector(
-  [
-    (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
-    (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-    (state: ReduxState, { feeModel }: AffiliateFeesProps) => selectVotingPower(state, { feeModel }),
-  ],
-  (feeModel, inputAmountUsd, votingPower) => {
-    const fees: CalculateFeeBpsReturn = calculateFees({
-      tradeAmountUsd: bnOrZero(inputAmountUsd),
-      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
-      feeModel,
-    })
+export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
+  createCachedSelector(
+    [
+      (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
+      (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
+      (state: ReduxState, { feeModel }: AffiliateFeesProps) =>
+        selectVotingPower(state, { feeModel }),
+    ],
+    (feeModel, inputAmountUsd, votingPower) => {
+      const fees: CalculateFeeBpsReturn = calculateFees({
+        tradeAmountUsd: bnOrZero(inputAmountUsd),
+        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        feeModel,
+      })
 
-    return fees
-  },
-)
+      return fees
+    },
+  )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
 
 export const selectTradeAffiliateFeeAfterDiscountUsd = createSelector(
   (state: ReduxState) =>

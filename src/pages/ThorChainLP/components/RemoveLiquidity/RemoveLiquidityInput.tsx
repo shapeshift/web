@@ -742,9 +742,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const handleSubmit = useCallback(() => {
     if (isSweepNeeded) return history.push(RemoveLiquidityRoutePaths.Sweep)
 
-    mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
+    if (incompleteSide) {
+      mixpanel?.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote!)
+    } else {
+      mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
+    }
+
     history.push(RemoveLiquidityRoutePaths.Confirm)
-  }, [confirmedQuote, history, isSweepNeeded, mixpanel])
+  }, [confirmedQuote, history, incompleteSide, isSweepNeeded, mixpanel])
 
   const tradeAssetInputs = useMemo(() => {
     if (!(poolAsset && runeAsset && opportunityType)) return null

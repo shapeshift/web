@@ -10,7 +10,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectInputSellAmountUsd } from 'state/slices/selectors'
 import {
   selectActiveQuoteAffiliateBps,
-  selectQuoteFeeAmountUsd,
+  selectCalculatedFees,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -32,7 +32,15 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
-  const amountAfterDiscountUsd = useAppSelector(selectQuoteFeeAmountUsd)
+
+  const feeModel = 'SWAPPER'
+  const calculatedFeesFilter = useMemo(
+    () => ({ feeModel, inputAmountUsd }),
+    [feeModel, inputAmountUsd],
+  )
+  const { feeUsd: amountAfterDiscountUsd } = useAppSelector(state =>
+    selectCalculatedFees(state, calculatedFeesFilter),
+  )
 
   const handleOpenFeeModal = useCallback(() => setShowFeeModal(true), [])
   const handleCloseFeeModal = useCallback(() => setShowFeeModal(false), [])
@@ -47,7 +55,7 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
 
   const { title, titleProps } = useMemo(() => {
     return bnOrZero(amountAfterDiscountUsd).gt(0)
-      ? { title: toFiat(amountAfterDiscountUsd) }
+      ? { title: toFiat(amountAfterDiscountUsd.toFixed()) }
       : { title: translate('trade.free'), titleProps: { color: 'text.success' } }
   }, [amountAfterDiscountUsd, toFiat, translate])
 

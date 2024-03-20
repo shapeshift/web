@@ -244,6 +244,31 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return 'sym'
   }, [walletSupportsRune, walletSupportsAsset])
 
+  useEffect(() => {
+    // No-op if we already have an active opportunity as this effect is just used to set a default
+    if (activeOpportunityId) return
+    // No-op if we already have a default i.e we're in a pool view
+    if (opportunityId) return setActiveOpportunityId(opportunityId)
+
+    if (!pools?.length) return
+
+    // Gets the default opportunity type based on wallet support
+    const opportunityType = getDefaultOpportunityType()
+    const defaultOpportunityId = toOpportunityId({
+      assetId: pools[0].assetId,
+      type: opportunityType,
+    })
+
+    setActiveOpportunityId(defaultOpportunityId)
+  }, [
+    pools,
+    opportunityId,
+    activeOpportunityId,
+    getDefaultOpportunityType,
+    isSnapInstalled,
+    wallet,
+  ])
+
   const pool = useMemo(() => pools?.find(pool => pool.assetId === assetId), [assetId, pools])
 
   const _poolAsset = useAppSelector(state => selectAssetById(state, assetId ?? ''))

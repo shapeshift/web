@@ -60,7 +60,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const [isFailed, setIsFailed] = useState(false)
   const hasTrackedStatus = useRef(false)
 
-  const { opportunityId, positionStatus } = confirmedQuote
+  const { opportunityId } = confirmedQuote
   const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
@@ -70,8 +70,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   const poolAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
-
-    if (positionStatus?.incomplete) return [positionStatus.incomplete.asset]
 
     switch (opportunityType) {
       case 'sym':
@@ -83,12 +81,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       default:
         assertUnreachable(opportunityType)
     }
-  }, [poolAsset, baseAsset, opportunityType, positionStatus])
+  }, [poolAsset, baseAsset, opportunityType])
 
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
 
-    if (positionStatus?.incomplete) return [positionStatus.incomplete.asset]
     if (opportunityType === 'sym' && isDeposit) return [baseAsset, poolAsset]
 
     switch (opportunityType) {
@@ -100,7 +97,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       default:
         assertUnreachable(opportunityType)
     }
-  }, [poolAsset, baseAsset, opportunityType, isDeposit, positionStatus])
+  }, [poolAsset, baseAsset, opportunityType, isDeposit])
 
   const handleComplete = useCallback(
     (status: TxStatus) => {

@@ -66,7 +66,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const { opportunityId, positionStatus } = confirmedQuote
+  const { opportunityId } = confirmedQuote
   const { assetId, type: opportunityType } = fromOpportunityId(opportunityId)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
@@ -123,10 +123,6 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 
     const assets: Asset[] = (() => {
       if (!(poolAsset && baseAsset)) return []
-
-      if (positionStatus?.incomplete) {
-        return [positionStatus.incomplete.asset]
-      }
 
       switch (opportunityType) {
         case AsymSide.Rune:
@@ -199,7 +195,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         })}
       </Stack>
     )
-  }, [poolAsset, baseAsset, confirmedQuote, divider, opportunityType, positionStatus])
+  }, [poolAsset, baseAsset, confirmedQuote, divider, opportunityType])
 
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 

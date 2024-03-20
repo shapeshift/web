@@ -52,6 +52,7 @@ export enum MixPanelEvent {
   NoActionableQuotes = 'No Actionable Quotes',
   LpDepositPreview = 'LP Deposit Preview',
   LpDepositConfirm = 'LP Deposit Confirm',
+  LpIncompleteDepositConfirm = 'LP Incomplete Deposit Confirm',
   LpDepositInitiated = 'LP Deposit Initiated',
   LpDepositSuccess = 'LP Deposit Success',
   LpDepositFailed = 'LP Deposit Failed',

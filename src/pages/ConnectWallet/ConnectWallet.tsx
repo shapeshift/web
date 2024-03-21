@@ -134,7 +134,7 @@ export const ConnectWallet = () => {
     [dispatch],
   )
 
-  if (isMobile) {
+  if (!isMobile) {
     return <MobileConnect />
   }
 

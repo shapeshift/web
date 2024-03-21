@@ -3,15 +3,22 @@ import {
   AlertDescription,
   AlertIcon,
   Button,
+  Center,
+  Divider,
   Flex,
   Heading,
   Image,
   Stack,
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import BlueFox from 'assets/blue-fox.svg'
 import GreenFox from 'assets/green-fox.svg'
 import OrangeFox from 'assets/orange-fox.svg'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { FadeTransition } from 'components/FadeTransition'
+import { SlideTransitionY } from 'components/SlideTransitionY'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -36,8 +43,11 @@ export type WalletInfo = {
 export const MobileConnect = () => {
   const { create, importWallet, dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
+  const translate = useTranslate()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [hideWallets, setHideWallets] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const handleCreate = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -50,21 +60,24 @@ export const MobileConnect = () => {
   }, [dispatch, importWallet])
 
   useEffect(() => {
-    ;(async () => {
-      if (!wallets.length) {
+    if (!wallets.length) {
+      setIsLoading(true) // Set loading state to true when fetching wallets
+      ;(async () => {
         try {
           const vaults = await listWallets()
           if (!vaults.length) {
-            return setError('walletProvider.shapeShift.load.error.noWallet')
+            setError('walletProvider.shapeShift.load.error.noWallet')
+          } else {
+            setWallets(vaults)
           }
-
-          setWallets(vaults)
         } catch (e) {
           console.log(e)
-          setWallets([])
+          setError('An error occurred while fetching wallets.')
+        } finally {
+          setIsLoading(false) // Set loading state to false when fetching is done
         }
-      }
-    })()
+      })()
+    }
   }, [wallets])
 
   const handleWalletSelect = useCallback(
@@ -115,6 +128,68 @@ export const MobileConnect = () => {
     [dispatch, getAdapter, localWallet],
   )
 
+  const handleToggleWallets = useCallback(() => {
+    setHideWallets(!hideWallets)
+  }, [hideWallets])
+
+  useEffect(() => {
+    if (!wallets.length) {
+      setHideWallets(true)
+    }
+  }, [wallets.length])
+
+  const content = useMemo(() => {
+    return hideWallets ? (
+      <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
+        <Button colorScheme='blue' size='lg' onClick={handleCreate}>
+          {translate('connectWalletPage.createANewWallet')}
+        </Button>
+        <Button variant='outline' size='lg' onClick={handleImport}>
+          {translate('connectWalletPage.importExisting')}
+        </Button>
+
+        {!!wallets.length && (
+          <>
+            <Flex gap={2} alignItems='center'>
+              <Divider borderColor='border.base' />
+              <RawText>{translate('common.or')}</RawText>
+              <Divider borderColor='border.base' />
+            </Flex>
+            <Button variant='outline' size='lg' onClick={handleToggleWallets}>
+              {translate('connectWalletPage.viewSavedWallets')}
+            </Button>
+          </>
+        )}
+      </Stack>
+    ) : (
+      <Stack>
+        {wallets.map(wallet => (
+          <WalletCard id={wallet.id} key={wallet.id} wallet={wallet} onClick={handleWalletSelect} />
+        ))}
+        <Button size='lg' variant='outline' onClick={handleToggleWallets}>
+          {translate('connectWalletPage.importExisting')}
+        </Button>
+        {error && (
+          <Alert status='error'>
+            <AlertIcon />
+            <AlertDescription>
+              <Text translation={error} />
+            </AlertDescription>
+          </Alert>
+        )}
+      </Stack>
+    )
+  }, [
+    error,
+    handleCreate,
+    handleImport,
+    handleToggleWallets,
+    handleWalletSelect,
+    hideWallets,
+    translate,
+    wallets,
+  ])
+
   return (
     <Flex
       gap={6}
@@ -126,60 +201,57 @@ export const MobileConnect = () => {
       overflow='hidden'
       style={containerStyles}
     >
-      <Flex flex={1} position='relative' mb={-8}>
+      <Flex flex={1} position='absolute' width='100%' height='58%' top={0} left={0}>
         <Image src={GreenFox} position='absolute' left={0} bottom={0} width='auto' height='63%' />
         <Image src={BlueFox} position='absolute' top={0} right={0} width='auto' height='120%' />
         <Image src={OrangeFox} position='absolute' top={0} left={0} width='auto' height='65%' />
       </Flex>
-      <Stack px={6} spacing={6}>
-        <Stack textAlign='center' spacing={2}>
-          <Heading fontSize='24px' letterSpacing='-0.684px' fontWeight='semibold'>
-            Welcome to ShapeShift
-          </Heading>
-          <RawText
-            letterSpacing='-0.32px'
-            color='text.subtle'
-            fontWeight='medium'
-            maxWidth='90%'
-            mx='auto'
-          >
-            Create a brand new wallet or add an existing one to get started easily.
-          </RawText>
-        </Stack>
-        {!wallets.length ? (
-          <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
-            <Button colorScheme='blue' size='lg' onClick={handleCreate}>
-              Create a New Wallet
-            </Button>
-            <Button variant='outline' size='lg' onClick={handleImport}>
-              Import an Existing Wallet
-            </Button>
-          </Stack>
+      <AnimatePresence mode='wait'>
+        {isLoading ? (
+          <FadeTransition key='loading'>
+            <Center height='100vh'>
+              <CircularProgress />
+            </Center>
+          </FadeTransition>
         ) : (
-          <Stack>
-            {wallets.map(wallet => (
-              <WalletCard
-                id={wallet.id}
-                key={wallet.id}
-                wallet={wallet}
-                onClick={handleWalletSelect}
-              />
-            ))}
-            {error && (
-              <Alert status='error'>
-                <AlertIcon />
-                <AlertDescription>
-                  <Text translation={error} />
-                </AlertDescription>
-              </Alert>
-            )}
-          </Stack>
+          <SlideTransitionY key='content'>
+            <Stack px={6} spacing={6}>
+              <Stack textAlign='center' spacing={2}>
+                <Heading fontSize='24px' letterSpacing='-0.684px' fontWeight='semibold'>
+                  {translate(
+                    hideWallets
+                      ? 'connectWalletPage.welcomeToShapeShift'
+                      : 'connectWalletPage.welcomeBack',
+                  )}
+                </Heading>
+                <RawText
+                  letterSpacing='-0.32px'
+                  color='text.subtle'
+                  fontWeight='medium'
+                  maxWidth='90%'
+                  mx='auto'
+                >
+                  {translate(
+                    hideWallets
+                      ? 'connectWalletPage.mobileWelcomeBody'
+                      : 'connectWalletPage.mobileSelectBody',
+                  )}
+                </RawText>
+              </Stack>
+              {content}
+              <RawText
+                fontSize='sm'
+                color='text.subtle'
+                textAlign='center'
+                maxWidth='80%'
+                mx='auto'
+              >
+                By connecting a wallet, you agree to ShapeShift's Terms of Service.
+              </RawText>
+            </Stack>
+          </SlideTransitionY>
         )}
-
-        <RawText fontSize='sm' color='text.subtle' textAlign='center' maxWidth='80%' mx='auto'>
-          By connecting a wallet, you agree to ShapeShift's Terms of Service.
-        </RawText>
-      </Stack>
+      </AnimatePresence>
     </Flex>
   )
 }

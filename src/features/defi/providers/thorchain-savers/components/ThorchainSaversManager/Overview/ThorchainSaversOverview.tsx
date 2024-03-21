@@ -262,7 +262,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         label: 'common.withdraw',
         icon: <ArrowDownIcon />,
         action: DefiAction.Withdraw,
-        isDisabled: hasPendingTxs || hasPendingQueries,
+        isDisabled: hasPendingTxs || hasPendingQueries || isHaltedWithdrawals,
         toolTip: (() => {
           if (hasPendingTxs || hasPendingQueries)
             return translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
@@ -280,8 +280,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingTxs,
       hasPendingQueries,
       isHaltedDeposits: isTradingActive === false || isThorchainSaversDepositEnabled === false,
-      isHaltedWithdrawals:
-        isTradingActive === false || isThorchainSaversWithdrawalsEnabled === false,
+      isHaltedWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
     })
   }, [
     earnOpportunityData,

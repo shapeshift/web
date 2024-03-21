@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "Gratis",
+    "trade": "Intercambiar",
+    "trades": "Intercambios",
+    "lpDeposit": "Depósito LP",
+    "lpDeposits": "Depósitos LP",
     "back": "Atrás",
     "and": "y",
     "balance": "Balance",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 Arcoiris",
       "totalChart": "💰 Total",
       "addAsset": "Agregar activo",
-      "yourAssets": "Sus activos",
+      "myAssets": "Mis Activos",
       "asset": "Activos",
       "portfolioBalance": "Saldo de la cartera",
       "balance": "Balance",
@@ -1458,7 +1462,8 @@
     "xdefi": {
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con XDEFI",
-        "connectFailure": "No se puede conectar la billetera XDEFI"
+        "connectFailure": "No se puede conectar la billetera XDEFI",
+        "multipleWallets": "Proveedor Ethereum no es XDEFI. ¿Tiene varias billeteras instaladas y encendidas? Priorice XDEFI en configuración y presione emparejar."
       },
       "connect": {
         "header": "Emparejar XDEFI",
@@ -2192,15 +2197,18 @@
     "currentFoxPower": "Tu Poder FOX",
     "foxPower": "Poder FOX",
     "simulateTitle": "Simula tus descuentos de Poder FOX",
-    "tradeSize": "Tamaño de intercambio",
+    "simulateBody": "Utilice calculadora para determinar tarifas totales y descuentos %{feature}. Ajuste controles deslizantes para indicar el monto de su FOX y el tamaño %{featureLowerCase} en fiat, ¡y observe cómo se desarrollan sus ahorros potenciales!",
+    "featureSize": "%{feature} Tamaño",
     "totalFee": "Costo total",
     "foxPowerDiscount": "Descuento poder FOX",
     "basedOnFee": "Basado en tarifa de: %{fee}",
     "feeSummary": "Resumen Tarifas",
     "simulateFee": "Simular Descuento",
+    "freeUnderThreshold": "%{feature} por debajo de %{threshold} siempre son GRATIS",
     "breakdownHeader": "Su descuento de Poder FOX",
-    "tradeFee": "Tarifa de intercambio",
-    "totalTradeFee": "Tarifa total de intercambio"
+    "breakdownBody": "Abajo se muestra un desglose de tarifas %{featureLowerCase} y descuento FOX Power correspondiente. Descubra cuánto más puede ahorrar en pestaña de simulación.",
+    "featureFee": "%{feature} Tarifa",
+    "totalFeatureFee": "Tarifa %{feature} total"
   },
   "pools": {
     "pools": "Pools",

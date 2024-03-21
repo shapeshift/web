@@ -36,15 +36,24 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
+  const supportedAssets = useMemo(() => {
+    const fungibleAssets = assets.filter(asset => !isNft(asset.assetId))
+    if (allowWalletUnsupportedAssets) {
+      return fungibleAssets
+    }
+
+    return fungibleAssets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
+  }, [allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
+
   /**
    * assets filtered by selected chain ids
    */
   const filteredAssets = useMemo(
     () =>
       activeChain === 'All'
-        ? assets.filter(a => !isNft(a.assetId))
-        : assets.filter(a => a.chainId === activeChain && !isNft(a.assetId)),
-    [activeChain, assets],
+        ? supportedAssets
+        : supportedAssets.filter(a => a.chainId === activeChain),
+    [activeChain, supportedAssets],
   )
   // If a custom click handler isn't provided navigate to the asset's page
   const defaultClickHandler = useCallback(

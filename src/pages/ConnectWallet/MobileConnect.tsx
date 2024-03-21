@@ -8,6 +8,7 @@ import {
   Flex,
   Heading,
   Image,
+  keyframes,
   Stack,
 } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
@@ -40,6 +41,11 @@ export type WalletInfo = {
   createdAt?: number
 }
 
+const scaleFade = keyframes`
+  from { scale: 1.5; opacity: 0; }
+  to { scale: 1; opacity: 1;}
+`
+
 export const MobileConnect = () => {
   const { create, importWallet, dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
@@ -48,6 +54,7 @@ export const MobileConnect = () => {
   const [error, setError] = useState<string | null>(null)
   const [hideWallets, setHideWallets] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const scaleFadeAnimation = `${scaleFade} 0.6s cubic-bezier(0.76, 0, 0.24, 1)`
 
   const handleCreate = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -133,10 +140,10 @@ export const MobileConnect = () => {
   }, [hideWallets])
 
   useEffect(() => {
-    if (!wallets.length) {
+    if (!wallets.length && !isLoading) {
       setHideWallets(true) // If they have no wallets, show the default create or import
     }
-  }, [wallets.length])
+  }, [isLoading, wallets.length])
 
   const content = useMemo(() => {
     return hideWallets ? (
@@ -202,9 +209,33 @@ export const MobileConnect = () => {
       style={containerStyles}
     >
       <Flex flex={1} position='absolute' width='100%' height='58%' top={0} left={0}>
-        <Image src={GreenFox} position='absolute' left={0} bottom={0} width='auto' height='63%' />
-        <Image src={BlueFox} position='absolute' top={0} right={0} width='auto' height='120%' />
-        <Image src={OrangeFox} position='absolute' top={0} left={0} width='auto' height='65%' />
+        <Image
+          src={GreenFox}
+          position='absolute'
+          left={0}
+          bottom={0}
+          width='auto'
+          height='63%'
+          animation={scaleFadeAnimation}
+        />
+        <Image
+          src={BlueFox}
+          position='absolute'
+          top={0}
+          right={0}
+          width='auto'
+          height='120%'
+          animation={scaleFadeAnimation}
+        />
+        <Image
+          src={OrangeFox}
+          position='absolute'
+          top={0}
+          left={0}
+          width='auto'
+          height='65%'
+          animation={scaleFadeAnimation}
+        />
       </Flex>
       <AnimatePresence mode='wait'>
         {isLoading ? (

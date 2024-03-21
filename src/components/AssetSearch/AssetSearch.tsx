@@ -20,14 +20,12 @@ import { AssetList } from './components/AssetList'
 export type AssetSearchProps = {
   assets: Asset[]
   onAssetClick?: (asset: Asset) => void
-  disableUnsupported?: boolean
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
   assets,
   onAssetClick,
-  disableUnsupported,
   formProps,
   allowWalletUnsupportedAssets,
 }) => {
@@ -132,7 +130,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           mb='10'
           assets={listAssets}
           handleClick={handleClick}
-          disableUnsupported={disableUnsupported}
+          disableUnsupported={!allowWalletUnsupportedAssets}
         />
       </Box>
     </>

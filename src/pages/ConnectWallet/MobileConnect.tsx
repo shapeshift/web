@@ -204,7 +204,7 @@ export const MobileConnect = () => {
       flexDir='column'
       height='100dvh'
       justifyContent='flex-end'
-      pb='calc(env(safe-area-inset-bottom) + 2rem)'
+      pb='env(safe-area-inset-bottom)'
       overflow='hidden'
       style={containerStyles}
     >
@@ -246,7 +246,7 @@ export const MobileConnect = () => {
           </FadeTransition>
         ) : (
           <SlideTransitionY key='content'>
-            <Stack px={6} spacing={6}>
+            <Stack px={6} spacing={6} position='relative' zIndex='4'>
               <Stack textAlign='center' spacing={2}>
                 <Heading fontSize='24px' letterSpacing='-0.684px' fontWeight='semibold'>
                   {translate(

@@ -129,12 +129,12 @@ export const MobileConnect = () => {
   )
 
   const handleToggleWallets = useCallback(() => {
-    setHideWallets(!hideWallets)
+    setHideWallets(!hideWallets) // allow users with saved wallets to toggle between saved and create/import
   }, [hideWallets])
 
   useEffect(() => {
     if (!wallets.length) {
-      setHideWallets(true)
+      setHideWallets(true) // If they have no wallets, show the default create or import
     }
   }, [wallets.length])
 

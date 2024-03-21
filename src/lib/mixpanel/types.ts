@@ -60,6 +60,9 @@ export enum MixPanelEvent {
   LpWithdrawInitiated = 'LP Withdraw Initiated',
   LpWithdrawSuccess = 'LP Withdraw Success',
   LpWithdrawFailed = 'LP Withdraw Failed',
+  LpIncompleteDepositConfirm = 'LP Incomplete Deposit Confirm',
+  LpIncompleteWithdrawPreview = 'LP Incomplete Withdraw Preview',
+  LpIncompleteWithdrawConfirm = 'LP Incomplete Withdraw Confirm',
 }
 
 export type TrackOpportunityProps = {

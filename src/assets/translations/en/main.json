@@ -56,6 +56,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "incomplete": "Incomplete",
     "available": "Available",
     "or": "or",
     "somethingWentWrong": "Something went wrong",
@@ -863,6 +864,11 @@
     }
   },
   "modals": {
+    "assetSearch": {
+      "myAssets": "My Assets",
+      "popularAssets": "Popular Assets",
+      "searchResults": "Search Results"
+    },
     "popup": {
       "body": "We've launched a secure window to complete your order.",
       "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",
@@ -1174,6 +1180,8 @@
     "settings": {
       "clearCache": "Clear cache",
       "clearCacheTooltip": "Clear cache and reload app",
+      "clearTxHistory": "Clear transaction history",
+      "clearTxHistoryTooltip": "Clear transaction history cache",
       "settings": "Settings",
       "currency": "Currency",
       "clearWalletAccountData": "Delete all accounts & wallet data",
@@ -2230,6 +2238,8 @@
     "initialPricesAndPoolShare": "Initial Prices and Pool Share",
     "pricePerAsset": "%{from} per %{to}",
     "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
+    "incompletePositionDepositAlert": "This position is incomplete, please deposit the corresponding amount of %{asset} to finalize this position.",
+    "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
     "unsupportedNetworkExplainer": "Your wallet does not support %{network}. Please switch to a wallet that supports this network.",
     "unsupportedNetworksExplainer": "Your wallet does not support %{network1} and %{network2}. Please switch to a wallet that supports these networks.",
     "shareOfPool": "Share of Pool",

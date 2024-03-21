@@ -11,7 +11,7 @@ import type { KnownChainIds, NestedArray } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
-import { isNull } from 'lodash'
+import { isNull, orderBy } from 'lodash'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
@@ -260,4 +260,20 @@ export const assertGetChainAdapter = (
   }
 
   return adapter
+}
+
+export const sortChainIdsByDisplayName = (unsortedChainIds: ChainId[]) => {
+  const manager = getChainAdapterManager()
+  const unsortedChainIdsWithName = unsortedChainIds.map(chainId => {
+    return {
+      chainId,
+      displayName: manager.get(chainId)?.getDisplayName(),
+    }
+  })
+
+  const sortedChainIds = orderBy(unsortedChainIdsWithName, 'displayName', 'asc').map(
+    ({ chainId }) => chainId,
+  )
+
+  return sortedChainIds
 }

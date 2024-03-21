@@ -22,10 +22,7 @@ import { useHistory } from 'react-router-dom'
 import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import {
-  deleteWallet,
-  reloadWebview,
-} from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
@@ -34,7 +31,7 @@ import {
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
-import { persistor, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'
 import { currencyFormatsRepresenter, SettingsRoutes } from './SettingsCommon'
@@ -64,6 +61,7 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const selectedCurrencyFormat = useAppSelector(selectCurrencyFormat)
+
   // for both locale and currency
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
 
@@ -101,17 +99,10 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
     }
   }, [translate, settings, disconnect])
 
-  const handleClearCacheClick = useCallback(async () => {
-    try {
-      // clear store
-      await persistor.purge()
-      // send them back to the connect wallet route in case the bug was something to do with the current page
-      // and so they can reconnect their native wallet to avoid the app looking broken in an infinite loading state
-      appHistory.replace('/connect-wallet')
-      // reload the page
-      isMobileApp ? reloadWebview() : window.location.reload()
-    } catch (e) {}
-  }, [appHistory])
+  const handleClearCacheClick = useCallback(
+    () => history.push(SettingsRoutes.ClearCache),
+    [history],
+  )
 
   const themeColorIcon = useMemo(
     () => <Icon as={isLightMode ? SunIcon : MoonIcon} color='text.subtle' />,
@@ -209,9 +200,12 @@ export const SettingsList: FC<SettingsListProps> = ({ appHistory }) => {
           <SettingsListItem
             label='modals.settings.clearCache'
             icon={faBroomIcon}
-            tooltipText='modals.settings.clearCacheTooltip'
             onClick={handleClearCacheClick}
-          />
+          >
+            <Flex alignItems='center'>
+              <MdChevronRight color='text.subtle' size='1.5em' />
+            </Flex>
+          </SettingsListItem>
           <Divider my={1} />
           <SettingsListItem label='common.terms' onClick={handleTosClick} icon={ioLockClosedIcon} />
           <Divider my={1} />

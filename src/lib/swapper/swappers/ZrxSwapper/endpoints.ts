@@ -9,6 +9,7 @@ import type {
   TradeQuote,
 } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads/build'
+import { BigNumber } from 'lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus, getFees } from 'lib/utils/evm'
 
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
@@ -50,9 +51,9 @@ export const zrxApi: SwapperApi = {
 
     if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()
 
-    const { value, to, data } = zrxQuoteResponse.unwrap()
+    const { value, to, data, estimatedGas } = zrxQuoteResponse.unwrap()
 
-    const feeData = await getFees({
+    const { gasLimit, ...feeData } = await getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data,
       to,
@@ -67,6 +68,9 @@ export const zrxApi: SwapperApi = {
       value,
       data,
       chainId: Number(fromChainId(chainId).chainReference),
+      // Use the higher amount of the node or the API, as the node doesn't always provide enought gas padding for
+      // total gas used.
+      gasLimit: BigNumber.max(gasLimit, estimatedGas).toFixed(),
       ...feeData,
     }
   },

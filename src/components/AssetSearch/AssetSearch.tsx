@@ -4,51 +4,54 @@ import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import intersection from 'lodash/intersection'
 import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router'
-import {
-  selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
-  selectChainIdsByMarketCap,
-} from 'state/slices/selectors'
+import { ChainList } from 'components/TradeAssetSearch/Chains/ChainList'
+import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { sortChainIdsByDisplayName } from 'lib/utils'
+import { selectWalletSupportedChainIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { AssetList } from './AssetList'
-import { ChainList } from './Chains/ChainList'
-import { filterAssetsBySearchTerm } from './helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { AssetList } from './components/AssetList'
 export type AssetSearchProps = {
-  assets?: Asset[]
-  onClick?: (asset: Asset) => void
-  disableUnsupported?: boolean
+  assets: Asset[]
+  onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
+  allowWalletUnsupportedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
-  assets: selectedAssets,
-  onClick,
-  disableUnsupported,
+  assets,
+  onAssetClick,
   formProps,
+  allowWalletUnsupportedAssets,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const chainIdsByMarketCap = useSelector(selectChainIdsByMarketCap)
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
-  const assets = useAppSelector(
-    state => selectedAssets ?? selectAssetsSortedByMarketCapUserCurrencyBalanceAndName(state),
-  )
+  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+
+  const supportedAssets = useMemo(() => {
+    const fungibleAssets = assets.filter(asset => !isNft(asset.assetId))
+    if (allowWalletUnsupportedAssets) {
+      return fungibleAssets
+    }
+
+    return fungibleAssets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
+  }, [allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
+
   /**
    * assets filtered by selected chain ids
    */
   const filteredAssets = useMemo(
     () =>
       activeChain === 'All'
-        ? assets.filter(a => !isNft(a.assetId))
-        : assets.filter(a => a.chainId === activeChain && !isNft(a.assetId)),
-    [activeChain, assets],
+        ? supportedAssets
+        : supportedAssets.filter(a => a.chainId === activeChain),
+    [activeChain, supportedAssets],
   )
   // If a custom click handler isn't provided navigate to the asset's page
   const defaultClickHandler = useCallback(
@@ -60,7 +63,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     },
     [history],
   )
-  const handleClick = onClick ?? defaultClickHandler
+  const handleClick = onAssetClick ?? defaultClickHandler
   const [searchTermAssets, setSearchTermAssets] = useState<Asset[]>([])
   const { register, watch } = useForm<{ search: string }>({
     mode: 'onChange',
@@ -78,14 +81,16 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     }
   }, [searchString, searching, filteredAssets])
   const listAssets = searching ? searchTermAssets : filteredAssets
-  /**
-   * display a list of chain icon filters, based on a unique list of chain ids,
-   * derived from the output of the filterBy function, sorted by market cap
-   */
-  const filteredChainIdsByMarketCap: ChainId[] = useMemo(
-    () => intersection(chainIdsByMarketCap, uniq(assets.map(a => a.chainId))),
-    [chainIdsByMarketCap, assets],
-  )
+
+  const chainIds: ChainId[] = useMemo(() => {
+    const unsortedChainIds = uniq(assets.map(asset => asset.chainId))
+    const filteredChainIds = allowWalletUnsupportedAssets
+      ? unsortedChainIds
+      : unsortedChainIds.filter(chainId => walletSupportedChainIds.includes(chainId))
+    const sortedChainIds = sortChainIdsByDisplayName(filteredChainIds)
+    return sortedChainIds
+  }, [allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
+
   const inputProps: InputProps = useMemo(
     () => ({
       ...register('search'),
@@ -110,11 +115,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
 
   return (
     <>
-      <ChainList
-        chainIds={filteredChainIdsByMarketCap}
-        onClick={handleChainClick}
-        activeChain={activeChain}
-      />
+      <ChainList chainIds={chainIds} onClick={handleChainClick} activeChain={activeChain} />
       <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit} {...formProps}>
         <InputGroup size='lg'>
           {/* Override zIndex to prevent element displaying on overlay components */}
@@ -124,16 +125,14 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           <Input {...inputProps} />
         </InputGroup>
       </Box>
-      {listAssets && (
-        <Box flex={1}>
-          <AssetList
-            mb='10'
-            assets={listAssets}
-            handleClick={handleClick}
-            disableUnsupported={disableUnsupported}
-          />
-        </Box>
-      )}
+      <Box flex={1}>
+        <AssetList
+          mb='10'
+          assets={listAssets}
+          handleClick={handleClick}
+          disableUnsupported={!allowWalletUnsupportedAssets}
+        />
+      </Box>
     </>
   )
 }

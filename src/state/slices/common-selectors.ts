@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
@@ -54,10 +54,16 @@ export const selectPortfolioAssetBalancesBaseUnit = createDeepEqualOutputSelecto
   selectPortfolioAccountBalancesBaseUnit,
   (accountBalancesById): Record<AssetId, string> =>
     Object.values(accountBalancesById).reduce<Record<AssetId, string>>((acc, byAssetId) => {
-      Object.entries(byAssetId).forEach(
-        ([assetId, balance]) =>
-          (acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance)).toFixed()),
-      )
+      Object.entries(byAssetId).forEach(([assetId, balance]) => {
+        const bnBalance = bnOrZero(balance)
+
+        // don't include assets with zero crypto balance
+        if (bnBalance.isZero()) {
+          return
+        }
+
+        acc[assetId] = bnOrZero(acc[assetId]).plus(bnBalance).toFixed()
+      })
       return acc
     }, {}),
 )
@@ -166,3 +172,23 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
   const getAssetName = (asset: Asset) => asset.name
   return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
 })
+
+export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutputSelector(
+  selectPortfolioUserCurrencyBalances,
+  selectAssets,
+  (portfolioUserCurrencyBalances, assets) => {
+    const getAssetBalance = ([_assetId, balance]: [AssetId, string]) => bnOrZero(balance).toNumber()
+
+    return orderBy<[AssetId, string][]>(
+      Object.entries(portfolioUserCurrencyBalances),
+      [getAssetBalance],
+      ['desc'],
+    )
+      .map(value => {
+        const assetId = (value as [AssetId, string])[0]
+        return assets[assetId]
+      })
+      .filter(isSome)
+      .filter(asset => !isNft(asset.assetId))
+  },
+)

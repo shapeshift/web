@@ -10,29 +10,28 @@ import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { AssetSearchProps } from 'components/AssetSearch/AssetSearch'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
+import type { TradeAssetSearchProps } from 'components/TradeAssetSearch/TradeAssetSearch'
+import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
 import { breakpoints } from 'theme/theme'
 
-export type AssetSearchModalProps = AssetSearchProps & {
+export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string
-  onAssetClick: Required<AssetSearchProps>['onAssetClick']
+  onAssetClick: Required<TradeAssetSearchProps>['onAssetClick']
 }
 
-type AssetSearchModalBaseProps = AssetSearchModalProps & {
+type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
   isOpen: boolean
   close: () => void
 }
 
-export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
+export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   onAssetClick,
   close,
   isOpen,
-  assets,
-  title = 'common.selectAsset',
   allowWalletUnsupportedAssets,
+  title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -55,9 +54,8 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <AssetSearch
+        <TradeAssetSearch
           onAssetClick={handleAssetClick}
-          assets={assets}
           allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         />
       </ModalContent>
@@ -67,18 +65,13 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
 
 // multiple instances to prevent rerenders opening the modal in different parts of the app
 
-export const AssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
-  const assetSearch = useModal('assetSearch')
-  return <AssetSearchModalBase {...props} {...assetSearch} />
+export const SellTradeAssetSearchModal: FC<TradeAssetSearchModalProps> = memo(props => {
+  const sellAssetSearch = useModal('sellTradeAssetSearch')
+  return <TradeAssetSearchModalBase {...props} {...sellAssetSearch} />
 })
 
-export const SellAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
-  const sellAssetSearch = useModal('sellAssetSearch')
-  return <AssetSearchModalBase {...props} {...sellAssetSearch} />
-})
-
-export const BuyAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
-  const buyAssetSearch = useModal('buyAssetSearch')
+export const BuyTradeAssetSearchModal: FC<TradeAssetSearchModalProps> = memo(props => {
+  const buyAssetSearch = useModal('buyTradeAssetSearch')
   // Assets unsupported by the wallet are allowed when buying
-  return <AssetSearchModalBase {...props} {...buyAssetSearch} allowWalletUnsupportedAssets />
+  return <TradeAssetSearchModalBase {...props} {...buyAssetSearch} allowWalletUnsupportedAssets />
 })

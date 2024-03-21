@@ -1194,14 +1194,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [getDefaultOpportunityType],
   )
 
+  // We actually want unsupported assets to appear in this list ot match the main list of pools.
   const buyAssetSearch = useModal('buyAssetSearch')
   const handlePoolAssetClick = useCallback(() => {
     buyAssetSearch.open({
-      onClick: handleAssetChange,
+      onAssetClick: handleAssetChange,
       title: 'pools.pool',
       assets: poolAssets,
+      allowWalletUnsupportedAssets: true,
     })
-  }, [buyAssetSearch, poolAssets, handleAssetChange])
+  }, [buyAssetSearch, handleAssetChange, poolAssets])
 
   const pairSelect = useMemo(() => {
     // We only want to show the pair select on standalone "Add Liquidity" - not on the position page

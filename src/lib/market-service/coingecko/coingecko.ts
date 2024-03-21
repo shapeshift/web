@@ -28,6 +28,14 @@ type CoinGeckoHistoryData = {
   prices: [number, number][]
 }
 
+export type CoinGeckoSortKey =
+  | 'market_cap_asc'
+  | 'market_cap_desc'
+  | 'volume_asc'
+  | 'volume_desc'
+  | 'id_asc'
+  | 'id_desc'
+
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export class CoinGeckoMarketService implements MarketService {
@@ -40,7 +48,7 @@ export class CoinGeckoMarketService implements MarketService {
     this.baseUrl = adapters.coingeckoProBaseUrl
   }
 
-  async findAll(args?: FindAllMarketArgs) {
+  async findAll(args?: FindAllMarketArgs, orderBy: CoinGeckoSortKey = 'market_cap_desc') {
     const count = args?.count ?? this.defaultCount
     const perPage = count < this.maxPerPage ? count : this.maxPerPage
     const pages = Math.ceil(bnOrZero(count).div(perPage).toNumber())
@@ -53,7 +61,7 @@ export class CoinGeckoMarketService implements MarketService {
       const marketData = await Promise.all(
         pageCount.map(async page => {
           const { data } = await axios.get<CoinGeckoMarketCap>(
-            `${this.baseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false`,
+            `${this.baseUrl}/coins/markets?vs_currency=usd&order=${orderBy}&per_page=${perPage}&page=${page}&sparkline=false`,
           )
           return data ?? []
         }),

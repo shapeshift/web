@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "kostenlos",
+    "trade": "Handelsumsatz",
+    "trades": "Handelsumsätze",
+    "lpDeposit": "LP-Einzahlung",
+    "lpDeposits": "LP-Einzahlungen",
     "back": "Zurück",
     "and": "und",
     "balance": "Kontostand",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 Regenbogen",
       "totalChart": "💰 Gesamt",
       "addAsset": "Vermögenswert hinzufügen",
-      "yourAssets": "Ihr Vermögen",
+      "myAssets": "Mein Vermögen",
       "asset": "Vermögenswert",
       "portfolioBalance": "Portfolio Kontostand",
       "balance": "Kontostand",
@@ -1458,7 +1462,8 @@
     "xdefi": {
       "errors": {
         "unknown": "Bei der Kommunikation mit XDEFI ist ein unerwarteter Fehler aufgetreten",
-        "connectFailure": "XDEFI Wallet kann nicht verbunden werden"
+        "connectFailure": "XDEFI Wallet kann nicht verbunden werden",
+        "multipleWallets": "Der erkannte Ethereum-Anbieter ist nicht XDEFI. Haben Sie mehrere Wallets installiert und eingeschaltet? Priorisieren Sie XDEFI in den Einstellungen und drücken Sie erneut auf „Pair“."
       },
       "connect": {
         "header": "XDEFI koppeln",
@@ -2192,15 +2197,18 @@
     "currentFoxPower": "Deine FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "Simulieren Sie Ihre FOX-Power Rabatte",
-    "tradeSize": "Handelsgröße",
+    "simulateBody": "Verwenden Sie diesen praktischen Rechner, um Ihre Gesamtgebühren und den Rabatt zu ermitteln, den Sie auf Ihr %{feature} erhalten. Passen Sie einfach die Schieberegler unten an, um die Ihrer FOX Guthaben\n und die %{featureLowerCase}-Größe in Fiat anzugeben, und beobachten Sie, wie sich Ihre potenziellen Einsparungen entfalten!",
+    "featureSize": "%{feature} Größe",
     "totalFee": "Gesamtgebühr",
     "foxPowerDiscount": "FOX Power Rabatt",
     "basedOnFee": "Basierend auf einer Gebühr von: %{fee}",
     "feeSummary": "Gebührenübersicht",
     "simulateFee": "Rabatt simulieren",
+    "freeUnderThreshold": "%{feature} unter %{threshold} sind immer KOSTENLOS",
     "breakdownHeader": "Ihr FOX Power Rabatt",
-    "tradeFee": "Handelsgebühr",
-    "totalTradeFee": "Gesamte Handelsgebühr"
+    "breakdownBody": "Nachfolgend finden Sie eine Aufschlüsselung Ihrer %{featureLowerCase}-Gebühren und des entsprechenden angewendeten FOX Power-Rabatts. Erfahren Sie, wie viel mehr Sie sparen können in der Registerkarte „Simulieren“ .",
+    "featureFee": "%{feature} Gebühr",
+    "totalFeatureFee": "Gesamte %{feature} Gebühr"
   },
   "pools": {
     "pools": "Pools",

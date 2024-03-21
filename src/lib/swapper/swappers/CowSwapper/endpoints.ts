@@ -117,6 +117,9 @@ export const cowApi: SwapperApi = {
     const sellAmountPlusProtocolFees = bn(quote.sellAmount).plus(quote.feeAmount)
     const orderToSign: CowSwapOrder = {
       ...quote,
+      // Another mutation from the original quote to go around the fact that CoW API flow is weird
+      // they return us a quote with fees, but we have to zero them out when sending the order
+      feeAmount: '0',
       buyAmount: slippageDeductedBuyAmount.toFixed(0),
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,

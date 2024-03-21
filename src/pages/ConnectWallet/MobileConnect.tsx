@@ -208,7 +208,7 @@ export const MobileConnect = () => {
       overflow='hidden'
       style={containerStyles}
     >
-      <Flex flex={1} position='absolute' width='100%' height='58%' top={0} left={0}>
+      <Flex flex={1} position='absolute' width='100%' height='55%' top={0} left={0}>
         <Image
           src={GreenFox}
           position='absolute'

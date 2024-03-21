@@ -3,6 +3,7 @@ import type { FC } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'react-router-dom'
 
+import { ClearCache } from './ClearCache'
 import { CurrencyFormat } from './CurrencyFormat'
 import { FiatCurrencies } from './FiatCurrencies'
 import { Languages } from './Languages'
@@ -30,6 +31,9 @@ export const SettingsRouter: FC<SettingsRouterProps> = ({ appHistory }) => {
         </Route>
         <Route path={SettingsRoutes.CurrencyFormat}>
           <CurrencyFormat />
+        </Route>
+        <Route path={SettingsRoutes.ClearCache}>
+          <ClearCache appHistory={appHistory} />
         </Route>
       </Switch>
     </AnimatePresence>

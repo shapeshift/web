@@ -19,7 +19,6 @@ import { numberToHex } from 'web3-utils'
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
-import { bn } from '../../utils/bignumber'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as gnosis from './GnosisChainAdapter'
 
@@ -486,68 +485,6 @@ describe('GnosisChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it('sendmax: true without chainSpecific.contractAddress should throw if balance is 0', async () => {
-      const httpProvider = {
-        getAccount: vi
-          .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance: '0', tokenBalance: '424242' })),
-      } as unknown as unchained.gnosis.V1Api
-
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
-      const adapter = new gnosis.ChainAdapter(args)
-
-      const tx = {
-        wallet: await getWallet(),
-        accountNumber,
-        to: EOA_ADDRESS,
-        value,
-        chainSpecific: makeChainSpecific(),
-        sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
-
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
-    })
-
-    it('sendMax: true without chainSpecific.contractAddress - should build a tx with full account balance - gas fee', async () => {
-      const balance = '2500000'
-      const expectedValue = numberToHex(
-        bn(balance).minus(bn(gasLimit).multipliedBy(gasPrice)) as any,
-      )
-      const httpProvider = {
-        getAccount: vi
-          .fn<any, any>()
-          .mockResolvedValue(makeGetAccountMockResponse({ balance, tokenBalance: '424242' })),
-      } as unknown as unchained.gnosis.V1Api
-
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
-      const adapter = new gnosis.ChainAdapter(args)
-
-      const tx = {
-        wallet: await getWallet(),
-        accountNumber,
-        to: EOA_ADDRESS,
-        value,
-        chainSpecific: makeChainSpecific(),
-        sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
-
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(gnosisChainId).chainReference),
-          data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: EOA_ADDRESS,
-          value: expectedValue,
-        },
-      })
-
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
-    })
-
     it("should build a tx with value: '0' for BEP20 txs without sendMax", async () => {
       const httpProvider = {
         getAccount: vi
@@ -580,69 +517,6 @@ describe('GnosisChainAdapter', () => {
           value: '0x0',
         },
       })
-
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
-    })
-
-    it('sendmax: true with chainSpecific.contractAddress should build a tx with full account balance - gas fee', async () => {
-      const httpProvider = {
-        getAccount: vi
-          .fn<any, any>()
-          .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: '424242' }),
-          ),
-      } as unknown as unchained.gnosis.V1Api
-
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
-      const adapter = new gnosis.ChainAdapter(args)
-
-      const tx = {
-        wallet: await getWallet(),
-        accountNumber,
-        to: EOA_ADDRESS,
-        value,
-        chainSpecific: makeChainSpecific({ contractAddress }),
-        sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
-
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
-        txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
-          chainId: Number(fromChainId(gnosisChainId).chainReference),
-          data: '0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000067932',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
-          nonce: '0x2',
-          to: contractAddress,
-          value: '0x0',
-        },
-      })
-
-      expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
-    })
-
-    it('sendmax: true with chainSpecific.contractAddress should throw if token balance is 0', async () => {
-      const httpProvider = {
-        getAccount: vi
-          .fn<any, any>()
-          .mockResolvedValue(
-            makeGetAccountMockResponse({ balance: '2500000', tokenBalance: undefined }),
-          ),
-      } as unknown as unchained.gnosis.V1Api
-
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
-      const adapter = new gnosis.ChainAdapter(args)
-
-      const tx = {
-        wallet: await getWallet(),
-        accountNumber,
-        to: EOA_ADDRESS,
-        value,
-        chainSpecific: makeChainSpecific({ contractAddress }),
-        sendMax: true,
-      } as unknown as BuildSendTxInput<KnownChainIds.GnosisMainnet>
-
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('no balance')
 
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })

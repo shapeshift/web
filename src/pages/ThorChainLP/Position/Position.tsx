@@ -213,6 +213,24 @@ export const Position = () => {
     )
   }, [asset, opportunityId, runeAsset])
 
+  const positionStatusTag = useMemo(() => {
+    if (position?.status.incomplete) {
+      return (
+        <Tag size={'lg'} colorScheme='red'>
+          <Text translation='common.incomplete' />
+        </Tag>
+      )
+    }
+
+    if (position?.status.isPending) {
+      return (
+        <Tag size={'lg'} colorScheme='yellow'>
+          <Text translation='common.pending' />
+        </Tag>
+      )
+    }
+  }, [position])
+
   return (
     <Main headerComponent={headerComponent}>
       <Flex gap={4} flexDir={flexDirPool}>
@@ -225,6 +243,7 @@ export const Position = () => {
                   <Heading as='h3'>{position?.name ?? pool?.name ?? ''}</Heading>
                 </Skeleton>
                 <Tag size={'lg'}>{poolTypeText}</Tag>
+                {positionStatusTag}
               </Flex>
             </CardHeader>
             <CardBody gap={6} display='flex' flexDir='column' px={8} pb={8} pt={0}>

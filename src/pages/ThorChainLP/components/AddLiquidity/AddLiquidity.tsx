@@ -138,24 +138,31 @@ export const AddLiquidityRoutes: React.FC<AddLiquidityRoutesProps> = ({
     [confirmedQuote],
   )
 
-  const renderAddLiquiditySweep = useCallback(
-    () =>
-      confirmedQuote ? (
-        <AddLiquiditySweep
-          confirmedQuote={confirmedQuote}
-          // eslint-disable-next-line react-memo/require-usememo
-          onSweepSeen={() => {
-            mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
-            history.push(AddLiquidityRoutePaths.Confirm)
-          }}
-          // eslint-disable-next-line react-memo/require-usememo
-          onBack={() => {
-            history.push(AddLiquidityRoutePaths.Input)
-          }}
-        />
-      ) : null,
-    [confirmedQuote, history, mixpanel],
-  )
+  const renderAddLiquiditySweep = useCallback(() => {
+    if (!confirmedQuote) return null
+
+    const handleSweepSeen = () => {
+      if (confirmedQuote.positionStatus?.incomplete) {
+        history.push(AddLiquidityRoutePaths.Status)
+        mixpanel?.track(MixPanelEvent.LpIncompleteDepositConfirm, confirmedQuote)
+      }
+
+      history.push(AddLiquidityRoutePaths.Confirm)
+      mixpanel?.track(MixPanelEvent.LpDepositPreview, confirmedQuote!)
+    }
+
+    return (
+      <AddLiquiditySweep
+        confirmedQuote={confirmedQuote}
+        // eslint-disable-next-line react-memo/require-usememo
+        onSweepSeen={handleSweepSeen}
+        // eslint-disable-next-line react-memo/require-usememo
+        onBack={() => {
+          history.push(AddLiquidityRoutePaths.Input)
+        }}
+      />
+    )
+  }, [confirmedQuote, history, mixpanel])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

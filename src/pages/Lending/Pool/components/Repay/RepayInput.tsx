@@ -341,6 +341,7 @@ export const RepayInput = ({
   }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
+    if (!isThorchainLendingRepayEnabled) return 'trade.errors.tradingNotActiveNoAssetSymbol'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
@@ -355,10 +356,7 @@ export const RepayInput = ({
       )
         return 'Repayment not yet available'
 
-      if (
-        /trading is halted/i.test(lendingQuoteCloseError.message) ||
-        !isThorchainLendingRepayEnabled
-      )
+      if (/trading is halted/i.test(lendingQuoteCloseError.message))
         return 'trade.errors.tradingNotActiveNoAssetSymbol'
 
       // This should never happen but it may

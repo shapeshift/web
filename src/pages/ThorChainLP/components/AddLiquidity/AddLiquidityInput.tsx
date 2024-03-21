@@ -1194,12 +1194,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [getDefaultOpportunityType],
   )
 
+  // We actually want unsupported assets to appear in this list ot match the main list of pools.
   const buyAssetSearch = useModal('buyAssetSearch')
   const handlePoolAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onAssetClick: handleAssetChange,
       title: 'pools.pool',
       assets: poolAssets,
+      allowWalletUnsupportedAssets: true,
     })
   }, [buyAssetSearch, handleAssetChange, poolAssets])
 

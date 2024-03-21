@@ -32,6 +32,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   isOpen,
   assets,
   title = 'common.selectAsset',
+  allowWalletUnsupportedAssets,
 }) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -54,7 +55,11 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <AssetSearch onAssetClick={handleAssetClick} assets={assets} />
+        <AssetSearch
+          onAssetClick={handleAssetClick}
+          assets={assets}
+          allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+        />
       </ModalContent>
     </Modal>
   )

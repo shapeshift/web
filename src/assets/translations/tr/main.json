@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "Uygun",
+    "trade": "Takas",
+    "trades": "İşlemler",
+    "lpDeposit": "LP Yatırma",
+    "lpDeposits": "LP Yatırma",
     "back": "Geri",
     "and": "ve",
     "balance": "Bakiye",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 Gökkuşağı",
       "totalChart": "💰 Toplam",
       "addAsset": "Varlık Ekle",
-      "yourAssets": "Cüzdan Varlıkları",
+      "myAssets": "Varlıklarım",
       "asset": "Varlık",
       "portfolioBalance": "Portföy Bakiyesi",
       "balance": "Bakiye",
@@ -1458,7 +1462,8 @@
     "xdefi": {
       "errors": {
         "unknown": "XDEFI ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "XDEFI cüzdanına bağlanılamıyor"
+        "connectFailure": "XDEFI cüzdanına bağlanılamıyor",
+        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı XDEFI değil. Yüklü ve açık birden fazla cüzdanınız mı var? Ayarlarda XDEFI'ye öncelik verin ve tekrar eşleştirmeye basın."
       },
       "connect": {
         "header": "XDEFI'yi eşle",
@@ -2192,15 +2197,18 @@
     "currentFoxPower": "FOX Power'ın",
     "foxPower": "FOX Power",
     "simulateTitle": "FOX Power indirimlerinizi simüle edin",
-    "tradeSize": "Takas Boyutu",
+    "simulateBody": "Toplam ücretlerinizi ve %{feature} özelliğinizde alacağınız indirimi belirlemek için bu kullanışlı hesaplayıcıyı kullanın. FOX tutucu miktarınızı ve fiat cinsinden %{featureLowerCase} boyutunu belirtmek için aşağıdaki kaydırıcıları ayarlayın ve potansiyel tasarruflarınızın ortaya çıkmasını izleyin!",
+    "featureSize": "%{feature} Boyut",
     "totalFee": "Toplam Ücret",
     "foxPowerDiscount": "FOX Power İndirimi",
     "basedOnFee": "Şu ücrete dayalıdır: %{fee}",
     "feeSummary": "Ücret Özeti",
     "simulateFee": "İndirim Simülasyonu",
+    "freeUnderThreshold": "%{threshold} altındaki %{feature} her zaman ÜCRETSİZDİR",
     "breakdownHeader": "FOX Power İndiriminiz",
-    "tradeFee": "Takas Ücreti",
-    "totalTradeFee": "Toplam Takas Ücreti"
+    "breakdownBody": "Aşağıda %{featureLowerCase} ücretlerinizin ve uygulanan FOX Güç İndiriminin bir dökümü bulunmaktadır. Simülasyon sekmesinde ne kadar daha fazla tasarruf edebileceğinizi öğrenin.",
+    "featureFee": "%{feature} Ücret",
+    "totalFeatureFee": "Toplam %{feature} Ücret"
   },
   "pools": {
     "pools": "Havuzlar",

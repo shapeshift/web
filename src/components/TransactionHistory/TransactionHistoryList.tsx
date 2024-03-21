@@ -22,12 +22,12 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
     const loadMoreRightIcon = useMemo(
       () =>
-        isAnyTxHistoryApiQueryPending ? (
+        !hasMore && isAnyTxHistoryApiQueryPending ? (
           <CircularProgress isIndeterminate size={6} />
         ) : (
           <ChevronDownIcon />
         ),
-      [isAnyTxHistoryApiQueryPending],
+      [hasMore, isAnyTxHistoryApiQueryPending],
     )
 
     return (

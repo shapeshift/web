@@ -1181,7 +1181,7 @@
       "clearCache": "Clear cache",
       "clearCacheTooltip": "Clear cache and reload app",
       "clearTxHistory": "Clear transaction history",
-      "clearTxHistoryTooltip": "Clear and re-fetch transaction history cache",
+      "clearTxHistoryTooltip": "Clear transaction history cache",
       "settings": "Settings",
       "currency": "Currency",
       "clearWalletAccountData": "Delete all accounts & wallet data",

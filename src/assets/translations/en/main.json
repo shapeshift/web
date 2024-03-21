@@ -864,6 +864,11 @@
     }
   },
   "modals": {
+    "assetSearch": {
+      "myAssets": "My Assets",
+      "popularAssets": "Popular Assets",
+      "searchResults": "Search Results"
+    },
     "popup": {
       "body": "We've launched a secure window to complete your order.",
       "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",

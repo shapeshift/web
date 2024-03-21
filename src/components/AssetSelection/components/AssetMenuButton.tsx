@@ -1,8 +1,9 @@
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -11,10 +12,11 @@ import { AssetRowLoading } from './AssetRowLoading'
 
 export type AssetMenuButtonProps = {
   assetId?: AssetId
-  onAssetClick?: () => void
+  onAssetClick?: (asset: Asset) => void
   isDisabled: boolean
   buttonProps?: ButtonProps
   isLoading?: boolean
+  showNetworkIcon?: boolean
 }
 
 export const AssetMenuButton = ({
@@ -23,6 +25,7 @@ export const AssetMenuButton = ({
   isDisabled,
   buttonProps,
   isLoading,
+  showNetworkIcon,
 }: AssetMenuButtonProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
@@ -30,15 +33,19 @@ export const AssetMenuButton = ({
     return asset?.icons ? (
       <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
     ) : (
-      <AssetIcon assetId={assetId} size='xs' showNetworkIcon={false} />
+      <AssetIcon assetId={assetId} size='xs' showNetworkIcon={showNetworkIcon} />
     )
-  }, [asset?.icons, assetId])
+  }, [asset?.icons, assetId, showNetworkIcon])
+
+  const handleAssetClick = useCallback(() => {
+    if (asset) onAssetClick?.(asset)
+  }, [asset, onAssetClick])
 
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
     <Button
-      onClick={onAssetClick}
+      onClick={handleAssetClick}
       flexGrow={0}
       flexShrink={0}
       isDisabled={isDisabled}

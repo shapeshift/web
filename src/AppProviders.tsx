@@ -69,17 +69,17 @@ export function AppProviders({ children }: ProvidersProps) {
                       <WalletConnectV2Provider>
                         <KeepKeyProvider>
                           <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                            <ModalProvider>
-                              <TransactionsProvider>
-                                <QueryClientProvider>
+                            <QueryClientProvider>
+                              <ModalProvider>
+                                <TransactionsProvider>
                                   <AppProvider>
                                     <FoxEthProvider>
                                       <DefiManagerProvider>{children}</DefiManagerProvider>
                                     </FoxEthProvider>
                                   </AppProvider>
-                                </QueryClientProvider>
-                              </TransactionsProvider>
-                            </ModalProvider>
+                                </TransactionsProvider>
+                              </ModalProvider>
+                            </QueryClientProvider>
                           </ErrorBoundary>
                         </KeepKeyProvider>
                       </WalletConnectV2Provider>

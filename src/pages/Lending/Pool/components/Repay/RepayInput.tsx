@@ -192,10 +192,6 @@ export const RepayInput = ({
   const { data: lendingSupportedAssets, isLoading: isLendingSupportedAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
 
-  const lendingSupportedAssetIds = useMemo(() => {
-    return lendingSupportedAssets?.map(lendingSupportedAsset => lendingSupportedAsset.assetId) ?? []
-  }, [lendingSupportedAssets])
-
   useEffect(() => {
     if (!(lendingSupportedAssets && collateralAsset)) return
     if (repaymentAsset) return
@@ -206,12 +202,10 @@ export const RepayInput = ({
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleRepaymentAssetClick = useCallback(() => {
-    if (!lendingSupportedAssets?.length) return
-
     buyAssetSearch.open({
-      onClick: setRepaymentAsset,
+      onAssetClick: setRepaymentAsset,
       title: 'lending.repay',
-      assets: lendingSupportedAssets,
+      assets: lendingSupportedAssets ?? [],
     })
   }, [buyAssetSearch, lendingSupportedAssets, setRepaymentAsset])
 
@@ -219,22 +213,14 @@ export const RepayInput = ({
     return (
       <TradeAssetSelect
         assetId={repaymentAsset?.assetId ?? ''}
-        assetIds={lendingSupportedAssetIds}
         onAssetClick={handleRepaymentAssetClick}
         onAssetChange={setRepaymentAsset}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
-        isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [
-    setRepaymentAsset,
-    handleRepaymentAssetClick,
-    isLendingSupportedAssetsLoading,
-    lendingSupportedAssetIds,
-    repaymentAsset?.assetId,
-  ])
+  }, [setRepaymentAsset, handleRepaymentAssetClick, repaymentAsset?.assetId])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (

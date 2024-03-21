@@ -17,7 +17,6 @@ import { numberToHex } from 'web3-utils'
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
-import { bn } from '../../utils/bignumber'
 import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as arbitrumNova from './ArbitrumNovaChainAdapter'
 

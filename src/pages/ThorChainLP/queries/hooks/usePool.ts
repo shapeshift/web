@@ -20,7 +20,7 @@ export type Pool = MidgardPoolResponse & {
   assetId: AssetId
   name: string
   tvlFiat: string
-}
+} & Partial<VolumeStats>
 
 export type PoolStats = {
   fees24hFiat: string
@@ -31,6 +31,12 @@ export type PoolStats = {
   volume24hChange: number
   volume7dFiat: string
   volumeTotalFiat: string
+}
+
+export type VolumeStats = {
+  volume24hFiat: string
+  volume24hChange: number
+  volume7dFiat: string
 }
 
 export type PoolWithStats = Pool & PoolStats
@@ -65,7 +71,10 @@ export const getPool = (
 }
 
 // selectSwapsData aggregates fees and volume (128 hour intervals -> 7 day intervals)
-export const selectSwapsData = (data: MidgardSwapHistoryResponse) => {
+export const selectSwapsData = (
+  data: MidgardSwapHistoryResponse,
+  thorchainNotationPoolAssetId: string,
+) => {
   let historyIndex = 0
   const intervals = data.intervals.reduce<Pick<MidgardInterval, 'totalFees' | 'totalVolume'>[]>(
     (prev, interval, i) => {
@@ -93,6 +102,7 @@ export const selectSwapsData = (data: MidgardSwapHistoryResponse) => {
   return {
     intervals,
     meta: data.meta,
+    thorchainNotationPoolAssetId,
   }
 }
 
@@ -128,7 +138,7 @@ export const getTvlStats = (pool: Pool, tvl24hIntervals: string[], runePrice: st
 export const getVolumeStats = (
   swapsData: ReturnType<typeof selectSwapsData>,
   runePrice: string,
-) => {
+): VolumeStats => {
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
@@ -181,7 +191,10 @@ export const usePool = (poolAssetId: string) => {
   const [poolData, swapsData, tvl, poolStats] = useQueries({
     queries: [
       { ...midgard.poolData(poolAssetId), select: selectPoolData },
-      { ...midgard.swapsData(poolAssetId, 'hour', 7 * 24), select: selectSwapsData },
+      {
+        ...midgard.swapsData(poolAssetId, 'hour', 7 * 24),
+        select: (swapsData: MidgardSwapHistoryResponse) => selectSwapsData(swapsData, poolAssetId),
+      },
       { ...midgard.tvl('hour', 7 * 24), select: selectTvl },
       { ...midgard.poolStats(poolAssetId, 'all') },
     ],

@@ -16,7 +16,9 @@ export const ChangeLabel = () => {
   const toast = useToast()
   const { state } = useWallet()
   const { walletInfo } = state
-  const { keepKeyWallet } = useKeepKey()
+  const {
+    state: { keepKeyWallet },
+  } = useKeepKey()
   const {
     state: {
       deviceState: { awaitingDeviceInteraction },

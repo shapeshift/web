@@ -1,6 +1,5 @@
 import {
   Modal,
-  ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
@@ -19,7 +18,7 @@ import { breakpoints } from 'theme/theme'
 
 export type AssetSearchModalProps = AssetSearchProps & {
   title?: string
-  onClick: Required<AssetSearchProps>['onClick']
+  onAssetClick: Required<AssetSearchProps>['onAssetClick']
 }
 
 type AssetSearchModalBaseProps = AssetSearchModalProps & {
@@ -28,23 +27,23 @@ type AssetSearchModalBaseProps = AssetSearchModalProps & {
 }
 
 export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
-  onClick,
+  onAssetClick,
   close,
   isOpen,
   assets,
-  disableUnsupported,
   title = 'common.selectAsset',
+  allowWalletUnsupportedAssets,
 }) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { height: windowHeight } = useWindowSize()
 
-  const handleClick = useCallback(
+  const handleAssetClick = useCallback(
     (asset: Asset) => {
-      onClick(asset)
+      onAssetClick(asset)
       close()
     },
-    [close, onClick],
+    [close, onAssetClick],
   )
   const modalHeight = windowHeight
     ? // Converts pixel units to vh for Modal component
@@ -56,13 +55,11 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <ModalContent height={`${modalHeight}vh`}>
         <ModalHeader>{translate(title)}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody px={2} pt={0} pb={0} display='flex' flexDir='column'>
-          <AssetSearch
-            onClick={handleClick}
-            assets={assets}
-            disableUnsupported={disableUnsupported}
-          />
-        </ModalBody>
+        <AssetSearch
+          onAssetClick={handleAssetClick}
+          assets={assets}
+          allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+        />
       </ModalContent>
     </Modal>
   )
@@ -82,5 +79,6 @@ export const SellAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
 
 export const BuyAssetSearchModal: FC<AssetSearchModalProps> = memo(props => {
   const buyAssetSearch = useModal('buyAssetSearch')
-  return <AssetSearchModalBase {...props} {...buyAssetSearch} />
+  // Assets unsupported by the wallet are allowed when buying
+  return <AssetSearchModalBase {...props} {...buyAssetSearch} allowWalletUnsupportedAssets />
 })

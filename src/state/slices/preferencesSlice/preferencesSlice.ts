@@ -23,6 +23,8 @@ export type FeatureFlags = {
   WalletConnectToDappsV2: boolean
   Wherever: boolean
   SaversVaults: boolean
+  SaversVaultsDeposit: boolean
+  SaversVaultsWithdraw: boolean
   Yearn: boolean
   DefiDashboard: boolean
   ArkeoAirdrop: boolean
@@ -94,6 +96,8 @@ const initialState: Preferences = {
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
+    SaversVaultsDeposit: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT,
+    SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,

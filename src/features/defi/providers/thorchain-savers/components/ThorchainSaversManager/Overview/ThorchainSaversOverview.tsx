@@ -35,6 +35,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -135,6 +136,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     swapperName: SwapperName.Thorchain,
   })
 
+  const isThorchainSaversDepositEnabled = useFeatureFlag('SaversVaultsDeposit')
+  const isThorchainSaversWithdrawalsEnabled = useFeatureFlag('SaversVaultsWithdraw')
+
   useEffect(() => {
     if (!maybeAccountId) return
     handleAccountIdChange(maybeAccountId)
@@ -230,12 +234,14 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isFull,
       hasPendingTxs,
       hasPendingQueries,
-      isHalted,
+      isHaltedDeposits,
+      isHaltedWithdrawals,
     }: {
       isFull?: boolean
       hasPendingTxs?: boolean
       hasPendingQueries?: boolean
-      isHalted?: boolean
+      isHaltedDeposits?: boolean
+      isHaltedWithdrawals?: boolean
     } = {}): DefiButtonProps[] => [
       ...(isFull
         ? []
@@ -244,11 +250,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               label: 'common.deposit',
               icon: <ArrowUpIcon />,
               action: DefiAction.Deposit,
-              isDisabled: isFull || hasPendingTxs || hasPendingQueries || isHalted,
+              isDisabled: isFull || hasPendingTxs || hasPendingQueries || isHaltedDeposits,
               toolTip: (() => {
                 if (hasPendingTxs || hasPendingQueries)
                   return translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
-                if (isHalted) return translate('defi.modals.saversVaults.haltedTitle')
+                if (isHaltedDeposits) return translate('defi.modals.saversVaults.haltedTitle')
               })(),
             },
           ]),
@@ -257,10 +263,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         icon: <ArrowDownIcon />,
         action: DefiAction.Withdraw,
         isDisabled: hasPendingTxs || hasPendingQueries,
-        toolTip:
-          hasPendingTxs || hasPendingQueries
-            ? translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
-            : undefined,
+        toolTip: (() => {
+          if (hasPendingTxs || hasPendingQueries)
+            return translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
+          if (isHaltedWithdrawals) return translate('defi.modals.saversVaults.haltedWithdrawTitle')
+        })(),
       },
     ],
     [translate],
@@ -272,7 +279,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isFull: opportunityMetadata?.isFull || isHardCapReached,
       hasPendingTxs,
       hasPendingQueries,
-      isHalted: isTradingActive === false,
+      isHaltedDeposits: isTradingActive === false || isThorchainSaversDepositEnabled === false,
+      isHaltedWithdrawals:
+        isTradingActive === false || isThorchainSaversWithdrawalsEnabled === false,
     })
   }, [
     earnOpportunityData,
@@ -282,6 +291,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     hasPendingTxs,
     hasPendingQueries,
     isTradingActive,
+    isThorchainSaversDepositEnabled,
+    isThorchainSaversWithdrawalsEnabled,
   ])
 
   const renderVaultCap = useMemo(() => {

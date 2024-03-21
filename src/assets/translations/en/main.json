@@ -375,6 +375,7 @@
         "vaultCap": "Vault Cap",
         "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedTitle": "Deposits are temporarily halted.",
+        "haltedWithdrawTitle": "Withdraws are temporarily halted.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
         "protocolFee": "Protocol Fee",
         "fee": "Fee",

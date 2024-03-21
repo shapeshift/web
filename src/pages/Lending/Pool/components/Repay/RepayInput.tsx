@@ -27,6 +27,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -122,6 +123,8 @@ export const RepayInput = ({
     isError: isLendingQuoteCloseError,
     error: lendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+
+  const isThorchainLendingRepayEnabled = useFeatureFlag('ThorchainLendingRepay')
 
   useEffect(() => {
     setConfirmedQuote(lendingQuoteCloseData ?? null)
@@ -352,7 +355,10 @@ export const RepayInput = ({
       )
         return 'Repayment not yet available'
 
-      if (/trading is halted/i.test(lendingQuoteCloseError.message))
+      if (
+        /trading is halted/i.test(lendingQuoteCloseError.message) ||
+        !isThorchainLendingRepayEnabled
+      )
         return 'trade.errors.tradingNotActiveNoAssetSymbol'
 
       // This should never happen but it may
@@ -369,6 +375,7 @@ export const RepayInput = ({
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
+    isThorchainLendingRepayEnabled,
     lendingQuoteCloseError?.message,
   ])
 
@@ -567,7 +574,8 @@ export const RepayInput = ({
             isAddressByteCodeLoading
           }
           isDisabled={Boolean(
-            isLendingPositionDataLoading ||
+            !isThorchainLendingRepayEnabled ||
+              isLendingPositionDataLoading ||
               isLendingPositionDataError ||
               isLendingQuoteCloseLoading ||
               isLendingQuoteCloseRefetching ||

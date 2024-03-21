@@ -23,6 +23,7 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -111,6 +112,8 @@ export const BorrowInput = ({
     if (!poolData) return null
     return bnOrZero(poolData.tvl).eq(poolData.maxSupplyFiat)
   }, [poolData])
+
+  const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
 
   const borrowAssetIds = useMemo(() => {
     return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
@@ -427,7 +430,8 @@ export const BorrowInput = ({
   ])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (isHardCapReached) return 'defi.modals.saversVaults.haltedTitle'
+    if (isHardCapReached || !isThorchainLendingBorrowEnabled)
+      return 'defi.modals.saversVaults.haltedTitle'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
@@ -458,6 +462,7 @@ export const BorrowInput = ({
     isHardCapReached,
     isLendingQuoteError,
     isLendingQuoteSuccess,
+    isThorchainLendingBorrowEnabled,
     lendingQuoteError?.message,
   ])
 
@@ -624,6 +629,7 @@ export const BorrowInput = ({
             }
             isDisabled={Boolean(
               isHardCapReached ||
+                !isThorchainLendingBorrowEnabled ||
                 bnOrZero(depositAmountCryptoPrecision).isZero() ||
                 isLendingQuoteError ||
                 isLendingQuoteLoading ||

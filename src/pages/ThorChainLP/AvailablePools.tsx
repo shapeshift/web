@@ -13,6 +13,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
@@ -56,8 +57,19 @@ export const AvailablePools = () => {
             swapperName: SwapperName.Thorchain,
           })
 
+          const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
+          const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
+          const isThorchainLpDepositInteractionDisabled =
+            isTradingActive === false ||
+            (!isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled)
+
           const statusContent = useMemo(() => {
             switch (true) {
+              case isThorchainLpDepositInteractionDisabled:
+                return {
+                  color: 'red.500',
+                  element: <Text translation='common.halted' />,
+                }
               case isTradingActive === true && pool.status === 'available':
                 return {
                   color: 'green.500',
@@ -68,18 +80,18 @@ export const AvailablePools = () => {
                   color: 'yellow.500',
                   element: <Text translation='common.staged' />,
                 }
-              case isTradingActive === false:
-                return {
-                  color: 'red.500',
-                  element: <Text translation='common.halted' />,
-                }
               default:
                 return {
                   color: 'text.subtle',
                   element: <Amount.Percent value={pool.annualPercentageRate} />,
                 }
             }
-          }, [isTradingActive, pool.annualPercentageRate, pool.status])
+          }, [
+            isThorchainLpDepositInteractionDisabled,
+            isTradingActive,
+            pool.annualPercentageRate,
+            pool.status,
+          ])
 
           const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
           return (

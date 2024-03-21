@@ -46,6 +46,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
@@ -460,6 +461,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     enabled: Boolean(poolAsset?.assetId),
     swapperName: SwapperName.Thorchain,
   })
+
+  const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
 
   const serializedApprovalTxIndex = useMemo(() => {
     if (!(approvalTxId && poolAssetAccountAddress && poolAssetAccountId)) return ''
@@ -909,7 +912,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   useEffect(() => {
     ;(async () => {
       if (!poolAsset) return
-      if (!isTradingActive) return
+      if (!isTradingActive || !isThorchainLpDepositEnabled) return
       if (!actualRuneDepositAmountCryptoPrecision) return
       if (!actualAssetDepositAmountCryptoPrecision) return
 
@@ -947,6 +950,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAsset,
     isTradingActive,
     runeMarketData,
+    isThorchainLpDepositEnabled,
   ])
 
   useEffect(() => {
@@ -1303,7 +1307,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
-    if (isTradingActive === false) return translate('common.poolHalted')
+    if (isTradingActive === false || !isThorchainLpDepositEnabled)
+      return translate('common.poolHalted')
     if (isSmartContractAccountAddress === true)
       return translate('trade.errors.smartContractWalletNotSupported')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
@@ -1323,6 +1328,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return null
   }, [
     isSmartContractAccountAddress,
+    isThorchainLpDepositEnabled,
     isTradingActive,
     notEnoughFeeAssetError,
     notEnoughPoolAssetError,
@@ -1471,6 +1477,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           colorScheme={errorCopy ? 'red' : 'blue'}
           isDisabled={
             isTradingActive === false ||
+            !isThorchainLpDepositEnabled ||
             !confirmedQuote ||
             !votingPower ||
             isVotingPowerLoading ||

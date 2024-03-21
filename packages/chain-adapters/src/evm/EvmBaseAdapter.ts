@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   ETHSignMessage,
   ETHSignTx,
@@ -330,22 +330,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     to,
     value,
     chainSpecific: { contractAddress, from, data },
-    sendMax = false,
   }: GetFeeDataInput<T>): Promise<EstimateGasRequest> {
     const isTokenSend = !!contractAddress
-
-    // get the exact send max value for an erc20 send to ensure we have the correct input data when estimating fees
-    if (sendMax && isTokenSend) {
-      const account = await this.getAccount(from)
-      const tokenBalance = account.chainSpecific.tokens?.find(token => {
-        const { assetReference } = fromAssetId(token.assetId)
-        return assetReference === contractAddress.toLowerCase()
-      })?.balance
-
-      if (!tokenBalance) throw new Error('no balance')
-
-      value = tokenBalance
-    }
 
     return {
       from,

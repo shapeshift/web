@@ -203,6 +203,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           searchString={searchString}
           onAssetClick={handleAssetClick}
           isLoading={isPopularAssetIdsLoading}
+          allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         />
       ) : (
         <DefaultAssetList

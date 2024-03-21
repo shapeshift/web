@@ -1,7 +1,10 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
-import { selectAssetsSortedByName } from 'state/slices/common-selectors'
+import {
+  selectAssetsSortedByName,
+  selectWalletSupportedChainIds,
+} from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
@@ -11,6 +14,7 @@ export type SearchTermAssetListProps = {
   isLoading: boolean
   activeChainId: ChainId | 'All'
   searchString: string
+  allowWalletUnsupportedAssets: boolean | undefined
   onAssetClick: (asset: Asset) => void
 }
 
@@ -18,6 +22,7 @@ export const SearchTermAssetList = ({
   isLoading,
   activeChainId,
   searchString,
+  allowWalletUnsupportedAssets,
   onAssetClick,
 }: SearchTermAssetListProps) => {
   const assets = useAppSelector(selectAssetsSortedByName)
@@ -25,10 +30,19 @@ export const SearchTermAssetList = ({
     return [Boolean(isLoading)]
   }, [isLoading])
 
+  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+
   const assetsForChain = useMemo(() => {
-    if (activeChainId === 'All') return assets
+    if (activeChainId === 'All') {
+      if (allowWalletUnsupportedAssets) return assets
+      return assets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
+    }
+
+    // Should never happen, but paranoia.
+    if (!allowWalletUnsupportedAssets && !walletSupportedChainIds.includes(activeChainId)) return []
+
     return assets.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, assets])
+  }, [activeChainId, allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
 
   const searchTermAssets = useMemo(() => {
     return filterAssetsBySearchTerm(searchString, assetsForChain)

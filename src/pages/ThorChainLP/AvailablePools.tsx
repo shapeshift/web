@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Flex, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
+import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
@@ -38,7 +38,7 @@ type RowProps = Row<Pool>
 
 export const AvailablePools = () => {
   const history = useHistory()
-  const { data: pools, isLoading } = usePools()
+  const { data: pools } = usePools()
   const translate = useTranslate()
 
   const headerComponent = useMemo(() => <PoolsHeader />, [])
@@ -164,9 +164,7 @@ export const AvailablePools = () => {
     <Main headerComponent={headerComponent}>
       <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
-        {isLoading || !pools ? (
-          new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
-        ) : (
+        {pools.length ? (
           <ReactTable
             data={pools}
             columns={columns}
@@ -174,6 +172,10 @@ export const AvailablePools = () => {
             onRowClick={handlePoolClick}
             variant='clickable'
           />
+        ) : (
+          <Flex gap={4} alignItems='center' justifyContent='center'>
+            <Spinner />
+          </Flex>
         )}
       </Stack>
     </Main>

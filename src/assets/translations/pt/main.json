@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "Gratuito",
+    "trade": "Trade",
+    "trades": "Trades",
+    "lpDeposit": "Deposito do LP",
+    "lpDeposits": "Depósitos de LPs",
     "back": "Voltar",
     "and": "e",
     "balance": "Saldo",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 Rainbow",
       "totalChart": "💰 Total",
       "addAsset": "Adicionar Ativo",
-      "yourAssets": "Meus Ativos",
+      "myAssets": "Meus Ativos",
       "asset": "Ativos",
       "portfolioBalance": "Fundos",
       "balance": "Saldo",
@@ -1458,7 +1462,8 @@
     "xdefi": {
       "errors": {
         "unknown": "Ocorreu um erro inesperado na comunicação com a XDEFI",
-        "connectFailure": "Não foi possível conectar a carteira XDEFI"
+        "connectFailure": "Não foi possível conectar a carteira XDEFI",
+        "multipleWallets": "O provedor Ethereum detectado não é XDEFI. Você tem várias carteiras instaladas e ativadas? Priorize o XDEFI nas configurações e pressione para parear novamente."
       },
       "connect": {
         "header": "Emparelhar XDEFI",
@@ -2192,15 +2197,18 @@
     "currentFoxPower": "Seu Poder FOX",
     "foxPower": "Poder FOX",
     "simulateTitle": "Simule seus descontos FOX",
-    "tradeSize": "Tamanho do trade",
+    "simulateBody": "Use esta calculadora útil para determinar o total de taxas e o desconto que você receberá em seu %{feature}. Basta ajustar com os controles abaixo para indicar o valor que você detém de FOX e o tamanho de %{featureLowerCase} em moeda fiduciária e observar o potenciam crescimento do seu capital!",
+    "featureSize": "%{feature} Tamanho",
     "totalFee": "Taxa total",
     "foxPowerDiscount": "Desconto do poder FOX",
     "basedOnFee": "Com base em uma taxa de: %{fee}",
     "feeSummary": "Resumo das Taxas",
     "simulateFee": "Simular o Desconto",
+    "freeUnderThreshold": "%{feature} abaixo de %{threshold} são sempre GRATUITOS",
     "breakdownHeader": "Desconto graças ao seu Poder FOX",
-    "tradeFee": "Taxa de Trade",
-    "totalTradeFee": "Taxa Total do Trade"
+    "breakdownBody": "Abaixo está um detalhamento de suas taxas de %{featureLowerCase} e o desconto FOX Power correspondente aplicado. Saiba quanto mais você pode economizar na aba simular.",
+    "featureFee": "%{feature} Taxa",
+    "totalFeatureFee": "Taxa %{feature} Total"
   },
   "pools": {
     "pools": "Pools",

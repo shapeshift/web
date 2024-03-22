@@ -98,6 +98,8 @@ export const mockStore: ReduxState = {
       Snaps: false,
       ThorchainLending: false,
       ThorchainLP: false,
+      ThorchainLpDeposit: false,
+      ThorchainLpWithdraw: false,
       LedgerWallet: false,
       ThorchainSwapLongtail: false,
       ShapeShiftMobileWallet: false,

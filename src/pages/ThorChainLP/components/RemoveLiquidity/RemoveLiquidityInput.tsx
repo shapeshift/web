@@ -40,6 +40,7 @@ import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePop
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -197,6 +198,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     enabled: !!poolAsset,
     swapperName: SwapperName.Thorchain,
   })
+
+  const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
 
   const currentAccountIdByChainId = useMemo(() => {
     if (!poolAsset) return {}
@@ -923,6 +926,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const errorCopy = useMemo(() => {
     if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
     if (isTradingActive === false) return translate('common.poolHalted')
+    if (!isThorchainLpWithdrawEnabled) return translate('common.poolDisabled')
     if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
       return translate('modals.send.errors.notEnoughNativeToken', {
         asset: poolAssetFeeAsset.symbol,
@@ -935,6 +939,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [
     hasEnoughPoolAssetFeeAssetBalanceForTx,
     hasEnoughRuneBalanceForTx,
+    isThorchainLpWithdrawEnabled,
     isTradingActive,
     isUnsupportedSymWithdraw,
     poolAssetFeeAsset,
@@ -1075,6 +1080,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
           isDisabled={
             isUnsupportedSymWithdraw ||
             isTradingActive === false ||
+            !isThorchainLpWithdrawEnabled ||
             !hasEnoughPoolAssetFeeAssetBalanceForTx ||
             !hasEnoughRuneBalanceForTx ||
             !confirmedQuote ||

@@ -46,6 +46,8 @@ export type FeatureFlags = {
   Snaps: boolean
   ThorchainLending: boolean
   ThorchainLP: boolean
+  ThorchainLpDeposit: boolean
+  ThorchainLpWithdraw: boolean
   LedgerWallet: boolean
   ThorchainSwapLongtail: boolean
   ShapeShiftMobileWallet: boolean
@@ -112,6 +114,8 @@ const initialState: Preferences = {
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
     ThorchainLP: getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
+    ThorchainLpDeposit: getConfig().REACT_APP_FEATURE_THORCHAIN_LP_DEPOSIT,
+    ThorchainLpWithdraw: getConfig().REACT_APP_FEATURE_THORCHAIN_LP_WITHDRAW,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
     ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,

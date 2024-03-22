@@ -91,7 +91,7 @@ export const selectFeeAssetById = createCachedSelector(
   assetId: AssetId,
 ) => ReturnType<typeof getFeeAssetByAssetId>
 
-export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
+export const selectAssetsBySearchQuery = createCachedSelector(
   selectAssetsSortedByMarketCap,
   selectSearchQueryFromFilter,
   (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
@@ -101,4 +101,4 @@ export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
       threshold: matchSorter.rankings.CONTAINS,
     })
   },
-)
+)((_state: ReduxState, filter) => filter?.searchQuery ?? 'txIdsByFilter')

@@ -425,9 +425,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   })
 
   const poolAssetProtocolFeeCryptoPrecision = useMemo(() => {
-    if (opportunityType === AsymSide.Rune) return bn(0)
+    if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
     return fromThorBaseUnit(inboundAddressesData?.outbound_fee ?? '0')
-  }, [inboundAddressesData?.outbound_fee, opportunityType])
+  }, [inboundAddressesData?.outbound_fee, actualAssetWithdrawAmountCryptoPrecision])
 
   const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
     return poolAssetProtocolFeeCryptoPrecision.times(poolAssetFeeAssetMarketData.price)
@@ -448,9 +448,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const runeProtocolFeeCryptoPrecision = useMemo(() => {
-    if (opportunityType === AsymSide.Asset) return bn(0)
+    if (bnOrZero(actualRuneWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
     return fromThorBaseUnit(THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT)
-  }, [opportunityType])
+  }, [actualRuneWithdrawAmountCryptoPrecision])
 
   const runeProtocolFeeFiatUserCurrency = useMemo(() => {
     return runeProtocolFeeCryptoPrecision.times(runeMarketData.price)

@@ -1,3 +1,4 @@
+import type { HeadingProps, StackProps, TextProps } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -6,12 +7,12 @@ import {
   Center,
   Divider,
   Flex,
-  Heading,
+  Heading as CkHeading,
   Image,
   keyframes,
   Stack,
 } from '@chakra-ui/react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import BlueFox from 'assets/blue-fox.svg'
@@ -45,6 +46,25 @@ const scaleFade = keyframes`
   from { scale: 1.5; opacity: 0; }
   to { scale: 1; opacity: 1;}
 `
+
+const BodyStack: React.FC<StackProps> = props => (
+  <Stack spacing={6} position='relative' zIndex='4' {...props} />
+)
+
+const Heading: React.FC<HeadingProps> = props => (
+  <CkHeading fontSize='24px' letterSpacing='-0.684px' fontWeight='semibold' {...props} />
+)
+
+const BodyText: React.FC<TextProps> = props => (
+  <RawText
+    letterSpacing='-0.32px'
+    color='text.subtle'
+    fontWeight='medium'
+    maxWidth='90%'
+    mx='auto'
+    {...props}
+  />
+)
 
 export const MobileConnect = () => {
   const { create, importWallet, dispatch, getAdapter } = useWallet()
@@ -147,44 +167,77 @@ export const MobileConnect = () => {
 
   const content = useMemo(() => {
     return hideWallets ? (
-      <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
-        <Button colorScheme='blue' size='lg' onClick={handleCreate}>
-          {translate('connectWalletPage.createANewWallet')}
-        </Button>
-        <Button variant='outline' size='lg' onClick={handleImport}>
-          {translate('connectWalletPage.importExisting')}
-        </Button>
-
-        {!!wallets.length && (
-          <>
-            <Flex gap={2} alignItems='center'>
-              <Divider borderColor='border.base' />
-              <RawText>{translate('common.or')}</RawText>
-              <Divider borderColor='border.base' />
-            </Flex>
-            <Button variant='outline' size='lg' onClick={handleToggleWallets}>
-              {translate('connectWalletPage.viewSavedWallets')}
+      <motion.div
+        key='new-wallet'
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ opacity: { duration: 0.5 } }}
+      >
+        <BodyStack>
+          <Stack textAlign='center' spacing={2}>
+            <Heading>{translate('connectWalletPage.welcomeToShapeShift')}</Heading>
+            <BodyText>{translate('connectWalletPage.mobileWelcomeBody')}</BodyText>
+          </Stack>
+          <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
+            <Button colorScheme='blue' size='lg' onClick={handleCreate}>
+              {translate('connectWalletPage.createANewWallet')}
             </Button>
-          </>
-        )}
-      </Stack>
+            <Button variant='outline' size='lg' onClick={handleImport}>
+              {translate('connectWalletPage.importExisting')}
+            </Button>
+
+            {!!wallets.length && (
+              <>
+                <Flex gap={2} alignItems='center'>
+                  <Divider borderColor='border.base' />
+                  <RawText>{translate('common.or')}</RawText>
+                  <Divider borderColor='border.base' />
+                </Flex>
+                <Button variant='outline' size='lg' onClick={handleToggleWallets}>
+                  {translate('connectWalletPage.viewSavedWallets')}
+                </Button>
+              </>
+            )}
+          </Stack>
+        </BodyStack>
+      </motion.div>
     ) : (
-      <Stack>
-        {wallets.map(wallet => (
-          <WalletCard id={wallet.id} key={wallet.id} wallet={wallet} onClick={handleWalletSelect} />
-        ))}
-        <Button size='lg' variant='outline' onClick={handleToggleWallets}>
-          {translate('connectWalletPage.importExisting')}
-        </Button>
-        {error && (
-          <Alert status='error'>
-            <AlertIcon />
-            <AlertDescription>
-              <Text translation={error} />
-            </AlertDescription>
-          </Alert>
-        )}
-      </Stack>
+      <motion.div
+        key='wallet-list'
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ opacity: { duration: 0.5 } }}
+      >
+        <BodyStack>
+          <Stack textAlign='center' spacing={2}>
+            <Heading>{translate('connectWalletPage.welcomeBack')}</Heading>
+            <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
+          </Stack>
+          <Stack>
+            {wallets.map(wallet => (
+              <WalletCard
+                id={wallet.id}
+                key={wallet.id}
+                wallet={wallet}
+                onClick={handleWalletSelect}
+              />
+            ))}
+            <Button size='lg' variant='outline' onClick={handleToggleWallets}>
+              {translate('connectWalletPage.importExisting')}
+            </Button>
+            {error && (
+              <Alert status='error'>
+                <AlertIcon />
+                <AlertDescription>
+                  <Text translation={error} />
+                </AlertDescription>
+              </Alert>
+            )}
+          </Stack>
+        </BodyStack>
+      </motion.div>
     )
   }, [
     error,
@@ -247,29 +300,17 @@ export const MobileConnect = () => {
         ) : (
           <SlideTransitionY key='content'>
             <Stack px={6} spacing={6} position='relative' zIndex='4'>
-              <Stack textAlign='center' spacing={2}>
-                <Heading fontSize='24px' letterSpacing='-0.684px' fontWeight='semibold'>
-                  {translate(
-                    hideWallets
-                      ? 'connectWalletPage.welcomeToShapeShift'
-                      : 'connectWalletPage.welcomeBack',
-                  )}
-                </Heading>
-                <RawText
-                  letterSpacing='-0.32px'
-                  color='text.subtle'
-                  fontWeight='medium'
-                  maxWidth='90%'
-                  mx='auto'
+              <AnimatePresence mode='wait' initial={false}>
+                <motion.div
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ layout: { type: 'spring', bounce: 0.35, duration: 0.5 } }}
                 >
-                  {translate(
-                    hideWallets
-                      ? 'connectWalletPage.mobileWelcomeBody'
-                      : 'connectWalletPage.mobileSelectBody',
-                  )}
-                </RawText>
-              </Stack>
-              {content}
+                  {content}
+                </motion.div>
+              </AnimatePresence>
+
               <RawText
                 fontSize='sm'
                 color='text.subtle'

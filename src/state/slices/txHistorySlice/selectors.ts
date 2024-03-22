@@ -95,7 +95,7 @@ const selectWalletTxsByAccountIdAssetId = createSelector(
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
 
-export const selectTxIdsByFilter = createDeepEqualOutputSelector(
+export const selectTxIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,
   selectWalletTxsByAccountIdAssetId,
@@ -118,9 +118,15 @@ export const selectTxIdsByFilter = createDeepEqualOutputSelector(
     const sortedIds = uniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },
+)((_state: ReduxState, filter) =>
+  filter
+    ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
+        filter.assetId ?? 'assetId'
+      }`
+    : 'txIdsByFilter',
 )
 
-export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelector(
+export const selectTxIdsBasedOnSearchTermAndFilters = createCachedSelector(
   selectTxs,
   selectTxIdsByFilter,
   selectMatchingAssetsParamFromFilter,
@@ -158,18 +164,32 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createDeepEqualOutputSelec
       filteredBasedOnType,
     )
   },
+)((_state: ReduxState, filter) =>
+  filter
+    ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
+        filter.assetId ?? 'assetId'
+      }-${filter.fromDate ?? 'fromDate'}-${filter.toDate ?? 'toDate'}-${filter.types ?? 'types'}-${
+        filter.matchingAssets ?? 'matchingAssets'
+      }`
+    : 'txIdsBasedOnSearchTermAndFilters',
 )
 
-export const selectLastNTxIds = createDeepEqualOutputSelector(
+export const selectLastNTxIds = createCachedSelector(
   selectTxIdsByFilter,
   (_state: ReduxState, count: number) => count,
   (ids, count): TxId[] => ids.slice(0, count),
-)
+)((_state: ReduxState, limit: number) => (limit !== undefined ? limit : 'undefined'))
 
-export const selectTxsByFilter = createDeepEqualOutputSelector(
+export const selectTxsByFilter = createCachedSelector(
   selectTxs,
   selectTxIdsByFilter,
   (txs, txIds) => txIds.map(txId => txs[txId]),
+)((_state: ReduxState, filter) =>
+  filter
+    ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
+        filter.assetId ?? 'assetId'
+      }`
+    : 'txsByFilter',
 )
 
 export const selectTxStatusById = createCachedSelector(
@@ -184,7 +204,7 @@ export const selectTxStatusById = createCachedSelector(
  * note - there can be multiple accountIds sharing the same accountNumber - e.g. BTC legacy/segwit/segwit native
  * are all separate accounts that share the same account number
  */
-export const selectMaybeNextAccountNumberByChainId = createSelector(
+export const selectMaybeNextAccountNumberByChainId = createCachedSelector(
   selectWalletTxsByAccountIdAssetId,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
@@ -214,9 +234,9 @@ export const selectMaybeNextAccountNumberByChainId = createSelector(
     const nextAccountNumber = currentHighestAccountNumber + 1
     return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
   },
-)
+)((_state: ReduxState, filter) => filter?.chainId ?? 'undefined')
 
-export const selectTxsByQuery = createDeepEqualOutputSelector(
+export const selectTxsByQuery = createCachedSelector(
   selectTxs,
   selectTxIdsByFilter,
   selectAssets,
@@ -243,4 +263,10 @@ export const selectTxsByQuery = createDeepEqualOutputSelector(
 
     return results.map(result => result[0])
   },
+)((_state: ReduxState, filter) =>
+  filter
+    ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
+        filter.assetId ?? 'assetId'
+      }-${filter.searchQuery ?? 'searchQuery'}`
+    : 'txsByQuery',
 )

@@ -25,12 +25,14 @@ export type RainbowChartProps = {
   margin?: Margin
 }
 
+const defaultMargin = { top: 0, right: 0, bottom: 0, left: 0 }
+
 // https://codesandbox.io/s/github/airbnb/visx/tree/master/packages/visx-demo/src/sandboxes/visx-xychart?file=/customTheme.ts:50-280
 export const RainbowChart: React.FC<RainbowChartProps> = ({
   data,
   width,
   height,
-  margin = { top: 0, right: 0, bottom: 0, left: 0 },
+  margin = defaultMargin,
 }) => {
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const assetIds = useMemo(() => Object.keys(omit(data[0], ['date', 'total'])), [data])

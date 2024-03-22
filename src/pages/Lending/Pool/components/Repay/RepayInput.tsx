@@ -341,7 +341,7 @@ export const RepayInput = ({
   }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (!isThorchainLendingRepayEnabled) return 'trade.errors.tradingNotActiveNoAssetSymbol'
+    if (!isThorchainLendingRepayEnabled) return 'lending.errors.repaymentsDisabled'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
@@ -357,7 +357,7 @@ export const RepayInput = ({
         return 'Repayment not yet available'
 
       if (/trading is halted/i.test(lendingQuoteCloseError.message))
-        return 'trade.errors.tradingNotActiveNoAssetSymbol'
+        return 'lending.errors.repaymentsHalted'
 
       // This should never happen but it may
       // https://gitlab.com/thorchain/thornode/-/blob/051fafb06011e135e6b122600b5b023b7704d594/x/thorchain/handler_loan_repayment.go#L95

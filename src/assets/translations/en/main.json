@@ -2191,6 +2191,12 @@
         "body": "Repayment in THORChain is flexible, allowing you to repay at any time after your repayment lock has elapsed, and in any asset, which is then converted to TOR. The repayment amount is deducted from your debt balance, and proportional collateral is released back to you upon full repayment"
       }
     },
+    "errors": {
+      "repaymentsHalted": "Repayments are temporarily halted.",
+      "borrowingHalted": "Borrowing is temporarily halted.",
+      "repaymentsDisabled": "Repayments are temporarily disabled.",
+      "borrowingDisabled": "Borrowing is temporarily disabled."
+    },
     "quote": {
       "collateral": "Total asset amount which will be secured against your loan",
       "debt": "Total debt you'll owe based on your new loan amount",

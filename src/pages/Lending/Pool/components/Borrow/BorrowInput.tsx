@@ -430,8 +430,8 @@ export const BorrowInput = ({
   ])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (isHardCapReached || !isThorchainLendingBorrowEnabled)
-      return 'defi.modals.saversVaults.haltedTitle'
+    if (isHardCapReached) return 'lending.errors.borrowingHalted'
+    if (!isThorchainLendingBorrowEnabled) return 'lending.errors.borrowingDisabled'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||

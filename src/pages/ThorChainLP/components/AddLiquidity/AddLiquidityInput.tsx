@@ -1375,16 +1375,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const errorCopy = useMemo(() => {
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
-    // 1. Asset unsupported by wallet
-    // 2. pool halted
+    // 1. pool halted/disabled
+    // 2. Asset unsupported by wallet
     // 3. smart contract deposits disabled
     // 4. pool asset balance
     // 5. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
     // 6. RUNE balance
     // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
-    if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (isTradingActive === false) return translate('common.poolHalted')
+    if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
     if (isSmartContractAccountAddress === true)
       return translate('trade.errors.smartContractWalletNotSupported')

@@ -81,7 +81,7 @@
     "@formatjs/intl-pluralrules": "^5.0.2",
     "@keepkey/hdwallet-keepkey-rest": "1.40.40",
     "@keepkey/keepkey-sdk": "0.2.52",
-    "@lifi/sdk": "^2.2.3",
+    "@lifi/sdk": "^2.5.0",
     "@lukemorales/query-key-factory": "^1.3.2",
     "@metamask/detect-provider": "^1.2.0",
     "@react-spring/web": "^9.5.2",

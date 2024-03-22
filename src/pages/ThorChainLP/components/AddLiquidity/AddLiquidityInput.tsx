@@ -1384,8 +1384,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
-    if (isTradingActive === false || !isThorchainLpDepositEnabled)
-      return translate('common.poolHalted')
+    if (isTradingActive === false) return translate('common.poolHalted')
+    if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
     if (isSmartContractAccountAddress === true)
       return translate('trade.errors.smartContractWalletNotSupported')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')

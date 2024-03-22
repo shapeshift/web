@@ -60,15 +60,19 @@ export const AvailablePools = () => {
           const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
           const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
           const isThorchainLpInteractionDisabled =
-            isTradingActive === false ||
-            (!isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled)
+            !isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled
 
           const statusContent = useMemo(() => {
             switch (true) {
-              case isThorchainLpInteractionDisabled:
+              case isTradingActive === false:
                 return {
                   color: 'red.500',
                   element: <Text translation='common.halted' />,
+                }
+              case isThorchainLpInteractionDisabled:
+                return {
+                  color: 'red.500',
+                  element: <Text translation='common.disabled' />,
                 }
               case isTradingActive === true && pool.status === 'available':
                 return {

@@ -252,9 +252,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               action: DefiAction.Deposit,
               isDisabled: isFull || hasPendingTxs || hasPendingQueries || isHaltedDeposits,
               toolTip: (() => {
+                if (isHaltedDeposits) return translate('defi.modals.saversVaults.haltedTitle')
                 if (hasPendingTxs || hasPendingQueries)
                   return translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
-                if (isHaltedDeposits) return translate('defi.modals.saversVaults.haltedTitle')
               })(),
             },
           ]),
@@ -264,9 +264,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         action: DefiAction.Withdraw,
         isDisabled: hasPendingTxs || hasPendingQueries || isHaltedWithdrawals,
         toolTip: (() => {
+          if (isHaltedWithdrawals) return translate('defi.modals.saversVaults.haltedWithdrawTitle')
           if (hasPendingTxs || hasPendingQueries)
             return translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
-          if (isHaltedWithdrawals) return translate('defi.modals.saversVaults.haltedWithdrawTitle')
         })(),
       },
     ],

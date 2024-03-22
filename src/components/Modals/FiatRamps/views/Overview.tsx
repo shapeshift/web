@@ -238,6 +238,7 @@ export const Overview: React.FC<OverviewProps> = ({
     ramps,
   ])
 
+  const { isOpen: isFiatRampsModalOpen } = useModal('fiatRamps')
   const handleSelectClick = useCallback(
     () => handleIsSelectingAsset(fiatRampAction),
     [fiatRampAction, handleIsSelectingAsset],
@@ -294,6 +295,7 @@ export const Overview: React.FC<OverviewProps> = ({
             variant='outline'
             height='48px'
             justifyContent='space-between'
+            isDisabled={isFiatRampsModalOpen}
             onClick={handleSelectClick}
             rightIcon={chevronRightIcon}
           >

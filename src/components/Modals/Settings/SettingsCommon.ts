@@ -6,6 +6,7 @@ export enum SettingsRoutes {
   Languages = '/settings/languages',
   FiatCurrencies = '/settings/fiat-currencies',
   CurrencyFormat = '/settings/currency-format',
+  ClearCache = '/settings/clear-cache',
 }
 
 export const currencyFormatsRepresenter = (

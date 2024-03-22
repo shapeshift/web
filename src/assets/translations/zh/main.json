@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "免费",
+    "trade": "交易",
+    "trades": "交易",
+    "lpDeposit": "LP 充值",
+    "lpDeposits": "LP 充值",
     "back": "后退",
     "and": "和",
     "balance": "余额",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 彩虹",
       "totalChart": "💰 总计",
       "addAsset": "添加资产",
-      "yourAssets": "钱包资产",
+      "myAssets": "我的资产",
       "asset": "资产",
       "portfolioBalance": "投资组合余额",
       "balance": "余额",
@@ -1459,7 +1463,7 @@
       "errors": {
         "unknown": "与 XDEFI 通信时发生意外错误",
         "connectFailure": "无法连接 XDEFI 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 XDEFI。你安装了多个钱包吗？"
+        "multipleWallets": "检测到的以太坊提供商不是 XDEFI。你是否安装并开启了多个钱包？在设置中优先考虑 XDEFI，然后再次按匹配。"
       },
       "connect": {
         "header": "匹配 XDEFI",
@@ -2193,18 +2197,18 @@
     "currentFoxPower": "你的 FOX Power",
     "foxPower": "FOX Power",
     "simulateTitle": "模拟您的 FOX Power 折扣",
-    "simulateBody": "使用这个方便的计算器来确定你的总费用以及你将在交易中获得的折扣。只需调整下面的滑块即可显示你的 FOX 持有者数量和法定交易规模，并且可以观察你的潜在节省！",
-    "tradeSize": "交易规模",
+    "simulateBody": "使用这个方便的计算器来确定你的总费用以及你将在 %{feature} 上获得的折扣。只需调整下面的滑块以指示你的 FOX 持有者金额和拥有的 %{featureLowerCase} 规模，然后观察你潜在的节省！",
+    "featureSize": "%{feature} 规模",
     "totalFee": "总费用",
     "foxPowerDiscount": "FOX Power 折扣",
     "basedOnFee": "基于费用：%{fee}",
     "feeSummary": "费用概要",
     "simulateFee": "模拟折扣",
-    "freeUnderThreshold": "%{threshold} 以下的交易始终免费",
+    "freeUnderThreshold": "%{threshold} 以下的 %{feature} 始终免费",
     "breakdownHeader": "你的 FOX Power 折扣",
-    "breakdownBody": "以下是你的交易费用和相应的 FOX Power 折扣的明细。了解在“模拟”选项卡上您还可以节省多少费用。",
-    "tradeFee": "交易费",
-    "totalTradeFee": "总交易费用"
+    "breakdownBody": "以下是你的 %{featureLowerCase} 费用和所应用的相应 FOX Power 折扣的明细。了解在“模拟”选项卡上你还可以节省多少费用。",
+    "featureFee": "%{feature} 费用",
+    "totalFeatureFee": "总费用%{feature}"
   },
   "pools": {
     "pools": "池",

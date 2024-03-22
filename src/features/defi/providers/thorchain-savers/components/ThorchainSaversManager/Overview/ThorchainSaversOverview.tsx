@@ -236,7 +236,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingQueries,
       isHaltedDeposits,
       isDisabledDeposits,
-      isHaltedWithdrawals,
       isDisabledWithdrawals,
     }: {
       isFull?: boolean
@@ -244,7 +243,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingQueries?: boolean
       isHaltedDeposits?: boolean
       isDisabledDeposits?: boolean
-      isHaltedWithdrawals?: boolean
       isDisabledWithdrawals?: boolean
     } = {}): DefiButtonProps[] => [
       ...(isFull
@@ -274,9 +272,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         label: 'common.withdraw',
         icon: <ArrowDownIcon />,
         action: DefiAction.Withdraw,
-        isDisabled: hasPendingTxs || hasPendingQueries || isHaltedWithdrawals,
+        isDisabled: hasPendingTxs || hasPendingQueries || isDisabledWithdrawals,
         toolTip: (() => {
-          if (isHaltedWithdrawals) return translate('defi.modals.saversVaults.haltedWithdrawTitle')
           if (isDisabledWithdrawals)
             return translate('defi.modals.saversVaults.disabledWithdrawTitle')
           if (hasPendingTxs || hasPendingQueries)
@@ -295,7 +292,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingQueries,
       isHaltedDeposits: isTradingActive === false,
       isDisabledDeposits: isThorchainSaversDepositEnabled === false,
-      isHaltedWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
       isDisabledWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
     })
   }, [

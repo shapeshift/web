@@ -27,6 +27,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -122,6 +123,8 @@ export const RepayInput = ({
     isError: isLendingQuoteCloseError,
     error: lendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+
+  const isThorchainLendingRepayEnabled = useFeatureFlag('ThorchainLendingRepay')
 
   useEffect(() => {
     setConfirmedQuote(lendingQuoteCloseData ?? null)
@@ -338,6 +341,7 @@ export const RepayInput = ({
   }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
+    if (!isThorchainLendingRepayEnabled) return 'lending.errors.repaymentsDisabled'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
@@ -353,7 +357,7 @@ export const RepayInput = ({
         return 'Repayment not yet available'
 
       if (/trading is halted/i.test(lendingQuoteCloseError.message))
-        return 'trade.errors.tradingNotActiveNoAssetSymbol'
+        return 'lending.errors.repaymentsHalted'
 
       // This should never happen but it may
       // https://gitlab.com/thorchain/thornode/-/blob/051fafb06011e135e6b122600b5b023b7704d594/x/thorchain/handler_loan_repayment.go#L95
@@ -369,6 +373,7 @@ export const RepayInput = ({
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
+    isThorchainLendingRepayEnabled,
     lendingQuoteCloseError?.message,
   ])
 
@@ -567,7 +572,8 @@ export const RepayInput = ({
             isAddressByteCodeLoading
           }
           isDisabled={Boolean(
-            isLendingPositionDataLoading ||
+            !isThorchainLendingRepayEnabled ||
+              isLendingPositionDataLoading ||
               isLendingPositionDataError ||
               isLendingQuoteCloseLoading ||
               isLendingQuoteCloseRefetching ||

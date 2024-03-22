@@ -370,7 +370,7 @@
         "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
         "vaultCap": "Plafond du Vault",
         "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
-        "haltedTitle": "Les dépôts sont temporairement suspendus.",
+        "haltedDepositTitle": "Les dépôts sont temporairement suspendus.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "protocolFee": "Frais de protocole",
         "fee": "Frais",

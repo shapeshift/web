@@ -370,7 +370,7 @@
         "description": "Verdienen Sie Rendite auf Ihr %{asset} durch die THORChain Savers Vaults. Es gibt keine Sperrzeit und Belohnungen werden automatisch angesammelt. Die Rendite auf THORChain ergibt sich aus Swap-Gebühren und Blockbelohnungen. Die einseitige Rendite ist auf die Hälfte der doppelseitigen Rendite der Liquiditätsanbieter begrenzt.",
         "vaultCap": "Tresorobergrenze",
         "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
-        "haltedTitle": "Einzahlungen sind vorübergehend gestoppt.",
+        "haltedDepositTitle": "Einzahlungen sind vorübergehend gestoppt.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
         "protocolFee": "Protokollgebühr",
         "fee": "Gebühr",

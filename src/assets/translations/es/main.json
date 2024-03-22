@@ -370,7 +370,7 @@
         "description": "Obtenga rendimiento de su %{asset} a través de las bóvedas de ahorro de THORChain. No hay tiempo de bloqueo y las recompensas se acumulan automáticamente. El rendimiento en THORChain proviene de las tarifas de intercambio y las recompensas en bloque. El rendimiento unilateral tiene un tope de la mitad del rendimiento bilateral de los proveedores de liquidez.",
         "vaultCap": "Límite de bóveda",
         "vaultCapTooltip": "Capacidad máxima actual para esta bóveda",
-        "haltedTitle": "Los depositos estan temporalmente detenidos.",
+        "haltedDepositTitle": "Los depositos estan temporalmente detenidos.",
         "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
         "protocolFee": "Tarifa de Protocolo",
         "fee": "Comisión",

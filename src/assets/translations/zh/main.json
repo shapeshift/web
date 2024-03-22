@@ -370,7 +370,7 @@
         "description": "通过 THORChain 储户金库 赚取你的 %{asset} 收益。无锁定时间，奖励自动累积。 THORChain 上的收益来兑换费用和区块奖励。单面收益率上限为流动性提供者双面收益率的一半。",
         "vaultCap": "金库容量",
         "vaultCapTooltip": "该金库当前的最大容量",
-        "haltedTitle": "充值暂时停止。",
+        "haltedDepositTitle": "充值暂时停止。",
         "haltedDescription": "请 @THORChain 发推文以提高上限！",
         "protocolFee": "协议费",
         "fee": "费用",

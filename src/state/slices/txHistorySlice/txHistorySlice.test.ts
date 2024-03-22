@@ -206,7 +206,7 @@ describe('txHistorySlice', () => {
         ids: ['a', 'b'],
       }
 
-      const txHistory: TxHistory = { txs }
+      const txHistory: TxHistory = { txs, hydrationMeta: {} }
 
       const state = {
         ...mockStore,
@@ -220,6 +220,7 @@ describe('txHistorySlice', () => {
           // this array will always change on every new tx
           ids: ['a', 'b', 'c'],
         },
+        hydrationMeta: {},
       }
 
       // redux will replace the array on update

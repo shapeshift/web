@@ -235,13 +235,17 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       hasPendingTxs,
       hasPendingQueries,
       isHaltedDeposits,
+      isDisabledDeposits,
       isHaltedWithdrawals,
+      isDisabledWithdrawals,
     }: {
       isFull?: boolean
       hasPendingTxs?: boolean
       hasPendingQueries?: boolean
       isHaltedDeposits?: boolean
+      isDisabledDeposits?: boolean
       isHaltedWithdrawals?: boolean
+      isDisabledWithdrawals?: boolean
     } = {}): DefiButtonProps[] => [
       ...(isFull
         ? []
@@ -250,8 +254,15 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               label: 'common.deposit',
               icon: <ArrowUpIcon />,
               action: DefiAction.Deposit,
-              isDisabled: isFull || hasPendingTxs || hasPendingQueries || isHaltedDeposits,
+              isDisabled:
+                isFull ||
+                hasPendingTxs ||
+                hasPendingQueries ||
+                isHaltedDeposits ||
+                isDisabledDeposits,
               toolTip: (() => {
+                if (isDisabledDeposits)
+                  return translate('defi.modals.saversVaults.disabledDepositTitle')
                 if (isHaltedDeposits)
                   return translate('defi.modals.saversVaults.haltedDepositTitle')
                 if (hasPendingTxs || hasPendingQueries)
@@ -266,6 +277,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         isDisabled: hasPendingTxs || hasPendingQueries || isHaltedWithdrawals,
         toolTip: (() => {
           if (isHaltedWithdrawals) return translate('defi.modals.saversVaults.haltedWithdrawTitle')
+          if (isDisabledWithdrawals)
+            return translate('defi.modals.saversVaults.disabledWithdrawTitle')
           if (hasPendingTxs || hasPendingQueries)
             return translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
         })(),
@@ -280,8 +293,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isFull: opportunityMetadata?.isFull || isHardCapReached,
       hasPendingTxs,
       hasPendingQueries,
-      isHaltedDeposits: isTradingActive === false || isThorchainSaversDepositEnabled === false,
+      isHaltedDeposits: isTradingActive === false,
+      isDisabledDeposits: isThorchainSaversDepositEnabled === false,
       isHaltedWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
+      isDisabledWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
     })
   }, [
     earnOpportunityData,

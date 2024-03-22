@@ -370,7 +370,7 @@
         "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
         "vaultCap": "Vaultキャップ",
         "vaultCapTooltip": "このVaultの現在の最大容量",
-        "haltedTitle": "一時的に入金を停止しております。",
+        "haltedDepositTitle": "一時的に入金を停止しております。",
         "haltedDescription": "上限を増やすには、@THORChain でツイートしてください。",
         "protocolFee": "プロトコル手数料",
         "fee": "手数料",

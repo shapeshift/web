@@ -252,7 +252,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               action: DefiAction.Deposit,
               isDisabled: isFull || hasPendingTxs || hasPendingQueries || isHaltedDeposits,
               toolTip: (() => {
-                if (isHaltedDeposits) return translate('defi.modals.saversVaults.haltedTitle')
+                if (isHaltedDeposits)
+                  return translate('defi.modals.saversVaults.haltedDepositTitle')
                 if (hasPendingTxs || hasPendingQueries)
                   return translate('defi.modals.saversVaults.cannotDepositWhilePendingTx')
               })(),
@@ -313,7 +314,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (
           <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
             <AlertIcon />
-            <AlertTitle>{translate('defi.modals.saversVaults.haltedTitle')}</AlertTitle>
+            <AlertTitle>{translate('defi.modals.saversVaults.haltedDepositTitle')}</AlertTitle>
             <>
               <AlertDescription>
                 {translate('defi.modals.saversVaults.haltedDescription')}

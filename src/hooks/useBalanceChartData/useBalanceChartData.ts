@@ -23,6 +23,7 @@ import {
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoryTimeframe,
+  selectIsTxHistoryAvailableByFilter,
   selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
@@ -365,10 +366,24 @@ export const useBalanceChartData = (
     selectFiatPriceHistoryTimeframe(state, timeframe),
   )
 
+  const isTxHistoryAvailableFilter = useMemo(
+    () => ({ accountId, timeframe }),
+    [accountId, timeframe],
+  )
+  const isTxHistoryAvailable = useAppSelector(state =>
+    selectIsTxHistoryAvailableByFilter(state, isTxHistoryAvailableFilter),
+  )
+
   // calculation
   return useMemo(() => {
     const noPriceHistoryData = !values(cryptoPriceHistoryData).flat().length
-    if (!walletId || !assetIds.length || isEmpty(balances) || noPriceHistoryData) {
+    if (
+      !walletId ||
+      !assetIds.length ||
+      isEmpty(balances) ||
+      noPriceHistoryData ||
+      !isTxHistoryAvailable
+    ) {
       return { balanceChartDataLoading: true, balanceChartData: makeBalanceChartData() }
     }
 
@@ -396,14 +411,15 @@ export const useBalanceChartData = (
       balanceChartData: bucketsToChartData(calculatedBuckets),
     }
   }, [
-    assets,
-    assetIds,
     cryptoPriceHistoryData,
-    fiatPriceHistoryData,
-    txs,
-    timeframe,
-    balances,
     walletId,
+    assetIds,
+    balances,
+    isTxHistoryAvailable,
+    timeframe,
+    txs,
+    fiatPriceHistoryData,
+    assets,
     selectedCurrency,
   ])
 }

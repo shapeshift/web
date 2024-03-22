@@ -64,6 +64,10 @@ export type TxsState = {
 
 export type TxHistory = {
   txs: TxsState
+  hydrationMeta: PartialRecord<
+    AccountId,
+    { isHydrated: boolean; minTxBlockTime?: number; isErrored: boolean }
+  >
 }
 
 export type TxMessage = { payload: { message: Tx; accountId: AccountId } }
@@ -77,6 +81,7 @@ export const initialState: TxHistory = {
     byId: {},
     ids: [], // sorted, newest first
   },
+  hydrationMeta: {},
 }
 
 const checkIsSpam = (tx: Tx): boolean => {
@@ -103,7 +108,7 @@ const checkIsSpam = (tx: Tx): boolean => {
  */
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
-  const { txs } = txHistory
+  const { txs, hydrationMeta: hydrationMetadata } = txHistory
 
   if (checkIsSpam(tx)) return
 
@@ -128,6 +133,19 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   getRelatedAssetIds(tx).forEach(relatedAssetId =>
     deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
   )
+
+  // update the min tx blocktime
+  const hydrationMetadataForAccountId = hydrationMetadata[accountId]
+  if (
+    hydrationMetadataForAccountId === undefined ||
+    tx.blockTime < (hydrationMetadataForAccountId.minTxBlockTime ?? Date.now())
+  ) {
+    hydrationMetadata[accountId] = {
+      isHydrated: false,
+      isErrored: false,
+      minTxBlockTime: tx.blockTime,
+    }
+  }
 }
 
 const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: AccountId) => {
@@ -203,6 +221,20 @@ export const txHistory = createSlice({
         updateOrInsertTxs(txState, txs, accountId)
       }
     },
+    setAccountIdHydrated: (txState, { payload }: { payload: AccountId }) => {
+      txState.hydrationMeta[payload] = {
+        minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
+        isHydrated: true,
+        isErrored: false,
+      }
+    },
+    setAccountIdErrored: (txState, { payload }: { payload: AccountId }) => {
+      txState.hydrationMeta[payload] = {
+        minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
+        isHydrated: false,
+        isErrored: true,
+      }
+    },
   },
   extraReducers: builder => {
     builder.addCase(PURGE, () => initialState)
@@ -275,13 +307,20 @@ export const txHistoryApi = createApi({
                  * TODO: An edge case exists if there was an error fetching transaction history after at least one page was fetched.
                  * We will think we ran into the latest existing transaction in the store and stop fetching,
                  * but all transaction history after the failed response on the initial `getAllTxHistory` call will still be missing.
+                 *
+                 * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
                  */
                 if (newTxs.length < pageSize) break
 
                 currentCursor = cursor
               } while (currentCursor)
+
+              // Mark this account as hydrated so downstream can determine the difference between an
+              // account starting part-way thru a time period and "still hydrating".
+              dispatch(txHistory.actions.setAccountIdHydrated(accountId))
             } catch (err) {
               console.error(err)
+              dispatch(txHistory.actions.setAccountIdErrored(accountId))
             }
           }),
         )

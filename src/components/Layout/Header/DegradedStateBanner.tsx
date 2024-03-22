@@ -14,7 +14,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { entries, isEmpty, uniq } from 'lodash'
+import { isEmpty, uniq } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { IoMdRefresh } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
@@ -23,7 +23,7 @@ import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText, Text } from 'components/Text'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
-import { selectAssets, selectPortfolioLoadingStatusGranular } from 'state/slices/selectors'
+import { selectAssets, selectPortfolioErroredAccountIds } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
 
 const warningIcon = <WarningIcon />
@@ -34,18 +34,8 @@ export const DegradedStateBanner = memo(() => {
   const translate = useTranslate()
   const footerBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const buttonBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-  const portfolioLoadingStatusGranular = useSelector(selectPortfolioLoadingStatusGranular)
   const assets = useSelector(selectAssets)
-
-  const erroredAccountIds = useMemo(() => {
-    return entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
-      (acc, [accountId, accountState]) => {
-        accountState === 'error' && acc.push(accountId)
-        return acc
-      },
-      [],
-    )
-  }, [portfolioLoadingStatusGranular])
+  const erroredAccountIds = useSelector(selectPortfolioErroredAccountIds)
 
   const erroredAccounts = useMemo(() => {
     const initial = { names: [], icons: [] }

@@ -2,7 +2,7 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import type { AccountMetadata } from '@shapeshiftoss/types'
+import { type AccountMetadata, HistoryTimeframe } from '@shapeshiftoss/types'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
@@ -11,7 +11,7 @@ import values from 'lodash/values'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
-import { isSome } from 'lib/utils'
+import { getTimeFrameBounds, isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
@@ -19,6 +19,7 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
   selectSearchQueryFromFilter,
+  selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
 } from 'state/selectors'
 
@@ -269,4 +270,54 @@ export const selectTxsByQuery = createCachedSelector(
         filter.assetId ?? 'assetId'
       }-${filter.searchQuery ?? 'searchQuery'}`
     : 'txsByQuery',
+)
+
+export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
+  (state: ReduxState) => state.txHistory.hydrationMeta,
+  selectWalletAccountIds,
+  selectAccountIdParamFromFilter,
+  selectTimeframeParamFromFilter,
+  (hydrationMeta, walletAccountIds, accountId, timeframe) => {
+    const { start } = getTimeFrameBounds(timeframe ?? HistoryTimeframe.ALL)
+
+    const checkIsTxHistoryAvailable = (accountId: AccountId) => {
+      const hydrationMetaForAccount = hydrationMeta[accountId]
+
+      // Completely missing account here likely means it's yet to be fetched
+      if (hydrationMetaForAccount === undefined) {
+        return false
+      }
+
+      const { isHydrated, minTxBlockTime, isErrored } = hydrationMetaForAccount
+
+      // Ignore errored accounts and handle errored status in the UI layer
+      if (isErrored) {
+        return true
+      }
+
+      return isHydrated || (minTxBlockTime && minTxBlockTime <= start.valueOf())
+    }
+
+    // No account ID assumes "all" account IDs
+    if (accountId === undefined) {
+      const isTxHistoryAvailableForEveryAccount = walletAccountIds.every(checkIsTxHistoryAvailable)
+      console.log({ isTxHistoryAvailableForEveryAccount })
+      return isTxHistoryAvailableForEveryAccount
+    }
+
+    return checkIsTxHistoryAvailable(accountId)
+  },
+)((_state: ReduxState, filter) =>
+  filter
+    ? `${filter.accountId ?? 'accountId'}-${filter.timeframe ?? 'timeframe'}`
+    : 'isTxHistoryAvailableByFilter',
+)
+
+export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
+  (state: ReduxState) => state.txHistory.hydrationMeta,
+  hydrationMeta => {
+    return Object.entries(hydrationMeta)
+      .filter(([_accountId, hydrationMetaForAccountId]) => hydrationMetaForAccountId?.isErrored)
+      .map(([accountId, _hydrationMetaForAccountId]) => accountId)
+  },
 )

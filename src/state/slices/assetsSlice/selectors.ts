@@ -101,4 +101,4 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       threshold: matchSorter.rankings.CONTAINS,
     })
   },
-)((_state: ReduxState, filter) => filter?.searchQuery ?? 'txIdsByFilter')
+)((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')

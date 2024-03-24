@@ -122,7 +122,7 @@ export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
     !assetIds.every(assetId => Boolean(priceHistory?.[timeframe]?.[assetId])),
 )
 
-export const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
+const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
 
 export const selectCryptoPriceHistoryTimeframe = createSelector(
   selectCryptoPriceHistory,

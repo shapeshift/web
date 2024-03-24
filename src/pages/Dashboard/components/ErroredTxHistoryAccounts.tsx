@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
   Stack,
 } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,37 +23,45 @@ import {
   selectAssets,
   selectErroredTxHistoryAccounts,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 const warningIcon = <WarningIcon />
+
+const ErroredTxHistoryAccount = ({ accountId }: { accountId: AccountId }) => {
+  const translate = useTranslate()
+  const assets = useAppSelector(selectAssets)
+  const title = getAccountTitle(accountId, assets)
+  const { chainId } = fromAccountId(accountId)
+  const fontFamily = !isUtxoChainId(chainId) ? 'monospace' : ''
+  const accountNumberByAccountIdFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberByAccountIdFilter),
+  )
+
+  return (
+    <Flex>
+      <ChainIcon chainId={chainId} />
+      <Stack alignItems='flex-start' spacing={0} ml={2}>
+        <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>
+          {title}
+        </RawText>
+        <RawText fontSize='sm' color='text.subtle'>
+          {translate('accounts.accountNumber', { accountNumber })}
+        </RawText>
+      </Stack>
+    </Flex>
+  )
+}
 
 export const ErroredTxHistoryAccounts = () => {
   const translate = useTranslate()
   const erroredTxHistoryAccounts = useAppSelector(selectErroredTxHistoryAccounts)
-  const assets = useAppSelector(selectAssets)
 
   const accounts = useMemo(() => {
-    return erroredTxHistoryAccounts.map(accountId => {
-      const title = getAccountTitle(accountId, assets)
-      const { chainId } = fromAccountId(accountId)
-      const fontFamily = !isUtxoChainId(chainId) ? 'monospace' : ''
-      const accountNumber = selectAccountNumberByAccountId(store.getState(), { accountId })
-
-      return (
-        <Flex>
-          <ChainIcon chainId={chainId} />
-          <Stack alignItems='flex-start' spacing={0} ml={2}>
-            <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>
-              {title}
-            </RawText>
-            <RawText fontSize='sm' color='text.subtle'>
-              {translate('accounts.accountNumber', { accountNumber })}
-            </RawText>
-          </Stack>
-        </Flex>
-      )
-    })
-  }, [assets, erroredTxHistoryAccounts, translate])
+    return erroredTxHistoryAccounts.map(accountId => (
+      <ErroredTxHistoryAccount key={accountId} accountId={accountId} />
+    ))
+  }, [erroredTxHistoryAccounts])
 
   if (!erroredTxHistoryAccounts.length) return null
 

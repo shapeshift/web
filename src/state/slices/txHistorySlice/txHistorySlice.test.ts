@@ -2,13 +2,10 @@ import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { map, reverse } from 'lodash'
-import { mockStore } from 'test/mocks/store'
 import { BtcSend, ethereumTransactions, EthReceive, EthSend } from 'test/mocks/txs'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { store } from 'state/store'
 
-import { selectLastNTxIds } from './selectors'
-import type { TxHistory, TxsState } from './txHistorySlice'
 import { txHistory } from './txHistorySlice'
 import { serializeTxIndex } from './utils'
 
@@ -21,6 +18,7 @@ describe('txHistorySlice', () => {
 
   it('returns empty object for initialState', () => {
     expect(store.getState().txHistory).toEqual({
+      hydrationMeta: {},
       txs: {
         byId: {},
         byAccountIdAssetId: {},
@@ -195,43 +193,6 @@ describe('txHistorySlice', () => {
       expect(
         store.getState().txHistory.txs.byAccountIdAssetId?.[segwitAccountId]?.[btcAssetId],
       ).toStrictEqual([serializeTxIndex(segwitAccountId, BtcSendSegwit.txid, BtcSendSegwit.pubkey)])
-    })
-  })
-
-  describe('selectLastNTxIds', () => {
-    it('should memoize', () => {
-      const txs: TxsState = {
-        byId: {},
-        byAccountIdAssetId: {},
-        ids: ['a', 'b'],
-      }
-
-      const txHistory: TxHistory = { txs, hydrationMeta: {} }
-
-      const state = {
-        ...mockStore,
-        txHistory,
-      }
-      const first = selectLastNTxIds(state, 1)
-
-      const newTxHistory: TxHistory = {
-        txs: {
-          ...txs,
-          // this array will always change on every new tx
-          ids: ['a', 'b', 'c'],
-        },
-        hydrationMeta: {},
-      }
-
-      // redux will replace the array on update
-      const newState = {
-        ...mockStore,
-        txHistory: newTxHistory,
-      }
-      const second = selectLastNTxIds(newState, 1)
-
-      // toBe uses reference equality, not like isEqual deep equal check
-      expect(first).toBe(second)
     })
   })
 })

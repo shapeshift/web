@@ -59,7 +59,7 @@ export const walletSupportsChain = ({
     if (isMetaMaskMultichainWallet && !isSnapInstalled) return false
     if (!isMetaMaskMultichainWallet) return true
 
-    // Do *not* short circuit the supportsXYZ methods
+    // We are now sure we have runtime support for the chain.
     // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
     // any other wallet, which supports static wallet feature-detection
     return true

@@ -1,4 +1,4 @@
-import { SimpleGrid, useColorModeValue } from '@chakra-ui/react'
+import { Flex, useColorModeValue } from '@chakra-ui/react'
 import { union } from 'lodash'
 import { memo, useLayoutEffect, useMemo } from 'react'
 import { routes } from 'Routes/RoutesCommon'
@@ -7,7 +7,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { MobileNavLink } from './MobileNavLink'
 
-const displayProp = { base: 'grid', md: 'none' }
+const displayProp = { base: 'flex', md: 'none' }
 
 export const MobileNavBar = memo(() => {
   const bg = useColorModeValue(
@@ -78,25 +78,21 @@ export const MobileNavBar = memo(() => {
   }, [])
 
   return (
-    <>
-      <SimpleGrid
-        position='fixed'
-        bottom={0}
-        left={0}
-        width='100%'
-        gridTemplateColumns='1fr 1fr 1fr 1fr'
-        bgImage={bg}
-        pt={6}
-        zIndex='banner'
-        alignItems='center'
-        paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px)'
-        display={displayProp}
-        className='mobile-nav'
-      >
-        {allRoutes.map(route => (
-          <MobileNavLink key={route.path} {...route} />
-        ))}
-      </SimpleGrid>
-    </>
+    <Flex
+      position='fixed'
+      bottom={0}
+      left={0}
+      width='100%'
+      bgImage={bg}
+      pt={6}
+      zIndex='banner'
+      paddingBottom='calc(env(safe-area-inset-bottom, 16px) - 16px)'
+      display={displayProp}
+      className='mobile-nav'
+    >
+      {allRoutes.map(route => (
+        <MobileNavLink key={route.path} {...route} />
+      ))}
+    </Flex>
   )
 })

@@ -12,11 +12,12 @@ import { useAppSelector } from 'state/store'
 type TransactionHistoryListProps = {
   txIds: TxId[]
   useCompactMode?: boolean
+  initialTxsCount?: number
 }
 
 export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = memo(
-  ({ txIds, useCompactMode = false }) => {
-    const { next, data, hasMore } = useInfiniteScroll(txIds)
+  ({ txIds, useCompactMode = false, initialTxsCount }) => {
+    const { next, data, hasMore } = useInfiniteScroll(txIds, initialTxsCount)
     const isAnyTxHistoryApiQueryPending = useAppSelector(selectIsAnyTxHistoryApiQueryPending)
     const translate = useTranslate()
 

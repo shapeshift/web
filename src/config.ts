@@ -87,6 +87,8 @@ const validators = {
   REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
+  REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT: bool({ default: false }),
+  REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW: bool({ default: false }),
   // A flag encapsulating all WalletConnect to dApps - v1 and v2
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
@@ -155,7 +157,11 @@ const validators = {
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN_LENDING_BORROW: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN_LENDING_REPAY: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LP: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN_LP_DEPOSIT: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAIN_LP_WITHDRAW: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),
   REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET: bool({ default: false }),
 }

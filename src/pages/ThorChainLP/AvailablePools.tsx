@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Flex, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
+import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
@@ -13,6 +13,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { PoolIcon } from './components/PoolIcon'
 import { PoolsHeader } from './components/PoolsHeader'
@@ -37,7 +38,7 @@ type RowProps = Row<Pool>
 
 export const AvailablePools = () => {
   const history = useHistory()
-  const { data: pools, isLoading } = usePools()
+  const { data: pools } = usePools()
   const translate = useTranslate()
 
   const headerComponent = useMemo(() => <PoolsHeader />, [])
@@ -56,8 +57,23 @@ export const AvailablePools = () => {
             swapperName: SwapperName.Thorchain,
           })
 
+          const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
+          const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
+          const isThorchainLpInteractionDisabled =
+            !isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled
+
           const statusContent = useMemo(() => {
             switch (true) {
+              case isTradingActive === false:
+                return {
+                  color: 'red.500',
+                  element: <Text translation='common.halted' />,
+                }
+              case isThorchainLpInteractionDisabled:
+                return {
+                  color: 'red.500',
+                  element: <Text translation='common.disabled' />,
+                }
               case isTradingActive === true && pool.status === 'available':
                 return {
                   color: 'green.500',
@@ -68,18 +84,18 @@ export const AvailablePools = () => {
                   color: 'yellow.500',
                   element: <Text translation='common.staged' />,
                 }
-              case isTradingActive === false:
-                return {
-                  color: 'red.500',
-                  element: <Text translation='common.halted' />,
-                }
               default:
                 return {
                   color: 'text.subtle',
                   element: <Amount.Percent value={pool.annualPercentageRate} />,
                 }
             }
-          }, [isTradingActive, pool.annualPercentageRate, pool.status])
+          }, [
+            isThorchainLpInteractionDisabled,
+            isTradingActive,
+            pool.annualPercentageRate,
+            pool.status,
+          ])
 
           const poolAssetIds = useMemo(() => [pool.assetId, thorchainAssetId], [pool.assetId])
           return (
@@ -152,9 +168,7 @@ export const AvailablePools = () => {
     <Main headerComponent={headerComponent}>
       <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
-        {isLoading || !pools ? (
-          new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
-        ) : (
+        {pools.length ? (
           <ReactTable
             data={pools}
             columns={columns}
@@ -162,6 +176,10 @@ export const AvailablePools = () => {
             onRowClick={handlePoolClick}
             variant='clickable'
           />
+        ) : (
+          <Flex gap={4} alignItems='center' justifyContent='center'>
+            <Spinner />
+          </Flex>
         )}
       </Stack>
     </Main>

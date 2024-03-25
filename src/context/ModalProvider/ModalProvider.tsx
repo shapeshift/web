@@ -110,6 +110,26 @@ const SellAssetSearchModal = makeSuspenseful(
   ),
 )
 
+const BuyTradeAssetSearchModal = makeSuspenseful(
+  lazy(() =>
+    import('components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
+      ({ BuyTradeAssetSearchModal }) => ({
+        default: BuyTradeAssetSearchModal,
+      }),
+    ),
+  ),
+)
+
+const SellTradeAssetSearchModal = makeSuspenseful(
+  lazy(() =>
+    import('components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
+      ({ SellTradeAssetSearchModal }) => ({
+        default: SellTradeAssetSearchModal,
+      }),
+    ),
+  ),
+)
+
 const NativeOnboarding = makeSuspenseful(
   lazy(() =>
     import('components/Modals/NativeOnboarding/NativeOnboarding').then(({ NativeOnboarding }) => ({
@@ -156,6 +176,8 @@ const MODALS: Modals = {
   assetSearch: AssetSearchModal,
   buyAssetSearch: BuyAssetSearchModal,
   sellAssetSearch: SellAssetSearchModal,
+  buyTradeAssetSearch: BuyTradeAssetSearchModal,
+  sellTradeAssetSearch: SellTradeAssetSearchModal,
   nativeOnboard: NativeOnboarding,
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,

@@ -121,10 +121,11 @@ export const AvailablePools = () => {
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
 
   const lendingRows = useMemo(() => {
-    if (!lendingSupportedAssets) return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+    if (!lendingSupportedAssets)
+      return new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
 
     return lendingSupportedAssets.map(asset => (
-      <LendingPoolButton asset={asset} onPoolClick={handlePoolClick} />
+      <LendingPoolButton key={asset.assetId} asset={asset} onPoolClick={handlePoolClick} />
     ))
   }, [handlePoolClick, lendingSupportedAssets])
 

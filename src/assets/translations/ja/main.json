@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "無料",
+    "trade": "トレード",
+    "trades": "トレード",
+    "lpDeposit": "LPデポジット",
+    "lpDeposits": "LPデポジット",
     "back": "戻る",
     "and": "と",
     "balance": "残高",
@@ -15,6 +19,7 @@
     "continue": "次へ",
     "reward": "リワード",
     "claimable": "獲得可能",
+    "comingSoon": "近日公開 ...",
     "approve": "承認する",
     "confirm": "確認する",
     "seeDetails": "詳細",
@@ -127,7 +132,10 @@
     "yourBalance": "バランス",
     "signTransaction": "トランザクションに署名する",
     "halted": "停止中",
+    "staged": "段階的",
     "poolHalted": "プールが停止しています",
+    "symmetric": "対称",
+    "asymmetric": "非対称 (%{assetSymbol})",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -194,7 +202,7 @@
       "rainbowChart": "🌈 Rainbow",
       "totalChart": "💰合計",
       "addAsset": "アセットの追加",
-      "yourAssets": "ウォレットアセット",
+      "myAssets": "資産",
       "asset": "アセット",
       "portfolioBalance": "ポートフォリオ",
       "balance": "バランス",
@@ -362,7 +370,7 @@
         "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
         "vaultCap": "Vaultキャップ",
         "vaultCapTooltip": "このVaultの現在の最大容量",
-        "haltedTitle": "一時的に入金を停止しております。",
+        "haltedDepositTitle": "一時的に入金を停止しております。",
         "haltedDescription": "上限を増やすには、@THORChain でツイートしてください。",
         "protocolFee": "プロトコル手数料",
         "fee": "手数料",
@@ -561,6 +569,7 @@
   "transactionRow": {
     "send": "送信済み",
     "receive": "受け取り済み",
+    "common": "取引",
     "moreDetails": "さらに詳しく",
     "date": "日付",
     "txid": "トランザクションID",
@@ -664,8 +673,7 @@
         "join_pool": "プールに参加",
         "exit_pool": "プールから退出"
       }
-    },
-    "unknown": "トランザクション"
+    }
   },
   "bridge": {
     "confirm": "ブリッジの確認",
@@ -734,6 +742,7 @@
     "receiveInclFee": "受け取り（手数料含む）",
     "approvingAsset": "%{symbol}を承認しています",
     "viewTransaction": "トランザクションの表示",
+    "availableQuotes": "利用可能な見積もり",
     "unlimited": "無制限",
     "streamStatus": "ストリームステータス",
     "swapsFailed": "%{failedSwaps} のスワップが失敗しました",
@@ -753,10 +762,14 @@
     "customRecipientAddressDescription": "この取引のカスタム受信者アドレスを入力してください",
     "thisIsYourCustomRecipientAddress": "これはカスタム受信者アドレスです",
     "enterCustomRecipientAddress": "カスタム受信者アドレスを入力してください",
+    "receiveAtLeast": "少なくとも受け取る",
     "tooltip": {
+      "changeQuote": "見積もりの​​変更",
       "rate": "この取引ペアの予想レートです。",
       "noRateAvailable": "多くの場合、取引ペアの流動性が非常に限られているか、まったくないことが原因です。",
       "priceImpactLabel": "価格への影響: %{priceImpactPercentage}%",
+      "priceImpact": "取引がこのプールの市場価格に与える影響",
+      "priceImpactWarning": "プール内の現在の流動性を考慮すると、このサイズのスワップは価格に大きな影響を与える可能性があります。入力トークンの量と出力トークンで受け取る量の間には大きな違いがある可能性があります。",
       "minerFee": "これはブロックチェーン上でトランザクションを処理するための料金であり、ShapeShiftによって請求される料金ではありません。",
       "protocol": "取引がルーティングされるプロトコルです。",
       "protocolLifi": "取引がルーティングされるプロトコルです。 LI.FIは、価格、安全性、スピードの総合的な最適な組み合わせを実現するために、一連の仲介取引を内部で実行します。",
@@ -765,7 +778,11 @@
       "manualReceiveAddress": "資金を受け取るアドレスです。手動で入力されていますので、正しいことを確認してください。",
       "amountPercentageDifference": "これは、最良の見積もりと比較した、あなたが受け取る %{buyAssetSymbol} の合計額の差のパーセンテージです。",
       "overallPercentageDifference": "これは、最良の見積もりと比較した、すべての手数料を差し引いた後の受け取り総額のパーセンテージの差です。",
-      "gasFee": "これは、この取引を完了するための推定ガス代です。"
+      "priceImpactDifference": "入力量と出力量のUSD値間の推定差",
+      "gasFee": "これは、この取引を完了するための推定ガス代です。",
+      "slippageWithAmount": "価格が変動し、受け取る金額が %{amount} 未満になる場合、トランザクションは取り消されます。これは受け取ることが保証される最低金額です。",
+      "slippage": "価格がこのパーセンテージを超えて不利に変化した場合、トランザクションは元に戻ります。",
+      "noRelatedAssets": "このアセットは %{chainDisplayName} でのみ利用可能です"
     },
     "rates": {
       "tags": {
@@ -1446,7 +1463,7 @@
       "errors": {
         "unknown": "XDEFIとの通信で予期せぬエラーが発生しました",
         "connectFailure": "XDEFIウォレットに接続できません",
-        "multipleWallets": "検出されたイーサリアムプロバイダーは XDEFIではありません。複数のウォレットをインストールしていますか?"
+        "multipleWallets": "検出されたEthereumプロバイダーはXDEFIではありません。複数のウォレットをインストールしてオンにしていますか？設定でXDEFIを優先し、もう一度ペアリングを押します。"
       },
       "connect": {
         "header": "XDEFIのペアリング",
@@ -2180,27 +2197,28 @@
     "currentFoxPower": "あなたのFOX",
     "foxPower": "FOXパワー",
     "simulateTitle": "FOX割引をシミュレーションする",
-    "simulateBody": "この便利な計算ツールを使用して、合計手数料と取引で受け取る割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での取引サイズを示すだけで、潜在的な節約額がどのように変化するかを観察してください。",
-    "tradeSize": "取引規模",
+    "simulateBody": "この便利な計算ツールを使用して、合計料金と %{feature} で受けられる割引を計算してください。以下のスライダーを調整して、FOX保有額と法定通貨での %{featureLowerCase} サイズを示すだけで、潜在的な節約額がどのように展開されるかを確認してください。",
+    "featureSize": "%{feature} サイズ",
     "totalFee": "合計料金",
     "foxPowerDiscount": "FOXパワー割引",
     "basedOnFee": "料金に基づく: %{fee}",
     "feeSummary": "料金概要",
     "simulateFee": "割引をシミュレーションする",
-    "freeUnderThreshold": "%{threshold} 未満の取引は常に無料です",
+    "freeUnderThreshold": "%{threshold} 未満の %{feature} は常に無料です",
     "breakdownHeader": "FOX割引",
-    "breakdownBody": "以下は、取引手数料の内訳と、適用される対応するFOX割引です。 「シミュレート」タブでどれくらい割引できるかを確認してください。",
-    "tradeFee": "取引手数料",
-    "totalTradeFee": "合計取引手数料"
+    "breakdownBody": "以下は、%{featureLowerCase} 料金の内訳と、適用される対応する FOX電力割引です。 「シミュレート」タブでさらにどれくらい節約できるかを確認してください。",
+    "featureFee": "%{feature} 料金",
+    "totalFeatureFee": "合計 %{feature} 料金"
   },
   "pools": {
     "pools": "プール",
     "pool": "プール",
+    "positions": "ポジション",
     "tvl": "TVL",
     "volume24h": "ボリューム 24時間",
     "volume7d": "ボリューム 7日間",
     "balance": "バランス",
-    "unclaimedFees": "未請求料金",
+    "earnings": "収益",
     "poolShare": "プールシェア",
     "yourPosition": "あなたのポジション",
     "poolInformation": "プール情報",
@@ -2228,8 +2246,11 @@
     "totalTokensLocked": "ロックされたトークンの総数",
     "chainFee": "%{チェーン}手数料",
     "supplying": "供給する",
+    "withdrawing": "引き出し",
     "confirmAndDeposit": "確認して入金する",
+    "confirmAndWithdraw": "確認して引き出す",
     "removeAmounts": "削除額",
+    "stagedTooltip": "段階的プールは流動性を受け入れる新しいプールですが、利用可能になるまで収益は発生しません。",
     "yourPositions": {
       "yourPositions": "あなたのポジション",
       "emptyTitle": "アクティブなポジションはありません",

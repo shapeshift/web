@@ -89,7 +89,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { useSupportedAssets } from '../../hooks/useSupportedAssets'
 import { QuoteList } from '../QuoteList/QuoteList'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
@@ -134,8 +133,8 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const [isCompactQuoteListOpen, setIsCompactQuoteListOpen] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-  const buyAssetSearch = useModal('buyAssetSearch')
-  const sellAssetSearch = useModal('sellAssetSearch')
+  const buyAssetSearch = useModal('buyTradeAssetSearch')
+  const sellAssetSearch = useModal('sellTradeAssetSearch')
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const percentOptions = useMemo(() => {
@@ -219,11 +218,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
   }, [dispatch])
 
-  const {
-    supportedSellAssets,
-    supportedBuyAssets,
-    isLoading: isSupportedAssetsLoading,
-  } = useSupportedAssets()
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
@@ -295,7 +289,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     () =>
       (!isAnyTradeQuoteLoaded && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
-      isSupportedAssetsLoading ||
       isSellAddressByteCodeLoading ||
       isReceiveAddressByteCodeLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
@@ -306,7 +299,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       isAnyTradeQuoteLoaded,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
-      isSupportedAssetsLoading,
       isSellAddressByteCodeLoading,
       isReceiveAddressByteCodeLoading,
       isVotingPowerLoading,
@@ -321,19 +313,17 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   const handleSellAssetClick = useCallback(() => {
     sellAssetSearch.open({
-      onClick: setSellAsset,
+      onAssetClick: setSellAsset,
       title: 'trade.tradeFrom',
-      assets: supportedSellAssets,
     })
-  }, [sellAssetSearch, setSellAsset, supportedSellAssets])
+  }, [sellAssetSearch, setSellAsset])
 
   const handleBuyAssetClick = useCallback(() => {
     buyAssetSearch.open({
-      onClick: setBuyAsset,
+      onAssetClick: setBuyAsset,
       title: 'trade.tradeTo',
-      assets: supportedBuyAssets,
     })
-  }, [buyAssetSearch, setBuyAsset, supportedBuyAssets])
+  }, [buyAssetSearch, setBuyAsset])
 
   const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
     selectBuyAmountBeforeFeesCryptoPrecision,
@@ -596,10 +586,9 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={sellAsset.assetId}
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
-        isLoading={isSupportedAssetsLoading}
       />
     ),
-    [handleSellAssetClick, isSupportedAssetsLoading, sellAsset.assetId, setSellAsset],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
   )
 
   const buyTradeAssetSelect = useMemo(
@@ -608,10 +597,9 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={buyAsset.assetId}
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
-        isLoading={isSupportedAssetsLoading}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, isSupportedAssetsLoading, setBuyAsset],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
   )
 
   // disable switching assets if the buy asset isn't supported

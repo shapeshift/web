@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "Gratuit",
+    "trade": "Échange",
+    "trades": "Échanges",
+    "lpDeposit": "Dépôt LP",
+    "lpDeposits": "Dépôts LP",
     "back": "Retour",
     "and": "et",
     "balance": "Solde",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 Arc-en-ciel",
       "totalChart": "💰 Total",
       "addAsset": "Ajouter un actif",
-      "yourAssets": "Actifs du porte-monnaie",
+      "myAssets": "Mes actifs",
       "asset": "Actif",
       "portfolioBalance": "Solde du Portefeuille",
       "balance": "Solde",
@@ -366,7 +370,7 @@
         "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
         "vaultCap": "Plafond du Vault",
         "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
-        "haltedTitle": "Les dépôts sont temporairement suspendus.",
+        "haltedDepositTitle": "Les dépôts sont temporairement suspendus.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "protocolFee": "Frais de protocole",
         "fee": "Frais",
@@ -1459,7 +1463,7 @@
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec XDEFI",
         "connectFailure": "Impossible de connecter le porte-monnaie XDEFI",
-        "multipleWallets": "Le fournisseur Ethereum détecté n'est pas XDEFI. Avez-vous plusieurs porte-monnaie installés ?"
+        "multipleWallets": "Le fournisseur Ethereum détecté n’est pas XDEFI. Avez-vous plusieurs porte-monnaie installés et activés ? Donnez la priorité à XDEFI dans les paramètres et appuyez à nouveau sur Appairer."
       },
       "connect": {
         "header": "Appairer XDEFI",
@@ -2193,18 +2197,18 @@
     "currentFoxPower": "Votre Puissance FOX",
     "foxPower": "Puissance FOX",
     "simulateTitle": "Simulez vos remises Puissance FOX",
-    "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre échange. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre échange en monnaie fiduciaire, et constatez vos économies potentielles !",
-    "tradeSize": "Montant de l'échange",
+    "simulateBody": "Utilisez cette calculatrice pratique pour déterminer le total de vos frais et la remise dont vous bénéficierez sur votre %{feature}. Ajustez simplement les curseurs ci-dessous pour indiquer le montant de vos avoirs FOX et le montant de votre %{featureLowerCase} en monnaie fiduciaire, et constatez vos économies potentielles !",
+    "featureSize": "Montant %{feature}",
     "totalFee": "Total des frais",
     "foxPowerDiscount": "Remise Puissance FOX",
     "basedOnFee": "Basé sur des frais de : %{fee}",
     "feeSummary": "Résumé des frais",
     "simulateFee": "Simuler les remises",
-    "freeUnderThreshold": "Les échanges inférieurs à %{threshold} sont toujours GRATUITS",
+    "freeUnderThreshold": "%{feature} en dessous de %{threshold} sont toujours GRATUITS",
     "breakdownHeader": "Votre remise Puissance FOX",
-    "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais d'échange et la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet de simulation.",
-    "tradeFee": "Frais d'échange",
-    "totalTradeFee": "Frais d'échange totaux"
+    "breakdownBody": "Vous trouverez ci-dessous le détail de vos frais pour un %{featureLowerCase} et de la remise Puissance FOX correspondante appliquée. Découvrez combien vous pouvez économiser en plus dans l'onglet Simulation.",
+    "featureFee": "Frais %{feature}",
+    "totalFeatureFee": "Total Frais %{feature}"
   },
   "pools": {
     "pools": "Pools",

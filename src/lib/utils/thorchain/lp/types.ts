@@ -208,6 +208,7 @@ export type LpConfirmedDepositQuote = {
   feeAmountUSD: string
   assetAddress?: string
   quoteInboundAddress: string
+  positionStatus?: PositionStatus
   // For informative purposes only at confirm step - to be recalculated before signing
   totalGasFeeFiatUserCurrency: string
   runeGasFeeFiatUserCurrency: string
@@ -227,6 +228,7 @@ export type LpConfirmedWithdrawalQuote = {
   assetAddress: string | undefined
   quoteInboundAddress: string
   withdrawalBps: string
+  positionStatus?: PositionStatus
   // For informative purposes only at confirm step - to be recalculated before signing
   totalGasFeeFiatUserCurrency: string
   runeGasFeeFiatUserCurrency: string
@@ -238,22 +240,35 @@ export enum AsymSide {
   Rune = 'rune',
 }
 
+export type PositionStatus = {
+  isPending: boolean
+  incomplete?: {
+    asset: Asset
+    amountCryptoPrecision: string
+  }
+}
+
 export type UserLpDataPosition = {
   dateFirstAdded: string
   liquidityUnits: string
+  pendingAssetAmountCryptoPrecision: string
+  pendingAssetAmountFiatUserCurrency: string
+  pendingRuneAmountCryptoPrecision: string
+  pendingRuneAmountFiatUserCurrency: string
   underlyingAssetAmountCryptoPrecision: string
+  underlyingAssetAmountFiatUserCurrency: string
   underlyingRuneAmountCryptoPrecision: string
-  asym?: {
-    side: AsymSide
-    asset: Asset
-  }
-  underlyingAssetValueFiatUserCurrency: string
-  underlyingRuneValueFiatUserCurrency: string
+  underlyingRuneAmountFiatUserCurrency: string
   totalValueFiatUserCurrency: string
   poolOwnershipPercentage: string
   name: string
   opportunityId: string
   poolShare: string
+  asym?: {
+    asset: Asset
+    side: AsymSide
+  }
+  status: PositionStatus
 
   // DO NOT REMOVE these two. While it looks like this would be superfluous because we already have AccountId, that's not exactly true.
   // AccountId refers to the AccountId the position was *fetched* with/for, e.g ETH account 0 or ROON account 0.

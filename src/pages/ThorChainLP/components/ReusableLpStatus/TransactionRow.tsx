@@ -533,18 +533,21 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               receiverAddress: THORCHAIN_POOL_MODULE_ADDRESS,
               hex: signedTx,
             })
+            const _txIdLink = getTxLink({
+              defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
+              txId: txId ?? '',
+              name: SwapperName.Thorchain,
+            })
+
             toast({
               title: translate('modals.send.transactionSent'),
               description: (
                 <Text>
-                  {txIdLink && (
-                    <Link href={txIdLink} isExternal>
-                      {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-                    </Link>
-                  )}
+                  <Link href={_txIdLink} isExternal>
+                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+                  </Link>
                 </Text>
               ),
-
               status: 'success',
               duration: 9000,
               isClosable: true,
@@ -605,8 +608,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               buildCustomTxInput,
               receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
             })
+            const _txIdLink = getTxLink({
+              defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
+              txId: txId ?? '',
+              name: SwapperName.Thorchain,
+            })
             toast({
               title: translate('modals.send.transactionSent'),
+              description: (
+                <Text>
+                  <Link href={_txIdLink} isExternal>
+                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+                  </Link>
+                </Text>
+              ),
               status: 'success',
               duration: 9000,
               isClosable: true,
@@ -645,8 +660,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               sendInput,
               wallet,
             })
+            const _txIdLink = getTxLink({
+              defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
+              txId: txId ?? '',
+              name: SwapperName.Thorchain,
+            })
             toast({
               title: translate('modals.send.transactionSent'),
+              description: (
+                <Text>
+                  <Link href={_txIdLink} isExternal>
+                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+                  </Link>
+                </Text>
+              ),
               status: 'success',
               duration: 9000,
               isClosable: true,
@@ -689,9 +716,9 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     runeAccountNumber,
     toast,
     translate,
-    txIdLink,
     assetAddress,
     poolAssetAccountNumber,
+    txId,
     selectedCurrency,
     onStart,
   ])

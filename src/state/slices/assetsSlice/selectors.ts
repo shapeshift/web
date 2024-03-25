@@ -74,7 +74,7 @@ export const selectNonFungibleAssetIds = createDeepEqualOutputSelector(
   ids => ids,
 )
 export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
-export const selectAssetsSortedByName = createDeepEqualOutputSelector(
+export const selectFungibleAssetsSortedByName = createDeepEqualOutputSelector(
   selectFungibleAssets,
   assets => {
     const getAssetName = (asset: Asset) => asset.name
@@ -82,7 +82,7 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(
   },
 )
 
-export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
+export const selectFungibleAssetsSortedByMarketCap = createDeepEqualOutputSelector(
   selectMarketDataIdsSortedByMarketCapUsd,
   selectFungibleAssets,
   (marketDataAssetIds, assets): Asset[] => {
@@ -111,8 +111,8 @@ export const selectFeeAssetById = createCachedSelector(
   assetId: AssetId,
 ) => ReturnType<typeof getFeeAssetByAssetId>
 
-export const selectAssetsBySearchQuery = createDeepEqualOutputSelector(
-  selectAssetsSortedByMarketCap,
+export const selectFungibleAssetsBySearchQuery = createDeepEqualOutputSelector(
+  selectFungibleAssetsSortedByMarketCap,
   selectSearchQueryFromFilter,
   (sortedAssets: Asset[], searchQuery?: string): Asset[] => {
     if (!searchQuery) return sortedAssets

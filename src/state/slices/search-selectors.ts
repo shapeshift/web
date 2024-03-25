@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import { selectSearchQueryFromFilter } from '../selectors'
-import { selectAssetsBySearchQuery, selectTxsByQuery } from './selectors'
+import { selectFungibleAssetsBySearchQuery, selectTxsByQuery } from './selectors'
 import type { TxId } from './txHistorySlice/txHistorySlice'
 
 export enum GlobalSearchResultType {
@@ -34,7 +34,7 @@ export type GlobalSearchResult = AssetSearchResult | TxSearchResult | SendResult
 export type SelectGlobalItemsFromFilterReturn = [AssetSearchResult[], TxSearchResult[]]
 
 export const selectGlobalItemsFromFilter = createDeepEqualOutputSelector(
-  selectAssetsBySearchQuery,
+  selectFungibleAssetsBySearchQuery,
   selectTxsByQuery,
   selectSearchQueryFromFilter,
   (filteredAssets: Asset[], txIds, query?: string): SelectGlobalItemsFromFilterReturn => {

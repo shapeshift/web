@@ -11,7 +11,7 @@ import type { ParseAddressInputReturn } from 'lib/address/address'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
-  selectAssetsSortedByName,
+  selectFungibleAssetsSortedByName,
   selectPortfolioAccountMetadata,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
@@ -34,7 +34,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 }) => {
   const walletAccountIds = useSelector(selectWalletAccountIds)
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
-  const sortedAssets = useSelector(selectAssetsSortedByName)
+  const sortedAssets = useSelector(selectFungibleAssetsSortedByName)
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()

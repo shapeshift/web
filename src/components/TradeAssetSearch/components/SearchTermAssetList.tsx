@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { selectWalletSupportedChainIds } from 'state/slices/common-selectors'
-import { selectAssetsSortedByName } from 'state/slices/selectors'
+import { selectFungibleAssetsSortedByName } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
@@ -23,7 +23,7 @@ export const SearchTermAssetList = ({
   allowWalletUnsupportedAssets,
   onAssetClick,
 }: SearchTermAssetListProps) => {
-  const assets = useAppSelector(selectAssetsSortedByName)
+  const assets = useAppSelector(selectFungibleAssetsSortedByName)
   const groupIsLoading = useMemo(() => {
     return [Boolean(isLoading)]
   }, [isLoading])

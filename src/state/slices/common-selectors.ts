@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'

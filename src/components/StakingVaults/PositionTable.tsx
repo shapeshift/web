@@ -21,8 +21,8 @@ import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opport
 import {
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
-  selectFungibleAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
+  selectFungibleAssetsSortedByMarketCap,
   selectOpportunityApiPending,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'

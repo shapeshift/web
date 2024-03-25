@@ -1,7 +1,7 @@
 import type { PairingInfo } from '@keepkey/keepkey-sdk'
 import { KeepKeySdk } from '@keepkey/keepkey-sdk'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { selectFungibleAssets } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 type Config = {
@@ -14,8 +14,8 @@ type SetupKeepKeySDK = () => Promise<KeepKeySdk | undefined>
 export const setupKeepKeySDK: SetupKeepKeySDK = async () => {
   const serviceKey = window.localStorage.getItem('@app/serviceKey') || ''
   const state = store.getState()
-  const assetsById = selectFungibleAssets(state)
-  const imageUrl = assetsById[foxAssetId]?.icon || ''
+  const foxAsset = selectAssetById(state, foxAssetId)
+  const imageUrl = foxAsset?.icon ?? ''
 
   const config: Config = {
     apiKey: serviceKey,

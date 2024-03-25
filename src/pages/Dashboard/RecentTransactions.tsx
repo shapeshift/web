@@ -27,7 +27,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
             </Button>
           )}
         </CardHeader>
-        <TransactionHistoryList txIds={txIds} useCompactMode={true} />
+        <TransactionHistoryList txIds={txIds} useCompactMode={true} initialTxsCount={limit} />
       </Card>
     )
   },

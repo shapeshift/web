@@ -10,6 +10,7 @@ import {
   Heading as CkHeading,
   Image,
   keyframes,
+  Link,
   Stack,
 } from '@chakra-ui/react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -172,7 +173,7 @@ export const MobileConnect = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ opacity: { duration: 0.5 } }}
+        transition={{ opacity: { duration: 0.3 } }}
       >
         <BodyStack>
           <Stack textAlign='center' spacing={2}>
@@ -208,7 +209,7 @@ export const MobileConnect = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ opacity: { duration: 0.5 } }}
+        transition={{ opacity: { duration: 0.3 } }}
       >
         <BodyStack>
           <Stack textAlign='center' spacing={2}>
@@ -303,9 +304,7 @@ export const MobileConnect = () => {
               <AnimatePresence mode='wait' initial={false}>
                 <motion.div
                   layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ layout: { type: 'spring', bounce: 0.35, duration: 0.5 } }}
+                  transition={{ layout: { type: 'spring', bounce: 0.4, duration: 0.5 } }}
                 >
                   {content}
                 </motion.div>
@@ -318,7 +317,24 @@ export const MobileConnect = () => {
                 maxWidth='80%'
                 mx='auto'
               >
-                By connecting a wallet, you agree to ShapeShift's Terms of Service.
+                By connecting a wallet, you agree to ShapeShift's{' '}
+                <Link
+                  isExternal
+                  target='_blank'
+                  fontWeight='bold'
+                  href='https://app.shapeshift.com/#/legal/terms-of-service'
+                >
+                  Terms
+                </Link>{' '}
+                and{' '}
+                <Link
+                  isExternal
+                  target='_blank'
+                  fontWeight='bold'
+                  href='https://app.shapeshift.com/#/legal/privacy-policy'
+                >
+                  Privacy Policy
+                </Link>
               </RawText>
             </Stack>
           </SlideTransitionY>

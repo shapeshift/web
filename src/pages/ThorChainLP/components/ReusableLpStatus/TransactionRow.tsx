@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Button,
   Card,
@@ -8,6 +9,8 @@ import {
   Flex,
   Link,
   Skeleton,
+  Text,
+  useToast,
 } from '@chakra-ui/react'
 import {
   type AssetId,
@@ -103,6 +106,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   confirmedQuote,
   opportunityType,
 }) => {
+  const toast = useToast()
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
@@ -449,6 +453,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     )
   }, [estimatedFeesData, feeAsset, isSubmitting, txId])
 
+  const txIdLink = useMemo(
+    () =>
+      getTxLink({
+        defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
+        txId: txId ?? '',
+        name: SwapperName.Thorchain,
+      }),
+    [txId],
+  )
+
   const handleSignTx = useCallback(() => {
     setIsSubmitting(true)
     mixpanel?.track(
@@ -519,6 +533,23 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               receiverAddress: THORCHAIN_POOL_MODULE_ADDRESS,
               hex: signedTx,
             })
+            toast({
+              title: translate('modals.send.transactionSent'),
+              description: (
+                <Text>
+                  {txIdLink && (
+                    <Link href={txIdLink} isExternal>
+                      {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+                    </Link>
+                  )}
+                </Text>
+              ),
+
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+              position: 'top-right',
+            })
 
             setTxId(txId)
             setSerializedTxIndex(
@@ -574,6 +605,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               buildCustomTxInput,
               receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
             })
+            toast({
+              title: translate('modals.send.transactionSent'),
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+              position: 'top-right',
+            })
 
             setTxId(txid)
             setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, txid, assetAddress!))
@@ -606,6 +644,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             const txId = await handleSend({
               sendInput,
               wallet,
+            })
+            toast({
+              title: translate('modals.send.transactionSent'),
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+              position: 'top-right',
             })
 
             setTxId(txId)
@@ -642,21 +687,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     amountCryptoPrecision,
     estimateFeesArgs,
     runeAccountNumber,
+    toast,
+    translate,
+    txIdLink,
     assetAddress,
     poolAssetAccountNumber,
     selectedCurrency,
     onStart,
   ])
-
-  const txIdLink = useMemo(
-    () =>
-      getTxLink({
-        defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-        txId: txId ?? '',
-        name: SwapperName.Thorchain,
-      }),
-    [txId],
-  )
 
   const confirmTranslation = useMemo(() => {
     if (isTradingActive === false) return translate('common.poolHalted')

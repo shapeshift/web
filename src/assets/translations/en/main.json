@@ -1006,6 +1006,7 @@
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
+      "transactionSent": "Transaction sent",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {

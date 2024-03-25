@@ -11,7 +11,6 @@ import {
   DialogHeaderMiddle,
   DialogHeaderRight,
 } from 'components/Modal/components/DialogHeader'
-import { SlideTransition } from 'components/SlideTransition'
 import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
 
 type SelectAssetsProps = {
@@ -23,7 +22,7 @@ export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
   const translate = useTranslate()
   const handleAssetClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
   return (
-    <SlideTransition>
+    <>
       <DialogHeader>
         <DialogHeaderLeft>
           <DialogBackButton />
@@ -33,9 +32,9 @@ export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      <DialogBody height='600px' px={2} display='flex' flexDir='column'>
+      <DialogBody height='100%' px={2} display='flex' flexDir='column'>
         <TradeAssetSearch onAssetClick={handleAssetClick} />
       </DialogBody>
-    </SlideTransition>
+    </>
   )
 }

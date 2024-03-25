@@ -226,7 +226,7 @@ export const MobileConnect = () => {
               />
             ))}
             <Button size='lg' variant='outline' onClick={handleToggleWallets}>
-              {translate('connectWalletPage.importExisting')}
+              {translate('connectWalletPage.createOrImport')}
             </Button>
             {error && (
               <Alert status='error'>

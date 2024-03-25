@@ -52,8 +52,9 @@ export const walletSupportsChain = ({
 }: WalletSupportsChainArgs): boolean | null => {
   if (!wallet) return false
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-  // Naming is slightly weird there, but the intent is if this evaluates to false, it acts as a short circuit
-  const shortCircuitFeatureDetection = (() => {
+  // A wallet may have feature-capabilities for a chain, but not have runtime support for it
+  // e.g MM without snaps installed, or Ledger without chain account ids (meaning the user didn't connect said chain's accounts)
+  const hasRuntimeSupport = (() => {
     if (Boolean(isLedger(wallet) && !chainAccountIds.length)) return false
     if (isMetaMaskMultichainWallet && !isSnapInstalled) return false
     if (!isMetaMaskMultichainWallet) return true
@@ -69,7 +70,7 @@ export const walletSupportsChain = ({
     case bchChainId:
     case dogeChainId:
     case ltcChainId:
-      return supportsBTC(wallet) && shortCircuitFeatureDetection
+      return supportsBTC(wallet) && hasRuntimeSupport
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
@@ -87,9 +88,9 @@ export const walletSupportsChain = ({
     case arbitrumNovaChainId:
       return supportsArbitrumNova(wallet)
     case cosmosChainId:
-      return supportsCosmos(wallet) && shortCircuitFeatureDetection
+      return supportsCosmos(wallet) && hasRuntimeSupport
     case thorchainChainId:
-      return supportsThorchain(wallet) && shortCircuitFeatureDetection
+      return supportsThorchain(wallet) && hasRuntimeSupport
     default: {
       return false
     }

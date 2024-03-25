@@ -7,13 +7,13 @@ import { NavLink } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import type { ReduxState } from 'state/reducer'
-import { selectLastNTxIds } from 'state/slices/selectors'
+import { selectTxIds } from 'state/slices/selectors'
 
 type RecentTransactionProps = { limit?: number; viewMoreLink?: boolean } & CardProps
 
 export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
   ({ limit = 10, viewMoreLink, ...rest }) => {
-    const recentTxIds = useSelector((state: ReduxState) => selectLastNTxIds(state, limit))
+    const txIds = useSelector((state: ReduxState) => selectTxIds(state))
     const translate = useTranslate()
     return (
       <Card variant='dashboard' {...rest}>
@@ -27,7 +27,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
             </Button>
           )}
         </CardHeader>
-        <TransactionHistoryList txIds={recentTxIds} useCompactMode={true} />
+        <TransactionHistoryList txIds={txIds} useCompactMode={true} />
       </Card>
     )
   },

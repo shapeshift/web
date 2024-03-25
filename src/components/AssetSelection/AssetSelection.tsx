@@ -16,7 +16,7 @@ const disabledStyle = { opacity: 0.5 }
 type TradeAssetSelectBaseProps = {
   assetId?: AssetId
   assetIds?: AssetId[]
-  isLoading: boolean
+  isLoading?: boolean
   buttonProps?: ButtonProps
 } & FlexProps
 

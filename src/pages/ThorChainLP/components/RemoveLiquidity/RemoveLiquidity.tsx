@@ -117,24 +117,31 @@ const RemoveLiquidityRoutes: React.FC<RemoveLiquidityRoutesProps> = ({
     [confirmedQuote],
   )
 
-  const renderRemoveLiquiditySweep = useCallback(
-    () =>
-      confirmedQuote ? (
-        <RemoveLiquiditySweep
-          confirmedQuote={confirmedQuote}
-          // eslint-disable-next-line react-memo/require-usememo
-          onSweepSeen={() => {
-            mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
-            history.push(RemoveLiquidityRoutePaths.Confirm)
-          }}
-          // eslint-disable-next-line react-memo/require-usememo
-          onBack={() => {
-            history.push(RemoveLiquidityRoutePaths.Input)
-          }}
-        />
-      ) : null,
-    [confirmedQuote, history, mixpanel],
-  )
+  const renderRemoveLiquiditySweep = useCallback(() => {
+    if (!confirmedQuote) return null
+
+    const handleSweepSeen = () => {
+      if (confirmedQuote.positionStatus?.incomplete) {
+        mixpanel?.track(MixPanelEvent.LpIncompleteWithdrawPreview, confirmedQuote!)
+      } else {
+        mixpanel?.track(MixPanelEvent.LpWithdrawPreview, confirmedQuote!)
+      }
+
+      history.push(RemoveLiquidityRoutePaths.Confirm)
+    }
+
+    return (
+      <RemoveLiquiditySweep
+        confirmedQuote={confirmedQuote}
+        // eslint-disable-next-line react-memo/require-usememo
+        onSweepSeen={handleSweepSeen}
+        // eslint-disable-next-line react-memo/require-usememo
+        onBack={() => {
+          history.push(RemoveLiquidityRoutePaths.Input)
+        }}
+      />
+    )
+  }, [confirmedQuote, history, mixpanel])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

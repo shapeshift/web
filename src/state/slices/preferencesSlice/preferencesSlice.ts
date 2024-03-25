@@ -23,6 +23,8 @@ export type FeatureFlags = {
   WalletConnectToDappsV2: boolean
   Wherever: boolean
   SaversVaults: boolean
+  SaversVaultsDeposit: boolean
+  SaversVaultsWithdraw: boolean
   Yearn: boolean
   DefiDashboard: boolean
   ArkeoAirdrop: boolean
@@ -45,7 +47,11 @@ export type FeatureFlags = {
   CustomSendNonce: boolean
   Snaps: boolean
   ThorchainLending: boolean
+  ThorchainLendingBorrow: boolean
+  ThorchainLendingRepay: boolean
   ThorchainLP: boolean
+  ThorchainLpDeposit: boolean
+  ThorchainLpWithdraw: boolean
   LedgerWallet: boolean
   ThorchainSwapLongtail: boolean
   ShapeShiftMobileWallet: boolean
@@ -90,6 +96,8 @@ const initialState: Preferences = {
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
     Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
+    SaversVaultsDeposit: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT,
+    SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
@@ -111,7 +119,11 @@ const initialState: Preferences = {
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
+    ThorchainLendingBorrow: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING_BORROW,
+    ThorchainLendingRepay: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING_REPAY,
     ThorchainLP: getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
+    ThorchainLpDeposit: getConfig().REACT_APP_FEATURE_THORCHAIN_LP_DEPOSIT,
+    ThorchainLpWithdraw: getConfig().REACT_APP_FEATURE_THORCHAIN_LP_WITHDRAW,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
     ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,

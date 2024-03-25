@@ -16,6 +16,8 @@ export const MODAL_KEYS: (keyof Modals)[] = [
   'assetSearch',
   'buyAssetSearch',
   'sellAssetSearch',
+  'buyTradeAssetSearch',
+  'sellTradeAssetSearch',
   'popup',
   'nativeOnboard',
   'nft',

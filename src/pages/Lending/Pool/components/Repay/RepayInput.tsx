@@ -27,6 +27,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -123,6 +124,8 @@ export const RepayInput = ({
     error: lendingQuoteCloseError,
   } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
+  const isThorchainLendingRepayEnabled = useFeatureFlag('ThorchainLendingRepay')
+
   useEffect(() => {
     setConfirmedQuote(lendingQuoteCloseData ?? null)
   }, [lendingQuoteCloseData, setConfirmedQuote])
@@ -192,10 +195,6 @@ export const RepayInput = ({
   const { data: lendingSupportedAssets, isLoading: isLendingSupportedAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
 
-  const lendingSupportedAssetIds = useMemo(() => {
-    return lendingSupportedAssets?.map(lendingSupportedAsset => lendingSupportedAsset.assetId) ?? []
-  }, [lendingSupportedAssets])
-
   useEffect(() => {
     if (!(lendingSupportedAssets && collateralAsset)) return
     if (repaymentAsset) return
@@ -206,12 +205,10 @@ export const RepayInput = ({
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleRepaymentAssetClick = useCallback(() => {
-    if (!lendingSupportedAssets?.length) return
-
     buyAssetSearch.open({
-      onClick: setRepaymentAsset,
+      onAssetClick: setRepaymentAsset,
       title: 'lending.repay',
-      assets: lendingSupportedAssets,
+      assets: lendingSupportedAssets ?? [],
     })
   }, [buyAssetSearch, lendingSupportedAssets, setRepaymentAsset])
 
@@ -219,22 +216,14 @@ export const RepayInput = ({
     return (
       <TradeAssetSelect
         assetId={repaymentAsset?.assetId ?? ''}
-        assetIds={lendingSupportedAssetIds}
         onAssetClick={handleRepaymentAssetClick}
         onAssetChange={setRepaymentAsset}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
-        isLoading={isLendingSupportedAssetsLoading}
       />
     )
-  }, [
-    setRepaymentAsset,
-    handleRepaymentAssetClick,
-    isLendingSupportedAssetsLoading,
-    lendingSupportedAssetIds,
-    repaymentAsset?.assetId,
-  ])
+  }, [setRepaymentAsset, handleRepaymentAssetClick, repaymentAsset?.assetId])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
@@ -352,6 +341,7 @@ export const RepayInput = ({
   }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
+    if (!isThorchainLendingRepayEnabled) return 'lending.errors.repaymentsDisabled'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
     if (isLendingQuoteCloseError) {
@@ -367,7 +357,7 @@ export const RepayInput = ({
         return 'Repayment not yet available'
 
       if (/trading is halted/i.test(lendingQuoteCloseError.message))
-        return 'trade.errors.tradingNotActiveNoAssetSymbol'
+        return 'lending.errors.repaymentsHalted'
 
       // This should never happen but it may
       // https://gitlab.com/thorchain/thornode/-/blob/051fafb06011e135e6b122600b5b023b7704d594/x/thorchain/handler_loan_repayment.go#L95
@@ -383,6 +373,7 @@ export const RepayInput = ({
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
+    isThorchainLendingRepayEnabled,
     lendingQuoteCloseError?.message,
   ])
 
@@ -581,7 +572,8 @@ export const RepayInput = ({
             isAddressByteCodeLoading
           }
           isDisabled={Boolean(
-            isLendingPositionDataLoading ||
+            !isThorchainLendingRepayEnabled ||
+              isLendingPositionDataLoading ||
               isLendingPositionDataError ||
               isLendingQuoteCloseLoading ||
               isLendingQuoteCloseRefetching ||

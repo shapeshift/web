@@ -74,6 +74,7 @@ export async function getTradeQuote(
 
   const lifi = getLifi()
 
+  const affiliateBpsDecimalPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
   const routesRequest: RoutesRequest = {
     fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
     toChainId: Number(fromChainId(buyAsset.chainId).chainReference),
@@ -88,7 +89,9 @@ export async function getTradeQuote(
       slippage: Number(slippageTolerancePercentageDecimal),
       bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
       allowSwitchChain: true,
-      fee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
+      fee: affiliateBpsDecimalPercentage.isZero()
+        ? undefined
+        : affiliateBpsDecimalPercentage.toNumber(),
     },
   }
 

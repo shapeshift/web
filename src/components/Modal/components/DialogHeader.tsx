@@ -1,8 +1,9 @@
+import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
 
-export type DialogHeaderProps = PropsWithChildren
+export type DialogHeaderProps = { flexProps?: FlexProps } & PropsWithChildren
 
 const draggerDisplay = { base: 'block', md: 'none' }
 
@@ -13,10 +14,11 @@ export type DialogHeaderCompound = {
 }
 export const DialogHeader: React.FC<DialogHeaderProps> & DialogHeaderCompound = ({
   children,
+  flexProps,
   ...props
 }) => {
   return (
-    <Flex flexDir='column' position='relative'>
+    <Flex flexDir='column' position='relative' {...flexProps}>
       <Box
         mx='auto'
         width='36px'

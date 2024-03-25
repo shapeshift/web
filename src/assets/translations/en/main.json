@@ -571,29 +571,7 @@
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
     "lending": "Lending",
-    "pools": "Pools",
-    "actionMenu": {
-      "send": {
-        "title": "Send",
-        "body": "Send your crypto"
-      },
-      "receive": {
-        "title": "Receive",
-        "body": "Receive crypto"
-      },
-      "trade": {
-        "title": "Trade or Bridge",
-        "body": "Trade of bridge your crypto"
-      },
-      "buy": {
-        "title": "Buy or Sell",
-        "body": "Buy or sell crypto with credit card"
-      },
-      "qrcode": {
-        "title": "Scan QR Code",
-        "body": "Easily scan to send or recieve crypto"
-      }
-    }
+    "pools": "Pools"
   },
   "transactionRow": {
     "send": "Sent",

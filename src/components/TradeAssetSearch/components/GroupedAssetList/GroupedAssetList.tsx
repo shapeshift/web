@@ -13,6 +13,7 @@ const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div> //
 const components = { TopItemList, Footer }
 
 const backgroundColor = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
+const style = { minHeight: '50vh' }
 
 export type GroupedAssetListProps = {
   assets: Asset[]
@@ -82,6 +83,7 @@ export const GroupedAssetList = ({
       groupContent={renderGroupContent}
       itemContent={renderItem}
       components={components}
+      style={style}
     />
   )
 }

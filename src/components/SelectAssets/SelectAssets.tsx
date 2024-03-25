@@ -32,7 +32,7 @@ export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
           <DialogCloseButton />
         </DialogHeaderRight>
       </DialogHeader>
-      <DialogBody height='100%' px={2} display='flex' flexDir='column'>
+      <DialogBody height='100%' px={0} display='flex' flexDir='column'>
         <TradeAssetSearch onAssetClick={handleAssetClick} />
       </DialogBody>
     </>

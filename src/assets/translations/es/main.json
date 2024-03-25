@@ -1,6 +1,10 @@
 {
   "common": {
     "free": "Gratis",
+    "trade": "Intercambiar",
+    "trades": "Intercambios",
+    "lpDeposit": "Depósito LP",
+    "lpDeposits": "Depósitos LP",
     "back": "Atrás",
     "and": "y",
     "balance": "Balance",
@@ -198,7 +202,7 @@
       "rainbowChart": "🌈 Arcoiris",
       "totalChart": "💰 Total",
       "addAsset": "Agregar activo",
-      "yourAssets": "Sus activos",
+      "myAssets": "Mis Activos",
       "asset": "Activos",
       "portfolioBalance": "Saldo de la cartera",
       "balance": "Balance",
@@ -366,7 +370,7 @@
         "description": "Obtenga rendimiento de su %{asset} a través de las bóvedas de ahorro de THORChain. No hay tiempo de bloqueo y las recompensas se acumulan automáticamente. El rendimiento en THORChain proviene de las tarifas de intercambio y las recompensas en bloque. El rendimiento unilateral tiene un tope de la mitad del rendimiento bilateral de los proveedores de liquidez.",
         "vaultCap": "Límite de bóveda",
         "vaultCapTooltip": "Capacidad máxima actual para esta bóveda",
-        "haltedTitle": "Los depositos estan temporalmente detenidos.",
+        "haltedDepositTitle": "Los depositos estan temporalmente detenidos.",
         "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
         "protocolFee": "Tarifa de Protocolo",
         "fee": "Comisión",
@@ -1459,7 +1463,7 @@
       "errors": {
         "unknown": "Ocurrió un error inesperado al comunicarse con XDEFI",
         "connectFailure": "No se puede conectar la billetera XDEFI",
-        "multipleWallets": "El proveedor de Ethereum detectado no es XDEFI. ¿Tienes varias carteras instaladas?"
+        "multipleWallets": "Proveedor Ethereum no es XDEFI. ¿Tiene varias billeteras instaladas y encendidas? Priorice XDEFI en configuración y presione emparejar."
       },
       "connect": {
         "header": "Emparejar XDEFI",
@@ -2193,18 +2197,18 @@
     "currentFoxPower": "Tu Poder FOX",
     "foxPower": "Poder FOX",
     "simulateTitle": "Simula tus descuentos de Poder FOX",
-    "simulateBody": "Utilice esta calculadora para determinar sus tarifas totales y descuentos. Simplemente ajuste el control deslizante para indicar el monto de FOX y el tamaño de su operación fiat, ¡y observe cómo se se crean sus ahorros potenciales!",
-    "tradeSize": "Tamaño de intercambio",
+    "simulateBody": "Utilice calculadora para determinar tarifas totales y descuentos %{feature}. Ajuste controles deslizantes para indicar el monto de su FOX y el tamaño %{featureLowerCase} en fiat, ¡y observe cómo se desarrollan sus ahorros potenciales!",
+    "featureSize": "%{feature} Tamaño",
     "totalFee": "Costo total",
     "foxPowerDiscount": "Descuento poder FOX",
     "basedOnFee": "Basado en tarifa de: %{fee}",
     "feeSummary": "Resumen Tarifas",
     "simulateFee": "Simular Descuento",
-    "freeUnderThreshold": "Operaciones debajo de %{threshold} son siempre GRATIS",
+    "freeUnderThreshold": "%{feature} por debajo de %{threshold} siempre son GRATIS",
     "breakdownHeader": "Su descuento de Poder FOX",
-    "breakdownBody": "A continuación se muestra un desglose de tarifas comerciales y  descuento Poder FOX aplicado. Descubra cuánto más puede ahorrar en la pestaña de simulación.",
-    "tradeFee": "Tarifa de intercambio",
-    "totalTradeFee": "Tarifa total de intercambio"
+    "breakdownBody": "Abajo se muestra un desglose de tarifas %{featureLowerCase} y descuento FOX Power correspondiente. Descubra cuánto más puede ahorrar en pestaña de simulación.",
+    "featureFee": "%{feature} Tarifa",
+    "totalFeatureFee": "Tarifa %{feature} total"
   },
   "pools": {
     "pools": "Pools",

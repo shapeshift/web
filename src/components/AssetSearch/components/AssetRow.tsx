@@ -5,7 +5,6 @@ import { memo, useCallback, useMemo } from 'react'
 import type { ListChildComponentProps } from 'react-window'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import type { AssetData } from 'components/AssetSearch/AssetList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
@@ -16,6 +15,8 @@ import {
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import type { AssetData } from './AssetList'
 
 const focus = {
   shadow: 'outline-inset',

@@ -9,3 +9,6 @@ beforeAll(() => {
 })
 vi.resetModules()
 vi.mock('ethers')
+vi.mock('@shapeshiftoss/hdwallet-ledger', () => ({
+  isLedger: vi.fn().mockReturnValue(false),
+}))

@@ -31,6 +31,7 @@ export type BuildTxInput = {
   gasLimit: string
   contractAddress?: string
   data?: string
+  sendmax?: never
 } & Fees &
   OptimismL1FeeData
 
@@ -82,6 +83,7 @@ export type GetFeeDataInput = {
   contractAddress?: string
   from: string
   data?: string
+  sendMax?: never
 }
 
 export type TransactionMetadata = unchained.evm.TxMetadata

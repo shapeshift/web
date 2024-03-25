@@ -21,8 +21,13 @@ export const RemoveLiquidityConfirm = ({ confirmedQuote }: RemoveLiquidityConfir
   }, [history])
 
   const handleConfirm = useCallback(() => {
+    if (confirmedQuote.positionStatus?.incomplete) {
+      mixpanel?.track(MixPanelEvent.LpIncompleteWithdrawConfirm, confirmedQuote)
+    } else {
+      mixpanel?.track(MixPanelEvent.LpWithdrawConfirm, confirmedQuote)
+    }
+
     history.push(RemoveLiquidityRoutePaths.Status)
-    mixpanel?.track(MixPanelEvent.LpWithdrawConfirm, confirmedQuote)
   }, [confirmedQuote, history, mixpanel])
 
   return (

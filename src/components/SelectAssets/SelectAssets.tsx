@@ -2,11 +2,17 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
+import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
-import { DialogHeader } from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
+import {
+  DialogHeader,
+  DialogHeaderLeft,
+  DialogHeaderMiddle,
+  DialogHeaderRight,
+} from 'components/Modal/components/DialogHeader'
+import { SlideTransition } from 'components/SlideTransition'
+import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
 
 type SelectAssetsProps = {
   onClick(assetId: AssetId): void
@@ -15,27 +21,21 @@ type SelectAssetsProps = {
 
 export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
   const translate = useTranslate()
-  const handleClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
+  const handleAssetClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
   return (
-    <>
+    <SlideTransition>
       <DialogHeader>
-        <DialogHeader.Left>
+        <DialogHeaderLeft>
+          <DialogBackButton />
+        </DialogHeaderLeft>
+        <DialogHeaderMiddle>{translate('common.selectAsset')}</DialogHeaderMiddle>
+        <DialogHeaderRight>
           <DialogCloseButton />
-        </DialogHeader.Left>
-        <DialogHeader.Middle>
-          <DialogTitle>{translate('common.selectAsset')}</DialogTitle>
-        </DialogHeader.Middle>
+        </DialogHeaderRight>
       </DialogHeader>
-      <DialogBody
-        height='600px'
-        px={2}
-        display='flex'
-        flexDir='column'
-        flex='auto'
-        overflow='hidden'
-      >
-        <AssetSearch onClick={handleClick} />
+      <DialogBody height='600px' px={2} display='flex' flexDir='column'>
+        <TradeAssetSearch onAssetClick={handleAssetClick} />
       </DialogBody>
-    </>
+    </SlideTransition>
   )
 }

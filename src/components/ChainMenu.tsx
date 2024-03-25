@@ -1,7 +1,6 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import type { AvatarProps, ButtonProps } from '@chakra-ui/react'
 import {
-  Box,
   Button,
   Flex,
   Menu,
@@ -26,6 +25,7 @@ export type ChainMenuProps<T extends ChainId | 'All'> = {
   isActiveChainIdSupported: boolean
   isDisabled: boolean
   buttonProps?: ButtonProps
+  disableTooltip?: boolean
   onMenuOptionClick: (chainId: T) => void
 }
 
@@ -83,10 +83,11 @@ const ChainMenuItem = <T extends ChainId | 'All'>({
       backgroundColor={isConnected ? connectedChainBgColor : undefined}
       onClick={handleClick}
       borderRadius='lg'
+      m={0}
     >
-      <Flex justifyContent={'space-between'}>
+      <Flex justifyContent={'space-between'} fontSize='md' width='full' alignItems='center'>
         <Text>{chainName}</Text>
-        <Box>{isConnected && <CircleIcon color={connectedIconColor} w={2} />}</Box>
+        {isConnected && <CircleIcon color={connectedIconColor} w={2} />}
       </Flex>
     </MenuItem>
   )
@@ -122,6 +123,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
   isActiveChainIdSupported,
   onMenuOptionClick,
   isDisabled,
+  disableTooltip,
   buttonProps,
 }: ChainMenuProps<T>) => {
   const translate = useTranslate()
@@ -132,7 +134,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
         label={translate(
           isActiveChainIdSupported ? 'common.switchNetwork' : 'common.unsupportedNetwork',
         )}
-        isDisabled={isDisabled}
+        isDisabled={disableTooltip || isDisabled}
       >
         <MenuButton as={Button} {...buttonProps}>
           <Flex alignItems='center' justifyContent='center'>
@@ -144,7 +146,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
         </MenuButton>
       </Tooltip>
 
-      <MenuList p='10px' zIndex={2}>
+      <MenuList p={2} maxHeight='250px' overflowY='auto' zIndex='dropdown'>
         <MenuGroup title={translate('common.selectNetwork')} ml={3} color='text.subtle'>
           {chainIds.map(chainId => (
             <ChainMenuItem<T>

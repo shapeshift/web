@@ -228,39 +228,30 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
 
-      if (pubKey) {
-        const account = await this.getAccount(pubKey)
-        const index = bip44Params.isChange
-          ? account.chainSpecific.nextChangeAddressIndex
-          : account.chainSpecific.nextReceiveAddressIndex
-
-        if (index === undefined)
-          throw new Error(`UtxoBaseAdapter: Could not fetch address index from unchained`)
-        const address = account.chainSpecific.addresses?.[index]?.pubkey
-        if (!address)
-          throw new Error(
-            `UtxoBaseAdapter: Could not fetch address from unchained at index ${index}`,
+      const account = await (async () => {
+        if (pubKey || bip44Params.index === undefined) {
+          return this.getAccount(
+            pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
           )
+        }
+      })()
 
-        return address
-      }
+      const nextIndex = bip44Params.isChange
+        ? account?.chainSpecific.nextChangeAddressIndex
+        : account?.chainSpecific.nextReceiveAddressIndex
 
-      const getNextIndex = async () => {
-        const { xpub } = await this.getPublicKey(wallet, accountNumber, accountType)
-        const account = await this.getAccount(xpub)
+      const targetIndex = bip44Params.index ?? nextIndex ?? 0
 
-        return bip44Params.isChange
-          ? account.chainSpecific.nextChangeAddressIndex
-          : account.chainSpecific.nextReceiveAddressIndex
-      }
+      const address = await (() => {
+        if (pubKey) return account?.chainSpecific.addresses?.[targetIndex]?.pubkey
 
-      const maybeNextIndex = bip44Params.index ?? (await getNextIndex())
-      const address = await wallet.btcGetAddress({
-        addressNList: toAddressNList({ ...bip44Params, index: maybeNextIndex }),
-        coin: this.coinName,
-        scriptType: accountTypeToScriptType[accountType],
-        showDisplay: showOnDevice,
-      })
+        return wallet.btcGetAddress({
+          addressNList: toAddressNList({ ...bip44Params, index: targetIndex }),
+          coin: this.coinName,
+          scriptType: accountTypeToScriptType[accountType],
+          showDisplay: showOnDevice,
+        })
+      })()
 
       if (!address) throw new Error('UtxoBaseAdapter: no address available from wallet')
 
@@ -301,6 +292,26 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const { inputs, outputs } = coinSelectResult
 
+      const account = await this.getAccount(xpub)
+
+      // Always validate next change and receive addresses
+      const nextChangeAddressIndex = account.chainSpecific.nextChangeAddressIndex ?? 0
+      const nextReceiveAddressIndex = account.chainSpecific.nextReceiveAddressIndex ?? 0
+      const nextChangeAddressInput = {
+        address: account.chainSpecific.addresses?.[nextChangeAddressIndex]?.pubkey,
+      }
+      const nextReceiveAddressInput = {
+        address: account.chainSpecific.addresses?.[nextReceiveAddressIndex]?.pubkey,
+      }
+
+      const addresses = [...inputs, ...outputs, nextChangeAddressInput, nextReceiveAddressInput]
+        .map(({ address }) => address)
+        .filter(Boolean) as string[]
+
+      const uniqueAddresses = [...new Set(addresses)]
+
+      await Promise.all(uniqueAddresses.map(validateAddress))
+
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
         if (!input.path) continue
@@ -317,7 +328,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         })
       }
 
-      const account = await this.getAccount(xpub)
       const index = account.chainSpecific.nextChangeAddressIndex
       const addressNList = toAddressNList({ ...bip44Params, isChange: true, index })
 
@@ -434,10 +444,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
-    await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
-    ])
+    await (receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress))
 
     try {
       const { wallet } = signTxInput
@@ -479,15 +486,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
-  async broadcastTransaction({
-    senderAddress,
-    receiverAddress,
-    hex,
-  }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
-    ])
+  async broadcastTransaction({ receiverAddress, hex }: BroadcastTransactionInput): Promise<string> {
+    await (receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress))
 
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }

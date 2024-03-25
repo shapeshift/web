@@ -38,14 +38,6 @@ const Assets = makeSuspenseful(
   ),
 )
 
-const AssetTxHistory = makeSuspenseful(
-  lazy(() =>
-    import('pages/Assets/AssetTxHistory').then(({ AssetTxHistory }) => ({
-      default: AssetTxHistory,
-    })),
-  ),
-)
-
 const Buy = makeSuspenseful(
   lazy(() =>
     import('pages/Buy/Buy').then(({ Buy }) => ({
@@ -193,18 +185,6 @@ export const routes: NestedRoute[] = [
         category: RouteCategory.Wallet,
       },
     ],
-  },
-  {
-    path: '/assets/:chainId/:assetSubId/transactions',
-    label: 'navBar.transactions',
-    main: AssetTxHistory,
-    hide: true,
-  },
-  {
-    path: '/assets/:chainId/:assetSubId/:nftId/transactions',
-    label: 'navBar.transactions',
-    main: AssetTxHistory,
-    hide: true,
   },
   {
     path: '/assets',

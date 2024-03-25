@@ -8,6 +8,7 @@ import type { QrCodeModalProps } from 'components/Modals/QrCode/QrCode'
 import type { ReceivePropsType } from 'components/Modals/Receive/Receive'
 import type { SendModalProps } from 'components/Modals/Send/Send'
 import type { SnapsModalProps } from 'components/Modals/Snaps/Snaps'
+import type { TradeAssetSearchModalProps } from 'components/Modals/TradeAssetSearch/TradeAssetSearchModal'
 
 import type { CLOSE_MODAL, OPEN_MODAL } from './constants'
 
@@ -24,6 +25,8 @@ export type Modals = {
   assetSearch: FC<AssetSearchModalProps>
   buyAssetSearch: FC<AssetSearchModalProps>
   sellAssetSearch: FC<AssetSearchModalProps>
+  buyTradeAssetSearch: FC<TradeAssetSearchModalProps>
+  sellTradeAssetSearch: FC<TradeAssetSearchModalProps>
   popup: FC<PopupWindowModalProps>
   nativeOnboard: FC<{}>
   nft: FC<NftModalProps>

@@ -98,7 +98,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
         {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (
           <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
             <AlertIcon />
-            <AlertTitle>{translate('defi.modals.saversVaults.haltedTitle')}</AlertTitle>
+            <AlertTitle>{translate('defi.modals.saversVaults.haltedDepositTitle')}</AlertTitle>
             <>
               <AlertDescription>
                 {translate('defi.modals.saversVaults.haltedDescription')}

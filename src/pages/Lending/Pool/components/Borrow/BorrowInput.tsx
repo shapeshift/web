@@ -23,6 +23,7 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -112,6 +113,8 @@ export const BorrowInput = ({
     return bnOrZero(poolData.tvl).eq(poolData.maxSupplyFiat)
   }, [poolData])
 
+  const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
+
   const borrowAssetIds = useMemo(() => {
     return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
   }, [borrowAssets])
@@ -131,9 +134,9 @@ export const BorrowInput = ({
 
   const handleBorrowAssetClick = useCallback(() => {
     buyAssetSearch.open({
-      onClick: setBorrowAsset,
+      onAssetClick: setBorrowAsset,
       title: 'lending.borrow',
-      assets: borrowAssets,
+      assets: borrowAssets ?? [],
     })
   }, [borrowAssets, buyAssetSearch, setBorrowAsset])
 
@@ -427,7 +430,8 @@ export const BorrowInput = ({
   ])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (isHardCapReached) return 'defi.modals.saversVaults.haltedTitle'
+    if (!isThorchainLendingBorrowEnabled) return 'lending.errors.borrowingDisabled'
+    if (isHardCapReached) return 'lending.errors.borrowingHalted'
     if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
@@ -458,6 +462,7 @@ export const BorrowInput = ({
     isHardCapReached,
     isLendingQuoteError,
     isLendingQuoteSuccess,
+    isThorchainLendingBorrowEnabled,
     lendingQuoteError?.message,
   ])
 
@@ -624,6 +629,7 @@ export const BorrowInput = ({
             }
             isDisabled={Boolean(
               isHardCapReached ||
+                !isThorchainLendingBorrowEnabled ||
                 bnOrZero(depositAmountCryptoPrecision).isZero() ||
                 isLendingQuoteError ||
                 isLendingQuoteLoading ||

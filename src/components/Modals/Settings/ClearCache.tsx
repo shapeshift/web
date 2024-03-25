@@ -92,7 +92,7 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
         isRound
         onClick={goBack}
       />
-      <ModalHeader textAlign='center'>{translate('modals.settings.currencyFormat')}</ModalHeader>
+      <ModalHeader textAlign='center'>{translate('modals.settings.clearCache')}</ModalHeader>
       <>
         <ModalBody
           alignItems='center'

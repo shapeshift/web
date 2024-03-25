@@ -2,7 +2,6 @@ import { SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Box, Input, InputGroup, InputLeftElement } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { isNft } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import uniq from 'lodash/uniq'
 import type { FC, FormEvent } from 'react'
@@ -35,12 +34,11 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
   const supportedAssets = useMemo(() => {
-    const fungibleAssets = assets.filter(asset => !isNft(asset.assetId))
     if (allowWalletUnsupportedAssets) {
-      return fungibleAssets
+      return assets
     }
 
-    return fungibleAssets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
+    return assets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
   }, [allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
 
   /**

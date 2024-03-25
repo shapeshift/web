@@ -187,6 +187,5 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
         return fungibleAssets[assetId]
       })
       .filter(isSome)
-      .filter(asset => !isNft(asset.assetId))
   },
 )

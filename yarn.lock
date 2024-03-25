@@ -10089,12 +10089,12 @@ __metadata:
     "@visx/responsive": ^2.10.0
     "@visx/scale": ^3.3.0
     "@visx/xychart": ^2.12.2
-    "@walletconnect/core": latest
+    "@walletconnect/core": ^2.11.3
     "@walletconnect/ethereum-provider": ^2.10.1
     "@walletconnect/types": ^2.10.6
-    "@walletconnect/utils": latest
+    "@walletconnect/utils": ^2.11.3
     "@walletconnect/web3-provider": ^1.8.0
-    "@walletconnect/web3wallet": latest
+    "@walletconnect/web3wallet": ^1.10.3
     "@welldone-software/why-did-you-render": ^7.0.1
     "@wherever/react-notification-feed": ^0.4.4
     alchemy-sdk: ^2.8.3
@@ -13172,7 +13172,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/core@npm:2.11.3, @walletconnect/core@npm:latest":
+"@walletconnect/core@npm:2.11.3, @walletconnect/core@npm:^2.11.3":
   version: 2.11.3
   resolution: "@walletconnect/core@npm:2.11.3"
   dependencies:
@@ -13806,7 +13806,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/utils@npm:2.11.3, @walletconnect/utils@npm:latest":
+"@walletconnect/utils@npm:2.11.3, @walletconnect/utils@npm:^2.11.3":
   version: 2.11.3
   resolution: "@walletconnect/utils@npm:2.11.3"
   dependencies:
@@ -13857,7 +13857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/web3wallet@npm:latest":
+"@walletconnect/web3wallet@npm:^1.10.3":
   version: 1.10.3
   resolution: "@walletconnect/web3wallet@npm:1.10.3"
   dependencies:

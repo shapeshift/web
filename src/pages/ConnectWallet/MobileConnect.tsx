@@ -317,23 +317,23 @@ export const MobileConnect = () => {
                 maxWidth='80%'
                 mx='auto'
               >
-                By connecting a wallet, you agree to ShapeShift's{' '}
+                {translate('connectWalletPage.footerOne')}{' '}
                 <Link
                   isExternal
                   target='_blank'
                   fontWeight='bold'
                   href='https://app.shapeshift.com/#/legal/terms-of-service'
                 >
-                  Terms
+                  {translate('connectWalletPage.terms')}
                 </Link>{' '}
-                and{' '}
+                {translate('common.and')}{' '}
                 <Link
                   isExternal
                   target='_blank'
                   fontWeight='bold'
                   href='https://app.shapeshift.com/#/legal/privacy-policy'
                 >
-                  Privacy Policy
+                  {translate('connectWalletPage.privacyPolicy')}
                 </Link>
               </RawText>
             </Stack>

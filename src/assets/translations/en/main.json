@@ -283,7 +283,10 @@
     "createANewWallet": "Create a New Wallet",
     "importExisting": "Import an Existing Wallet",
     "createOrImport": "Create or Import Wallet",
-    "viewSavedWallets": "View Saved Wallets"
+    "viewSavedWallets": "View Saved Wallets",
+    "footerOne": "By continuing, you agree to the",
+    "terms": "Terms",
+    "privacyPolicy": "Privacy Policy"
   },
   "connectWallet": {
     "menu": {

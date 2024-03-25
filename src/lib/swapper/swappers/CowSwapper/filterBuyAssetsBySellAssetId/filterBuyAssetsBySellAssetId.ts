@@ -3,17 +3,15 @@ import type { BuyAssetBySellIdInput } from '@shapeshiftoss/swapper'
 
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { COWSWAP_UNSUPPORTED_ASSETS } from '../utils/blacklist'
-import { getSupportedChainIds } from '../utils/helpers/helpers'
+import { SUPPORTED_CHAIN_IDS } from '../utils/constants'
 
 export const filterBuyAssetsBySellAssetId = ({
   assets,
   sellAsset,
 }: BuyAssetBySellIdInput): AssetId[] => {
-  const supportedChainIds = getSupportedChainIds()
-
   if (
     sellAsset === undefined ||
-    !supportedChainIds.includes(sellAsset.chainId) ||
+    !SUPPORTED_CHAIN_IDS.includes(sellAsset.chainId) ||
     isNativeEvmAsset(sellAsset.assetId) ||
     COWSWAP_UNSUPPORTED_ASSETS.includes(sellAsset.assetId)
   ) {

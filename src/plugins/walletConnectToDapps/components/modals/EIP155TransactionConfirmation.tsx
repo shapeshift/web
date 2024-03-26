@@ -32,11 +32,13 @@ import { useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { FaGasPump, FaWrench } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { fromHex, isHex } from 'viem'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -94,6 +96,17 @@ export const EIP155TransactionConfirmation: FC<
     [fees, feeAsset, feeAssetPrice],
   )
 
+  const value = useMemo(() => {
+    if (!feeAsset) return '0'
+
+    const valueCryptoBaseUnit =
+      transaction?.value && isHex(transaction.value)
+        ? fromHex(transaction.value, 'bigint').toString()
+        : transaction?.value
+    const valueCryptoPrecision = fromBaseUnit(valueCryptoBaseUnit ?? '0', feeAsset.precision)
+    return valueCryptoPrecision
+  }, [feeAsset, transaction?.value])
+
   if (isLoading || isInteractingWithContract === null)
     return (
       <Center p={8}>
@@ -143,7 +156,7 @@ export const EIP155TransactionConfirmation: FC<
         </ModalSection>
       ) : (
         <ModalSection title='plugins.walletConnectToDapps.modal.sendTransaction.amount'>
-          {feeAsset && <AmountCard value={transaction.value ?? '0'} assetId={feeAsset.assetId} />}
+          {feeAsset && <AmountCard value={value} assetId={feeAsset.assetId} />}
         </ModalSection>
       )}
       <ModalCollapsableSection title={estimatedGasTitle} icon={faGasPumpIcon} defaultOpen={false}>

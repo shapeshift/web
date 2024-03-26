@@ -1,3 +1,4 @@
+import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import type {
   SupportedSessionRequest,
@@ -31,7 +32,7 @@ export const useWalletConnectEventsHandler = (
 
   // Open request handling modal based on method that was used
   const handleSessionRequest = useCallback(
-    (requestEvent: SupportedSessionRequest) => {
+    async (requestEvent: SupportedSessionRequest) => {
       const { topic, params } = requestEvent
       const { request } = params
       const requestSession = web3wallet?.engine.signClient.session.get(topic)
@@ -75,6 +76,15 @@ export const useWalletConnectEventsHandler = (
             },
           })
 
+        case EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN:
+        case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
+          // This doesn't fit our usual pattern and doesn't require a modal
+          // We implicitly return a happy JSON-RPC response
+          await web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcResult(requestEvent.id, null),
+          })
+          return
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
           return dispatch({
@@ -89,7 +99,7 @@ export const useWalletConnectEventsHandler = (
           return
       }
     },
-    [dispatch, web3wallet?.engine.signClient.session],
+    [dispatch, web3wallet],
   )
 
   return { handleSessionProposal, handleAuthRequest, handleSessionRequest }

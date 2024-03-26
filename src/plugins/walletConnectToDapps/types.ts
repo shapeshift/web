@@ -33,6 +33,10 @@ export enum EIP155_SigningMethod {
   ETH_SIGN_TYPED_DATA_V3 = 'eth_signTypedData_v3',
   ETH_SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
   ETH_SEND_TRANSACTION = 'eth_sendTransaction',
+  // The app has no notion of adding a chain, or "active" chain for that matter
+  // So just assume this is supported so we don't error in case a dApp is trying to add a chain
+  WALLET_ADD_ETHEREUM_CHAIN = 'wallet_addEthereumChain',
+  WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
 }
 
 export enum CosmosSigningMethod {

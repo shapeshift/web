@@ -1,0 +1,47 @@
+name: Regenerate Asset Data and PR
+
+on:
+  # Allows manual trigger for testing. Don't forget to remove/comment me and uncomment the cron job below when happy
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 0 * * *' # Schedule to run automatically, uncomment for production use
+
+jobs:
+  regenerate-and-create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v3
+        with:
+          ref: develop # Ensure we're starting from clean upstream develop branch
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Yarn Install
+        run: yarn install --immutable
+
+      - name: Generate asset data
+        run: yarn run generate:asset-data
+
+      - name: Create new feature branch
+        run: git checkout -B feat_regenerate_asset_data
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git diff --staged --quiet || git commit -m "feat: regenerate asset data"
+          # This will only works once - don't forget to slap some -f flag here when confirmed happy
+          git push -u origin feat_regenerate_asset_data
+
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data" --body "Generated from CI."
+

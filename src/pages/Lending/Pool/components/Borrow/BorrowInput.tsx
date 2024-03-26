@@ -56,6 +56,9 @@ import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
 import { BorrowRoutePaths } from './types'
+
+const UNSAFE_SLIPPAGE_DECIMAL_PERCENT = 0.05 // 5%
+
 const formControlProps = {
   borderRadius: 0,
   background: 'transparent',
@@ -99,24 +102,9 @@ export const BorrowInput = ({
   const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [borrowAssetIsFiat, toggleBorrowAssetIsFiat] = useToggle(false)
   const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
-  const [quoteSlippageDecimalPercentage, setQuoteSlippageDecimalPercentage] = useState<
-    number | null
-  >()
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
-
-  const unsafeSlippageDecimalPercent = 0.05 // 5%
-  const isUnsafeQuote = useMemo(
-    () =>
-      quoteSlippageDecimalPercentage &&
-      quoteSlippageDecimalPercentage > unsafeSlippageDecimalPercent,
-    [quoteSlippageDecimalPercentage],
-  )
-
-  useEffect(() => {
-    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
-  }, [isUnsafeQuote])
 
   const handleAcknowledgeUnsafeQuote = useCallback(() => {
     // We don't want to *immediately* set this or there will be a "click-through"
@@ -363,16 +351,27 @@ export const BorrowInput = ({
 
   const lendingQuoteData = isLendingQuoteError ? null : data
 
-  useEffect(() => {
-    setConfirmedQuote(lendingQuoteData ?? null)
-  }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
+  const quoteSlippageDecimalPercentage = useMemo(() => {
+    return lendingQuoteData
+      ? bnOrZero(lendingQuoteData.quoteSlippageBorrowedAssetUsd)
+          .div(lendingQuoteData.quoteCollateralAmountFiatUsd)
+          .toNumber()
+      : undefined
+  }, [lendingQuoteData])
+
+  const isUnsafeQuote = useMemo(
+    () =>
+      quoteSlippageDecimalPercentage &&
+      quoteSlippageDecimalPercentage > UNSAFE_SLIPPAGE_DECIMAL_PERCENT,
+    [quoteSlippageDecimalPercentage],
+  )
 
   useEffect(() => {
-    if (!lendingQuoteData) return
-    const _quoteSlippageDecimalPercentage = bnOrZero(lendingQuoteData.quoteSlippageBorrowedAssetUsd)
-      .div(lendingQuoteData.quoteCollateralAmountFiatUsd)
-      .toNumber()
-    setQuoteSlippageDecimalPercentage(_quoteSlippageDecimalPercentage)
+    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
+  }, [isUnsafeQuote])
+
+  useEffect(() => {
+    setConfirmedQuote(lendingQuoteData ?? null)
   }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
 
   const userAddress = useMemo(() => {
@@ -656,7 +655,7 @@ export const BorrowInput = ({
                   <AlertIcon color='red' />
                   <Stack spacing={0}>
                     <AlertDescription lineHeight='short'>
-                      {translate('lending.unsafeDeposit')}
+                      {translate('lending.unsafeBorrow')}
                     </AlertDescription>
                   </Stack>
                 </Alert>

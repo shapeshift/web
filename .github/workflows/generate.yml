@@ -9,6 +9,7 @@ on:
 jobs:
   regenerate-and-create-pr:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.ref == 'feat_regenerate_asset_data_gh_action'
     steps:
       - name: Checkout develop
         uses: actions/checkout@v3

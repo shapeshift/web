@@ -25,17 +25,11 @@ jobs:
       - name: Yarn Install
         run: yarn install --immutable
 
-      # Lightweight bootstrap, setting up env, and
-      # only running build for caip, types and chain-adapters to avoid the heavy unchained-client build step
-
       - name: Setup env
         run: yarn env dev
-      - name: Build @shapeshiftoss/caip
-        run: yarn --cwd packages/caip build
-      - name: Build @shapeshiftoss/types
-        run: yarn --cwd packages/types build
-      - name: Build @shapeshiftoss/chain-adapters
-        run: yarn --cwd packages/chain-adapters build
+
+      - name: Build
+        run: yarn build:packages
 
       - name: Generate asset data
         env:

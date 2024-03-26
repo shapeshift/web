@@ -296,4 +296,5 @@ export const generateRelatedAssetIndex = async () => {
   )
 
   console.info('generateRelatedAssetIndex() done')
+  return
 }

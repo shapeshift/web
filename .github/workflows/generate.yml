@@ -27,7 +27,7 @@ jobs:
         run: yarn && yarn build:packages
 
       - name: Generate asset data
-        run: yarn run generate:asset-data
+        run: yarn env dev && yarn run generate:asset-data
 
       - name: Create new feature branch
         run: git checkout -B feat_regenerate_asset_data

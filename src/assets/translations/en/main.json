@@ -1016,6 +1016,7 @@
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
+      "transactionSent": "Transaction sent",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
@@ -2221,7 +2222,8 @@
       "yourLoans": "Your Loans",
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
-    }
+    },
+    "unsafeBorrow": "This borrow has high slippage. Proceed with caution."
   },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",

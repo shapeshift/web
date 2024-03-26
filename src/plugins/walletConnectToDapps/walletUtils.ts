@@ -1,11 +1,11 @@
+import type WalletConnectCore from '@walletconnect/core'
 import { Core } from '@walletconnect/core'
-import type { ICore } from '@walletconnect/types'
 import type { IWeb3Wallet } from '@walletconnect/web3wallet'
 import { Web3Wallet } from '@walletconnect/web3wallet'
 import { getConfig } from 'config'
 
 let walletConnectWallet: Promise<IWeb3Wallet>
-let core: ICore
+let core: WalletConnectCore
 
 // WalletConnect Core singleton
 export const getWalletConnectCore = () => {

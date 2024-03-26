@@ -528,35 +528,35 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               txToSign,
               wallet,
             })
-            const txId = await adapter.broadcastTransaction({
+            const _txId = await adapter.broadcastTransaction({
               senderAddress: account,
               receiverAddress: THORCHAIN_POOL_MODULE_ADDRESS,
               hex: signedTx,
             })
             const _txIdLink = getTxLink({
               defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-              txId: txId ?? '',
+              txId: _txId ?? '',
               name: SwapperName.Thorchain,
             })
 
             toast({
               title: translate('modals.send.transactionSent'),
-              description: (
+              description: _txId ? (
                 <Text>
                   <Link href={_txIdLink} isExternal>
                     {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
                   </Link>
                 </Text>
-              ),
+              ) : undefined,
               status: 'success',
               duration: 9000,
               isClosable: true,
               position: 'top-right',
             })
 
-            setTxId(txId)
+            setTxId(_txId)
             setSerializedTxIndex(
-              serializeTxIndex(runeAccountId, txId, account, { memo, parser: 'thorchain' }),
+              serializeTxIndex(runeAccountId, _txId, account, { memo, parser: 'thorchain' }),
             )
 
             break
@@ -603,33 +603,33 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               wallet,
             })
 
-            const txid = await buildAndBroadcast({
+            const _txId = await buildAndBroadcast({
               adapter,
               buildCustomTxInput,
               receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
             })
             const _txIdLink = getTxLink({
               defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-              txId: txId ?? '',
+              txId: _txId ?? '',
               name: SwapperName.Thorchain,
             })
             toast({
               title: translate('modals.send.transactionSent'),
-              description: (
+              description: _txId ? (
                 <Text>
                   <Link href={_txIdLink} isExternal>
                     {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
                   </Link>
                 </Text>
-              ),
+              ) : undefined,
               status: 'success',
               duration: 9000,
               isClosable: true,
               position: 'top-right',
             })
 
-            setTxId(txid)
-            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, txid, assetAddress!))
+            setTxId(_txId)
+            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, _txId, assetAddress!))
 
             break
           }
@@ -667,13 +667,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             })
             toast({
               title: translate('modals.send.transactionSent'),
-              description: (
+              description: txId ? (
                 <Text>
                   <Link href={_txIdLink} isExternal>
                     {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
                   </Link>
                 </Text>
-              ),
+              ) : undefined,
               status: 'success',
               duration: 9000,
               isClosable: true,
@@ -718,7 +718,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     translate,
     assetAddress,
     poolAssetAccountNumber,
-    txId,
     selectedCurrency,
     onStart,
   ])

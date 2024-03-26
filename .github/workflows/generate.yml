@@ -1,7 +1,6 @@
 name: Regenerate Asset Data and PR
 
 on:
-  # Allows manual trigger for testing. Don't forget to remove/comment me and uncomment the cron job below when happy
   workflow_dispatch:
   pull_request:
   # schedule:
@@ -15,7 +14,7 @@ jobs:
       - name: Checkout develop
         uses: actions/checkout@v3
         with:
-          ref: develop # Ensure we're starting from clean upstream develop branch
+          ref: develop
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -24,10 +23,20 @@ jobs:
           cache: 'yarn'
 
       - name: Yarn Install
-        run: yarn install --immutable && yarn build:packages
+        run: yarn install --immutable
+
+      # Lightweight bootstrap, setting up env, and
+      # only running build for caip and types to avoid the heavy unchained-client build step
+
+      - name: Setup env
+        run: yarn env dev
+      - name: Build @shapeshiftoss/caip
+        run: yarn --cwd packages/caip build
+      - name: Build @shapeshiftoss/types
+        run: yarn --cwd packages/types build
 
       - name: Generate asset data
-        run: yarn env dev && yarn run generate:asset-data
+        run: yarn run generate:asset-data
 
       - name: Create new feature branch
         run: git checkout -B feat_regenerate_asset_data
@@ -38,7 +47,6 @@ jobs:
           git config --local user.name "GitHub Action"
           git add -A
           git diff --staged --quiet || git commit -m "feat: regenerate asset data"
-          # This will only works once - don't forget to slap some -f flag here when confirmed happy
           git push -u origin feat_regenerate_asset_data
 
       - name: Create Pull Request

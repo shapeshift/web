@@ -28,7 +28,7 @@ jobs:
       - name: Setup env
         run: yarn env dev
 
-      - name: Build
+      - name: Build Packages
         run: yarn build:packages
 
       - name: Generate asset data

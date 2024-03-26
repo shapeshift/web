@@ -9527,7 +9527,6 @@ __metadata:
     coinselect: ^3.1.13
     multicoin-address-validator: ^0.5.12
     p-queue: ^8.0.1
-    web3-utils: 1.7.4
   languageName: unknown
   linkType: soft
 
@@ -21237,7 +21236,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethereumjs-util@npm:^7.0.10, ethereumjs-util@npm:^7.1.0, ethereumjs-util@npm:^7.1.4, ethereumjs-util@npm:^7.1.5":
+"ethereumjs-util@npm:^7.0.10, ethereumjs-util@npm:^7.1.4, ethereumjs-util@npm:^7.1.5":
   version: 7.1.5
   resolution: "ethereumjs-util@npm:7.1.5"
   dependencies:
@@ -36209,21 +36208,6 @@ pvutils@latest:
     underscore: 1.12.1
     utf8: 3.0.0
   checksum: e9950ff9a6ae7575f51389ab51ac427c03b1f7b9a3b03c8702a46189f734df8b0d679af55cdf2eef929991a0c35c9e9efa2528f849f8fa93a4f580dad826c71e
-  languageName: node
-  linkType: hard
-
-"web3-utils@npm:1.7.4":
-  version: 1.7.4
-  resolution: "web3-utils@npm:1.7.4"
-  dependencies:
-    bn.js: ^5.2.1
-    ethereum-bloom-filters: ^1.0.6
-    ethereumjs-util: ^7.1.0
-    ethjs-unit: 0.1.6
-    number-to-bn: 1.7.0
-    randombytes: ^2.1.0
-    utf8: 3.0.0
-  checksum: 5d9256366904e5c24c7198a8791aa76217100aa068650ccc18264ff670d1e8d42d40fcc5ddc66e3c05fac3b480753ccf7e519709e60aefd73d71dd4c4d2adcbb
   languageName: node
   linkType: hard
 

@@ -276,7 +276,17 @@
     "viewADemo": "View a Demo",
     "dontHaveWallet": "Don't have a wallet?",
     "welcomeBack": "Welcome back!",
-    "welcomeBody": "Connecting your wallet is like “logging in”. Select your wallet from the options to get started."
+    "welcomeBody": "Connecting your wallet is like “logging in”. Select your wallet from the options to get started.",
+    "welcomeToShapeShift": "Welcome to ShapeShift",
+    "mobileWelcomeBody": "Create a brand new wallet or add an existing one to get started easily.",
+    "mobileSelectBody": "Select from any of your saved wallets below, or create or import a new wallet.",
+    "createANewWallet": "Create a New Wallet",
+    "importExisting": "Import an Existing Wallet",
+    "createOrImport": "Create or Import Wallet",
+    "viewSavedWallets": "View Saved Wallets",
+    "footerOne": "By continuing, you agree to the",
+    "terms": "Terms",
+    "privacyPolicy": "Privacy Policy"
   },
   "connectWallet": {
     "menu": {

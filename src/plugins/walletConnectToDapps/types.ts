@@ -1,9 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord } from '@shapeshiftoss/types'
-import type { Core as TCore } from '@walletconnect/core/dist/types/core'
-import type { SessionTypes } from '@walletconnect/types'
-import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
+import type WalletConnectCore from '@walletconnect/core'
+import type { PairingTypes, SessionTypes } from '@walletconnect/types'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { Dispatch } from 'react'
 
@@ -50,7 +49,7 @@ export interface ModalData<T = WalletConnectRequest> {
 }
 
 export type WalletConnectState<T = WalletConnectRequest> = {
-  core?: TCore
+  core?: WalletConnectCore
   web3wallet?: IWeb3Wallet
   pair?: (params: { uri: string }) => Promise<PairingTypes.Struct>
   modalData?: ModalData<T>
@@ -82,7 +81,7 @@ export type WalletConnectAction =
   | {
       type: WalletConnectActionType.INITIALIZE
       payload: {
-        core: TCore
+        core: WalletConnectCore
         web3wallet: IWeb3Wallet
         pair: WalletConnectState['pair']
       }

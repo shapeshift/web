@@ -36,6 +36,8 @@ jobs:
         run: yarn --cwd packages/types build
 
       - name: Generate asset data
+        env:
+          ZERION_API_KEY: ${{ secrets.ZERION_API_KEY }}
         run: yarn run generate:asset-data
 
       - name: Create new feature branch

@@ -30,8 +30,6 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet, listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
-import { isMobile } from 'lib/globals'
 
 import { WalletCard } from './components/WalletCard'
 
@@ -79,12 +77,12 @@ export const MobileConnect = () => {
 
   const handleCreate = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    create(isMobile ? KeyManager.Mobile : KeyManager.Native)
+    create(KeyManager.Mobile)
   }, [create, dispatch])
 
   const handleImport = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    importWallet(isMobile ? KeyManager.Mobile : KeyManager.Native)
+    importWallet(KeyManager.Mobile)
   }, [dispatch, importWallet])
 
   useEffect(() => {
@@ -118,11 +116,6 @@ export const MobileConnect = () => {
           const revoker = await getWallet(deviceId)
           if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
           if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
-
-          // remove all provider event listeners from previously connected wallets
-          const ethersProvider = getEthersProvider()
-          ethersProvider.removeAllListeners('accountsChanged')
-          ethersProvider.removeAllListeners('chainChanged')
 
           const wallet = await adapter.pairDevice(revoker.id)
           await wallet?.loadDevice({ mnemonic: revoker.mnemonic })

@@ -3,6 +3,7 @@ name: Regenerate Asset Data and PR
 on:
   # Allows manual trigger for testing. Don't forget to remove/comment me and uncomment the cron job below when happy
   workflow_dispatch:
+  pull_request:
   # schedule:
   #   - cron: '0 0 * * *' # Schedule to run automatically, uncomment for production use
 

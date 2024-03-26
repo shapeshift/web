@@ -157,6 +157,16 @@ export type SupportedSessionRequest<T = WalletConnectRequest> = Omit<
   }
 }
 
+type WalletAddEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN
+  params: TransactionParams[]
+}
+
+type WalletSwitchEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN
+  params: TransactionParams[]
+}
+
 export type EthSignTransactionCallRequest = {
   method: EIP155_SigningMethod.ETH_SIGN_TRANSACTION
   params: TransactionParams[]
@@ -227,6 +237,8 @@ export type EthSignTypedDataCallRequest = {
 }
 
 export type WalletConnectRequest =
+  | WalletSwitchEthereumChainCallRequest
+  | WalletAddEthereumChainCallRequest
   | EthSignTransactionCallRequest
   | EthSignCallRequest
   | EthPersonalSignCallRequest

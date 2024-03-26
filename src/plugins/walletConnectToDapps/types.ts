@@ -1,8 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord } from '@shapeshiftoss/types'
-import type { ICore, SessionTypes, SignClientTypes } from '@walletconnect/types'
-import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
+import type WalletConnectCore from '@walletconnect/core'
+import type { PairingTypes, SessionTypes } from '@walletconnect/types'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { Dispatch } from 'react'
 
@@ -42,14 +42,14 @@ export enum CosmosSigningMethod {
 export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod
 
 export interface ModalData<T = WalletConnectRequest> {
-  proposal?: SignClientTypes.EventArguments['session_proposal']
+  proposal?: Web3WalletTypes.EventArguments['session_proposal']
   requestEvent?: SupportedSessionRequest<T>
   requestSession?: SessionTypes.Struct
   request?: Web3WalletTypes.AuthRequest
 }
 
 export type WalletConnectState<T = WalletConnectRequest> = {
-  core?: ICore
+  core?: WalletConnectCore
   web3wallet?: IWeb3Wallet
   pair?: (params: { uri: string }) => Promise<PairingTypes.Struct>
   modalData?: ModalData<T>
@@ -81,7 +81,7 @@ export type WalletConnectAction =
   | {
       type: WalletConnectActionType.INITIALIZE
       payload: {
-        core: ICore
+        core: WalletConnectCore
         web3wallet: IWeb3Wallet
         pair: WalletConnectState['pair']
       }

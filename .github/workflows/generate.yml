@@ -24,7 +24,7 @@ jobs:
           cache: 'yarn'
 
       - name: Yarn Install
-        run: yarn install --immutable
+        run: yarn && yarn build:packages
 
       - name: Generate asset data
         run: yarn run generate:asset-data

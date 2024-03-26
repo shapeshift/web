@@ -32,6 +32,10 @@ export enum EIP155_SigningMethod {
   ETH_SIGN_TYPED_DATA_V3 = 'eth_signTypedData_v3',
   ETH_SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
   ETH_SEND_TRANSACTION = 'eth_sendTransaction',
+  // The app has no notion of adding a chain, or "active" chain for that matter
+  // So just assume this is supported so we don't error in case a dApp is trying to add a chain
+  WALLET_ADD_ETHEREUM_CHAIN = 'wallet_addEthereumChain',
+  WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
 }
 
 export enum CosmosSigningMethod {
@@ -152,6 +156,16 @@ export type SupportedSessionRequest<T = WalletConnectRequest> = Omit<
   }
 }
 
+type WalletAddEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN
+  params: TransactionParams[]
+}
+
+type WalletSwitchEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN
+  params: TransactionParams[]
+}
+
 export type EthSignTransactionCallRequest = {
   method: EIP155_SigningMethod.ETH_SIGN_TRANSACTION
   params: TransactionParams[]
@@ -222,6 +236,8 @@ export type EthSignTypedDataCallRequest = {
 }
 
 export type WalletConnectRequest =
+  | WalletSwitchEthereumChainCallRequest
+  | WalletAddEthereumChainCallRequest
   | EthSignTransactionCallRequest
   | EthSignCallRequest
   | EthPersonalSignCallRequest

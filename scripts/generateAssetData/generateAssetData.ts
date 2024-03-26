@@ -172,6 +172,8 @@ const main = async () => {
     console.info(
       "Done. Don't forget to add a migration to clear assets state so the new assets are loaded.",
     )
+
+    return 1
   } catch (err) {
     console.info(err)
   }

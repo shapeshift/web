@@ -295,13 +295,12 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
         return true
       }
 
-      return isHydrated || (minTxBlockTime && minTxBlockTime <= start.valueOf())
+      return isHydrated || (minTxBlockTime && minTxBlockTime <= start.valueOf() / 1000)
     }
 
     // No account ID assumes "all" account IDs
     if (accountId === undefined) {
       const isTxHistoryAvailableForEveryAccount = walletAccountIds.every(checkIsTxHistoryAvailable)
-      console.log({ isTxHistoryAvailableForEveryAccount })
       return isTxHistoryAvailableForEveryAccount
     }
 

@@ -2211,7 +2211,8 @@
       "yourLoans": "Your Loans",
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
-    }
+    },
+    "unsafeDeposit": "This deposit has high slippage. Proceed with caution."
   },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",

@@ -1,5 +1,8 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
   CardFooter,
   Collapse,
@@ -22,7 +25,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
@@ -96,6 +99,32 @@ export const BorrowInput = ({
   const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [borrowAssetIsFiat, toggleBorrowAssetIsFiat] = useToggle(false)
   const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
+  const [quoteSlippageDecimalPercentage, setQuoteSlippageDecimalPercentage] = useState<
+    number | null
+  >()
+  const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
+    null,
+  )
+
+  const unsafeSlippageDecimalPercent = 0.05 // 5%
+  const isUnsafeQuote = useMemo(
+    () =>
+      quoteSlippageDecimalPercentage &&
+      quoteSlippageDecimalPercentage > unsafeSlippageDecimalPercent,
+    [quoteSlippageDecimalPercentage],
+  )
+
+  useEffect(() => {
+    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
+  }, [isUnsafeQuote])
+
+  const handleAcknowledgeUnsafeQuote = useCallback(() => {
+    // We don't want to *immediately* set this or there will be a "click-through"
+    // i.e the regular continue button will render immediately, and click will bubble to it
+    setTimeout(() => {
+      setIsUnsafeQuoteNoticeDismissed(true)
+    }, 100)
+  }, [])
 
   const {
     state: { wallet },
@@ -336,6 +365,14 @@ export const BorrowInput = ({
 
   useEffect(() => {
     setConfirmedQuote(lendingQuoteData ?? null)
+  }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
+
+  useEffect(() => {
+    if (!lendingQuoteData) return
+    const _quoteSlippageDecimalPercentage = bnOrZero(lendingQuoteData.quoteSlippageBorrowedAssetUsd)
+      .div(lendingQuoteData.quoteCollateralAmountFiatUsd)
+      .toNumber()
+    setQuoteSlippageDecimalPercentage(_quoteSlippageDecimalPercentage)
   }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
 
   const userAddress = useMemo(() => {
@@ -612,36 +649,56 @@ export const BorrowInput = ({
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
-          <Button
-            size='lg'
-            colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
-            mx={-2}
-            onClick={onSubmit}
-            isLoading={
-              isPoolDataLoading ||
-              isLendingQuoteLoading ||
-              isLendingQuoteRefetching ||
-              isEstimatedFeesDataLoading ||
-              isEstimatedSweepFeesDataLoading ||
-              isEstimatedSweepFeesDataLoading ||
-              isSweepNeededLoading ||
-              isAddressByteCodeLoading
-            }
-            isDisabled={Boolean(
-              isHardCapReached ||
-                !isThorchainLendingBorrowEnabled ||
-                bnOrZero(depositAmountCryptoPrecision).isZero() ||
-                isLendingQuoteError ||
+          {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
+            <>
+              <Flex direction='column' gap={2}>
+                <Alert status='error' width='auto' fontSize='sm' variant='solid'>
+                  <AlertIcon color='red' />
+                  <Stack spacing={0}>
+                    <AlertDescription lineHeight='short'>
+                      {translate('lending.unsafeDeposit')}
+                    </AlertDescription>
+                  </Stack>
+                </Alert>
+              </Flex>
+              <Button size='lg' colorScheme='red' onClick={handleAcknowledgeUnsafeQuote}>
+                <Text translation={'defi.modals.saversVaults.understand'} />
+              </Button>
+            </>
+          ) : (
+            <Button
+              size='lg'
+              colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
+              mx={-2}
+              onClick={onSubmit}
+              isLoading={
+                isPoolDataLoading ||
                 isLendingQuoteLoading ||
                 isLendingQuoteRefetching ||
-                quoteErrorTranslation ||
-                isEstimatedFeesDataError ||
                 isEstimatedFeesDataLoading ||
-                disableSmartContractDeposit,
-            )}
-          >
-            {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.borrow')}
-          </Button>
+                isEstimatedSweepFeesDataLoading ||
+                isEstimatedSweepFeesDataLoading ||
+                isSweepNeededLoading ||
+                isAddressByteCodeLoading
+              }
+              isDisabled={Boolean(
+                isHardCapReached ||
+                  !isThorchainLendingBorrowEnabled ||
+                  bnOrZero(depositAmountCryptoPrecision).isZero() ||
+                  isLendingQuoteError ||
+                  isLendingQuoteLoading ||
+                  isLendingQuoteRefetching ||
+                  quoteErrorTranslation ||
+                  isEstimatedFeesDataError ||
+                  isEstimatedFeesDataLoading ||
+                  disableSmartContractDeposit,
+              )}
+            >
+              {quoteErrorTranslation
+                ? translate(quoteErrorTranslation)
+                : translate('lending.borrow')}
+            </Button>
+          )}
         </CardFooter>
       </Stack>
     </SlideTransition>

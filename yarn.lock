@@ -9527,7 +9527,7 @@ __metadata:
     coinselect: ^3.1.13
     multicoin-address-validator: ^0.5.12
     p-queue: ^8.0.1
-    web3-utils: 4.2.1
+    web3-utils: 1.7.4
   languageName: unknown
   linkType: soft
 
@@ -21237,7 +21237,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethereumjs-util@npm:^7.0.10, ethereumjs-util@npm:^7.1.4, ethereumjs-util@npm:^7.1.5":
+"ethereumjs-util@npm:^7.0.10, ethereumjs-util@npm:^7.1.0, ethereumjs-util@npm:^7.1.4, ethereumjs-util@npm:^7.1.5":
   version: 7.1.5
   resolution: "ethereumjs-util@npm:7.1.5"
   dependencies:
@@ -21363,13 +21363,6 @@ __metadata:
   version: 4.0.7
   resolution: "eventemitter3@npm:4.0.7"
   checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
-  languageName: node
-  linkType: hard
-
-"eventemitter3@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "eventemitter3@npm:5.0.1"
-  checksum: 543d6c858ab699303c3c32e0f0f47fc64d360bf73c3daf0ac0b5079710e340d6fe9f15487f94e66c629f5f82cd1a8678d692f3dbb6f6fcd1190e1b97fcad36f8
   languageName: node
   linkType: hard
 
@@ -35983,15 +35976,6 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"web3-errors@npm:^1.1.4":
-  version: 1.1.4
-  resolution: "web3-errors@npm:1.1.4"
-  dependencies:
-    web3-types: ^1.3.1
-  checksum: d93cebc391880fa50052e31f05e3b33234e4c230be3172d1c046ae8f52d962f846b5fc002c201d53562f806e0645c5e7eca64c510b57bcfec1afbd294f0b2ffe
-  languageName: node
-  linkType: hard
-
 "web3-eth-abi@npm:1.3.6":
   version: 1.3.6
   resolution: "web3-eth-abi@npm:1.3.6"
@@ -36212,13 +36196,6 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"web3-types@npm:^1.3.1, web3-types@npm:^1.5.0":
-  version: 1.5.0
-  resolution: "web3-types@npm:1.5.0"
-  checksum: b309a38fddd4b3217b5a0a64abc9148f33d145bca80c118cb07353e9643af7a09414a8397f7f6a62a2a183bcfc98c2ad74014426f55e816a34307e89235a18ce
-  languageName: node
-  linkType: hard
-
 "web3-utils@npm:1.3.6":
   version: 1.3.6
   resolution: "web3-utils@npm:1.3.6"
@@ -36235,6 +36212,21 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"web3-utils@npm:1.7.4":
+  version: 1.7.4
+  resolution: "web3-utils@npm:1.7.4"
+  dependencies:
+    bn.js: ^5.2.1
+    ethereum-bloom-filters: ^1.0.6
+    ethereumjs-util: ^7.1.0
+    ethjs-unit: 0.1.6
+    number-to-bn: 1.7.0
+    randombytes: ^2.1.0
+    utf8: 3.0.0
+  checksum: 5d9256366904e5c24c7198a8791aa76217100aa068650ccc18264ff670d1e8d42d40fcc5ddc66e3c05fac3b480753ccf7e519709e60aefd73d71dd4c4d2adcbb
+  languageName: node
+  linkType: hard
+
 "web3-utils@npm:4.0.8-dev.a0d6730.0+a0d6730":
   version: 4.0.8-dev.a0d6730.0
   resolution: "web3-utils@npm:4.0.8-dev.a0d6730.0"
@@ -36244,19 +36236,6 @@ pvutils@latest:
     web3-types: 1.3.1-dev.a0d6730.0+a0d6730
     web3-validator: 2.0.4-dev.a0d6730.0+a0d6730
   checksum: 0e3a6b1b771e87d7e6893b3280a23a2cc3da56794c1d4bb0430e3de1c88cfeb5dc91108a06b1d2f59dd25a339626fe20260467d725e7673a3763f6b32b4d0fdd
-  languageName: node
-  linkType: hard
-
-"web3-utils@npm:4.2.1":
-  version: 4.2.1
-  resolution: "web3-utils@npm:4.2.1"
-  dependencies:
-    ethereum-cryptography: ^2.0.0
-    eventemitter3: ^5.0.1
-    web3-errors: ^1.1.4
-    web3-types: ^1.5.0
-    web3-validator: ^2.0.4
-  checksum: 68fcfeaf75f43a3c841998d785c6d787f14c61aeb67a45e586098b7c79411e36f11b676968721198477757443bc605ce0a71efcaac193a673b8cb9c34ac17992
   languageName: node
   linkType: hard
 
@@ -36270,19 +36249,6 @@ pvutils@latest:
     web3-types: 1.3.1-dev.a0d6730.0+a0d6730
     zod: ^3.21.4
   checksum: 54e13952b1dceae891c2f619d3115bf3af7f831d35a44f5f95b3201aaa0fb915e975ee47b169a14864f5429ece0fa0353494956fc9315e3e0ed82e3fc5bd71c1
-  languageName: node
-  linkType: hard
-
-"web3-validator@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "web3-validator@npm:2.0.4"
-  dependencies:
-    ethereum-cryptography: ^2.0.0
-    util: ^0.12.5
-    web3-errors: ^1.1.4
-    web3-types: ^1.3.1
-    zod: ^3.21.4
-  checksum: 9d41bfe5764343d05f045ce526715dfd1bd88dba146ba96c2d3199c3dc9bb66c01d9dac334251078542c00f82e273489700a54db365800c16e29a2c2b30f9929
   languageName: node
   linkType: hard
 

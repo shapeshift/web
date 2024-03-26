@@ -1,4 +1,3 @@
-import type { SignClientTypes } from '@walletconnect/types'
 import type { Web3WalletTypes } from '@walletconnect/web3wallet'
 import type {
   SupportedSessionRequest,
@@ -19,7 +18,7 @@ export const useWalletConnectEventsHandler = (
 ) => {
   // Open session proposal modal for confirmation / rejection
   const handleSessionProposal = useCallback(
-    (proposal: SignClientTypes.EventArguments['session_proposal']) => {
+    (proposal: Web3WalletTypes.EventArguments['session_proposal']) => {
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
         payload: { modal: WalletConnectModal.SessionProposal, data: { proposal } },

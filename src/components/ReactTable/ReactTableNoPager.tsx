@@ -14,11 +14,9 @@ import {
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 import { Fragment, useMemo, useRef } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslate } from 'react-polyglot'
-import type { Column, Row, TableState } from 'react-table'
+import type { Column, IdType, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
-import { RawText } from 'components/Text'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -32,9 +30,6 @@ type ReactTableProps<T extends {}> = {
   renderEmptyComponent?: () => ReactNode
   isLoading?: boolean
   variant?: TableProps['variant']
-  loadMore: () => void
-  hasMore: boolean
-  scrollableTarget?: string
   onSortBy?: (
     columnId: IdType<T>,
     descending?: boolean | undefined,
@@ -45,9 +40,7 @@ type ReactTableProps<T extends {}> = {
 const tdStyle = { padding: 0 }
 const tableSize = { base: 'sm', md: 'md' }
 
-const loader = <RawText>Loading...</RawText>
-
-export const InfiniteTable = <T extends {}>({
+export const ReactTableNoPager = <T extends {}>({
   columns,
   data,
   displayHeaders = true,
@@ -59,9 +52,6 @@ export const InfiniteTable = <T extends {}>({
   renderEmptyComponent,
   isLoading = false,
   variant = 'default',
-  hasMore,
-  loadMore,
-  scrollableTarget,
 }: ReactTableProps<T>) => {
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
@@ -144,60 +134,49 @@ export const InfiniteTable = <T extends {}>({
   ])
 
   return (
-    <InfiniteScroll
-      hasMore={hasMore}
-      next={loadMore}
-      dataLength={data.length}
-      loader={loader}
-      scrollableTarget={scrollableTarget}
-    >
-      <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
-        {displayHeaders && (
-          <Thead>
-            {headerGroups.map(headerGroup => (
-              <Tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(column => (
-                  <Th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    color='text.subtle'
-                    textAlign={column.textAlign}
-                    display={column.display}
-                    // we need to pass an arg here, so we need an anonymous function wrapper
-                    // eslint-disable-next-line react-memo/require-usememo
-                    _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
-                  >
-                    <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
-                      {column.render('Header')}
-                      <Flex alignItems='center'>
-                        {column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <ArrowDownIcon
-                              ml={2}
-                              aria-label={translate('common.table.sortedDesc')}
-                            />
-                          ) : (
-                            <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
-                          )
-                        ) : null}
-                      </Flex>
+    <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
+      {displayHeaders && (
+        <Thead>
+          {headerGroups.map(headerGroup => (
+            <Tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map(column => (
+                <Th
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                  color='text.subtle'
+                  textAlign={column.textAlign}
+                  display={column.display}
+                  // we need to pass an arg here, so we need an anonymous function wrapper
+                  // eslint-disable-next-line react-memo/require-usememo
+                  _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
+                >
+                  <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
+                    {column.render('Header')}
+                    <Flex alignItems='center'>
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <ArrowDownIcon ml={2} aria-label={translate('common.table.sortedDesc')} />
+                        ) : (
+                          <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
+                        )
+                      ) : null}
                     </Flex>
-                  </Th>
-                ))}
-              </Tr>
-            ))}
-          </Thead>
-        )}
-        <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
-        {rows.length === 0 && !isLoading && renderEmptyComponent && (
-          <Tfoot>
-            <Tr>
-              <Td colSpan={visibleColumns.length} py={0}>
-                {renderEmptyComponent()}
-              </Td>
+                  </Flex>
+                </Th>
+              ))}
             </Tr>
-          </Tfoot>
-        )}
-      </Table>
-    </InfiniteScroll>
+          ))}
+        </Thead>
+      )}
+      <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
+      {rows.length === 0 && !isLoading && renderEmptyComponent && (
+        <Tfoot>
+          <Tr>
+            <Td colSpan={visibleColumns.length} py={0}>
+              {renderEmptyComponent()}
+            </Td>
+          </Tr>
+        </Tfoot>
+      )}
+    </Table>
   )
 }

@@ -9,12 +9,10 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { exec } from 'child_process'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
 import path from 'path'
-import pify from 'pify'
 
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
@@ -29,8 +27,6 @@ import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import { filterOutBlacklistedAssets } from './utils'
-
-const clearAssetsCodemodCommand = 'yarn run codemod:clear-assets-migration'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
@@ -172,7 +168,6 @@ const main = async () => {
   try {
     await generateAssetData()
     await generateRelatedAssetIndex()
-    await pify(exec)(clearAssetsCodemodCommand)
 
     console.info('Assets and related assets data generated.')
 

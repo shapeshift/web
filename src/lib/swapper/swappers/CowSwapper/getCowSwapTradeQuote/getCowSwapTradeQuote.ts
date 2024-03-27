@@ -12,6 +12,7 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   ORDER_KIND_SELL,
+  SUPPORTED_CHAIN_IDS,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
@@ -19,7 +20,6 @@ import {
   getCowswapNetwork,
   getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
-  getSupportedChainIds,
   getValuesFromQuoteResponse,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
@@ -40,9 +40,11 @@ export async function getCowSwapTradeQuote(
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)
 
-  const supportedChainIds = getSupportedChainIds()
-
-  const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds })
+  const assertion = assertValidTrade({
+    buyAsset,
+    sellAsset,
+    supportedChainIds: SUPPORTED_CHAIN_IDS,
+  })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)

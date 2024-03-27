@@ -1,4 +1,4 @@
-import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
+import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { clearWalletConnectLocalStorage } from 'plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -54,7 +54,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
           dispatch({
             type: WalletActions.SET_PROVIDER,
-            payload: (wallet as WalletConnectV2HDWallet).provider,
+            payload: wallet.provider as unknown as EthereumProvider,
           })
 
           const { name, icon } = WalletConnectV2Config

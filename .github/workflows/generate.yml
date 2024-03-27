@@ -14,7 +14,8 @@ jobs:
       - name: Checkout develop
         uses: actions/checkout@v3
         with:
-          ref: develop
+          # obviously replace me with develop when this is ready
+          ref: feat_regenerate_asset_data_gh_action
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3

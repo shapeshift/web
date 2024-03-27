@@ -246,13 +246,20 @@ export const zapperApi = createApi({
           }
         }
 
-        const parsedData = data.map(v2NftItem => {
-          // Actually defined since we're passing supported EVM networks AccountIds
-          const chainId = zapperNetworkToChainId(
-            v2NftItem.token.collection.network as SupportedZapperNetwork,
-          )!
-          return parseToNftItem(v2NftItem, chainId)
-        })
+        const parsedData = data
+          .filter(v2NftItem => {
+            const chainId = zapperNetworkToChainId(
+              v2NftItem.token.collection.network as SupportedZapperNetwork,
+            )
+            return Boolean(chainId)
+          })
+          .map(v2NftItem => {
+            // Actually defined since we're narrowing things down in the filter above
+            const chainId = zapperNetworkToChainId(
+              v2NftItem.token.collection.network as SupportedZapperNetwork,
+            )!
+            return parseToNftItem(v2NftItem, chainId)
+          })
         return { data: parsedData }
       },
     }),

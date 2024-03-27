@@ -105,6 +105,11 @@ const selectLendingQuoteQuery = memoize(
       .times(quoteSlippagePercentageDecimal)
       .toString()
 
+    const quoteSlippageBorrowedAssetUsd = bn(quoteSlippageBorrowedAssetCryptoPrecision)
+      .times(borrowAssetMarketData?.price ?? 0)
+      .div(userCurrencyToUsdRate)
+      .toString()
+
     const quoteInboundAddress = quote.inbound_address
     // TODO(gomes): once THOR's API supports affiliate name and fees, we can remove this in profit of programmatic bps
     const quoteMemo = `${quote.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`
@@ -131,6 +136,7 @@ const selectLendingQuoteQuery = memoize(
       quoteBorrowedAmountUsd,
       quoteCollateralizationRatioPercentDecimal,
       quoteSlippageBorrowedAssetCryptoPrecision,
+      quoteSlippageBorrowedAssetUsd,
       quoteTotalFeesFiatUserCurrency,
       quoteTotalFeesFiatUsd,
       quoteInboundAddress,

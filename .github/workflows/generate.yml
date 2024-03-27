@@ -44,7 +44,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
-          git diff --staged --quiet || git commit -m "feat: regenerate asset data"
+          CURRENT_DATE=$(date +'%m/%d/%Y')
+          git diff --staged --quiet || git commit -m "feat: regenerate asset data $CURRENT_DATE"
           git push -u origin feat_regenerate_asset_data -f
 
       - name: Create Pull Request

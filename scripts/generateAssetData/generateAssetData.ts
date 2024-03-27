@@ -170,7 +170,7 @@ const main = async () => {
     await generateRelatedAssetIndex()
 
     console.info(
-      "Done. Don't forget to add a migration to clear assets state so the new assets are loaded.",
+      "Assets and related assets data generated. Don't forget to add a migration to clear assets state so the new assets are loaded.",
     )
 
     process.exit(0)

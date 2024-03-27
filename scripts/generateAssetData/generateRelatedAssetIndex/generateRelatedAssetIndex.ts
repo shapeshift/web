@@ -283,13 +283,13 @@ export const generateRelatedAssetIndex = async () => {
 
   progressBar.stop()
 
-  fs.writeFileSync(
+  await fs.promises.writeFile(
     generatedAssetsPath,
     // beautify the file for github diff.
     JSON.stringify(assetDataWithRelatedAssetKeys, null, 2),
   )
 
-  fs.writeFileSync(
+  await fs.promises.writeFile(
     relatedAssetIndexPath,
     // beautify the file for github diff.
     JSON.stringify(relatedAssetIndex, null, 2),

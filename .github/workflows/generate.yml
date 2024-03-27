@@ -52,4 +52,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data" --body "Generated from CI."
+          CURRENT_DATE=$(date +'%m/%d/%Y')
+          gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data $CURRENT_DATE" --body "Generated from CI."

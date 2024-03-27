@@ -16,7 +16,6 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { MdOutlineMoreVert } from 'react-icons/md'
 import { RiWindow2Line } from 'react-icons/ri'
@@ -25,12 +24,8 @@ import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
-import {
-  accountIdToFeeAssetId,
-  firstFourLastFour,
-  isUtxoAccountId,
-  isUtxoChainId,
-} from 'state/slices/portfolioSlice/utils'
+import { getAccountTitle } from 'lib/utils'
+import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssets,
   selectFeeAssetByChainId,
@@ -144,11 +139,8 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   )
 
   const title = useMemo(() => {
-    const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
-    return isUtxoAccount
-      ? assets[feeAssetId]?.name ?? ''
-      : firstFourLastFour(fromAccountId(accountId).account)
-  }, [assets, accountId, isUtxoAccount])
+    return getAccountTitle(accountId, assets)
+  }, [assets, accountId])
 
   const fontFamily = useMemo(() => (!isUtxoChainId(chainId) ? 'monospace' : ''), [chainId])
 

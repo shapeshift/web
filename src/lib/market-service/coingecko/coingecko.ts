@@ -7,11 +7,10 @@ import type {
   MarketDataArgs,
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import dayjs from 'dayjs'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getTimeFrameBounds } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -132,25 +131,7 @@ export class CoinGeckoMarketService implements MarketService {
     if (!url) return []
 
     try {
-      const end = dayjs().startOf('minute')
-      const start = (() => {
-        switch (timeframe) {
-          case HistoryTimeframe.HOUR:
-            return end.subtract(1, 'hour')
-          case HistoryTimeframe.DAY:
-            return end.subtract(1, 'day')
-          case HistoryTimeframe.WEEK:
-            return end.subtract(1, 'week')
-          case HistoryTimeframe.MONTH:
-            return end.subtract(1, 'month')
-          case HistoryTimeframe.YEAR:
-            return end.subtract(1, 'year')
-          case HistoryTimeframe.ALL:
-            return end.subtract(20, 'years')
-          default:
-            return end
-        }
-      })()
+      const { start, end } = getTimeFrameBounds(timeframe)
 
       const currency = 'usd'
       const from = start.valueOf() / 1000

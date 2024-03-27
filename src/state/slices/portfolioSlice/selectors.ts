@@ -144,6 +144,19 @@ export const selectPortfolioLoadingStatusGranular = createDeepEqualOutputSelecto
   },
 )
 
+export const selectPortfolioErroredAccountIds = createDeepEqualOutputSelector(
+  selectPortfolioLoadingStatusGranular,
+  portfolioLoadingStatusGranular => {
+    return entries(portfolioLoadingStatusGranular).reduce<AccountId[]>(
+      (acc, [accountId, accountState]) => {
+        accountState === 'error' && acc.push(accountId)
+        return acc
+      },
+      [],
+    )
+  },
+)
+
 export const selectPortfolioLoadingStatus = createSelector(
   selectPortfolioLoadingStatusGranular,
   (portfolioLoadingStatusGranular): PortfolioLoadingStatus => {

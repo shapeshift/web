@@ -4,7 +4,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, gnosisChainId, isNft, polygonChainId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import orderBy from 'lodash/orderBy'
 import PQueue from 'p-queue'
 import { PURGE } from 'redux-persist'
@@ -64,6 +63,10 @@ export type TxsState = {
 
 export type TxHistory = {
   txs: TxsState
+  hydrationMeta: PartialRecord<
+    AccountId,
+    { isHydrated: boolean; minTxBlockTime?: number; isErrored: boolean }
+  >
 }
 
 export type TxMessage = { payload: { message: Tx; accountId: AccountId } }
@@ -77,6 +80,7 @@ export const initialState: TxHistory = {
     byId: {},
     ids: [], // sorted, newest first
   },
+  hydrationMeta: {},
 }
 
 const checkIsSpam = (tx: Tx): boolean => {
@@ -103,7 +107,7 @@ const checkIsSpam = (tx: Tx): boolean => {
  */
 
 const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
-  const { txs } = txHistory
+  const { txs, hydrationMeta } = txHistory
 
   if (checkIsSpam(tx)) return
 
@@ -128,10 +132,23 @@ const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) =>
   getRelatedAssetIds(tx).forEach(relatedAssetId =>
     deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
   )
+
+  // update the min tx blocktime
+  const hydrationMetadataForAccountId = hydrationMeta[accountId]
+  if (
+    hydrationMetadataForAccountId === undefined ||
+    tx.blockTime < (hydrationMetadataForAccountId.minTxBlockTime ?? Infinity)
+  ) {
+    hydrationMeta[accountId] = {
+      isHydrated: false,
+      isErrored: false,
+      minTxBlockTime: tx.blockTime,
+    }
+  }
 }
 
 const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: AccountId) => {
-  const { txs } = txHistory
+  const { txs, hydrationMeta } = txHistory
 
   const filteredIncomingTxsWithIndex = incomingTxs
     .filter(tx => !checkIsSpam(tx))
@@ -140,7 +157,13 @@ const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: A
       return { tx, txIndex }
     })
 
+  let minTxBlockTime = Infinity
+
   for (const { txIndex, tx } of filteredIncomingTxsWithIndex) {
+    if (minTxBlockTime > tx.blockTime) {
+      minTxBlockTime = tx.blockTime
+    }
+
     const isNew = !txs.byId[txIndex]
 
     if (!isNew) continue
@@ -157,6 +180,20 @@ const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: A
 
   const getBlockTime = ([_, tx]: [string, Tx]) => tx.blockTime
   txs.ids = orderBy(Object.entries(txs.byId), getBlockTime, 'desc').map(([txIndex, _]) => txIndex)
+
+  // update the min tx block time if required
+  const hydrationMetadataForAccountId = hydrationMeta[accountId]
+  if (
+    minTxBlockTime < Infinity &&
+    (hydrationMetadataForAccountId === undefined ||
+      minTxBlockTime < (hydrationMetadataForAccountId.minTxBlockTime ?? Infinity))
+  ) {
+    hydrationMeta[accountId] = {
+      isHydrated: false,
+      isErrored: false,
+      minTxBlockTime,
+    }
+  }
 }
 
 const checkTxHashReceived = (state: ReduxState, txHash: string) => {
@@ -201,6 +238,22 @@ export const txHistory = createSlice({
     upsertTxsByAccountId: (txState, { payload }: TxsMessage) => {
       for (const [accountId, txs] of Object.entries(payload)) {
         updateOrInsertTxs(txState, txs, accountId)
+      }
+
+      return txState
+    },
+    setAccountIdHydrated: (txState, { payload }: { payload: AccountId }) => {
+      txState.hydrationMeta[payload] = {
+        minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
+        isHydrated: true,
+        isErrored: false,
+      }
+    },
+    setAccountIdErrored: (txState, { payload }: { payload: AccountId }) => {
+      txState.hydrationMeta[payload] = {
+        minTxBlockTime: txState.hydrationMeta[payload]?.minTxBlockTime,
+        isHydrated: false,
+        isErrored: true,
       }
     },
   },
@@ -250,23 +303,14 @@ export const txHistoryApi = createApi({
                 const state = getState() as State
                 const txsById = state.txHistory.txs.byId
 
-                const newTxs: Transaction[] = []
-                for (const tx of transactions) {
-                  const maybeFoundTx =
-                    txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)]
+                // TODO: Another edge case exists where the status of a transaction has changed since it was last cached.
+                // We'll need to re-fetch all transactions in history which aren't completed (success or fail) to updated them.
+                const hasTx = transactions.some(
+                  tx =>
+                    txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)] !== undefined,
+                )
 
-                  // don't fetch any more transactions if we already have the completed tx in store (prevent overfetch)
-                  if (
-                    maybeFoundTx?.status === TxStatus.Confirmed ||
-                    maybeFoundTx?.status === TxStatus.Failed
-                  ) {
-                    break
-                  }
-
-                  newTxs.push(tx)
-                }
-
-                const results: TransactionsByAccountId = { [accountId]: newTxs }
+                const results: TransactionsByAccountId = { [accountId]: transactions }
                 dispatch(txHistory.actions.upsertTxsByAccountId(results))
 
                 /**
@@ -275,13 +319,20 @@ export const txHistoryApi = createApi({
                  * TODO: An edge case exists if there was an error fetching transaction history after at least one page was fetched.
                  * We will think we ran into the latest existing transaction in the store and stop fetching,
                  * but all transaction history after the failed response on the initial `getAllTxHistory` call will still be missing.
+                 *
+                 * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
                  */
-                if (newTxs.length < pageSize) break
+                if (hasTx) break
 
                 currentCursor = cursor
               } while (currentCursor)
+
+              // Mark this account as hydrated so downstream can determine the difference between an
+              // account starting part-way thru a time period and "still hydrating".
+              dispatch(txHistory.actions.setAccountIdHydrated(accountId))
             } catch (err) {
               console.error(err)
+              dispatch(txHistory.actions.setAccountIdErrored(accountId))
             }
           }),
         )

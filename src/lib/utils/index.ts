@@ -1,22 +1,36 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { AssetReference, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromChainId } from '@shapeshiftoss/caip'
+import type {
+  AccountId,
+  AssetId,
+  AssetReference,
+  ChainId,
+  ChainNamespace,
+} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { KnownChainIds, NestedArray } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds, NestedArray, PartialRecord } from '@shapeshiftoss/types'
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
+import type { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import { isNull, orderBy } from 'lodash'
 import difference from 'lodash/difference'
 import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import {
+  accountIdToFeeAssetId,
+  firstFourLastFour,
+  isUtxoAccountId,
+} from 'state/slices/portfolioSlice/utils'
 
 export const isKeepKeyHDWallet = (wallet: HDWallet): wallet is KeepKeyHDWallet => {
   return wallet.getVendor() === 'KeepKey'
@@ -276,4 +290,32 @@ export const sortChainIdsByDisplayName = (unsortedChainIds: ChainId[]) => {
   )
 
   return sortedChainIds
+}
+
+export const getTimeFrameBounds = (timeframe: HistoryTimeframe): { start: Dayjs; end: Dayjs } => {
+  const end = dayjs().startOf('minute')
+  switch (timeframe) {
+    case HistoryTimeframe.HOUR:
+      return { end, start: end.subtract(1, 'hour') }
+    case HistoryTimeframe.DAY:
+      return { end, start: end.subtract(1, 'day') }
+    case HistoryTimeframe.WEEK:
+      return { end, start: end.subtract(1, 'week') }
+    case HistoryTimeframe.MONTH:
+      return { end, start: end.subtract(1, 'month') }
+    case HistoryTimeframe.YEAR:
+      return { end, start: end.subtract(1, 'year') }
+    case HistoryTimeframe.ALL:
+      return { end, start: end.subtract(20, 'years') }
+    default:
+      assertUnreachable(timeframe)
+  }
+}
+
+export const getAccountTitle = (accountId: AccountId, assets: PartialRecord<AssetId, Asset>) => {
+  const isUtxoAccount = isUtxoAccountId(accountId)
+  const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
+  return isUtxoAccount
+    ? assets[feeAssetId]?.name ?? ''
+    : firstFourLastFour(fromAccountId(accountId).account)
 }

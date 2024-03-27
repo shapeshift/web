@@ -55,5 +55,11 @@ export const isTransactionParams = (
   Boolean(
     (transaction.gasLimit !== undefined && transaction.gasPrice !== undefined) ||
       transaction.gas !== undefined ||
-      (transaction.maxFeePerGas !== undefined && transaction.maxPriorityFeePerGas !== undefined),
+      (transaction.maxFeePerGas !== undefined && transaction.maxPriorityFeePerGas !== undefined) ||
+      // All gas params undefined is also a valid payload
+      (transaction.gasLimit === undefined &&
+        transaction.gasPrice === undefined &&
+        transaction.gas === undefined &&
+        transaction.maxFeePerGas === undefined &&
+        transaction.maxPriorityFeePerGas === undefined),
   )

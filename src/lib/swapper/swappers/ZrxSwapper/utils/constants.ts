@@ -1,11 +1,13 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { SupportedChainIds } from 'lib/swapper/types'
 
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const OPTIMISM_L1_SWAP_GAS_LIMIT = '50000'
 
-// Zrx doesnt have an easily accessible master assets list.
+// Zrx doesn't have an easily accessible master assets list.
 
-// We assume all erc20's are supported and remove these explicitely unsupported assets
+// We assume all erc20's are supported and remove these explicitly unsupported assets
 export const ZRX_UNSUPPORTED_ASSETS = Object.freeze([
   // Foxy token unsupported by zrx
   'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3',
@@ -24,3 +26,8 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
 ])
+
+export const ZRX_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
+  sell: ZRX_SUPPORTED_CHAINIDS as ChainId[],
+  buy: ZRX_SUPPORTED_CHAINIDS as ChainId[],
+}

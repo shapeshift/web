@@ -276,7 +276,17 @@
     "viewADemo": "View a Demo",
     "dontHaveWallet": "Don't have a wallet?",
     "welcomeBack": "Welcome back!",
-    "welcomeBody": "Connecting your wallet is like “logging in”. Select your wallet from the options to get started."
+    "welcomeBody": "Connecting your wallet is like “logging in”. Select your wallet from the options to get started.",
+    "welcomeToShapeShift": "Welcome to ShapeShift",
+    "mobileWelcomeBody": "Create a brand new wallet or add an existing one to get started easily.",
+    "mobileSelectBody": "Select from any of your saved wallets below, or create or import a new wallet.",
+    "createANewWallet": "Create a New Wallet",
+    "importExisting": "Import an Existing Wallet",
+    "createOrImport": "Create or Import Wallet",
+    "viewSavedWallets": "View Saved Wallets",
+    "footerOne": "By continuing, you agree to the",
+    "terms": "Terms",
+    "privacyPolicy": "Privacy Policy"
   },
   "connectWallet": {
     "menu": {
@@ -1006,6 +1016,7 @@
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
+      "transactionSent": "Transaction sent",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
@@ -2211,7 +2222,8 @@
       "yourLoans": "Your Loans",
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
-    }
+    },
+    "unsafeBorrow": "This borrow has high slippage. Proceed with caution."
   },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",

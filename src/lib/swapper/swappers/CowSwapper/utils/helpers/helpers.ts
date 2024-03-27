@@ -9,7 +9,6 @@ import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getConfig } from 'config'
 import type { TypedDataDomain, TypedDataField } from 'ethers'
 import { TypedDataEncoder } from 'ethers'
 import { keccak256, stringToBytes } from 'viem'
@@ -196,13 +195,6 @@ export const getValuesFromQuoteResponse = ({
     .toFixed(0)
 
   return { rate, buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit }
-}
-
-export const getSupportedChainIds = (): ChainId[] => {
-  const isGnosisEnabled = getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS
-  return isGnosisEnabled
-    ? [KnownChainIds.GnosisMainnet, KnownChainIds.EthereumMainnet]
-    : [KnownChainIds.EthereumMainnet]
 }
 
 type AppDataInfo = {

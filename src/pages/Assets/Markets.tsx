@@ -133,17 +133,19 @@ export const Markets = () => {
   )
   return (
     <>
-      <PageHeader>
-        <PageHeader.Left>
-          <PageBackButton />
-        </PageHeader.Left>
-        <PageHeader.Middle>
-          <RawText textAlign='center'>Search</RawText>
-        </PageHeader.Middle>
-        <Flex gridColumn='1 / span 3' order='4'>
-          <GlobalFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        </Flex>
-      </PageHeader>
+      <Display.Mobile>
+        <PageHeader>
+          <PageHeader.Left>
+            <PageBackButton />
+          </PageHeader.Left>
+          <PageHeader.Middle>
+            <RawText textAlign='center'>Search</RawText>
+          </PageHeader.Middle>
+          <Flex gridColumn='1 / span 3' order='4' mt={2}>
+            <GlobalFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          </Flex>
+        </PageHeader>
+      </Display.Mobile>
       <Stack px={2}>
         <ReactTableNoPager
           columns={columns}

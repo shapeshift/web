@@ -204,6 +204,10 @@ const getRelatedAssetIds = async (
   return { relatedAssetIds, relatedAssetKey }
 }
 
+// Initialize counters for happy and sad fetches
+let happyCount = 0
+let sadCount = 0
+
 const processRelatedAssetIds = async (
   assetId: AssetId,
   assetData: AssetsById,
@@ -217,11 +221,11 @@ const processRelatedAssetIds = async (
 
   const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
     .then(result => {
-      console.log(`Fetched related assets for ${assetId}`)
+      happyCount++
       return result
     })
-    .catch(e => {
-      console.error(`Error fetching related assets for ${assetId}: ${e}`)
+    .catch(() => {
+      sadCount++
       return undefined
     })
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
@@ -297,6 +301,6 @@ export const generateRelatedAssetIndex = async () => {
     JSON.stringify(relatedAssetIndex, null, 2),
   )
 
-  console.info('generateRelatedAssetIndex() done')
+  console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return
 }

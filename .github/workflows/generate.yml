@@ -1,21 +1,19 @@
 name: Regenerate Asset Data and PR
 
 on:
+  # Allows manual triggering if we ever want to
   workflow_dispatch:
-  pull_request:
-  # schedule:
-  #   - cron: '0 0 * * *' # Schedule to run automatically, uncomment for production use
+  schedule:
+  - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
 
 jobs:
   regenerate-and-create-pr:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.ref == 'feat_regenerate_asset_data_gh_action'
     steps:
       - name: Checkout develop
         uses: actions/checkout@v3
         with:
-          # obviously replace me with develop when this is ready
-          ref: feat_regenerate_asset_data_gh_action
+          ref: develop
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -54,4 +52,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data" --body "Generated from CI."
-

@@ -16,7 +16,7 @@ import type { ReactNode } from 'react'
 import { Fragment, useMemo, useRef } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslate } from 'react-polyglot'
-import type { Column, IdType, Row, TableState } from 'react-table'
+import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
 
@@ -35,11 +35,6 @@ type ReactTableProps<T extends {}> = {
   loadMore: () => void
   hasMore: boolean
   scrollableTarget?: string
-  onSortBy?: (
-    columnId: IdType<T>,
-    descending?: boolean | undefined,
-    isMulti?: boolean | undefined,
-  ) => void
 }
 
 const tdStyle = { padding: 0 }

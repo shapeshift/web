@@ -2,9 +2,10 @@ import { Button, Flex, Stack, Tag, useMediaQuery } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { truncate } from 'lodash'
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { Display } from 'components/Display'
@@ -20,6 +21,8 @@ import { breakpoints } from 'theme/theme'
 const arrowUp = <RiArrowRightUpFill />
 const arrowDown = <RiArrowRightDownFill />
 
+const paddingX = { base: 4, md: 0 }
+
 type RowProps = Row<Asset>
 
 type MarketsTableProps = {
@@ -29,10 +32,20 @@ type MarketsTableProps = {
 
 export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClick }) => {
   const translate = useTranslate()
+  const history = useHistory()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const marketPrices = useAppSelector(selectMarketDataUserCurrency)
 
   const { hasMore, next, data } = useInfiniteScroll(rows)
+  const handleTradeClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      const assetId = e.currentTarget.getAttribute('data-asset-id')
+      if (!assetId) return
+      history.push(`/trade/${assetId}`)
+    },
+    [history],
+  )
   const columns: Column<Asset>[] = useMemo(
     () => [
       {
@@ -100,15 +113,25 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
       {
         Header: () => <RawText>Volume</RawText>,
         accessor: asset => marketPrices[asset.assetId]?.volume ?? '0',
-        display: { base: 'none', lg: 'table-cell' },
+
         id: 'volume',
+        display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value }: { value: string }) => <Amount.Fiat fontWeight='semibold' value={value} />,
       },
+      {
+        id: 'trade',
+        display: { base: 'none', lg: 'table-cell' },
+        Cell: ({ row }: { row: RowProps }) => (
+          <Button data-asset-id={row.original.assetId} onClick={handleTradeClick}>
+            {translate('assets.assetCards.assetActions.trade')}
+          </Button>
+        ),
+      },
     ],
-    [marketPrices],
+    [handleTradeClick, marketPrices, translate],
   )
   return (
-    <Stack px={4} pb={6}>
+    <Stack px={paddingX} pb={6}>
       <ReactTableNoPager
         columns={columns}
         data={data}

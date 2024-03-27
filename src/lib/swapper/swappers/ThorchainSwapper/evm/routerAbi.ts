@@ -1,6 +1,6 @@
-import type { AbiItem } from 'web3-utils'
+import type { Abi } from 'viem'
 
-export const routerAbi: AbiItem[] = [
+export const routerAbi: Abi = [
   {
     inputs: [{ internalType: 'address', name: 'rune', type: 'address' }],
     stateMutability: 'nonpayable',

@@ -9,6 +9,7 @@ export const ButtonStyle: ComponentStyleConfig = {
     _focusVisible: {
       boxShadow: 'outline-inset',
     },
+    letterSpacing: '-0.01125rem',
   },
   // styles for different sizes ("sm", "md", "lg")
   sizes: {

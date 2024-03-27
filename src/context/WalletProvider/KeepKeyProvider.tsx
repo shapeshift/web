@@ -24,6 +24,7 @@ import { RiFlashlightLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import type { RadioOption } from 'components/Radio/Radio'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { poll } from 'lib/poll/poll'
 import { isKeepKeyHDWallet } from 'lib/utils'
 
 import { useKeepKeyVersions } from './KeepKey/hooks/useKeepKeyVersions'
@@ -157,14 +158,31 @@ export const KeepKeyProvider = ({ children }: { children: React.ReactNode }): JS
     if (!keepKeyWallet) return
     dispatch({ type: KeepKeyActions.SET_WALLET, payload: keepKeyWallet })
     ;(async () => {
-      const features = await keepKeyWallet.getFeatures()
-      dispatch({ type: KeepKeyActions.SET_FEATURES, payload: features })
-      setHasPassphrase(features?.passphraseProtection)
-      setDeviceTimeout(
-        Object.values(timeoutOptions).find(t => Number(t.value) === features?.autoLockDelayMs),
-      )
+      await poll({
+        fn: async () => {
+          try {
+            const features = await keepKeyWallet.getFeatures()
+            return features
+          } catch (e) {
+            console.error(e)
+            return undefined
+          }
+        },
+        validate: (features: Features.AsObject | undefined) => {
+          if (!features) return false
+
+          dispatch({ type: KeepKeyActions.SET_FEATURES, payload: features })
+          setHasPassphrase(features?.passphraseProtection)
+          setDeviceTimeout(
+            Object.values(timeoutOptions).find(t => Number(t.value) === features?.autoLockDelayMs),
+          )
+          return true
+        },
+        interval: 2000,
+        maxAttempts: 30,
+      }).promise
     })()
-  }, [keepKeyWallet, keepKeyWallet?.features, setDeviceTimeout, setHasPassphrase])
+  }, [keepKeyWallet, setDeviceTimeout, setHasPassphrase])
 
   useEffect(() => {
     if (!keepKeyWallet) return

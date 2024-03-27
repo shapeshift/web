@@ -1,24 +1,14 @@
 import { Divider, Heading, Stack } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { RawText } from 'components/Text'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectCalculatedFees } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 const divider = <Divider />
-
-const AmountOrFree = ({ isFree, amountUSD }: { isFree: boolean; amountUSD: string }) => {
-  return isFree ? (
-    <Text translation='common.free' color='text.success' />
-  ) : (
-    <Amount.Fiat fiatType='USD' value={amountUSD} />
-  )
-}
 
 type FeeBreakdownProps = {
   feeModel: ParameterModel
@@ -34,8 +24,6 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
     foxDiscountUsd,
     feeUsdBeforeDiscount,
   } = useAppSelector(state => selectCalculatedFees(state, { feeModel, inputAmountUsd }))
-
-  const isFree = useMemo(() => bnOrZero(affiliateFeeAmountUsd).eq(0), [affiliateFeeAmountUsd])
 
   return (
     <Stack spacing={0}>
@@ -69,7 +57,7 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
           {translate('foxDiscounts.totalFeatureFee', { feature })}
         </Row.Label>
         <Row.Value fontSize='lg'>
-          <AmountOrFree isFree={isFree} amountUSD={affiliateFeeAmountUsd.toString()} />
+          <Amount.Fiat fiatType='USD' value={affiliateFeeAmountUsd.toString()} />
         </Row.Value>
       </Row>
     </Stack>

@@ -37,14 +37,6 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
 
   const isFree = useMemo(() => bnOrZero(affiliateFeeAmountUsd).eq(0), [affiliateFeeAmountUsd])
 
-  const isFeeUnsupported = useMemo(() => {
-    return affiliateFeeAmountUsd.isZero() && bnOrZero(feeUsdBeforeDiscount).gt(0)
-  }, [affiliateFeeAmountUsd, feeUsdBeforeDiscount])
-
-  const feeDiscountUsd = useMemo(() => {
-    return isFeeUnsupported ? '0.00' : foxDiscountUsd.toFixed(2)
-  }, [foxDiscountUsd, isFeeUnsupported])
-
   return (
     <Stack spacing={0}>
       <Stack spacing={2} px={8} pt={8} mb={8}>
@@ -61,13 +53,13 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
         <Row>
           <Row.Label>{featureFeeTranslation}</Row.Label>
           <Row.Value textAlign='right'>
-            <AmountOrFree isFree={isFeeUnsupported} amountUSD={feeUsdBeforeDiscount.toFixed(2)} />
+            <Amount.Fiat fiatType='USD' value={feeUsdBeforeDiscount.toFixed(2)} />
           </Row.Value>
         </Row>
         <Row>
           <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Fiat fiatType='USD' value={feeDiscountUsd} />
+            <Amount.Fiat fiatType='USD' value={foxDiscountUsd.toFixed(2)} />
           </Row.Value>
         </Row>
       </Stack>

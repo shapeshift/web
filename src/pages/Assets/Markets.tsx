@@ -5,6 +5,7 @@ import { truncate } from 'lodash'
 import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
@@ -26,6 +27,7 @@ const arrowDown = <RiArrowRightDownFill />
 type RowProps = Row<Asset>
 
 export const Markets = () => {
+  const translate = useTranslate()
   const [searchQuery, setSearchQuery] = useState('')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const history = useHistory()
@@ -139,14 +141,14 @@ export const Markets = () => {
             <PageBackButton />
           </PageHeader.Left>
           <PageHeader.Middle>
-            <RawText textAlign='center'>Search</RawText>
+            <RawText textAlign='center'>{translate('navBar.assets')}</RawText>
           </PageHeader.Middle>
           <Flex gridColumn='1 / span 3' order='4' mt={2}>
             <GlobalFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
           </Flex>
         </PageHeader>
       </Display.Mobile>
-      <Stack px={2}>
+      <Stack px={4} pb={6}>
         <ReactTableNoPager
           columns={columns}
           data={data}
@@ -154,9 +156,11 @@ export const Markets = () => {
           displayHeaders={isLargerThanMd}
           variant='clickable'
         />
-        <Button onClick={next} isDisabled={!hasMore}>
-          Load more
-        </Button>
+        {hasMore && (
+          <Button onClick={next} isDisabled={!hasMore}>
+            Load more
+          </Button>
+        )}
       </Stack>
     </>
   )

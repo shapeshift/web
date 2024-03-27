@@ -9,7 +9,6 @@ export const Assets = () => {
   return (
     <Main display='flex' flexDir='column' minHeight='calc(100vh - 72px)' isSubPage>
       <SEO title={translate('navBar.assets')} />
-      {/* <AssetSearch assets={assets} allowWalletUnsupportedAssets /> */}
       <Markets />
     </Main>
   )

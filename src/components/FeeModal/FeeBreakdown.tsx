@@ -3,6 +3,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
+import { BigNumber } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectCalculatedFees } from 'state/slices/tradeQuoteSlice/selectors'
@@ -41,13 +42,19 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
         <Row>
           <Row.Label>{featureFeeTranslation}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Fiat fiatType='USD' value={feeUsdBeforeDiscount.toFixed(2)} />
+            <Amount.Fiat
+              fiatType='USD'
+              value={feeUsdBeforeDiscount.toFixed(2, BigNumber.ROUND_HALF_UP)}
+            />
           </Row.Value>
         </Row>
         <Row>
           <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Fiat fiatType='USD' value={foxDiscountUsd.toFixed(2)} />
+            <Amount.Fiat
+              fiatType='USD'
+              value={foxDiscountUsd.toFixed(2, BigNumber.ROUND_HALF_UP)}
+            />
           </Row.Value>
         </Row>
       </Stack>
@@ -57,7 +64,10 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
           {translate('foxDiscounts.totalFeatureFee', { feature })}
         </Row.Label>
         <Row.Value fontSize='lg'>
-          <Amount.Fiat fiatType='USD' value={affiliateFeeAmountUsd.toString()} />
+          <Amount.Fiat
+            fiatType='USD'
+            value={affiliateFeeAmountUsd.toFixed(2, BigNumber.ROUND_HALF_UP)}
+          />
         </Row.Value>
       </Row>
     </Stack>

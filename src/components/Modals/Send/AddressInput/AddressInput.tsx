@@ -6,7 +6,6 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { QRCodeIcon } from 'components/Icons/QRCode'
 import type { SendInput } from 'components/Modals/Send/Form'
-import { isMobile } from 'lib/globals'
 
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
@@ -35,7 +34,6 @@ export const AddressInput = ({ rules, placeholder, enableQr = false }: AddressIn
     }) => (
       <Input
         spellCheck={false}
-        autoFocus={!isMobile}
         fontSize='sm'
         onChange={onChange}
         placeholder={placeholder}

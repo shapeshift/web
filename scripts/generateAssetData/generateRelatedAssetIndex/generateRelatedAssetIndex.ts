@@ -104,10 +104,6 @@ const createThrottle = ({
   let currentLevel = 0
   let pendingResolves: ((value?: unknown) => void)[] = []
 
-  // Store the interval ID so we can clear it before exiting this
-  // Else, Node.JS will have open handles and this will be no bueno since we won't be able to exit the process
-  let intervalId: NodeJS.Timeout
-
   const drain = () => {
     const drainAmount = Math.min(currentLevel, drainPerInterval)
     currentLevel -= drainAmount
@@ -122,7 +118,8 @@ const createThrottle = ({
     }
   }
 
-  intervalId = setInterval(drain, intervalMs)
+  // Start the interval to drain the capacity
+  setInterval(drain, intervalMs)
 
   const throttle = async () => {
     if (currentLevel + costPerReq <= capacity) {
@@ -136,10 +133,7 @@ const createThrottle = ({
     }
   }
 
-  return {
-    throttle,
-    clear: () => clearInterval(intervalId),
-  }
+  return throttle
 }
 
 const getRelatedAssetIds = async (
@@ -274,10 +268,10 @@ export const generateRelatedAssetIndex = async () => {
   const progressBar = new SingleBar({}, Presets.shades_classic)
   progressBar.start(Object.keys(generatedAssetData).length, 0)
 
-  const { throttle, clear } = createThrottle({
-    capacity: 50,
-    costPerReq: 1,
-    drainPerInterval: 25,
+  const throttle = createThrottle({
+    capacity: 50, // Reduced initial capacity to allow for a burst but not too high
+    costPerReq: 1, // Keeping the cost per request as 1 for simplicity
+    drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
     intervalMs: 2000,
   })
   let i = 0
@@ -292,7 +286,6 @@ export const generateRelatedAssetIndex = async () => {
     progressBar.update(i)
   }
 
-  clear()
   progressBar.stop()
 
   await fs.promises.writeFile(

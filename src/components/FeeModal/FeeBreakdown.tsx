@@ -7,7 +7,6 @@ import { RawText, Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectCalculatedFees } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,14 +29,11 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
   const translate = useTranslate()
   const feature = translate(FEE_MODEL_TO_FEATURE_NAME[feeModel])
   const featureFeeTranslation = translate('foxDiscounts.featureFee', { feature })
-  const votingPowerParams: { feeModel: ParameterModel } = useMemo(() => ({ feeModel }), [feeModel])
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const {
     feeUsd: affiliateFeeAmountUsd,
     foxDiscountUsd,
     foxDiscountPercent,
     feeUsdBeforeDiscount,
-    feeBpsBeforeDiscount,
   } = useAppSelector(state => selectCalculatedFees(state, { feeModel, inputAmountUsd }))
 
   const isFree = useMemo(() => bnOrZero(affiliateFeeAmountUsd).eq(0), [affiliateFeeAmountUsd])
@@ -67,33 +63,19 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
           <Row.Label>{featureFeeTranslation}</Row.Label>
           <Row.Value textAlign='right'>
             <AmountOrFree isFree={isFeeUnsupported} amountUSD={feeUsdBeforeDiscount.toFixed(2)} />
-            <Amount
-              color='text.subtle'
-              fontSize='sm'
-              value={isFree ? '0' : feeBpsBeforeDiscount}
-              suffix='bps'
-            />
           </Row.Value>
         </Row>
         <Row>
-          <Row.Label>{translate('foxDiscounts.currentFoxPower')}</Row.Label>
+          <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Crypto value={votingPower ?? '0'} symbol='FOX' maximumFractionDigits={0} />
+            <Amount.Fiat fiatType='USD' value={feeDiscountUsd} />
+            <Amount.Percent
+              fontSize='sm'
+              value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
+              color='text.success'
+            />
           </Row.Value>
         </Row>
-        {!isFeeUnsupported && (
-          <Row>
-            <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
-            <Row.Value textAlign='right'>
-              <Amount.Fiat fiatType='USD' value={feeDiscountUsd} />
-              <Amount.Percent
-                fontSize='sm'
-                value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
-                color='text.success'
-              />
-            </Row.Value>
-          </Row>
-        )}
       </Stack>
       <Divider />
       <Row px={8} py={4}>

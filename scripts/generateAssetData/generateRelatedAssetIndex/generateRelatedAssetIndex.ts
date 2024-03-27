@@ -12,7 +12,6 @@ import type { AssetsById } from '@shapeshiftoss/types'
 import assert from 'assert'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
-import { Presets, SingleBar } from 'cli-progress'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
@@ -119,7 +118,7 @@ const createThrottle = ({
   }
 
   // Start the interval to drain the capacity
-  setInterval(drain, intervalMs)
+  const intervalId = setInterval(drain, intervalMs)
 
   const throttle = async () => {
     if (currentLevel + costPerReq <= capacity) {
@@ -133,7 +132,9 @@ const createThrottle = ({
     }
   }
 
-  return throttle
+  const clear = () => clearInterval(intervalId)
+
+  return { throttle, clear }
 }
 
 const getRelatedAssetIds = async (
@@ -244,6 +245,7 @@ const processRelatedAssetIds = async (
     assetData[assetId].relatedAssetKey = relatedAssetKey
   }
   relatedAssetIndex[relatedAssetKey] = relatedAssetIds
+  return
 }
 
 export const generateRelatedAssetIndex = async () => {
@@ -265,28 +267,23 @@ export const generateRelatedAssetIndex = async () => {
   // remove relatedAssetKey from the existing data to ensure the related assets get updated
   Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
 
-  const progressBar = new SingleBar({}, Presets.shades_classic)
-  progressBar.start(Object.keys(generatedAssetData).length, 0)
-
-  const throttle = createThrottle({
+  const { throttle, clear: clearThrottleInterval } = createThrottle({
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
     costPerReq: 1, // Keeping the cost per request as 1 for simplicity
     drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
     intervalMs: 2000,
   })
-  let i = 0
   for (const batch of chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)) {
     await Promise.all(
       batch.map(async assetId => {
         await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)
         await throttle()
+        return
       }),
     )
-    i += BATCH_SIZE
-    progressBar.update(i)
   }
 
-  progressBar.stop()
+  clearThrottleInterval()
 
   await fs.promises.writeFile(
     generatedAssetsPath,

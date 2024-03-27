@@ -18,7 +18,7 @@ type SparkLineProps = {
   height?: number
 }
 
-const xyChartMargin = { top: 0, left: 0, right: 0, bottom: 0 }
+const xyChartMargin = { top: 4, left: 0, right: 0, bottom: 4 }
 const xyChartxScale = { type: 'utc' } as const
 const xyChartYScale = { type: 'log' } as const
 

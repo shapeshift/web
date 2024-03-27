@@ -2,22 +2,18 @@ import { Button, Flex, Stack, Tag, useMediaQuery } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { truncate } from 'lodash'
-import { matchSorter } from 'match-sorter'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useMemo } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { Display } from 'components/Display'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { ReactTableNoPager } from 'components/ReactTable/ReactTableNoPager'
 import { AssetCell } from 'components/StakingVaults/Cells'
-import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText, Text } from 'components/Text'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { SparkLine } from 'pages/Buy/components/Sparkline'
-import { selectAssetsSortedByMarketCap, selectMarketDataUserCurrency } from 'state/slices/selectors'
+import { selectMarketDataUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
@@ -26,30 +22,16 @@ const arrowDown = <RiArrowRightDownFill />
 
 type RowProps = Row<Asset>
 
-export const Markets = () => {
-  const translate = useTranslate()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const history = useHistory()
-  const assets = useAppSelector(selectAssetsSortedByMarketCap)
-  const marketPrices = useAppSelector(selectMarketDataUserCurrency)
-  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+type MarketsTableProps = {
+  rows: Asset[]
+  onRowClick: (arg: Row<Asset>) => void
+}
 
-  const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
-    if (!filterValue) return rows
-    if (typeof filterValue !== 'string') {
-      return []
-    }
-    const search = filterValue.trim().toLowerCase()
-    const matchedAssets = matchSorter(rows, search, {
-      keys: ['name', 'symbol'],
-      threshold: matchSorter.rankings.CONTAINS,
-    })
-    return matchedAssets
-  }, [])
-  const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(assets, searchQuery) : assets
-  }, [assets, filterRowsBySearchTerm, isSearching, searchQuery])
+export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClick }) => {
+  const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const marketPrices = useAppSelector(selectMarketDataUserCurrency)
+
   const { hasMore, next, data } = useInfiniteScroll(rows)
   const columns: Column<Asset>[] = useMemo(
     () => [
@@ -125,43 +107,20 @@ export const Markets = () => {
     ],
     [marketPrices],
   )
-  const handleRowClick = useCallback(
-    (row: Row<Asset>) => {
-      const { assetId } = row.original
-      const url = assetId ? `/assets/${assetId}` : ''
-      history.push(url)
-    },
-    [history],
-  )
   return (
-    <>
-      <Display.Mobile>
-        <PageHeader>
-          <PageHeader.Left>
-            <PageBackButton />
-          </PageHeader.Left>
-          <PageHeader.Middle>
-            <RawText textAlign='center'>{translate('navBar.assets')}</RawText>
-          </PageHeader.Middle>
-          <Flex gridColumn='1 / span 3' order='4' mt={2}>
-            <GlobalFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-          </Flex>
-        </PageHeader>
-      </Display.Mobile>
-      <Stack px={4} pb={6}>
-        <ReactTableNoPager
-          columns={columns}
-          data={data}
-          onRowClick={handleRowClick}
-          displayHeaders={isLargerThanMd}
-          variant='clickable'
-        />
-        {hasMore && (
-          <Button onClick={next} isDisabled={!hasMore}>
-            Load more
-          </Button>
-        )}
-      </Stack>
-    </>
+    <Stack px={4} pb={6}>
+      <ReactTableNoPager
+        columns={columns}
+        data={data}
+        onRowClick={onRowClick}
+        displayHeaders={isLargerThanMd}
+        variant='clickable'
+      />
+      {hasMore && (
+        <Button onClick={next} isDisabled={!hasMore}>
+          {translate('common.loadMore')}
+        </Button>
+      )}
+    </Stack>
   )
-}
+})

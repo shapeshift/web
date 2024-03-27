@@ -42,11 +42,12 @@ jobs:
 
       - name: Commit changes
         run: |
+          git checkout -B feat_regenerate_asset_data
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
           git diff --staged --quiet || git commit -m "feat: regenerate asset data"
-          git push -u origin feat_regenerate_asset_data
+          git push -u origin feat_regenerate_asset_data -f
 
       - name: Create Pull Request
         env:

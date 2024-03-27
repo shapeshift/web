@@ -11,7 +11,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Display } from 'components/Display'
 import { ReactTableNoPager } from 'components/ReactTable/ReactTableNoPager'
 import { AssetCell } from 'components/StakingVaults/Cells'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { SparkLine } from 'pages/Buy/components/Sparkline'
 import { selectMarketDataUserCurrency } from 'state/slices/selectors'
@@ -74,7 +74,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
         },
       },
       {
-        Header: () => <RawText ml='auto'>Price</RawText>,
+        Header: () => <Text ml='auto' translation='dashboard.portfolio.price' />,
         accessor: asset => marketPrices[asset.assetId]?.price ?? '0',
         id: 'price',
         Cell: ({ value, row }: { value: string; row: RowProps }) => {
@@ -98,7 +98,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
       },
 
       {
-        Header: () => <RawText>Change</RawText>,
+        Header: () => <Text translation='dashboard.portfolio.priceChange' />,
         accessor: asset => marketPrices[asset.assetId]?.changePercent24Hr ?? '0',
         display: { base: 'none', lg: 'table-cell' },
         id: 'change',
@@ -111,7 +111,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
         ),
       },
       {
-        Header: () => <RawText>Volume</RawText>,
+        Header: () => <Text translation='dashboard.portfolio.volume' />,
         accessor: asset => marketPrices[asset.assetId]?.volume ?? '0',
 
         id: 'volume',

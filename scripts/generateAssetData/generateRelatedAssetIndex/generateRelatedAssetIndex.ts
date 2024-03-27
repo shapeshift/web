@@ -220,10 +220,15 @@ const processRelatedAssetIds = async (
     return
   }
 
-  const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData).catch(e => {
-    console.error(`Error fetching related assets for ${assetId}: ${e}`)
-    return undefined
-  })
+  const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
+    .then(result => {
+      console.log(`Fetched related assets for ${assetId}`)
+      return result
+    })
+    .catch(e => {
+      console.error(`Error fetching related assets for ${assetId}: ${e}`)
+      return undefined
+    })
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
   // ensure empty results get added so we can use this index to generate distinct asset list

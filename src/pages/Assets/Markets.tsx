@@ -1,22 +1,24 @@
-import { Button, Flex, Stack, Tag } from '@chakra-ui/react'
+import { Button, Flex, Stack, Tag, useMediaQuery } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { truncate } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { matchSorter } from 'match-sorter'
+import { useCallback, useMemo, useState } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useHistory } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
 import { Display } from 'components/Display'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
-import { ReactTable } from 'components/ReactTable/ReactTable'
 import { ReactTableNoPager } from 'components/ReactTable/ReactTableNoPager'
 import { AssetCell } from 'components/StakingVaults/Cells'
+import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText, Text } from 'components/Text'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { SparkLine } from 'pages/Buy/components/Sparkline'
 import { selectAssetsSortedByMarketCap, selectMarketDataUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 const arrowUp = <RiArrowRightUpFill />
 const arrowDown = <RiArrowRightDownFill />
@@ -24,10 +26,29 @@ const arrowDown = <RiArrowRightDownFill />
 type RowProps = Row<Asset>
 
 export const Markets = () => {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const history = useHistory()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const marketPrices = useAppSelector(selectMarketDataUserCurrency)
-  const { hasMore, next, data } = useInfiniteScroll(assets)
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+
+  const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
+    if (!filterValue) return rows
+    if (typeof filterValue !== 'string') {
+      return []
+    }
+    const search = filterValue.trim().toLowerCase()
+    const matchedAssets = matchSorter(rows, search, {
+      keys: ['name', 'symbol'],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+    return matchedAssets
+  }, [])
+  const rows = useMemo(() => {
+    return isSearching ? filterRowsBySearchTerm(assets, searchQuery) : assets
+  }, [assets, filterRowsBySearchTerm, isSearching, searchQuery])
+  const { hasMore, next, data } = useInfiniteScroll(rows)
   const columns: Column<Asset>[] = useMemo(
     () => [
       {
@@ -119,12 +140,16 @@ export const Markets = () => {
         <PageHeader.Middle>
           <RawText textAlign='center'>Search</RawText>
         </PageHeader.Middle>
+        <Flex gridColumn='1 / span 3' order='4'>
+          <GlobalFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        </Flex>
       </PageHeader>
       <Stack px={2}>
         <ReactTableNoPager
           columns={columns}
           data={data}
           onRowClick={handleRowClick}
+          displayHeaders={isLargerThanMd}
           variant='clickable'
         />
         <Button onClick={next} isDisabled={!hasMore}>

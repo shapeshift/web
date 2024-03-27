@@ -1,4 +1,4 @@
-import { Box, Center, Spinner, useToken } from '@chakra-ui/react'
+import { Box, Center, useToken } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
@@ -67,7 +67,7 @@ export const SparkLine: React.FC<SparkLineProps> = ({
             dataKey={`${assetId}-series`}
             data={priceData}
             stroke={chartColor}
-            strokeWidth={1}
+            strokeWidth={2}
             curve={curveNatural}
             {...accessors}
           />

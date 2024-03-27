@@ -1440,7 +1440,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           disabled={!confirmedQuote}
         />
         {translate('pools.addLiquidity')}
-        <SlippagePopover />
+        <SlippagePopover isDisabled tooltipTranslation='pools.customSlippageDisabled' />
       </CardHeader>
     )
   }, [backIcon, confirmedQuote, handleBackClick, headerComponent, translate])

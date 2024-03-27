@@ -2257,6 +2257,7 @@
     "poolsBody": "Provide liquidity and earn fees on trades in that pool.",
     "availablePools": "Available Pools",
     "addLiquidity": "Add Liquidity",
+    "customSlippageDisabled": "We are unable to set a custom slippage",
     "removeLiquidity": "Remove Liquidity",
     "initialPricesAndPoolShare": "Initial Prices and Pool Share",
     "pricePerAsset": "%{from} per %{to}",

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -78,6 +79,7 @@ export type Preferences = {
   showConsentBanner: boolean
   showSnapsModal: boolean
   snapInstalled: boolean
+  watchedAssets: AssetId[]
 }
 
 const initialState: Preferences = {
@@ -137,6 +139,7 @@ const initialState: Preferences = {
   showConsentBanner: true,
   showSnapsModal: true,
   snapInstalled: false,
+  watchedAssets: [],
 }
 
 export const preferences = createSlice({
@@ -175,6 +178,15 @@ export const preferences = createSlice({
     },
     setSnapInstalled(state, { payload }: { payload: boolean }) {
       state.snapInstalled = payload
+    },
+    addWatchedAsset(state, { payload }: { payload: AssetId }) {
+      state.watchedAssets = [...state.watchedAssets, payload]
+    },
+    removeWatchedAsset(state, { payload }: { payload: AssetId }) {
+      state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
+    },
+    setWatchedAssets(state, { payload }: { payload: AssetId[] }) {
+      state.watchedAssets = payload
     },
   },
 })

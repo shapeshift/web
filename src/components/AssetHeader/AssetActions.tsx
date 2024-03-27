@@ -18,6 +18,8 @@ import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { WatchAssetButton } from './WatchAssetButton'
+
 const IconButtonAfter = {
   content: 'attr(aria-label)',
   position: 'absolute',
@@ -173,6 +175,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
       flex={1}
     >
       <Flex direction='row' gap={2} flexWrap='wrap'>
+        <WatchAssetButton assetId={assetId} />
         {isValidChainId && (
           <Button
             data-test='asset-action-trade'

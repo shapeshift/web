@@ -15,6 +15,7 @@
     "clean": "yarn clean:packages && yarn clean:web && rm -rf node_modules coverage tsconfig.tsbuildinfo",
     "clean:web": "rm -rf build tsconfig.web.tsbuildinfo",
     "clean:packages": "yarn workspaces foreach -ptiv --exclude @shapeshiftoss/web run clean && rm -rf tsconfig.packages.tsbuildinfo",
+    "codemod:clear-assets-migration": "jscodeshift -t src/state/migrations/transformClearAssets.ts --parser=tsx --extensions=ts,tsx src/state/migrations/index.ts",
     "deadcode": "yarn ts-prune",
     "dev": "yarn concurrently -n \"packages,web\" \"yarn dev:packages\" \"yarn dev:web\"",
     "dev:web": "BROWSER=none NODE_OPTIONS=--max-old-space-size=4096 ESLINT_NO_DEV_ERRORS=true TSC_COMPILE_ON_ERROR=true IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false yarn react-app-rewired --openssl-legacy-provider start",

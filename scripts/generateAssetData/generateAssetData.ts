@@ -30,8 +30,7 @@ import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import { filterOutBlacklistedAssets } from './utils'
 
-const clearAssetsCodemodCommand =
-  'npx jscodeshift -t src/state/migrations/transformClearAssets.ts --parser=tsx --extensions=ts,tsx src/state/migrations/index.ts'
+const clearAssetsCodemodCommand = 'yarn run codemod:clear-assets-migration'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()

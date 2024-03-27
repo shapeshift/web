@@ -5,8 +5,7 @@ import pify from 'pify'
 
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 
-const clearAssetsCodemodCommand =
-  'npx jscodeshift -t src/state/migrations/transformClearAssets.ts --parser=tsx --extensions=ts,tsx src/state/migrations/index.ts'
+const clearAssetsCodemodCommand = 'yarn run codemod:clear-assets-migration'
 
 const main = async () => {
   try {

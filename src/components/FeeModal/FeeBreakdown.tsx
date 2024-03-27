@@ -32,7 +32,6 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
   const {
     feeUsd: affiliateFeeAmountUsd,
     foxDiscountUsd,
-    foxDiscountPercent,
     feeUsdBeforeDiscount,
   } = useAppSelector(state => selectCalculatedFees(state, { feeModel, inputAmountUsd }))
 
@@ -69,11 +68,6 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
           <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
           <Row.Value textAlign='right'>
             <Amount.Fiat fiatType='USD' value={feeDiscountUsd} />
-            <Amount.Percent
-              fontSize='sm'
-              value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
-              color='text.success'
-            />
           </Row.Value>
         </Row>
       </Stack>

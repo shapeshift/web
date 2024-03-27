@@ -2,6 +2,7 @@ name: Regenerate Asset Data and PR
 
 on:
   # Allows manual triggering if we ever want to
+  pull_request:
   workflow_dispatch:
   schedule:
   - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
@@ -10,10 +11,10 @@ jobs:
   regenerate-and-create-pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout develop
+      - name: Checkout monkey-patched
         uses: actions/checkout@v3
         with:
-          ref: develop
+          ref: feat_improve_asset_gen
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -30,10 +31,10 @@ jobs:
       - name: Build Packages
         run: yarn build:packages
 
-      - name: Generate asset data
-        env:
-          ZERION_API_KEY: ${{ secrets.ZERION_API_KEY }}
-        run: yarn run generate:asset-data
+      # - name: Generate asset data
+        # env:
+          # ZERION_API_KEY: ${{ secrets.ZERION_API_KEY }}
+        # run: yarn run generate:asset-data
 
       - name: Generate THOR assets
         run: yarn run generate:thor-asset-map

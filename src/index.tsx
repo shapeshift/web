@@ -10,7 +10,11 @@ import { reportWebVitals } from 'lib/reportWebVitals'
 
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
-const root = createRoot(document.getElementById('root')!)
+const rootElement = document.getElementById('root')!
+const root = createRoot(rootElement)
+
+rootElement.setAttribute('vaul-drawer-wrapper', '')
+rootElement.classList.add('app-height')
 
 root.render(
   <React.StrictMode>

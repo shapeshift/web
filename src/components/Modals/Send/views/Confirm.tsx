@@ -1,15 +1,10 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
-  IconButton,
   Input,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -25,6 +20,11 @@ import { useHistory } from 'react-router-dom'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
+import { DialogBody } from 'components/Modal/components/DialogBody'
+import { DialogFooter } from 'components/Modal/components/DialogFooter'
+import { DialogHeader } from 'components/Modal/components/DialogHeader'
+import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -45,8 +45,6 @@ export type FeePrice = {
     gasPriceGwei?: string
   }
 }
-
-const arrowBackIcon = <ArrowBackIcon />
 
 const accountDropdownButtonProps = { variant: 'ghost', height: 'auto', p: 0, size: 'md' }
 
@@ -119,23 +117,14 @@ export const Confirm = () => {
   if (!(to && asset?.name && amountCryptoPrecision && fiatAmount && feeType)) return null
 
   return (
-    <SlideTransition>
-      <IconButton
-        variant='ghost'
-        icon={arrowBackIcon}
-        aria-label={translate('common.back')}
-        position='absolute'
-        top={2}
-        left={3}
-        fontSize='xl'
-        size='sm'
-        isRound
-        onClick={handleClick}
-      />
-      <ModalHeader textAlign='center'>
-        <Text translation={sendAssetTranslation} />
-      </ModalHeader>
-      <ModalBody>
+    <SlideTransition className='flex flex-col h-full'>
+      <DialogHeader>
+        <DialogBackButton onClick={handleClick} />
+        <DialogTitle textAlign='center'>
+          <Text translation={sendAssetTranslation} />
+        </DialogTitle>
+      </DialogHeader>
+      <DialogBody>
         <Flex flexDirection='column' alignItems='center' mb={8}>
           <Amount.Crypto
             fontSize='4xl'
@@ -205,8 +194,8 @@ export const Confirm = () => {
             </Row>
           </FormControl>
         </Stack>
-      </ModalBody>
-      <ModalFooter flexDirection='column' borderTopWidth={1} borderColor={borderColor}>
+      </DialogBody>
+      <DialogFooter flexDirection='column' borderTopWidth={1} borderColor={borderColor}>
         <Row gap={2}>
           <Box flex={1}>
             <Row.Label color='inherit' fontWeight='bold'>
@@ -250,7 +239,7 @@ export const Confirm = () => {
         >
           <Text translation='common.confirm' />
         </Button>
-      </ModalFooter>
+      </DialogFooter>
     </SlideTransition>
   )
 }

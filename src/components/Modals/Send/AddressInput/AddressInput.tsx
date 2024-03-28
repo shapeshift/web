@@ -34,7 +34,6 @@ export const AddressInput = ({ rules, placeholder, enableQr = false }: AddressIn
     }) => (
       <Input
         spellCheck={false}
-        autoFocus
         fontSize='sm'
         onChange={onChange}
         placeholder={placeholder}

@@ -26,19 +26,46 @@ type PriceChartArgs = {
   hideAxis?: boolean
 } & ChakraStyledOptions
 
-export const PriceChart: React.FC<PriceChartArgs> = ({
-  assetId,
-  timeframe,
-  percentChange,
-  chartHeight = '350px',
-  setPercentChange,
-  setFiatChange,
-  hideAxis,
-  ...props
-}) => {
+export const PriceChart: React.FC<PriceChartArgs> = props => {
+  const {
+    assetId,
+    timeframe,
+    percentChange,
+    chartHeight = '350px',
+    setPercentChange,
+    setFiatChange,
+    hideAxis,
+    boxProps,
+  } = useMemo(() => {
+    const {
+      assetId,
+      timeframe,
+      percentChange,
+      chartHeight,
+      setPercentChange,
+      setFiatChange,
+      hideAxis,
+      ...boxProps
+    } = props
+
+    return {
+      assetId,
+      timeframe,
+      percentChange,
+      chartHeight,
+      setPercentChange,
+      setFiatChange,
+      hideAxis,
+      boxProps,
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
+
   const assetIds = useMemo(() => [assetId], [assetId])
+  const fetchPriceHistoriesArgs = useMemo(() => ({ assetIds, timeframe }), [assetIds, timeframe])
+
   // fetch price history for this asset
-  useFetchPriceHistories({ assetIds, timeframe })
+  useFetchPriceHistories(fetchPriceHistoriesArgs)
 
   const priceData = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe),
@@ -74,7 +101,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     )
 
   return (
-    <Box height={chartHeight} {...props}>
+    <Box height={chartHeight} {...boxProps}>
       <Graph color={color} data={data} loading={loading} isLoaded={!loading} hideAxis={hideAxis} />
     </Box>
   )

@@ -7,7 +7,7 @@ import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmTransactionRequest } from '@shapeshiftoss/swapper'
 import { SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -40,10 +40,13 @@ export const useTradeExecution = (hopIndex: number) => {
 
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
-  const accountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, { accountId: sellAssetAccountId }),
+  const accountMetadataFilter = useMemo(
+    () => ({ accountId: sellAssetAccountId }),
+    [sellAssetAccountId],
   )
-
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
+  )
   const swapperName = useAppSelector(selectActiveSwapperName)
   const tradeQuote = useAppSelector(selectActiveQuote)
 

@@ -49,15 +49,17 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
   } = useLocaleFormatter()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const [percentChange, setPercentChange] = useState(0)
   const [fiatChange, setFiatChange] = useState(0)
   const userChartTimeframe = useAppSelector(selectChartTimeframe)
   const [timeframe, setTimeframe] = useState<HistoryTimeframe>(userChartTimeframe)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-  const { price } = marketData || {}
-  const assetPrice = toFiat(price) ?? 0
+  const assetPrice = useMemo(() => {
+    const price = marketData?.price
+    return toFiat(price) ?? 0
+  }, [marketData?.price, toFiat])
 
   const handleTimeframeChange = useCallback(
     (newTimeframe: HistoryTimeframe) => {

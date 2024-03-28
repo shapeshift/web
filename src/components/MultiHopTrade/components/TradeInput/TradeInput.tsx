@@ -1,4 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
+import type { CardProps } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -108,6 +109,7 @@ const formControlProps = {
 }
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
+const cardProps: CardProps = { ml: 4 }
 
 type TradeInputProps = {
   isCompact?: boolean
@@ -125,7 +127,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
   const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
@@ -744,7 +746,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={tradeInputHeight ?? 'full'}
-              ml={4}
+              cardProps={cardProps}
             />
           </Center>
         </Flex>

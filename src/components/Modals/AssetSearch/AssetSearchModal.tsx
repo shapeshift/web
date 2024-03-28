@@ -35,7 +35,7 @@ export const AssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   allowWalletUnsupportedAssets,
 }) => {
   const translate = useTranslate()
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const { height: windowHeight } = useWindowSize()
 
   const handleAssetClick = useCallback(

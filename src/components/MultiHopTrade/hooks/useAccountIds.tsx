@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { selectFirstHopSellAccountId, selectLastHopBuyAccountId } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -30,10 +30,13 @@ export const useAccountIds = (): {
     [dispatch],
   )
 
-  return {
-    sellAssetAccountId,
-    buyAssetAccountId,
-    setSellAssetAccountId,
-    setBuyAssetAccountId,
-  }
+  return useMemo(
+    () => ({
+      sellAssetAccountId,
+      buyAssetAccountId,
+      setSellAssetAccountId,
+      setBuyAssetAccountId,
+    }),
+    [buyAssetAccountId, sellAssetAccountId, setBuyAssetAccountId, setSellAssetAccountId],
+  )
 }

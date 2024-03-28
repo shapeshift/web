@@ -1,5 +1,4 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
@@ -30,14 +29,11 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     setValue: setFormValue,
   } = useFormContext()
   const translate = useTranslate()
-  const isYatFeatureEnabled = useFeatureFlag('Yat')
   const isSnapEnabled = useFeatureFlag('Snaps')
   const { open: openSnapsModal } = useModal('snaps')
 
   const wallet = useWallet().state.wallet
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectInputBuyAsset)
-  const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
-  const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
 
   const isSnapInstalled = useIsSnapInstalled()
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAssetChainId, wallet)
@@ -100,9 +96,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
             }
             const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
             dispatch(tradeInput.actions.setManualReceiveAddress(address || undefined))
-            const invalidMessage = isYatSupported
-              ? 'common.invalidAddressOrYat'
-              : 'common.invalidAddress'
+            const invalidMessage = 'common.invalidAddress'
             return address ? true : invalidMessage
           } catch (e) {
             // This function should never throw, but in case it ever does, we never want to have a stale manual receive address stored
@@ -112,7 +106,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
         },
       },
     }),
-    [buyAssetAssetId, buyAssetChainId, dispatch, isYatSupported],
+    [buyAssetAssetId, buyAssetChainId, dispatch],
   )
 
   const handleEnableShapeShiftSnap = useCallback(() => openSnapsModal({}), [openSnapsModal])

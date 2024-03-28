@@ -214,6 +214,7 @@
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",
+      "volume": "Volume",
       "sparkLine": "Sparkline",
       "empty": {
         "title": "Cricket noises...",

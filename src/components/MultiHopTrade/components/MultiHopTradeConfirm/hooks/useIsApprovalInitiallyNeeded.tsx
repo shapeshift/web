@@ -21,11 +21,14 @@ const useIsApprovalInitiallyNeededForHop = (
   const { isLoading, isApprovalNeeded } = useIsApprovalNeeded(tradeQuoteStep, sellAssetAccountId)
 
   useEffect(() => {
+    // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
+    // so we never want to overwrite them with subsequent allowance results.
+    if (isApprovalInitiallyNeeded !== undefined) return
     // stop polling on first result
     if (!isLoading && isApprovalNeeded !== undefined) {
       setIsApprovalInitiallyNeeded(isApprovalNeeded)
     }
-  }, [isApprovalNeeded, isLoading])
+  }, [isApprovalInitiallyNeeded, isApprovalNeeded, isLoading])
 
   return {
     isLoading: isApprovalInitiallyNeeded === undefined || isLoading,

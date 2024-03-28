@@ -1011,7 +1011,7 @@
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "tokenAddress": "To Address",
-      "addressInput": "To Address, ENS or Yat",
+      "addressInput": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",

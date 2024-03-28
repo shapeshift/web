@@ -10,6 +10,7 @@ import {
   ModalHeader,
   Stack,
 } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -45,6 +46,7 @@ export const Address = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   useEffect(() => {
@@ -121,7 +123,9 @@ export const Address = () => {
           <AddressInput
             rules={addressInputRules}
             enableQr={true}
-            placeholder={translate('modals.send.addressInput')}
+            placeholder={translate(
+              supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+            )}
           />
         </FormControl>
       </ModalBody>

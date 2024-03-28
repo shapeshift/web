@@ -59,7 +59,7 @@ export const PairRates: React.FC<PairRatesProps> = ({ assetIds }) => {
 
   const handleAssetClick = useCallback(
     (assetId: AssetId) => {
-      const url = `/assets/${assetId}`
+      const url = `/markets/asset/${assetId}`
       history.push(url)
     },
     [history],

@@ -28,7 +28,7 @@ export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {
     { assetId, selectedLocale },
     { skip: !!description },
   )
-  const url = useMemo(() => (assetId ? `/assets/${assetId}` : ''), [assetId])
+  const url = useMemo(() => (assetId ? `/markets/asset/${assetId}` : ''), [assetId])
   return (
     <Portal>
       <PopoverContent>

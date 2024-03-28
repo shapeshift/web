@@ -154,7 +154,7 @@ export const OpportunityRow: React.FC<
                 balances={underlyingAssetBalance}
                 // we need to pass an arg here, so we need an anonymous function wrapper
                 // eslint-disable-next-line react-memo/require-usememo
-                onClick={() => history.push(`/assets/${underlyingAssetId}`)}
+                onClick={() => history.push(`/wallet/asset/${underlyingAssetId}`)}
                 type={translate('defi.underlyingAsset')}
               />
             )

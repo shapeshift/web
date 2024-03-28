@@ -94,7 +94,7 @@ export const GlobalSearchModal = memo(
             break
           }
           case GlobalSearchResultType.Asset: {
-            const url = `/assets/${item.id}`
+            const url = `/markets/asset/${item.id}`
             history.push(url)
             onToggle()
             break

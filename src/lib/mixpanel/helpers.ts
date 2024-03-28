@@ -12,7 +12,7 @@ export const mapMixpanelPathname = (pathname: string, assets: AssetsByIdPartial)
     case pathname.startsWith('/wallet/accounts/'): {
       return null
     }
-    case pathname.startsWith('/assets/'): {
+    case pathname.startsWith('/markets/asset/'): {
       // example path
       // /assets/eip155:1/slip44:60
       const parts = pathname.split('/')

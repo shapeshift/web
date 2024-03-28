@@ -64,7 +64,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     (asset: Asset) => {
       // AssetId has a `/` separator so the router will have to parse 2 variables
       // e.g., /assets/:chainId/:assetSubId
-      const url = `/assets/${asset.assetId}`
+      const url = `/markets/asset/${asset.assetId}`
       history.push(url)
     },
     [history],

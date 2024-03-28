@@ -30,13 +30,13 @@ describe('mixpanel helpers', () => {
     })
 
     it('can handle base assets path', () => {
-      const pathname = '/assets'
-      expect(mapMixpanelPathname(pathname, assets)).toEqual('/assets')
+      const pathname = '/markets'
+      expect(mapMixpanelPathname(pathname, assets)).toEqual('/markets')
     })
 
     it('can handle assets path', () => {
-      const pathname = '/assets/eip155:1/slip44:60'
-      expect(mapMixpanelPathname(pathname, assets)).toEqual('/assets/Ethereum.ETH')
+      const pathname = '/markets/asset/eip155:1/slip44:60'
+      expect(mapMixpanelPathname(pathname, assets)).toEqual('/markets/asset/Ethereum.ETH')
     })
   })
 })

@@ -243,6 +243,9 @@ const ApprovalStepComplete = ({
     )
   }, [isError, tradeQuoteStep, txHash])
 
+  // This should never happen as this should be render for *complete* approvals - but it may
+  if (!txHash) return null
+
   return (
     <StepperStep
       title={translate('trade.approvalTitle')}

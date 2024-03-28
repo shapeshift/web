@@ -113,6 +113,7 @@ export const AssetCell = ({
                 height='20px'
                 width='full'
                 title={rowTitle}
+                wordBreak='break-all'
                 data-test={`account-row-asset-name-${asset.symbol}`}
                 _after={rowTitleBoxAfter}
               >

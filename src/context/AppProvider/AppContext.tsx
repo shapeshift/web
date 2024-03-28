@@ -28,7 +28,9 @@ import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
+  selectAccountIdsByChainId,
   selectAssetIds,
+  selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
@@ -36,7 +38,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -81,20 +83,25 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     require(`dayjs/locale/${selectedLocale}.js`)
   }, [selectedLocale])
 
+  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   useEffect(() => {
     if (!wallet) return
-    const walletSupportedChainIds = Object.values(KnownChainIds).filter(chainId =>
-      walletSupportsChain({ chainId, wallet, isSnapInstalled }),
-    )
+    const walletSupportedChainIds = Object.values(KnownChainIds).filter(chainId => {
+      const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
+      return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+    })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
-  }, [dispatch, isSnapInstalled, wallet])
+    // Since we *have* to use the non-programmatic store.getState() above, this ensure the hook reruns on accounts referential invalidation
+  }, [dispatch, isSnapInstalled, portfolioAccounts, wallet])
 
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      let chainIds = Array.from(supportedChains).filter(chainId =>
-        walletSupportsChain({ chainId, wallet, isSnapInstalled }),
-      )
+      let chainIds = Array.from(supportedChains).filter(chainId => {
+        // Note, in this particular case, we are *not* reactive on portfolioAccounts to avoid extremely costly re-runs of this effect
+        const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
+        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+      })
 
       const accountMetadataByAccountId: AccountMetadataById = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()

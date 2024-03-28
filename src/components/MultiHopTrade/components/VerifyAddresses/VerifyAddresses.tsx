@@ -29,6 +29,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
+  selectAccountIdsByChainId,
   selectInputBuyAsset,
   selectInputSellAsset,
   selectManualReceiveAddress,
@@ -69,16 +70,25 @@ export const VerifyAddresses = () => {
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
+  const buyAccountIds = useAppSelector(state =>
+    selectAccountIdsByChainId(state, {
+      chainId: buyAssetAccountId ? fromAccountId(buyAssetAccountId).chainId : '',
+    }),
+  )
 
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const shouldVerifyBuyAddress = useMemo(
     () =>
-      !maybeManualReceiveAddress ||
-      (buyAssetAccountId &&
-        buyAccountMetadata &&
-        walletSupportsChain({ chainId: buyAsset.chainId, wallet, isSnapInstalled: false })),
-    [maybeManualReceiveAddress, buyAssetAccountId, buyAccountMetadata, buyAsset.chainId, wallet],
+      buyAssetAccountId &&
+      buyAccountMetadata &&
+      walletSupportsChain({
+        chainId: buyAsset.chainId,
+        wallet,
+        isSnapInstalled: false,
+        chainAccountIds: buyAccountIds,
+      }),
+    [buyAssetAccountId, buyAccountMetadata, buyAsset.chainId, wallet, buyAccountIds],
   )
 
   const isAddressVerified = useCallback(
@@ -91,7 +101,6 @@ export const VerifyAddresses = () => {
   )
   const buyVerified = useMemo(
     () => Boolean(maybeManualReceiveAddress) || isAddressVerified(buyAddress ?? ''),
-
     [buyAddress, isAddressVerified, maybeManualReceiveAddress],
   )
 

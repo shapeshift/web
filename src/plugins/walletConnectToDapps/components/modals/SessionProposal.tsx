@@ -18,6 +18,8 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from 'lib/utils'
+import { selectAccountIdsByChainId } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
@@ -27,10 +29,10 @@ const checkAllNamespacesSupported = (
 ): boolean => {
   return Object.values(namespaces).every(
     namespace =>
-      namespace.chains?.every(chainId =>
-        // TODO(gomes): fix this
-        walletSupportsChain({ chainId, wallet, isSnapInstalled: false }),
-      ),
+      namespace.chains?.every(chainId => {
+        const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
+        return walletSupportsChain({ chainId, wallet, isSnapInstalled: false, chainAccountIds })
+      }),
   )
 }
 
@@ -147,10 +149,11 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         Object.entries(optionalNamespaces)
           .map(([key, namespace]): [string, ProposalTypes.BaseRequiredNamespace] => {
             namespace.chains = namespace.chains?.filter(chainId => {
+              const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
               const isRequired = requiredNamespaces[key]?.chains?.includes(chainId)
               const isSupported =
                 Object.values(KnownChainIds).includes(chainId as KnownChainIds) &&
-                walletSupportsChain({ chainId, wallet, isSnapInstalled: false })
+                walletSupportsChain({ chainId, wallet, isSnapInstalled: false, chainAccountIds })
               return !isRequired && isSupported
             })
 

@@ -26,10 +26,11 @@ import type {
 } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
+  selectAccountIdsByChainId,
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 type ProviderCardProps = {
   isLoading?: boolean
@@ -64,19 +65,23 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 
   const isSnapInstalled = useIsSnapInstalled()
 
-  const filteredDownStakingOpportunities = stakingOpportunities.filter(
-    e =>
+  const filteredDownStakingOpportunities = stakingOpportunities.filter(e => {
+    const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId: e.chainId })
+    return (
       staking.includes(e.id as OpportunityId) &&
-      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled }),
-  )
+      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
+    )
+  })
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const filteredDownLpOpportunities = lpOpportunities.filter(
-    e =>
+  const filteredDownLpOpportunities = lpOpportunities.filter(e => {
+    const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId: e.chainId })
+    return (
       lp.includes(e.assetId as OpportunityId) &&
-      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled }),
-  )
+      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
+    )
+  })
 
   if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null
 

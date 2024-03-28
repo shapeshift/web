@@ -12,8 +12,13 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { selectAssetById, selectWalletChainIds } from 'state/slices/selectors'
-import { store } from 'state/store'
+import {
+  selectAccountIdsByChainId,
+  selectAssetById,
+  selectPortfolioAccounts,
+  selectWalletChainIds,
+} from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 const queryKey = ['lendingSupportedAssets']
 
@@ -29,12 +34,16 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     select: pools => pools.filter(pool => pool.status === 'Available'),
   })
 
+  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const walletSupportChains = useMemo(
     () =>
-      Object.values(KnownChainIds).filter(chainId =>
-        walletSupportsChain({ chainId, wallet, isSnapInstalled }),
-      ),
-    [isSnapInstalled, wallet],
+      Object.values(KnownChainIds).filter(chainId => {
+        const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
+        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+      }),
+    // Since we *have* to use the non-programmatic store.getState() above, this ensure the hook reruns on accounts referential invalidation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isSnapInstalled, portfolioAccounts, wallet],
   )
 
   const walletChainIds = useSelector(selectWalletChainIds)

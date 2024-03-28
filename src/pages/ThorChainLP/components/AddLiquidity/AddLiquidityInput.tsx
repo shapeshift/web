@@ -59,10 +59,7 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import {
-  assetIdToPoolAssetId,
-  poolAssetIdToAssetId,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
@@ -89,7 +86,6 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
@@ -138,7 +134,6 @@ export type AddLiquidityInputProps = {
 export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   headerComponent,
   opportunityId,
-  poolAssetId,
   confirmedQuote,
   setConfirmedQuote,
   currentAccountIdByChainId,
@@ -208,64 +203,61 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
     useIsSmartContractAddress(poolAssetAccountAddress ?? '')
 
-  const accountIdsByAssetId = useAppSelector(selectPortfolioAccountIdsByAssetId)
+  const runeAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
+  )
 
-  const getDefaultOpportunityType = useCallback(
-    (assetId: AssetId) => {
-      const walletSupportsRune = walletSupportsChain({
+  const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
+    if (!activeOpportunityId) return {}
+    return fromOpportunityId(activeOpportunityId)
+  }, [activeOpportunityId])
+
+  const poolAssetAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
+  )
+
+  const walletSupportsRune = useMemo(
+    () =>
+      walletSupportsChain({
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
-      })
-
-      const walletSupportsAsset = walletSupportsChain({
-        chainId: fromAssetId(assetId).chainId,
-        wallet,
-        isSnapInstalled,
-      })
-
-      const runeSupport = Boolean(
-        walletSupportsRune && accountIdsByAssetId[thorchainAssetId]?.length,
-      )
-      const assetSupport = Boolean(walletSupportsAsset && accountIdsByAssetId[assetId]?.length)
-
-      if (runeSupport && assetSupport) return 'sym'
-      if (assetSupport) return AsymSide.Asset
-      if (runeSupport) return AsymSide.Rune
-      return 'sym'
-    },
-    [wallet, isSnapInstalled, accountIdsByAssetId],
+        chainAccountIds: runeAccountIds,
+      }),
+    [isSnapInstalled, runeAccountIds, wallet],
   )
 
-  // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
-  // *is* possible and *is* something that both we and TS do. We can do one better than TS here however:
-  // - When a user deposits symetrically, they can then deposit asymetrically, but only on the asset side
-  // - When a user deposits asymetrically, no matter the side, they *can* deposit symetrically on the other side
-  //   - They can also deposit asymetrically after that, but with one caveat: they can do so only if they deposited asym on the *asset* side only
-  //     In other words, if they have an active asym. RUNE position, they can't deposit symetrically after that unless they withdraw
-  //     The reason for that is that the RUNE side memo performs a nameservice operation, registering the asset address (or a placeholder)
-  //
-  //     We should handle this in the UI and block users from deposits that *will* fail, by detecting their current position(s)
-  //     and not allowing them to select the sure-to-fail deposit types
+  const walletSupportsAsset = useMemo(() => {
+    if (!assetId) return false
+
+    const chainId = fromAssetId(assetId).chainId
+    return walletSupportsChain({
+      chainId,
+      wallet,
+      isSnapInstalled,
+      chainAccountIds: poolAssetAccountIds,
+    })
+  }, [assetId, wallet, isSnapInstalled, poolAssetAccountIds])
+
+  const getDefaultOpportunityType = useCallback(() => {
+    if (walletSupportsRune && walletSupportsAsset) return 'sym'
+    if (walletSupportsAsset) return AsymSide.Asset
+    if (walletSupportsRune) return AsymSide.Rune
+    return 'sym'
+  }, [walletSupportsRune, walletSupportsAsset])
+
   useEffect(() => {
+    // No-op if we already have an active opportunity as this effect is just used to set a default
     if (activeOpportunityId) return
+    // No-op if we already have a default i.e we're in a pool view
     if (opportunityId) return setActiveOpportunityId(opportunityId)
 
     if (!pools?.length) return
 
-    const assetId = poolAssetIdToAssetId(poolAssetId ?? '')
-
-    const walletSupportedOpportunity = pools.find(pool => {
-      const { chainId } = fromAssetId(pool.assetId)
-      return walletSupportsChain({ chainId, wallet, isSnapInstalled })
-    })
-
-    const opportunityType = getDefaultOpportunityType(
-      assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
-    )
-
+    // Gets the default opportunity type based on wallet support
+    const opportunityType = getDefaultOpportunityType()
     const defaultOpportunityId = toOpportunityId({
-      assetId: assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
+      assetId: pools[0].assetId,
       type: opportunityType,
     })
 
@@ -275,15 +267,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     opportunityId,
     activeOpportunityId,
     getDefaultOpportunityType,
-    poolAssetId,
     isSnapInstalled,
     wallet,
   ])
-
-  const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
-    if (!activeOpportunityId) return {}
-    return fromOpportunityId(activeOpportunityId)
-  }, [activeOpportunityId])
 
   const pool = useMemo(() => pools?.find(pool => pool.assetId === assetId), [assetId, pools])
 
@@ -307,9 +293,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const poolAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
-  )
-  const poolAssetAccountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
   )
   const poolAssetAccountId = useMemo(() => {
     return currentAccountIdByChainId[assetId ? fromAssetId(assetId).chainId : '']
@@ -350,9 +333,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
-  const runeAccountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
-  )
   const runeAccountId = useMemo(
     () => currentAccountIdByChainId[thorchainChainId],
     [currentAccountIdByChainId],
@@ -363,19 +343,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const runeBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
   )
-
-  const walletSupportsRune = useMemo(() => {
-    const chainId = thorchainChainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
-    return walletSupport && runeAccountIds.length > 0
-  }, [isSnapInstalled, runeAccountIds.length, wallet])
-
-  const walletSupportsAsset = useMemo(() => {
-    if (!assetId) return false
-    const chainId = fromAssetId(assetId).chainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
-    return walletSupport && poolAssetAccountIds.length > 0
-  }, [isSnapInstalled, assetId, poolAssetAccountIds.length, wallet])
 
   // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
   // - as a default pool, so we can show some input and not some seemingly broken blank state
@@ -1269,7 +1236,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const handleAssetChange = useCallback(
     (asset: Asset) => {
-      const type = getDefaultOpportunityType(asset.assetId)
+      const type = getDefaultOpportunityType()
       setActiveOpportunityId(toOpportunityId({ assetId: asset.assetId, type }))
     },
     [getDefaultOpportunityType],

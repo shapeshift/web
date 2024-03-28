@@ -13,6 +13,7 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Tooltip,
 } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
@@ -39,154 +40,168 @@ const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 
 const faGear = <FaGear />
 
-export const SlippagePopover: FC = memo(() => {
-  const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
-  const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
+type SlippagePopoverProps = {
+  isDisabled?: boolean
+  tooltipTranslation?: string
+}
 
-  const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
-  const [slippageAmount, setSlippageAmount] = useState<string | undefined>(
-    defaultSlippagePercentage,
-  )
-  const [isInvalid, setIsInvalid] = useState(false)
-  const translate = useTranslate()
-  const inputRef = useRef<HTMLInputElement>(null)
-  const isAdvancedSlippageEnabled = useFeatureFlag('AdvancedSlippage')
-  const dispatch = useAppDispatch()
+export const SlippagePopover: FC<SlippagePopoverProps> = memo(
+  ({ tooltipTranslation, isDisabled }) => {
+    const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
+    const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
-  useEffect(() => {
-    // Handles re-opening the slippage popover and/or going back to input step
-    if (userSlippagePercentage) {
-      setSlippageType(SlippageType.Custom)
-      setSlippageAmount(userSlippagePercentage)
-    } else {
-      setSlippageType(SlippageType.Auto)
-      setSlippageAmount(defaultSlippagePercentage)
-    }
-    // We only want this to run on mount, though not to be reactive to userSlippagePercentage
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultSlippagePercentage])
+    const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
+    const [slippageAmount, setSlippageAmount] = useState<string | undefined>(
+      defaultSlippagePercentage,
+    )
+    const [isInvalid, setIsInvalid] = useState(false)
+    const translate = useTranslate()
+    const inputRef = useRef<HTMLInputElement>(null)
+    const isAdvancedSlippageEnabled = useFeatureFlag('AdvancedSlippage')
+    const dispatch = useAppDispatch()
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    if (bnOrZero(value).gt(maxSlippagePercentage)) {
-      setIsInvalid(true)
-    } else {
-      setIsInvalid(false)
-    }
-    setSlippageAmount(value)
-    setSlippageType(SlippageType.Custom)
-  }, [])
-
-  const handleClose = useCallback(() => {
-    if (slippageType === SlippageType.Custom && !isInvalid)
-      dispatch(tradeInput.actions.setSlippagePreferencePercentage(slippageAmount))
-    else if (slippageType === SlippageType.Auto)
-      dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
-  }, [dispatch, isInvalid, slippageAmount, slippageType])
-
-  const handleSlippageTypeChange = useCallback(
-    (type: SlippageType) => {
-      if (type === SlippageType.Auto) {
-        setSlippageAmount(defaultSlippagePercentage)
-        setIsInvalid(false)
+    useEffect(() => {
+      // Handles re-opening the slippage popover and/or going back to input step
+      if (userSlippagePercentage) {
+        setSlippageType(SlippageType.Custom)
+        setSlippageAmount(userSlippagePercentage)
       } else {
-        inputRef && inputRef.current && inputRef.current.focus()
-        setSlippageAmount(slippageAmount)
+        setSlippageType(SlippageType.Auto)
+        setSlippageAmount(defaultSlippagePercentage)
       }
-      setSlippageType(type)
-    },
-    [defaultSlippagePercentage, slippageAmount],
-  )
+      // We only want this to run on mount, though not to be reactive to userSlippagePercentage
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [defaultSlippagePercentage])
 
-  const handleAutoSlippageTypeChange = useCallback(
-    () => handleSlippageTypeChange(SlippageType.Auto),
-    [handleSlippageTypeChange],
-  )
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      if (bnOrZero(value).gt(maxSlippagePercentage)) {
+        setIsInvalid(true)
+      } else {
+        setIsInvalid(false)
+      }
+      setSlippageAmount(value)
+      setSlippageType(SlippageType.Custom)
+    }, [])
 
-  const handleCustomSlippageTypeChange = useCallback(
-    () => handleSlippageTypeChange(SlippageType.Custom),
-    [handleSlippageTypeChange],
-  )
+    const handleClose = useCallback(() => {
+      if (slippageType === SlippageType.Custom && !isInvalid)
+        dispatch(tradeInput.actions.setSlippagePreferencePercentage(slippageAmount))
+      else if (slippageType === SlippageType.Auto)
+        dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
+    }, [dispatch, isInvalid, slippageAmount, slippageType])
 
-  const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
-  const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
+    const handleSlippageTypeChange = useCallback(
+      (type: SlippageType) => {
+        if (type === SlippageType.Auto) {
+          setSlippageAmount(defaultSlippagePercentage)
+          setIsInvalid(false)
+        } else {
+          inputRef && inputRef.current && inputRef.current.focus()
+          setSlippageAmount(slippageAmount)
+        }
+        setSlippageType(type)
+      },
+      [defaultSlippagePercentage, slippageAmount],
+    )
 
-  if (!isAdvancedSlippageEnabled) return null
+    const handleAutoSlippageTypeChange = useCallback(
+      () => handleSlippageTypeChange(SlippageType.Auto),
+      [handleSlippageTypeChange],
+    )
 
-  return (
-    <Popover isLazy placement='bottom-end' onClose={handleClose}>
-      <PopoverTrigger>
-        <IconButton aria-label={translate('trade.tradeSettings')} icon={faGear} variant='ghost' />
-      </PopoverTrigger>
-      <PopoverContent>
-        <PopoverBody>
-          <Row>
-            <Row.Label>
-              <HelperTooltip label={translate('trade.slippageInfo')}>
-                <Text translation='trade.slippage.maxSlippage' />
-              </HelperTooltip>
-            </Row.Label>
-            <Row.Value>{slippageType === SlippageType.Auto && 'Auto'}</Row.Value>
-          </Row>
-          <Row py={2} gap={2} mt={2}>
-            <Row.Value>
-              <ButtonGroup
-                size='sm'
-                bg='background.input.base'
-                px={1}
-                py={1}
-                borderRadius='xl'
-                variant='ghost'
-              >
-                <Button
-                  onClick={handleAutoSlippageTypeChange}
-                  isActive={slippageType === SlippageType.Auto}
+    const handleCustomSlippageTypeChange = useCallback(
+      () => handleSlippageTypeChange(SlippageType.Custom),
+      [handleSlippageTypeChange],
+    )
+
+    const isHighSlippage = useMemo(() => bnOrZero(slippageAmount).gt(1), [slippageAmount])
+    const isLowSlippage = useMemo(() => bnOrZero(slippageAmount).lt(0.05), [slippageAmount])
+
+    if (!isAdvancedSlippageEnabled) return null
+
+    return (
+      <Popover isLazy placement='bottom-end' onClose={handleClose}>
+        <PopoverTrigger>
+          <Tooltip isDisabled={!isDisabled} label={translate(tooltipTranslation)}>
+            <IconButton
+              aria-label={translate('trade.tradeSettings')}
+              icon={faGear}
+              variant='ghost'
+              isDisabled={isDisabled}
+            />
+          </Tooltip>
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverBody>
+            <Row>
+              <Row.Label>
+                <HelperTooltip label={translate('trade.slippageInfo')}>
+                  <Text translation='trade.slippage.maxSlippage' />
+                </HelperTooltip>
+              </Row.Label>
+              <Row.Value>{slippageType === SlippageType.Auto && 'Auto'}</Row.Value>
+            </Row>
+            <Row py={2} gap={2} mt={2}>
+              <Row.Value>
+                <ButtonGroup
+                  size='sm'
+                  bg='background.input.base'
+                  px={1}
+                  py={1}
+                  borderRadius='xl'
+                  variant='ghost'
                 >
-                  {translate('trade.slippage.auto')}
-                </Button>
-                <Button
-                  onClick={handleCustomSlippageTypeChange}
-                  isActive={slippageType === SlippageType.Custom}
-                >
-                  {translate('trade.slippage.custom')}
-                </Button>
-              </ButtonGroup>
-            </Row.Value>
-            <Row.Value>
-              <FormControl isInvalid={isInvalid}>
-                <InputGroup variant='filled'>
-                  <Input
-                    placeholder={slippageAmount}
-                    value={slippageAmount}
-                    type='number'
-                    _focus={focusStyle}
-                    onChange={handleChange}
-                    ref={inputRef}
-                    isDisabled={slippageType === SlippageType.Auto}
-                  />
-                  <InputRightElement>%</InputRightElement>
-                </InputGroup>
-              </FormControl>
-            </Row.Value>
-          </Row>
-          {isHighSlippage && (
-            <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
-              <AlertIcon />
-              <AlertDescription lineHeight='1.5'>
-                {translate('trade.slippage.warning')}
-              </AlertDescription>
-            </Alert>
-          )}
-          {isLowSlippage && (
-            <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
-              <AlertIcon />
-              <AlertDescription lineHeight='1.5'>
-                {translate('trade.slippage.lowSlippage')}
-              </AlertDescription>
-            </Alert>
-          )}
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
-  )
-})
+                  <Button
+                    onClick={handleAutoSlippageTypeChange}
+                    isActive={slippageType === SlippageType.Auto}
+                  >
+                    {translate('trade.slippage.auto')}
+                  </Button>
+                  <Button
+                    onClick={handleCustomSlippageTypeChange}
+                    isActive={slippageType === SlippageType.Custom}
+                  >
+                    {translate('trade.slippage.custom')}
+                  </Button>
+                </ButtonGroup>
+              </Row.Value>
+              <Row.Value>
+                <FormControl isInvalid={isInvalid}>
+                  <InputGroup variant='filled'>
+                    <Input
+                      placeholder={slippageAmount}
+                      value={slippageAmount}
+                      type='number'
+                      _focus={focusStyle}
+                      onChange={handleChange}
+                      ref={inputRef}
+                      isDisabled={slippageType === SlippageType.Auto}
+                    />
+                    <InputRightElement>%</InputRightElement>
+                  </InputGroup>
+                </FormControl>
+              </Row.Value>
+            </Row>
+            {isHighSlippage && (
+              <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
+                <AlertIcon />
+                <AlertDescription lineHeight='1.5'>
+                  {translate('trade.slippage.warning')}
+                </AlertDescription>
+              </Alert>
+            )}
+            {isLowSlippage && (
+              <Alert mt={2} fontSize='sm' status='warning' bg='transparent' px={0} py={0}>
+                <AlertIcon />
+                <AlertDescription lineHeight='1.5'>
+                  {translate('trade.slippage.lowSlippage')}
+                </AlertDescription>
+              </Alert>
+            )}
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
+    )
+  },
+)

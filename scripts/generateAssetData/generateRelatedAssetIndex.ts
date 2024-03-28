@@ -6,9 +6,7 @@ const main = async () => {
   try {
     await generateRelatedAssetIndex()
 
-    console.info(
-      "Related assets data generated. Don't forget to add a migration to clear assets state so the new assets are loaded.",
-    )
+    console.info('Related assets data generated')
     process.exit(0)
   } catch (err) {
     console.info(err)

@@ -196,6 +196,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [virtualRuneDepositAmountFiatUserCurrency, setVirtualRuneDepositAmountFiatUserCurrency] =
     useState<string | undefined>()
 
+  const [slippageDecimalPercentage, setSlippageDecimalPercentage] = useState<string | undefined>()
   const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
     null,
   )
@@ -210,9 +211,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const isUnsafeQuote = useMemo(
     () =>
-      confirmedQuote?.slippageDecimalPercentage &&
-      bn(confirmedQuote.slippageDecimalPercentage).gt(UNSAFE_SLIPPAGE_DECIMAL_PERCENT),
-    [confirmedQuote?.slippageDecimalPercentage],
+      slippageDecimalPercentage &&
+      bn(slippageDecimalPercentage).gt(UNSAFE_SLIPPAGE_DECIMAL_PERCENT),
+    [slippageDecimalPercentage],
   )
 
   useEffect(() => {
@@ -1014,6 +1015,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         assetId: poolAsset.assetId,
       })
 
+      setSlippageDecimalPercentage(estimate.slippageDecimalPercent)
+
       const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
         .times(runeMarketData.price)
         .toFixed()
@@ -1056,10 +1059,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       .div(userCurrencyToUsdRate)
       .toFixed()
 
-    const slippageDecimalPercentage = bnOrZero(slippageFiatUserCurrency)
-      .div(totalAmountFiatUserCurrency)
-      .toFixed()
-
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
@@ -1073,7 +1072,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       runeDepositAmountFiatUserCurrency: actualRuneDepositAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageFiatUserCurrency,
-      slippageDecimalPercentage,
       opportunityId: activeOpportunityId,
       currentAccountIdByChainId,
       totalAmountUsd,

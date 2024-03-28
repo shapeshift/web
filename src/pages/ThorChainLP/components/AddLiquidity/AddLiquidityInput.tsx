@@ -1015,7 +1015,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         assetId: poolAsset.assetId,
       })
 
-      setSlippageDecimalPercentage(bn(estimate.slippageDecimalPercent).div(100).toFixed())
+      setSlippageDecimalPercentage(estimate.slippageDecimalPercent)
 
       const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
         .times(runeMarketData.price)

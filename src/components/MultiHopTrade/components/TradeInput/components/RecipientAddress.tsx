@@ -10,7 +10,6 @@ import {
   TagLabel,
   Tooltip,
 } from '@chakra-ui/react'
-import { ethChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -23,7 +22,6 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { middleEllipsis } from 'lib/utils'
@@ -37,7 +35,6 @@ const closeIcon = <CloseIcon />
 
 export const RecipientAddress = () => {
   const translate = useTranslate()
-  const isYatFeatureEnabled = useFeatureFlag('Yat')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
   const useReceiveAddressArgs = useMemo(
@@ -49,8 +46,6 @@ export const RecipientAddress = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectInputBuyAsset)
-  const isYatSupportedByReceiveChain = buyAssetChainId === ethChainId // yat only supports eth mainnet
-  const isYatSupported = isYatFeatureEnabled && isYatSupportedByReceiveChain
   const {
     formState: { isValidating, isValid },
     // trigger: formTrigger, // TODO(gomes): do we need this?
@@ -102,9 +97,7 @@ export const RecipientAddress = () => {
               disableUrlParsing: true,
             }
             const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
-            const invalidMessage = isYatSupported
-              ? 'common.invalidAddressOrYat'
-              : 'common.invalidAddress'
+            const invalidMessage = 'common.invalidAddress'
             return address ? true : invalidMessage
           } catch (e) {
             // This function should never throw, but in case it ever does, we never want to have a stale manual receive address stored
@@ -115,7 +108,7 @@ export const RecipientAddress = () => {
       },
       minLength: 1,
     }),
-    [buyAssetAssetId, buyAssetChainId, dispatch, isYatSupported],
+    [buyAssetAssetId, buyAssetChainId, dispatch],
   )
 
   const handleEditRecipientAddressClick = useCallback(() => {

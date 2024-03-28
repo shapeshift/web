@@ -37,7 +37,6 @@
     "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough %{assetSymbol}.%{chainSymbol} to cover gas",
     "invalidAddress": "Invalid Address",
-    "invalidAddressOrYat": "Invalid Address or Yat",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",

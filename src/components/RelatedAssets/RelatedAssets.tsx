@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { generatePath, useHistory, useRouteMatch } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
@@ -17,6 +17,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
   const relatedAssetIds = useAppSelector(state => selectRelatedAssetIds(state, assetId))
   const assets = useAppSelector(selectAssets)
   const history = useHistory()
+  const match = useRouteMatch()
 
   const columns: Column<AssetId>[] = useMemo(
     () => [
@@ -39,9 +40,14 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
   const handleRowClick = useCallback(
     (row: Row<AssetId>) => {
       const assetId = row.original
-      history.push(`/assets/${assetId}`)
+      const { chainId, assetNamespace, assetReference } = fromAssetId(assetId)
+      const path = generatePath(match.path, {
+        chainId,
+        assetSubId: `${assetNamespace}:${assetReference}`,
+      })
+      history.push(path)
     },
-    [history],
+    [history, match.path],
   )
 
   if (!relatedAssetIds.length) return null

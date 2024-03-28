@@ -41,7 +41,7 @@ export const Assets = () => {
   const handleRowClick = useCallback(
     (row: Row<Asset>) => {
       const { assetId } = row.original
-      const url = assetId ? `/assets/${assetId}` : ''
+      const url = assetId ? `/markets/asset/${assetId}` : ''
       history.push(url)
     },
     [history],

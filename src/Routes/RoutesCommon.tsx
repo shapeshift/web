@@ -180,27 +180,27 @@ export const routes: NestedRoute[] = [
         main: TransactionHistory,
         category: RouteCategory.Wallet,
       },
+      ...assetIdPaths.map(assetIdPath => ({
+        path: `/asset${assetIdPath}`,
+        label: 'Overview',
+        icon: <AssetsIcon />,
+        main: Asset,
+        hide: true,
+      })),
     ],
   },
   {
-    path: '/assets',
-    label: 'navBar.assets',
+    path: '/markets',
+    label: 'navBar.markets',
     main: Assets,
     icon: <AssetsIcon />,
     category: RouteCategory.Explore,
     routes: assetIdPaths.map(assetIdPath => ({
-      path: assetIdPath,
+      path: `/asset${assetIdPath}`,
       label: 'Overview',
       icon: <AssetsIcon />,
-      main: null,
+      main: Asset,
       hide: true,
-      routes: [
-        {
-          path: '/',
-          label: 'navBar.overview',
-          main: Asset,
-        },
-      ],
     })),
   },
   {

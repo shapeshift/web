@@ -19,7 +19,9 @@ const getRouteAssetId = (pathname: string) => {
     assetSubId: string
     nftId?: string
   }>(pathname, {
-    path: assetIdPaths.map(path => [`/assets${path}`, `/lending/pool${path}`]).flat(),
+    path: assetIdPaths
+      .map(path => [`/markets/asset${path}`, `/wallet/asset${path}`, `/lending/pool${path}`])
+      .flat(),
   })
 
   const assetIdAccountsPathMatch = matchPath<{

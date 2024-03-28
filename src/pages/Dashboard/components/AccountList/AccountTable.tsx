@@ -133,7 +133,7 @@ export const AccountTable = memo(() => {
   const handleRowClick = useCallback(
     (row: Row<AccountRowData>) => {
       const { assetId } = row.original
-      const url = assetId ? `/assets/${assetId}` : ''
+      const url = assetId ? `/wallet/asset/${assetId}` : ''
       history.push(url)
     },
     [history],

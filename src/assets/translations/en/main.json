@@ -2223,7 +2223,7 @@
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     },
-    "unsafeBorrow": "This borrow has high slippage. Proceed with caution."
+    "unsafeBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution."
   },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",
@@ -2258,7 +2258,7 @@
     "availablePools": "Available Pools",
     "addLiquidity": "Add Liquidity",
     "customSlippageDisabled": "We are unable to set a custom slippage",
-    "unsafeQuote": "This deposit has high slippage. Proceed with caution.",
+    "unsafeQuote": "This deposit has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "removeLiquidity": "Remove Liquidity",
     "initialPricesAndPoolShare": "Initial Prices and Pool Share",
     "pricePerAsset": "%{from} per %{to}",

@@ -37,6 +37,19 @@ const inquireReleaseType = async (): Promise<ReleaseType> => {
   return (await inquirer.prompt(questions)).releaseType
 }
 
+const inquireCleanBranchOffMain = async (): Promise<boolean> => {
+  const questions: inquirer.QuestionCollection<{ isCleanlyBranched: boolean }> = [
+    {
+      type: 'confirm',
+      name: 'isCleanlyBranched',
+      message: 'Is your branch cleanly branched off origin/main?',
+      default: false, // Defaulting to false to encourage verification
+    },
+  ]
+  const { isCleanlyBranched } = await inquirer.prompt(questions)
+  return isCleanlyBranched
+}
+
 const inquireProceedWithCommits = async (commits: string[], action: 'create' | 'merge') => {
   console.log(chalk.blue(['', commits, ''].join('\n')))
   const message =
@@ -56,7 +69,7 @@ const inquireProceedWithCommits = async (commits: string[], action: 'create' | '
   if (!shouldProceed) exit('Release cancelled.')
 }
 
-const createDraftPR = async (): Promise<void> => {
+const createDraftRegularPR = async (): Promise<void> => {
   const { messages } = await getCommits('release')
   // TODO(0xdef1cafe): parse version bump from commit messages
   const formattedMessages = messages.map(m => m.replace(/"/g, '\\"'))
@@ -67,6 +80,20 @@ const createDraftPR = async (): Promise<void> => {
   await pify(exec)(command)
   console.log(chalk.green('Draft PR created.'))
   exit(chalk.green(`Release ${nextVersion} created.`))
+}
+
+const createDraftHotfixPR = async (): Promise<void> => {
+  const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
+  const { messages } = await getCommits(currentBranch as GetCommitMessagesArgs)
+  // TODO(0xdef1cafe): parse version bump from commit messages
+  const formattedMessages = messages.map(m => m.replace(/"/g, '\\"'))
+  const nextVersion = await getNextReleaseVersion('minor')
+  const title = `chore: hotfix release ${nextVersion}`
+  const command = `gh pr create --draft --base "main" --title "${title}" --body "${formattedMessages}"`
+  console.log(chalk.green('Creating draft hotfix PR...'))
+  await pify(exec)(command)
+  console.log(chalk.green('Draft hotfix PR created.'))
+  exit(chalk.green(`Hotfix release ${nextVersion} created.`))
 }
 
 type GetCommitMessagesArgs = 'develop' | 'release'
@@ -108,17 +135,47 @@ const doRegularRelease = async () => {
   await git().checkout(['-B', 'release'])
   console.log(chalk.green('Force pushing release branch...'))
   await git().push(['--force', 'origin', 'release'])
-  await createDraftPR()
+  await createDraftRegularPR()
   exit()
 }
 
-const doHotfixRelease = () => {
-  exit(chalk.yellow('Unimplemented. PRs welcome!'))
-  // TODO(0xdef1cafe): implement hotfix release
-  // 1. ask if we want to merge currently checked out branch to main
-  // 2. set release to current branch
-  // 3. force push release to origin
-  // 4. create draft PR
+const doHotfixRelease = async () => {
+  // Only continue if the branch is cleanly branched off origin/main since we will
+  // target it in the hotfix PR
+  const isCleanOffMain = await inquireCleanBranchOffMain()
+  if (!isCleanOffMain) {
+    exit(
+      chalk.yellow(
+        'Please ensure your branch is cleanly branched off origin/main before proceeding.',
+      ),
+    )
+  }
+
+  // Dev has confirmed they're clean off main, here goes nothing
+  await fetch()
+
+  const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
+  // Force push current branch upstream so we can getCommits from it - getCommits uses upstream for diffing
+  console.log(chalk.green(`Force pushing ${currentBranch} branch...`))
+  await git().push(['-u', 'origin', currentBranch, '--force'])
+  const { messages, total } = await getCommits(currentBranch as GetCommitMessagesArgs)
+  assertCommitsToRelease(total)
+  await inquireProceedWithCommits(messages, 'create')
+
+  // Merge origin/main as a paranoia check
+  console.log(chalk.green('Merging origin/main...'))
+  await git().merge(['origin/main'])
+
+  console.log(chalk.green('Setting release to current branch...'))
+  await git().checkout(['-B', 'release'])
+
+  console.log(chalk.green('Force pushing release branch...'))
+  await git().push(['--force', 'origin', 'release'])
+
+  console.log(chalk.green('Creating draft hotfix PR...'))
+  await createDraftHotfixPR()
+
+  exit(chalk.green('Hotfix release process completed.'))
 }
 
 type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>

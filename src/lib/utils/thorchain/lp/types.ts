@@ -201,6 +201,7 @@ export type LpConfirmedDepositQuote = {
   runeDepositAmountFiatUserCurrency: string
   shareOfPoolDecimalPercent: string
   slippageFiatUserCurrency: string
+  slippageDecimalPercentage: string
   opportunityId: string
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string

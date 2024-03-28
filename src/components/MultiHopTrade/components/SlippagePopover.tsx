@@ -2,6 +2,7 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
+  Box,
   Button,
   ButtonGroup,
   FormControl,
@@ -122,16 +123,18 @@ export const SlippagePopover: FC<SlippagePopoverProps> = memo(
 
     return (
       <Popover isLazy placement='bottom-end' onClose={handleClose}>
-        <PopoverTrigger>
-          <Tooltip isDisabled={!isDisabled} label={translate(tooltipTranslation)}>
-            <IconButton
-              aria-label={translate('trade.tradeSettings')}
-              icon={faGear}
-              variant='ghost'
-              isDisabled={isDisabled}
-            />
-          </Tooltip>
-        </PopoverTrigger>
+        <Tooltip isDisabled={!isDisabled} label={translate(tooltipTranslation)}>
+          <Box display='inline-block'>
+            <PopoverTrigger>
+              <IconButton
+                aria-label={translate('trade.tradeSettings')}
+                icon={faGear}
+                variant='ghost'
+                isDisabled={isDisabled}
+              />
+            </PopoverTrigger>
+          </Box>
+        </Tooltip>
         <PopoverContent>
           <PopoverBody>
             <Row>

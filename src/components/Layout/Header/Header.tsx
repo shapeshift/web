@@ -126,7 +126,7 @@ export const Header = memo(() => {
       snapModal.open({ isRemoved: true })
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {
-      history.push(`/wallet/asset/${btcAssetId}`)
+      history.push(`/markets/asset/${btcAssetId}`)
 
       // they installed the snap
       toast({

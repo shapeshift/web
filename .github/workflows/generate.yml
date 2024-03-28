@@ -4,8 +4,8 @@ on:
   # Allows manual triggering if we ever want to
   workflow_dispatch:
   pull_request:
-  # schedule:
-  # - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
+  schedule:
+  - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
 
 jobs:
   regenerate-and-create-pr:
@@ -16,45 +16,43 @@ jobs:
         with:
           ref: feat_attempt_run_ci_regenerate_action
 
-      # - name: Setup Node.js environment
-        # uses: actions/setup-node@v3
-        # with:
-          # node-version-file: '.nvmrc'
-          # cache: 'yarn'
-#
-      # - name: Yarn Install
-        # run: yarn install --immutable
-#
-      # - name: Setup env
-        # run: yarn env dev
-#
-      # - name: Build Packages
-        # run: yarn build:packages
-#
-      # - name: Generate CAIP adapters
-        # run: yarn generate:caip-adapters
-#
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Yarn Install
+        run: yarn install --immutable
+
+      - name: Setup env
+        run: yarn env dev
+
+      - name: Build Packages
+        run: yarn build:packages
+
+      - name: Generate CAIP adapters
+        run: yarn generate:caip-adapters
+
       # - name: Generate asset data
         # env:
           # ZERION_API_KEY: ${{ secrets.ZERION_API_KEY }}
         # run: yarn run generate:asset-data
 
-      # - name: Generate THOR assets
-        # run: yarn run generate:thor-asset-map
-#
-      # - name: Generate THOR long-tail assets
-        # run: yarn run generate:thor-longtail-tokens
-#
-      # - name: Generate color map
-        # run: yarn run generate:color-map
-#
-      # - name: Create new feature branch
-        # run: git checkout -B feat_regenerate_asset_data
+      - name: Generate THOR assets
+        run: yarn run generate:thor-asset-map
+
+      - name: Generate THOR long-tail assets
+        run: yarn run generate:thor-longtail-tokens
+
+      - name: Generate color map
+        run: yarn run generate:color-map
+
+      - name: Create new feature branch
+        run: git checkout -B feat_regenerate_asset_data
 
       - name: Commit changes
         run: |
-          # Can't touch this or can we?
-          touch this
           git checkout -B feat_regenerate_asset_data
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"

@@ -8,6 +8,17 @@ export const TagStyle = {
   sizes: {},
   // Styles for the visual style variations
   variants: {
+    subtle: (props: Record<string, any>) => {
+      const { colorScheme: c, theme } = props
+      if (c === 'red') {
+        return {
+          container: {
+            backgroundColor: transparentize(`${c}.600`, 0.2)(theme),
+            color: 'red.500',
+          },
+        }
+      }
+    },
     'xs-subtle': (props: Record<string, any>) => {
       const { colorScheme: c, theme } = props
       if (c === 'gray') {

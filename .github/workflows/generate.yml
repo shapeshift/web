@@ -1,0 +1,68 @@
+name: Regenerate Asset Data and PR
+
+on:
+  # Allows manual triggering if we ever want to
+  workflow_dispatch:
+  schedule:
+  - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
+
+jobs:
+  regenerate-and-create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Yarn Install
+        run: yarn install --immutable
+
+      - name: Setup env
+        run: yarn env dev
+
+      - name: Build Packages
+        run: yarn build:packages
+
+      - name: Generate CAIP adapters
+        run: yarn generate:caip-adapters
+
+      - name: Generate asset data
+        env:
+          ZERION_API_KEY: ${{ secrets.ZERION_API_KEY }}
+        run: yarn run generate:asset-data
+
+      - name: Generate THOR assets
+        run: yarn run generate:thor-asset-map
+
+      - name: Generate THOR long-tail assets
+        run: yarn run generate:thor-longtail-tokens
+
+      - name: Generate color map
+        run: yarn run generate:color-map
+
+      - name: Create new feature branch
+        run: git checkout -B feat_regenerate_asset_data
+
+      - name: Commit changes
+        run: |
+          git checkout -B feat_regenerate_asset_data
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          CURRENT_DATE=$(date +'%m/%d/%Y')
+          git diff --staged --quiet || git commit -m "feat: regenerate asset data $CURRENT_DATE"
+          git push -u origin feat_regenerate_asset_data -f
+
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_DATE=$(date +'%m/%d/%Y')
+          gh pr create --base develop --head feat_regenerate_asset_data --title "feat: regenerate asset data $CURRENT_DATE" --body "Generated from CI."

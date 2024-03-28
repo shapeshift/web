@@ -71,7 +71,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = props => {
     <InputGroup size='md' {...inputGroupProps}>
       {/* Override zIndex to prevent element displaying on overlay components */}
       <InputLeftElement pointerEvents='none' zIndex={1}>
-        <SearchIcon color='text.subtle' />
+        <SearchIcon color='text.subtlest' />
       </InputLeftElement>
       <Input
         variant='filled'

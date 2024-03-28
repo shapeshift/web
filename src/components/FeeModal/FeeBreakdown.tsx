@@ -1,25 +1,15 @@
 import { Divider, Heading, Stack } from '@chakra-ui/react'
-import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
-import { RawText, Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { RawText } from 'components/Text'
+import { BigNumber } from 'lib/bignumber/bignumber'
 import { FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectCalculatedFees } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 const divider = <Divider />
-
-const AmountOrFree = ({ isFree, amountUSD }: { isFree: boolean; amountUSD: string }) => {
-  return isFree ? (
-    <Text translation='common.free' color='text.success' />
-  ) : (
-    <Amount.Fiat fiatType='USD' value={amountUSD} />
-  )
-}
 
 type FeeBreakdownProps = {
   feeModel: ParameterModel
@@ -30,25 +20,11 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
   const translate = useTranslate()
   const feature = translate(FEE_MODEL_TO_FEATURE_NAME[feeModel])
   const featureFeeTranslation = translate('foxDiscounts.featureFee', { feature })
-  const votingPowerParams: { feeModel: ParameterModel } = useMemo(() => ({ feeModel }), [feeModel])
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const {
     feeUsd: affiliateFeeAmountUsd,
     foxDiscountUsd,
-    foxDiscountPercent,
     feeUsdBeforeDiscount,
-    feeBpsBeforeDiscount,
   } = useAppSelector(state => selectCalculatedFees(state, { feeModel, inputAmountUsd }))
-
-  const isFree = useMemo(() => bnOrZero(affiliateFeeAmountUsd).eq(0), [affiliateFeeAmountUsd])
-
-  const isFeeUnsupported = useMemo(() => {
-    return affiliateFeeAmountUsd.isZero() && bnOrZero(feeUsdBeforeDiscount).gt(0)
-  }, [affiliateFeeAmountUsd, feeUsdBeforeDiscount])
-
-  const feeDiscountUsd = useMemo(() => {
-    return isFeeUnsupported ? '0.00' : foxDiscountUsd.toFixed(2)
-  }, [foxDiscountUsd, isFeeUnsupported])
 
   return (
     <Stack spacing={0}>
@@ -66,34 +42,21 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
         <Row>
           <Row.Label>{featureFeeTranslation}</Row.Label>
           <Row.Value textAlign='right'>
-            <AmountOrFree isFree={isFeeUnsupported} amountUSD={feeUsdBeforeDiscount.toFixed(2)} />
-            <Amount
-              color='text.subtle'
-              fontSize='sm'
-              value={isFree ? '0' : feeBpsBeforeDiscount}
-              suffix='bps'
+            <Amount.Fiat
+              fiatType='USD'
+              value={feeUsdBeforeDiscount.toFixed(2, BigNumber.ROUND_HALF_UP)}
             />
           </Row.Value>
         </Row>
         <Row>
-          <Row.Label>{translate('foxDiscounts.currentFoxPower')}</Row.Label>
+          <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
           <Row.Value textAlign='right'>
-            <Amount.Crypto value={votingPower ?? '0'} symbol='FOX' maximumFractionDigits={0} />
+            <Amount.Fiat
+              fiatType='USD'
+              value={foxDiscountUsd.toFixed(2, BigNumber.ROUND_HALF_UP)}
+            />
           </Row.Value>
         </Row>
-        {!isFeeUnsupported && (
-          <Row>
-            <Row.Label>{translate('foxDiscounts.foxPowerDiscount')}</Row.Label>
-            <Row.Value textAlign='right'>
-              <Amount.Fiat fiatType='USD' value={feeDiscountUsd} />
-              <Amount.Percent
-                fontSize='sm'
-                value={isFree ? 1 : foxDiscountPercent.div(100).toNumber()}
-                color='text.success'
-              />
-            </Row.Value>
-          </Row>
-        )}
       </Stack>
       <Divider />
       <Row px={8} py={4}>
@@ -101,7 +64,10 @@ export const FeeBreakdown = ({ feeModel, inputAmountUsd }: FeeBreakdownProps) =>
           {translate('foxDiscounts.totalFeatureFee', { feature })}
         </Row.Label>
         <Row.Value fontSize='lg'>
-          <AmountOrFree isFree={isFree} amountUSD={affiliateFeeAmountUsd.toString()} />
+          <Amount.Fiat
+            fiatType='USD'
+            value={affiliateFeeAmountUsd.toFixed(2, BigNumber.ROUND_HALF_UP)}
+          />
         </Row.Value>
       </Row>
     </Stack>

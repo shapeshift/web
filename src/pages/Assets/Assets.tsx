@@ -1,19 +1,68 @@
-import { useMemo } from 'react'
+import { Flex } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
+import { matchSorter } from 'match-sorter'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetSearch } from 'components/AssetSearch/AssetSearch'
+import { useHistory } from 'react-router'
+import type { Row } from 'react-table'
+import { Display } from 'components/Display'
+import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
+import { MarketsTable } from 'components/MarketsTable'
+import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
+import { RawText } from 'components/Text'
+import { selectAssetsSortedByMarketCap } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const Assets = () => {
   const translate = useTranslate()
-  const maybeAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
-  const assets = useMemo(() => maybeAssets ?? [], [maybeAssets])
+  const [searchQuery, setSearchQuery] = useState('')
+  const history = useHistory()
+  const assets = useAppSelector(selectAssetsSortedByMarketCap)
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
+
+  const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
+    if (!filterValue) return rows
+    if (typeof filterValue !== 'string') {
+      return []
+    }
+    const search = filterValue.trim().toLowerCase()
+    const matchedAssets = matchSorter(rows, search, {
+      keys: ['name', 'symbol'],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+    return matchedAssets
+  }, [])
+  const rows = useMemo(() => {
+    return isSearching ? filterRowsBySearchTerm(assets, searchQuery) : assets
+  }, [assets, filterRowsBySearchTerm, isSearching, searchQuery])
+
+  const handleRowClick = useCallback(
+    (row: Row<Asset>) => {
+      const { assetId } = row.original
+      const url = assetId ? `/assets/${assetId}` : ''
+      history.push(url)
+    },
+    [history],
+  )
   return (
-    <Main display='flex' flexDir='column' height='calc(100vh - 72px)'>
+    <Main display='flex' flexDir='column' minHeight='calc(100vh - 72px)' isSubPage>
       <SEO title={translate('navBar.assets')} />
-      <AssetSearch assets={assets} allowWalletUnsupportedAssets />
+      <Display.Mobile>
+        <PageHeader>
+          <PageHeader.Left>
+            <PageBackButton />
+          </PageHeader.Left>
+          <PageHeader.Middle>
+            <RawText textAlign='center'>{translate('navBar.assets')}</RawText>
+          </PageHeader.Middle>
+          <Flex gridColumn='1 / span 3' order='4' mt={2}>
+            <GlobalFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+          </Flex>
+        </PageHeader>
+      </Display.Mobile>
+      <MarketsTable rows={rows} onRowClick={handleRowClick} />
     </Main>
   )
 }

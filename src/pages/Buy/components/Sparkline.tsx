@@ -1,8 +1,8 @@
-import { Box, Center, Spinner, useToken } from '@chakra-ui/react'
+import { Box, Center, useToken } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { curveLinear } from '@visx/curve'
+import { curveNatural } from '@visx/curve'
 import { LineSeries, XYChart } from '@visx/xychart'
 import { useMemo } from 'react'
 import {
@@ -13,14 +13,21 @@ import { useAppSelector } from 'state/store'
 
 type SparkLineProps = {
   assetId: AssetId
-  percentChange: number
+  percentChange?: number
+  themeColor?: string
+  height?: number
 }
 
-const xyChartMargin = { top: 0, left: 0, right: 0, bottom: 0 }
+const xyChartMargin = { top: 4, left: 0, right: 0, bottom: 4 }
 const xyChartxScale = { type: 'utc' } as const
 const xyChartYScale = { type: 'log' } as const
 
-export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) => {
+export const SparkLine: React.FC<SparkLineProps> = ({
+  assetId,
+  percentChange,
+  themeColor = 'blue',
+  height = 50,
+}) => {
   const assetIds = useMemo(() => [assetId], [assetId])
   const timeframe = HistoryTimeframe.DAY
 
@@ -39,20 +46,23 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
     }
   }, [])
 
-  const color = percentChange > 0 ? 'green.500' : 'red.500'
+  const color = useMemo(() => {
+    if (themeColor) return themeColor
+    if (percentChange) return percentChange > 0 ? 'green.500' : 'red.500'
+    return 'gray.500'
+  }, [percentChange, themeColor])
+
   const [chartColor] = useToken('colors', [color])
 
   return (
     <Box>
       {loading ? (
-        <Center width={100} height={50}>
-          <Spinner size='xs' />
-        </Center>
+        <Center width={100} height={height} />
       ) : (
         <XYChart
           margin={xyChartMargin}
           width={100}
-          height={50}
+          height={height}
           xScale={xyChartxScale}
           yScale={xyChartYScale}
         >
@@ -60,7 +70,8 @@ export const SparkLine: React.FC<SparkLineProps> = ({ assetId, percentChange }) 
             dataKey={`${assetId}-series`}
             data={priceData}
             stroke={chartColor}
-            curve={curveLinear}
+            strokeWidth={2}
+            curve={curveNatural}
             {...accessors}
           />
         </XYChart>

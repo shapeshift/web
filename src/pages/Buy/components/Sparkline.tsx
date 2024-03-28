@@ -46,15 +46,18 @@ export const SparkLine: React.FC<SparkLineProps> = ({
     }
   }, [])
 
-  const color = percentChange ? (percentChange > 0 ? 'green.500' : 'red.500') : themeColor
+  const color = useMemo(() => {
+    if (themeColor) return themeColor
+    if (percentChange) return percentChange > 0 ? 'green.500' : 'red.500'
+    return 'gray.500'
+  }, [percentChange, themeColor])
+
   const [chartColor] = useToken('colors', [color])
 
   return (
     <Box>
       {loading ? (
-        <Center width={100} height={height}>
-          {/* <Spinner size='xs' /> */}
-        </Center>
+        <Center width={100} height={height} />
       ) : (
         <XYChart
           margin={xyChartMargin}

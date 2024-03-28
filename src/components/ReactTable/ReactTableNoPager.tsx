@@ -136,6 +136,7 @@ export const ReactTableNoPager = <T extends {}>({
   return (
     <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
       {displayHeaders && (
+        // Can't useMemo this, breaks the dynamic bits of the header sorting
         <Thead>
           {headerGroups.map(headerGroup => (
             <Tr {...headerGroup.getHeaderGroupProps()}>
@@ -145,7 +146,6 @@ export const ReactTableNoPager = <T extends {}>({
                   color='text.subtle'
                   textAlign={column.textAlign}
                   display={column.display}
-                  // we need to pass an arg here, so we need an anonymous function wrapper
                   // eslint-disable-next-line react-memo/require-usememo
                   _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
                 >

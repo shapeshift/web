@@ -34,7 +34,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
   const translate = useTranslate()
   const history = useHistory()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const marketPrices = useAppSelector(selectMarketDataUserCurrency)
+  const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
 
   const { hasMore, next, data } = useInfiniteScroll(rows)
   const handleTradeClick = useCallback(
@@ -75,11 +75,11 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
       },
       {
         Header: () => <Text ml='auto' translation='dashboard.portfolio.price' />,
-        accessor: asset => marketPrices[asset.assetId]?.price ?? '0',
+        accessor: asset => marketDataUserCurrencyById[asset.assetId]?.price ?? '0',
         id: 'price',
         Cell: ({ value, row }: { value: string; row: RowProps }) => {
           const change = bnOrZero(
-            marketPrices[row.original.assetId]?.changePercent24Hr ?? '0',
+            marketDataUserCurrencyById[row.original.assetId]?.changePercent24Hr ?? '0',
           ).times(0.01)
           const colorScheme = change.isPositive() ? 'green' : 'red'
           const icon = change.isPositive() ? arrowUp : arrowDown
@@ -99,7 +99,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
 
       {
         Header: () => <Text translation='dashboard.portfolio.priceChange' />,
-        accessor: asset => marketPrices[asset.assetId]?.changePercent24Hr ?? '0',
+        accessor: asset => marketDataUserCurrencyById[asset.assetId]?.changePercent24Hr ?? '0',
         display: { base: 'none', lg: 'table-cell' },
         id: 'change',
         Cell: ({ value }: { value: string }) => (
@@ -112,7 +112,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
       },
       {
         Header: () => <Text translation='dashboard.portfolio.volume' />,
-        accessor: asset => marketPrices[asset.assetId]?.volume ?? '0',
+        accessor: asset => marketDataUserCurrencyById[asset.assetId]?.volume ?? '0',
 
         id: 'volume',
         display: { base: 'none', lg: 'table-cell' },
@@ -128,7 +128,7 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
         ),
       },
     ],
-    [handleTradeClick, marketPrices, translate],
+    [handleTradeClick, marketDataUserCurrencyById, translate],
   )
   return (
     <Stack px={paddingX} pb={6}>

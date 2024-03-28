@@ -34,7 +34,7 @@ type ReactTableProps<T extends {}> = {
   variant?: TableProps['variant']
   loadMore: () => void
   hasMore: boolean
-  scrollableTarget: string
+  scrollableTarget?: string
 }
 
 const tdStyle = { padding: 0 }

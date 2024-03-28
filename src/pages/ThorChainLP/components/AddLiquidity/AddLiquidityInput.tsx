@@ -103,6 +103,8 @@ import { ReadOnlyAsset } from '../ReadOnlyAsset'
 import { PoolSummary } from './components/PoolSummary'
 import { AddLiquidityRoutePaths } from './types'
 
+const UNSAFE_SLIPPAGE_DECIMAL_PERCENT = 0.05 // 5%
+
 const buttonProps = { flex: 1, justifyContent: 'space-between' }
 
 const formControlProps = {
@@ -193,6 +195,29 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     useState<string | undefined>()
   const [virtualRuneDepositAmountFiatUserCurrency, setVirtualRuneDepositAmountFiatUserCurrency] =
     useState<string | undefined>()
+
+  const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
+    null,
+  )
+
+  const handleAcknowledgeUnsafeQuote = useCallback(() => {
+    // We don't want to *immediately* set this or there will be a "click-through"
+    // i.e the regular continue button will render immediately, and click will bubble to it
+    setTimeout(() => {
+      setIsUnsafeQuoteNoticeDismissed(true)
+    }, 100)
+  }, [])
+
+  const isUnsafeQuote = useMemo(
+    () =>
+      confirmedQuote?.slippageDecimalPercentage &&
+      bn(confirmedQuote.slippageDecimalPercentage).gt(UNSAFE_SLIPPAGE_DECIMAL_PERCENT),
+    [confirmedQuote?.slippageDecimalPercentage],
+  )
+
+  useEffect(() => {
+    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
+  }, [isUnsafeQuote])
 
   const { data: pools } = usePools()
   const assets = useAppSelector(selectAssets)
@@ -1031,6 +1056,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       .div(userCurrencyToUsdRate)
       .toFixed()
 
+    const slippageDecimalPercentage = bnOrZero(slippageFiatUserCurrency)
+      .div(totalAmountFiatUserCurrency)
+      .toFixed()
+
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
@@ -1044,6 +1073,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       runeDepositAmountFiatUserCurrency: actualRuneDepositAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageFiatUserCurrency,
+      slippageDecimalPercentage,
       opportunityId: activeOpportunityId,
       currentAccountIdByChainId,
       totalAmountUsd,
@@ -1549,46 +1579,64 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         {incompleteAlert}
         {maybeOpportunityNotSupportedExplainer}
         {symAlert}
-        <Button
-          mx={-2}
-          size='lg'
-          colorScheme={errorCopy ? 'red' : 'blue'}
-          isDisabled={
-            isTradingActive === false ||
-            !isThorchainLpDepositEnabled ||
-            !confirmedQuote ||
-            !votingPower ||
-            isVotingPowerLoading ||
-            !hasEnoughAssetBalance ||
-            !hasEnoughRuneBalance ||
-            isApprovalTxPending ||
-            (isSweepNeededEnabled && isSweepNeeded === undefined) ||
-            isSweepNeededError ||
-            isEstimatedPoolAssetFeesDataError ||
-            isEstimatedRuneFeesDataError ||
-            bnOrZero(actualAssetDepositAmountCryptoPrecision)
-              .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
-              .isZero() ||
-            notEnoughFeeAssetError ||
-            notEnoughRuneFeeError ||
-            !walletSupportsOpportunity
-          }
-          isLoading={
-            (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
-            isVotingPowerLoading ||
-            isInboundAddressesDataLoading ||
-            isTradingActiveLoading ||
-            isSmartContractAccountAddressLoading ||
-            isAllowanceDataLoading ||
-            isApprovalTxPending ||
-            (isSweepNeeded === undefined && isSweepNeededLoading) ||
-            isInboundAddressesDataLoading ||
-            (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
-          }
-          onClick={handleSubmit}
-        >
-          {confirmCopy}
-        </Button>
+        {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
+          <>
+            <Flex direction='column' gap={2}>
+              <Alert status='error' width='auto' fontSize='sm' variant='solid'>
+                <AlertIcon color='red' />
+                <Stack spacing={0}>
+                  <AlertDescription lineHeight='short'>
+                    {translate('pools.unsafeQuote')}
+                  </AlertDescription>
+                </Stack>
+              </Alert>
+            </Flex>
+            <Button size='lg' colorScheme='red' onClick={handleAcknowledgeUnsafeQuote}>
+              <Text translation={'defi.modals.saversVaults.understand'} />
+            </Button>
+          </>
+        ) : (
+          <Button
+            mx={-2}
+            size='lg'
+            colorScheme={errorCopy ? 'red' : 'blue'}
+            isDisabled={
+              isTradingActive === false ||
+              !isThorchainLpDepositEnabled ||
+              !confirmedQuote ||
+              !votingPower ||
+              isVotingPowerLoading ||
+              !hasEnoughAssetBalance ||
+              !hasEnoughRuneBalance ||
+              isApprovalTxPending ||
+              (isSweepNeededEnabled && isSweepNeeded === undefined) ||
+              isSweepNeededError ||
+              isEstimatedPoolAssetFeesDataError ||
+              isEstimatedRuneFeesDataError ||
+              bnOrZero(actualAssetDepositAmountCryptoPrecision)
+                .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
+                .isZero() ||
+              notEnoughFeeAssetError ||
+              notEnoughRuneFeeError ||
+              !walletSupportsOpportunity
+            }
+            isLoading={
+              (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
+              isVotingPowerLoading ||
+              isInboundAddressesDataLoading ||
+              isTradingActiveLoading ||
+              isSmartContractAccountAddressLoading ||
+              isAllowanceDataLoading ||
+              isApprovalTxPending ||
+              (isSweepNeeded === undefined && isSweepNeededLoading) ||
+              isInboundAddressesDataLoading ||
+              (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
+            }
+            onClick={handleSubmit}
+          >
+            {confirmCopy}
+          </Button>
+        )}
       </CardFooter>
       <FeeModal
         isOpen={showFeeModal}

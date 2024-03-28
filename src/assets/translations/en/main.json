@@ -2258,6 +2258,7 @@
     "availablePools": "Available Pools",
     "addLiquidity": "Add Liquidity",
     "customSlippageDisabled": "We are unable to set a custom slippage",
+    "unsafeQuote": "This deposit has high slippage. Proceed with caution.",
     "removeLiquidity": "Remove Liquidity",
     "initialPricesAndPoolShare": "Initial Prices and Pool Share",
     "pricePerAsset": "%{from} per %{to}",

@@ -111,8 +111,9 @@ export const useWalletSupportsChain = (
   // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
   const isSnapInstalled = useIsSnapInstalled()
 
+  const chainAccountIdsFilter = useMemo(() => ({ chainId }), [chainId])
   const chainAccountIds = useAppSelector(state =>
-    selectAccountIdsByChainIdFilter(state, { chainId }),
+    selectAccountIdsByChainIdFilter(state, chainAccountIdsFilter),
   )
 
   const result = useMemo(() => {

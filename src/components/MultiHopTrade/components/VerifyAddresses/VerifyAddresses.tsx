@@ -70,10 +70,14 @@ export const VerifyAddresses = () => {
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
-  const buyAccountIds = useAppSelector(state =>
-    selectAccountIdsByChainIdFilter(state, {
+  const buyAccountIdsFilter = useMemo(
+    () => ({
       chainId: buyAssetAccountId ? fromAccountId(buyAssetAccountId).chainId : '',
     }),
+    [buyAssetAccountId],
+  )
+  const buyAccountIds = useAppSelector(state =>
+    selectAccountIdsByChainIdFilter(state, buyAccountIdsFilter),
   )
 
   const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)

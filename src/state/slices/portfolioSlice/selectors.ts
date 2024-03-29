@@ -704,6 +704,17 @@ export const selectAccountIdsByAssetId = createCachedSelector(
     `${state.portfolio.connectedWallet?.id}-${filter?.assetId}` ?? 'assetId',
 )
 
+export const selectAccountIdsByChainId = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  (accounts): Record<ChainId, AccountId[]> =>
+    Object.keys(accounts).reduce<Record<ChainId, AccountId[]>>((acc, accountId) => {
+      const chainId = fromAccountId(accountId).chainId
+      if (!acc[chainId]) acc[chainId] = []
+      acc[chainId].push(accountId)
+      return acc
+    }, {}),
+)
+
 export const selectAccountIdsByChainIdFilter = createCachedSelector(
   selectPortfolioAccounts,
   selectChainIdParamFromFilter,

@@ -13,9 +13,8 @@ import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import {
-  selectAccountIdsByChainIdFilter,
+  selectAccountIdsByChainId,
   selectAssetById,
-  selectPortfolioAccounts,
   selectWalletChainIds,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -34,16 +33,14 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     select: pools => pools.filter(pool => pool.status === 'Available'),
   })
 
-  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const walletSupportChains = useMemo(
     () =>
       Object.values(KnownChainIds).filter(chainId => {
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId })
+        const chainAccountIds = accountIdsByChainId[chainId]
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       }),
-    // Since we *have* to use the non-programmatic store.getState() above, this ensure the hook reruns on accounts referential invalidation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isSnapInstalled, portfolioAccounts, wallet],
+    [accountIdsByChainId, isSnapInstalled, wallet],
   )
 
   const walletChainIds = useSelector(selectWalletChainIds)

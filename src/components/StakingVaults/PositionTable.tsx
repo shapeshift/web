@@ -19,15 +19,14 @@ import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAccountIdsByChainIdFilter,
+  selectAccountIdsByChainId,
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
   selectOpportunityApiPending,
-  selectPortfolioAccounts,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { SearchEmpty } from './SearchEmpty'
 
@@ -96,14 +95,12 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const isSnapInstalled = useIsSnapInstalled()
-  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
 
   const filteredPositions = useMemo(
     () =>
       positions.filter(position => {
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), {
-          chainId: fromAssetId(position.assetId).chainId,
-        })
+        const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId]
         return walletSupportsChain({
           chainAccountIds,
           chainId: fromAssetId(position.assetId).chainId,
@@ -111,9 +108,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
           isSnapInstalled,
         })
       }),
-    // Since we *have* to use the non-reactive store.getState() above, this ensure the hook reruns on accounts referential invalidation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isSnapInstalled, positions, portfolioAccounts, wallet],
+    [accountIdsByChainId, isSnapInstalled, positions, wallet],
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(

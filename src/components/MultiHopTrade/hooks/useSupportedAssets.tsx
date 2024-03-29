@@ -6,12 +6,8 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swapper/swapperApi'
 import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
-import {
-  selectAccountIdsByChainIdFilter,
-  selectAssets,
-  selectPortfolioAccounts,
-} from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { selectAccountIdsByChainId, selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
   const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
@@ -19,18 +15,16 @@ export const useSupportedAssets = () => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
 
-  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const queryParams = useMemo(() => {
     return {
       walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId => {
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId })
+        const chainAccountIds = accountIdsByChainId[chainId]
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       }),
       sortedAssetIds: sortedAssets.map(asset => asset.assetId),
     }
-    // Since we *have* to use the non-reactive store.getState() above, this ensure the hook reruns on accounts referential invalidation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSnapInstalled, sortedAssets, portfolioAccounts, wallet])
+  }, [accountIdsByChainId, isSnapInstalled, sortedAssets, wallet])
 
   const { data, isLoading } = useGetSupportedAssetsQuery(queryParams)
 

@@ -18,23 +18,10 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from 'lib/utils'
-import { selectAccountIdsByChainId, selectAccountIdsByChainIdFilter } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { selectAccountIdsByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
-
-const checkAllNamespacesSupported = (
-  namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
-  wallet: HDWallet | null,
-): boolean => {
-  return Object.values(namespaces).every(
-    namespace =>
-      namespace.chains?.every(chainId => {
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId })
-        return walletSupportsChain({ chainId, wallet, isSnapInstalled: false, chainAccountIds })
-      }),
-  )
-}
 
 const checkAllNamespacesHaveAccounts = (
   namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
@@ -125,6 +112,25 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       )
     }, [])
 
+    const checkAllNamespacesSupported = useCallback(
+      (
+        namespaces: ProposalTypes.RequiredNamespaces | ProposalTypes.OptionalNamespaces,
+        wallet: HDWallet | null,
+      ): boolean =>
+        Object.values(namespaces).every(
+          namespace =>
+            namespace.chains?.every(chainId => {
+              return walletSupportsChain({
+                chainId,
+                wallet,
+                isSnapInstalled: false,
+                chainAccountIds: accountIdsByChainId[chainId],
+              })
+            }),
+        ),
+      [accountIdsByChainId],
+    )
+
     /*
   We need to pass an account for every supported namespace. If we can't, we cannot approve the session.
   https://docs.walletconnect.com/2.0/specs/clients/sign/session-namespaces#21-session-namespaces-must-not-have-accounts-empty
@@ -132,7 +138,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const allNamespacesSupported = useMemo(() => {
       const allRequiredNamespacesSupported = checkAllNamespacesSupported(requiredNamespaces, wallet)
       return allRequiredNamespacesSupported
-    }, [requiredNamespaces, wallet])
+    }, [checkAllNamespacesSupported, requiredNamespaces, wallet])
 
     /*
   All namespaces require at least one account in the response payload

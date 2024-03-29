@@ -96,7 +96,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!wallet) return
     ;(async () => {
       let chainIds = Array.from(supportedChains).filter(chainId => {
-        // TODO(gomes): add a debugger breakpoint here and confirm :thisisfine: before reopening this PR
         const chainAccountIds = accountIdsByChainId[chainId]
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       })
@@ -115,7 +114,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         const { getAccount } = portfolioApi.endpoints
         const accountPromises = accountIds.map(accountId =>
-          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
+          // We do not to refetch accounts here as AccountIdsByChainId get populated and this hook re-renders
+          dispatch(getAccount.initiate({ accountId }, { forceRefetch: false })),
         )
 
         const accountResults = await Promise.allSettled(accountPromises)

@@ -655,7 +655,11 @@ export const BorrowInput = ({
                   <AlertIcon color='red' />
                   <Stack spacing={0}>
                     <AlertDescription lineHeight='short'>
-                      {translate('lending.unsafeBorrow')}
+                      {translate('lending.unsafeBorrow', {
+                        slippagePercentage: bnOrZero(quoteSlippageDecimalPercentage)
+                          .times(100)
+                          .toFixed(2),
+                      })}
                     </AlertDescription>
                   </Stack>
                 </Alert>

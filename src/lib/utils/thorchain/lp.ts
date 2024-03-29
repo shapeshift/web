@@ -101,14 +101,14 @@ export const getSlippage = ({
   const numerator = bnOrZero(R).times(a).minus(bnOrZero(A).times(r))
   const denominator = bnOrZero(A).times(r).plus(bnOrZero(R).times(A))
 
-  const slippageBps = numerator.div(denominator).abs()
+  const slippageDecimalPercent = numerator.div(denominator).abs()
   const assetPriceInRune = bnOrZero(pool.balance_rune).div(pool.balance_asset)
 
   if (a.gt(0) && r.eq(0)) {
     const aInRune = a.times(assetPriceInRune)
     return {
-      decimalPercent: slippageBps.times(100).toFixed(),
-      runeAmountCryptoPrecision: fromThorBaseUnit(aInRune.times(slippageBps)).toFixed(
+      decimalPercent: slippageDecimalPercent.toFixed(),
+      runeAmountCryptoPrecision: fromThorBaseUnit(aInRune.times(slippageDecimalPercent)).toFixed(
         THOR_PRECISION,
       ),
     }
@@ -116,8 +116,10 @@ export const getSlippage = ({
 
   if (r.gt(0) && a.eq(0)) {
     return {
-      decimalPercent: slippageBps.times(100).toFixed(),
-      runeAmountCryptoPrecision: fromThorBaseUnit(r.times(slippageBps)).toFixed(THOR_PRECISION),
+      decimalPercent: slippageDecimalPercent.toFixed(),
+      runeAmountCryptoPrecision: fromThorBaseUnit(r.times(slippageDecimalPercent)).toFixed(
+        THOR_PRECISION,
+      ),
     }
   }
 

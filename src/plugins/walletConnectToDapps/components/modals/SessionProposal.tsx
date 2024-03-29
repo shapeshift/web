@@ -18,8 +18,8 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from 'lib/utils'
-import { selectAccountIdsByChainIdFilter } from 'state/slices/selectors'
-import { store } from 'state/store'
+import { selectAccountIdsByChainId, selectAccountIdsByChainIdFilter } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
@@ -107,6 +107,8 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
   ) => {
     assertIsDefined(proposal)
 
+    const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+
     const wallet = useWallet().state.wallet
     const translate = useTranslate()
 
@@ -149,7 +151,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         Object.entries(optionalNamespaces)
           .map(([key, namespace]): [string, ProposalTypes.BaseRequiredNamespace] => {
             namespace.chains = namespace.chains?.filter(chainId => {
-              const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId })
+              const chainAccountIds = accountIdsByChainId[chainId]
               const isRequired = requiredNamespaces[key]?.chains?.includes(chainId)
               const isSupported =
                 Object.values(KnownChainIds).includes(chainId as KnownChainIds) &&
@@ -163,7 +165,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
             return namespace.chains && namespace.chains.length > 0
           }),
       )
-    }, [optionalNamespaces, requiredNamespaces, wallet])
+    }, [accountIdsByChainId, optionalNamespaces, requiredNamespaces, wallet])
 
     const approvalNamespaces: SessionTypes.Namespaces = useMemo(
       () => createApprovalNamespaces(requiredNamespaces, optionalNamespaces, selectedAccountIds),

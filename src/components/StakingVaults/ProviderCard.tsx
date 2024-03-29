@@ -27,11 +27,11 @@ import type {
 } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
-  selectAccountIdsByChainIdFilter,
+  selectAccountIdsByChainId,
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
 } from 'state/slices/selectors'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 type ProviderCardProps = {
   isLoading?: boolean
@@ -53,6 +53,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   opportunities: { staking, lp },
   isLoading,
 }) => {
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const icon = getMetadataForProvider(provider)?.icon
   const isLoaded = !isLoading
 
@@ -69,15 +70,14 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const filteredDownStakingOpportunities = useMemo(
     () =>
       stakingOpportunities.filter(e => {
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), {
-          chainId: e.chainId,
-        })
+        const chainAccountIds = accountIdsByChainId[e.chainId]
+
         return (
           staking.includes(e.id as OpportunityId) &&
           walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
         )
       }),
-    [isSnapInstalled, staking, stakingOpportunities, wallet],
+    [accountIdsByChainId, isSnapInstalled, staking, stakingOpportunities, wallet],
   )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
@@ -85,15 +85,14 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const filteredDownLpOpportunities = useMemo(
     () =>
       lpOpportunities.filter(e => {
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), {
-          chainId: e.chainId,
-        })
+        const chainAccountIds = accountIdsByChainId[e.chainId]
+
         return (
           lp.includes(e.assetId as OpportunityId) &&
           walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
         )
       }),
-    [isSnapInstalled, lp, lpOpportunities, wallet],
+    [accountIdsByChainId, isSnapInstalled, lp, lpOpportunities, wallet],
   )
 
   if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null

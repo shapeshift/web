@@ -28,7 +28,7 @@ import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectAccountIdsByChainId,
+  selectAccountIdsByChainIdFilter,
   selectAssetIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
@@ -87,7 +87,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     const walletSupportedChainIds = Object.values(KnownChainIds).filter(chainId => {
-      const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
+      const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId })
       return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
@@ -99,7 +99,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ;(async () => {
       let chainIds = Array.from(supportedChains).filter(chainId => {
         // Note, in this particular case, we are *not* reactive on portfolioAccounts to avoid extremely costly re-runs of this effect
-        const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
+        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId })
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       })
 

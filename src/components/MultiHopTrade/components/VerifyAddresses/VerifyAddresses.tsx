@@ -29,7 +29,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
-  selectAccountIdsByChainId,
+  selectAccountIdsByChainIdFilter,
   selectInputBuyAsset,
   selectInputSellAsset,
   selectManualReceiveAddress,
@@ -71,7 +71,7 @@ export const VerifyAddresses = () => {
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
   const buyAccountIds = useAppSelector(state =>
-    selectAccountIdsByChainId(state, {
+    selectAccountIdsByChainIdFilter(state, {
       chainId: buyAssetAccountId ? fromAccountId(buyAssetAccountId).chainId : '',
     }),
   )

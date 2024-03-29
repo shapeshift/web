@@ -19,7 +19,7 @@ import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import {
-  selectAccountIdsByChainId,
+  selectAccountIdsByChainIdFilter,
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
   selectAssetsSortedByMarketCap,
@@ -101,7 +101,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const filteredPositions = useMemo(
     () =>
       positions.filter(position => {
-        const chainAccountIds = selectAccountIdsByChainId(store.getState(), {
+        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), {
           chainId: fromAssetId(position.assetId).chainId,
         })
         return walletSupportsChain({

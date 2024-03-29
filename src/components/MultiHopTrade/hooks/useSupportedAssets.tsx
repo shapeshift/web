@@ -7,7 +7,7 @@ import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swapper/swapperApi'
 import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
 import {
-  selectAccountIdsByChainId,
+  selectAccountIdsByChainIdFilter,
   selectAssets,
   selectPortfolioAccounts,
 } from 'state/slices/selectors'
@@ -23,7 +23,7 @@ export const useSupportedAssets = () => {
   const queryParams = useMemo(() => {
     return {
       walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId => {
-        const chainAccountIds = selectAccountIdsByChainId(store.getState(), { chainId })
+        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId })
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       }),
       sortedAssetIds: sortedAssets.map(asset => asset.assetId),

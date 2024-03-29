@@ -704,7 +704,7 @@ export const selectAccountIdsByAssetId = createCachedSelector(
     `${state.portfolio.connectedWallet?.id}-${filter?.assetId}` ?? 'assetId',
 )
 
-export const selectAccountIdsByChainId = createCachedSelector(
+export const selectAccountIdsByChainIdFilter = createCachedSelector(
   selectPortfolioAccounts,
   selectChainIdParamFromFilter,
   findAccountsByChainId,

@@ -34,7 +34,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
+import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 type WalletSupportsChainArgs = {
@@ -108,7 +108,9 @@ export const useWalletSupportsChain = (
   // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
   const isSnapInstalled = useIsSnapInstalled()
 
-  const chainAccountIds = useAppSelector(state => selectAccountIdsByChainId(state, { chainId }))
+  const chainAccountIds = useAppSelector(state =>
+    selectAccountIdsByChainIdFilter(state, { chainId }),
+  )
 
   const result = useMemo(() => {
     return walletSupportsChain({ isSnapInstalled, chainId, wallet, chainAccountIds })

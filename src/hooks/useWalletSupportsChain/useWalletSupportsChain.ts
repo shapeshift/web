@@ -65,12 +65,15 @@ export const walletSupportsChain = ({
     return true
   })()
 
+  // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
+  if (!hasRuntimeSupport) return false
+
   switch (chainId) {
     case btcChainId:
     case bchChainId:
     case dogeChainId:
     case ltcChainId:
-      return supportsBTC(wallet) && hasRuntimeSupport
+      return supportsBTC(wallet)
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
@@ -88,9 +91,9 @@ export const walletSupportsChain = ({
     case arbitrumNovaChainId:
       return supportsArbitrumNova(wallet)
     case cosmosChainId:
-      return supportsCosmos(wallet) && hasRuntimeSupport
+      return supportsCosmos(wallet)
     case thorchainChainId:
-      return supportsThorchain(wallet) && hasRuntimeSupport
+      return supportsThorchain(wallet)
     default: {
       return false
     }

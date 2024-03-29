@@ -114,7 +114,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         const { getAccount } = portfolioApi.endpoints
         const accountPromises = accountIds.map(accountId =>
-          // We do not to refetch accounts here as AccountIdsByChainId get populated and this hook re-renders
+          // We do not want to refetch accounts here as AccountIdsByChainId get populated and this hook re-renders
           dispatch(getAccount.initiate({ accountId }, { forceRefetch: false })),
         )
 

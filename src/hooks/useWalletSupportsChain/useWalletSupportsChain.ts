@@ -15,6 +15,7 @@ import {
   polygonChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -30,7 +31,7 @@ import {
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
@@ -51,13 +52,12 @@ export const walletSupportsChain = ({
   isSnapInstalled,
 }: WalletSupportsChainArgs): boolean | null => {
   if (!wallet) return false
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed, or Ledger without chain account ids (meaning the user didn't connect said chain's accounts)
   const hasRuntimeSupport = (() => {
     if (Boolean(isLedger(wallet) && !chainAccountIds.length)) return false
-    if (isMetaMaskMultichainWallet && !isSnapInstalled) return false
-    if (!isMetaMaskMultichainWallet) return true
+    // Non-EVM ChainIds are only supported with the MM multichain snap installed
+    if (isMetaMask(wallet) && !isSnapInstalled && !isEvmChainId(chainId)) return false
 
     // We are now sure we have runtime support for the chain.
     // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or

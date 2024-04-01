@@ -990,7 +990,6 @@
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
       "tokenAddress": "宛先アドレス",
-      "addressInput": "宛先、ENS または Yat",
       "scanQrCode": "QRコードをスキャン",
       "qrCode": "QRコード",
       "permissionsButton": "もう一度やり直してください",

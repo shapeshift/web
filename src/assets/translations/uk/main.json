@@ -990,7 +990,6 @@
       "broadcastingTransaction": "Транзакція відправляється",
       "youHaveSent": "Ви успішно відправили %{amount} %{symbol}",
       "tokenAddress": "На адресу",
-      "addressInput": "На адресу, ENS або Yat",
       "scanQrCode": "Відсканувати QR-код",
       "qrCode": "QR Code",
       "permissionsButton": "Спробуйте ще раз",

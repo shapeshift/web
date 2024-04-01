@@ -990,7 +990,6 @@
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
       "tokenAddress": "到地址",
-      "addressInput": "到地址、ENS 或 Yat",
       "scanQrCode": "扫描二维码",
       "qrCode": "二维码",
       "permissionsButton": "再试一次",

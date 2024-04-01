@@ -990,7 +990,6 @@
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
       "tokenAddress": "Adrese",
-      "addressInput": "Adrese, ENS veya Yat'a",
       "scanQrCode": "QR Kodunu Tara",
       "qrCode": "QR Kod",
       "permissionsButton": "Tekrar deneyin",

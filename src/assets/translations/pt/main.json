@@ -990,7 +990,6 @@
       "broadcastingTransaction": "Transmitindo Transação",
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
       "tokenAddress": "Endereço do token",
-      "addressInput": "Para o endereço, ENS ou Yat",
       "scanQrCode": "Digitalizar código QR",
       "qrCode": "QR Code",
       "permissionsButton": "Tente novamente",

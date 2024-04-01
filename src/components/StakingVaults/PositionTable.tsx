@@ -100,7 +100,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const filteredPositions = useMemo(
     () =>
       positions.filter(position => {
-        const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId]
+        const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
         return walletSupportsChain({
           chainAccountIds,
           chainId: fromAssetId(position.assetId).chainId,

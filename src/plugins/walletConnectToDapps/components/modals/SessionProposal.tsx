@@ -124,7 +124,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                 chainId,
                 wallet,
                 isSnapInstalled: false,
-                chainAccountIds: accountIdsByChainId[chainId],
+                chainAccountIds: accountIdsByChainId[chainId] ?? [],
               })
             }),
         ),
@@ -157,7 +157,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         Object.entries(optionalNamespaces)
           .map(([key, namespace]): [string, ProposalTypes.BaseRequiredNamespace] => {
             namespace.chains = namespace.chains?.filter(chainId => {
-              const chainAccountIds = accountIdsByChainId[chainId]
+              const chainAccountIds = accountIdsByChainId[chainId] ?? []
               const isRequired = requiredNamespaces[key]?.chains?.includes(chainId)
               const isSupported =
                 Object.values(KnownChainIds).includes(chainId as KnownChainIds) &&

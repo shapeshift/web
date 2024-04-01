@@ -37,7 +37,7 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
   const walletSupportChains = useMemo(
     () =>
       Object.values(KnownChainIds).filter(chainId => {
-        const chainAccountIds = accountIdsByChainId[chainId]
+        const chainAccountIds = accountIdsByChainId[chainId] ?? []
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       }),
     [accountIdsByChainId, isSnapInstalled, wallet],

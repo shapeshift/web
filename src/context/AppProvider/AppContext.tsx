@@ -86,7 +86,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     const walletSupportedChainIds = Object.values(KnownChainIds).filter(chainId => {
-      const chainAccountIds = accountIdsByChainId[chainId]
+      const chainAccountIds = accountIdsByChainId[chainId] ?? []
       return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
@@ -96,7 +96,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!wallet) return
     ;(async () => {
       let chainIds = Array.from(supportedChains).filter(chainId => {
-        const chainAccountIds = accountIdsByChainId[chainId]
+        const chainAccountIds = accountIdsByChainId[chainId] ?? []
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       })
 

@@ -70,7 +70,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const filteredDownStakingOpportunities = useMemo(
     () =>
       stakingOpportunities.filter(e => {
-        const chainAccountIds = accountIdsByChainId[e.chainId]
+        const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
 
         return (
           staking.includes(e.id as OpportunityId) &&
@@ -85,7 +85,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const filteredDownLpOpportunities = useMemo(
     () =>
       lpOpportunities.filter(e => {
-        const chainAccountIds = accountIdsByChainId[e.chainId]
+        const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
 
         return (
           lp.includes(e.assetId as OpportunityId) &&

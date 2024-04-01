@@ -28,8 +28,9 @@ import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectAccountIdsByChainId,
+  selectAccountIdsByChainIdFilter,
   selectAssetIds,
+  selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
@@ -37,7 +38,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -82,21 +83,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     require(`dayjs/locale/${selectedLocale}.js`)
   }, [selectedLocale])
 
-  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   useEffect(() => {
     if (!wallet) return
     const walletSupportedChainIds = Object.values(KnownChainIds).filter(chainId => {
-      const chainAccountIds = accountIdsByChainId[chainId] ?? []
+      const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId }) ?? []
       return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
-  }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet])
+    // Since we *have* to use the non-programmatic store.getState() above, this ensure the hook reruns on accounts referential invalidation
+  }, [dispatch, isSnapInstalled, portfolioAccounts, wallet])
 
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
       let chainIds = Array.from(supportedChains).filter(chainId => {
-        const chainAccountIds = accountIdsByChainId[chainId] ?? []
+        // Note, in this particular case, we are *not* reactive on portfolioAccounts to avoid extremely costly re-runs of this effect
+        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId }) ?? []
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       })
 
@@ -114,8 +117,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         const { getAccount } = portfolioApi.endpoints
         const accountPromises = accountIds.map(accountId =>
-          // We do not want to refetch accounts here as AccountIdsByChainId get populated and this hook re-renders
-          dispatch(getAccount.initiate({ accountId }, { forceRefetch: false })),
+          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
         )
 
         const accountResults = await Promise.allSettled(accountPromises)
@@ -150,7 +152,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }),
       )
     })()
-  }, [dispatch, wallet, supportedChains, isSnapInstalled, accountIdsByChainId])
+  }, [dispatch, wallet, supportedChains, isSnapInstalled])
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return

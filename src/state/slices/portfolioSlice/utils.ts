@@ -149,30 +149,6 @@ export const findAccountsByAssetId = (
   return result
 }
 
-export const findAccountsByChainId = (
-  portfolioAccounts: PortfolioSliceAccounts['byId'],
-  chainId?: ChainId,
-): AccountId[] => {
-  if (!chainId) return []
-  const result = Object.entries(portfolioAccounts).reduce<AccountId[]>(
-    (acc, [accountId, account]) => {
-      if (account.assetIds.some(assetId => fromAssetId(assetId).chainId === chainId))
-        acc.push(accountId)
-      return acc
-    },
-    [],
-  )
-
-  // If we don't find an account that has the given asset,
-  // return the account(s) for that given assets chain
-  if (result.length === 0 && chainId) {
-    return Object.keys(portfolioAccounts).filter(
-      accountId => chainId === fromAccountId(accountId).chainId,
-    )
-  }
-  return result
-}
-
 type PortfolioAccounts = {
   [k: AccountId]: Account<ChainId>
 }

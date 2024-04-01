@@ -76,7 +76,7 @@ import type {
   PortfolioAccounts,
 } from './portfolioSliceCommon'
 import { AssetEquityType } from './portfolioSliceCommon'
-import { findAccountsByAssetId, findAccountsByChainId } from './utils'
+import { findAccountsByAssetId } from './utils'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectWalletAccountIds,
@@ -716,9 +716,12 @@ export const selectAccountIdsByChainId = createDeepEqualOutputSelector(
 )
 
 export const selectAccountIdsByChainIdFilter = createCachedSelector(
-  selectPortfolioAccounts,
+  selectAccountIdsByChainId,
   selectChainIdParamFromFilter,
-  findAccountsByChainId,
+  (accountIdsByChainId, chainId): AccountId[] => {
+    if (!chainId) return []
+    return accountIdsByChainId[chainId] ?? []
+  },
 )(
   (state: ReduxState, filter) =>
     `${state.portfolio.connectedWallet?.id}-${filter?.chainId}` ?? 'chainId',

@@ -70,6 +70,9 @@ export const VerifyAddresses = () => {
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
+
+  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+
   const buyAccountIdsFilter = useMemo(
     () => ({
       chainId: buyAssetAccountId ? fromAccountId(buyAssetAccountId).chainId : '',
@@ -80,19 +83,25 @@ export const VerifyAddresses = () => {
     selectAccountIdsByChainIdFilter(state, buyAccountIdsFilter),
   )
 
-  const maybeManualReceiveAddress = useAppSelector(selectManualReceiveAddress)
-
   const shouldVerifyBuyAddress = useMemo(
     () =>
-      buyAssetAccountId &&
-      buyAccountMetadata &&
-      walletSupportsChain({
-        chainId: buyAsset.chainId,
-        wallet,
-        isSnapInstalled: false,
-        chainAccountIds: buyAccountIds,
-      }),
-    [buyAssetAccountId, buyAccountMetadata, buyAsset.chainId, wallet, buyAccountIds],
+      !maybeManualReceiveAddress ||
+      (buyAssetAccountId &&
+        buyAccountMetadata &&
+        walletSupportsChain({
+          chainId: buyAsset.chainId,
+          wallet,
+          isSnapInstalled: false,
+          chainAccountIds: buyAccountIds,
+        })),
+    [
+      maybeManualReceiveAddress,
+      buyAssetAccountId,
+      buyAccountMetadata,
+      buyAsset.chainId,
+      wallet,
+      buyAccountIds,
+    ],
   )
 
   const isAddressVerified = useCallback(
@@ -105,6 +114,7 @@ export const VerifyAddresses = () => {
   )
   const buyVerified = useMemo(
     () => Boolean(maybeManualReceiveAddress) || isAddressVerified(buyAddress ?? ''),
+
     [buyAddress, isAddressVerified, maybeManualReceiveAddress],
   )
 

@@ -707,10 +707,9 @@ export const selectAccountIdsByAssetId = createCachedSelector(
 export const selectAccountIdsByChainId = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   (accounts): Record<ChainId, AccountId[] | undefined> =>
-    Object.keys(accounts).reduce<Record<ChainId, AccountId[] | undefined>>((acc, accountId) => {
+    Object.keys(accounts).reduce<Record<ChainId, AccountId[]>>((acc, accountId) => {
       const chainId = fromAccountId(accountId).chainId
       if (!acc[chainId]) acc[chainId] = []
-      // TS is drunk, we just pushed an empty array to this in case acc[chainId] was undefined
       acc[chainId]!.push(accountId)
       return acc
     }, {}),

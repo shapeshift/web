@@ -91,7 +91,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
-    // Since we *have* to use the non-programmatic store.getState() above, accountIdsByChainId ensure the hook reruns on accounts referential invalidation
   }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet])
 
   useEffect(() => {
@@ -152,7 +151,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }),
       )
     })()
-  }, [dispatch, wallet, supportedChains, isSnapInstalled, accountIdsByChainId])
+  }, [dispatch, wallet, supportedChains, isSnapInstalled])
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return

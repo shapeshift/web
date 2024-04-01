@@ -1446,8 +1446,8 @@
         "2": "NOT",
         "3": "supported"
       },
-      "agreeItem2": "Only Account #1 in MetaMask is supported for the extra chains the ShapeShift Multichain Snap provides",
-      "agreeItem3": "To use the existing Ethereum chains provided by MetaMask, you must connect Account #1 to ShapeShift in MetaMask",
+      "agreeItem2": "Only Account #0 in MetaMask is supported for the extra chains the ShapeShift Multichain Snap provides",
+      "agreeItem3": "To use the existing Ethereum chains provided by MetaMask, you must connect Account #0 to ShapeShift in MetaMask",
       "agreeItem4": "By enabling the ShapeShift Multichain Snap, you acknowledge you are using it at your own risk",
       "readAndUnderstood": "I have read and understand",
       "seedBackedUp": "I have backed up my MetaMask seed phrase",

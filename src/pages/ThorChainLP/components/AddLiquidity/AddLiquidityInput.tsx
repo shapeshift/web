@@ -84,6 +84,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
+  selectAccountIdsByChainId,
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
@@ -157,6 +158,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [runeIsFiat, toggleRuneIsFiat] = useToggle(false)
   const [poolAssetIsFiat, togglePoolAssetIsFiat] = useToggle(false)
 
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
@@ -239,12 +241,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
       const walletSupportsRune = walletSupportsChain({
+        chainAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
       })
 
       const walletSupportsAsset = walletSupportsChain({
+        chainAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
         chainId: fromAssetId(assetId).chainId,
         wallet,
         isSnapInstalled,
@@ -260,7 +264,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       if (runeSupport) return AsymSide.Rune
       return 'sym'
     },
-    [wallet, isSnapInstalled, accountIdsByAssetId],
+    [accountIdsByChainId, wallet, isSnapInstalled, accountIdsByAssetId],
   )
 
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
@@ -283,7 +287,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
-      return walletSupportsChain({ chainId, wallet, isSnapInstalled })
+      const chainAccountIds = accountIdsByChainId[chainId] ?? []
+      return walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
     })
 
     const opportunityType = getDefaultOpportunityType(
@@ -304,6 +309,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetId,
     isSnapInstalled,
     wallet,
+    accountIdsByChainId,
   ])
 
   const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
@@ -392,16 +398,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const walletSupportsRune = useMemo(() => {
     const chainId = thorchainChainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
+    const chainAccountIds = accountIdsByChainId[chainId] ?? []
+    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
     return walletSupport && runeAccountIds.length > 0
-  }, [isSnapInstalled, runeAccountIds.length, wallet])
+  }, [accountIdsByChainId, isSnapInstalled, runeAccountIds.length, wallet])
 
   const walletSupportsAsset = useMemo(() => {
     if (!assetId) return false
     const chainId = fromAssetId(assetId).chainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
+    const chainAccountIds = accountIdsByChainId[chainId] ?? []
+    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
     return walletSupport && poolAssetAccountIds.length > 0
-  }, [isSnapInstalled, assetId, poolAssetAccountIds.length, wallet])
+  }, [assetId, accountIdsByChainId, wallet, isSnapInstalled, poolAssetAccountIds.length])
 
   // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
   // - as a default pool, so we can show some input and not some seemingly broken blank state

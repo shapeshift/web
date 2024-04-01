@@ -704,6 +704,29 @@ export const selectAccountIdsByAssetId = createCachedSelector(
     `${state.portfolio.connectedWallet?.id}-${filter?.assetId}` ?? 'assetId',
 )
 
+export const selectAccountIdsByChainId = createDeepEqualOutputSelector(
+  selectPortfolioAccounts,
+  (accounts): Record<ChainId, AccountId[] | undefined> =>
+    Object.keys(accounts).reduce<Record<ChainId, AccountId[]>>((acc, accountId) => {
+      const chainId = fromAccountId(accountId).chainId
+      if (!acc[chainId]) acc[chainId] = []
+      acc[chainId]!.push(accountId)
+      return acc
+    }, {}),
+)
+
+export const selectAccountIdsByChainIdFilter = createCachedSelector(
+  selectAccountIdsByChainId,
+  selectChainIdParamFromFilter,
+  (accountIdsByChainId, chainId): AccountId[] => {
+    if (!chainId) return []
+    return accountIdsByChainId[chainId] ?? []
+  },
+)(
+  (state: ReduxState, filter) =>
+    `${state.portfolio.connectedWallet?.id}-${filter?.chainId}` ?? 'chainId',
+)
+
 export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelector(
   selectPortfolioAccounts,
   selectAssetIdParamFromFilter,

@@ -48,12 +48,12 @@ const tvlToChartData = (
     }
   })
 
-const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval, [Interval, number]> = {
-  day: ['hour', 24],
+const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval | 'all', [Interval, number]> = {
+  // 7 days in 1 hour intervals
+  day: ['day', 24 * 7],
   week: ['hour', 24 * 7],
   month: ['day', 7 * 4],
-  // TODO(gomes): add this as a union
-  // all: 24 * 7 * 4, // TODO: we may or may not want to do something nicer for all?
+  all: ['month', 24],
 }
 
 const backgroundColor = 'rgba(188, 214, 240, 0.04)'
@@ -117,7 +117,7 @@ export const PoolChart = () => {
     asset: 'BTC.BTC',
   }
 
-  const [selectedInterval, setSelectedInterval] = useState<Interval>('day')
+  const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
 
   const runeMarketData = useAppSelector(state =>

@@ -184,8 +184,6 @@ export const getValuesFromQuoteResponse = ({
         .toFixed(0)
     : buyAmount
 
-  debugger
-
   const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
     buyAmountAfterFeesCryptoBaseUnit,
     buyAsset.precision,

@@ -38,8 +38,6 @@ export async function getCowSwapTradeQuote(
     affiliateBps,
   } = input
 
-  console.log({ potentialAffiliateBps, affiliateBps })
-
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)

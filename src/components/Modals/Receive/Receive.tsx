@@ -1,7 +1,7 @@
+import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { MemoryRouter } from 'react-router-dom'
-import { Dialog } from 'components/Modal/components/Dialog'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { ReceiveRoutes } from './ReceiveCommon'
@@ -18,11 +18,14 @@ const Receive = ({ asset, accountId }: ReceivePropsType) => {
   const { close, isOpen } = useModal('receive')
 
   return (
-    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <MemoryRouter initialEntries={entries}>
-        <ReceiveRouter assetId={asset?.assetId} accountId={accountId} />
-      </MemoryRouter>
-    </Dialog>
+    <Modal isOpen={isOpen} onClose={close} isCentered>
+      <ModalOverlay />
+      <ModalContent>
+        <MemoryRouter initialEntries={entries}>
+          <ReceiveRouter assetId={asset?.assetId} accountId={accountId} />
+        </MemoryRouter>
+      </ModalContent>
+    </Modal>
   )
 }
 

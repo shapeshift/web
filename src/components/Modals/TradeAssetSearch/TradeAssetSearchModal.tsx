@@ -1,17 +1,20 @@
+import {
+  Modal,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Dialog } from 'components/Modal/components/Dialog'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
-import {
-  DialogHeader,
-  DialogHeaderMiddle,
-  DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
 import type { TradeAssetSearchProps } from 'components/TradeAssetSearch/TradeAssetSearch'
 import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWindowSize } from 'hooks/useWindowSize/useWindowSize'
+import { breakpoints } from 'theme/theme'
 
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string
@@ -31,6 +34,8 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   title = 'common.selectAsset',
 }) => {
   const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const { height: windowHeight } = useWindowSize()
 
   const handleAssetClick = useCallback(
     (asset: Asset) => {
@@ -39,19 +44,22 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
     },
     [close, onAssetClick],
   )
+  const modalHeight = windowHeight
+    ? // Converts pixel units to vh for Modal component
+      Math.min(Math.round((680 / windowHeight) * 100), 80)
+    : 80
   return (
-    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <DialogHeader>
-        <DialogHeaderMiddle>{translate(title)}</DialogHeaderMiddle>
-        <DialogHeaderRight>
-          <DialogCloseButton />
-        </DialogHeaderRight>
-      </DialogHeader>
-      <TradeAssetSearch
-        onAssetClick={handleAssetClick}
-        allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
-      />
-    </Dialog>
+    <Modal isOpen={isOpen} onClose={close} isCentered={isLargerThanMd} trapFocus={false}>
+      <ModalOverlay />
+      <ModalContent height={`${modalHeight}vh`}>
+        <ModalHeader>{translate(title)}</ModalHeader>
+        <ModalCloseButton />
+        <TradeAssetSearch
+          onAssetClick={handleAssetClick}
+          allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+        />
+      </ModalContent>
+    </Modal>
   )
 }
 

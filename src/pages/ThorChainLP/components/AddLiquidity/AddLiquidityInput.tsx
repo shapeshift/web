@@ -321,6 +321,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { data: userLpData } = useUserLpData({ assetId: assetId ?? '' })
 
+  const hasAsymRunePosition = useMemo(() => {
+    if (!userLpData) return false
+    return userLpData.some(position => position.asym?.side === AsymSide.Rune)
+  }, [userLpData])
+  const disabledSymDepositAfterRune = useMemo(
+    () => opportunityType === 'sym' && hasAsymRunePosition,
+    [hasAsymRunePosition, opportunityType],
+  )
+
   const position = useMemo(() => {
     return userLpData?.find(data => data.opportunityId === activeOpportunityId)
   }, [activeOpportunityId, userLpData])
@@ -1253,7 +1262,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [position, translate])
 
-  const symAlert = useMemo(() => {
+  const maybeAlert = useMemo(() => {
     if (!(runeAsset && poolAsset)) return null
     if (opportunityType === 'sym') return null
 
@@ -1269,6 +1278,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       </Alert>
     )
   }, [poolAsset, runeAsset, translate, opportunityType])
+
+  const maybeSymAfterRuneAlert = useMemo(() => {
+    if (!disabledSymDepositAfterRune) return null
+
+    return (
+      <Alert status='warning' borderRadius='lg'>
+        <AlertIcon />
+        <Text translation={'pools.symAfterRuneAlert'} />
+      </Alert>
+    )
+  }, [disabledSymDepositAfterRune])
 
   const maybeOpportunityNotSupportedExplainer = useMemo(() => {
     if (walletSupportsOpportunity) return null
@@ -1584,7 +1604,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       >
         {incompleteAlert}
         {maybeOpportunityNotSupportedExplainer}
-        {symAlert}
+        {maybeAlert}
+        {maybeSymAfterRuneAlert}
         {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
           <>
             <Flex direction='column' gap={2}>
@@ -1609,6 +1630,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             size='lg'
             colorScheme={errorCopy ? 'red' : 'blue'}
             isDisabled={
+              disabledSymDepositAfterRune ||
               isTradingActive === false ||
               !isThorchainLpDepositEnabled ||
               !confirmedQuote ||

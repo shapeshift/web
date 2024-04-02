@@ -117,7 +117,9 @@ export const cowApi: SwapperApi = {
       : quoteBuyAmount
     const buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit = bn(
       buyAmountAfterAffiliateFeesCryptoBaseUnit,
-    ).minus(bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal))
+    )
+      .minus(bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal))
+      .toFixed(0)
 
     // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order
     // This was previously working as-is with fees being deducted from the sell amount at protocol-level, but we now we need to add them into the order
@@ -131,7 +133,7 @@ export const cowApi: SwapperApi = {
       // Another mutation from the original quote to go around the fact that CoW API flow is weird
       // they return us a quote with fees, but we have to zero them out when sending the order
       feeAmount: '0',
-      buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit.toFixed(0),
+      buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit,
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
       sellTokenBalance: ERC20_TOKEN_BALANCE,

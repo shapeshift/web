@@ -95,6 +95,9 @@ export const ChartComponent = ({ data }: { data: any }) => {
         width: chartContainerRef.current.offsetWidth,
         height: chartContainerRef.current.offsetHeight,
         localization: { priceFormatter },
+        timeScale: {
+          timeVisible: true,
+        },
       })
       const newSeries = chart.addAreaSeries({
         lineColor,

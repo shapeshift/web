@@ -99,16 +99,15 @@ export async function getCowSwapTradeQuote(
 
   const { data } = maybeQuoteResponse.unwrap()
 
-  const {
-    feeAmount: feeAmountInSellTokenCryptoBaseUnit,
-    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
-  } = data.quote
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
 
-  const { rate, buyAmountBeforeFeesCryptoBaseUnit } = getValuesFromQuoteResponse({
-    buyAsset,
-    sellAsset,
-    response: data,
-  })
+  const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
+    getValuesFromQuoteResponse({
+      buyAsset,
+      sellAsset,
+      response: data,
+      affiliateBps,
+    })
 
   const quote: TradeQuote = {
     id: data.id.toString(),

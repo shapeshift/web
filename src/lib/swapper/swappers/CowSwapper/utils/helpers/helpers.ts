@@ -12,9 +12,12 @@ import { Err, Ok } from '@sniptt/monads'
 import type { TypedDataDomain, TypedDataField } from 'ethers'
 import { TypedDataEncoder } from 'ethers'
 import { keccak256, stringToBytes } from 'viem'
-import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
+import {
+  convertBasisPointsToDecimalPercentage,
+  convertDecimalPercentageToBasisPoints,
+} from 'state/slices/tradeQuoteSlice/utils'
 
 import type { CowSwapQuoteResponse } from '../../types'
 import { CowNetwork } from '../../types'
@@ -158,18 +161,30 @@ type GetValuesFromQuoteResponseArgs = {
   buyAsset: Asset
   sellAsset: Asset
   response: CowSwapQuoteResponse
+  affiliateBps: string
 }
 
 export const getValuesFromQuoteResponse = ({
   buyAsset,
   sellAsset,
   response,
+  affiliateBps,
 }: GetValuesFromQuoteResponseArgs) => {
   const {
     sellAmount: sellAmountAfterFeesCryptoBaseUnit,
     feeAmount: feeAmountInSellTokenCryptoBaseUnit,
-    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+    buyAmount,
   } = response.quote
+
+  const hasAffiliateFee = bn(affiliateBps).gt(0)
+  // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
+  const buyAmountAfterFeesCryptoBaseUnit = hasAffiliateFee
+    ? bn(buyAmount)
+        .times(bn(1).minus(convertBasisPointsToDecimalPercentage(affiliateBps)))
+        .toFixed(0)
+    : buyAmount
+
+  debugger
 
   const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
     buyAmountAfterFeesCryptoBaseUnit,

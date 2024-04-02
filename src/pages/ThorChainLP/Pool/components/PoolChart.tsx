@@ -62,7 +62,7 @@ const priceFormatter = Intl.NumberFormat(currentLocale, {
 
 // @ts-ignore we can't make this a partial record as we need to use this as a tuple to spread as useQuery params
 const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval | 'all', [Interval, number]> = {
-  day: ['day', 24 * 7],
+  day: ['hour', 24],
   week: ['hour', 24 * 7],
   month: ['day', 7 * 4],
   all: ['month', 24],

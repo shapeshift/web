@@ -3,7 +3,7 @@ import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData } from 'lightweight-charts'
 import { ColorType, createChart } from 'lightweight-charts'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Interval } from 'react-queries/queries/midgard'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -48,8 +48,8 @@ const tvlToChartData = (
     }
   })
 
+// @ts-ignore we can't make this a partial record as we need to use this as a tuple to spread as useQuery params
 const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval | 'all', [Interval, number]> = {
-  // 7 days in 1 hour intervals
   day: ['day', 24 * 7],
   week: ['hour', 24 * 7],
   month: ['day', 7 * 4],
@@ -63,7 +63,7 @@ const areaTopColor = 'rgba(41, 98, 255, 0.5)'
 const areaBottomColor = 'rgba(41, 98, 255, 0.28)'
 
 export const ChartComponent = ({ data }: { data: any }) => {
-  const chartContainerRef = useRef(null)
+  const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     // TODO(gomes): we should pass data as props to keep things programmatic
@@ -94,8 +94,8 @@ export const ChartComponent = ({ data }: { data: any }) => {
 
       const handleResize = () => {
         chart.applyOptions({
-          width: chartContainerRef.current.offsetWidth,
-          height: chartContainerRef.current.offsetHeight,
+          width: chartContainerRef.current?.offsetWidth,
+          height: chartContainerRef.current?.offsetHeight,
         })
       }
 
@@ -120,6 +120,9 @@ export const PoolChart = () => {
   const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
 
+  const setSelectedVolumeDataType = useCallback(() => setSelectedDataType('volume'), [])
+  const setSelectedLiquidityDataType = useCallback(() => setSelectedDataType('liquidity'), [])
+
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
@@ -138,15 +141,12 @@ export const PoolChart = () => {
     <Stack spacing={4}>
       <Flex justifyContent='space-between' alignItems='center' p={4}>
         <ButtonGroup size='sm'>
-          <Button
-            isActive={selectedDataType === 'volume'}
-            onClick={() => setSelectedDataType('volume')}
-          >
+          <Button isActive={selectedDataType === 'volume'} onClick={setSelectedVolumeDataType}>
             Volume
           </Button>
           <Button
             isActive={selectedDataType === 'liquidity'}
-            onClick={() => setSelectedDataType('liquidity')}
+            onClick={setSelectedLiquidityDataType}
           >
             Liquidity
           </Button>
@@ -155,6 +155,7 @@ export const PoolChart = () => {
           {Object.keys(INTERVAL_PARAMS_BY_INTERVAL).map(interval => (
             <Button
               key={interval}
+              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => setSelectedInterval(interval as Interval)}
               variant={selectedInterval === interval ? 'solid' : 'outline'}
             >

@@ -48,11 +48,14 @@ const styles = {
       backgroundColor: 'background.surface.base',
       backgroundSize: 'cover',
       fontFeatureSettings: `'zero' on`,
-      overflowX: 'hidden',
+      minHeight: '100%',
+    },
+    '#root': {
+      background: 'background.surface.base',
     },
     html: {
       scrollBehavior: 'smooth',
-      height: '100%',
+      minHeight: '100vh',
     },
     h1: {
       fontSize: '4xl',
@@ -98,6 +101,18 @@ const styles = {
         hsla(210, 11%, 7%, 0.013) 83.6%,
         hsla(210, 11%, 7%, 0) 100%
       );`,
+    },
+    '.flex': {
+      display: 'flex',
+    },
+    '.flex-col': {
+      flexDirection: 'column',
+    },
+    '.h-full': {
+      height: '100%',
+    },
+    '.app-height': {
+      minHeight: '100vh',
     },
     '.scroll-container': {
       visibility: 'hidden',

@@ -18,6 +18,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import { v4 as uuid } from 'uuid'
 import { bn } from 'lib/bignumber/bignumber'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
@@ -105,9 +106,19 @@ export const cowApi: SwapperApi = {
     // For the slippage actually to be enforced, the final message to be signed needs to have slippage deducted.
     // Failure to do so means orders may take forever to be filled, or never be filled at all.
     const quoteBuyAmount = quote.buyAmount
-    const slippageDeductedBuyAmount = bn(quoteBuyAmount).minus(
-      bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal),
-    )
+
+    const hasAffiliateFee = bn(tradeQuote.affiliateBps).gt(0)
+
+    // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
+    const buyAmountAfterAffiliateFeesCryptoBaseUnit = hasAffiliateFee
+      ? bn(quoteBuyAmount)
+          .times(bn(1).minus(convertBasisPointsToDecimalPercentage(tradeQuote.affiliateBps)))
+          .toFixed(0)
+      : quoteBuyAmount
+    const buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit = bn(
+      buyAmountAfterAffiliateFeesCryptoBaseUnit,
+    ).minus(bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal))
+
     // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order
     // This was previously working as-is with fees being deducted from the sell amount at protocol-level, but we now we need to add them into the order
     // In other words, this means what was previously CoW being "feeless" as far as we're concerned
@@ -120,7 +131,7 @@ export const cowApi: SwapperApi = {
       // Another mutation from the original quote to go around the fact that CoW API flow is weird
       // they return us a quote with fees, but we have to zero them out when sending the order
       feeAmount: '0',
-      buyAmount: slippageDeductedBuyAmount.toFixed(0),
+      buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit.toFixed(0),
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
       sellTokenBalance: ERC20_TOKEN_BALANCE,

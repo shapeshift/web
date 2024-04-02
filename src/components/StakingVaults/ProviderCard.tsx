@@ -11,6 +11,7 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import type { Property } from 'csstype'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { opportunityRowGrid } from 'components/EarnDashboard/components/ProviderDetails/OpportunityTableHeader'
 import { WalletLpByAsset } from 'components/EarnDashboard/components/ProviderDetails/WalletLpByAsset'
@@ -26,6 +27,7 @@ import type {
 } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
+  selectAccountIdsByChainId,
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
 } from 'state/slices/selectors'
@@ -51,6 +53,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   opportunities: { staking, lp },
   isLoading,
 }) => {
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const icon = getMetadataForProvider(provider)?.icon
   const isLoaded = !isLoading
 
@@ -64,18 +67,32 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 
   const isSnapInstalled = useIsSnapInstalled()
 
-  const filteredDownStakingOpportunities = stakingOpportunities.filter(
-    e =>
-      staking.includes(e.id as OpportunityId) &&
-      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled }),
+  const filteredDownStakingOpportunities = useMemo(
+    () =>
+      stakingOpportunities.filter(e => {
+        const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
+
+        return (
+          staking.includes(e.id as OpportunityId) &&
+          walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
+        )
+      }),
+    [accountIdsByChainId, isSnapInstalled, staking, stakingOpportunities, wallet],
   )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const filteredDownLpOpportunities = lpOpportunities.filter(
-    e =>
-      lp.includes(e.assetId as OpportunityId) &&
-      walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled }),
+  const filteredDownLpOpportunities = useMemo(
+    () =>
+      lpOpportunities.filter(e => {
+        const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
+
+        return (
+          lp.includes(e.assetId as OpportunityId) &&
+          walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
+        )
+      }),
+    [accountIdsByChainId, isSnapInstalled, lp, lpOpportunities, wallet],
   )
 
   if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null

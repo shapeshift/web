@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty'
 import last from 'lodash/last'
 import values from 'lodash/values'
 import without from 'lodash/without'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
@@ -23,6 +23,7 @@ import {
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
   selectCryptoPriceHistoryTimeframe,
   selectFiatPriceHistoryTimeframe,
+  selectIsTxHistoryAvailableByFilter,
   selectSelectedCurrency,
   selectTxsByFilter,
   selectWalletId,
@@ -312,29 +313,17 @@ export type BalanceChartData = {
   rainbow: RainbowData[]
 }
 
-type UseBalanceChartDataReturn = {
-  balanceChartData: BalanceChartData
-  balanceChartDataLoading: boolean
-}
-
-type UseBalanceChartDataArgs = {
-  assetId?: AssetId
-  accountId?: AccountId
-  timeframe: HistoryTimeframe
-}
-
-type UseBalanceChartData = (args: UseBalanceChartDataArgs) => UseBalanceChartDataReturn
-
 /*
   we take the current asset balances, and work backwards, updating crypto
   balances and fiat prices for each time interval (bucket) of the chart
 */
-export const useBalanceChartData: UseBalanceChartData = args => {
-  const { assetId, accountId, timeframe } = args
+export const useBalanceChartData = (
+  timeframe: HistoryTimeframe,
+  assetId?: AssetId,
+  accountId?: AccountId,
+) => {
   const assets = useAppSelector(selectAssets)
   const walletId = useAppSelector(selectWalletId)
-  const [balanceChartDataLoading, setBalanceChartDataLoading] = useState(true)
-  const [balanceChartData, setBalanceChartData] = useState<BalanceChartData>(makeBalanceChartData())
 
   const filter = useMemo(() => ({ accountId }), [accountId])
   const balances = useAppSelector(s =>
@@ -368,7 +357,7 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
   // kick off requests for all the price histories we need
-  useFetchPriceHistories({ assetIds, timeframe })
+  useFetchPriceHistories(assetIds, timeframe)
   const cryptoPriceHistoryData = useAppSelector(state =>
     selectCryptoPriceHistoryTimeframe(state, timeframe),
   )
@@ -376,16 +365,27 @@ export const useBalanceChartData: UseBalanceChartData = args => {
   const fiatPriceHistoryData = useAppSelector(state =>
     selectFiatPriceHistoryTimeframe(state, timeframe),
   )
-  // loading state
-  useEffect(() => setBalanceChartDataLoading(true), [setBalanceChartDataLoading, timeframe])
 
-  // calculation
-  useEffect(() => {
+  const isTxHistoryAvailableFilter = useMemo(
+    () => ({ accountId, timeframe }),
+    [accountId, timeframe],
+  )
+  const isTxHistoryAvailable = useAppSelector(state =>
+    selectIsTxHistoryAvailableByFilter(state, isTxHistoryAvailableFilter),
+  )
+
+  const isInitializing = useMemo(() => {
     const noPriceHistoryData = !values(cryptoPriceHistoryData).flat().length
-    if (!walletId || !assetIds.length || isEmpty(balances) || noPriceHistoryData) {
-      return setBalanceChartDataLoading(true)
-    }
+    return (
+      !walletId ||
+      !assetIds.length ||
+      isEmpty(balances) ||
+      noPriceHistoryData ||
+      !isTxHistoryAvailable
+    )
+  }, [assetIds.length, balances, cryptoPriceHistoryData, isTxHistoryAvailable, walletId])
 
+  const balanceChartData = useMemo(() => {
     // create empty buckets based on the assets, current balances, and timeframe
     const emptyBuckets = makeBuckets({
       assetIds,
@@ -405,23 +405,31 @@ export const useBalanceChartData: UseBalanceChartData = args => {
       selectedCurrency,
     })
 
-    const chartData = bucketsToChartData(calculatedBuckets)
-
-    setBalanceChartData(chartData)
-    setBalanceChartDataLoading(false)
+    return bucketsToChartData(calculatedBuckets)
   }, [
-    assets,
-    assetIds,
-    accountId,
     cryptoPriceHistoryData,
-    fiatPriceHistoryData,
-    txs,
-    timeframe,
+    assetIds,
     balances,
-    setBalanceChartData,
-    walletId,
+    timeframe,
+    txs,
+    fiatPriceHistoryData,
+    assets,
     selectedCurrency,
   ])
 
-  return { balanceChartData, balanceChartDataLoading }
+  const loadingBalanceChartData = useMemo(() => {
+    return {
+      balanceChartDataLoading: true,
+      balanceChartData: makeBalanceChartData(),
+    }
+  }, [])
+
+  const loadedBalanceChartData = useMemo(() => {
+    return {
+      balanceChartDataLoading: false,
+      balanceChartData,
+    }
+  }, [balanceChartData])
+
+  return isInitializing ? loadingBalanceChartData : loadedBalanceChartData
 }

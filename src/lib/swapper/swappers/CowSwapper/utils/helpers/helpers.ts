@@ -14,12 +14,13 @@ import { TypedDataEncoder } from 'ethers'
 import { keccak256, stringToBytes } from 'viem'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
 import {
   convertBasisPointsToDecimalPercentage,
   convertDecimalPercentageToBasisPoints,
 } from 'state/slices/tradeQuoteSlice/utils'
 
-import type { CowSwapQuoteResponse } from '../../types'
+import type { AffiliateAppDataFragment, CowSwapQuoteResponse } from '../../types'
 import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
@@ -228,7 +229,10 @@ const generateAppDataFromDoc = async (
 
 const metadataApi = new MetadataApi()
 // See https://api.cow.fi/docs/#/default/post_api_v1_quote / https://github.com/cowprotocol/app-data
-export const getFullAppData = async (slippageTolerancePercentage: string) => {
+export const getFullAppData = async (
+  slippageTolerancePercentage: string,
+  affiliateAppDataFragment: AffiliateAppDataFragment,
+) => {
   const APP_CODE = 'shapeshift'
   const orderClass: OrderClass = { orderClass: 'market' }
   const quote = {
@@ -240,9 +244,28 @@ export const getFullAppData = async (slippageTolerancePercentage: string) => {
     metadata: {
       quote,
       orderClass,
+      ...affiliateAppDataFragment,
     },
   })
 
   const { fullAppData, appDataKeccak256 } = await generateAppDataFromDoc(appDataDoc)
   return { appDataHash: appDataKeccak256, appData: fullAppData }
+}
+
+export const getAffiliateAppDataFragmentByChainId = ({
+  affiliateBps,
+  chainId,
+}: {
+  affiliateBps: string
+  chainId: ChainId
+}): AffiliateAppDataFragment => {
+  const hasAffiliateFee = bn(affiliateBps).gt(0)
+  if (!hasAffiliateFee) return {}
+
+  return {
+    partnerFee: {
+      bps: convertBasisPointsToDecimalPercentage(affiliateBps).times(100).toFixed(),
+      recipient: getTreasuryAddressFromChainId(chainId),
+    },
+  }
 }

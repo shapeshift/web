@@ -17,6 +17,7 @@ import {
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
   assertValidTrade,
+  getAffiliateAppDataFragmentByChainId,
   getCowswapNetwork,
   getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
@@ -59,7 +60,15 @@ export async function getCowSwapTradeQuote(
   const network = maybeNetwork.unwrap()
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
-  const { appData, appDataHash } = await getFullAppData(slippageTolerancePercentageDecimal)
+  const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
+    affiliateBps,
+    chainId: sellAsset.chainId,
+  })
+
+  const { appData, appDataHash } = await getFullAppData(
+    slippageTolerancePercentageDecimal,
+    affiliateAppDataFragment,
+  )
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(

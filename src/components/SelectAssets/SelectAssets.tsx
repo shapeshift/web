@@ -1,16 +1,10 @@
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import { IconButton, ModalBody, ModalCloseButton, ModalHeader, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogCloseButton } from 'components/Modal/components/DialogCloseButton'
-import {
-  DialogHeader,
-  DialogHeaderLeft,
-  DialogHeaderMiddle,
-  DialogHeaderRight,
-} from 'components/Modal/components/DialogHeader'
+import { SlideTransition } from 'components/SlideTransition'
 import { TradeAssetSearch } from 'components/TradeAssetSearch/TradeAssetSearch'
 
 type SelectAssetsProps = {
@@ -18,23 +12,31 @@ type SelectAssetsProps = {
   onBack?: () => void
 }
 
-export const SelectAssets = ({ onClick, onBack }: SelectAssetsProps) => {
+const arrowBackIcon = <ArrowBackIcon />
+
+export const SelectAssets = ({ onClick, onBack: handleBack }: SelectAssetsProps) => {
   const translate = useTranslate()
   const handleAssetClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
   return (
-    <>
-      <DialogHeader>
-        <DialogHeaderLeft>
-          <DialogBackButton onClick={onBack} />
-        </DialogHeaderLeft>
-        <DialogHeaderMiddle>{translate('common.selectAsset')}</DialogHeaderMiddle>
-        <DialogHeaderRight>
-          <DialogCloseButton />
-        </DialogHeaderRight>
-      </DialogHeader>
-      <DialogBody height='100%' px={0} display='flex' flexDir='column'>
+    <SlideTransition>
+      <Stack direction='row' width='full' alignItems='center' px={4}>
+        <IconButton
+          variant='ghost'
+          icon={arrowBackIcon}
+          aria-label={translate('common.back')}
+          fontSize='xl'
+          size='sm'
+          isRound
+          onClick={handleBack}
+        />
+        <ModalHeader textAlign='center' flex={1}>
+          {translate('common.selectAsset')}
+        </ModalHeader>
+        <ModalCloseButton position='static' />
+      </Stack>
+      <ModalBody height='600px' px={2} display='flex' flexDir='column'>
         <TradeAssetSearch onAssetClick={handleAssetClick} />
-      </DialogBody>
-    </>
+      </ModalBody>
+    </SlideTransition>
   )
 }

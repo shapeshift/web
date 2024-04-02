@@ -5,6 +5,8 @@ import type { Route } from 'Routes/helpers'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 
+const pageHeight = { base: '100dvh', md: 'calc(100% - 72px)' }
+
 type PageProps = {
   children: ReactNode
   loading?: boolean
@@ -31,6 +33,7 @@ export const Page: React.FC<PageProps> = ({
       flexDir='column'
       pt={isSubpage ? 0 : 'env(safe-area-inset-top)'}
       pb='var(--mobile-nav-offset)'
+      minHeight={pageHeight}
       {...rest}
     >
       {error && !loading ? renderError() : loading ? renderLoading() : children}

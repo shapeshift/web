@@ -1,15 +1,21 @@
-import { Button, FormControl, FormLabel, Stack } from '@chakra-ui/react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import {
+  Button,
+  FormControl,
+  FormLabel,
+  IconButton,
+  ModalBody,
+  ModalCloseButton,
+  ModalFooter,
+  ModalHeader,
+  Stack,
+} from '@chakra-ui/react'
 import { ethChainId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
-import { DialogHeader } from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -21,6 +27,8 @@ import { useAppSelector } from 'state/store'
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
+
+const arrowBackIcon = <ArrowBackIcon />
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
@@ -90,14 +98,24 @@ export const Address = () => {
   if (!asset) return null
 
   return (
-    <SlideTransition className='flex flex-col h-full'>
-      <DialogHeader>
-        <DialogBackButton aria-label={translate('common.back')} onClick={handleClick} />
-        <DialogTitle textAlign='center'>
-          {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
-        </DialogTitle>
-      </DialogHeader>
-      <DialogBody>
+    <SlideTransition>
+      <IconButton
+        variant='ghost'
+        icon={arrowBackIcon}
+        aria-label={translate('common.back')}
+        position='absolute'
+        top={2}
+        left={3}
+        fontSize='xl'
+        size='sm'
+        isRound
+        onClick={handleClick}
+      />
+      <ModalHeader textAlign='center'>
+        {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
+      </ModalHeader>
+      <ModalCloseButton borderRadius='full' />
+      <ModalBody>
         <FormControl>
           <FormLabel color='text.subtle' w='full'>
             {translate('modals.send.sendForm.sendTo')}
@@ -110,8 +128,8 @@ export const Address = () => {
             )}
           />
         </FormControl>
-      </DialogBody>
-      <DialogFooter>
+      </ModalBody>
+      <ModalFooter>
         <Stack flex={1}>
           <Button
             width='full'
@@ -128,7 +146,7 @@ export const Address = () => {
             <Text translation='common.cancel' />
           </Button>
         </Stack>
-      </DialogFooter>
+      </ModalFooter>
     </SlideTransition>
   )
 }

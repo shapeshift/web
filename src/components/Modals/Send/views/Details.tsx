@@ -1,3 +1,4 @@
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -5,7 +6,12 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  IconButton,
   Input,
+  ModalBody,
+  ModalCloseButton,
+  ModalFooter,
+  ModalHeader,
   Stack,
   Tooltip,
   usePrevious,
@@ -23,11 +29,6 @@ import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
-import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
-import { DialogBody } from 'components/Modal/components/DialogBody'
-import { DialogFooter } from 'components/Modal/components/DialogFooter'
-import { DialogHeader } from 'components/Modal/components/DialogHeader'
-import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -54,6 +55,7 @@ const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 const controllerRules = {
   required: true,
 }
+const arrowBackIcon = <ArrowBackIcon />
 const accountDropdownButtonProps = { width: 'full', mb: 2, variant: 'solid' }
 const formHelperTextHoverStyle = { color: 'gray.400', transition: '.2s color ease' }
 
@@ -198,14 +200,24 @@ export const Details = () => {
   }
 
   return (
-    <SlideTransition loading={balancesLoading} className='flex flex-col h-full'>
-      <DialogHeader>
-        <DialogBackButton onClick={handleArrowBackClick} />
-        <DialogTitle textAlign='center'>
-          {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
-        </DialogTitle>
-      </DialogHeader>
-      <DialogBody>
+    <SlideTransition loading={balancesLoading}>
+      <IconButton
+        variant='ghost'
+        icon={arrowBackIcon}
+        aria-label={translate('common.back')}
+        position='absolute'
+        top={2}
+        left={3}
+        fontSize='xl'
+        size='sm'
+        isRound
+        onClick={handleArrowBackClick}
+      />
+      <ModalHeader textAlign='center'>
+        {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
+      </ModalHeader>
+      <ModalCloseButton borderRadius='full' />
+      <ModalBody>
         <AccountDropdown
           assetId={asset.assetId}
           defaultAccountId={accountId}
@@ -303,8 +315,8 @@ export const Details = () => {
             <Controller name={SendFormFields.Memo} render={renderController} />
           </FormControl>
         )}
-      </DialogBody>
-      <DialogFooter>
+      </ModalBody>
+      <ModalFooter>
         <Stack flex={1}>
           <Button
             width='full'
@@ -326,7 +338,7 @@ export const Details = () => {
             <Text translation='common.cancel' />
           </Button>
         </Stack>
-      </DialogFooter>
+      </ModalFooter>
     </SlideTransition>
   )
 }

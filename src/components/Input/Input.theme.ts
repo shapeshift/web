@@ -8,10 +8,6 @@ export const InputStyle = {
       _placeholder: {
         color: 'text.subtlest',
       },
-      transitionProperty: {
-        base: 'none',
-        md: 'common',
-      },
     },
   }),
   // Styles for the size variations

@@ -374,19 +374,18 @@ export const useBalanceChartData = (
     selectIsTxHistoryAvailableByFilter(state, isTxHistoryAvailableFilter),
   )
 
-  // calculation
-  return useMemo(() => {
+  const isInitializing = useMemo(() => {
     const noPriceHistoryData = !values(cryptoPriceHistoryData).flat().length
-    if (
+    return (
       !walletId ||
       !assetIds.length ||
       isEmpty(balances) ||
       noPriceHistoryData ||
       !isTxHistoryAvailable
-    ) {
-      return { balanceChartDataLoading: true, balanceChartData: makeBalanceChartData() }
-    }
+    )
+  }, [assetIds.length, balances, cryptoPriceHistoryData, isTxHistoryAvailable, walletId])
 
+  const balanceChartData = useMemo(() => {
     // create empty buckets based on the assets, current balances, and timeframe
     const emptyBuckets = makeBuckets({
       assetIds,
@@ -406,20 +405,31 @@ export const useBalanceChartData = (
       selectedCurrency,
     })
 
-    return {
-      balanceChartDataLoading: false,
-      balanceChartData: bucketsToChartData(calculatedBuckets),
-    }
+    return bucketsToChartData(calculatedBuckets)
   }, [
     cryptoPriceHistoryData,
-    walletId,
     assetIds,
     balances,
-    isTxHistoryAvailable,
     timeframe,
     txs,
     fiatPriceHistoryData,
     assets,
     selectedCurrency,
   ])
+
+  const loadingBalanceChartData = useMemo(() => {
+    return {
+      balanceChartDataLoading: true,
+      balanceChartData: makeBalanceChartData(),
+    }
+  }, [])
+
+  const loadedBalanceChartData = useMemo(() => {
+    return {
+      balanceChartDataLoading: false,
+      balanceChartData,
+    }
+  }, [balanceChartData])
+
+  return isInitializing ? loadingBalanceChartData : loadedBalanceChartData
 }

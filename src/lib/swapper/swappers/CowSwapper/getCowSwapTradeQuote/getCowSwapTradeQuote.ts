@@ -113,10 +113,8 @@ export async function getCowSwapTradeQuote(
   const quote: TradeQuote = {
     id: data.id.toString(),
     receiveAddress,
-    // CowSwap does not support affiliate bps
-    // But we still need to return them as 0, so they are properly displayed as such at view-layer
-    affiliateBps: '0',
-    potentialAffiliateBps: '0',
+    affiliateBps,
+    potentialAffiliateBps,
     rate,
     slippageTolerancePercentageDecimal,
     steps: [

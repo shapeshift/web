@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, gnosisChainId, isNft, polygonChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
@@ -282,15 +282,7 @@ export const txHistoryApi = createApi({
             try {
               let currentCursor = ''
               do {
-                const pageSize = (() => {
-                  switch (chainId) {
-                    case gnosisChainId:
-                    case polygonChainId:
-                      return 10
-                    default:
-                      return 100
-                  }
-                })()
+                const pageSize = 10
 
                 const requestCursor = currentCursor
                 const { cursor, transactions } = await adapter.getTxHistory({

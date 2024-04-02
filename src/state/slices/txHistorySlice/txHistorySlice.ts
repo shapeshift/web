@@ -229,15 +229,7 @@ export const txHistoryApi = createApi({
             try {
               let currentCursor = ''
               do {
-                const pageSize = (() => {
-                  switch (chainId) {
-                    case gnosisChainId:
-                    case polygonChainId:
-                      return 10
-                    default:
-                      return 100
-                  }
-                })()
+                const pageSize = 10
 
                 const requestCursor = currentCursor
                 const { cursor, transactions } = await adapter.getTxHistory({

@@ -1,19 +1,23 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
+import type { SingleValueData } from 'lightweight-charts'
 import { ColorType, createChart } from 'lightweight-charts'
 import { useEffect, useRef, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Interval } from 'react-queries/queries/midgard'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import type { MidgardSwapHistoryResponse } from 'lib/utils/thorchain/lp/types'
+import type {
+  MidgardSwapHistoryResponse,
+  MidgardTvlHistoryResponse,
+} from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const intervalsToChartData = (
+const swapHistoryToChartData = (
   swapHistory: MidgardSwapHistoryResponse | undefined,
   runePrice: string,
-) => {
+): SingleValueData<number>[] => {
   if (!swapHistory) return []
 
   return swapHistory.intervals.map(interval => {
@@ -27,6 +31,22 @@ const intervalsToChartData = (
     }
   })
 }
+
+const tvlToChartData = (
+  tvl: MidgardTvlHistoryResponse,
+  runePrice: string,
+): SingleValueData<number>[] =>
+  tvl.intervals.map(interval => {
+    // TODO(gomes): programmatic
+    const poolDepth = interval.poolsDepth.find(pool => pool.pool === 'BTC.BTC')
+    const poolTotalDepth = poolDepth?.totalDepth ?? '0'
+
+    const tvlFiat = fromThorBaseUnit(poolTotalDepth).times(runePrice).toFixed()
+    return {
+      time: Number(interval.startTime),
+      value: Number(tvlFiat),
+    }
+  })
 
 const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval, [Interval, number]> = {
   day: ['hour', 24],
@@ -98,24 +118,38 @@ export const PoolChart = () => {
   }
 
   const [selectedInterval, setSelectedInterval] = useState<Interval>('day')
+  const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
 
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
 
-  // TODO(gomes): handle loading state
-  const { isLoading: isSwapsDataLoading, data: swapsData } = useQuery({
-    // TODO(gomes): programmatic, make this work for month week etc
+  const { data: swapsData } = useQuery({
     ...reactQueries.midgard.swapsData(pool.asset, ...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval]),
-    select: data => intervalsToChartData(data, runeMarketData.price),
+    select: data => swapHistoryToChartData(data, runeMarketData.price),
+  })
+
+  const { data: tvl } = useQuery({
+    ...reactQueries.midgard.tvl(...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval]),
+    select: data => tvlToChartData(data, runeMarketData.price),
   })
 
   return (
     <Stack spacing={4}>
       <Flex justifyContent='space-between' alignItems='center' p={4}>
-        <ButtonGroup size='sm' isDisabled>
-          <Button>Volume</Button>
-          <Button>Liquidity</Button>
+        <ButtonGroup size='sm'>
+          <Button
+            isActive={selectedDataType === 'volume'}
+            onClick={() => setSelectedDataType('volume')}
+          >
+            Volume
+          </Button>
+          <Button
+            isActive={selectedDataType === 'liquidity'}
+            onClick={() => setSelectedDataType('liquidity')}
+          >
+            Liquidity
+          </Button>
         </ButtonGroup>
         <ButtonGroup size='sm'>
           {Object.keys(INTERVAL_PARAMS_BY_INTERVAL).map(interval => (
@@ -130,7 +164,7 @@ export const PoolChart = () => {
         </ButtonGroup>
       </Flex>
       <Center flex='1' flexDirection='column'>
-        <ChartComponent data={swapsData} />
+        <ChartComponent data={selectedDataType === 'volume' ? swapsData : tvl} />
       </Center>
     </Stack>
   )

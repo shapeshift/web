@@ -64,6 +64,8 @@ export const YourPositions = () => {
 
   const allUserLpData = useAllUserLpData()
 
+  console.log({ allUserLpData })
+
   const activePositions = useMemo(() => {
     return allUserLpData.filter(query => query.data?.positions.length)
   }, [allUserLpData])

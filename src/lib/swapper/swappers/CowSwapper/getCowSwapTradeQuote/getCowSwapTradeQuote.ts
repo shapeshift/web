@@ -34,7 +34,11 @@ export async function getCowSwapTradeQuote(
     chainId,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    potentialAffiliateBps,
+    affiliateBps,
   } = input
+
+  console.log({ potentialAffiliateBps, affiliateBps })
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??

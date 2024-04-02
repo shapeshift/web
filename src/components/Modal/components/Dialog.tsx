@@ -1,7 +1,7 @@
 import { Modal, ModalContent, ModalOverlay, useMediaQuery } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Drawer } from 'vaul'
 import { useDialog, withDialogProvider } from 'context/DialogContextProvider/DialogContextProvider'
 import { isMobile } from 'lib/globals'
@@ -44,13 +44,24 @@ const DialogWindow: React.FC<DialogProps> = ({
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { snapPoint, setIsOpen, isOpen: isDialogOpen } = useDialog()
 
+  const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
+
+  useEffect(() => {
+    function updateViewportHeight() {
+      setViewportHeight(window.visualViewport?.height || 0)
+    }
+
+    window.visualViewport?.addEventListener('resize', updateViewportHeight)
+    return () => window.visualViewport?.removeEventListener('resize', updateViewportHeight)
+  }, [])
+
   const contentStyle = useMemo(() => {
     return {
       maxHeight: isFullScreen ? '100vh' : 'calc(100% - env(safe-area-inset-top))',
-      height: isFullScreen ? '100dvh' : height,
+      height: isFullScreen ? viewportHeight : height,
       paddingTop: isFullScreen ? 'env(safe-area-inset-top)' : 0,
     }
-  }, [height, isFullScreen])
+  }, [height, isFullScreen, viewportHeight])
 
   useEffect(() => {
     setIsOpen(isOpen)

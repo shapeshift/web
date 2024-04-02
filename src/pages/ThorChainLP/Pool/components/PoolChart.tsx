@@ -66,7 +66,6 @@ export const ChartComponent = ({ data }: { data: any }) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    // TODO(gomes): we should pass data as props to keep things programmatic
     if (chartContainerRef.current && data) {
       const chart = createChart(chartContainerRef.current, {
         grid: {

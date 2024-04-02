@@ -1,6 +1,7 @@
+import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { useRef } from 'react'
 import { MemoryRouter } from 'react-router-dom'
-import { Dialog } from 'components/Modal/components/Dialog'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { Form } from './Form'
@@ -15,13 +16,17 @@ export type SendModalProps = {
 }
 
 export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
+  const initialRef = useRef<HTMLInputElement>(null)
   const { close, isOpen } = useModal('send')
 
   return (
-    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <MemoryRouter initialEntries={entries}>
-        <Form initialAssetId={assetId} accountId={accountId} input={input} />
-      </MemoryRouter>
-    </Dialog>
+    <Modal isOpen={isOpen} onClose={close} isCentered initialFocusRef={initialRef}>
+      <ModalOverlay />
+      <ModalContent maxW='500px'>
+        <MemoryRouter initialEntries={entries}>
+          <Form initialAssetId={assetId} accountId={accountId} input={input} />
+        </MemoryRouter>
+      </ModalContent>
+    </Modal>
   )
 }

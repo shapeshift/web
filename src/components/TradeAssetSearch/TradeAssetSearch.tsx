@@ -1,6 +1,6 @@
 import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
-import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
+import { Flex, Input, InputGroup, InputLeftElement, ModalHeader, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { FC, FormEvent } from 'react'
@@ -172,39 +172,31 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   return (
     <>
-      <Stack
-        gap={4}
-        px={4}
-        pb={4}
-        as='form'
-        visibility='visible'
-        borderBottomWidth={1}
-        borderColor='border.base'
-        onSubmit={handleSubmit}
-        {...formProps}
-      >
-        <Flex gap={2} alignItems='center'>
-          <InputGroup>
-            {/* Override zIndex to prevent element displaying on overlay components */}
-            <InputLeftElement pointerEvents='none' zIndex={1}>
-              <SearchIcon color='gray.300' />
-            </InputLeftElement>
-            <Input {...inputProps} />
-          </InputGroup>
-          <AllChainMenu
-            activeChainId={activeChainId}
-            chainIds={chainIds}
-            isActiveChainIdSupported={true}
-            isDisabled={false}
-            onMenuOptionClick={setActiveChainId}
-            buttonProps={buttonProps}
-            disableTooltip
-          />
-        </Flex>
-        <Flex flexWrap='wrap' gap={2}>
-          {quickAccessAssetButtons}
-        </Flex>
-      </Stack>
+      <ModalHeader pt={0} borderBottomWidth={1} borderColor='border.base'>
+        <Stack gap={4} as='form' visibility='visible' onSubmit={handleSubmit} {...formProps}>
+          <Flex gap={2} alignItems='center'>
+            <InputGroup>
+              {/* Override zIndex to prevent element displaying on overlay components */}
+              <InputLeftElement pointerEvents='none' zIndex={1}>
+                <SearchIcon color='gray.300' />
+              </InputLeftElement>
+              <Input {...inputProps} />
+            </InputGroup>
+            <AllChainMenu
+              activeChainId={activeChainId}
+              chainIds={chainIds}
+              isActiveChainIdSupported={true}
+              isDisabled={false}
+              onMenuOptionClick={setActiveChainId}
+              buttonProps={buttonProps}
+              disableTooltip
+            />
+          </Flex>
+          <Flex flexWrap='wrap' gap={2}>
+            {quickAccessAssetButtons}
+          </Flex>
+        </Stack>
+      </ModalHeader>
       {isSearching ? (
         <SearchTermAssetList
           activeChainId={activeChainId}

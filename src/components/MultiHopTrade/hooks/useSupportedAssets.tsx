@@ -6,7 +6,7 @@ import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSuppo
 import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swapper/swapperApi'
 import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAccountIdsByChainId, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {
@@ -15,14 +15,16 @@ export const useSupportedAssets = () => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
 
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const queryParams = useMemo(() => {
     return {
-      walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId =>
-        walletSupportsChain({ chainId, wallet, isSnapInstalled }),
-      ),
+      walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId => {
+        const chainAccountIds = accountIdsByChainId[chainId] ?? []
+        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+      }),
       sortedAssetIds: sortedAssets.map(asset => asset.assetId),
     }
-  }, [isSnapInstalled, sortedAssets, wallet])
+  }, [accountIdsByChainId, isSnapInstalled, sortedAssets, wallet])
 
   const { data, isLoading } = useGetSupportedAssetsQuery(queryParams)
 

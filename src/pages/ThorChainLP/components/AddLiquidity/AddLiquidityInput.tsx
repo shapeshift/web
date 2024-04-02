@@ -84,6 +84,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
+  selectAccountIdsByChainId,
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
@@ -102,6 +103,8 @@ import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
 import { PoolSummary } from './components/PoolSummary'
 import { AddLiquidityRoutePaths } from './types'
+
+const UNSAFE_SLIPPAGE_DECIMAL_PERCENT = 0.05 // 5%
 
 const buttonProps = { flex: 1, justifyContent: 'space-between' }
 
@@ -155,6 +158,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [runeIsFiat, toggleRuneIsFiat] = useToggle(false)
   const [poolAssetIsFiat, togglePoolAssetIsFiat] = useToggle(false)
 
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
@@ -194,6 +198,30 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [virtualRuneDepositAmountFiatUserCurrency, setVirtualRuneDepositAmountFiatUserCurrency] =
     useState<string | undefined>()
 
+  const [slippageDecimalPercentage, setSlippageDecimalPercentage] = useState<string | undefined>()
+  const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
+    null,
+  )
+
+  const handleAcknowledgeUnsafeQuote = useCallback(() => {
+    // We don't want to *immediately* set this or there will be a "click-through"
+    // i.e the regular continue button will render immediately, and click will bubble to it
+    setTimeout(() => {
+      setIsUnsafeQuoteNoticeDismissed(true)
+    }, 100)
+  }, [])
+
+  const isUnsafeQuote = useMemo(
+    () =>
+      slippageDecimalPercentage &&
+      bn(slippageDecimalPercentage).gt(UNSAFE_SLIPPAGE_DECIMAL_PERCENT),
+    [slippageDecimalPercentage],
+  )
+
+  useEffect(() => {
+    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
+  }, [isUnsafeQuote])
+
   const { data: pools } = usePools()
   const assets = useAppSelector(selectAssets)
 
@@ -213,12 +241,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
       const walletSupportsRune = walletSupportsChain({
+        chainAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
       })
 
       const walletSupportsAsset = walletSupportsChain({
+        chainAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
         chainId: fromAssetId(assetId).chainId,
         wallet,
         isSnapInstalled,
@@ -234,7 +264,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       if (runeSupport) return AsymSide.Rune
       return 'sym'
     },
-    [wallet, isSnapInstalled, accountIdsByAssetId],
+    [accountIdsByChainId, wallet, isSnapInstalled, accountIdsByAssetId],
   )
 
   // TODO(gomes): Even though that's an edge case for users, and a bad practice, handling sym and asymm positions simultaneously
@@ -257,7 +287,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
-      return walletSupportsChain({ chainId, wallet, isSnapInstalled })
+      const chainAccountIds = accountIdsByChainId[chainId] ?? []
+      return walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
     })
 
     const opportunityType = getDefaultOpportunityType(
@@ -278,6 +309,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetId,
     isSnapInstalled,
     wallet,
+    accountIdsByChainId,
   ])
 
   const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
@@ -366,16 +398,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const walletSupportsRune = useMemo(() => {
     const chainId = thorchainChainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
+    const chainAccountIds = accountIdsByChainId[chainId] ?? []
+    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
     return walletSupport && runeAccountIds.length > 0
-  }, [isSnapInstalled, runeAccountIds.length, wallet])
+  }, [accountIdsByChainId, isSnapInstalled, runeAccountIds.length, wallet])
 
   const walletSupportsAsset = useMemo(() => {
     if (!assetId) return false
     const chainId = fromAssetId(assetId).chainId
-    const walletSupport = walletSupportsChain({ chainId, wallet, isSnapInstalled })
+    const chainAccountIds = accountIdsByChainId[chainId] ?? []
+    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
     return walletSupport && poolAssetAccountIds.length > 0
-  }, [isSnapInstalled, assetId, poolAssetAccountIds.length, wallet])
+  }, [assetId, accountIdsByChainId, wallet, isSnapInstalled, poolAssetAccountIds.length])
 
   // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
   // - as a default pool, so we can show some input and not some seemingly broken blank state
@@ -989,6 +1023,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         assetId: poolAsset.assetId,
       })
 
+      setSlippageDecimalPercentage(estimate.slippageDecimalPercent)
+
       const _slippageFiatUserCurrency = bnOrZero(estimate.slippageRuneCryptoPrecision)
         .times(runeMarketData.price)
         .toFixed()
@@ -1549,46 +1585,66 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         {incompleteAlert}
         {maybeOpportunityNotSupportedExplainer}
         {symAlert}
-        <Button
-          mx={-2}
-          size='lg'
-          colorScheme={errorCopy ? 'red' : 'blue'}
-          isDisabled={
-            isTradingActive === false ||
-            !isThorchainLpDepositEnabled ||
-            !confirmedQuote ||
-            !votingPower ||
-            isVotingPowerLoading ||
-            !hasEnoughAssetBalance ||
-            !hasEnoughRuneBalance ||
-            isApprovalTxPending ||
-            (isSweepNeededEnabled && isSweepNeeded === undefined) ||
-            isSweepNeededError ||
-            isEstimatedPoolAssetFeesDataError ||
-            isEstimatedRuneFeesDataError ||
-            bnOrZero(actualAssetDepositAmountCryptoPrecision)
-              .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
-              .isZero() ||
-            notEnoughFeeAssetError ||
-            notEnoughRuneFeeError ||
-            !walletSupportsOpportunity
-          }
-          isLoading={
-            (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
-            isVotingPowerLoading ||
-            isInboundAddressesDataLoading ||
-            isTradingActiveLoading ||
-            isSmartContractAccountAddressLoading ||
-            isAllowanceDataLoading ||
-            isApprovalTxPending ||
-            (isSweepNeeded === undefined && isSweepNeededLoading) ||
-            isInboundAddressesDataLoading ||
-            (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
-          }
-          onClick={handleSubmit}
-        >
-          {confirmCopy}
-        </Button>
+        {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
+          <>
+            <Flex direction='column' gap={2}>
+              <Alert status='error' width='auto' fontSize='sm' variant='solid'>
+                <AlertIcon color='red' />
+                <Stack spacing={0}>
+                  <AlertDescription lineHeight='short'>
+                    {translate('pools.unsafeQuote', {
+                      slippagePercentage: bnOrZero(slippageDecimalPercentage).times(100).toFixed(2),
+                    })}
+                  </AlertDescription>
+                </Stack>
+              </Alert>
+            </Flex>
+            <Button size='lg' colorScheme='red' onClick={handleAcknowledgeUnsafeQuote}>
+              <Text translation={'defi.modals.saversVaults.understand'} />
+            </Button>
+          </>
+        ) : (
+          <Button
+            mx={-2}
+            size='lg'
+            colorScheme={errorCopy ? 'red' : 'blue'}
+            isDisabled={
+              isTradingActive === false ||
+              !isThorchainLpDepositEnabled ||
+              !confirmedQuote ||
+              !votingPower ||
+              isVotingPowerLoading ||
+              !hasEnoughAssetBalance ||
+              !hasEnoughRuneBalance ||
+              isApprovalTxPending ||
+              (isSweepNeededEnabled && isSweepNeeded === undefined) ||
+              isSweepNeededError ||
+              isEstimatedPoolAssetFeesDataError ||
+              isEstimatedRuneFeesDataError ||
+              bnOrZero(actualAssetDepositAmountCryptoPrecision)
+                .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
+                .isZero() ||
+              notEnoughFeeAssetError ||
+              notEnoughRuneFeeError ||
+              !walletSupportsOpportunity
+            }
+            isLoading={
+              (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
+              isVotingPowerLoading ||
+              isInboundAddressesDataLoading ||
+              isTradingActiveLoading ||
+              isSmartContractAccountAddressLoading ||
+              isAllowanceDataLoading ||
+              isApprovalTxPending ||
+              (isSweepNeeded === undefined && isSweepNeededLoading) ||
+              isInboundAddressesDataLoading ||
+              (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
+            }
+            onClick={handleSubmit}
+          >
+            {confirmCopy}
+          </Button>
+        )}
       </CardFooter>
       <FeeModal
         isOpen={showFeeModal}

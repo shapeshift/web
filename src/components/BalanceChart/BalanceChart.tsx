@@ -25,11 +25,11 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   setPercentChange,
   isRainbowChart,
 }) => {
-  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData({
+  const { balanceChartData, balanceChartDataLoading } = useBalanceChartData(
+    timeframe,
     assetId,
     accountId,
-    timeframe,
-  })
+  )
 
   const { total } = balanceChartData
 
@@ -42,8 +42,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
       <Graph
         color={color}
         data={balanceChartData}
-        loading={balanceChartDataLoading}
-        isLoaded={!balanceChartDataLoading}
+        isLoading={balanceChartDataLoading}
         isRainbowChart={isRainbowChart}
       />
     </Box>

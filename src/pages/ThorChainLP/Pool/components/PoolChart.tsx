@@ -1,11 +1,13 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData } from 'lightweight-charts'
 import { ColorType, createChart } from 'lightweight-charts'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Interval } from 'react-queries/queries/midgard'
+import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import type {
   MidgardSwapHistoryResponse,
@@ -13,6 +15,12 @@ import type {
 } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+const backgroundColor = 'rgba(188, 214, 240, 0.04)'
+const lineColor = '#2962FF'
+const textColor = 'white'
+const areaTopColor = 'rgba(41, 98, 255, 0.5)'
+const areaBottomColor = 'rgba(41, 98, 255, 0.28)'
 
 const swapHistoryToChartData = (
   swapHistory: MidgardSwapHistoryResponse | undefined,
@@ -35,10 +43,10 @@ const swapHistoryToChartData = (
 const tvlToChartData = (
   tvl: MidgardTvlHistoryResponse,
   runePrice: string,
+  thorchainNotationAssetId: string,
 ): SingleValueData<number>[] =>
   tvl.intervals.map(interval => {
-    // TODO(gomes): programmatic
-    const poolDepth = interval.poolsDepth.find(pool => pool.pool === 'BTC.BTC')
+    const poolDepth = interval.poolsDepth.find(pool => pool.pool === thorchainNotationAssetId)
     const poolTotalDepth = poolDepth?.totalDepth ?? '0'
 
     const tvlFiat = fromThorBaseUnit(poolTotalDepth).times(runePrice).toFixed()
@@ -56,17 +64,10 @@ const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval | 'all', [Interval, number]> 
   all: ['month', 24],
 }
 
-const backgroundColor = 'rgba(188, 214, 240, 0.04)'
-const lineColor = '#2962FF'
-const textColor = 'white'
-const areaTopColor = 'rgba(41, 98, 255, 0.5)'
-const areaBottomColor = 'rgba(41, 98, 255, 0.28)'
-
 export const ChartComponent = ({ data }: { data: any }) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    // TODO(gomes): we should pass data as props to keep things programmatic
     if (chartContainerRef.current && data) {
       const chart = createChart(chartContainerRef.current, {
         grid: {
@@ -108,14 +109,17 @@ export const ChartComponent = ({ data }: { data: any }) => {
     }
   }, [data])
 
-  return <div ref={chartContainerRef} style={{ width: '100%', height: '500px' }} /> // Set a minimum height for the chart
+  return <div ref={chartContainerRef} style={{ width: '100%', height: '500px' }} />
 }
 
-export const PoolChart = () => {
-  // TODO(gomes): programmatic
-  const pool = {
-    asset: 'BTC.BTC',
-  }
+type PoolChartProps = {
+  poolAssetId: AssetId
+}
+export const PoolChart = ({ poolAssetId }: PoolChartProps) => {
+  const thorchainNotationAssetId = useMemo(
+    () => assetIdToPoolAssetId({ assetId: poolAssetId }) ?? '',
+    [poolAssetId],
+  )
 
   const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
@@ -128,13 +132,16 @@ export const PoolChart = () => {
   )
 
   const { data: swapsData } = useQuery({
-    ...reactQueries.midgard.swapsData(pool.asset, ...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval]),
+    ...reactQueries.midgard.swapsData(
+      thorchainNotationAssetId,
+      ...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval],
+    ),
     select: data => swapHistoryToChartData(data, runeMarketData.price),
   })
 
   const { data: tvl } = useQuery({
     ...reactQueries.midgard.tvl(...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval]),
-    select: data => tvlToChartData(data, runeMarketData.price),
+    select: data => tvlToChartData(data, runeMarketData.price, thorchainNotationAssetId),
   })
 
   return (

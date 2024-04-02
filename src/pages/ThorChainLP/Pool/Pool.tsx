@@ -182,7 +182,7 @@ export const Pool = () => {
             </Card>
             <Card flex={1}>
               <CardBody>
-                <PoolChart />
+                <PoolChart poolAssetId={poolAssetId} />
               </CardBody>
             </Card>
           </Flex>

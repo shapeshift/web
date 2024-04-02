@@ -13,8 +13,11 @@ import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
 } from 'lib/utils/thorchain/lp/types'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectSelectedCurrency,
+} from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 const backgroundColor = 'rgba(188, 214, 240, 0.04)'
 const lineColor = '#2962FF'
@@ -56,6 +59,15 @@ const tvlToChartData = (
     }
   })
 
+const currentLocale = window.navigator.languages[0]
+const selectedCurrency = selectSelectedCurrency(store.getState())
+const priceFormatter = Intl.NumberFormat(currentLocale, {
+  style: 'currency',
+  currency: selectedCurrency,
+  notation: 'compact',
+  compactDisplay: 'short',
+}).format
+
 // @ts-ignore we can't make this a partial record as we need to use this as a tuple to spread as useQuery params
 const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval | 'all', [Interval, number]> = {
   day: ['day', 24 * 7],
@@ -84,6 +96,9 @@ export const ChartComponent = ({ data }: { data: any }) => {
         },
         width: chartContainerRef.current.offsetWidth,
         height: chartContainerRef.current.offsetHeight,
+        localization: {
+          priceFormatter,
+        },
       })
       const newSeries = chart.addAreaSeries({
         lineColor,

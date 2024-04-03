@@ -19,6 +19,8 @@ import { LastDeviceInteractionStatus } from './LastDeviceInteractionStatus'
 
 const gridProps = { spacing: 2 }
 
+const SETTING = 'PIN'
+
 export const ChangePin = () => {
   const { handleBackClick } = useMenuRoutes()
   const translate = useTranslate()
@@ -60,7 +62,7 @@ export const ChangePin = () => {
   )
 
   const awaitKeepkeyButtonPromptTranslation: AwaitKeepKeyProps['translation'] = useMemo(
-    () => ['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting }],
+    () => ['walletProvider.keepKey.settings.descriptions.buttonPrompt', { setting: SETTING }],
     [],
   )
 
@@ -114,7 +116,6 @@ export const ChangePin = () => {
         })
       })
   }, [dispatch, keepKeyWallet, setDeviceState, toast, translate])
-  const setting = 'PIN'
 
   const shouldDisplayEntryPinView = isUpdatingPin && !awaitingDeviceInteraction
 
@@ -145,14 +146,14 @@ export const ChangePin = () => {
     ) : (
       <>
         <SubMenuBody>
-          <LastDeviceInteractionStatus setting={setting} />
+          <LastDeviceInteractionStatus setting={SETTING} />
           <Button
             colorScheme='blue'
             size='sm'
             onClick={handleChangePin}
             isLoading={awaitingDeviceInteraction}
           >
-            {translate('walletProvider.keepKey.settings.actions.update', { setting })}
+            {translate('walletProvider.keepKey.settings.actions.update', { setting: SETTING })}
           </Button>
         </SubMenuBody>
         <AwaitKeepKey translation={awaitKeepkeyButtonPromptTranslation} />
@@ -166,7 +167,7 @@ export const ChangePin = () => {
         {!shouldDisplayEntryPinView ? (
           <SubmenuHeader
             title={translate('walletProvider.keepKey.settings.headings.deviceSetting', {
-              setting,
+              setting: SETTING,
             })}
             description={translate('walletProvider.keepKey.settings.descriptions.pin')}
             onBackClick={handleHeaderBackClick}

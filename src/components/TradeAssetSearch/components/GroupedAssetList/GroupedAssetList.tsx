@@ -12,6 +12,9 @@ const Footer = () => <Box height='0.5rem' />
 const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div> // this cannot be Fragment as styles are applied
 const components = { TopItemList, Footer }
 
+const backgroundColor = { base: 'background.surface.base', md: 'background.surface.overlay.base' }
+const style = { minHeight: '50vh' }
+
 export type GroupedAssetListProps = {
   assets: Asset[]
   groups: string[]
@@ -34,7 +37,7 @@ export const GroupedAssetList = ({
       return (
         <>
           <Text
-            backgroundColor='background.surface.overlay.base'
+            backgroundColor={backgroundColor}
             color='text.subtle'
             fontWeight='medium'
             pt={4}
@@ -80,6 +83,7 @@ export const GroupedAssetList = ({
       groupContent={renderGroupContent}
       itemContent={renderItem}
       components={components}
+      style={style}
     />
   )
 }

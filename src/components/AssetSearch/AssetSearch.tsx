@@ -17,6 +17,9 @@ import { selectWalletSupportedChainIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetList } from './components/AssetList'
+
+const minHeight = { base: '100%', md: '400px' }
+
 export type AssetSearchProps = {
   assets: Asset[]
   onAssetClick?: (asset: Asset) => void
@@ -99,7 +102,8 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       pl: 10,
       variant: 'filled',
       autoComplete: 'off',
-      autoFocus: true,
+      autoFocus: false,
+      transitionProperty: 'none',
     }),
     [register, translate],
   )
@@ -125,7 +129,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           <Input {...inputProps} />
         </InputGroup>
       </Box>
-      <Box flex={1}>
+      <Box flex={1} minHeight={minHeight}>
         <AssetList
           mb='10'
           assets={listAssets}

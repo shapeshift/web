@@ -29,7 +29,7 @@ export type ChainMenuProps<T extends ChainId | 'All'> = {
   onMenuOptionClick: (chainId: T) => void
 }
 
-const ChainIcon = (props: { chainId: ChainId } & AvatarProps) => {
+export const ChainIcon = (props: { chainId: ChainId } & AvatarProps) => {
   const { chainId, avatarProps } = useMemo(() => {
     const { chainId, ...avatarProps } = props
     return { chainId, avatarProps }

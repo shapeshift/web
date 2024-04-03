@@ -13,7 +13,27 @@ import {
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
-import { isNonEmpty, isUrl } from 'lib/utils'
+
+// Redeclared here to make these two utils work in scripts
+const isNonEmpty = (x: string | any[] | Set<any>) => {
+  // Array.prototype.length || String.prototype.length for arrays and strings
+  if (typeof x === 'string' || Array.isArray(x)) {
+    return Boolean(x.length)
+  }
+  // Set.prototype.size for sets
+  if (x instanceof Set) {
+    return Boolean(x.size)
+  }
+  return false
+}
+const isUrl = (x: string) => {
+  try {
+    new URL(x)
+    return true
+  } catch {
+    return false
+  }
+}
 
 export enum SupportedZapperNetwork {
   Avalanche = 'avalanche',

@@ -319,6 +319,9 @@ export const zapper = createApi({
   endpoints: build => ({
     getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
       queryFn: async (_, { dispatch }) => {
+        // We already have the static assets list in the store, however we need to also fetch it here for 2 reasons
+        // 1. We still need to fetch the raw data from Zapper, which we can't store dynamically because asset ratios and APY changes
+        // 2. We have no notion of asset "tags" i.e the notion that these assets are UNI-V2 pools
         const maybeZapperV2AppTokensData = await dispatch(
           zapperApi.endpoints.getZapperAppTokensOutput.initiate(),
         )
@@ -334,7 +337,7 @@ export const zapper = createApi({
 
             return toAssetId({
               chainId,
-              assetNamespace: 'erc20', // TODO: bep20
+              assetNamespace: 'erc20',
               assetReference: appTokenData.address,
             })
           })

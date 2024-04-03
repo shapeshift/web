@@ -18,9 +18,7 @@ import { marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { selectPortfolioLoadingStatusGranular } from 'state/slices/portfolioSlice/selectors'
-import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
-import { foxEthLpAssetIds } from '../../constants'
 import type {
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
@@ -53,12 +51,10 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 }> => {
   const { dispatch, getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const { DynamicLpAssets } = selectFeatureFlags(state)
 
   const assets: AssetsState = state.assets
 
   const selectGetZapperAppTokensOutput = zapperApi.endpoints.getZapperAppTokensOutput.select()
-  // Undefined if the DynamicLpAssets flag is off, or if Zapper rugs us
   const zapperAppTokensOutput = selectGetZapperAppTokensOutput(state)
 
   if (!opportunityIds?.length) {
@@ -78,10 +74,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
   for (const opportunityId of opportunityIds) {
     const zapperAppBalanceData = zapperAppTokensOutput.data?.[opportunityId]
 
-    if (
-      DynamicLpAssets &&
-      !(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals)
-    )
+    if (!(zapperAppBalanceData?.tokens?.[0].decimals && zapperAppBalanceData?.tokens?.[1].decimals))
       continue
 
     const {
@@ -291,9 +284,6 @@ export const uniV2LpLpOpportunityIdsResolver = ({
 }> => {
   const { getState } = reduxApi
   const state: any = getState()
-  const { DynamicLpAssets } = selectFeatureFlags(state)
-
-  if (!DynamicLpAssets) return Promise.resolve({ data: [...foxEthLpAssetIds] })
 
   const zapperApiQueries = selectZapperFulfilled(state)
   const uniV2AssetIds = (zapperApiQueries.find(

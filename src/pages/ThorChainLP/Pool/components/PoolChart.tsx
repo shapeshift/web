@@ -103,16 +103,24 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
           </Button>
         </ButtonGroup>
         <ButtonGroup size='sm'>
-          {Object.keys(INTERVAL_PARAMS_BY_INTERVAL).map(interval => (
-            <Button
-              key={interval}
-              // eslint-disable-next-line react-memo/require-usememo
-              onClick={() => setSelectedInterval(interval as Interval)}
-              variant={selectedInterval === interval ? 'solid' : 'outline'}
-            >
-              {interval.toUpperCase()}
-            </Button>
-          ))}
+          {Object.keys(INTERVAL_PARAMS_BY_INTERVAL).map(interval => {
+            const label =
+              interval === 'all'
+                ? 'All'
+                : // For all others, we should only keep the first char, as uppercase
+                  interval.charAt(0).toUpperCase()
+
+            return (
+              <Button
+                key={interval}
+                // eslint-disable-next-line react-memo/require-usememo
+                onClick={() => setSelectedInterval(interval as Interval)}
+                variant={selectedInterval === interval ? 'solid' : 'outline'}
+              >
+                {label}
+              </Button>
+            )
+          })}
         </ButtonGroup>
       </Flex>
       <Center flex='1' flexDirection='column'>

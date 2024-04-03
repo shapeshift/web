@@ -1,7 +1,7 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import type { ISeriesApi, SingleValueData } from 'lightweight-charts'
+import type { ISeriesApi, SingleValueData, Time } from 'lightweight-charts'
 import { ColorType, createChart } from 'lightweight-charts'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { reactQueries } from 'react-queries'
@@ -74,9 +74,9 @@ const textColor = 'white'
 const areaTopColor = 'rgba(41, 98, 255, 0.5)'
 const areaBottomColor = 'rgba(41, 98, 255, 0.28)'
 
-type SimpleChartProps = { data: SingleValueData<number>[] }
+type SimpleChartProps<T extends number | Time> = { data: SingleValueData<T>[] }
 
-export const SimpleChart = ({ data }: SimpleChartProps) => {
+export const SimpleChart = <T extends number | Time>({ data }: SimpleChartProps<T>) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -105,7 +105,7 @@ export const SimpleChart = ({ data }: SimpleChartProps) => {
         lineColor,
         topColor: areaTopColor,
         bottomColor: areaBottomColor,
-      }) as unknown as ISeriesApi<'Area', number>
+      }) as unknown as ISeriesApi<'Area', T>
       newSeries.setData(data)
       chart.timeScale().fitContent()
 

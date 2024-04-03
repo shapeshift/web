@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const ADDRESS_VALIDATION_URL = 'https://proxy.shapeshift.com/validate'
+const ADDRESS_VALIDATION_URL = 'https://api.proxy.shapeshift.com/api/v1/validate'
 
 const cache: Record<string, Promise<boolean>> = {}
 

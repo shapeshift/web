@@ -49,7 +49,7 @@ export type CowSwapGetTransactionsResponse = {
 export type AffiliateAppDataFragment =
   | {
       partnerFee: {
-        bps: string
+        bps: number
         recipient: string
       }
     }

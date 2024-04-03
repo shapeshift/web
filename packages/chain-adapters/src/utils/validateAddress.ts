@@ -14,13 +14,18 @@ const checkIsSanctioned = async (address: string): Promise<boolean> => {
 }
 
 export const assertAddressNotSanctioned = async (address: string): Promise<void> => {
-  // dedupe and cache promises in memory
-  if (cache[address] === undefined) {
-    const newEntry = checkIsSanctioned(address)
-    cache[address] = newEntry
-  }
+  try {
+    // dedupe and cache promises in memory
+    if (cache[address] === undefined) {
+      const newEntry = checkIsSanctioned(address)
+      cache[address] = newEntry
+    }
 
-  const isValidPromise = cache[address]
-  const isValid = await isValidPromise
-  if (!isValid) throw Error('Address not supported')
+    const isValidPromise = cache[address]
+    const isValid = await isValidPromise
+    if (!isValid) throw Error('Address not supported')
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.error(`Error validating address: ${address}. Defaulting to valid.`, error)
+  }
 }

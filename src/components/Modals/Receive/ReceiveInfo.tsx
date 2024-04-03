@@ -1,4 +1,4 @@
-import { ArrowBackIcon, CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
+import { CheckIcon, CopyIcon, ExternalLinkIcon, ViewIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -7,13 +7,8 @@ import {
   Circle,
   Flex,
   HStack,
-  IconButton,
   LightMode,
   Link,
-  ModalBody,
-  ModalCloseButton,
-  ModalFooter,
-  ModalHeader,
   Skeleton,
   SkeletonText,
   Tag,
@@ -31,6 +26,11 @@ import { useHistory } from 'react-router-dom'
 import type { Address } from 'viem'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
+import { DialogBody } from 'components/Modal/components/DialogBody'
+import { DialogFooter } from 'components/Modal/components/DialogFooter'
+import { DialogHeader } from 'components/Modal/components/DialogHeader'
+import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
@@ -48,7 +48,6 @@ type ReceivePropsType = {
   accountId?: AccountId
 }
 
-const arrowBackIcon = <ArrowBackIcon />
 const accountDropdownButtonProps = { variant: 'solid', width: 'full', mt: 4 }
 const receiveAddressHover = { color: 'blue.500' }
 const receiveAddressActive = { color: 'blue.800' }
@@ -157,31 +156,25 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
 
   return (
     <>
-      <IconButton
-        variant='ghost'
-        icon={arrowBackIcon}
-        aria-label={translate('common.back')}
-        position='absolute'
-        top={2}
-        left={3}
-        fontSize='xl'
-        size='sm'
-        isRound
-        onClick={onBackClick}
-      />
-      <ModalHeader textAlign='center'>
-        {translate('modals.receive.receiveAsset', { asset: name })}
-      </ModalHeader>
-      <ModalCloseButton />
+      <DialogHeader>
+        <DialogHeader.Left>
+          <DialogBackButton onClick={onBackClick} />
+        </DialogHeader.Left>
+        <DialogHeader.Middle>
+          <DialogTitle>{translate('modals.receive.receiveAsset', { asset: name })}</DialogTitle>
+        </DialogHeader.Middle>
+      </DialogHeader>
       {wallet && chainAdapter ? (
         <>
-          <ModalBody alignItems='center' justifyContent='center' textAlign='center'>
+          <DialogBody alignItems='center' justifyContent='center' textAlign='center'>
             <Box>
               <SkeletonText
-                noOfLines={2}
+                noOfLines={3}
                 display='flex'
                 flexDir='column'
                 alignItems='center'
+                skeletonHeight='16px'
+                spacing='2'
                 isLoaded={!!receiveAddress}
               >
                 <Text translation={onlySendTranslation} color='text.subtle' textAlign='center' />
@@ -237,8 +230,8 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 </LightMode>
               </CardBody>
             </Card>
-          </ModalBody>
-          <ModalFooter flexDir='column'>
+          </DialogBody>
+          <DialogFooter flexDir='column' mt='auto'>
             <HStack pb={6} spacing={8}>
               <Button
                 onClick={handleCopyClick}
@@ -308,12 +301,12 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
                 <Text translation='modals.receive.blockExplorer' />
               </Button>
             </HStack>
-          </ModalFooter>
+          </DialogFooter>
         </>
       ) : (
-        <ModalBody alignItems='center' justifyContent='center'>
+        <DialogBody alignItems='center' justifyContent='center'>
           <Text translation='modals.receive.unsupportedAsset' />
-        </ModalBody>
+        </DialogBody>
       )}
     </>
   )

@@ -88,6 +88,7 @@ export const mockStore: ReduxState = {
       Mixpanel: false,
       LifiSwap: false,
       FoxBondCTA: false,
+      DynamicLpAssets: false,
       ReadOnlyAssets: false,
       OneInch: false,
       CovalentJaypegs: false,

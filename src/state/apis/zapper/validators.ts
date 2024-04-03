@@ -13,6 +13,8 @@ import {
 import { invert } from 'lodash'
 import type { Infer, Type } from 'myzod'
 import z from 'myzod'
+import { zeroAddress } from 'viem'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { isNonEmpty, isUrl } from 'lib/utils'
 
 export enum SupportedZapperNetwork {
@@ -242,6 +244,13 @@ export const zapperAssetToMaybeAssetId = (
 ): AssetId | undefined => {
   const chainId = zapperNetworkToChainId(asset.network as SupportedZapperNetwork)
   if (!chainId) return undefined
+  const isNativeAsset = asset.type === 'base-token' && asset.address === zeroAddress
+
+  if (isNativeAsset) {
+    const chainAdapterManager = getChainAdapterManager()
+    const nativeAssetId = chainAdapterManager.get(chainId)?.getFeeAssetId()
+    return nativeAssetId
+  }
   const assetNamespace = (() => {
     switch (true) {
       case chainId === bscChainId:

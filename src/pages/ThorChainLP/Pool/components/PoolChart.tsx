@@ -1,9 +1,9 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import type { SingleValueData } from 'lightweight-charts'
+import type { ISeriesApi, SingleValueData } from 'lightweight-charts'
 import { ColorType, createChart } from 'lightweight-charts'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Interval } from 'react-queries/queries/midgard'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -74,7 +74,9 @@ const textColor = 'white'
 const areaTopColor = 'rgba(41, 98, 255, 0.5)'
 const areaBottomColor = 'rgba(41, 98, 255, 0.28)'
 
-export const ChartComponent = ({ data }: { data: any }) => {
+type SimpleChartProps = { data: SingleValueData<number>[] }
+
+export const SimpleChart = ({ data }: SimpleChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -103,7 +105,7 @@ export const ChartComponent = ({ data }: { data: any }) => {
         lineColor,
         topColor: areaTopColor,
         bottomColor: areaBottomColor,
-      })
+      }) as unknown as ISeriesApi<'Area', number>
       newSeries.setData(data)
       chart.timeScale().fitContent()
 
@@ -123,7 +125,7 @@ export const ChartComponent = ({ data }: { data: any }) => {
     }
   }, [data])
 
-  return <div ref={chartContainerRef} style={{ width: '100%', height: '500px' }} /> // Set a minimum height for the chart
+  return <div ref={chartContainerRef} style={{ width: '100%', height: '500px' }} />
 }
 
 type PoolChartProps = {
@@ -153,6 +155,11 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
     select: data => tvlToChartData(data, runeMarketData.price, thorchainNotationAssetId),
   })
 
+  const data = useMemo(() => {
+    const maybeData = selectedDataType === 'volume' ? swapsData : tvl
+    return maybeData ?? []
+  }, [selectedDataType, swapsData, tvl])
+
   return (
     <Stack spacing={4}>
       <Flex justifyContent='space-between' alignItems='center' p={4}>
@@ -181,7 +188,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
         </ButtonGroup>
       </Flex>
       <Center flex='1' flexDirection='column'>
-        <ChartComponent data={selectedDataType === 'volume' ? swapsData : tvl} />
+        <SimpleChart data={data} />
       </Center>
     </Stack>
   )

@@ -264,7 +264,7 @@ export const getAffiliateAppDataFragmentByChainId = ({
 
   return {
     partnerFee: {
-      bps: convertBasisPointsToDecimalPercentage(affiliateBps).times(100).toFixed(),
+      bps: Number(affiliateBps),
       recipient: getTreasuryAddressFromChainId(chainId),
     },
   }

@@ -13,7 +13,7 @@ const checkIsSanctioned = async (address: string): Promise<boolean> => {
   return response.data.valid
 }
 
-export const validateAddress = async (address: string): Promise<void> => {
+export const assertAddressNotSanctioned = async (address: string): Promise<void> => {
   // dedupe and cache promises in memory
   if (cache[address] === undefined) {
     const newEntry = checkIsSanctioned(address)

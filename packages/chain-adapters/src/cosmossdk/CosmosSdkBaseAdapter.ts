@@ -30,7 +30,7 @@ import type {
 import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import { validateAddress } from '../utils/validateAddress'
+import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { cosmos, thorchain } from './'
 import type {
   BuildTransactionInput,
@@ -320,8 +320,8 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     hex,
   }: BroadcastTransactionInput): Promise<string> {
     await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
+      assertAddressNotSanctioned(senderAddress),
+      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
     ])
 
     try {

@@ -16,8 +16,9 @@ import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
+import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
@@ -33,6 +34,7 @@ import {
 } from './utils/constants'
 import { cowService } from './utils/cowService'
 import {
+  getAffiliateAppDataFragmentByChainId,
   getCowswapNetwork,
   getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
@@ -78,7 +80,14 @@ export const cowApi: SwapperApi = {
     const network = maybeNetwork.unwrap()
     const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
-    const { appData, appDataHash } = await getFullAppData(slippageTolerancePercentageDecimal)
+    const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
+      affiliateBps: tradeQuote.affiliateBps,
+      chainId: sellAsset.chainId,
+    })
+    const { appData, appDataHash } = await getFullAppData(
+      slippageTolerancePercentageDecimal,
+      affiliateAppDataFragment,
+    )
     // https://api.cow.fi/docs/#/default/post_api_v1_quote
     const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
       `${baseUrl}/${network}/api/v1/quote/`,
@@ -105,9 +114,23 @@ export const cowApi: SwapperApi = {
     // For the slippage actually to be enforced, the final message to be signed needs to have slippage deducted.
     // Failure to do so means orders may take forever to be filled, or never be filled at all.
     const quoteBuyAmount = quote.buyAmount
-    const slippageDeductedBuyAmount = bn(quoteBuyAmount).minus(
-      bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal),
+
+    const hasAffiliateFee = bnOrZero(tradeQuote.affiliateBps).gt(0)
+
+    // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
+    const buyAmountAfterAffiliateFeesCryptoBaseUnit = hasAffiliateFee
+      ? bn(quoteBuyAmount)
+          .times(bn(1).minus(convertBasisPointsToDecimalPercentage(tradeQuote.affiliateBps)))
+          .toFixed(0)
+      : quoteBuyAmount
+    const buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit = bn(
+      buyAmountAfterAffiliateFeesCryptoBaseUnit,
     )
+      .minus(
+        bn(buyAmountAfterAffiliateFeesCryptoBaseUnit).times(slippageTolerancePercentageDecimal),
+      )
+      .toFixed(0)
+
     // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order
     // This was previously working as-is with fees being deducted from the sell amount at protocol-level, but we now we need to add them into the order
     // In other words, this means what was previously CoW being "feeless" as far as we're concerned
@@ -120,7 +143,7 @@ export const cowApi: SwapperApi = {
       // Another mutation from the original quote to go around the fact that CoW API flow is weird
       // they return us a quote with fees, but we have to zero them out when sending the order
       feeAmount: '0',
-      buyAmount: slippageDeductedBuyAmount.toFixed(0),
+      buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit,
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
       sellTokenBalance: ERC20_TOKEN_BALANCE,

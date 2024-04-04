@@ -45,3 +45,10 @@ export type CowSwapGetTradesResponse = {
 export type CowSwapGetTransactionsResponse = {
   status: 'presignaturePending' | 'open' | 'fulfilled' | 'cancelled' | 'expired'
 }[]
+
+export type AffiliateAppDataFragment = {
+  partnerFee?: {
+    bps: number
+    recipient: string
+  }
+}

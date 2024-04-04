@@ -314,9 +314,11 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
 
 export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
-  hydrationMeta => {
+  selectWalletAccountIds,
+  (hydrationMeta, walletAccountIds) => {
     return Object.entries(hydrationMeta)
       .filter(([_accountId, hydrationMetaForAccountId]) => hydrationMetaForAccountId?.isErrored)
       .map(([accountId, _hydrationMetaForAccountId]) => accountId)
+      .filter(accountId => walletAccountIds.includes(accountId))
   },
 )

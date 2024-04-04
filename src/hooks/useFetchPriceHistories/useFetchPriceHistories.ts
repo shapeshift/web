@@ -5,14 +5,7 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-type UseFetchPriceHistoriesArgs = {
-  assetIds: AssetId[]
-  timeframe: HistoryTimeframe
-}
-
-type UseFetchPriceHistories = (args: UseFetchPriceHistoriesArgs) => void
-
-export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timeframe }) => {
+export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTimeframe) => {
   const dispatch = useAppDispatch()
   const symbol = useAppSelector(selectSelectedCurrency)
 

@@ -37,7 +37,6 @@
     "relayerGasFee": "中继器手续费",
     "insufficientAmountForGas": "没有足够的 %{assetSymbol}.%{chainSymbol} 来支付手续费",
     "invalidAddress": "无效地址",
-    "invalidAddressOrYat": "无效地址或者无效Yat",
     "deposit": "充值",
     "withdraw": "提现",
     "withdrawal": "提现",
@@ -56,6 +55,7 @@
     "rename": "重命名",
     "forget": "忘记？",
     "pending": "待处理",
+    "incomplete": "不完整",
     "available": "可用的",
     "or": "或者",
     "somethingWentWrong": "出了点问题",
@@ -132,8 +132,10 @@
     "yourBalance": "你的余额",
     "signTransaction": "签署交易",
     "halted": "暂停的",
+    "disabled": "已禁用",
     "staged": "进行的",
     "poolHalted": "已暂停的池",
+    "poolDisabled": "池已禁用",
     "symmetric": "对称",
     "asymmetric": "不对称 (%{assetSymbol})",
     "carousel": {
@@ -211,6 +213,7 @@
       "priceChange": "价格变化",
       "allocation": "分配",
       "marketCap": "市值",
+      "volume": "交易量",
       "sparkLine": "迷你图",
       "empty": {
         "title": "蟋蟀的叫声...",
@@ -221,6 +224,7 @@
     "recentTransactions": {
       "recentTransactions": "最近交易"
     },
+    "nfts": "NFT",
     "tradeCard": {
       "trade": "交易",
       "bridge": "跨链桥",
@@ -272,7 +276,17 @@
     "viewADemo": "查看演示",
     "dontHaveWallet": "没有钱包？",
     "welcomeBack": "欢迎回来！",
-    "welcomeBody": "连接钱包就像“登录”一样。从选项中选择你的钱包即可开始。"
+    "welcomeBody": "连接钱包就像“登录”一样。从选项中选择你的钱包即可开始。",
+    "welcomeToShapeShift": "欢迎来到ShapeShift",
+    "mobileWelcomeBody": "创建一个全新的钱包或添加一个现有的钱包以轻松开始。",
+    "mobileSelectBody": "从下面任何已保存的钱包中选择，或者创建或导入一个新的钱包。",
+    "createANewWallet": "创建新钱包",
+    "importExisting": "导入现有钱包",
+    "createOrImport": "创建或导入钱包",
+    "viewSavedWallets": "查看已保存的钱包",
+    "footerOne": "继续，即表示你同意",
+    "terms": "条款",
+    "privacyPolicy": "隐私政策"
   },
   "connectWallet": {
     "menu": {
@@ -371,6 +385,9 @@
         "vaultCap": "金库容量",
         "vaultCapTooltip": "该金库当前的最大容量",
         "haltedDepositTitle": "充值暂时停止。",
+        "disabledDepositTitle": "暂时禁止存款。",
+        "haltedWithdrawTitle": "提款暂时停止。",
+        "disabledWithdrawTitle": "暂时禁止提款。",
         "haltedDescription": "请 @THORChain 发推文以提高上限！",
         "protocolFee": "协议费",
         "fee": "费用",
@@ -862,6 +879,11 @@
     }
   },
   "modals": {
+    "assetSearch": {
+      "myAssets": "我的资产",
+      "popularAssets": "热门资产",
+      "searchResults": "搜索结果"
+    },
     "popup": {
       "body": "我们启动了一个安全窗口来完成你的订单。",
       "body2": "没有看到安全窗口？我们将帮助你重新启动窗口来完成你的订单。",
@@ -990,9 +1012,11 @@
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
       "tokenAddress": "到地址",
+      "addressInput": "收件人地址或 ENS",
       "scanQrCode": "扫描二维码",
       "qrCode": "二维码",
       "permissionsButton": "再试一次",
+      "transactionSent": "交易已发送",
       "sent": "%{asset} 已发送",
       "errorTitle": "你发送 %{asset} 失败",
       "errors": {
@@ -1172,6 +1196,8 @@
     "settings": {
       "clearCache": "清除缓存",
       "clearCacheTooltip": "清除缓存并重新加载应用程序",
+      "clearTxHistory": "清除交易记录",
+      "clearTxHistoryTooltip": "清除交易记录缓存",
       "settings": "设置",
       "currency": "货币",
       "clearWalletAccountData": "删除所有账户和钱包数据",
@@ -2179,6 +2205,12 @@
         "body": "THORChain 中的还款非常灵活，允许您在还款锁定到期后随时以任何资产进行还款，然后将其转换为 TOR。还款金额从你的债务余额中扣除，全额还款后按比例返还抵押品"
       }
     },
+    "errors": {
+      "repaymentsHalted": "还款暂时停止。",
+      "borrowingHalted": "借款暂时停止。",
+      "repaymentsDisabled": "还款功能暂时禁用。",
+      "borrowingDisabled": "暂时禁止借贷。"
+    },
     "quote": {
       "collateral": "将作为你的贷款担保的总资产金额",
       "debt": "根据你的新贷款金额，你所欠的债务总额",
@@ -2190,7 +2222,8 @@
       "yourLoans": "你的贷款",
       "emptyTitle": "零贷款之地！",
       "emptyBody": "你目前似乎没有任何贷款。这是金融禅宗还是只是您下一次大型贷款冒险之前的休息？不管怎样，享受平静吧！"
-    }
+    },
+    "unsafeBorrow": "该借款具有较高的滑点 (%{slippagePercentage}%)。谨慎行事。"
   },
   "foxDiscounts": {
     "currentFoxPower": "你的 FOX Power",
@@ -2224,10 +2257,14 @@
     "poolsBody": "提供流动性并赚取该池中交易的费用。",
     "availablePools": "可用得池",
     "addLiquidity": "增加流动性",
+    "customSlippageDisabled": "我们无法设置自定义滑点",
+    "unsafeQuote": "此存款的滑点较高 (%{slippagePercentage}%)。请谨慎操作。",
     "removeLiquidity": "消除流动性",
     "initialPricesAndPoolShare": "初始价格和池份额",
     "pricePerAsset": "%{from} 每 %{to}",
     "symAlert": "进入池后，你的 %{from} 将按照 50:50 的比例分为 %{to} 和 %{from}。",
+    "incompletePositionDepositAlert": "此仓位尚未完成，请存入相应数量的 %{asset} 来完成此仓位。",
+    "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
     "unsupportedNetworkExplainer": "你的钱包不支持 %{network} 。请切换到支持该网络的钱包。",
     "unsupportedNetworksExplainer": "你的钱包不支持 %{network1} 和 %{network2} 。请切换到支持这些网络的钱包。",
     "shareOfPool": "池份额",

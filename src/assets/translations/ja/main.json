@@ -37,7 +37,6 @@
     "relayerGasFee": "リレイヤーのガス代",
     "insufficientAmountForGas": "ガス代をカバーするための%{assetSymbol}.%{chainSymbol}が不足しています。",
     "invalidAddress": "無効なアドレス",
-    "invalidAddressOrYat": "無効なアドレスまたはYat",
     "deposit": "入金する",
     "withdraw": "出金する",
     "withdrawal": "出金",
@@ -56,6 +55,7 @@
     "rename": "名前の変更",
     "forget": "お忘れですか？",
     "pending": "保留中",
+    "incomplete": "不完全な",
     "available": "利用可能",
     "or": "または",
     "somethingWentWrong": "問題が発生しました",
@@ -132,8 +132,10 @@
     "yourBalance": "バランス",
     "signTransaction": "トランザクションに署名する",
     "halted": "停止中",
+    "disabled": "無効",
     "staged": "段階的",
     "poolHalted": "プールが停止しています",
+    "poolDisabled": "プールが無効です",
     "symmetric": "対称",
     "asymmetric": "非対称 (%{assetSymbol})",
     "carousel": {
@@ -211,6 +213,7 @@
       "priceChange": "価格変更",
       "allocation": "割り当て",
       "marketCap": "時価総額",
+      "volume": "ボリューム",
       "sparkLine": "スパークライン",
       "empty": {
         "title": "...",
@@ -221,6 +224,7 @@
     "recentTransactions": {
       "recentTransactions": "最近の取引"
     },
+    "nfts": "NFT",
     "tradeCard": {
       "trade": "取引",
       "bridge": "ブリッジ",
@@ -272,7 +276,17 @@
     "viewADemo": "デモを見る",
     "dontHaveWallet": "ウォレットをお持ちではありませんか？",
     "welcomeBack": "おかえりなさい！",
-    "welcomeBody": "ウォレットの接続はログインのようなものです。開始するには、オプションからウォレットを選択してください。"
+    "welcomeBody": "ウォレットの接続はログインのようなものです。開始するには、オプションからウォレットを選択してください。",
+    "welcomeToShapeShift": "ShapeShiftへようこそ",
+    "mobileWelcomeBody": "新しいウォレットを作成するか、既存のウォレットを追加して簡単に開始できます。",
+    "mobileSelectBody": "以下の保存済みウォレットからいずれかを選択するか、新しいウォレットを作成またはインポートします。",
+    "createANewWallet": "新しいウォレットを作成する",
+    "importExisting": "既存のウォレットをインポートする",
+    "createOrImport": "ウォレットの作成またはインポート",
+    "viewSavedWallets": "保存されたウォレットを表示する",
+    "footerOne": "続行すると、次の内容に同意したことになります",
+    "terms": "利用規約",
+    "privacyPolicy": "プライバシーポリシー"
   },
   "connectWallet": {
     "menu": {
@@ -371,6 +385,9 @@
         "vaultCap": "Vaultキャップ",
         "vaultCapTooltip": "このVaultの現在の最大容量",
         "haltedDepositTitle": "一時的に入金を停止しております。",
+        "disabledDepositTitle": "デポジットは一時的に無効になります。",
+        "haltedWithdrawTitle": "出金を一時停止しております。",
+        "disabledWithdrawTitle": "引き出しは一時的に無効になっています。",
         "haltedDescription": "上限を増やすには、@THORChain でツイートしてください。",
         "protocolFee": "プロトコル手数料",
         "fee": "手数料",
@@ -862,6 +879,11 @@
     }
   },
   "modals": {
+    "assetSearch": {
+      "myAssets": "マイ資産",
+      "popularAssets": "人気の資産",
+      "searchResults": "検索結果"
+    },
     "popup": {
       "body": "注文を完了するための安全なウィンドウを作成しました。",
       "body2": "安全なウィンドウが表示されない場合は、注文を完了するためにウィンドウを再起動するお手伝いをいたします。",
@@ -990,9 +1012,11 @@
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
       "tokenAddress": "宛先アドレス",
+      "addressInput": "宛先またはENS",
       "scanQrCode": "QRコードをスキャン",
       "qrCode": "QRコード",
       "permissionsButton": "もう一度やり直してください",
+      "transactionSent": "トランザクションが送信されました",
       "sent": "%{asset} を送信しました",
       "errorTitle": "%{asset} の送信に失敗しました",
       "errors": {
@@ -1172,6 +1196,8 @@
     "settings": {
       "clearCache": "キャッシュの消去",
       "clearCacheTooltip": "キャッシュをクリアしてアプリをリロードします",
+      "clearTxHistory": "取引履歴をクリアする",
+      "clearTxHistoryTooltip": "トランザクション履歴キャッシュをクリアする",
       "settings": "設定",
       "currency": "通貨",
       "clearWalletAccountData": "すべてのアカウントとウォレットのデータを削除する",
@@ -2179,6 +2205,12 @@
         "body": "THORChainでの返済は柔軟であり、返済ロックが経過した後はいつでも、任意の資産で返済することができ、その後TORに変換されます。返済額は債務残高から差し引かれ、全額返済後に比例担保が返金されます。"
       }
     },
+    "errors": {
+      "repaymentsHalted": "返済は一時停止されます。",
+      "borrowingHalted": "貸出は一時停止となります。",
+      "repaymentsDisabled": "返済は一時的に無効になります。",
+      "borrowingDisabled": "借用は一時的に無効になっています。"
+    },
     "quote": {
       "collateral": "ローンに対して担保される資産総額",
       "debt": "新たなローン金額に基づいて支払うべき負債の合計",
@@ -2190,7 +2222,8 @@
       "yourLoans": "あなたのローン",
       "emptyTitle": "ローンゼロ",
       "emptyBody": "現在、ローンはありません。この時間をお楽しみください！"
-    }
+    },
+    "unsafeBorrow": "この借入には高いスリッページ（%{slippagePercentage}%）があります。注意して進めてください。"
   },
   "foxDiscounts": {
     "currentFoxPower": "あなたのFOX",
@@ -2224,10 +2257,14 @@
     "poolsBody": "流動性を提供し、そのプール内の取引で手数料を獲得します。",
     "availablePools": "利用可能なプール",
     "addLiquidity": "流動性の追加",
+    "customSlippageDisabled": "カスタムスリッページを設定できません",
+    "unsafeQuote": "このデポジットには高いスリッページ (%{slippagePercentage}%) があります。慎重に作業を進めてください。",
     "removeLiquidity": "流動性の除去",
     "initialPricesAndPoolShare": "初期価格とプールシェア",
     "pricePerAsset": "%{from}/%{to}",
     "symAlert": "あなたの %{from} は、プールに入ると %{to} と %{from} の両方に 50:50 の割合で公開されます。",
+    "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
+    "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
     "unsupportedNetworkExplainer": "お使いのウォレットは %{network} をサポートしていません。このネットワークをサポートするウォレットに切り替えてください。",
     "unsupportedNetworksExplainer": "使用しているウォレットは %{network1} と %{network2} をサポートしていません。これらのネットワークをサポートするウォレットに切り替えてください。",
     "shareOfPool": "プールのシェア",

@@ -28,7 +28,7 @@ import singleInputsSingleOutputSendNoChange from './mockData/singleInputSingleOu
 import singleInputsSingleOutputSendWithChange from './mockData/singleInputSingleOutputSendWithChange'
 
 vi.mock('../../utils/validateAddress', () => ({
-  validateAddress: vi.fn(),
+  assertAddressNotSanctioned: vi.fn(),
 }))
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'

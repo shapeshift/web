@@ -28,6 +28,8 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { ErroredTxHistoryAccounts } from './ErroredTxHistoryAccounts'
+
 const justifyContentMdSpaceBetween = { base: 'center', md: 'space-between' }
 const textAlignMdInherit: ResponsiveValue<Property.TextAlign> = { base: 'center', md: 'inherit' }
 const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -95,11 +97,14 @@ export const DashboardChart = () => {
             <Text translation='defi.walletBalance' />
           </Skeleton>
         </Heading>
-        <Heading as='h2' fontSize='4xl' lineHeight='1'>
-          <Skeleton isLoaded={isLoaded}>
-            <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />
-          </Skeleton>
-        </Heading>
+        <Flex>
+          <Heading as='h2' fontSize='4xl' lineHeight='1' mr={2}>
+            <Skeleton isLoaded={isLoaded}>
+              <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />
+            </Skeleton>
+          </Heading>
+          <ErroredTxHistoryAccounts />
+        </Flex>
         {isFinite(percentChange) && (
           <Skeleton mt={2} isLoaded={!!percentChange}>
             <Stat display='flex' justifyContent={justifyContentMdFlexStart}>

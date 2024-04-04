@@ -10,9 +10,9 @@ import type {
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import dayjs from 'dayjs'
 import omit from 'lodash/omit'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { assertUnreachable, getTimeFrameBounds } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -102,37 +102,23 @@ export class CoinCapMarketService implements MarketService {
     if (!adapters.assetIdToCoinCap(assetId)) return []
     const id = adapters.assetIdToCoinCap(assetId)
 
-    const end = dayjs().startOf('minute')
-    let start
-    let interval
-    switch (timeframe) {
-      case HistoryTimeframe.HOUR:
-        start = end.subtract(1, 'hour')
-        interval = 'm5'
-        break
-      case HistoryTimeframe.DAY:
-        start = end.subtract(1, 'day')
-        interval = 'h1'
-        break
-      case HistoryTimeframe.WEEK:
-        start = end.subtract(1, 'week')
-        interval = 'd1'
-        break
-      case HistoryTimeframe.MONTH:
-        start = end.subtract(1, 'month')
-        interval = 'd1'
-        break
-      case HistoryTimeframe.YEAR:
-        start = end.subtract(1, 'year')
-        interval = 'd1'
-        break
-      case HistoryTimeframe.ALL:
-        start = end.subtract(20, 'years')
-        interval = 'd1'
-        break
-      default:
-        start = end
-    }
+    const { start, end } = getTimeFrameBounds(timeframe)
+
+    const interval = (() => {
+      switch (timeframe) {
+        case HistoryTimeframe.HOUR:
+          return 'm5'
+        case HistoryTimeframe.DAY:
+          return 'h1'
+        case HistoryTimeframe.WEEK:
+        case HistoryTimeframe.MONTH:
+        case HistoryTimeframe.YEAR:
+        case HistoryTimeframe.ALL:
+          return 'd1'
+        default:
+          assertUnreachable(timeframe)
+      }
+    })()
 
     try {
       const from = start.valueOf()

@@ -126,7 +126,9 @@ export const cowApi: SwapperApi = {
     const buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit = bn(
       buyAmountAfterAffiliateFeesCryptoBaseUnit,
     )
-      .minus(bn(quoteBuyAmount).times(slippageTolerancePercentageDecimal))
+      .minus(
+        bn(buyAmountAfterAffiliateFeesCryptoBaseUnit).times(slippageTolerancePercentageDecimal),
+      )
       .toFixed(0)
 
     // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order

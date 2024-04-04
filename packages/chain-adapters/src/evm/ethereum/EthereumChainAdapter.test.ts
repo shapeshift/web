@@ -16,7 +16,7 @@ import type { EvmChainId } from '../EvmBaseAdapter'
 import * as ethereum from './EthereumChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
-  validateAddress: vi.fn(),
+  assertAddressNotSanctioned: vi.fn(),
 }))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'

@@ -16,7 +16,7 @@ import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as arbitrum from './ArbitrumChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
-  validateAddress: vi.fn(),
+  assertAddressNotSanctioned: vi.fn(),
 }))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'

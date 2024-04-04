@@ -20,7 +20,7 @@ import type {
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
-import { validateAddress } from '../../utils/validateAddress'
+import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { ThorchainMsgSend } from '../types'
@@ -220,8 +220,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.ThorchainMainnet>): Promise<string> {
     await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
+      assertAddressNotSanctioned(senderAddress),
+      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
     ])
 
     const { wallet } = signTxInput

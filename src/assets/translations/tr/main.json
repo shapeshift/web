@@ -37,7 +37,6 @@
     "relayerGasFee": "Tekrarlanan Gaz Ücreti",
     "insufficientAmountForGas": "Gazı karşılamaya yetecek kadar %{assetSymbol}.%{chainSymbol} yok",
     "invalidAddress": "Geçersiz adres",
-    "invalidAddressOrYat": "Geçersiz Adres veya Yat",
     "deposit": "Para Yatırma",
     "withdraw": "Çekmek",
     "withdrawal": "Para çekme",
@@ -56,6 +55,7 @@
     "rename": "İsim Değiştir",
     "forget": "Unut?",
     "pending": "Beklemede",
+    "incomplete": "Tamamlanmamış",
     "available": "Kullanılabilir",
     "or": "veya",
     "somethingWentWrong": "Bir şeyler ters gitti",
@@ -132,8 +132,10 @@
     "yourBalance": "Bakiyeniz",
     "signTransaction": "İşlemi imzala",
     "halted": "Durduruldu",
+    "disabled": "Devre Dışı",
     "staged": "Aşamalı",
     "poolHalted": "Havuz Durduruldu",
+    "poolDisabled": "Havuz Devre Dışı",
     "symmetric": "Simetrik",
     "asymmetric": "Asimetrik (%{assetSymbol})",
     "carousel": {
@@ -211,6 +213,7 @@
       "priceChange": "Fiyat Değişikliği",
       "allocation": "Dağılım",
       "marketCap": "Piyasa değeri",
+      "volume": "Hacim",
       "sparkLine": "Sparkline",
       "empty": {
         "title": "Pinpon sesleri...",
@@ -221,6 +224,7 @@
     "recentTransactions": {
       "recentTransactions": "Son İşlemler"
     },
+    "nfts": "NFT'ler",
     "tradeCard": {
       "trade": "Takas",
       "bridge": "Köprü",
@@ -272,7 +276,17 @@
     "viewADemo": "Demo Görüntüle",
     "dontHaveWallet": "Cüzdanın yok mu?",
     "welcomeBack": "Tekrar hoşgeldiniz!",
-    "welcomeBody": "Cüzdanınızı bağlamak \"giriş yapmak\" gibidir. Başlamak için seçeneklerden cüzdanınızı seçin."
+    "welcomeBody": "Cüzdanınızı bağlamak \"giriş yapmak\" gibidir. Başlamak için seçeneklerden cüzdanınızı seçin.",
+    "welcomeToShapeShift": "ShapeShift'e Hoş Geldiniz",
+    "mobileWelcomeBody": "Kolayca başlamak için yepyeni bir cüzdan oluşturun veya mevcut bir cüzdanı ekleyin.",
+    "mobileSelectBody": "Aşağıdaki kayıtlı cüzdanlarınızdan herhangi birini seçin veya yeni bir cüzdan oluşturun veya içe aktarın.",
+    "createANewWallet": "Yeni Cüzdan Oluştur",
+    "importExisting": "Mevcut Bir Cüzdanı İçe Aktar",
+    "createOrImport": "Cüzdan Oluştur veya İçe Aktar",
+    "viewSavedWallets": "Kayıtlı Cüzdanları Görüntüle",
+    "footerOne": "Devam ederek şunları kabul etmiş olursunuz:",
+    "terms": "Şartlar",
+    "privacyPolicy": "Gizlilik Politikası"
   },
   "connectWallet": {
     "menu": {
@@ -371,6 +385,9 @@
         "vaultCap": "Kasa Üst Limiti",
         "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedDepositTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
+        "disabledDepositTitle": "Para yatırma işlemleri geçici olarak devre dışı bırakıldı.",
+        "haltedWithdrawTitle": "Para çekme işlemleri geçici olarak durdurulmuştur.",
+        "disabledWithdrawTitle": "Para çekme işlemleri geçici olarak devre dışı bırakıldı.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
         "protocolFee": "Protokol Ücreti",
         "fee": "Ücret",
@@ -862,6 +879,11 @@
     }
   },
   "modals": {
+    "assetSearch": {
+      "myAssets": "Varlıklarım",
+      "popularAssets": "Popüler Varlıklar",
+      "searchResults": "Arama Sonuçları"
+    },
     "popup": {
       "body": "Siparişinizi tamamlamak için güvenli bir sayfa açtık.",
       "body2": "Güvenli sayfayı görmüyor musunuz? Siparişinizi tamamlamak için sayfayı yeniden başlatmanıza yardımcı olacağız.",
@@ -990,10 +1012,11 @@
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
       "tokenAddress": "Adrese",
-      "addressInput": "Adrese, ENS veya Yat'a",
+      "addressInput": "Adrese veya ENS'ye",
       "scanQrCode": "QR Kodunu Tara",
       "qrCode": "QR Kod",
       "permissionsButton": "Tekrar deneyin",
+      "transactionSent": "İşlem gönderildi",
       "sent": "%{asset} gönderildi",
       "errorTitle": "%{asset} gönderiminiz başarısız oldu",
       "errors": {
@@ -1173,6 +1196,8 @@
     "settings": {
       "clearCache": "Önbelleği temizle",
       "clearCacheTooltip": "Önbelleği temizle ve uygulamayı yeniden yükle",
+      "clearTxHistory": "İşlem geçmişini temizle",
+      "clearTxHistoryTooltip": "İşlem geçmişi önbelleğini temizle",
       "settings": "Ayarlar",
       "currency": "Para birimi",
       "clearWalletAccountData": "Tüm hesapları ve cüzdan verilerini silin",
@@ -2180,6 +2205,12 @@
         "body": "THORChain'de geri ödeme esnektir; istediğiniz zaman herhangi bir varlıkta geri ödeme yapmanıza olanak tanır ve bu daha sonra TOR'a dönüştürülür. Geri ödeme tutarı borç bakiyenizden düşülerek, tamamı geri ödendiğinde orantılı teminat tarafınıza iade edilir."
       }
     },
+    "errors": {
+      "repaymentsHalted": "Geri ödemeler geçici olarak durduruldu.",
+      "borrowingHalted": "Borçlanma geçici olarak durduruldu.",
+      "repaymentsDisabled": "Geri ödemeler geçici olarak devre dışı bırakıldı.",
+      "borrowingDisabled": "Ödünç alma geçici olarak devre dışı bırakıldı."
+    },
     "quote": {
       "collateral": "Kredinize karşılık teminat altına alınacak toplam varlık tutarı",
       "debt": "Yeni kredi tutarınıza göre borçlu olacağınız toplam borç tutarı",
@@ -2191,7 +2222,8 @@
       "yourLoans": "Kredileriniz",
       "emptyTitle": "Sıfır Krediler Ülkesi!",
       "emptyBody": "Şu anda herhangi bir krediniz yok gibi görünüyor. Bu finansal zen mi, yoksa bir sonraki büyük borç verme maceranızdan önce sadece bir mola mı? Her iki durumda da sakinliğin tadını çıkarın!"
-    }
+    },
+    "unsafeBorrow": "Bu ödünç almanın kayma oranı yüksek (%{slippagePercentage}%). Dikkatle ilerle."
   },
   "foxDiscounts": {
     "currentFoxPower": "FOX Power'ın",
@@ -2225,10 +2257,14 @@
     "poolsBody": "Likidite sağlayın ve bu havuzdaki işlemlerden ücret kazanın.",
     "availablePools": "Uygun Havuzlar",
     "addLiquidity": "Likidite Ekle",
+    "customSlippageDisabled": "Özel bir kayma ayarlayamıyoruz",
+    "unsafeQuote": "Bu depozitoda yüksek kayma (%{slippagePercentage}%) var. Dikkatle ilerle.",
     "removeLiquidity": "Likiditeyi Kaldır",
     "initialPricesAndPoolShare": "Başlangıç ​​Fiyatları ve Havuz Payı",
     "pricePerAsset": "%{to} başına %{from}",
     "symAlert": "%{from}'unuz, havuza girdikten sonra hem %{to} hem de %{from}'a 50:50'lik bir maruziyete bölünecek.",
+    "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
+    "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
     "unsupportedNetworkExplainer": "Cüzdanınız %{network}'ı desteklemiyor. Lütfen bu ağı destekleyen bir cüzdana geçin.",
     "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'yi desteklemiyor. Lütfen bu ağları destekleyen bir cüzdana geçin.",
     "shareOfPool": "Havuz Payı",

@@ -177,7 +177,7 @@ export const getValuesFromQuoteResponse = ({
     buyAmount,
   } = response.quote
 
-  const hasAffiliateFee = bn(affiliateBps).gt(0)
+  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
   // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
   const buyAmountAfterFeesCryptoBaseUnit = hasAffiliateFee
     ? bn(buyAmount)
@@ -259,7 +259,7 @@ export const getAffiliateAppDataFragmentByChainId = ({
   affiliateBps: string
   chainId: ChainId
 }): AffiliateAppDataFragment => {
-  const hasAffiliateFee = bn(affiliateBps).gt(0)
+  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
   if (!hasAffiliateFee) return {}
 
   return {

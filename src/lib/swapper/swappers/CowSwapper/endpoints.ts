@@ -16,7 +16,7 @@ import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
 import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
@@ -115,7 +115,7 @@ export const cowApi: SwapperApi = {
     // Failure to do so means orders may take forever to be filled, or never be filled at all.
     const quoteBuyAmount = quote.buyAmount
 
-    const hasAffiliateFee = bn(tradeQuote.affiliateBps).gt(0)
+    const hasAffiliateFee = bnOrZero(tradeQuote.affiliateBps).gt(0)
 
     // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
     const buyAmountAfterAffiliateFeesCryptoBaseUnit = hasAffiliateFee

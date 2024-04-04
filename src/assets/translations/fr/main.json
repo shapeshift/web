@@ -37,7 +37,6 @@
     "relayerGasFee": "Frais de carburant du relayeur",
     "insufficientAmountForGas": "Solde %{assetSymbol}.%{chainSymbol} insuffisant pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
-    "invalidAddressOrYat": "Adresse ou Yat invalide",
     "deposit": "Déposer",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
@@ -56,6 +55,7 @@
     "rename": "Renommer",
     "forget": "Oublier ?",
     "pending": "En attente",
+    "incomplete": "Incomplet",
     "available": "Disponible",
     "or": "ou",
     "somethingWentWrong": "Il y a eu un problème",
@@ -132,8 +132,10 @@
     "yourBalance": "Votre solde",
     "signTransaction": "Signer la transaction",
     "halted": "Arrêté",
+    "disabled": "Désactivé",
     "staged": "Aménagé",
     "poolHalted": "Pool arrêté",
+    "poolDisabled": "Pool désactivé",
     "symmetric": "Symétrique",
     "asymmetric": "Asymétrique (%{assetSymbol})",
     "carousel": {
@@ -211,6 +213,7 @@
       "priceChange": "Changement de prix",
       "allocation": "Répartition",
       "marketCap": "Capitalisation du marché",
+      "volume": "Volume",
       "sparkLine": "Sparkline",
       "empty": {
         "title": "Bruits de grillons...",
@@ -221,6 +224,7 @@
     "recentTransactions": {
       "recentTransactions": "Transactions récentes"
     },
+    "nfts": "NFT",
     "tradeCard": {
       "trade": "Échanger",
       "bridge": "Bridger",
@@ -272,7 +276,17 @@
     "viewADemo": "Voir une démo",
     "dontHaveWallet": "Vous n'avez pas de porte-monnaie ?",
     "welcomeBack": "Bon retour parmi nous !",
-    "welcomeBody": "Connecter votre porte-monnaie, c'est comme \"se loguer\". Sélectionnez votre porte-monnaie parmi les options pour commencer."
+    "welcomeBody": "Connecter votre porte-monnaie, c'est comme \"se loguer\". Sélectionnez votre porte-monnaie parmi les options pour commencer.",
+    "welcomeToShapeShift": "Bienvenue sur ShapeShift",
+    "mobileWelcomeBody": "Créez un nouveau porte-monnaie ou ajoutez-en un existant pour démarrer facilement.",
+    "mobileSelectBody": "Sélectionnez un de vos porte-monnaie enregistrés ci-dessous ou créez/importez un nouveau porte-monnaie.",
+    "createANewWallet": "Créer un nouveau porte-monnaie",
+    "importExisting": "Importer un porte-monnaie existant",
+    "createOrImport": "Créer ou Importer un porte-monnaie",
+    "viewSavedWallets": "Voir les porte-monnaie enregistrés",
+    "footerOne": "En continuant, vous acceptez les",
+    "terms": "Conditions",
+    "privacyPolicy": "Politique de confidentialité"
   },
   "connectWallet": {
     "menu": {
@@ -371,6 +385,9 @@
         "vaultCap": "Plafond du Vault",
         "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
         "haltedDepositTitle": "Les dépôts sont temporairement suspendus.",
+        "disabledDepositTitle": "Les dépôts sont temporairement désactivés.",
+        "haltedWithdrawTitle": "Les retraits sont temporairement interrompus.",
+        "disabledWithdrawTitle": "Les retraits sont temporairement désactivés.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "protocolFee": "Frais de protocole",
         "fee": "Frais",
@@ -862,6 +879,11 @@
     }
   },
   "modals": {
+    "assetSearch": {
+      "myAssets": "Mes actifs",
+      "popularAssets": "Actifs populaires",
+      "searchResults": "Résultats de recherche"
+    },
     "popup": {
       "body": "Nous avons ouvert une fenêtre sécurisée pour finaliser votre ordre.",
       "body2": "Vous ne voyez pas la fenêtre sécurisée ? Nous allons vous aider à rouvrir la fenêtre pour terminer votre ordre.",
@@ -990,10 +1012,11 @@
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
       "tokenAddress": "Adresse de destination",
-      "addressInput": "Adresse de destination, ENS ou Yat",
+      "addressInput": " Adresse de destination ou ENS",
       "scanQrCode": "Scanner code QR",
       "qrCode": "QR Code",
       "permissionsButton": "Réessayer",
+      "transactionSent": "Transaction envoyée",
       "sent": "%{asset} envoyé",
       "errorTitle": "Votre envoi en %{asset} a échoué",
       "errors": {
@@ -1173,6 +1196,8 @@
     "settings": {
       "clearCache": "Vider le cache",
       "clearCacheTooltip": "Vider le cache et recharger l'app",
+      "clearTxHistory": "Effacer l'historique des transactions",
+      "clearTxHistoryTooltip": "Effacer le cache de l'historique des transactions",
       "settings": "Paramètres",
       "currency": "Devise",
       "clearWalletAccountData": "Supprimer les données du porte-monnaie",
@@ -2180,6 +2205,12 @@
         "body": "Le remboursement sur THORChain est flexible, vous permettant de rembourser à tout moment après expiration de votre verrou de remboursement, et dans n'importe quel actif qui sera ensuite converti en TOR. Le montant du remboursement est déduit du solde de votre dette et une part proportionnelle du collatéral vous est restitué lors du remboursement intégral."
       }
     },
+    "errors": {
+      "repaymentsHalted": "Les remboursements sont temporairement interrompus.",
+      "borrowingHalted": "Les emprunts sont temporairement interrompus.",
+      "repaymentsDisabled": "Les remboursements sont temporairement désactivés.",
+      "borrowingDisabled": "Les emprunts sont temporairement désactivés."
+    },
     "quote": {
       "collateral": "Montant total des actifs qui seront utilisés comme garantie afin de couvrir votre prêt",
       "debt": "Dette totale que vous devrez en fonction du montant de votre nouveau prêt",
@@ -2191,7 +2222,8 @@
       "yourLoans": "Vos prêts",
       "emptyTitle": "Le pays d'Aucun Prêt !",
       "emptyBody": "Il semble que vous n'ayez aucun prêt pour le moment. Est-ce le zen financier ou juste une pause avant votre prochaine grande aventure d'emprunt ? Quoi qu’il en soit, profitez du calme !"
-    }
+    },
+    "unsafeBorrow": "Cet emprunt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence."
   },
   "foxDiscounts": {
     "currentFoxPower": "Votre Puissance FOX",
@@ -2225,10 +2257,14 @@
     "poolsBody": "Fournissez des liquidités et gagnez des frais sur les échanges de ce pool.",
     "availablePools": "Pools disponibles",
     "addLiquidity": "Ajouter de la liquidité",
+    "customSlippageDisabled": "Nous ne sommes pas en mesure de définir un glissement/slippage personnalisé",
+    "unsafeQuote": "Ce dépôt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence.",
     "removeLiquidity": "Retirer de la liquidité",
     "initialPricesAndPoolShare": "Prix ​​initiaux et part du pool",
     "pricePerAsset": "%{from} par %{to}",
     "symAlert": "Votre %{from} sera divisé en une exposition 50:50 à %{to} et %{from} dès votre entrée dans le pool.",
+    "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
+    "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
     "unsupportedNetworkExplainer": "Votre porte-monnaie ne prend pas en charge %{network}. Veuillez passer à un porte-monnaie prenant en charge ce réseau.",
     "unsupportedNetworksExplainer": "Votre porte-monnaie ne prend pas en charge %{network1} et %{network2}. Veuillez passer à un porte-monnaie prenant en charge ces réseaux.",
     "shareOfPool": "Part du pool",

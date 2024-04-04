@@ -37,7 +37,6 @@
     "relayerGasFee": "Relayer-Gasgebühr",
     "insufficientAmountForGas": "Nicht genug %{assetSymbol}.%{chainSymbol}, um Gasspesen abzudecken",
     "invalidAddress": "Ungültige Adresse",
-    "invalidAddressOrYat": "Ungültige Adresse oder Yat",
     "deposit": "Einzahlen",
     "withdraw": "Abheben",
     "withdrawal": "Abhebung",
@@ -56,6 +55,7 @@
     "rename": "Umbenennen",
     "forget": "Vergessen?",
     "pending": "Ausstehend",
+    "incomplete": "Unvollständig",
     "available": "Verfügbar",
     "or": "oder",
     "somethingWentWrong": "Etwas ist schief gelaufen",
@@ -132,8 +132,10 @@
     "yourBalance": "Ihr Kontostand",
     "signTransaction": "Transaktion unterzeichnen",
     "halted": "Angehalten",
+    "disabled": "Deaktiviert",
     "staged": "Gestaffelt",
     "poolHalted": "Pool angehalten",
+    "poolDisabled": "Pool deaktiviert",
     "symmetric": "Symmetrische",
     "asymmetric": "Asymmetrische (%{assetSymbol})",
     "carousel": {
@@ -211,6 +213,7 @@
       "priceChange": "Preisänderung",
       "allocation": "Vermögenskontingent",
       "marketCap": "Marktkapitalisierung",
+      "volume": "Volumen",
       "sparkLine": "Sparkline",
       "empty": {
         "title": "Grillengeräusche...",
@@ -221,6 +224,7 @@
     "recentTransactions": {
       "recentTransactions": "kürzliche Transaktionen"
     },
+    "nfts": "NFTs",
     "tradeCard": {
       "trade": "Handeln",
       "bridge": "Bridge",
@@ -272,7 +276,17 @@
     "viewADemo": "Sehen Sie sich eine Demo an",
     "dontHaveWallet": "Sie haben keine Wallet?",
     "welcomeBack": "Willkommen zurück!",
-    "welcomeBody": "Das Anschließen Ihrer Wallet ist wie „Anmelden“. Wählen Sie Ihre Wallet in den Optionen aus, um loszulegen."
+    "welcomeBody": "Das Anschließen Ihrer Wallet ist wie „Anmelden“. Wählen Sie Ihre Wallet in den Optionen aus, um loszulegen.",
+    "welcomeToShapeShift": "Willkommen bei ShapeShift",
+    "mobileWelcomeBody": "Erstellen Sie eine brandneue Wallet oder fügen Sie eine bestehende hinzu, um loszulegen.",
+    "mobileSelectBody": "Wählen Sie unten eine Ihrer gespeicherten Wallets aus oder erstellen oder importieren Sie eine neue Wallet.",
+    "createANewWallet": "Erstellen Sie eine neue Wallet",
+    "importExisting": "Importieren Sie eine vorhandene Wallet",
+    "createOrImport": "Wallet erstellen oder importieren",
+    "viewSavedWallets": "Gespeicherte Wallets anzeigen",
+    "footerOne": "Fortfahren, gilt als Zustimmung zu den ",
+    "terms": "Bedingungen",
+    "privacyPolicy": "Datenschutzrichtlinie"
   },
   "connectWallet": {
     "menu": {
@@ -371,6 +385,9 @@
         "vaultCap": "Tresorobergrenze",
         "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
         "haltedDepositTitle": "Einzahlungen sind vorübergehend gestoppt.",
+        "disabledDepositTitle": "Einzahlungen sind vorübergehend deaktiviert.",
+        "haltedWithdrawTitle": "Auszahlungen sind vorübergehend gestoppt.",
+        "disabledWithdrawTitle": "Auszahlungen sind vorübergehend deaktiviert.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
         "protocolFee": "Protokollgebühr",
         "fee": "Gebühr",
@@ -862,6 +879,11 @@
     }
   },
   "modals": {
+    "assetSearch": {
+      "myAssets": "Mein Vermögen",
+      "popularAssets": "Beliebte Vermögenswerte",
+      "searchResults": "Suchergebnisse"
+    },
     "popup": {
       "body": "Wir haben ein sicheres Fenster geöffnet, um Ihre Bestellung abzuschließen.",
       "body2": "Sie sehen das sichere Fenster nicht? Wir helfen Ihnen, das Fenster neu zu starten, um Ihre Bestellung abzuschließen.",
@@ -990,10 +1012,11 @@
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
       "tokenAddress": "An Adresse",
-      "addressInput": "an Addresse, ENS oder Yat",
+      "addressInput": "An Adresse oder ENS",
       "scanQrCode": "QR-Code scannen",
       "qrCode": "QR Code",
       "permissionsButton": "Versuchen Sie es nochmal",
+      "transactionSent": "Transaktion gesendet",
       "sent": "%{asset} gesendet",
       "errorTitle": "Ihr Versand von %{asset} ist fehlgeschlagen",
       "errors": {
@@ -1173,6 +1196,8 @@
     "settings": {
       "clearCache": "Cache leeren",
       "clearCacheTooltip": "Cache leeren und App neu laden",
+      "clearTxHistory": "Transaktionsverlauf löschen",
+      "clearTxHistoryTooltip": "Cache des Transaktionsverlaufs löschen",
       "settings": "Einstellungen",
       "currency": "Währung",
       "clearWalletAccountData": "Löschen Sie alle Konten und Wallets",
@@ -2180,6 +2205,12 @@
         "body": "Die Rückzahlung in THORChain ist flexibel und ermöglicht Ihnen die Rückzahlung jederzeit nach Ablauf Ihrer Rückzahlungssperre und in jedem Vermögenswert, der dann in TOR umgewandelt wird. Der Rückzahlungsbetrag wird von Ihrem Schuldensaldo abgezogen und die anteilige Sicherheit wird Ihnen bei vollständiger Rückzahlung wieder freigegeben"
       }
     },
+    "errors": {
+      "repaymentsHalted": "Rückzahlungen sind vorübergehend gestoppt.",
+      "borrowingHalted": "Ausleihen ist vorübergehend gestoppt.",
+      "repaymentsDisabled": "Rückzahlungen sind vorübergehend deaktiviert.",
+      "borrowingDisabled": "Ausleihen ist vorübergehend deaktiviert."
+    },
     "quote": {
       "collateral": "Gesamtvermögenswert, der gegen Ihr Darlehen besichert wird",
       "debt": "Gesamtschulden, die Sie basierend auf Ihrem neuen Kreditbetrag schulden",
@@ -2191,7 +2222,8 @@
       "yourLoans": "Ihre Kredite",
       "emptyTitle": "Das Land der Nullkredite!",
       "emptyBody": "Offenbar haben Sie im Moment keine Kredite. Ist das ein finanzieller Zen-Zauber oder nur eine Pause vor Ihrem nächsten großen Kreditabenteuer? Wie auch immer, genießen Sie die Ruhe!"
-    }
+    },
+    "unsafeBorrow": "Dieser Kredit hat einen hohen Slippage (%{slippagePercentage}%). Mit Vorsicht fortfahren."
   },
   "foxDiscounts": {
     "currentFoxPower": "Deine FOX Power",
@@ -2225,10 +2257,14 @@
     "poolsBody": "Stellen Sie Liquidität bereit und verdienen Sie Gebühren für Trades in diesem Pool.",
     "availablePools": "Verfügbare Pools",
     "addLiquidity": "Liquidität hinzufügen",
+    "customSlippageDisabled": "Wir können keine benutzerdefinierte Slippage festlegen",
+    "unsafeQuote": "Diese Einzahlung weist einen hohen Slippage (%{slippagePercentage}%) auf. Mit Vorsicht fortfahren.",
     "removeLiquidity": "Liquidität entfernen",
     "initialPricesAndPoolShare": "Anfangspreise und Poolanteil",
     "pricePerAsset": "%{from} pro %{to}",
     "symAlert": "Ihr %{from} wird beim Eintritt in den Pool in ein 50:50-Engagement für %{to} und %{from} aufgeteilt.",
+    "incompletePositionDepositAlert": "Diese Position ist unvollständig. Bitte zahlen Sie den entsprechenden Betrag von %{asset} ein, um diese Position abzuschließen.",
+    "incompletePositionWithdrawAlert": "Diese Position ist unvollständig. Bitte stornieren Sie die Position, indem Sie 100 % der Liquidität entfernen. Sie können die Position auch über „Liquidität hinzufügen“ abschließen.",
     "unsupportedNetworkExplainer": "Ihre Wallet unterstützt %{network} nicht. Bitte wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
     "unsupportedNetworksExplainer": "Ihre Wallet unterstützt %{network1} und %{network2} nicht. Bitte wechseln Sie zu einer Wallet, die diese Netzwerke unterstützt.",
     "shareOfPool": "Anteil am Pool",

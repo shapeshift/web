@@ -2258,6 +2258,7 @@
     "availablePools": "利用可能なプール",
     "addLiquidity": "流動性の追加",
     "customSlippageDisabled": "カスタムスリッページを設定できません",
+    "unsafeQuote": "このデポジットには高いスリッページ (%{slippagePercentage}%) があります。慎重に作業を進めてください。",
     "removeLiquidity": "流動性の除去",
     "initialPricesAndPoolShare": "初期価格とプールシェア",
     "pricePerAsset": "%{from}/%{to}",

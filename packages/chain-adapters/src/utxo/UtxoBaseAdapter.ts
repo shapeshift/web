@@ -48,7 +48,7 @@ import {
   toRootDerivationPath,
 } from '../utils'
 import { bn, bnOrZero } from '../utils/bignumber'
-import { validateAddress } from '../utils/validateAddress'
+import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { bitcoin, bitcoincash, dogecoin, litecoin } from './'
 import type { GetAddressInput, GetUtxosInput } from './types'
 import { getAddresses } from './utils'
@@ -310,7 +310,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const uniqueAddresses = [...new Set(addresses)]
 
-      await Promise.all(uniqueAddresses.map(validateAddress))
+      await Promise.all(uniqueAddresses.map(assertAddressNotSanctioned))
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
@@ -444,7 +444,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
-    await (receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress))
+    await (receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress))
 
     try {
       const { wallet } = signTxInput
@@ -487,7 +487,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }
 
   async broadcastTransaction({ receiverAddress, hex }: BroadcastTransactionInput): Promise<string> {
-    await (receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress))
+    await (receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress))
 
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }

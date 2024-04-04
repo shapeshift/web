@@ -16,9 +16,8 @@ import type { Result } from '@sniptt/monads/build'
 import { getConfig } from 'config'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
-import { convertBasisPointsToDecimalPercentage } from 'state/slices/tradeQuoteSlice/utils'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
@@ -34,6 +33,8 @@ import {
 } from './utils/constants'
 import { cowService } from './utils/cowService'
 import {
+  deductAffiliateFeesFromAmount,
+  deductSlippageFromAmount,
   getAffiliateAppDataFragmentByChainId,
   getCowswapNetwork,
   getFullAppData,
@@ -115,21 +116,15 @@ export const cowApi: SwapperApi = {
     // Failure to do so means orders may take forever to be filled, or never be filled at all.
     const quoteBuyAmount = quote.buyAmount
 
-    const hasAffiliateFee = bnOrZero(tradeQuote.affiliateBps).gt(0)
-
     // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
-    const buyAmountAfterAffiliateFeesCryptoBaseUnit = hasAffiliateFee
-      ? bn(quoteBuyAmount)
-          .times(bn(1).minus(convertBasisPointsToDecimalPercentage(tradeQuote.affiliateBps)))
-          .toFixed(0)
-      : quoteBuyAmount
-    const buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit = bn(
-      buyAmountAfterAffiliateFeesCryptoBaseUnit,
-    )
-      .minus(
-        bn(buyAmountAfterAffiliateFeesCryptoBaseUnit).times(slippageTolerancePercentageDecimal),
-      )
-      .toFixed(0)
+    const buyAmountAfterAffiliateFeesCryptoBaseUnit = deductAffiliateFeesFromAmount({
+      amount: quoteBuyAmount,
+      affiliateBps: tradeQuote.affiliateBps,
+    })
+    const buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit = deductSlippageFromAmount({
+      amount: buyAmountAfterAffiliateFeesCryptoBaseUnit,
+      slippageTolerancePercentageDecimal,
+    }).toFixed(0)
 
     // CoW API and flow is weird - same idea as the mutation above, we need to incorporate protocol fees into the order
     // This was previously working as-is with fees being deducted from the sell amount at protocol-level, but we now we need to add them into the order

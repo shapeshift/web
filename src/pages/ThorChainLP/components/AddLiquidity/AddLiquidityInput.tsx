@@ -1123,7 +1123,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     votingPower,
   ])
 
-  const percentOptions = useMemo(() => [1], [])
+  const percentOptions = useMemo(() => [], [])
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
   const pairDivider = useMemo(() => {

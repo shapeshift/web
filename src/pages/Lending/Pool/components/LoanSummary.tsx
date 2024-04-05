@@ -206,7 +206,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Value>
             <Skeleton isLoaded={!(isPositionRepaymentLockLoading || isNetworkRepaymentLockLoading)}>
               <FromToStack>
-                <RawText color={isRepaymentLocked ? 'subtle' : 'green.500'}>
+                <RawText color={isRepaymentLocked ? 'text.subtle' : 'green.500'}>
                   {isRepaymentLocked
                     ? translate('lending.repaymentDays', { numDays: positionRepaymentLock })
                     : translate('lending.unlocked')}

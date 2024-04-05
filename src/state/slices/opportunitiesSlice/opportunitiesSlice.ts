@@ -42,10 +42,20 @@ export const opportunities = createSlice({
     },
     upsertOpportunityAccounts: {
       reducer: (draftState, { payload }: { payload: GetOpportunityUserDataOutput }) => {
-        draftState[payload.type].byAccountId = Object.assign(
-          draftState[payload.type].byAccountId,
-          payload.byAccountId,
-        )
+        if (!draftState[payload.type].byAccountId) {
+          draftState[payload.type].byAccountId = {}
+        }
+
+        Object.keys(payload.byAccountId).forEach(accountId => {
+          if (!draftState[payload.type].byAccountId[accountId]) {
+            draftState[payload.type].byAccountId[accountId] = []
+          }
+
+          draftState[payload.type].byAccountId[accountId] = [
+            ...(draftState[payload.type].byAccountId[accountId] ?? []),
+            ...(payload.byAccountId[accountId] ?? []),
+          ]
+        })
       },
       // Use the `prepareAutoBatched` utility to automatically
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs

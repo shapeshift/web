@@ -17,6 +17,7 @@ import {
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
   assertValidTrade,
+  getAffiliateAppDataFragmentByChainId,
   getCowswapNetwork,
   getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
@@ -34,6 +35,8 @@ export async function getCowSwapTradeQuote(
     chainId,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    potentialAffiliateBps,
+    affiliateBps,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -57,7 +60,15 @@ export async function getCowSwapTradeQuote(
   const network = maybeNetwork.unwrap()
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
-  const { appData, appDataHash } = await getFullAppData(slippageTolerancePercentageDecimal)
+  const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
+    affiliateBps,
+    chainId: sellAsset.chainId,
+  })
+
+  const { appData, appDataHash } = await getFullAppData(
+    slippageTolerancePercentageDecimal,
+    affiliateAppDataFragment,
+  )
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
@@ -95,24 +106,21 @@ export async function getCowSwapTradeQuote(
 
   const { data } = maybeQuoteResponse.unwrap()
 
-  const {
-    feeAmount: feeAmountInSellTokenCryptoBaseUnit,
-    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
-  } = data.quote
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
 
-  const { rate, buyAmountBeforeFeesCryptoBaseUnit } = getValuesFromQuoteResponse({
-    buyAsset,
-    sellAsset,
-    response: data,
-  })
+  const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
+    getValuesFromQuoteResponse({
+      buyAsset,
+      sellAsset,
+      response: data,
+      affiliateBps,
+    })
 
   const quote: TradeQuote = {
     id: data.id.toString(),
     receiveAddress,
-    // CowSwap does not support affiliate bps
-    // But we still need to return them as 0, so they are properly displayed as such at view-layer
-    affiliateBps: '0',
-    potentialAffiliateBps: '0',
+    affiliateBps,
+    potentialAffiliateBps,
     rate,
     slippageTolerancePercentageDecimal,
     steps: [

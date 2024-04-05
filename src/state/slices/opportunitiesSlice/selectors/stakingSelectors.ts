@@ -527,7 +527,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       // Keep only the version with actual data if it exists, else keep the zero'd out version
       const aggregatedEarnUserStakingOpportunitiesIncludeEmpty = uniqBy(
         [...aggregatedEarnUserStakingOpportunities, ...emptyEarnOpportunitiesTypes],
-        ({ contractAddress, assetId, id }) => contractAddress ?? assetId ?? id,
+        ({ contractAddress, assetId, id }) => id ?? contractAddress ?? assetId,
       )
 
       const results = aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {

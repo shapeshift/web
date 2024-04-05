@@ -28,7 +28,10 @@ const AssetInputAwaitingAsset = () => {
   )
 }
 
-type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & { assetId: AssetId }
+type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & {
+  assetId: AssetId
+  onMaxClick?: (isFiat: boolean) => Promise<void>
+}
 
 const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
   const { assetId, accountId } = props
@@ -48,6 +51,8 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
 
   const onMaxClick = useCallback(
     (isFiat: boolean) => {
+      if (props.onMaxClick) return props.onMaxClick(isFiat)
+
       const value = isFiat ? fiatBalance : balance
       if (props.onChange) props.onChange(value, isFiat)
       return Promise.resolve()
@@ -68,6 +73,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
 export type TradeAssetInputProps = {
   assetId?: AssetId
   hideAmounts?: boolean
+  onMaxClick?: (isFiat: boolean) => Promise<void>
 } & Omit<TradeAmountInputProps, 'onMaxClick'>
 
 export const TradeAssetInput: React.FC<TradeAssetInputProps> = memo(

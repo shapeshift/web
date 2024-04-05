@@ -1195,6 +1195,30 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
           const accountId = currentAccountIdByChainId[asset.chainId]
 
+          const { maxCryptoPrecision, maxFiat } = (() => {
+            const RUNE_OUTBOUND_FEE = '2000000'
+            const balanceCryptoBaseUnit = isRune
+              ? runeBalanceCryptoBaseUnit
+              : poolAssetBalanceCryptoBaseUnit
+
+            // RUNE has a hardcoded 0.02 RUNE outbound fee - other assets suffer from a chicken-and-egg scenario, where
+            // we need a value to get the Tx fee, but we need the Tx fee to get the max value.
+            const maxCryptoBaseUnit = (() => {
+              if (isRune) return bn(balanceCryptoBaseUnit).minus(RUNE_OUTBOUND_FEE)
+              return balanceCryptoBaseUnit
+            })()
+            const maxCryptoPrecision = fromBaseUnit(maxCryptoBaseUnit, asset.precision)
+            const maxFiat = bnOrZero(maxCryptoPrecision).times(marketData.price).toString()
+
+            return { maxCryptoPrecision, maxFiat }
+          })()
+
+          const onMaxClick = (isFiat: boolean) => {
+            const value = isFiat ? maxFiat : maxCryptoPrecision
+            handleAddLiquidityInputChange(value, isFiat)
+            return Promise.resolve()
+          }
+
           return (
             <TradeAssetInput
               autoSelectHighestBalance={false}
@@ -1213,6 +1237,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}
               onChange={handleAddLiquidityInputChange}
+              // eslint-disable-next-line react-memo/require-usememo
+              onMaxClick={onMaxClick}
               onToggleIsFiat={isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat}
               isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
               cryptoAmount={cryptoAmount}
@@ -1234,11 +1260,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     pairDivider,
     percentOptions,
     poolAsset,
+    poolAssetBalanceCryptoBaseUnit,
     poolAssetIsFiat,
     poolAssetMarketData,
-    position,
+    position?.status.incomplete?.amountCryptoPrecision,
+    position?.status.incomplete?.asset.assetId,
     previousOpportunityId,
     runeAsset,
+    runeBalanceCryptoBaseUnit,
     runeIsFiat,
     runeMarketData,
     virtualAssetDepositAmountCryptoPrecision,

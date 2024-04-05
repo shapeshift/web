@@ -104,6 +104,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   )
   const { data: positionRepaymentLock, isLoading: isPositionRepaymentLockLoading } =
     useRepaymentLockData(useRepaymentLockDataArgs)
+  const isRepaymentLocked = bnOrZero(positionRepaymentLock).gt(0)
 
   const useRepaymentLockNetworkDataArgs = useMemo(() => ({}), [])
   const { data: networkRepaymentLock, isLoading: isNetworkRepaymentLockLoading } =
@@ -205,7 +206,11 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
           <Row.Value>
             <Skeleton isLoaded={!(isPositionRepaymentLockLoading || isNetworkRepaymentLockLoading)}>
               <FromToStack>
-                <RawText color='text.subtle'>{positionRepaymentLock} days</RawText>
+                <RawText color={isRepaymentLocked ? 'text.subtle' : 'green.500'}>
+                  {isRepaymentLocked
+                    ? translate('lending.repaymentDays', { numDays: positionRepaymentLock })
+                    : translate('lending.unlocked')}
+                </RawText>
                 <RawText>{networkRepaymentLock} days</RawText>
               </FromToStack>
             </Skeleton>

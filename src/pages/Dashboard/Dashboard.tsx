@@ -1,8 +1,8 @@
 import type { FlexProps, StackDirection, TabProps } from '@chakra-ui/react'
 import { Flex, Stack, Tab, TabIndicator, TabList, Tabs, useMediaQuery } from '@chakra-ui/react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Switch, useRouteMatch } from 'react-router'
+import { Route, Switch, useHistory, useRouteMatch } from 'react-router'
 import SwipeableViews from 'react-swipeable-views'
 import { mod } from 'react-swipeable-views-core'
 import { type SlideRenderProps, virtualize } from 'react-swipeable-views-utils'
@@ -57,6 +57,14 @@ const ScrollView = (props: FlexProps) => (
 
 const VirtualizedSwipableViews = virtualize(SwipeableViews)
 
+// Leverage the fact that enums don't exist in native JS and compile to 0, 1, and 2 when accessed here
+// so we can have a declarative way to refer to the tab indexes instead of magic numbers
+enum MobileTab {
+  Overview,
+  Nfts,
+  Activity,
+}
+
 export const Dashboard = memo(() => {
   const translate = useTranslate()
   const [slideIndex, setSlideIndex] = useState(0)
@@ -65,10 +73,32 @@ export const Dashboard = memo(() => {
   const { path } = useRouteMatch()
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const appIsMobile = isMobile || !isLargerThanMd
+  const history = useHistory()
+
+  const handleSlideIndexChange = useCallback(
+    (index: number) => {
+      switch (index) {
+        case MobileTab.Overview:
+          history.push(`${path}`)
+          break
+        case MobileTab.Nfts:
+          history.push(`${path}/nfts`)
+          break
+        case MobileTab.Activity:
+          history.push(`${path}/activity`)
+          break
+        default:
+          break
+      }
+
+      setSlideIndex(index)
+    },
+    [history, path],
+  )
 
   const mobileTabs = useMemo(() => {
     return (
-      <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={setSlideIndex}>
+      <Tabs mx={6} index={slideIndex} variant='unstyled' onChange={handleSlideIndexChange}>
         <TabList>
           <CustomTab>{translate('navBar.overview')}</CustomTab>
           <CustomTab>NFTs</CustomTab>
@@ -77,7 +107,7 @@ export const Dashboard = memo(() => {
         <TabIndicator mt='-1.5px' height='2px' bg='blue.500' borderRadius='1px' />
       </Tabs>
     )
-  }, [slideIndex, translate])
+  }, [handleSlideIndexChange, slideIndex, translate])
 
   const dashboardHeader = useMemo(
     () => <DashboardHeader tabComponent={appIsMobile ? mobileTabs : undefined} />,
@@ -88,13 +118,26 @@ export const Dashboard = memo(() => {
     const { index, key } = props
     let content
     switch (mod(index, 3)) {
-      case 0:
-        content = <WalletDashboard />
+      case MobileTab.Overview:
+        content = (
+          <>
+            <Route exact path={`${path}`}>
+              <WalletDashboard />
+            </Route>
+            <Route path={`${path}/accounts`}>
+              <Accounts />
+            </Route>
+          </>
+        )
         break
-      case 1:
-        content = <NftTable />
+      case MobileTab.Nfts:
+        content = (
+          <Route exact path={`${path}/nfts`}>
+            <NftTable />
+          </Route>
+        )
         break
-      case 2:
+      case MobileTab.Activity:
         content = <MobileActivity />
         break
       default:
@@ -103,7 +146,7 @@ export const Dashboard = memo(() => {
     }
     return (
       <ScrollView id={`scroll-view-${key}`} key={key}>
-        {content}
+        <Switch>{content}</Switch>
       </ScrollView>
     )
   }
@@ -117,7 +160,7 @@ export const Dashboard = memo(() => {
           slideCount={3}
           overscanSlideBefore={1}
           overscanSlideAfter={1}
-          onChangeIndex={setSlideIndex}
+          onChangeIndex={handleSlideIndexChange}
         />
       </Main>
     )

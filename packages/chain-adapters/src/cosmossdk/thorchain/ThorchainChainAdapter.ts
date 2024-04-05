@@ -5,6 +5,7 @@ import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import axios from 'axios'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -19,24 +20,49 @@ import type {
 } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
 import { toAddressNList } from '../../utils'
-import { bnOrZero } from '../../utils/bignumber'
+import { bn, bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
 import type { ThorchainMsgSend } from '../types'
 import { ThorchainMessageType, type ThorchainMsgDeposit } from '../types'
 
-// https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
-// static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
-const OUTBOUND_FEE = '2000000'
-
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.ThorchainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.ThorchainMainnet
 
-const calculateFee = (fee: string): string => {
+const getThorNativeTxFee = async () => {
+  // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
+  // static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants
+  // used as a fallback in case fetching the constant from the node fails
+  const OUTBOUND_FEE = '2000000'
+
+  try {
+    const thornodeUrl = process.env.REACT_APP_THORCHAIN_NODE_URL
+    if (!thornodeUrl) throw new Error('REACT_APP_THORCHAIN_NODE_URL is missing')
+
+    const { data } = await axios.get<{
+      bool_values: Record<string, boolean>
+      int_64_values: Record<string, number>
+      string_values: Record<string, string>
+    }>(`${thornodeUrl}/lcd/thorchain/constants`)
+
+    const nativeTransactionFee = data.int_64_values.NativeTransactionFee
+    if (!nativeTransactionFee)
+      throw new Error('NativeTransactionFee not found in THORNode constants')
+
+    return bn(nativeTransactionFee).toFixed()
+  } catch (error) {
+    console.error('Error fetching outbound fee from THORNode:', error)
+    return OUTBOUND_FEE
+  }
+}
+
+const calculateFee = async (fee: string): Promise<string> => {
+  const txFee = await getThorNativeTxFee()
+
   // 0.02 RUNE is automatically charged on outbound transactions
   // the returned is the difference of any additional fee over the default 0.02 RUNE (ie. tx.fee >= 2000001)
-  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(OUTBOUND_FEE)
+  const feeMinusAutomaticOutboundFee = bnOrZero(fee).minus(txFee)
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 
@@ -151,7 +177,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const tx = Object.assign(input, {
         account,
         msg,
-        chainSpecific: { ...input.chainSpecific, fee: calculateFee(fee) },
+        chainSpecific: { ...input.chainSpecific, fee: await calculateFee(fee) },
       })
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)
@@ -194,7 +220,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       const tx = Object.assign(input, {
         account,
         msg,
-        chainSpecific: { ...input.chainSpecific, fee: calculateFee(fee) },
+        chainSpecific: { ...input.chainSpecific, fee: await calculateFee(fee) },
       })
 
       return this.buildTransaction<KnownChainIds.ThorchainMainnet>(tx)
@@ -207,10 +233,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   async getFeeData(
     _: Partial<GetFeeDataInput<KnownChainIds.ThorchainMainnet>>,
   ): Promise<FeeDataEstimate<KnownChainIds.ThorchainMainnet>> {
+    const txFee = await getThorNativeTxFee()
     return {
-      fast: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
-      average: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
-      slow: { txFee: OUTBOUND_FEE, chainSpecific: { gasLimit: '500000000' } },
+      fast: { txFee, chainSpecific: { gasLimit: '500000000' } },
+      average: { txFee, chainSpecific: { gasLimit: '500000000' } },
+      slow: { txFee, chainSpecific: { gasLimit: '500000000' } },
     }
   }
 

@@ -165,6 +165,31 @@ type GetValuesFromQuoteResponseArgs = {
   affiliateBps: string
 }
 
+export const deductAffiliateFeesFromAmount = ({
+  amount,
+  affiliateBps,
+}: {
+  amount: string
+  affiliateBps: string
+}) => {
+  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
+  if (!hasAffiliateFee) return amount
+
+  return bn(amount)
+    .times(bn(1).minus(convertBasisPointsToDecimalPercentage(affiliateBps)))
+    .toFixed(0)
+}
+
+export const deductSlippageFromAmount = ({
+  amount,
+  slippageTolerancePercentageDecimal,
+}: {
+  amount: string
+  slippageTolerancePercentageDecimal: string
+}) => {
+  return bn(amount).minus(bn(amount).times(slippageTolerancePercentageDecimal))
+}
+
 export const getValuesFromQuoteResponse = ({
   buyAsset,
   sellAsset,
@@ -177,13 +202,11 @@ export const getValuesFromQuoteResponse = ({
     buyAmount,
   } = response.quote
 
-  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
   // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
-  const buyAmountAfterFeesCryptoBaseUnit = hasAffiliateFee
-    ? bn(buyAmount)
-        .times(bn(1).minus(convertBasisPointsToDecimalPercentage(affiliateBps)))
-        .toFixed(0)
-    : buyAmount
+  const buyAmountAfterFeesCryptoBaseUnit = deductAffiliateFeesFromAmount({
+    amount: buyAmount,
+    affiliateBps,
+  })
 
   const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
     buyAmountAfterFeesCryptoBaseUnit,

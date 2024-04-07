@@ -1,11 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
 import qs from 'qs'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -137,7 +136,7 @@ export const zapperApi = createApi({
       },
     }),
     getZapperAppTokensOutput: build.query<GetZapperAppTokensOutput, void>({
-      queryFn: async (_, { dispatch, getState }) => {
+      queryFn: async () => {
         const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
 
         // only UNI-V2 supported for now
@@ -150,10 +149,7 @@ export const zapperApi = createApi({
         const { data: res } = await axios.request({ ...payload })
         const zapperV2AppTokensData = V2AppTokensResponse.parse(res)
 
-        const assets = selectAssets(getState() as ReduxState)
-
-        const { assets: zapperAssets, data } = zapperV2AppTokensData.reduce<{
-          assets: UpsertAssetsPayload
+        const { data } = zapperV2AppTokensData.reduce<{
           data: GetZapperAppTokensOutput
         }>(
           (acc, appTokenData) => {
@@ -170,45 +166,10 @@ export const zapperApi = createApi({
 
             acc.data[assetId] = appTokenData
 
-            const underlyingAssets = (appTokenData.tokens ?? []).map(token => {
-              const assetId = toAssetId({
-                chainId,
-                assetNamespace: 'erc20', // TODO: bep20
-                assetReference: token.address,
-              })
-              const asset =
-                token.address.toLowerCase() === WETH_TOKEN_CONTRACT_ADDRESS.toLowerCase()
-                  ? assets[ethAssetId]
-                  : assets[assetId]
-
-              return asset
-            })
-
-            const name = underlyingAssets.every(asset => asset && asset.symbol)
-              ? `${underlyingAssets.map(asset => asset?.symbol).join('/')} Pool`
-              : (appTokenData.displayProps?.label ?? '').replace('WETH', 'ETH')
-            const icons = underlyingAssets.map((underlyingAsset, i) => {
-              return underlyingAsset?.icon ?? appTokenData.displayProps?.images[i] ?? ''
-            })
-
-            if (!(appTokenData.decimals && appTokenData.symbol)) return acc
-
-            acc.assets.byId[assetId] = makeAsset({
-              assetId,
-              symbol: appTokenData.symbol,
-              // WETH should be displayed as ETH in the UI due to the way UNI-V2 works
-              // ETH is used for depositing/withdrawing, but WETH is used under the hood
-              name,
-              precision: Number(appTokenData.decimals),
-              icons,
-            })
-            acc.assets.ids.push(assetId)
             return acc
           },
-          { assets: { byId: {}, ids: [] }, data: {} },
+          { data: {} },
         )
-
-        dispatch(assetsSlice.actions.upsertAssets(zapperAssets))
 
         return { data }
       },
@@ -319,6 +280,9 @@ export const zapper = createApi({
   endpoints: build => ({
     getZapperUniV2PoolAssetIds: build.query<GetZapperUniV2PoolAssetIdsOutput, void>({
       queryFn: async (_, { dispatch }) => {
+        // We already have the static assets list in the store, however we need to also fetch it here for 2 reasons
+        // 1. We still need to fetch the raw data from Zapper, which we can't store dynamically because asset ratios and APY changes
+        // 2. We have no notion of asset "tags" i.e the notion that these assets are UNI-V2 pools
         const maybeZapperV2AppTokensData = await dispatch(
           zapperApi.endpoints.getZapperAppTokensOutput.initiate(),
         )
@@ -334,7 +298,7 @@ export const zapper = createApi({
 
             return toAssetId({
               chainId,
-              assetNamespace: 'erc20', // TODO: bep20
+              assetNamespace: 'erc20',
               assetReference: appTokenData.address,
             })
           })

@@ -1,5 +1,4 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData } from 'lightweight-charts'
 import { useCallback, useMemo, useState } from 'react'
@@ -11,18 +10,20 @@ import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
 } from 'lib/utils/thorchain/lp/types'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 const swapHistoryToChartData = (
   swapHistory: MidgardSwapHistoryResponse | undefined,
-  runePrice: string,
 ): SingleValueData<number>[] => {
   if (!swapHistory) return []
 
+  const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+
   return swapHistory.intervals.map(interval => {
     const intervalVolumeFiatUserCurrency = fromThorBaseUnit(interval.totalVolume)
-      .times(runePrice)
+      .times(interval.runePriceUSD)
+      .times(userCurrencyToUsdRate)
       .toFixed()
 
     return {
@@ -34,14 +35,17 @@ const swapHistoryToChartData = (
 
 const tvlToChartData = (
   tvl: MidgardTvlHistoryResponse,
-  runePrice: string,
   thorchainNotationAssetId: string,
 ): SingleValueData<number>[] =>
   tvl.intervals.map(interval => {
+    const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
     const poolDepth = interval.poolsDepth.find(pool => pool.pool === thorchainNotationAssetId)
     const poolTotalDepth = poolDepth?.totalDepth ?? '0'
 
-    const tvlFiat = fromThorBaseUnit(poolTotalDepth).times(runePrice).toFixed()
+    const tvlFiat = fromThorBaseUnit(poolTotalDepth)
+      .times(interval.runePriceUSD)
+      .times(userCurrencyToUsdRate)
+      .toFixed()
     return {
       time: Number(interval.startTime),
       value: Number(tvlFiat),
@@ -66,21 +70,17 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
   const setSelectedVolumeDataType = useCallback(() => setSelectedDataType('volume'), [])
   const setSelectedLiquidityDataType = useCallback(() => setSelectedDataType('liquidity'), [])
 
-  const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
-
   const { data: swapsData } = useQuery({
     ...reactQueries.midgard.swapsData(
       thorchainNotationAssetId,
       ...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval],
     ),
-    select: data => swapHistoryToChartData(data, runeMarketData.price),
+    select: data => swapHistoryToChartData(data),
   })
 
   const { data: tvl } = useQuery({
     ...reactQueries.midgard.tvl(...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval]),
-    select: data => tvlToChartData(data, runeMarketData.price, thorchainNotationAssetId),
+    select: data => tvlToChartData(data, thorchainNotationAssetId),
   })
 
   const data = useMemo(() => {

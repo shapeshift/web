@@ -21,13 +21,13 @@ const swapHistoryToChartData = (
   if (!swapHistory) return []
 
   return swapHistory.intervals.map(interval => {
-    const intervalVolume2FiatUserCurrency = fromThorBaseUnit(interval.totalVolume)
+    const intervalVolumeFiatUserCurrency = fromThorBaseUnit(interval.totalVolume)
       .times(runePrice)
       .toFixed()
 
     return {
       time: Number(interval.startTime),
-      value: Number(intervalVolume2FiatUserCurrency),
+      value: Number(intervalVolumeFiatUserCurrency),
     }
   })
 }

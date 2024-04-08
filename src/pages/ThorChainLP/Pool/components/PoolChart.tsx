@@ -66,7 +66,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
   const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
   const seriesType = useMemo(
-    () => (selectedDataType === 'volume' ? 'histogram' : 'line'),
+    () => (selectedDataType === 'volume' ? 'Histogram' : 'Line'),
     [selectedDataType],
   )
 

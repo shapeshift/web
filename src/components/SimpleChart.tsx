@@ -1,3 +1,4 @@
+import type { SeriesType } from 'lightweight-charts'
 import { ColorType, createChart, type SingleValueData, type Time } from 'lightweight-charts'
 import { useEffect, useRef } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
@@ -5,7 +6,7 @@ import { store } from 'state/store'
 
 type SimpleChartProps<T extends number | Time> = {
   data: SingleValueData<T>[]
-  seriesType?: 'histogram' | 'line'
+  seriesType?: SeriesType
 }
 
 const backgroundColor = 'rgba(188, 214, 240, 0.04)'
@@ -25,7 +26,7 @@ const priceFormatter = Intl.NumberFormat(currentLocale, {
 
 const chartContainerStyles = { width: '100%', height: '500px' }
 
-export const SimpleChart = <T extends Time>({ data, seriesType = 'line' }: SimpleChartProps<T>) => {
+export const SimpleChart = <T extends Time>({ data, seriesType = 'Line' }: SimpleChartProps<T>) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -50,16 +51,25 @@ export const SimpleChart = <T extends Time>({ data, seriesType = 'line' }: Simpl
           timeVisible: true,
         },
       })
-      const newSeries =
-        seriesType === 'line'
-          ? chart.addAreaSeries({
+      const newSeries = (() => {
+        switch (seriesType) {
+          case 'Line':
+            return chart.addAreaSeries({
               lineColor,
               topColor: areaTopColor,
               bottomColor: areaBottomColor,
             })
-          : chart.addHistogramSeries({
+          case 'Histogram':
+            return chart.addHistogramSeries({
               color: areaTopColor,
             })
+          default:
+            return chart.addLineSeries({
+              color: lineColor,
+            })
+        }
+      })()
+
       newSeries.setData(data)
       chart.timeScale().fitContent()
 

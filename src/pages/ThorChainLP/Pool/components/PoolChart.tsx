@@ -53,18 +53,17 @@ const tvlToChartData = (
   })
 
 // @ts-ignore we can't make this a partial record as we need to use this as a tuple to spread as useQuery params
-const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval | 'all', [Interval, number]> = {
+const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval, [Interval, number]> = {
   day: ['hour', 24],
   week: ['hour', 24 * 7],
-  month: ['day', 7 * 4],
-  all: ['month', 24],
+  month: ['hour', 24 * 7 * 4],
 }
 
 type PoolChartProps = {
   thorchainNotationAssetId: string
 }
 export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
-  const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
+  const [selectedInterval, setSelectedInterval] = useState<Interval>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
 
   const setSelectedVolumeDataType = useCallback(() => setSelectedDataType('volume'), [])
@@ -104,11 +103,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
         </ButtonGroup>
         <ButtonGroup size='sm'>
           {Object.keys(INTERVAL_PARAMS_BY_INTERVAL).map(interval => {
-            const label =
-              interval === 'all'
-                ? 'All'
-                : // For all others, we should only keep the first char, as uppercase
-                  interval.charAt(0).toUpperCase()
+            const label = interval.charAt(0).toUpperCase()
 
             return (
               <Button

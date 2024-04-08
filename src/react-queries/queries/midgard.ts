@@ -18,13 +18,42 @@ export const midgard = createQueryKeys('midgard', {
   swapsData: (poolAssetId: string, interval: Interval, count: number) => ({
     queryKey: ['midgardSwapsData', poolAssetId, interval, count],
     staleTime: 60_000,
-    queryFn: async () => {
-      const { data } = await axios.get<MidgardSwapHistoryResponse>(
-        `${midgardUrl}/history/swaps?pool=${poolAssetId}&interval=${interval}&count=${count}`,
-      )
-      return data
+    queryFn: (): Promise<MidgardSwapHistoryResponse> => {
+      const fetchSwapsDataChunks = async (
+        remainingCount: number,
+        to?: number,
+      ): Promise<MidgardSwapHistoryResponse> => {
+        // Midgard API has a limit of 400 intervals per swaps request
+        const limit = Math.min(400, remainingCount)
+        const queryParams = new URLSearchParams({
+          pool: poolAssetId,
+          interval,
+          count: String(limit),
+        })
+
+        if (to) queryParams.set('to', String(to))
+
+        const { data } = await axios.get<MidgardSwapHistoryResponse>(
+          `${midgardUrl}/history/swaps?${queryParams.toString()}`,
+        )
+
+        // Fetching a smallish interval chunks, or only a smallish amount of interval chunks left to fetch
+        if (data.intervals.length < limit || remainingCount <= 400) {
+          return data
+        }
+
+        // Fetch more chunks until we reach the target limit
+        const newTo = Number(data.intervals[0].startTime) - 1
+        const nextData = await fetchSwapsDataChunks(remainingCount - limit, newTo)
+        // Combine the intervals from the current and next data fetch.
+        data.intervals = nextData.intervals.concat(data.intervals)
+        return data
+      }
+
+      return fetchSwapsDataChunks(count)
     },
   }),
+
   tvl: (interval: Interval, count: number) => ({
     queryKey: ['tvl', interval, count],
     staleTime: 60_000,

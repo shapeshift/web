@@ -1,19 +1,20 @@
-import type { SeriesType } from 'lightweight-charts'
+import type { OhlcData, SeriesType } from 'lightweight-charts'
 import { ColorType, createChart, type SingleValueData, type Time } from 'lightweight-charts'
 import { useEffect, useRef } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 type SimpleChartProps<T extends number | Time> = {
-  data: SingleValueData<T>[]
+  data: (SingleValueData<T> | OhlcData<T>)[]
   seriesType?: SeriesType
 }
 
 const backgroundColor = 'rgba(188, 214, 240, 0.04)'
 const lineColor = '#2962FF'
 const textColor = 'white'
-const areaTopColor = 'rgba(41, 98, 255, 0.5)'
-const areaBottomColor = 'rgba(41, 98, 255, 0.28)'
+const topColor = 'rgba(41, 98, 255, 0.5)'
+const bottomColor = 'rgba(41, 98, 255, 0.28)'
+const downColor = 'rgba(255, 69, 0, 0.28)'
 
 const currentLocale = window.navigator.languages[0]
 const selectedCurrency = selectSelectedCurrency(store.getState())
@@ -54,14 +55,37 @@ export const SimpleChart = <T extends Time>({ data, seriesType = 'Line' }: Simpl
       const newSeries = (() => {
         switch (seriesType) {
           case 'Line':
-            return chart.addAreaSeries({
-              lineColor,
-              topColor: areaTopColor,
-              bottomColor: areaBottomColor,
+            return chart.addLineSeries({
+              color: lineColor,
             })
           case 'Histogram':
             return chart.addHistogramSeries({
-              color: areaTopColor,
+              color: topColor,
+            })
+          case 'Bar':
+            return chart.addBarSeries({
+              upColor: topColor,
+              downColor,
+            })
+          case 'Area':
+            return chart.addAreaSeries({
+              lineColor,
+              topColor,
+              bottomColor,
+            })
+          case 'Candlestick':
+            return chart.addCandlestickSeries({
+              upColor: topColor,
+              borderUpColor: topColor,
+              wickUpColor: topColor,
+              downColor,
+              borderDownColor: bottomColor,
+              wickDownColor: bottomColor,
+            })
+          case 'Baseline':
+            return chart.addBaselineSeries({
+              topLineColor: topColor,
+              bottomLineColor: bottomColor,
             })
           default:
             return chart.addLineSeries({

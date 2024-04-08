@@ -31,7 +31,7 @@ const priceFormatter = Intl.NumberFormat(currentLocale, {
 
 const chartContainerStyles = { width: '100%', height: '500px' }
 
-export const SimpleChart = <T extends number | Time>({ data, seriesType }: SimpleChartProps<T>) => {
+export const SimpleChart = <T extends Time>({ data, seriesType }: SimpleChartProps<T>) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {

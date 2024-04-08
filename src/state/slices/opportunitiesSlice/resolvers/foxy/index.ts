@@ -86,6 +86,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       name: underlyingAsset.symbol,
       rewardAssetIds: [],
       isClaimableRewards: true,
+      expired: true,
     }
   }
 

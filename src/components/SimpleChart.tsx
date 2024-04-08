@@ -26,6 +26,8 @@ const priceFormatter = Intl.NumberFormat(currentLocale, {
   compactDisplay: 'short',
 }).format
 
+const chartContainerStyles = { width: '100%', height: '500px' }
+
 export const SimpleChart = <T extends number | Time>({ data }: SimpleChartProps<T>) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
@@ -75,5 +77,5 @@ export const SimpleChart = <T extends number | Time>({ data }: SimpleChartProps<
     }
   }, [data])
 
-  return <div ref={chartContainerRef} style={{ width: '100%', height: '500px' }} />
+  return <div ref={chartContainerRef} style={chartContainerStyles} />
 }

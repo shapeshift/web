@@ -1,10 +1,4 @@
-import {
-  ColorType,
-  createChart,
-  type ISeriesApi,
-  type SingleValueData,
-  type Time,
-} from 'lightweight-charts'
+import { ColorType, createChart, type SingleValueData, type Time } from 'lightweight-charts'
 import { useEffect, useRef } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -58,14 +52,14 @@ export const SimpleChart = <T extends Time>({ data, seriesType }: SimpleChartPro
       })
       const newSeries =
         seriesType === 'line'
-          ? (chart.addAreaSeries({
+          ? chart.addAreaSeries({
               lineColor,
               topColor: areaTopColor,
               bottomColor: areaBottomColor,
-            }) as unknown as ISeriesApi<'Area', T>)
-          : (chart.addHistogramSeries({
+            })
+          : chart.addHistogramSeries({
               color: areaTopColor,
-            }) as unknown as ISeriesApi<'Histogram', T>)
+            })
       newSeries.setData(data)
       chart.timeScale().fitContent()
 

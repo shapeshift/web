@@ -5,7 +5,7 @@ import { store } from 'state/store'
 
 type SimpleChartProps<T extends number | Time> = {
   data: SingleValueData<T>[]
-  seriesType: 'histogram' | 'line'
+  seriesType?: 'histogram' | 'line'
 }
 
 const backgroundColor = 'rgba(188, 214, 240, 0.04)'
@@ -25,7 +25,7 @@ const priceFormatter = Intl.NumberFormat(currentLocale, {
 
 const chartContainerStyles = { width: '100%', height: '500px' }
 
-export const SimpleChart = <T extends Time>({ data, seriesType }: SimpleChartProps<T>) => {
+export const SimpleChart = <T extends Time>({ data, seriesType = 'line' }: SimpleChartProps<T>) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {

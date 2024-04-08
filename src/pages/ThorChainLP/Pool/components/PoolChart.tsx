@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import type { SingleValueData } from 'lightweight-charts'
+import type { SingleValueData, UTCTimestamp } from 'lightweight-charts'
 import { useCallback, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Interval } from 'react-queries/queries/midgard'
@@ -15,7 +15,7 @@ import { store } from 'state/store'
 
 const swapHistoryToChartData = (
   swapHistory: MidgardSwapHistoryResponse | undefined,
-): SingleValueData<number>[] => {
+): SingleValueData[] => {
   if (!swapHistory) return []
 
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
@@ -27,7 +27,7 @@ const swapHistoryToChartData = (
       .toFixed()
 
     return {
-      time: Number(interval.startTime),
+      time: Number(interval.startTime) as UTCTimestamp,
       value: Number(intervalVolumeFiatUserCurrency),
     }
   })
@@ -36,7 +36,7 @@ const swapHistoryToChartData = (
 const tvlToChartData = (
   tvl: MidgardTvlHistoryResponse,
   thorchainNotationAssetId: string,
-): SingleValueData<number>[] =>
+): SingleValueData[] =>
   tvl.intervals.map(interval => {
     const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
     const poolDepth = interval.poolsDepth.find(pool => pool.pool === thorchainNotationAssetId)
@@ -47,7 +47,7 @@ const tvlToChartData = (
       .times(userCurrencyToUsdRate)
       .toFixed()
     return {
-      time: Number(interval.startTime),
+      time: Number(interval.startTime) as UTCTimestamp,
       value: Number(tvlFiat),
     }
   })

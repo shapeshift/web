@@ -24,11 +24,10 @@ const swapHistoryToChartData = (
     const intervalVolumeFiatUserCurrency = fromThorBaseUnit(interval.totalVolume)
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
-      .toFixed()
 
     return {
       time: Number(interval.startTime) as UTCTimestamp,
-      value: Number(intervalVolumeFiatUserCurrency),
+      value: intervalVolumeFiatUserCurrency.toNumber(),
     }
   })
 }
@@ -45,10 +44,10 @@ const tvlToChartData = (
     const tvlFiat = fromThorBaseUnit(poolTotalDepth)
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
-      .toFixed()
+
     return {
       time: Number(interval.startTime) as UTCTimestamp,
-      value: Number(tvlFiat),
+      value: tvlFiat.toNumber(),
     }
   })
 

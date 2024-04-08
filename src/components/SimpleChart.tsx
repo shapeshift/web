@@ -9,7 +9,10 @@ import { useEffect, useRef } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-type SimpleChartProps<T extends number | Time> = { data: SingleValueData<T>[] }
+type SimpleChartProps<T extends number | Time> = {
+  data: SingleValueData<T>[]
+  seriesType: 'histogram' | 'line'
+}
 
 const backgroundColor = 'rgba(188, 214, 240, 0.04)'
 const lineColor = '#2962FF'
@@ -28,7 +31,7 @@ const priceFormatter = Intl.NumberFormat(currentLocale, {
 
 const chartContainerStyles = { width: '100%', height: '500px' }
 
-export const SimpleChart = <T extends number | Time>({ data }: SimpleChartProps<T>) => {
+export const SimpleChart = <T extends number | Time>({ data, seriesType }: SimpleChartProps<T>) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -53,11 +56,16 @@ export const SimpleChart = <T extends number | Time>({ data }: SimpleChartProps<
           timeVisible: true,
         },
       })
-      const newSeries = chart.addAreaSeries({
-        lineColor,
-        topColor: areaTopColor,
-        bottomColor: areaBottomColor,
-      }) as unknown as ISeriesApi<'Area', T>
+      const newSeries =
+        seriesType === 'line'
+          ? (chart.addAreaSeries({
+              lineColor,
+              topColor: areaTopColor,
+              bottomColor: areaBottomColor,
+            }) as unknown as ISeriesApi<'Area', T>)
+          : (chart.addHistogramSeries({
+              color: areaTopColor,
+            }) as unknown as ISeriesApi<'Histogram', T>)
       newSeries.setData(data)
       chart.timeScale().fitContent()
 
@@ -75,7 +83,7 @@ export const SimpleChart = <T extends number | Time>({ data }: SimpleChartProps<
         chart.remove()
       }
     }
-  }, [data])
+  }, [data, seriesType])
 
   return <div ref={chartContainerRef} style={chartContainerStyles} />
 }

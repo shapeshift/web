@@ -65,6 +65,10 @@ type PoolChartProps = {
 export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
   const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
+  const seriesType = useMemo(
+    () => (selectedDataType === 'volume' ? 'histogram' : 'line'),
+    [selectedDataType],
+  )
 
   const setSelectedVolumeDataType = useCallback(() => setSelectedDataType('volume'), [])
   const setSelectedLiquidityDataType = useCallback(() => setSelectedDataType('liquidity'), [])
@@ -123,7 +127,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
         </ButtonGroup>
       </Flex>
       <Center flex='1' flexDirection='column'>
-        <SimpleChart data={data} />
+        <SimpleChart data={data} seriesType={seriesType} />
       </Center>
     </Stack>
   )

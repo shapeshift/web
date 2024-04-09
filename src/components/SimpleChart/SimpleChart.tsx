@@ -159,6 +159,9 @@ export const SimpleChart = <T extends Time>({
           case 'Histogram':
             return chart.addHistogramSeries({
               color: accentColorValue,
+              priceFormat: {
+                type: 'volume',
+              },
             })
           case 'Bar':
             return chart.addBarSeries({

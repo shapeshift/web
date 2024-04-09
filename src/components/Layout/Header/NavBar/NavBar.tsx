@@ -30,7 +30,7 @@ export const NavBar = ({ isCompact, onClick, ...rest }: NavBarProps) => {
   const navItemGroups = useMemo(() => {
     const allRoutes = union(routes, pluginRoutes).filter(route =>
       isLargerThanMd
-        ? !route.disable && !route.hide
+        ? !route.disable && !route.hide && !route.hideDesktop
         : !route.disable && !route.hide && !route.mobileNav,
     )
     const groups = allRoutes.reduce(

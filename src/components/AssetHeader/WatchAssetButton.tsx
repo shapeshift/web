@@ -8,7 +8,7 @@ import { selectIsAssetWatched } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const starEmpty = <FaRegStar />
-const startFilled = <FaStar />
+const starFilled = <FaStar />
 
 type WatchAssetButtonProps = {
   assetId: AssetId
@@ -28,7 +28,7 @@ export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, but
   return (
     <IconButton
       onClick={handleToggleWatchAsset}
-      icon={isAssetWatched ? startFilled : starEmpty}
+      icon={isAssetWatched ? starFilled : starEmpty}
       aria-label='favorite asset'
       {...buttonProps}
     />

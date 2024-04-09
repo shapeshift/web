@@ -1,12 +1,11 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Box, Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Container, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
 import {
   selectClaimableRewards,
   selectTotalPortfolioBalanceIncludeStakingUserCurrency,
@@ -15,6 +14,7 @@ import { useAppSelector } from 'state/store'
 
 import { DashboardTab } from '../DashboardTab'
 import { DashboardHeaderTop } from './DashboardHeaderTop'
+import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
 import { EarnBalance } from './EarnBalance'
 
 const paddingTop = { base: 'env(safe-area-inset-top)', md: '4.5rem' }
@@ -37,12 +37,9 @@ const navCss = {
   },
 }
 
-const headerPosition: ResponsiveValue<Property.Position> = { base: 'fixed', md: 'relative' }
-
 export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.ReactNode }) => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const location = useLocation()
-  const avatarImage = useProfileAvatar()
   const translate = useTranslate()
   const activeRef = useRef<HTMLButtonElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -121,22 +118,6 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
     ))
   }, [NavItems, location.pathname])
 
-  const headerAfter = useMemo(() => {
-    return {
-      content: '""',
-      bgImage: avatarImage,
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center center',
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      height: '100px',
-      top: 0,
-      zIndex: -1,
-    }
-  }, [avatarImage])
-
   const renderTabs = useMemo(() => {
     if (tabComponent) return tabComponent
     return (
@@ -184,26 +165,17 @@ export const DashboardHeader = memo(({ tabComponent }: { tabComponent?: React.Re
   }, [])
 
   return (
-    <Box
-      width='full'
-      className='dashboard-header'
-      position={headerPosition}
-      top='-2px'
-      zIndex='sticky'
-      _after={headerAfter}
-    >
+    <DashboardHeaderWrapper>
       <Stack
         spacing={0}
         borderColor='border.base'
-        bg='background.surface.alpha'
         borderBottomWidth={1}
         pt={paddingTop}
         mt={marginTop}
-        backdropFilter='blur(30px)'
       >
         <DashboardHeaderTop />
         {renderTabs}
       </Stack>
-    </Box>
+    </DashboardHeaderWrapper>
   )
 })

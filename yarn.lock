@@ -10849,6 +10849,7 @@ __metadata:
     js-file-download: ^0.4.12
     js-pixel-fonts: ^1.6.0
     jscodeshift: ^0.15.2
+    lightweight-charts: ^4.1.3
     limiter: ^2.1.0
     lit-html: ^2.6.1
     localforage: ^1.10.0
@@ -22391,6 +22392,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fancy-canvas@npm:2.1.0":
+  version: 2.1.0
+  resolution: "fancy-canvas@npm:2.1.0"
+  checksum: 2463ca8a9254fb4cc69bbe33a2996b2a0ba8f725721d51464d9e87b4f3c3e8759e2289b0d592f56265501d5cff0b363bb7c72bb9c38212c19114dbd006ec8959
+  languageName: node
+  linkType: hard
+
 "fast-deep-equal@npm:^2.0.1":
   version: 2.0.1
   resolution: "fast-deep-equal@npm:2.0.1"
@@ -26812,6 +26820,15 @@ __metadata:
   dependencies:
     immediate: ~3.0.5
   checksum: 6da9f2121d2dbd15f1eca44c0c7e211e66a99c7b326ec8312645f3648935bc3a658cf0e9fa7b5f10144d9e2641500b4f55bd32754607c3de945b5f443e50ddd1
+  languageName: node
+  linkType: hard
+
+"lightweight-charts@npm:^4.1.3":
+  version: 4.1.3
+  resolution: "lightweight-charts@npm:4.1.3"
+  dependencies:
+    fancy-canvas: 2.1.0
+  checksum: 03db758d028d154687a3e8cb709f1a873e7ed897e40ffa8d8cededfe102b73abfc2110cdebc21bea691ddb9a70f960507fa514a4301e0ea39b495ed3979e1553
   languageName: node
   linkType: hard
 

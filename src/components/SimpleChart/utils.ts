@@ -28,19 +28,19 @@ export type ChartInterval = Interval | 'all'
 export function formatHistoryDuration(duration: ChartInterval): string {
   switch (duration) {
     case '5min':
-      return `Past five minutes`
+      return 'chart.interval.5min'
     case 'hour':
-      return `Past hour`
+      return 'chart.interval.hour'
     case 'day':
-      return `Past day`
+      return 'chart.interval.day'
     case 'week':
-      return `Past week`
+      return 'chart.interval.week'
     case 'month':
-      return `Past month`
+      return 'chart.interval.month'
     case 'year':
-      return `Past year`
+      return 'chart.interval.year'
     case 'all':
-      return `All time`
+      return 'chart.interval.all'
     default:
       return ''
   }

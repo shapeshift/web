@@ -98,10 +98,10 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
 
   const chartBody = useMemo(() => {
     if (isLoading) {
-      return <ChartSkeleton type={seriesType} height={500} />
+      return <ChartSkeleton type={seriesType} height={450} />
     }
     return (
-      <SimpleChart data={data} seriesType={seriesType} height={500} interval={selectedInterval} />
+      <SimpleChart data={data} seriesType={seriesType} height={450} interval={selectedInterval} />
     )
   }, [data, isLoading, selectedInterval, seriesType])
 

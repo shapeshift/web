@@ -1,4 +1,5 @@
-import { Heading } from '@chakra-ui/react'
+import type { FlexProps } from '@chakra-ui/react'
+import { Flex, Heading } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { UTCTimestamp } from 'lightweight-charts'
 import type { ReactElement, ReactNode } from 'react'
@@ -8,12 +9,9 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 import { useHeaderDateFormatter } from './hooks'
 
-const ChartHeaderWrapper = styled(Row)`
-  position: absolute;
-  width: 100%;
-  gap: 8px;
-  align-items: flex-start;
-`
+const ChartHeaderWrapper = (props: FlexProps) => (
+  <Flex positon='absolute' width='full' gap={4} alignItems='flex-start' {...props} />
+)
 const ChartHeaderLeftDisplay = styled.div`
   position: absolute;
   display: flex;

@@ -10,7 +10,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useHeaderDateFormatter } from './hooks'
 
 const ChartHeaderWrapper = (props: FlexProps) => (
-  <Flex positon='absolute' width='full' gap={4} alignItems='flex-start' {...props} />
+  <Flex position='absolute' width='full' gap={4} alignItems='flex-start' zIndex='4' {...props} />
 )
 const ChartHeaderLeftDisplay = styled.div`
   position: absolute;

@@ -1,5 +1,6 @@
 import type { UTCTimestamp } from 'lightweight-charts'
 import { TickMarkType } from 'lightweight-charts'
+import type { Interval } from 'react-queries/queries/midgard'
 
 export function formatTickMarks(
   time: UTCTimestamp,
@@ -20,5 +21,27 @@ export function formatTickMarks(
       return date.toLocaleString(locale, { hour: 'numeric', minute: 'numeric', second: '2-digit' })
     default:
       return date.toLocaleString(locale, { hour: 'numeric', minute: 'numeric', second: '2-digit' })
+  }
+}
+
+export type ChartInterval = Interval | 'all'
+export function formatHistoryDuration(duration: ChartInterval): string {
+  switch (duration) {
+    case '5min':
+      return `Past five minutes`
+    case 'hour':
+      return `Past hour`
+    case 'day':
+      return `Past day`
+    case 'week':
+      return `Past week`
+    case 'month':
+      return `Past month`
+    case 'year':
+      return `Past year`
+    case 'all':
+      return `All time`
+    default:
+      return ''
   }
 }

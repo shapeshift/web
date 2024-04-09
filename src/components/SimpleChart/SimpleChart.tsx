@@ -1,27 +1,32 @@
 import { useColorModeValue, useToken } from '@chakra-ui/react'
 import styled from '@emotion/styled'
-import type { OhlcData, SeriesType } from 'lightweight-charts'
+import type { OhlcData, SeriesType, UTCTimestamp } from 'lightweight-charts'
 import {
   createChart,
   CrosshairMode,
+  type HistogramData,
   LineStyle,
   LineType,
+  type MouseEventParams,
   type SingleValueData,
   type Time,
 } from 'lightweight-charts'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 import { semanticTokens } from 'theme/semanticTokens'
 import { opacify } from 'theme/utils'
 
-import { formatTickMarks } from './utils'
+import { ChartHeader } from './ChartHeader'
+import type { ChartInterval } from './utils'
+import { formatHistoryDuration, formatTickMarks } from './utils'
 
 type SimpleChartProps<T extends Time> = {
   data: (SingleValueData<T> | OhlcData<T>)[]
   seriesType?: SeriesType
   height: number
   accentColor?: string
+  interval: ChartInterval
 }
 
 const topColor = 'rgba(41, 98, 255, 0.5)'
@@ -46,12 +51,16 @@ const ChartDiv = styled.div<{ height?: number }>`
   position: relative;
 `
 
+export type crossHairDataProps = HistogramData<Time> | undefined
+
 export const SimpleChart = <T extends Time>({
   data,
   seriesType = 'Line',
   height,
   accentColor,
+  interval,
 }: SimpleChartProps<T>) => {
+  const [crosshairData, setCrosshairData] = useState<crossHairDataProps>()
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
   const [
     surfaceLight,
@@ -79,6 +88,7 @@ export const SimpleChart = <T extends Time>({
   const boldBorder = useColorModeValue(boldBorderLight, boldBorderDark)
   const surfaceColor = useColorModeValue(surfaceLight, surfaceDark)
   const accentColorValue = accentColor ?? brandColor
+  const lastPrice = data[data.length - 1] as HistogramData<Time>
 
   useEffect(() => {
     if (chartContainerRef.current && data) {
@@ -126,7 +136,7 @@ export const SimpleChart = <T extends Time>({
             style: LineStyle.Solid,
             width: 1,
             color: boldBorder,
-            labelVisible: true,
+            labelVisible: false,
             labelBackgroundColor: surfaceColor,
           },
           mode: CrosshairMode.Magnet,
@@ -135,7 +145,7 @@ export const SimpleChart = <T extends Time>({
             style: LineStyle.Solid,
             width: 1,
             color: boldBorder,
-            labelVisible: true,
+            labelVisible: false,
             labelBackgroundColor: surfaceColor,
           },
         },
@@ -163,8 +173,8 @@ export const SimpleChart = <T extends Time>({
               crosshairMarkerRadius: 5,
               crosshairMarkerBorderColor: opacify(30, brandColor),
               crosshairMarkerBorderWidth: 3,
-              topColor: opacify(40, accentColorValue),
-              bottomColor: opacify(2, accentColorValue),
+              topColor: opacify(12, accentColorValue),
+              bottomColor: opacify(12, accentColorValue),
             })
           case 'Candlestick':
             return chart.addCandlestickSeries({
@@ -197,6 +207,17 @@ export const SimpleChart = <T extends Time>({
         })
       }
 
+      const handleCrosshairMove = (event: MouseEventParams) => {
+        if (event.time) {
+          const data = event.seriesData.get(newSeries) as HistogramData<Time>
+          setCrosshairData(data)
+        } else {
+          setCrosshairData(undefined)
+        }
+      }
+
+      chart.subscribeCrosshairMove(handleCrosshairMove)
+
       window.addEventListener('resize', handleResize)
 
       return () => {
@@ -221,5 +242,19 @@ export const SimpleChart = <T extends Time>({
     [],
   )
 
-  return <ChartDiv ref={chartContainerRef} height={height} onTouchMove={handleTouchMove} />
+  const chartHeader = useMemo(() => {
+    return (
+      <ChartHeader
+        value={crosshairData?.value ?? lastPrice.value}
+        time={crosshairData?.time as UTCTimestamp}
+        timePlaceholder={formatHistoryDuration(interval)}
+      />
+    )
+  }, [crosshairData?.time, crosshairData?.value, interval, lastPrice.value])
+
+  return (
+    <ChartDiv ref={chartContainerRef} height={height} onTouchMove={handleTouchMove}>
+      {chartHeader}
+    </ChartDiv>
+  )
 }

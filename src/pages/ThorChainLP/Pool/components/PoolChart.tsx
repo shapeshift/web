@@ -6,6 +6,7 @@ import { reactQueries } from 'react-queries'
 import type { Interval } from 'react-queries/queries/midgard'
 import { ChartSkeleton } from 'components/SimpleChart/LoadingChart'
 import { SimpleChart } from 'components/SimpleChart/SimpleChart'
+import type { ChartInterval } from 'components/SimpleChart/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import type {
   MidgardSwapHistoryResponse,
@@ -51,7 +52,7 @@ const tvlToChartData = (
   })
 
 // @ts-ignore we can't make this a partial record as we need to use this as a tuple to spread as useQuery params
-const INTERVAL_PARAMS_BY_INTERVAL: Record<Interval | 'all', [Interval, number]> = {
+const INTERVAL_PARAMS_BY_INTERVAL: Record<ChartInterval, [Interval, number]> = {
   day: ['hour', 24],
   week: ['day', 7],
   month: ['day', 30],
@@ -62,7 +63,7 @@ type PoolChartProps = {
   thorchainNotationAssetId: string
 }
 export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
-  const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
+  const [selectedInterval, setSelectedInterval] = useState<ChartInterval>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
   const seriesType = useMemo(
     () => (selectedDataType === 'volume' ? 'Histogram' : 'Area'),
@@ -99,12 +100,14 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
     if (isLoading) {
       return <ChartSkeleton type={seriesType} height={500} />
     }
-    return <SimpleChart data={data} seriesType={seriesType} height={500} />
-  }, [data, isLoading, seriesType])
+    return (
+      <SimpleChart data={data} seriesType={seriesType} height={500} interval={selectedInterval} />
+    )
+  }, [data, isLoading, selectedInterval, seriesType])
 
   return (
     <Stack spacing={4}>
-      <Flex justifyContent='space-between' alignItems='center' p={4}>
+      <Flex justifyContent='space-between' alignItems='center' py={2}>
         <ButtonGroup size='sm'>
           <Button isActive={selectedDataType === 'volume'} onClick={setSelectedVolumeDataType}>
             Volume

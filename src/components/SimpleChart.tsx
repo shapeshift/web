@@ -4,9 +4,12 @@ import { useEffect, useRef } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 
+import type { ChartInterval } from './SimpleChart/utils'
+
 type SimpleChartProps<T extends Time> = {
   data: (SingleValueData<T> | OhlcData<T>)[]
   seriesType?: SeriesType
+  interval: ChartInterval
 }
 
 const backgroundColor = 'rgba(188, 214, 240, 0.04)'

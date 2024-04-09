@@ -1,6 +1,6 @@
 import { Box, Button, Flex } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { RawText, Text } from 'components/Text'
 
@@ -11,6 +11,9 @@ type WarningAcknowledgementProps = {
   shouldShowWarningAcknowledgement: boolean
   setShouldShowWarningAcknowledgement: (shouldShow: boolean) => void
 }
+
+const cancelHoverProps = { bg: 'rgba(255, 255, 255, 0.2)' }
+const understandHoverProps = { bg: 'red.600' }
 
 export const WarningAcknowledgement = ({
   children,
@@ -27,20 +30,6 @@ export const WarningAcknowledgement = ({
   const handleCancel = useCallback(() => {
     setShouldShowWarningAcknowledgement(false)
   }, [setShouldShowWarningAcknowledgement])
-
-  const cancelHoverProps = useMemo(
-    () => ({
-      bg: 'rgba(255, 255, 255, 0.2)',
-    }),
-    [],
-  )
-
-  const understandHoverProps = useMemo(
-    () => ({
-      bg: 'red.600',
-    }),
-    [],
-  )
 
   return (
     <Box position='relative'>

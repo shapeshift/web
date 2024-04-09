@@ -1,12 +1,11 @@
 import { Flex, Heading, useColorModeValue, useToken } from '@chakra-ui/react'
 import styled from '@emotion/styled'
+import type { SeriesType } from 'lightweight-charts'
 import { lighten } from 'polished'
 import type { PropsWithChildren, ReactNode } from 'react'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { opacify } from 'theme/utils'
-
-import { ChartType } from './SimpleChart'
 
 const ChartErrorContainer = styled(Row)`
   position: absolute;
@@ -80,14 +79,15 @@ function ChartLoadingStateMask({
   height,
   id,
 }: {
-  type: ChartType
+  type: SeriesType
   height: number
   id: string
 }) {
   const [lightGray, darkGray] = useToken('colors', ['darkNeutral.100', 'darkNeutral.800'])
   const gray = useColorModeValue(lightGray, darkGray)
   switch (type) {
-    case ChartType.LIQUIDITY:
+    case 'Area':
+    case 'Line':
       return (
         <>
           <defs>
@@ -119,7 +119,7 @@ function ChartLoadingStateMask({
           </mask>
         </>
       )
-    case ChartType.VOLUME:
+    case 'Histogram':
       return (
         <>
           <defs>
@@ -180,7 +180,7 @@ export function ChartSkeleton({
 }: {
   height: number
   errorText?: ReactNode
-  type: ChartType
+  type: SeriesType
   dim?: boolean
   hideYAxis?: boolean
 }) {

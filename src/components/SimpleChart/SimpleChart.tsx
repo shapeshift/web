@@ -1,9 +1,9 @@
-import { useColorModeValue, useToken } from '@chakra-ui/system'
+import { useColorModeValue, useToken } from '@chakra-ui/react'
 import styled from '@emotion/styled'
+import type { OhlcData, SeriesType } from 'lightweight-charts'
 import {
   createChart,
   CrosshairMode,
-  type ISeriesApi,
   LineStyle,
   LineType,
   type SingleValueData,
@@ -17,23 +17,19 @@ import { opacify } from 'theme/utils'
 
 import { formatTickMarks } from './utils'
 
-export enum ChartType {
-  VOLUME = 'Volume',
-  LIQUIDITY = 'Liquidity',
-  PRICE = 'Price',
+type SimpleChartProps<T extends Time> = {
+  data: (SingleValueData<T> | OhlcData<T>)[]
+  seriesType?: SeriesType
+  height: number
+  accentColor?: string
 }
 
-type SimpleChartProps<T extends number | Time> = {
-  data: SingleValueData<T>[]
-  seriesType: 'histogram' | 'line'
-  height: number
-}
+const topColor = 'rgba(41, 98, 255, 0.5)'
+const bottomColor = 'rgba(41, 98, 255, 0.28)'
+const downColor = 'rgba(255, 69, 0, 0.28)'
 const surfaceColors = semanticTokens.colors.background.surface
 const textColors = semanticTokens.colors.text
 const borderColors = semanticTokens.colors.border
-const backgroundColor = 'transparent'
-const areaTopColor = 'rgba(41, 98, 255, 0.5)'
-const areaBottomColor = 'rgba(41, 98, 255, 0.28)'
 
 const currentLocale = window.navigator.languages[0]
 const selectedCurrency = selectSelectedCurrency(store.getState())
@@ -50,10 +46,11 @@ const ChartDiv = styled.div<{ height?: number }>`
   position: relative;
 `
 
-export const SimpleChart = <T extends number | Time>({
+export const SimpleChart = <T extends Time>({
   data,
-  seriesType,
+  seriesType = 'Line',
   height,
+  accentColor,
 }: SimpleChartProps<T>) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
   const [
@@ -81,6 +78,7 @@ export const SimpleChart = <T extends number | Time>({
   const lineColor = useColorModeValue(lightBorder, darkBorder)
   const boldBorder = useColorModeValue(boldBorderLight, boldBorderDark)
   const surfaceColor = useColorModeValue(surfaceLight, surfaceDark)
+  const accentColorValue = accentColor ?? brandColor
 
   useEffect(() => {
     if (chartContainerRef.current && data) {
@@ -94,7 +92,7 @@ export const SimpleChart = <T extends number | Time>({
           },
         },
         layout: {
-          background: { color: backgroundColor },
+          background: { color: 'transparent' },
           textColor,
         },
         width: chartContainerRef.current.offsetWidth,
@@ -113,7 +111,7 @@ export const SimpleChart = <T extends number | Time>({
           borderVisible: false,
           scaleMargins: {
             top: 0.3,
-            bottom: seriesType === 'histogram' ? 0 : 0.15,
+            bottom: seriesType === 'Histogram' ? 0 : 0.15,
           },
         },
         handleScale: {
@@ -142,16 +140,53 @@ export const SimpleChart = <T extends number | Time>({
           },
         },
       })
-      const newSeries =
-        seriesType === 'line'
-          ? (chart.addAreaSeries({
-              lineColor,
-              topColor: areaTopColor,
-              bottomColor: areaBottomColor,
-            }) as unknown as ISeriesApi<'Area', T>)
-          : (chart.addHistogramSeries({
-              color: areaTopColor,
-            }) as unknown as ISeriesApi<'Histogram', T>)
+      const newSeries = (() => {
+        switch (seriesType) {
+          case 'Line':
+            return chart.addLineSeries({
+              color: lineColor,
+            })
+          case 'Histogram':
+            return chart.addHistogramSeries({
+              color: accentColorValue,
+            })
+          case 'Bar':
+            return chart.addBarSeries({
+              upColor: topColor,
+              downColor,
+            })
+          case 'Area':
+            return chart.addAreaSeries({
+              lineColor: accentColorValue,
+              lineType: data.length < 20 ? LineType.WithSteps : LineType.Curved,
+              lineWidth: 2,
+              crosshairMarkerRadius: 5,
+              crosshairMarkerBorderColor: opacify(30, brandColor),
+              crosshairMarkerBorderWidth: 3,
+              topColor: opacify(40, accentColorValue),
+              bottomColor: opacify(2, accentColorValue),
+            })
+          case 'Candlestick':
+            return chart.addCandlestickSeries({
+              upColor: topColor,
+              borderUpColor: topColor,
+              wickUpColor: topColor,
+              downColor,
+              borderDownColor: bottomColor,
+              wickDownColor: bottomColor,
+            })
+          case 'Baseline':
+            return chart.addBaselineSeries({
+              topLineColor: topColor,
+              bottomLineColor: bottomColor,
+            })
+          default:
+            return chart.addLineSeries({
+              color: lineColor,
+            })
+        }
+      })()
+
       newSeries.setData(data)
       chart.timeScale().fitContent()
 
@@ -162,19 +197,6 @@ export const SimpleChart = <T extends number | Time>({
         })
       }
 
-      if (seriesType === 'line') {
-        newSeries.applyOptions({
-          lineColor: brandColor,
-          lineType: data.length < 20 ? LineType.WithSteps : LineType.Curved,
-          lineWidth: 2,
-          crosshairMarkerRadius: 5,
-          crosshairMarkerBorderColor: opacify(30, brandColor),
-          crosshairMarkerBorderWidth: 3,
-          topColor: opacify(12, brandColor),
-          bottomColor: opacify(12, brandColor),
-        })
-      }
-
       window.addEventListener('resize', handleResize)
 
       return () => {
@@ -182,7 +204,16 @@ export const SimpleChart = <T extends number | Time>({
         chart.remove()
       }
     }
-  }, [boldBorder, brandColor, data, lineColor, seriesType, surfaceColor, textColor])
+  }, [
+    accentColorValue,
+    boldBorder,
+    brandColor,
+    data,
+    lineColor,
+    seriesType,
+    surfaceColor,
+    textColor,
+  ])
 
   return <ChartDiv ref={chartContainerRef} height={height} />
 }

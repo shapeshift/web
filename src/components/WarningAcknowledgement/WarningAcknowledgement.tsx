@@ -1,7 +1,8 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react'
+import { Box, Button, Flex } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import React, { useCallback, useMemo, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
+import { RawText, Text } from 'components/Text'
 
 type WarningAcknowledgementProps = {
   children: React.ReactNode
@@ -62,11 +63,11 @@ export const WarningAcknowledgement = ({
         >
           <Flex alignItems='center' mb={2}>
             <Box as={FiAlertTriangle} color='red.500' size='20px' mr={2} />
-            <Text fontWeight='bold' fontSize='lg'>
+            <Text translation={'warningAcknowledgement.attention'} fontWeight='bold' fontSize='lg'>
               Attention!
             </Text>
           </Flex>
-          <Text mb={4}>{message}</Text>
+          <RawText mb={4}>{message}</RawText>
           <Flex justifyContent='flex-end'>
             <Button
               variant='outline'
@@ -83,7 +84,7 @@ export const WarningAcknowledgement = ({
               size='sm'
               _hover={understandHoverProps}
             >
-              I understand
+              <Text translation='warningAcknowledgement.understand' />
             </Button>
           </Flex>
         </motion.div>

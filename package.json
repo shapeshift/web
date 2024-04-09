@@ -153,6 +153,7 @@
     "identicon.js": "^2.3.3",
     "js-file-download": "^0.4.12",
     "js-pixel-fonts": "^1.6.0",
+    "lightweight-charts": "^4.1.3",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",

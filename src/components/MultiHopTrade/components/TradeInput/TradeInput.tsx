@@ -39,6 +39,7 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
+import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -132,6 +133,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const { showErrorToast } = useErrorHandler()
   const [isCompactQuoteListOpen, setIsCompactQuoteListOpen] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
+  const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyTradeAssetSearch')
   const sellAssetSearch = useModal('sellTradeAssetSearch')
@@ -377,13 +379,17 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     wallet,
   ])
 
-  const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
-    null,
-  )
+  useEffect(() => {
+    if (isUnsafeQuote) setShouldShowWarningAcknowledgement(true)
+  }, [isUnsafeQuote])
 
   useEffect(() => {
-    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
-  }, [isUnsafeQuote])
+    // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
+    // user has not yet confirmed the previous one
+    if (shouldShowWarningAcknowledgement) setShouldShowWarningAcknowledgement(false)
+    // We need to ignore changes to shouldShowWarningAcknowledgement or this effect will react to itself
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeQuote])
 
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
@@ -456,7 +462,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     // We don't want to *immediately* set this or there will be a "click-through"
     // i.e the regular continue button will render immediately, and click will bubble to it
     setTimeout(() => {
-      setIsUnsafeQuoteNoticeDismissed(true)
+      setShouldShowWarningAcknowledgement(false)
     }, 100)
   }, [])
 
@@ -525,27 +531,17 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
           <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
           {maybeUnsafeTradeWarning}
-          {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
-            <Button
-              colorScheme='red'
-              size='lg-multiline'
-              mx={-2}
-              onClick={handleAcknowledgeUnsafeQuote}
-            >
-              <Text translation={'defi.modals.saversVaults.understand'} />
-            </Button>
-          ) : (
-            <Button
-              type='submit'
-              colorScheme={quoteHasError ? 'red' : 'blue'}
-              size='lg-multiline'
-              data-test='trade-form-preview-button'
-              isDisabled={shouldDisablePreviewButton}
-              mx={-2}
-            >
-              <Text translation={quoteStatusTranslation} />
-            </Button>
-          )}
+
+          <Button
+            type='submit'
+            colorScheme={quoteHasError ? 'red' : 'blue'}
+            size='lg-multiline'
+            data-test='trade-form-preview-button'
+            isDisabled={shouldDisablePreviewButton}
+            mx={-2}
+          >
+            <Text translation={quoteStatusTranslation} />
+          </Button>
         </CardFooter>
       </>
     ),
@@ -569,9 +565,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       receiveAddress,
       walletSupportsBuyAssetChain,
       maybeUnsafeTradeWarning,
-      isUnsafeQuote,
-      isUnsafeQuoteNoticeDismissed,
-      handleAcknowledgeUnsafeQuote,
       quoteHasError,
       shouldDisablePreviewButton,
       quoteStatusTranslation,
@@ -579,6 +572,13 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+  const handleTradeQouteConfirm = useCallback(() => {
+    if (isUnsafeQuote) {
+      return setShouldShowWarningAcknowledgement(true)
+    } else {
+      handleFormSubmit()
+    }
+  }, [handleFormSubmit, isUnsafeQuote])
 
   const sellTradeAssetSelect = useMemo(
     () => (
@@ -610,131 +610,138 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   return (
     <TradeSlideTransition>
       <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
-      <MessageOverlay show={isKeplr} title={overlayTitle}>
-        <Flex
-          width='full'
-          justifyContent='center'
-          maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
-        >
-          {(isCompact || isSmallerThanXl) && (
-            <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
-              <QuoteList
-                onBack={handleCloseCompactQuoteList}
+      <WarningAcknowledgement
+        message={`This trade may be unssafe, proceed with caution.`}
+        onAcknowledge={handleFormSubmit}
+        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowWarningAcknowledgement={handleAcknowledgeUnsafeQuote}
+      >
+        <MessageOverlay show={isKeplr} title={overlayTitle}>
+          <Flex
+            width='full'
+            justifyContent='center'
+            maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
+          >
+            {(isCompact || isSmallerThanXl) && (
+              <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
+                <QuoteList
+                  onBack={handleCloseCompactQuoteList}
+                  isLoading={isLoading}
+                  height={tradeInputHeight ?? '500px'}
+                  width={tradeInputRef.current?.offsetWidth ?? 'full'}
+                />
+              </Center>
+            )}
+            <Center width='inherit'>
+              <Card
+                flex={1}
+                width='full'
+                maxWidth='500px'
+                ref={tradeInputRef}
+                visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
+                position={isCompactQuoteListOpen ? 'absolute' : undefined}
+              >
+                <Stack spacing={0} as='form' onSubmit={handleTradeQouteConfirm}>
+                  <CardHeader px={6}>
+                    <Flex alignItems='center' justifyContent='space-between'>
+                      <Heading as='h5' fontSize='md'>
+                        {translate('navBar.trade')}
+                      </Heading>
+                      <Flex gap={2} alignItems='center'>
+                        {activeQuote && (isCompact || isSmallerThanXl) && (
+                          <CountdownSpinner isLoading={isLoading || isRefetching} />
+                        )}
+                        <SlippagePopover />
+                      </Flex>
+                    </Flex>
+                  </CardHeader>
+                  <Stack spacing={0}>
+                    <SellAssetInput
+                      accountId={initialSellAssetAccountId}
+                      asset={sellAsset}
+                      label={translate('trade.payWith')}
+                      onAccountIdChange={setSellAssetAccountId}
+                      labelPostFix={sellTradeAssetSelect}
+                      percentOptions={percentOptions}
+                    />
+                    <Flex alignItems='center' justifyContent='center' my={-2}>
+                      <Divider />
+                      <CircularProgress
+                        color='blue.500'
+                        thickness='4px'
+                        size='34px'
+                        trackColor='transparent'
+                        isIndeterminate={isLoading}
+                        borderRadius='full'
+                      >
+                        <CircularProgressLabel
+                          fontSize='md'
+                          display='flex'
+                          alignItems='center'
+                          justifyContent='center'
+                        >
+                          <IconButton
+                            onClick={handleSwitchAssets}
+                            isRound
+                            size='sm'
+                            position='relative'
+                            variant='outline'
+                            borderColor='border.base'
+                            zIndex={1}
+                            aria-label={translate('lending.switchAssets')}
+                            icon={arrowDownIcon}
+                            isDisabled={shouldDisableSwitchAssets}
+                          />
+                        </CircularProgressLabel>
+                      </CircularProgress>
+
+                      <Divider />
+                    </Flex>
+                    <TradeAssetInput
+                      // Disable account selection when user set a manual receive address
+                      isAccountSelectionHidden={Boolean(manualReceiveAddress)}
+                      isReadOnly={true}
+                      accountId={initialBuyAssetAccountId}
+                      assetId={buyAsset.assetId}
+                      assetSymbol={buyAsset.symbol}
+                      assetIcon={buyAsset.icon}
+                      cryptoAmount={
+                        hasUserEnteredAmount
+                          ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
+                          : '0'
+                      }
+                      fiatAmount={
+                        hasUserEnteredAmount
+                          ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
+                          : '0'
+                      }
+                      percentOptions={emptyPercentOptions}
+                      showInputSkeleton={isLoading}
+                      showFiatSkeleton={isLoading}
+                      label={translate('trade.youGet')}
+                      onAccountIdChange={setBuyAssetAccountId}
+                      formControlProps={formControlProps}
+                      labelPostFix={buyTradeAssetSelect}
+                      priceImpactPercentage={priceImpactPercentage?.toString()}
+                    />
+                  </Stack>
+                  {ConfirmSummary}
+                </Stack>
+              </Card>
+
+              <WithLazyMount
+                shouldUse={!isCompact && !isSmallerThanXl}
+                component={CollapsibleQuoteList}
+                isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
                 isLoading={isLoading}
-                height={tradeInputHeight ?? '500px'}
                 width={tradeInputRef.current?.offsetWidth ?? 'full'}
+                height={tradeInputHeight ?? 'full'}
+                ml={4}
               />
             </Center>
-          )}
-          <Center width='inherit'>
-            <Card
-              flex={1}
-              width='full'
-              maxWidth='500px'
-              ref={tradeInputRef}
-              visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
-              position={isCompactQuoteListOpen ? 'absolute' : undefined}
-            >
-              <Stack spacing={0} as='form' onSubmit={handleFormSubmit}>
-                <CardHeader px={6}>
-                  <Flex alignItems='center' justifyContent='space-between'>
-                    <Heading as='h5' fontSize='md'>
-                      {translate('navBar.trade')}
-                    </Heading>
-                    <Flex gap={2} alignItems='center'>
-                      {activeQuote && (isCompact || isSmallerThanXl) && (
-                        <CountdownSpinner isLoading={isLoading || isRefetching} />
-                      )}
-                      <SlippagePopover />
-                    </Flex>
-                  </Flex>
-                </CardHeader>
-                <Stack spacing={0}>
-                  <SellAssetInput
-                    accountId={initialSellAssetAccountId}
-                    asset={sellAsset}
-                    label={translate('trade.payWith')}
-                    onAccountIdChange={setSellAssetAccountId}
-                    labelPostFix={sellTradeAssetSelect}
-                    percentOptions={percentOptions}
-                  />
-                  <Flex alignItems='center' justifyContent='center' my={-2}>
-                    <Divider />
-                    <CircularProgress
-                      color='blue.500'
-                      thickness='4px'
-                      size='34px'
-                      trackColor='transparent'
-                      isIndeterminate={isLoading}
-                      borderRadius='full'
-                    >
-                      <CircularProgressLabel
-                        fontSize='md'
-                        display='flex'
-                        alignItems='center'
-                        justifyContent='center'
-                      >
-                        <IconButton
-                          onClick={handleSwitchAssets}
-                          isRound
-                          size='sm'
-                          position='relative'
-                          variant='outline'
-                          borderColor='border.base'
-                          zIndex={1}
-                          aria-label={translate('lending.switchAssets')}
-                          icon={arrowDownIcon}
-                          isDisabled={shouldDisableSwitchAssets}
-                        />
-                      </CircularProgressLabel>
-                    </CircularProgress>
-
-                    <Divider />
-                  </Flex>
-                  <TradeAssetInput
-                    // Disable account selection when user set a manual receive address
-                    isAccountSelectionHidden={Boolean(manualReceiveAddress)}
-                    isReadOnly={true}
-                    accountId={initialBuyAssetAccountId}
-                    assetId={buyAsset.assetId}
-                    assetSymbol={buyAsset.symbol}
-                    assetIcon={buyAsset.icon}
-                    cryptoAmount={
-                      hasUserEnteredAmount
-                        ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-                        : '0'
-                    }
-                    fiatAmount={
-                      hasUserEnteredAmount
-                        ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
-                        : '0'
-                    }
-                    percentOptions={emptyPercentOptions}
-                    showInputSkeleton={isLoading}
-                    showFiatSkeleton={isLoading}
-                    label={translate('trade.youGet')}
-                    onAccountIdChange={setBuyAssetAccountId}
-                    formControlProps={formControlProps}
-                    labelPostFix={buyTradeAssetSelect}
-                    priceImpactPercentage={priceImpactPercentage?.toString()}
-                  />
-                </Stack>
-                {ConfirmSummary}
-              </Stack>
-            </Card>
-
-            <WithLazyMount
-              shouldUse={!isCompact && !isSmallerThanXl}
-              component={CollapsibleQuoteList}
-              isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
-              isLoading={isLoading}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              height={tradeInputHeight ?? 'full'}
-              ml={4}
-            />
-          </Center>
-        </Flex>
-      </MessageOverlay>
+          </Flex>
+        </MessageOverlay>
+      </WarningAcknowledgement>
     </TradeSlideTransition>
   )
 })

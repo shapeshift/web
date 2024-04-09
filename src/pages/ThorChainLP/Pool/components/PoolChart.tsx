@@ -3,10 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData, UTCTimestamp } from 'lightweight-charts'
 import { useCallback, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
-import type { Interval } from 'react-queries/queries/midgard'
 import { ChartSkeleton } from 'components/SimpleChart/LoadingChart'
 import { SimpleChart } from 'components/SimpleChart/SimpleChart'
-import type { ChartInterval } from 'components/SimpleChart/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import type {
   MidgardSwapHistoryResponse,
@@ -15,9 +13,10 @@ import type {
 import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): SingleValueData[] => {
-  if (!swapHistory) return []
+type ChartIntervalKey = 'day' | 'week' | 'month' | 'all'
+type ChartIntervalValue = 'hour' | 'day' | 'month'
 
+const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): SingleValueData[] => {
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
   return swapHistory.intervals.map(interval => {
@@ -51,8 +50,7 @@ const tvlToChartData = (
     }
   })
 
-// @ts-ignore we can't make this a partial record as we need to use this as a tuple to spread as useQuery params
-const INTERVAL_PARAMS_BY_INTERVAL: Record<ChartInterval, [Interval, number]> = {
+const INTERVAL_PARAMS_BY_INTERVAL: Record<ChartIntervalKey, [ChartIntervalValue, number]> = {
   day: ['hour', 24],
   week: ['day', 7],
   month: ['day', 30],
@@ -63,7 +61,7 @@ type PoolChartProps = {
   thorchainNotationAssetId: string
 }
 export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
-  const [selectedInterval, setSelectedInterval] = useState<ChartInterval>('day')
+  const [selectedInterval, setSelectedInterval] = useState<ChartIntervalKey>('day')
   const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
   const seriesType = useMemo(
     () => (selectedDataType === 'volume' ? 'Histogram' : 'Area'),
@@ -131,7 +129,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
               <Button
                 key={interval}
                 // eslint-disable-next-line react-memo/require-usememo
-                onClick={() => setSelectedInterval(interval as Interval)}
+                onClick={() => setSelectedInterval(interval as ChartIntervalKey)}
                 variant={selectedInterval === interval ? 'solid' : 'outline'}
               >
                 {label}

@@ -1,6 +1,6 @@
 import { Box, Button, Flex } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { RawText, Text } from 'components/Text'
 
@@ -8,25 +8,25 @@ type WarningAcknowledgementProps = {
   children: React.ReactNode
   message: string
   onAcknowledge: () => void
-  shouldShow: boolean
+  shouldShowWarningAcknowledgement: boolean
+  setShouldShowWarningAcknowledgement: (shouldShow: boolean) => void
 }
 
 export const WarningAcknowledgement = ({
   children,
   message,
   onAcknowledge,
-  shouldShow,
+  shouldShowWarningAcknowledgement,
+  setShouldShowWarningAcknowledgement,
 }: WarningAcknowledgementProps) => {
-  const [show, setShow] = useState(true) // fixme: should be shouldShow
-
   const handleAcknowledge = useCallback(() => {
-    setShow(false)
+    setShouldShowWarningAcknowledgement(false)
     onAcknowledge()
-  }, [onAcknowledge])
+  }, [onAcknowledge, setShouldShowWarningAcknowledgement])
 
   const handleCancel = useCallback(() => {
-    setShow(false)
-  }, [])
+    setShouldShowWarningAcknowledgement(false)
+  }, [setShouldShowWarningAcknowledgement])
 
   const cancelHoverProps = useMemo(
     () => ({
@@ -45,7 +45,7 @@ export const WarningAcknowledgement = ({
   return (
     <Box position='relative'>
       {children}
-      {show && (
+      {shouldShowWarningAcknowledgement && (
         <motion.div
           initial={{ y: '100%' }}
           animate={{ y: 0 }}

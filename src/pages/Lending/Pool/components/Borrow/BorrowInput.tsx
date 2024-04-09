@@ -1,8 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
   Button,
   CardFooter,
   Collapse,
@@ -25,7 +22,7 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -103,17 +100,7 @@ export const BorrowInput = ({
   const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [borrowAssetIsFiat, toggleBorrowAssetIsFiat] = useToggle(false)
   const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
-  const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
-    null,
-  )
-
-  const handleAcknowledgeUnsafeQuote = useCallback(() => {
-    // We don't want to *immediately* set this or there will be a "click-through"
-    // i.e the regular continue button will render immediately, and click will bubble to it
-    setTimeout(() => {
-      setIsUnsafeQuoteNoticeDismissed(true)
-    }, 100)
-  }, [])
+  const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const {
     state: { wallet },
@@ -368,10 +355,6 @@ export const BorrowInput = ({
   )
 
   useEffect(() => {
-    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
-  }, [isUnsafeQuote])
-
-  useEffect(() => {
     setConfirmedQuote(lendingQuoteData ?? null)
   }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
 
@@ -503,15 +486,22 @@ export const BorrowInput = ({
     lendingQuoteError?.message,
   ])
 
+  const handleBorrowSubmit = useCallback(() => {
+    return !!isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : onSubmit()
+  }, [isUnsafeQuote, onSubmit])
+
   if (!(collateralAsset && borrowAsset && collateralFeeAsset)) return null
 
   return (
     <SlideTransition>
       <WarningAcknowledgement
-        title='Warning'
-        message='This action is irreversible. Please proceed with caution.'
-        onAcknowledge={handleAcknowledgeUnsafeQuote}
-        shouldShow={!!isUnsafeQuote}
+        message={`This borrow has high slippage (${bnOrZero(quoteSlippageDecimalPercentage)
+          .times(100)
+          .toFixed(2)
+          .toString()}%). Proceed with caution.`}
+        onAcknowledge={onSubmit}
+        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
       >
         <Stack spacing={0}>
           <TradeAssetInput
@@ -661,7 +651,7 @@ export const BorrowInput = ({
               size='lg'
               colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
               mx={-2}
-              onClick={onSubmit}
+              onClick={handleBorrowSubmit}
               isLoading={
                 isPoolDataLoading ||
                 isLendingQuoteLoading ||

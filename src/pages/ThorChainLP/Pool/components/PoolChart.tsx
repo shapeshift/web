@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Interval } from 'react-queries/queries/midgard'
 import { ChartSkeleton } from 'components/SimpleChart/LoadingChart'
-import { ChartType, SimpleChart } from 'components/SimpleChart/SimpleChart'
+import { SimpleChart } from 'components/SimpleChart/SimpleChart'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import type {
   MidgardSwapHistoryResponse,
@@ -14,9 +14,7 @@ import type {
 import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-const swapHistoryToChartData = (
-  swapHistory: MidgardSwapHistoryResponse | undefined,
-): SingleValueData[] => {
+const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): SingleValueData[] => {
   if (!swapHistory) return []
 
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
@@ -65,17 +63,14 @@ type PoolChartProps = {
 }
 export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
   const [selectedInterval, setSelectedInterval] = useState<Interval | 'all'>('day')
-  const [selectedDataType, setSelectedDataType] = useState<ChartType>(ChartType.VOLUME)
+  const [selectedDataType, setSelectedDataType] = useState<'volume' | 'liquidity'>('volume')
   const seriesType = useMemo(
-    () => (selectedDataType === ChartType.VOLUME ? 'histogram' : 'line'),
+    () => (selectedDataType === 'volume' ? 'Histogram' : 'Area'),
     [selectedDataType],
   )
 
-  const setSelectedVolumeDataType = useCallback(() => setSelectedDataType(ChartType.VOLUME), [])
-  const setSelectedLiquidityDataType = useCallback(
-    () => setSelectedDataType(ChartType.LIQUIDITY),
-    [],
-  )
+  const setSelectedVolumeDataType = useCallback(() => setSelectedDataType('volume'), [])
+  const setSelectedLiquidityDataType = useCallback(() => setSelectedDataType('liquidity'), [])
 
   const { data: swapsData, isLoading: isSwapsDataLoading } = useQuery({
     ...reactQueries.midgard.swapsData(
@@ -91,34 +86,31 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
   })
 
   const data = useMemo(() => {
-    const maybeData = selectedDataType === ChartType.VOLUME ? swapsData : tvl
+    const maybeData = selectedDataType === 'volume' ? swapsData : tvl
     return maybeData ?? []
   }, [selectedDataType, swapsData, tvl])
 
   const isLoading = useMemo(
-    () => (selectedDataType === ChartType.VOLUME ? isSwapsDataLoading : isTvlLoading),
+    () => (selectedDataType === 'volume' ? isSwapsDataLoading : isTvlLoading),
     [isSwapsDataLoading, isTvlLoading, selectedDataType],
   )
 
   const chartBody = useMemo(() => {
     if (isLoading) {
-      return <ChartSkeleton type={selectedDataType} height={500} />
+      return <ChartSkeleton type={seriesType} height={500} />
     }
     return <SimpleChart data={data} seriesType={seriesType} height={500} />
-  }, [data, isLoading, selectedDataType, seriesType])
+  }, [data, isLoading, seriesType])
 
   return (
     <Stack spacing={4}>
       <Flex justifyContent='space-between' alignItems='center' p={4}>
         <ButtonGroup size='sm'>
-          <Button
-            isActive={selectedDataType === ChartType.VOLUME}
-            onClick={setSelectedVolumeDataType}
-          >
+          <Button isActive={selectedDataType === 'volume'} onClick={setSelectedVolumeDataType}>
             Volume
           </Button>
           <Button
-            isActive={selectedDataType === ChartType.LIQUIDITY}
+            isActive={selectedDataType === 'liquidity'}
             onClick={setSelectedLiquidityDataType}
           >
             Liquidity

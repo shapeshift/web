@@ -8,6 +8,10 @@ export const InputStyle = {
       _placeholder: {
         color: 'text.subtlest',
       },
+      transitionProperty: {
+        base: 'none',
+        md: 'common',
+      },
     },
   }),
   // Styles for the size variations
@@ -38,7 +42,7 @@ export const InputStyle = {
       field: {
         bg: 'background.input.base',
         borderWidth: 2,
-        borderColor: 'border.input',
+        borderColor: 'transparent',
         _hover: {
           bg: 'background.input.hover',
         },

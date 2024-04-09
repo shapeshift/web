@@ -1,42 +1,31 @@
 import axios from 'axios'
 
-const TRM_LABS_API_URL = 'https://api.trmlabs.com/public/v1/sanctions/screening'
+const ADDRESS_VALIDATION_URL = 'https://api.proxy.shapeshift.com/api/v1/validate'
 
 const cache: Record<string, Promise<boolean>> = {}
 
 const checkIsSanctioned = async (address: string): Promise<boolean> => {
-  type trmResponse = [
-    {
-      address: string
-      isSanctioned: boolean
-    },
-  ]
-
-  const response = await axios.post<trmResponse>(
-    TRM_LABS_API_URL,
-    [
-      {
-        address,
-      },
-    ],
-    {
-      headers: {
-        Accept: 'application/json',
-      },
-    },
-  )
-
-  return response.data[0].isSanctioned
-}
-
-export const validateAddress = async (address: string): Promise<void> => {
-  // dedupe and cache promises in memory
-  if (cache[address] === undefined) {
-    const newEntry = checkIsSanctioned(address)
-    cache[address] = newEntry
+  type validationResponse = {
+    valid: boolean
   }
 
-  const isSanctionedPromise = cache[address]
-  const isSanctioned = await isSanctionedPromise
-  if (isSanctioned) throw Error('Address not supported')
+  const response = await axios.get<validationResponse>(`${ADDRESS_VALIDATION_URL}/${address}`)
+  return response.data.valid
+}
+
+export const assertAddressNotSanctioned = async (address: string): Promise<void> => {
+  try {
+    // dedupe and cache promises in memory
+    if (cache[address] === undefined) {
+      const newEntry = checkIsSanctioned(address)
+      cache[address] = newEntry
+    }
+
+    const isValidPromise = cache[address]
+    const isValid = await isValidPromise
+    if (!isValid) throw Error('Address not supported')
+  } catch (error) {
+    // Log the error for debugging purposes
+    console.error(`Error validating address: ${address}. Defaulting to valid.`, error)
+  }
 }

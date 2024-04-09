@@ -50,7 +50,7 @@ import type {
 import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import { validateAddress } from '../utils/validateAddress'
+import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type {
   arbitrum,
   arbitrumNova,
@@ -417,8 +417,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
     await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
+      assertAddressNotSanctioned(senderAddress),
+      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
     ])
 
     try {
@@ -445,8 +445,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     hex,
   }: BroadcastTransactionInput): Promise<string> {
     await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
+      assertAddressNotSanctioned(senderAddress),
+      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
     ])
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }

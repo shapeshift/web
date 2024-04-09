@@ -26,19 +26,44 @@ type PriceChartArgs = {
   hideAxis?: boolean
 } & ChakraStyledOptions
 
-export const PriceChart: React.FC<PriceChartArgs> = ({
-  assetId,
-  timeframe,
-  percentChange,
-  chartHeight = '350px',
-  setPercentChange,
-  setFiatChange,
-  hideAxis,
-  ...props
-}) => {
+export const PriceChart: React.FC<PriceChartArgs> = props => {
+  const {
+    assetId,
+    timeframe,
+    percentChange,
+    chartHeight = '350px',
+    setPercentChange,
+    setFiatChange,
+    hideAxis,
+    boxProps,
+  } = useMemo(() => {
+    const {
+      assetId,
+      timeframe,
+      percentChange,
+      chartHeight,
+      setPercentChange,
+      setFiatChange,
+      hideAxis,
+      ...boxProps
+    } = props
+
+    return {
+      assetId,
+      timeframe,
+      percentChange,
+      chartHeight,
+      setPercentChange,
+      setFiatChange,
+      hideAxis,
+      boxProps,
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, Object.values(props))
+
   const assetIds = useMemo(() => [assetId], [assetId])
   // fetch price history for this asset
-  useFetchPriceHistories({ assetIds, timeframe })
+  useFetchPriceHistories(assetIds, timeframe)
 
   const priceData = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe),
@@ -49,7 +74,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     setFiatChange && setFiatChange(calculateFiatChange(priceData))
   }, [priceData, setFiatChange, setPercentChange])
 
-  const loading = useAppSelector(state =>
+  const isLoading = useAppSelector(state =>
     selectPriceHistoriesLoadingByAssetTimeframe(state, assetIds, timeframe),
   )
 
@@ -57,7 +82,7 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
 
   const color = percentChange > 0 ? 'green.500' : 'red.500'
 
-  if (!loading && !priceData.length)
+  if (!isLoading && !priceData.length)
     return (
       <Box p={8}>
         <Alert status='info' variant='subtle' borderRadius='lg' pl={2}>
@@ -74,8 +99,8 @@ export const PriceChart: React.FC<PriceChartArgs> = ({
     )
 
   return (
-    <Box height={chartHeight} {...props}>
-      <Graph color={color} data={data} loading={loading} isLoaded={!loading} hideAxis={hideAxis} />
+    <Box height={chartHeight} {...boxProps}>
+      <Graph color={color} data={data} isLoading={isLoading} hideAxis={hideAxis} />
     </Box>
   )
 }

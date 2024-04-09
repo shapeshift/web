@@ -148,6 +148,7 @@ export const mockStore: ReduxState = {
       byAccountIdAssetId: {},
       ids: [],
     },
+    hydrationMeta: {},
   },
   opportunities: {
     lp: {

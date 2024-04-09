@@ -12,11 +12,15 @@ import { Err, Ok } from '@sniptt/monads'
 import type { TypedDataDomain, TypedDataField } from 'ethers'
 import { TypedDataEncoder } from 'ethers'
 import { keccak256, stringToBytes } from 'viem'
-import { bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
+import { getTreasuryAddressFromChainId } from 'lib/swapper/swappers/utils/helpers/helpers'
+import {
+  convertBasisPointsToDecimalPercentage,
+  convertDecimalPercentageToBasisPoints,
+} from 'state/slices/tradeQuoteSlice/utils'
 
-import type { CowSwapQuoteResponse } from '../../types'
+import type { AffiliateAppDataFragment, CowSwapQuoteResponse } from '../../types'
 import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
@@ -158,18 +162,51 @@ type GetValuesFromQuoteResponseArgs = {
   buyAsset: Asset
   sellAsset: Asset
   response: CowSwapQuoteResponse
+  affiliateBps: string
+}
+
+export const deductAffiliateFeesFromAmount = ({
+  amount,
+  affiliateBps,
+}: {
+  amount: string
+  affiliateBps: string
+}) => {
+  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
+  if (!hasAffiliateFee) return amount
+
+  return bn(amount)
+    .times(bn(1).minus(convertBasisPointsToDecimalPercentage(affiliateBps)))
+    .toFixed(0)
+}
+
+export const deductSlippageFromAmount = ({
+  amount,
+  slippageTolerancePercentageDecimal,
+}: {
+  amount: string
+  slippageTolerancePercentageDecimal: string
+}) => {
+  return bn(amount).minus(bn(amount).times(slippageTolerancePercentageDecimal))
 }
 
 export const getValuesFromQuoteResponse = ({
   buyAsset,
   sellAsset,
   response,
+  affiliateBps,
 }: GetValuesFromQuoteResponseArgs) => {
   const {
     sellAmount: sellAmountAfterFeesCryptoBaseUnit,
     feeAmount: feeAmountInSellTokenCryptoBaseUnit,
-    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+    buyAmount,
   } = response.quote
+
+  // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
+  const buyAmountAfterFeesCryptoBaseUnit = deductAffiliateFeesFromAmount({
+    amount: buyAmount,
+    affiliateBps,
+  })
 
   const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
     buyAmountAfterFeesCryptoBaseUnit,
@@ -215,7 +252,10 @@ const generateAppDataFromDoc = async (
 
 const metadataApi = new MetadataApi()
 // See https://api.cow.fi/docs/#/default/post_api_v1_quote / https://github.com/cowprotocol/app-data
-export const getFullAppData = async (slippageTolerancePercentage: string) => {
+export const getFullAppData = async (
+  slippageTolerancePercentage: string,
+  affiliateAppDataFragment: AffiliateAppDataFragment,
+) => {
   const APP_CODE = 'shapeshift'
   const orderClass: OrderClass = { orderClass: 'market' }
   const quote = {
@@ -227,9 +267,28 @@ export const getFullAppData = async (slippageTolerancePercentage: string) => {
     metadata: {
       quote,
       orderClass,
+      ...affiliateAppDataFragment,
     },
   })
 
   const { fullAppData, appDataKeccak256 } = await generateAppDataFromDoc(appDataDoc)
   return { appDataHash: appDataKeccak256, appData: fullAppData }
+}
+
+export const getAffiliateAppDataFragmentByChainId = ({
+  affiliateBps,
+  chainId,
+}: {
+  affiliateBps: string
+  chainId: ChainId
+}): AffiliateAppDataFragment => {
+  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
+  if (!hasAffiliateFee) return {}
+
+  return {
+    partnerFee: {
+      bps: Number(affiliateBps),
+      recipient: getTreasuryAddressFromChainId(chainId),
+    },
+  }
 }

@@ -18,8 +18,7 @@ const suspenseFallback = <div />
 
 type GraphProps = {
   data: BalanceChartData
-  isLoaded?: boolean
-  loading?: boolean
+  isLoading: boolean
   color: string
   isRainbowChart?: boolean
   hideAxis?: boolean
@@ -34,8 +33,7 @@ const margin = {
 
 export const Graph: React.FC<GraphProps> = ({
   data,
-  isLoaded,
-  loading,
+  isLoading,
   color,
   isRainbowChart,
   hideAxis,
@@ -43,8 +41,8 @@ export const Graph: React.FC<GraphProps> = ({
   const { total, rainbow } = data
   const renderGraph = useCallback(
     ({ height, width }: ParentSizeProvidedProps) => {
-      return loading || !isLoaded ? (
-        <Fade in={loading || !isLoaded}>
+      return isLoading ? (
+        <Fade in={isLoading}>
           <Center width='full' height={height} overflow='hidden'>
             <GraphLoading />
           </Center>
@@ -74,7 +72,7 @@ export const Graph: React.FC<GraphProps> = ({
         )
       ) : null
     },
-    [color, data, hideAxis, isLoaded, isRainbowChart, loading, rainbow, total],
+    [color, data, hideAxis, isLoading, isRainbowChart, rainbow, total],
   )
   return <ParentSize debounceTime={10}>{renderGraph}</ParentSize>
 }

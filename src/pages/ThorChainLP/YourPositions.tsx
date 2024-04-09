@@ -265,34 +265,35 @@ export const YourPositions = () => {
 
   const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])
 
-  if (isEmpty) {
-    return (
-      <ResultsEmpty
-        title='pools.yourPositions.emptyTitle'
-        body='pools.yourPositions.emptyBody'
-        icon={emptyIcon}
+  const body = useMemo(() => {
+    if (isEmpty) {
+      return (
+        <ResultsEmpty
+          title='pools.yourPositions.emptyTitle'
+          body='pools.yourPositions.emptyBody'
+          icon={emptyIcon}
+        />
+      )
+    }
+    return positions.length ? (
+      <ReactTable
+        data={positions}
+        columns={columns}
+        initialState={reactTableInitialState}
+        onRowClick={handlePoolClick}
+        variant='clickable'
       />
+    ) : (
+      <Flex gap={4} alignItems='center' justifyContent='center'>
+        <Spinner />
+      </Flex>
     )
-  }
+  }, [columns, emptyIcon, handlePoolClick, isEmpty, positions])
 
   return (
     <Main headerComponent={headerComponent}>
       <SEO title={translate('pools.yourPositions.yourPositions')} />
-      <Stack>
-        {positions.length ? (
-          <ReactTable
-            data={positions}
-            columns={columns}
-            initialState={reactTableInitialState}
-            onRowClick={handlePoolClick}
-            variant='clickable'
-          />
-        ) : (
-          <Flex gap={4} alignItems='center' justifyContent='center'>
-            <Spinner />
-          </Flex>
-        )}
-      </Stack>
+      <Stack>{body}</Stack>
     </Main>
   )
 }

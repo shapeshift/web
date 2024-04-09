@@ -14,8 +14,6 @@ import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): SingleValueData[] => {
-  if (!swapHistory) return []
-
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
   return swapHistory.intervals.map(interval => {

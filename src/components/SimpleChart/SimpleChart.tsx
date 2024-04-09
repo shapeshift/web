@@ -9,7 +9,7 @@ import {
   type SingleValueData,
   type Time,
 } from 'lightweight-charts'
-import { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 import { semanticTokens } from 'theme/semanticTokens'
@@ -215,5 +215,11 @@ export const SimpleChart = <T extends Time>({
     textColor,
   ])
 
-  return <ChartDiv ref={chartContainerRef} height={height} />
+  // Prevent scrolling while scrubbing the chart
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => e.preventDefault(),
+    [],
+  )
+
+  return <ChartDiv ref={chartContainerRef} height={height} onTouchMove={handleTouchMove} />
 }

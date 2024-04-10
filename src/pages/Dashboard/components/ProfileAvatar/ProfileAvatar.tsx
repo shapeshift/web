@@ -1,5 +1,6 @@
 import { Box, Button, Center, useDisclosure } from '@chakra-ui/react'
-import { memo } from 'react'
+import type { PropsWithChildren } from 'react'
+import React, { memo } from 'react'
 import { EditPen } from 'components/Icons/EditPen'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
@@ -12,8 +13,25 @@ const avatarSize = { base: 'lg', md: 'xl' }
 const groupActive = { outline: '2px solid var(--chakra-colors-chakra-body-text)' }
 
 export const ProfileAvatar = memo(() => {
-  const { isOpen, onClose, onOpen } = useDisclosure()
   const walletImage = useProfileAvatar()
+  return (
+    <LazyLoadAvatar
+      className='profile-avatar'
+      borderRadius='xl'
+      opacity='1'
+      transitionDuration='normal'
+      transitionProperty='common'
+      size={avatarSize}
+      src={walletImage}
+      outline='2px solid transparent'
+      _groupHover={groupHoverHalfOpacity}
+      _groupActive={groupActive}
+    />
+  )
+})
+
+export const EditAvatarButton: React.FC<PropsWithChildren> = ({ children }) => {
+  const { isOpen, onClose, onOpen } = useDisclosure()
   return (
     <Box>
       <Button
@@ -41,20 +59,9 @@ export const ProfileAvatar = memo(() => {
         >
           <EditPen className='editIcon' />
         </Center>
-        <LazyLoadAvatar
-          className='profile-avatar'
-          borderRadius='xl'
-          opacity='1'
-          transitionDuration='normal'
-          transitionProperty='common'
-          size={avatarSize}
-          src={walletImage}
-          outline='2px solid transparent'
-          _groupHover={groupHoverHalfOpacity}
-          _groupActive={groupActive}
-        />
+        {children}
       </Button>
-      <AvatarSelectModal walletImage={walletImage} isOpen={isOpen} onClose={onClose} />
+      <AvatarSelectModal isOpen={isOpen} onClose={onClose} />
     </Box>
   )
-})
+}

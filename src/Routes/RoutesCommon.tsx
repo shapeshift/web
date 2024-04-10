@@ -5,6 +5,7 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
+import { ExploreIcon } from 'components/Icons/Explore'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
@@ -50,6 +51,14 @@ const Flags = makeSuspenseful(
   lazy(() =>
     import('pages/Flags/Flags').then(({ Flags }) => ({
       default: Flags,
+    })),
+  ),
+)
+
+const Explore = makeSuspenseful(
+  lazy(() =>
+    import('pages/Explore/Explore').then(({ Explore }) => ({
+      default: Explore,
     })),
   ),
 )
@@ -118,6 +127,14 @@ export const routes: NestedRoute[] = [
       main: Trade,
       hide: true,
     })),
+  },
+  {
+    path: '/explore',
+    label: 'navbar.explore',
+    icon: <ExploreIcon />,
+    main: Explore,
+    mobileNav: true,
+    priority: 6,
   },
   {
     path: '/lending',

@@ -1,4 +1,3 @@
-import type { ButtonProps } from '@chakra-ui/react'
 import { IconButton } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
@@ -12,10 +11,9 @@ const starFilled = <FaStar />
 
 type WatchAssetButtonProps = {
   assetId: AssetId
-  buttonProps?: ButtonProps
 }
 
-export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, buttonProps }) => {
+export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId }) => {
   const appDispatch = useAppDispatch()
   const isAssetWatched = useAppSelector(state => selectIsAssetIdWatched(state, assetId))
   const handleToggleWatchAsset = useCallback(() => {
@@ -30,7 +28,9 @@ export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, but
       onClick={handleToggleWatchAsset}
       icon={isAssetWatched ? starFilled : starEmpty}
       aria-label='favorite asset'
-      {...buttonProps}
+      isRound
+      variant='ghost'
+      fontSize='2xl'
     />
   )
 }

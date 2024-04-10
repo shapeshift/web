@@ -12,7 +12,7 @@ import { selectAssetsSortedByMarketCap, selectWatchedAssetIds } from 'state/slic
 import { useAppSelector } from 'state/store'
 
 const starFilled = <FaStar />
-const emptyButtonProps = { size: 'lg', width: 'full' }
+const emptyButtonProps = { size: 'lg', width: 'full', colorScheme: 'blue.500' }
 
 export const PriceTable = () => {
   const watchedAssetIds = useAppSelector(selectWatchedAssetIds)

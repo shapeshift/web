@@ -23,7 +23,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
   title = 'defi.noActivePositions',
   body = 'assets.assetCards.stakingBody',
   ctaHref,
-  ctaText = 'defi.startEarning',
+  ctaText,
   buttonProps,
 }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
@@ -38,7 +38,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
       <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
         <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
         <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
-        {ctaHref && (
+        {ctaHref && ctaText && (
           <Button
             colorScheme='purple'
             as={Link}

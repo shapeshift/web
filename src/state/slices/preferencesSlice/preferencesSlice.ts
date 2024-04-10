@@ -180,7 +180,7 @@ export const preferences = createSlice({
       state.snapInstalled = payload
     },
     addWatchedAsset(state, { payload }: { payload: AssetId }) {
-      state.watchedAssets = [...state.watchedAssets, payload]
+      state.watchedAssets = state.watchedAssets.concat(payload)
     },
     removeWatchedAsset(state, { payload }: { payload: AssetId }) {
       state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)

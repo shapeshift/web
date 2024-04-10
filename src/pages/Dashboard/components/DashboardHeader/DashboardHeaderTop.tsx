@@ -10,7 +10,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
+import { EditAvatarButton, ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 import { DashboardDrawer } from './DashboardDrawer'
 import { WalletBalance } from './WalletBalance'
 
@@ -77,7 +77,9 @@ export const DashboardHeaderTop = memo(() => {
         gap={4}
         gridColumn={profileGridColumn}
       >
-        <ProfileAvatar />
+        <EditAvatarButton>
+          <ProfileAvatar />
+        </EditAvatarButton>
         <WalletBalance />
       </Flex>
       <Flex

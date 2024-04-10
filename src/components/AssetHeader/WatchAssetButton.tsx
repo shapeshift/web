@@ -15,18 +15,18 @@ type WatchAssetButtonProps = {
 
 export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId }) => {
   const appDispatch = useAppDispatch()
-  const isAssetWatched = useAppSelector(state => selectIsAssetIdWatched(state, assetId))
+  const isAssetIdWatched = useAppSelector(state => selectIsAssetIdWatched(state, assetId))
   const handleToggleWatchAsset = useCallback(() => {
-    if (isAssetWatched) {
+    if (isAssetIdWatched) {
       appDispatch(preferences.actions.removeWatchedAssetId(assetId))
     } else {
       appDispatch(preferences.actions.addWatchedAssetId(assetId))
     }
-  }, [appDispatch, assetId, isAssetWatched])
+  }, [appDispatch, assetId, isAssetIdWatched])
   return (
     <IconButton
       onClick={handleToggleWatchAsset}
-      icon={isAssetWatched ? starFilled : starEmpty}
+      icon={isAssetIdWatched ? starFilled : starEmpty}
       aria-label='favorite asset'
       isRound
       variant='ghost'

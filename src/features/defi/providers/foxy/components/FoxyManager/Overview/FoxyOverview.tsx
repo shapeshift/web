@@ -11,8 +11,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from 'features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
-import qs from 'qs'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -36,7 +35,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { FoxyEmpty } from './FoxyEmpty'
 import { WithdrawCard } from './WithdrawCard'
 
 type FoxyOverviewProps = {
@@ -48,7 +46,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
+  const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId } = query
   const {
     contractAddress,
@@ -147,7 +145,6 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
   const selectedLocale = useAppSelector(selectSelectedLocale)
   const descriptionQuery = useGetAssetDescriptionQuery({ assetId: stakingAssetId, selectedLocale })
 
-  const foxyEmptyAssets = useMemo(() => [stakingAsset, rewardAsset], [stakingAsset, rewardAsset])
   const underlyingAssetsCryptoPrecision = useMemo(
     () => [
       {
@@ -158,18 +155,6 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     ],
     [cryptoAmountAvailablePrecision, stakingAsset],
   )
-  const handleFoxyEmptyClick = useCallback(
-    () =>
-      history.push({
-        pathname: location.pathname,
-        search: qs.stringify({
-          ...query,
-          modal: DefiAction.Deposit,
-        }),
-      }),
-    [history, location.pathname, query],
-  )
-
   const overviewMenu = useMemo(
     () => [
       {
@@ -214,21 +199,6 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
           <CircularProgress isIndeterminate />
         </Center>
       </DefiModalContent>
-    )
-  }
-
-  if (
-    bnOrZero(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit).eq(0) &&
-    !canClaim &&
-    !hasPendingUndelegation &&
-    !hasAvailableUndelegation
-  ) {
-    return (
-      <FoxyEmpty
-        assets={foxyEmptyAssets}
-        apy={foxyEarnOpportunityData?.apy ?? ''}
-        onClick={handleFoxyEmptyClick}
-      />
     )
   }
 

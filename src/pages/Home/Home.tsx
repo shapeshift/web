@@ -44,7 +44,7 @@ export const Home = () => {
           onClick={handleWalletClick}
         >
           <ProfileAvatar />
-          <WalletBalance label='Wallet Balance' alignItems='flex-start' />
+          <WalletBalance label='defi.walletBalance' alignItems='flex-start' />
           <ArrowForwardIcon ml='auto' />
         </Flex>
       </DashboardHeaderWrapper>

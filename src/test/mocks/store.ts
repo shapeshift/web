@@ -1,12 +1,8 @@
-import { bchAssetId, btcAssetId, dogeAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { usdtAssetId } from 'components/Modals/FiatRamps/config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
+import { CurrencyFormats, HomeMarketView } from 'state/slices/preferencesSlice/preferencesSlice'
 import { initialTradeExecutionState } from 'state/slices/tradeQuoteSlice/constants'
-
-import { usdcAssetId } from './accounts'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -121,7 +117,8 @@ export const mockStore: ReduxState = {
     showConsentBanner: true,
     showSnapsModal: true,
     snapInstalled: false,
-    watchedAssets: [btcAssetId, ethAssetId, usdtAssetId, usdcAssetId, dogeAssetId, bchAssetId],
+    watchedAssets: [],
+    selectedHomeView: HomeMarketView.TopAssets,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

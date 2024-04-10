@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -68,6 +68,11 @@ export enum CurrencyFormats {
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
 
+export enum HomeMarketView {
+  TopAssets = 'TopAssets',
+  Watchlist = 'Watchlist',
+}
+
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
@@ -80,6 +85,7 @@ export type Preferences = {
   showSnapsModal: boolean
   snapInstalled: boolean
   watchedAssets: AssetId[]
+  selectedHomeView: HomeMarketView
 }
 
 const initialState: Preferences = {
@@ -140,6 +146,7 @@ const initialState: Preferences = {
   showSnapsModal: true,
   snapInstalled: false,
   watchedAssets: [],
+  selectedHomeView: HomeMarketView.TopAssets,
 }
 
 export const preferences = createSlice({
@@ -185,8 +192,8 @@ export const preferences = createSlice({
     removeWatchedAssetId(state, { payload }: { payload: AssetId }) {
       state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
     },
-    setWatchedAssetIds(state, { payload }: { payload: AssetId[] }) {
-      state.watchedAssets = payload
+    setHomeMarketView(state, { payload }: { payload: HomeMarketView }) {
+      state.selectedHomeView = payload
     },
   },
 })

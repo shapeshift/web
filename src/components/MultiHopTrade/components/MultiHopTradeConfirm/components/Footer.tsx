@@ -9,12 +9,13 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectActiveQuote,
@@ -37,9 +38,10 @@ export const Footer = () => {
   const tradeExecutionState = useAppSelector(selectTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
-  const { isModeratePriceImpact } = usePriceImpact(activeQuote)
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+  const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
-  const handleConfirm = useCallback(() => {
+  const handleTradeConfirm = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.confirmTrade())
   }, [dispatch])
 
@@ -112,42 +114,59 @@ export const Footer = () => {
     [tradeExecutionState],
   )
 
+  const handleSubmit = useCallback(() => {
+    if (isModeratePriceImpact) {
+      setShouldShowWarningAcknowledgement(true)
+    } else {
+      handleTradeConfirm()
+    }
+  }, [handleTradeConfirm, isModeratePriceImpact])
+
   return [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
     tradeExecutionState,
   ) ? (
-    <CardFooter
-      flexDir='column'
-      gap={2}
-      px={4}
-      borderTopWidth={1}
-      borderColor='border.base'
-      bg='background.surface.raised.base'
-      borderBottomRadius='md'
+    <WarningAcknowledgement
+      message={`This trade is impacted by price movement (${bnOrZero(priceImpactPercentage)
+        .toFixed(2)
+        .toString()}%). Proceed with caution.`}
+      onAcknowledge={handleTradeConfirm}
+      shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+      setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
     >
-      {tradeWarning}
-      {swapperName === SwapperName.LIFI && (
-        <Alert status='warning' size='sm'>
-          <AlertIcon />
-          <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
-        </Alert>
-      )}
-      {isFeeRatioOverThreshold && (
-        <Alert status='warning' size='sm'>
-          <AlertIcon />
-          <AlertDescription>
-            <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
-          </AlertDescription>
-        </Alert>
-      )}
-      <Button
-        colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
-        size='lg'
-        width='full'
-        onClick={handleConfirm}
-        isLoading={isLoading}
+      <CardFooter
+        flexDir='column'
+        gap={2}
+        px={4}
+        borderTopWidth={1}
+        borderColor='border.base'
+        bg='background.surface.raised.base'
+        borderBottomRadius='md'
       >
-        <Text translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'} />
-      </Button>
-    </CardFooter>
+        {tradeWarning}
+        {swapperName === SwapperName.LIFI && (
+          <Alert status='warning' size='sm'>
+            <AlertIcon />
+            <AlertDescription>{translate('trade.lifiWarning')}</AlertDescription>
+          </Alert>
+        )}
+        {isFeeRatioOverThreshold && (
+          <Alert status='warning' size='sm'>
+            <AlertIcon />
+            <AlertDescription>
+              <Text translation={gasFeeExceedsTradeAmountThresholdTranslation} />
+            </AlertDescription>
+          </Alert>
+        )}
+        <Button
+          colorScheme={'blue'}
+          size='lg'
+          width='full'
+          onClick={handleSubmit}
+          isLoading={isLoading}
+        >
+          <Text translation={'trade.confirmAndTrade'} />
+        </Button>
+      </CardFooter>
+    </WarningAcknowledgement>
   ) : null
 }

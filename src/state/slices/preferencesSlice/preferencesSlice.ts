@@ -179,13 +179,13 @@ export const preferences = createSlice({
     setSnapInstalled(state, { payload }: { payload: boolean }) {
       state.snapInstalled = payload
     },
-    addWatchedAsset(state, { payload }: { payload: AssetId }) {
+    addWatchedAssetId(state, { payload }: { payload: AssetId }) {
       state.watchedAssets = state.watchedAssets.concat(payload)
     },
-    removeWatchedAsset(state, { payload }: { payload: AssetId }) {
+    removeWatchedAssetId(state, { payload }: { payload: AssetId }) {
       state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
     },
-    setWatchedAssets(state, { payload }: { payload: AssetId[] }) {
+    setWatchedAssetIds(state, { payload }: { payload: AssetId[] }) {
       state.watchedAssets = payload
     },
   },

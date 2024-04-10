@@ -13,10 +13,12 @@ export const selectFeatureFlag = createCachedSelector(
   (featureFlags, flag) => featureFlags[flag],
 )((_, flag: Flag): Flag => flag ?? 'undefined')
 
-export const selectIsAssetWatched = createCachedSelector(
-  (state: ReduxState) => state.preferences,
+export const selectWatchedAssetIds = (state: ReduxState) => state.preferences.watchedAssets
+
+export const selectIsAssetIdWatched = createCachedSelector(
+  selectWatchedAssetIds,
   (_state: ReduxState, assetId: AssetId) => assetId,
-  (preferences, assetId) => preferences.watchedAssets.includes(assetId),
+  (watchedAssets, assetId) => watchedAssets.includes(assetId),
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 export const selectSelectedLocale = (state: ReduxState) => state.preferences.selectedLocale
@@ -27,7 +29,6 @@ export const selectChartTimeframe = (state: ReduxState) => state.preferences.cha
 export const selectShowWelcomeModal = (state: ReduxState) => state.preferences.showWelcomeModal
 export const selectShowSnapsModal = (state: ReduxState) => state.preferences.showSnapsModal
 export const selectSnapInstalled = (state: ReduxState) => state.preferences.snapInstalled
-export const selectWatchedAssets = (state: ReduxState) => state.preferences.watchedAssets
 
 export const selectShowConsentBanner = (state: ReduxState) => {
   const consentEnabled = selectFeatureFlag(state, 'Mixpanel')

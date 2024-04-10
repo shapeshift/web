@@ -8,14 +8,14 @@ import type { Row } from 'react-table'
 import { MarketsTable } from 'components/MarketsTable'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { Text } from 'components/Text'
-import { selectAssetsSortedByMarketCap, selectWatchedAssets } from 'state/slices/selectors'
+import { selectAssetsSortedByMarketCap, selectWatchedAssetIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const starFilled = <FaStar />
 const emptyButtonProps = { size: 'lg', width: 'full' }
 
 export const PriceTable = () => {
-  const watchedAssetIds = useAppSelector(selectWatchedAssets)
+  const watchedAssetIds = useAppSelector(selectWatchedAssetIds)
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const history = useHistory()
   const translate = useTranslate()

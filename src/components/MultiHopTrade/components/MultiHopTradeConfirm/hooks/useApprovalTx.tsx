@@ -59,7 +59,7 @@ export const useApprovalTx = (
     })
   }, [sellAssetAccountId, isExactAllowance, poll, tradeQuoteStep, wallet])
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       approvalNetworkFeeCryptoBaseUnit,
       buildCustomTxInput,
@@ -68,4 +68,6 @@ export const useApprovalTx = (
     }),
     [approvalNetworkFeeCryptoBaseUnit, buildCustomTxInput, isLoading, stopPolling],
   )
+
+  return result
 }

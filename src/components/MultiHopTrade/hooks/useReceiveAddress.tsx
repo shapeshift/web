@@ -94,8 +94,10 @@ export const useReceiveAddress = ({
   }, [buyAsset, getReceiveAddressFromBuyAsset])
 
   // Always use the manual receive address if it is set
-  return useMemo(
+  const result = useMemo(
     () => ({ manualReceiveAddress, walletReceiveAddress }),
     [manualReceiveAddress, walletReceiveAddress],
   )
+
+  return result
 }

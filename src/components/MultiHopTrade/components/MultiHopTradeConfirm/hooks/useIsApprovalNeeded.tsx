@@ -46,7 +46,7 @@ export const useIsApprovalNeeded = (
 
   const { data: isApprovalNeeded, isLoading: isApprovalNeededLoading } = useQuery(queryParams)
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       isLoading:
         isApprovalNeeded === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
@@ -54,4 +54,6 @@ export const useIsApprovalNeeded = (
     }),
     [isApprovalNeeded, isApprovalNeededLoading, tradeQuoteStep],
   )
+
+  return result
 }

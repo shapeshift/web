@@ -24,5 +24,7 @@ export const useSharedHeight = () => {
     }
   }, [])
 
-  return useMemo(() => ({ observedRef, height }), [height])
+  const result = useMemo(() => ({ observedRef, height }), [height])
+
+  return result
 }

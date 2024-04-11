@@ -30,7 +30,7 @@ export const useAccountIds = (): {
     [dispatch],
   )
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       sellAssetAccountId,
       buyAssetAccountId,
@@ -39,4 +39,6 @@ export const useAccountIds = (): {
     }),
     [buyAssetAccountId, sellAssetAccountId, setBuyAssetAccountId, setSellAssetAccountId],
   )
+
+  return result
 }

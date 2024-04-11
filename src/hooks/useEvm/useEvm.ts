@@ -59,7 +59,7 @@ export const useEvm = () => {
     return chainId
   }, [chainId, isLoading, isSupportedEvmChainId])
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       connectedEvmChainId,
       isSupportedEvmChainId,
@@ -69,4 +69,6 @@ export const useEvm = () => {
     }),
     [connectedEvmChainId, isLoading, isSupportedEvmChainId, supportedEvmChainIds],
   )
+
+  return result
 }

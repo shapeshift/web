@@ -51,7 +51,7 @@ export const useCountdown = (
     if (autoStart) start()
   }, [autoStart, start])
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       timeRemainingMs,
       start,
@@ -59,4 +59,6 @@ export const useCountdown = (
     }),
     [reset, start, timeRemainingMs],
   )
+
+  return result
 }

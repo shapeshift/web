@@ -26,5 +26,7 @@ export const usePoll = <T extends unknown>() => {
     return promise
   }, [])
 
-  return useMemo(() => ({ poll, cancelPolling: cancelPollingRef.current }), [poll])
+  const result = useMemo(() => ({ poll, cancelPolling: cancelPollingRef.current }), [poll])
+
+  return result
 }

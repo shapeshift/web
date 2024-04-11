@@ -89,7 +89,7 @@ export const useAllowanceApproval = (
     stopPollingBuildApprovalTx,
   ])
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       isLoading,
       executeAllowanceApproval,
@@ -97,4 +97,6 @@ export const useAllowanceApproval = (
     }),
     [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isLoading],
   )
+
+  return result
 }

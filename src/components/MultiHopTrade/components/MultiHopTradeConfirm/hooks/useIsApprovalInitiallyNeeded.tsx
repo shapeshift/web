@@ -30,13 +30,15 @@ const useIsApprovalInitiallyNeededForHop = (
     }
   }, [isApprovalInitiallyNeeded, isApprovalNeeded, isLoading])
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       isLoading: isApprovalInitiallyNeeded === undefined || isLoading,
       isApprovalInitiallyNeeded,
     }),
     [isApprovalInitiallyNeeded, isLoading],
   )
+
+  return result
 }
 
 export const useIsApprovalInitiallyNeeded = () => {
@@ -74,8 +76,10 @@ export const useIsApprovalInitiallyNeeded = () => {
     secondHop,
   ])
 
-  return useMemo(
+  const result = useMemo(
     () => ({ isLoading: isFirstHopLoading || (isMultiHopTrade && isSecondHopLoading) }),
     [isFirstHopLoading, isMultiHopTrade, isSecondHopLoading],
   )
+
+  return result
 }

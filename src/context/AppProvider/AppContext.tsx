@@ -102,14 +102,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       })
 
-      const accountMetadataByAccountId: AccountMetadataById = {}
+      const accountMetadataByAccountId = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
-      for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+      for (let accountNumber = 0; chainIds.length > 0 && accountNumber < 5; accountNumber++) {
         // only some wallets support multi account
         if (accountNumber > 0 && !isMultiAccountWallet) break
 
         const input = { accountNumber, chainIds, wallet }
+        debugger
         const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
+        debugger
         const accountIds = Object.keys(accountIdsAndMetadata)
 
         Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
@@ -121,7 +123,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         const accountResults = await Promise.allSettled(accountPromises)
 
-        let chainIdsWithActivity: string[] = []
+        // let chainIdsWithActivity: string[] = []
         accountResults.forEach((res, idx) => {
           if (res.status === 'rejected') return
 
@@ -130,18 +132,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
           const accountId = accountIds[idx]
           const { chainId } = fromAccountId(accountId)
+          // TODO(gomes): rm me
           const { hasActivity } = account.accounts.byId[accountId]
 
-          // don't add accounts with no activity past account 0
-          if (accountNumber > 0 && !hasActivity) return delete accountMetadataByAccountId[accountId]
-
           // unique set to handle utxo chains with multiple account types per account
-          chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+          // chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
 
           dispatch(portfolio.actions.upsertPortfolio(account))
         })
 
-        chainIds = chainIdsWithActivity
+        // chainIds = chainIdsWithActivity
       }
 
       dispatch(

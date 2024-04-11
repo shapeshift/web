@@ -1,3 +1,4 @@
+import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Skeleton } from '@chakra-ui/react'
 import type { ResponsiveValue } from '@chakra-ui/system'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
@@ -23,40 +24,49 @@ const portfolioTextAlignment: ResponsiveValue<Property.AlignItems> = {
   base: 'center',
   md: 'flex-start',
 }
-export const WalletBalance = memo(() => {
-  const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
-  const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
-  const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
-  const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
-    selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
-  )
-  const earnUserCurrencyBalance = useAppSelector(selectEarnBalancesUserCurrencyAmountFull).toFixed()
-  const portfolioTotalUserCurrencyBalance = useAppSelector(
-    selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-  )
-  const netWorth = useMemo(
-    () =>
-      bnOrZero(earnUserCurrencyBalance)
-        .plus(portfolioTotalUserCurrencyBalance)
-        .plus(claimableRewardsUserCurrencyBalance)
-        .toFixed(),
-    [
-      claimableRewardsUserCurrencyBalance,
-      earnUserCurrencyBalance,
-      portfolioTotalUserCurrencyBalance,
-    ],
-  )
-  return (
-    <Flex flexDir={balanceFlexDir} alignItems={portfolioTextAlignment}>
-      <Text fontWeight='medium' translation='defi.netWorth' color='text.subtle' />
-      <Skeleton isLoaded={!isPortfolioLoading && !isOpportunitiesLoading}>
-        <Amount.Fiat
-          lineHeight='shorter'
-          value={netWorth}
-          fontSize={balanceFontSize}
-          fontWeight='semibold'
-        />
-      </Skeleton>
-    </Flex>
-  )
-})
+
+type WalletBalanceProps = {
+  label?: string
+  alignItems?: FlexProps['alignItems']
+}
+export const WalletBalance: React.FC<WalletBalanceProps> = memo(
+  ({ label = 'defi.netWorth', alignItems }) => {
+    const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
+    const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
+    const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
+    const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
+      selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),
+    )
+    const earnUserCurrencyBalance = useAppSelector(
+      selectEarnBalancesUserCurrencyAmountFull,
+    ).toFixed()
+    const portfolioTotalUserCurrencyBalance = useAppSelector(
+      selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+    )
+    const netWorth = useMemo(
+      () =>
+        bnOrZero(earnUserCurrencyBalance)
+          .plus(portfolioTotalUserCurrencyBalance)
+          .plus(claimableRewardsUserCurrencyBalance)
+          .toFixed(),
+      [
+        claimableRewardsUserCurrencyBalance,
+        earnUserCurrencyBalance,
+        portfolioTotalUserCurrencyBalance,
+      ],
+    )
+    return (
+      <Flex flexDir={balanceFlexDir} alignItems={alignItems ?? portfolioTextAlignment}>
+        <Text fontWeight='medium' translation={label} color='text.subtle' />
+        <Skeleton isLoaded={!isPortfolioLoading && !isOpportunitiesLoading}>
+          <Amount.Fiat
+            lineHeight='shorter'
+            value={netWorth}
+            fontSize={balanceFontSize}
+            fontWeight='semibold'
+          />
+        </Skeleton>
+      </Flex>
+    )
+  },
+)

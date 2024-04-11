@@ -138,6 +138,7 @@
     "staged": "Staged",
     "poolHalted": "Pool Halted",
     "poolDisabled": "Pool Disabled",
+    "prices": "Prices",
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
     "carousel": {
@@ -2322,5 +2323,12 @@
   "warningAcknowledgement": {
     "understand": "I understand",
     "attention": "Attention!"
+  },
+  "watchlist": {
+    "empty": {
+      "title": "Start building your watchlist",
+      "body": "Wherever you see the star icon, you can use it to add assets here.",
+      "cta": "Explore more assets"
+    }
   }
 }

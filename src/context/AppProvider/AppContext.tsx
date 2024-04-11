@@ -102,8 +102,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      // Classify chains by family
-      const chainFamilies: Record<string, ChainId[]> = {
+      // Groups ChainIds by family so that we can fetch accounts in chunks depending on their family
+      // as a heuristic to avoid overfetching, assuming that users are more likely to have multiple accounts on EVM chains,
+      // less on UTXO chains, and even less on other chains
+      const chainIdsByFamily: Record<string, ChainId[]> = {
         evm: [],
         utxo: [],
         other: [],
@@ -121,19 +123,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           if (isUtxoChainId(chainId)) return 'utxo'
           return 'other'
         })()
-        chainFamilies[chainFamily].push(chainId)
+        chainIdsByFamily[chainFamily].push(chainId)
       })
 
       const accountMetadataByAccountId = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
 
-      for (const [family, chainIds] of Object.entries(chainFamilies)) {
-        let fetchSize = DEFAULT_ACCOUNTS_FETCH_CHUNK_SIZE // Default size
-        if (family === 'evm') fetchSize = EVM_ACCOUNTS_FETCH_CHUNK_SIZE
-        else if (family === 'utxo') fetchSize = UTXO_ACCOUNTS_FETCH_CHUNK_SIZE
+      for (const [family, chainIds] of Object.entries(chainIdsByFamily)) {
+        const accountsFetchChunkSize = (() => {
+          if (family === 'evm') return EVM_ACCOUNTS_FETCH_CHUNK_SIZE
+          if (family === 'utxo') return UTXO_ACCOUNTS_FETCH_CHUNK_SIZE
+          return DEFAULT_ACCOUNTS_FETCH_CHUNK_SIZE
+        })()
 
         for (let chainId of chainIds) {
-          for (let accountNumber = 0; accountNumber < fetchSize; accountNumber++) {
+          for (let accountNumber = 0; accountNumber < accountsFetchChunkSize; accountNumber++) {
             if (accountNumber > 0 && !isMultiAccountWallet) break
 
             const input = { accountNumber, chainIds: [chainId], wallet }

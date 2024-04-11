@@ -22,7 +22,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update s
         "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
-        "hasActivity": true,
       },
     },
     "ids": [
@@ -62,13 +61,11 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update s
         "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
-        "hasActivity": true,
       },
       "bip122:000000000019d6689c085ae165831e93:zpub6qk8s2NQsYG6X2Mm6iU2ii3yTAqDb2XqnMu9vo2WjvqwjSvjjiYQQveYXbPxrnRT5Yb5p0x934be745172066EDF795ffc5EA9F28f19b440c637BaBw1wowPwbS8fj7uCfj3UhqhD2LLbvY6Ni1w": {
         "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
-        "hasActivity": true,
       },
     },
     "ids": [
@@ -119,7 +116,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
         "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
-        "hasActivity": true,
       },
       "eip155:1:0x9a2d593725045d1727d525dd07a396f9ff079bb1": {
         "assetIds": [
@@ -128,7 +124,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
           "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
           "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9",
         ],
-        "hasActivity": true,
       },
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
         "assetIds": [
@@ -137,7 +132,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
           "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
           "eip155:1/erc20:0x5f18c75abdae578b483e5f43f12a39cf75b973a9",
         ],
-        "hasActivity": true,
       },
     },
     "ids": [
@@ -183,7 +177,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
         "assetIds": [
           "bip122:000000000019d6689c085ae165831e93/slip44:0",
         ],
-        "hasActivity": true,
       },
       "eip155:1:0x6c8a778ef52e121b7dff1154c553662306a970e9": {
         "assetIds": [
@@ -193,7 +186,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
           "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
           "eip155:1/erc20:0xf0939011a9bb95c3b791f0cb546377ed2693a574",
         ],
-        "hasActivity": true,
       },
     },
     "ids": [
@@ -232,7 +224,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update 
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
         ],
-        "hasActivity": true,
       },
     },
     "ids": [
@@ -275,14 +266,12 @@ exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update 
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d",
         ],
-        "hasActivity": true,
       },
       "eip155:1:0xea674fdde714fd979de3edf0f56aa9716b898ec8": {
         "assetIds": [
           "eip155:1/slip44:60",
           "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         ],
-        "hasActivity": true,
       },
     },
     "ids": [

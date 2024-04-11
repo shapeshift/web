@@ -5,7 +5,6 @@ import type { Nominal } from 'types/common'
 export type PortfolioAccount = {
   /** The asset ids belonging to an account */
   assetIds: AssetId[]
-  hasActivity?: boolean
 }
 
 export type PortfolioAccounts = {

@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { type AccountMetadataById, KnownChainIds } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
@@ -124,24 +123,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const accountResults = await Promise.allSettled(accountPromises)
 
         // let chainIdsWithActivity: string[] = []
-        accountResults.forEach((res, idx) => {
+        accountResults.forEach(res => {
           if (res.status === 'rejected') return
 
           const { data: account } = res.value
           if (!account) return
-
-          const accountId = accountIds[idx]
-          const { chainId } = fromAccountId(accountId)
-          // TODO(gomes): rm me
-          const { hasActivity } = account.accounts.byId[accountId]
-
-          // unique set to handle utxo chains with multiple account types per account
-          // chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
-
           dispatch(portfolio.actions.upsertPortfolio(account))
         })
-
-        // chainIds = chainIdsWithActivity
       }
 
       dispatch(

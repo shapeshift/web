@@ -24,7 +24,7 @@ import {
   toAccountId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { Account, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -180,11 +180,8 @@ export const accountToPortfolio: AccountToPortfolio = ({
         const { chainId, assetId, pubkey } = account
         const accountId = toAccountId({ chainId, account: pubkey })
 
-        const hasActivity =
-          bnOrZero(ethAccount.chainSpecific.nonce).gt(0) || bnOrZero(ethAccount.balance).gt(0)
-
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId] }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
@@ -217,8 +214,6 @@ export const accountToPortfolio: AccountToPortfolio = ({
             }
           }
 
-          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
-
           portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
           portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
         })
@@ -226,19 +221,13 @@ export const accountToPortfolio: AccountToPortfolio = ({
         break
       }
       case CHAIN_NAMESPACE.Utxo: {
-        const utxoAccount = account as Account<UtxoChainId>
         const { balance, chainId, assetId, pubkey } = account
 
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountId = `${chainId}:${pubkey}`
 
-        const hasActivity =
-          bnOrZero(balance).gt(0) ||
-          bnOrZero(utxoAccount.chainSpecific.nextChangeAddressIndex).gt(0) ||
-          bnOrZero(utxoAccount.chainSpecific.nextReceiveAddressIndex).gt(0)
-
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId] }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: balance }
 
@@ -249,19 +238,13 @@ export const accountToPortfolio: AccountToPortfolio = ({
         const { chainId, assetId } = account
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
 
-        const hasActivity =
-          bnOrZero(cosmosAccount.chainSpecific.sequence).gt(0) ||
-          bnOrZero(cosmosAccount.balance).gt(0)
-
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId] }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
         cosmosAccount.chainSpecific.assets?.forEach(asset => {
           if (!assetIds.includes(asset.assetId)) return
-
-          if (bnOrZero(asset.amount).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
 
           portfolio.accounts.byId[accountId].assetIds.push(asset.assetId)
           portfolio.accountBalances.byId[accountId][asset.assetId] = asset.amount

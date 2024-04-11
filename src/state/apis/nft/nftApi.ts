@@ -6,7 +6,6 @@ import { deserializeNftAssetReference, fromAssetId } from '@shapeshiftoss/caip'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isRejected } from 'lib/utils'
 import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
@@ -108,10 +107,6 @@ const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsert
       const balanceData = {
         // i.e 1 for ERC-721s / 0, 1, or more for ERC-1155s
         [nft.assetId]: nft.balance === undefined ? '1' : nft.balance,
-      }
-
-      if (bnOrZero(balanceData[nft.assetId]).gt(0)) {
-        portfolio.accounts.byId[accountId].hasActivity = true
       }
 
       if (!portfolio.accountBalances.byId[accountId]) {

@@ -93,7 +93,6 @@ export const LedgerChains = () => {
       try {
         const { chainNamespace } = fromChainId(chainId)
         const chainIds = chainId === ethChainId ? getSupportedEvmChainIds() : [chainId]
-        debugger
         for (let accountNumber = 0; chainIds.length > 0 && accountNumber < 5; accountNumber++) {
           const _accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[
             chainNamespace
@@ -104,8 +103,6 @@ export const LedgerChains = () => {
           })
           Object.assign(accountMetadataByAccountId, _accountMetadataByAccountId)
         }
-
-        debugger
 
         const accountIds = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints

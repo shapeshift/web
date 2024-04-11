@@ -31,3 +31,28 @@ export function opacify(amount: number, hexColor: string): string {
     .padStart(2, '0')
   return `${normalizedHexColor}${opacityHex}`
 }
+
+export function lightenColor(hex: string, percent: number): string {
+  // Remove the hash sign if it's there
+  hex = hex.replace(/^#/, '')
+
+  // Convert hex to RGB
+  let r = parseInt(hex.substring(0, 2), 16)
+  let g = parseInt(hex.substring(2, 4), 16)
+  let b = parseInt(hex.substring(4, 6), 16)
+
+  // Calculate the lightening factor
+  let lightening = 1 + percent
+
+  // Apply lightening with a cap at 255
+  r = Math.min(255, Math.round(r * lightening))
+  g = Math.min(255, Math.round(g * lightening))
+  b = Math.min(255, Math.round(b * lightening))
+
+  // Convert back to hex
+  const result = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b
+    .toString(16)
+    .padStart(2, '0')}`
+
+  return result
+}

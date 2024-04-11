@@ -10868,7 +10868,6 @@ __metadata:
     patch-package: ^8.0.0
     path-browserify: ^1.0.1
     pify: ^5.0.0
-    polished: ^4.3.1
     prettier: ^3.0.3
     pretty-ms: ^8.0.0
     qr-image: ^3.2.0
@@ -29683,15 +29682,6 @@ __metadata:
   version: 5.0.0
   resolution: "pngjs@npm:5.0.0"
   checksum: 04e912cc45fb9601564e2284efaf0c5d20d131d9b596244f8a6789fc6cdb6b18d2975a6bbf7a001858d7e159d5c5c5dd7b11592e97629b7137f7f5cef05904c8
-  languageName: node
-  linkType: hard
-
-"polished@npm:^4.3.1":
-  version: 4.3.1
-  resolution: "polished@npm:4.3.1"
-  dependencies:
-    "@babel/runtime": ^7.17.8
-  checksum: a6f863c23f1d2f3f5cda3427b5885c9fb9e83b036d681e24820b143c7df40d2685bebb01c0939767120a28e1183671ae17c93db82ac30b3c20942180bb153bc7
   languageName: node
   linkType: hard
 

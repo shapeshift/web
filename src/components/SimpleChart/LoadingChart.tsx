@@ -1,11 +1,10 @@
 import { Flex, Heading, useColorModeValue, useToken } from '@chakra-ui/react'
 import styled from '@emotion/styled'
 import type { SeriesType } from 'lightweight-charts'
-import { lighten } from 'polished'
 import type { PropsWithChildren, ReactNode } from 'react'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { opacify } from 'theme/utils'
+import { lightenColor, opacify } from 'theme/utils'
 
 const ChartErrorContainer = styled(Row)`
   position: absolute;
@@ -95,7 +94,7 @@ function ChartLoadingStateMask({
               <stop offset='0' stopColor={gray}>
                 <animate attributeName='offset' values='-1;3' dur='1.3s' repeatCount='indefinite' />
               </stop>
-              <stop offset='0.5' stopColor={lighten(0.24, gray)}>
+              <stop offset='0.5' stopColor={lightenColor(gray, 0.5)}>
                 <animate
                   attributeName='offset'
                   values='-0.5;3.5'
@@ -132,7 +131,7 @@ function ChartLoadingStateMask({
                   repeatCount='indefinite'
                 />
               </stop>
-              <stop offset='0.1' stopColor={lighten(0.05, gray)}>
+              <stop offset='0.1' stopColor={lightenColor(gray, 0.5)}>
                 <animate
                   attributeName='offset'
                   values='-0.1;3.4'

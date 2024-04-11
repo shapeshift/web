@@ -1,7 +1,4 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
   Box,
   Button,
   Modal,
@@ -16,7 +13,6 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
@@ -52,9 +48,7 @@ export const AddAccountModal = () => {
   const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
-  const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
-    selectMaybeNextAccountNumberByChainId(s, filter),
-  )
+  const nextAccountNumber = useAppSelector(s => selectMaybeNextAccountNumberByChainId(s, filter))
 
   const { close, isOpen } = useModal('addAccount')
 
@@ -141,21 +135,10 @@ export const AddAccountModal = () => {
                 buttonProps={chainDropdownButtonProps}
               />
             </Box>
-            {!isAbleToAddAccount && (
-              <Alert size='sm'>
-                <AlertIcon as={FaInfoCircle} />
-                <AlertDescription>{translate('accounts.requiresPriorTxHistory')}</AlertDescription>
-              </Alert>
-            )}
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Button
-            colorScheme='blue'
-            width='full'
-            isDisabled={!isAbleToAddAccount}
-            onClick={handleAddAccount}
-          >
+          <Button colorScheme='blue' width='full' onClick={handleAddAccount}>
             {translate('accounts.addAccount')}
           </Button>
         </ModalFooter>

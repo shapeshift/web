@@ -1754,7 +1754,6 @@
     "accountNumber": "Account #%{accountNumber}",
     "accountChain": "Account Chain",
     "selectChain": "Select the chain you would like to create an account for.",
-    "requiresPriorTxHistory": "You can only add a new account if the existing account(s) have prior transaction history",
     "newAccountAdded": "New %{name} Account added",
     "youCanNowUse": "You can now use %{name} Account #%{accountNumber}",
     "showAssets": "Show assets",

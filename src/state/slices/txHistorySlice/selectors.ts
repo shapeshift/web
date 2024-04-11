@@ -4,7 +4,6 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { type AccountMetadata, HistoryTimeframe } from '@shapeshiftoss/types'
 import intersection from 'lodash/intersection'
-import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import values from 'lodash/values'
@@ -206,10 +205,9 @@ export const selectTxStatusById = createCachedSelector(
  * are all separate accounts that share the same account number
  */
 export const selectMaybeNextAccountNumberByChainId = createCachedSelector(
-  selectWalletTxsByAccountIdAssetId,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
-  (txIdsByAccountId, accountMetadata, chainId): [boolean, number | null] => {
+  (accountMetadata, chainId): number => {
     // filter accounts by chain id
     const accountMetadataEntriesByChainId: [AccountId, AccountMetadata][] = Object.entries(
       accountMetadata,
@@ -220,20 +218,8 @@ export const selectMaybeNextAccountNumberByChainId = createCachedSelector(
       ...accountMetadataEntriesByChainId.map(([, { bip44Params }]) => bip44Params.accountNumber),
     )
 
-    // filter for highest account number, and map back to accountIds
-    const highestAccountNumberAccountsIds: AccountId[] = accountMetadataEntriesByChainId
-      .filter(
-        ([_accountId, { bip44Params }]) =>
-          bip44Params.accountNumber === currentHighestAccountNumber,
-      )
-      .map(([accountId]) => accountId)
-
-    // at least one of the account ids with the highest account number must have some tx history
-    const isAbleToAddNextAccount = highestAccountNumberAccountsIds.some(
-      accountId => !isEmpty(txIdsByAccountId[accountId]),
-    )
     const nextAccountNumber = currentHighestAccountNumber + 1
-    return [isAbleToAddNextAccount, isAbleToAddNextAccount ? nextAccountNumber : null]
+    return nextAccountNumber
   },
 )((_state: ReduxState, filter) => filter?.chainId ?? 'undefined')
 

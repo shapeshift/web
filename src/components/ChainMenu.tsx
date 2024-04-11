@@ -126,6 +126,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
   disableTooltip,
   buttonProps,
 }: ChainMenuProps<T>) => {
+  console.log({ chainIds })
   const translate = useTranslate()
 
   return (

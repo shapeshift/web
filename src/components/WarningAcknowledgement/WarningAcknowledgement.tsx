@@ -1,4 +1,4 @@
-import { Box, Button, Flex } from '@chakra-ui/react'
+import { Box, Button, Center, Flex } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import React, { useCallback } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
@@ -60,15 +60,13 @@ export const WarningAcknowledgement = ({
               zIndex: 10,
             }}
           >
-            <Flex direction={'column'}>
-              <Box as={FiAlertTriangle} color='red.500' size='20px' mr={2} />
+            <Flex direction={'column'} align={'center'}>
+              <Box as={FiAlertTriangle} color='red.500' size='30px' mb={2} />
               <Text
                 translation={'warningAcknowledgement.attention'}
                 fontWeight='bold'
-                fontSize='lg'
-              >
-                Attention!
-              </Text>
+                fontSize='xl'
+              />
               <RawText mb={4}>{message}</RawText>
               <Button
                 colorScheme='red'

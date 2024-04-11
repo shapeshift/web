@@ -1,5 +1,4 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import type { CardProps } from '@chakra-ui/react'
 import {
   Alert,
   AlertDescription,
@@ -108,7 +107,6 @@ const formControlProps = {
 }
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
-const cardProps: CardProps = { ml: 4 }
 
 type TradeInputProps = {
   isCompact?: boolean
@@ -732,7 +730,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={tradeInputHeight ?? 'full'}
-              cardProps={cardProps}
+              ml={4}
             />
           </Center>
         </Flex>

@@ -3,6 +3,7 @@ import { Flex, Heading } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { UTCTimestamp } from 'lightweight-charts'
 import type { ReactElement, ReactNode } from 'react'
+import { useTranslate } from 'react-polyglot'
 import styled from 'styled-components'
 import { Row } from 'components/Row/Row'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -58,9 +59,10 @@ interface HeaderTimeDisplayProps {
 
 function HeaderTimeDisplay({ time, timePlaceholder }: HeaderTimeDisplayProps) {
   const headerDateFormatter = useHeaderDateFormatter()
+  const translate = useTranslate()
   return (
     <Heading as='h5' fontWeight='normal' color='text.subtle'>
-      {time ? headerDateFormatter(time) : timePlaceholder}
+      {time ? headerDateFormatter(time) : translate(timePlaceholder)}
     </Heading>
   )
 }

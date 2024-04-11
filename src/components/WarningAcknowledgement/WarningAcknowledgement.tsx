@@ -60,7 +60,7 @@ export const WarningAcknowledgement = ({
               zIndex: 10,
             }}
           >
-            <Flex alignItems='center' mb={2}>
+            <Flex direction={'column'}>
               <Box as={FiAlertTriangle} color='red.500' size='20px' mr={2} />
               <Text
                 translation={'warningAcknowledgement.attention'}
@@ -69,9 +69,15 @@ export const WarningAcknowledgement = ({
               >
                 Attention!
               </Text>
-            </Flex>
-            <RawText mb={4}>{message}</RawText>
-            <Flex justifyContent='flex-end'>
+              <RawText mb={4}>{message}</RawText>
+              <Button
+                colorScheme='red'
+                onClick={handleAcknowledge}
+                size='sm'
+                _hover={understandHoverProps}
+              >
+                <Text translation='warningAcknowledgement.understand' />
+              </Button>
               <Button
                 variant='outline'
                 onClick={handleCancel}
@@ -80,14 +86,6 @@ export const WarningAcknowledgement = ({
                 _hover={cancelHoverProps}
               >
                 Cancel
-              </Button>
-              <Button
-                colorScheme='red'
-                onClick={handleAcknowledge}
-                size='sm'
-                _hover={understandHoverProps}
-              >
-                <Text translation='warningAcknowledgement.understand' />
               </Button>
             </Flex>
           </motion.div>

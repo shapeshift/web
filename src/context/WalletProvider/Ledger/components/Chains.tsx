@@ -32,6 +32,7 @@ import {
   ltcChainId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -87,16 +88,24 @@ export const LedgerChains = () => {
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
 
+      const accountMetadataByAccountId: AccountMetadataById = {}
+
       try {
         const { chainNamespace } = fromChainId(chainId)
         const chainIds = chainId === ethChainId ? getSupportedEvmChainIds() : [chainId]
-        const accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[
-          chainNamespace
-        ]({
-          accountNumber: 0,
-          chainIds,
-          wallet: walletState.wallet,
-        })
+        debugger
+        for (let accountNumber = 0; chainIds.length > 0 && accountNumber < 5; accountNumber++) {
+          const _accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[
+            chainNamespace
+          ]({
+            accountNumber,
+            chainIds,
+            wallet: walletState.wallet,
+          })
+          Object.assign(accountMetadataByAccountId, _accountMetadataByAccountId)
+        }
+
+        debugger
 
         const accountIds = Object.keys(accountMetadataByAccountId)
         const { getAccount } = portfolioApi.endpoints

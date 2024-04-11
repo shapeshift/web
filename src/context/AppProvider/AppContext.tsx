@@ -113,9 +113,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         if (accountNumber > 0 && !isMultiAccountWallet) break
 
         const input = { accountNumber, chainIds, wallet }
-        debugger
         const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
-        debugger
         const accountIds = Object.keys(accountIdsAndMetadata)
 
         Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)

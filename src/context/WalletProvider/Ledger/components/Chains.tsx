@@ -32,6 +32,7 @@ import {
   ltcChainId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
@@ -45,8 +46,13 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
-import { ACCOUNTS_FETCH_CHUNK_SIZE } from 'state/slices/portfolioSlice/constants'
+import {
+  DEFAULT_ACCOUNTS_FETCH_CHUNK_SIZE,
+  EVM_ACCOUNTS_FETCH_CHUNK_SIZE,
+  UTXO_ACCOUNTS_FETCH_CHUNK_SIZE,
+} from 'state/slices/portfolioSlice/constants'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -94,9 +100,16 @@ export const LedgerChains = () => {
       try {
         const { chainNamespace } = fromChainId(chainId)
         const chainIds = chainId === ethChainId ? getSupportedEvmChainIds() : [chainId]
+
+        const accountsFetchChunkSize = (() => {
+          if (isEvmChainId(chainId)) return EVM_ACCOUNTS_FETCH_CHUNK_SIZE
+          if (isUtxoChainId(chainId)) return UTXO_ACCOUNTS_FETCH_CHUNK_SIZE
+          return DEFAULT_ACCOUNTS_FETCH_CHUNK_SIZE
+        })()
+
         for (
           let accountNumber = 0;
-          chainIds.length > 0 && accountNumber < ACCOUNTS_FETCH_CHUNK_SIZE;
+          chainIds.length > 0 && accountNumber < accountsFetchChunkSize;
           accountNumber++
         ) {
           const _accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[

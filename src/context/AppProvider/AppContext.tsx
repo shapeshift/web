@@ -1,5 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -24,8 +25,13 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { ACCOUNTS_FETCH_CHUNK_SIZE } from 'state/slices/portfolioSlice/constants'
+import {
+  DEFAULT_ACCOUNTS_FETCH_CHUNK_SIZE,
+  EVM_ACCOUNTS_FETCH_CHUNK_SIZE,
+  UTXO_ACCOUNTS_FETCH_CHUNK_SIZE,
+} from 'state/slices/portfolioSlice/constants'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
@@ -96,43 +102,60 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     ;(async () => {
-      let chainIds = Array.from(supportedChains).filter(chainId => {
-        // Note, in this particular case, we are *not* reactive on accountIdsByChainId to avoid extremely costly re-runs of this effect
+      // Classify chains by family
+      const chainFamilies: Record<string, ChainId[]> = {
+        evm: [],
+        utxo: [],
+        other: [],
+      }
+
+      Array.from(supportedChains).forEach(chainId => {
         const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId }) ?? []
-        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+
+        if (!walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })) {
+          return
+        }
+
+        const chainFamily = (() => {
+          if (isEvmChainId(chainId)) return 'evm'
+          if (isUtxoChainId(chainId)) return 'utxo'
+          return 'other'
+        })()
+        chainFamilies[chainFamily].push(chainId)
       })
 
       const accountMetadataByAccountId = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
-      for (
-        let accountNumber = 0;
-        chainIds.length > 0 && accountNumber < ACCOUNTS_FETCH_CHUNK_SIZE;
-        accountNumber++
-      ) {
-        // only some wallets support multi account
-        if (accountNumber > 0 && !isMultiAccountWallet) break
 
-        const input = { accountNumber, chainIds, wallet }
-        const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
-        const accountIds = Object.keys(accountIdsAndMetadata)
+      for (const [family, chainIds] of Object.entries(chainFamilies)) {
+        let fetchSize = DEFAULT_ACCOUNTS_FETCH_CHUNK_SIZE // Default size
+        if (family === 'evm') fetchSize = EVM_ACCOUNTS_FETCH_CHUNK_SIZE
+        else if (family === 'utxo') fetchSize = UTXO_ACCOUNTS_FETCH_CHUNK_SIZE
 
-        Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
+        for (let chainId of chainIds) {
+          for (let accountNumber = 0; accountNumber < fetchSize; accountNumber++) {
+            if (accountNumber > 0 && !isMultiAccountWallet) break
 
-        const { getAccount } = portfolioApi.endpoints
-        const accountPromises = accountIds.map(accountId =>
-          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
-        )
+            const input = { accountNumber, chainIds: [chainId], wallet }
+            const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
+            Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
-        const accountResults = await Promise.allSettled(accountPromises)
+            const accountIds = Object.keys(accountIdsAndMetadata)
+            const { getAccount } = portfolioApi.endpoints
+            const accountPromises = accountIds.map(accountId =>
+              dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
+            )
 
-        // let chainIdsWithActivity: string[] = []
-        accountResults.forEach(res => {
-          if (res.status === 'rejected') return
+            const accountResults = await Promise.allSettled(accountPromises)
+            accountResults.forEach(res => {
+              if (res.status === 'rejected') return
 
-          const { data: account } = res.value
-          if (!account) return
-          dispatch(portfolio.actions.upsertPortfolio(account))
-        })
+              const { data: account } = res.value
+              if (!account) return
+              dispatch(portfolio.actions.upsertPortfolio(account))
+            })
+          }
+        }
       }
 
       dispatch(

@@ -458,14 +458,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     )
   }, [activeQuote, isUnsafeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
-  const handleAcknowledgeUnsafeQuote = useCallback(() => {
-    // We don't want to *immediately* set this or there will be a "click-through"
-    // i.e the regular continue button will render immediately, and click will bubble to it
-    setTimeout(() => {
-      setShouldShowWarningAcknowledgement(false)
-    }, 100)
-  }, [])
-
   const handleCloseCompactQuoteList = useCallback(() => setIsCompactQuoteListOpen(false), [])
 
   const handleOpenCompactQuoteList = useCallback(() => {
@@ -614,7 +606,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         message={`This trade may be unssafe, proceed with caution.`}
         onAcknowledge={handleFormSubmit}
         shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={handleAcknowledgeUnsafeQuote}
+        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
       >
         <MessageOverlay show={isKeplr} title={overlayTitle}>
           <Flex

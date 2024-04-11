@@ -157,7 +157,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             <Route path={SendRoutes.Scan}>
               <QrCodeScanner
                 onSuccess={handleQrSuccess}
-                onBack={handleBack}
+                onBack={handleClose}
                 addressError={addressError}
               />
             </Route>

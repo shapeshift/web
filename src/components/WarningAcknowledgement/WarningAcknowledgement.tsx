@@ -14,6 +14,7 @@ type WarningAcknowledgementProps = {
 
 const cancelHoverProps = { bg: 'rgba(255, 255, 255, 0.2)' }
 const understandHoverProps = { bg: 'red.600' }
+const boxBorderRadius = { base: 'none', md: 'xl' }
 
 export const WarningAcknowledgement = ({
   children,
@@ -31,53 +32,70 @@ export const WarningAcknowledgement = ({
     setShouldShowWarningAcknowledgement(false)
   }, [setShouldShowWarningAcknowledgement])
 
-  return (
-    <Box position='relative'>
+  return shouldShowWarningAcknowledgement ? (
+    <Box position='relative' borderRadius={boxBorderRadius} overflow='hidden'>
+      <Box
+        background='rgba(0, 0, 0, 0.5)'
+        zIndex={2}
+        position='absolute'
+        right={0}
+        bottom={0}
+        width='100%'
+        height='100%'
+        borderRadius='xl'
+      >
+        {
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              padding: '1rem',
+              color: 'white',
+              zIndex: 10,
+            }}
+          >
+            <Flex alignItems='center' mb={2}>
+              <Box as={FiAlertTriangle} color='red.500' size='20px' mr={2} />
+              <Text
+                translation={'warningAcknowledgement.attention'}
+                fontWeight='bold'
+                fontSize='lg'
+              >
+                Attention!
+              </Text>
+            </Flex>
+            <RawText mb={4}>{message}</RawText>
+            <Flex justifyContent='flex-end'>
+              <Button
+                variant='outline'
+                onClick={handleCancel}
+                mr={2}
+                size='sm'
+                _hover={cancelHoverProps}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme='red'
+                onClick={handleAcknowledge}
+                size='sm'
+                _hover={understandHoverProps}
+              >
+                <Text translation='warningAcknowledgement.understand' />
+              </Button>
+            </Flex>
+          </motion.div>
+        }
+      </Box>
       {children}
-      {shouldShowWarningAcknowledgement && (
-        <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
-            padding: '1rem',
-            color: 'white',
-            zIndex: 10,
-          }}
-        >
-          <Flex alignItems='center' mb={2}>
-            <Box as={FiAlertTriangle} color='red.500' size='20px' mr={2} />
-            <Text translation={'warningAcknowledgement.attention'} fontWeight='bold' fontSize='lg'>
-              Attention!
-            </Text>
-          </Flex>
-          <RawText mb={4}>{message}</RawText>
-          <Flex justifyContent='flex-end'>
-            <Button
-              variant='outline'
-              onClick={handleCancel}
-              mr={2}
-              size='sm'
-              _hover={cancelHoverProps}
-            >
-              Cancel
-            </Button>
-            <Button
-              colorScheme='red'
-              onClick={handleAcknowledge}
-              size='sm'
-              _hover={understandHoverProps}
-            >
-              <Text translation='warningAcknowledgement.understand' />
-            </Button>
-          </Flex>
-        </motion.div>
-      )}
     </Box>
+  ) : (
+    <>{children}</>
   )
 }

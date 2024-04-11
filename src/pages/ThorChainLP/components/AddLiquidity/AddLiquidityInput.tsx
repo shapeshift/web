@@ -1510,7 +1510,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   return (
     <SlideTransition>
-      {renderHeader}
       <WarningAcknowledgement
         message={`This deposit has high slippage (${bnOrZero(slippageDecimalPercentage)
           .times(100)
@@ -1520,6 +1519,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
       >
+        {renderHeader}
         <Stack divider={divider} spacing={4} pb={4}>
           {pairSelect}
           <Stack>

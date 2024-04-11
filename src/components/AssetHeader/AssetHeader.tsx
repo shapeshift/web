@@ -25,6 +25,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'
+import { WatchAssetButton } from './WatchAssetButton'
 
 type AssetHeaderProps = {
   assetId?: AssetId
@@ -133,6 +134,9 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
             </Flex>
           ) : null}
         </Display.Desktop>
+        <Display.Mobile>
+          <WatchAssetButton assetId={assetId} />
+        </Display.Mobile>
       </PageHeader.Right>
     </PageHeader>
   )

@@ -138,6 +138,7 @@
     "staged": "Staged",
     "poolHalted": "Pool Halted",
     "poolDisabled": "Pool Disabled",
+    "prices": "Prices",
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
     "carousel": {
@@ -2328,6 +2329,13 @@
         "title": "Risks and Considerations",
         "body": "While liquidity pools offer earning opportunities, it's important to be aware of the risks involved, including impermanent loss, smart contract vulnerabilities, and market volatility. Users should conduct thorough research before participating."
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "Start building your watchlist",
+      "body": "Wherever you see the star icon, you can use it to add assets here.",
+      "cta": "Explore more assets"
     }
   }
 }

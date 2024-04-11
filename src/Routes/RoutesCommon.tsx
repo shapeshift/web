@@ -5,6 +5,7 @@ import { RiExchangeFundsLine } from 'react-icons/ri'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
+import { HomeIcon } from 'components/Icons/Home'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
@@ -13,6 +14,14 @@ import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
+
+const Home = makeSuspenseful(
+  lazy(() =>
+    import('pages/Home/Home').then(({ Home }) => ({
+      default: Home,
+    })),
+  ),
+)
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
@@ -104,6 +113,16 @@ const TransactionHistory = makeSuspenseful(
 
 export const routes: NestedRoute[] = [
   {
+    path: '/home',
+    label: 'navBar.home',
+    shortLabel: 'navBar.home',
+    icon: <HomeIcon />,
+    mobileNav: true,
+    hideDesktop: true,
+    main: Home,
+    priority: 0,
+  },
+  {
     path: '/trade',
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
@@ -171,7 +190,7 @@ export const routes: NestedRoute[] = [
     main: Dashboard,
     category: RouteCategory.Wallet,
     mobileNav: true,
-    priority: 0,
+    priority: 1,
     routes: [
       {
         path: '/transaction-history',

@@ -30,7 +30,7 @@ const ChartHeaderLeftDisplay = styled.div`
   }
 `
 
-interface HeaderValueDisplayProps {
+type HeaderValueDisplayProps = {
   /** The number to be formatted and displayed, or the ReactElement to be displayed */
   value?: number | ReactElement
 }
@@ -51,7 +51,7 @@ function HeaderValueDisplay({ value }: HeaderValueDisplayProps) {
   )
 }
 
-interface HeaderTimeDisplayProps {
+type HeaderTimeDisplayProps = {
   time?: UTCTimestamp
   /** Optional string to display when time is undefined */
   timePlaceholder?: string

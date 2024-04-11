@@ -45,6 +45,7 @@ import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
+import { ACCOUNTS_FETCH_CHUNK_SIZE } from 'state/slices/portfolioSlice/constants'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -93,7 +94,11 @@ export const LedgerChains = () => {
       try {
         const { chainNamespace } = fromChainId(chainId)
         const chainIds = chainId === ethChainId ? getSupportedEvmChainIds() : [chainId]
-        for (let accountNumber = 0; chainIds.length > 0 && accountNumber < 5; accountNumber++) {
+        for (
+          let accountNumber = 0;
+          chainIds.length > 0 && accountNumber < ACCOUNTS_FETCH_CHUNK_SIZE;
+          accountNumber++
+        ) {
           const _accountMetadataByAccountId = await deriveAccountIdsAndMetadataForChainNamespace[
             chainNamespace
           ]({

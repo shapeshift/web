@@ -24,6 +24,7 @@ import {
 } from 'state/slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+import { ACCOUNTS_FETCH_CHUNK_SIZE } from 'state/slices/portfolioSlice/constants'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -103,7 +104,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const accountMetadataByAccountId = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
-      for (let accountNumber = 0; chainIds.length > 0 && accountNumber < 5; accountNumber++) {
+      for (
+        let accountNumber = 0;
+        chainIds.length > 0 && accountNumber < ACCOUNTS_FETCH_CHUNK_SIZE;
+        accountNumber++
+      ) {
         // only some wallets support multi account
         if (accountNumber > 0 && !isMultiAccountWallet) break
 

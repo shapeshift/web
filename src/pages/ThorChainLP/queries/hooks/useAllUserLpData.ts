@@ -109,7 +109,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
   // Massage queries data to dedupe opportunities
   // i.e for sym, positions will be present in both the asset and RUNE address members
-  return useMemo(() => {
+  const result = useMemo(() => {
     const seenAccountOpportunities = new Set()
 
     const dedupedDataQueries = _userLpDataQueries.map(queryResult => {
@@ -142,4 +142,6 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
     return dedupedDataQueries
   }, [_userLpDataQueries])
+
+  return result
 }

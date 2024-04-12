@@ -53,7 +53,7 @@ export const Header = memo(() => {
   const isSnapInstalled = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
   const showSnapModal = useSelector(selectShowSnapsModal)
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const history = useHistory()
   const {

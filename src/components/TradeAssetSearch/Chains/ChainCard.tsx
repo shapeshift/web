@@ -23,7 +23,7 @@ export const ChainCard: React.FC<ChainCardProps> = memo(({ chainId, isActive, on
     [feeAssetId],
   )
 
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => onClick(e)(chainId),

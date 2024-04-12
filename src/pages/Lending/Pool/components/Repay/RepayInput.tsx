@@ -714,7 +714,7 @@ export const RepayInput = ({
               quoteErrorTranslation,
           )}
         >
-          {quoteErrorTranslation ? translate(quoteErrorTranslation) : confirmTranslation}
+          {quoteErrorTranslation ? quoteErrorTranslation : confirmTranslation}
         </Button>
       </Stack>
     </Stack>

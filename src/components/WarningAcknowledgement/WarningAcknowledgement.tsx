@@ -1,4 +1,4 @@
-import { Box, Button, Center, Flex } from '@chakra-ui/react'
+import { Box, Button, Flex } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import React, { useCallback } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
@@ -42,7 +42,6 @@ export const WarningAcknowledgement = ({
         bottom={0}
         width='100%'
         height='100%'
-        borderRadius='xl'
       >
         {
           <motion.div
@@ -60,27 +59,32 @@ export const WarningAcknowledgement = ({
               zIndex: 10,
             }}
           >
-            <Flex direction={'column'} align={'center'}>
-              <Box as={FiAlertTriangle} color='red.500' size='30px' mb={2} />
+            <Flex direction={'column'} align={'center'} px={6} py={4} background={'gray.800'}>
+              <Box as={FiAlertTriangle} color='red.500' size='80px' mb={4} mt={8} />
               <Text
                 translation={'warningAcknowledgement.attention'}
                 fontWeight='bold'
                 fontSize='xl'
               />
-              <RawText mb={4}>{message}</RawText>
+              <RawText align={'center'} mb={8} fontWeight={'bold'} color={'gray.500'}>
+                {message}
+              </RawText>
               <Button
+                size='lg'
+                mb={2}
                 colorScheme='red'
+                width='full'
                 onClick={handleAcknowledge}
-                size='sm'
                 _hover={understandHoverProps}
               >
                 <Text translation='warningAcknowledgement.understand' />
               </Button>
               <Button
-                variant='outline'
+                size='lg'
+                width='full'
+                colorScheme='gray'
                 onClick={handleCancel}
-                mr={2}
-                size='sm'
+                mb={6}
                 _hover={cancelHoverProps}
               >
                 Cancel

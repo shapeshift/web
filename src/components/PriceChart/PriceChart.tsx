@@ -62,6 +62,7 @@ export const PriceChart: React.FC<PriceChartArgs> = props => {
   }, Object.values(props))
 
   const assetIds = useMemo(() => [assetId], [assetId])
+
   // fetch price history for this asset
   useFetchPriceHistories(assetIds, timeframe)
 

@@ -23,19 +23,24 @@ export const useGetSwapperTradeQuote = (
       : Object.assign({}, tradeQuoteInput, { swapperName })
   }, [skip, swapperName, tradeQuoteInput])
 
+  const tradeQuoteOptions = useMemo(
+    () => ({
+      skip,
+      pollingInterval,
+      // If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
+      // We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
+      refetchOnMountOrArgChange: true,
+    }),
+    [pollingInterval, skip],
+  )
+
   const queryStateRequest = useMemo(() => {
     return tradeQuoteInput === skipToken
       ? skipToken
       : Object.assign({}, tradeQuoteInput, { swapperName })
   }, [swapperName, tradeQuoteInput])
 
-  useGetTradeQuoteQuery(tradeQuoteRequest, {
-    skip,
-    pollingInterval,
-    // If we don't refresh on arg change might select a cached result with an old "started_at" timestamp
-    // We can remove refetchOnMountOrArgChange if we want to make better use of the cache, and we have a better way to select from the cache.
-    refetchOnMountOrArgChange: true,
-  })
+  useGetTradeQuoteQuery(tradeQuoteRequest, tradeQuoteOptions)
 
   // skip tokens invalidate loading state of the original useGetTradeQuoteQuery hook
   // so to persist fetching state after an inflight request becomes skipped, we need to

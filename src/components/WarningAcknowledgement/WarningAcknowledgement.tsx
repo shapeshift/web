@@ -1,9 +1,73 @@
-import { Box, Button, Flex } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
-import React, { useCallback } from 'react'
+import { Box, Button } from '@chakra-ui/react'
+import type { AnimationDefinition, MotionStyle } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import type { PropsWithChildren } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
+
+const WarningOverlay: React.FC<PropsWithChildren> = ({ children }) => {
+  return (
+    <motion.div
+      key='overlay'
+      style={{
+        backgroundColor: 'var(--chakra-colors-blanket)',
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 4,
+      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.5 } }}
+      transition={{ delay: 0.2, duration: 0.1 }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+const popoverVariants = {
+  initial: {
+    y: '100%',
+  },
+  animate: {
+    y: 0,
+    transition: {
+      type: 'spring',
+      bounce: 0.2,
+      duration: 0.55,
+    },
+  },
+  exit: {
+    y: '100%',
+    opacity: 0,
+    transition: {
+      duration: 0.2,
+    },
+  },
+}
+
+const popoverStyle: MotionStyle = {
+  backgroundColor: 'var(--chakra-colors-background-surface-overlay-base)',
+  position: 'absolute',
+  borderTopLeftRadius: 'var(--chakra-radii-2xl)',
+  borderTopRightRadius: 'var(--chakra-radii-2xl)',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  zIndex: 5,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  paddingLeft: '2rem',
+  paddingRight: '2rem',
+  paddingBottom: '2rem',
+  paddingTop: '4rem',
+}
 
 type WarningAcknowledgementProps = {
   children: React.ReactNode
@@ -25,6 +89,7 @@ export const WarningAcknowledgement = ({
   setShouldShowWarningAcknowledgement,
 }: WarningAcknowledgementProps) => {
   const translate = useTranslate()
+  const [isShowing, setIsShowing] = useState(false)
 
   const handleAcknowledge = useCallback(() => {
     setShouldShowWarningAcknowledgement(false)
@@ -35,70 +100,82 @@ export const WarningAcknowledgement = ({
     setShouldShowWarningAcknowledgement(false)
   }, [setShouldShowWarningAcknowledgement])
 
-  return shouldShowWarningAcknowledgement ? (
-    <Box position='relative' borderRadius={boxBorderRadius} overflow='hidden'>
+  const handleAnimationComplete = useCallback((def: AnimationDefinition) => {
+    if (def === 'exit') {
+      setIsShowing(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (shouldShowWarningAcknowledgement) {
+      setIsShowing(true)
+    }
+  }, [shouldShowWarningAcknowledgement])
+
+  // enters with over flow hidden
+  // exit after animation complete return to visible
+
+  return (
+    <>
       <Box
-        background='rgba(0, 0, 0, 0.5)'
-        zIndex={2}
-        position='absolute'
-        right={0}
-        bottom={0}
-        width='100%'
-        height='100%'
+        position='relative'
+        borderRadius={boxBorderRadius}
+        overflow={isShowing ? 'hidden' : 'visible'}
       >
-        {
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              background: 'rgba(0, 0, 0, 0.8)',
-              padding: '1rem',
-              color: 'white',
-              zIndex: 10,
-            }}
-          >
-            <Flex direction={'column'} align={'center'} px={6} py={4} background={'gray.800'}>
-              <Box as={FiAlertTriangle} color='red.500' size='80px' mb={4} mt={8} />
-              <Text
-                translation={'warningAcknowledgement.attention'}
-                fontWeight='bold'
-                fontSize='xl'
-              />
-              <RawText align={'center'} mb={8} fontWeight={'bold'} color={'gray.500'}>
-                {message}
-              </RawText>
-              <Button
-                size='lg'
-                mb={2}
-                colorScheme='red'
-                width='full'
-                onClick={handleAcknowledge}
-                _hover={understandHoverProps}
+        <AnimatePresence mode='wait' initial={false}>
+          {shouldShowWarningAcknowledgement && (
+            <WarningOverlay>
+              <motion.div
+                layout
+                key='message'
+                variants={popoverVariants}
+                initial='initial'
+                animate='animate'
+                exit='exit'
+                style={popoverStyle}
+                onAnimationComplete={handleAnimationComplete}
               >
-                <Text translation='warningAcknowledgement.understand' />
-              </Button>
-              <Button
-                size='lg'
-                width='full'
-                colorScheme='gray'
-                onClick={handleCancel}
-                mb={6}
-                _hover={cancelHoverProps}
-              >
-                {translate('common.cancel')}
-              </Button>
-            </Flex>
-          </motion.div>
-        }
+                <Box as={FiAlertTriangle} color='red.500' size='80px' mb={4} />
+                <Text
+                  translation={'warningAcknowledgement.attention'}
+                  fontWeight='semibold'
+                  fontSize='2xl'
+                />
+                <RawText
+                  align={'center'}
+                  maxWidth='90%'
+                  mb={8}
+                  fontWeight='medium'
+                  color='text.subtle'
+                >
+                  {message}
+                </RawText>
+                <Button
+                  size='lg'
+                  mb={2}
+                  colorScheme='red'
+                  width='full'
+                  onClick={handleAcknowledge}
+                  _hover={understandHoverProps}
+                >
+                  <Text translation='warningAcknowledgement.understand' />
+                </Button>
+                <Button
+                  size='lg'
+                  width='full'
+                  colorScheme='gray'
+                  onClick={handleCancel}
+                  _hover={cancelHoverProps}
+                >
+                  {translate('common.cancel')}
+                </Button>
+              </motion.div>
+            </WarningOverlay>
+          )}
+        </AnimatePresence>
+
+        {children}
       </Box>
-      {children}
-    </Box>
-  ) : (
-    <>{children}</>
+    </>
   )
 }

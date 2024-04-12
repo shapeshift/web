@@ -107,75 +107,72 @@ export const WarningAcknowledgement = ({
   }, [])
 
   useEffect(() => {
+    // enters with overflow: hidden
+    // exit after animation complete return to overflow: visible
     if (shouldShowWarningAcknowledgement) {
       setIsShowing(true)
     }
   }, [shouldShowWarningAcknowledgement])
 
-  // enters with over flow hidden
-  // exit after animation complete return to visible
-
   return (
-    <>
-      <Box
-        position='relative'
-        borderRadius={boxBorderRadius}
-        overflow={isShowing ? 'hidden' : 'visible'}
-      >
-        <AnimatePresence mode='wait' initial={false}>
-          {shouldShowWarningAcknowledgement && (
-            <WarningOverlay>
-              <motion.div
-                layout
-                key='message'
-                variants={popoverVariants}
-                initial='initial'
-                animate='animate'
-                exit='exit'
-                style={popoverStyle}
-                onAnimationComplete={handleAnimationComplete}
+    <Box
+      position='relative'
+      borderRadius={boxBorderRadius}
+      overflow={isShowing ? 'hidden' : 'visible'}
+    >
+      <AnimatePresence mode='wait' initial={false}>
+        {shouldShowWarningAcknowledgement && (
+          <WarningOverlay>
+            <motion.div
+              layout
+              key='message'
+              variants={popoverVariants}
+              initial='initial'
+              animate='animate'
+              exit='exit'
+              style={popoverStyle}
+              onAnimationComplete={handleAnimationComplete}
+            >
+              <Box as={FiAlertTriangle} color='red.500' size='80px' mb={4} />
+              <Text
+                translation={'warningAcknowledgement.attention'}
+                fontWeight='semibold'
+                fontSize='2xl'
+              />
+              <RawText
+                align={'center'}
+                maxWidth='90%'
+                mb={8}
+                fontWeight='medium'
+                color='text.subtle'
               >
-                <Box as={FiAlertTriangle} color='red.500' size='80px' mb={4} />
-                <Text
-                  translation={'warningAcknowledgement.attention'}
-                  fontWeight='semibold'
-                  fontSize='2xl'
-                />
-                <RawText
-                  align={'center'}
-                  maxWidth='90%'
-                  mb={8}
-                  fontWeight='medium'
-                  color='text.subtle'
-                >
-                  {message}
-                </RawText>
-                <Button
-                  size='lg'
-                  mb={2}
-                  colorScheme='red'
-                  width='full'
-                  onClick={handleAcknowledge}
-                  _hover={understandHoverProps}
-                >
-                  <Text translation='warningAcknowledgement.understand' />
-                </Button>
-                <Button
-                  size='lg'
-                  width='full'
-                  colorScheme='gray'
-                  onClick={handleCancel}
-                  _hover={cancelHoverProps}
-                >
-                  {translate('common.cancel')}
-                </Button>
-              </motion.div>
-            </WarningOverlay>
-          )}
-        </AnimatePresence>
+                {message}
+              </RawText>
+              <Button
+                size='lg'
+                mb={2}
+                colorScheme='red'
+                width='full'
+                onClick={handleAcknowledge}
+                _hover={understandHoverProps}
+              >
+                <Text translation='warningAcknowledgement.understand' />
+              </Button>
+              <Button
+                size='lg'
+                width='full'
+                colorScheme='gray'
+                onClick={handleCancel}
+                _hover={cancelHoverProps}
+              >
+                {translate('common.cancel')}
+              </Button>
+            </motion.div>
+          </WarningOverlay>
+        )}
+      </AnimatePresence>
 
-        {children}
-      </Box>
-    </>
+      {children}
+    </Box>
   )
 }

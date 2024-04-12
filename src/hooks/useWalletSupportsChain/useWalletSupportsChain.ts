@@ -35,7 +35,8 @@ import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { selectFeatureFlag } from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 type WalletSupportsChainArgs = {
   isSnapInstalled: boolean | null
@@ -68,6 +69,8 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
+  const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
+
   switch (chainId) {
     case btcChainId:
     case bchChainId:
@@ -89,7 +92,7 @@ export const walletSupportsChain = ({
     case arbitrumChainId:
       return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
-      return supportsArbitrumNova(wallet)
+      return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData, UTCTimestamp } from 'lightweight-charts'
 import { useCallback, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
-import { SimpleChart } from 'components/SimpleChart'
+import { ChartSkeleton } from 'components/SimpleChart/LoadingChart'
+import { SimpleChart } from 'components/SimpleChart/SimpleChart'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import type {
   MidgardSwapHistoryResponse,
@@ -70,7 +71,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
   const setSelectedVolumeDataType = useCallback(() => setSelectedDataType('volume'), [])
   const setSelectedLiquidityDataType = useCallback(() => setSelectedDataType('liquidity'), [])
 
-  const { data: swapsData } = useQuery({
+  const { data: swapsData, isLoading: isSwapsDataLoading } = useQuery({
     ...reactQueries.midgard.swapsData(
       thorchainNotationAssetId,
       ...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval],
@@ -78,7 +79,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
     select: data => swapHistoryToChartData(data),
   })
 
-  const { data: tvl } = useQuery({
+  const { data: tvl, isLoading: isTvlLoading } = useQuery({
     ...reactQueries.midgard.tvl(...INTERVAL_PARAMS_BY_INTERVAL[selectedInterval]),
     select: data => tvlToChartData(data, thorchainNotationAssetId),
   })
@@ -88,9 +89,23 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
     return maybeData ?? []
   }, [selectedDataType, swapsData, tvl])
 
+  const isLoading = useMemo(
+    () => (selectedDataType === 'volume' ? isSwapsDataLoading : isTvlLoading),
+    [isSwapsDataLoading, isTvlLoading, selectedDataType],
+  )
+
+  const chartBody = useMemo(() => {
+    if (isLoading) {
+      return <ChartSkeleton type={seriesType} height={450} />
+    }
+    return (
+      <SimpleChart data={data} seriesType={seriesType} height={450} interval={selectedInterval} />
+    )
+  }, [data, isLoading, selectedInterval, seriesType])
+
   return (
     <Stack spacing={4}>
-      <Flex justifyContent='space-between' alignItems='center' p={4}>
+      <Flex justifyContent='space-between' alignItems='center' py={2}>
         <ButtonGroup size='sm'>
           <Button isActive={selectedDataType === 'volume'} onClick={setSelectedVolumeDataType}>
             Volume
@@ -124,7 +139,7 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
         </ButtonGroup>
       </Flex>
       <Center flex='1' flexDirection='column'>
-        <SimpleChart data={data} seriesType={seriesType} />
+        {chartBody}
       </Center>
     </Stack>
   )

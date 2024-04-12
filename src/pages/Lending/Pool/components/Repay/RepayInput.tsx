@@ -14,12 +14,17 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
+import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
@@ -27,24 +32,32 @@ import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { isToken } from 'lib/utils'
+import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
 import {
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectTxById,
 } from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -87,6 +100,11 @@ export const RepayInput = ({
   confirmedQuote,
   setConfirmedQuote,
 }: RepayInputProps) => {
+  const {
+    state: { wallet },
+  } = useWallet()
+
+  const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
   const [seenNotice, setSeenNotice] = useState(false)
   const [repaymentAssetIsFiat, toggleRepaymentAssetIsFiat] = useToggle(false)
   const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
@@ -130,9 +148,109 @@ export const RepayInput = ({
     setConfirmedQuote(lendingQuoteCloseData ?? null)
   }, [lendingQuoteCloseData, setConfirmedQuote])
 
+  const userAddress = useMemo(() => {
+    if (!repaymentAccountId) return ''
+
+    return fromAccountId(repaymentAccountId).account
+  }, [repaymentAccountId])
+
+  const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
+    staleTime: 60_000,
+    select: data => selectInboundAddressData(data, repaymentAsset?.assetId),
+    enabled: !!repaymentAsset?.assetId,
+  })
+
+  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
+    assetId: repaymentAsset?.assetId,
+    spender: inboundAddressData?.router,
+    from: userAddress,
+  })
+
+  const isApprovalRequired = useMemo(() => {
+    if (!confirmedQuote) return false
+    if (!repaymentAsset) return false
+    if (!isToken(fromAssetId(repaymentAsset.assetId).assetReference)) return false
+
+    const supportedEvmChainIds = getSupportedEvmChainIds()
+    if (
+      !supportedEvmChainIds.includes(fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds)
+    )
+      return false
+
+    const allowanceCryptoPrecision = fromBaseUnit(allowanceData ?? '0', repaymentAsset.precision)
+    return bnOrZero(confirmedQuote?.repaymentAmountCryptoPrecision).gt(allowanceCryptoPrecision)
+  }, [allowanceData, confirmedQuote, repaymentAsset])
+
   const mixpanel = getMixPanel()
+
+  const repaymentAccountNumberFilter = useMemo(
+    () => ({ accountId: repaymentAccountId }),
+    [repaymentAccountId],
+  )
+  const repaymentAccountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, repaymentAccountNumberFilter),
+  )
+  const {
+    mutate,
+    isPending: isApprovalMutationPending,
+    isSuccess: isApprovalMutationSuccess,
+  } = useMutation({
+    ...reactQueries.mutations.approve({
+      assetId: repaymentAsset?.assetId,
+      spender: inboundAddressData?.router,
+      from: userAddress,
+      amount: toBaseUnit(
+        // Add 5% buffer to the repayment allowance to avoid asset rates fluctuations ending up in more asset needed to repay
+        bnOrZero(confirmedQuote?.repaymentAmountCryptoPrecision).times(1.05),
+        repaymentAsset?.precision ?? 0,
+      ),
+      wallet,
+      accountNumber: repaymentAccountNumber,
+    }),
+    onSuccess: (txId: string) => {
+      setApprovalTxId(txId)
+    },
+  })
+
+  const serializedApprovalTxIndex = useMemo(() => {
+    if (!(approvalTxId && userAddress && repaymentAccountId)) return ''
+    return serializeTxIndex(repaymentAccountId, approvalTxId, userAddress)
+  }, [approvalTxId, userAddress, repaymentAccountId])
+  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
+  const isApprovalTxPending = useMemo(
+    () =>
+      isApprovalMutationPending ||
+      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
+    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
+  )
+
+  useEffect(() => {
+    if (!approvalTx) return
+    if (isApprovalTxPending) return
+    ;(async () => {
+      await queryClient.invalidateQueries(
+        reactQueries.common.allowanceCryptoBaseUnit(
+          repaymentAsset?.assetId,
+          inboundAddressData?.router,
+          userAddress,
+        ),
+      )
+    })()
+  }, [
+    approvalTx,
+    inboundAddressData?.router,
+    isApprovalTxPending,
+    repaymentAsset?.assetId,
+    userAddress,
+  ])
+
+  const handleApprove = useCallback(() => mutate(undefined), [mutate])
+
   const onSubmit = useCallback(() => {
     if (!lendingQuoteCloseData) return
+
+    if (isApprovalRequired) return handleApprove()
 
     setConfirmedQuote(lendingQuoteCloseData)
 
@@ -181,7 +299,9 @@ export const RepayInput = ({
   }, [
     collateralAsset?.assetId,
     collateralFeeAsset?.networkName,
+    handleApprove,
     history,
+    isApprovalRequired,
     lendingQuoteCloseData,
     mixpanel,
     repaymentAsset?.assetId,
@@ -323,12 +443,6 @@ export const RepayInput = ({
     feeAssetBalanceCryptoBaseUnit,
   ])
 
-  const userAddress = useMemo(() => {
-    if (!repaymentAccountId) return ''
-
-    return fromAccountId(repaymentAccountId).account
-  }, [repaymentAccountId])
-
   const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
     useIsSmartContractAddress(userAddress)
 
@@ -341,23 +455,24 @@ export const RepayInput = ({
   }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (!isThorchainLendingRepayEnabled) return 'lending.errors.repaymentsDisabled'
-    if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
-    if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx) return 'common.insufficientFunds'
+    if (!isThorchainLendingRepayEnabled) return translate('lending.errors.repaymentsDisabled')
+    if (_isSmartContractAddress) return translate('trade.errors.smartContractWalletNotSupported')
+    if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx)
+      return translate('common.insufficientFunds')
     if (isLendingQuoteCloseError) {
       if (
         /not enough fee/i.test(lendingQuoteCloseError.message) ||
         /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
       )
-        return 'trade.errors.amountTooSmallUnknownMinimum'
+        return translate('trade.errors.amountTooSmallUnknownMinimum')
       if (
         /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
         /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
       )
-        return 'Repayment not yet available'
+        return translate('Repayment not yet available')
 
       if (/trading is halted/i.test(lendingQuoteCloseError.message))
-        return 'lending.errors.repaymentsHalted'
+        return translate('lending.errors.repaymentsHalted')
 
       // This should never happen but it may
       // https://gitlab.com/thorchain/thornode/-/blob/051fafb06011e135e6b122600b5b023b7704d594/x/thorchain/handler_loan_repayment.go#L95
@@ -375,7 +490,16 @@ export const RepayInput = ({
     isLendingQuoteCloseError,
     isThorchainLendingRepayEnabled,
     lendingQuoteCloseError?.message,
+    translate,
   ])
+
+  const confirmTranslation = useMemo(() => {
+    if (isApprovalRequired && repaymentAsset)
+      return translate(`transactionRow.parser.erc20.approveSymbol`, {
+        symbol: repaymentAsset.symbol,
+      })
+    return translate('lending.repay')
+  }, [isApprovalRequired, repaymentAsset, translate])
 
   if (!seenNotice) {
     return (
@@ -565,14 +689,20 @@ export const RepayInput = ({
           mx={-2}
           onClick={onSubmit}
           isLoading={
+            isApprovalTxPending ||
             isLendingPositionDataLoading ||
             isLendingQuoteCloseLoading ||
             isLendingQuoteCloseRefetching ||
             isEstimatedFeesDataLoading ||
-            isAddressByteCodeLoading
+            isAddressByteCodeLoading ||
+            isInboundAddressLoading ||
+            isAllowanceDataLoading
           }
           isDisabled={Boolean(
             !isThorchainLendingRepayEnabled ||
+              isApprovalTxPending ||
+              isInboundAddressLoading ||
+              isAllowanceDataLoading ||
               isLendingPositionDataLoading ||
               isLendingPositionDataError ||
               isLendingQuoteCloseLoading ||
@@ -584,7 +714,7 @@ export const RepayInput = ({
               quoteErrorTranslation,
           )}
         >
-          {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.repay')}
+          {quoteErrorTranslation ? translate(quoteErrorTranslation) : confirmTranslation}
         </Button>
       </Stack>
     </Stack>

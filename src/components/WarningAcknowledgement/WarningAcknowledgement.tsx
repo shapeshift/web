@@ -2,6 +2,7 @@ import { Box, Button, Flex } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import React, { useCallback } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
+import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
 type WarningAcknowledgementProps = {
@@ -23,6 +24,8 @@ export const WarningAcknowledgement = ({
   shouldShowWarningAcknowledgement,
   setShouldShowWarningAcknowledgement,
 }: WarningAcknowledgementProps) => {
+  const translate = useTranslate()
+
   const handleAcknowledge = useCallback(() => {
     setShouldShowWarningAcknowledgement(false)
     onAcknowledge()
@@ -87,7 +90,7 @@ export const WarningAcknowledgement = ({
                 mb={6}
                 _hover={cancelHoverProps}
               >
-                Cancel
+                {translate('common.cancel')}
               </Button>
             </Flex>
           </motion.div>

@@ -2245,6 +2245,17 @@
     "featureFee": "%{feature} Fee",
     "totalFeatureFee": "Total %{feature} Fee"
   },
+  "chart": {
+    "interval": {
+      "5min": "Past five minutes",
+      "hour": "Past hour",
+      "day": "Past day",
+      "week": "Past week",
+      "month": "Past month",
+      "year": "Past year",
+      "all": "All time"
+    }
+  },
   "pools": {
     "pools": "Pools",
     "pool": "Pool",

@@ -102,7 +102,7 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
 
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const walletId = useAppSelector(selectWalletId)
   const accountIds = useAppSelector(selectWalletAccountIds)
 

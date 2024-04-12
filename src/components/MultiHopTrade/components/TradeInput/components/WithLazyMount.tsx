@@ -7,7 +7,7 @@ export type WithLazyRenderProps<T = {}> = { shouldUse: boolean; component: React
  * true. Used to mount hooks lazily where their initialization cost is non-trivial. `Component` is
  * an otherwise empty component containing the expensive initialization.
  */
-export const WithLazyMount = <T extends object = {}>(props: WithLazyRenderProps<T>) => {
+export const WithLazyMount = <T extends object>(props: WithLazyRenderProps<T>) => {
   const persistentShouldUse = useRef(false)
   const {
     shouldUse,

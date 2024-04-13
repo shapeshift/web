@@ -116,38 +116,6 @@ export const RepayInput = ({
   )
   const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
 
-  const useLendingQuoteCloseQueryArgs = useMemo(
-    () => ({
-      collateralAssetId,
-      collateralAccountId,
-      repaymentAssetId: repaymentAsset?.assetId ?? '',
-      repaymentPercent,
-      repaymentAccountId,
-    }),
-    [
-      collateralAccountId,
-      collateralAssetId,
-      repaymentAccountId,
-      repaymentAsset?.assetId,
-      repaymentPercent,
-    ],
-  )
-
-  const {
-    data: lendingQuoteCloseData,
-    isLoading: isLendingQuoteCloseLoading,
-    isRefetching: isLendingQuoteCloseRefetching,
-    isSuccess: isLendingQuoteCloseSuccess,
-    isError: isLendingQuoteCloseError,
-    error: lendingQuoteCloseError,
-  } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
-
-  const isThorchainLendingRepayEnabled = useFeatureFlag('ThorchainLendingRepay')
-
-  useEffect(() => {
-    setConfirmedQuote(lendingQuoteCloseData ?? null)
-  }, [lendingQuoteCloseData, setConfirmedQuote])
-
   const userAddress = useMemo(() => {
     if (!repaymentAccountId) return ''
 
@@ -182,6 +150,43 @@ export const RepayInput = ({
     return bnOrZero(confirmedQuote?.repaymentAmountCryptoPrecision).gt(allowanceCryptoPrecision)
   }, [allowanceData, confirmedQuote, repaymentAsset])
 
+  const useLendingQuoteCloseQueryArgs = useMemo(
+    () => ({
+      collateralAssetId,
+      collateralAccountId,
+      repaymentAssetId: repaymentAsset?.assetId ?? '',
+      repaymentPercent,
+      repaymentAccountId,
+      // If we have an approval Txid, we don't want to refetch the quote
+      // Else, they may get a worse rate i.e need to pay more token, meaning their approval wouldn't be valid
+      // anymore for the new quote
+      enabled: !isApprovalRequired,
+    }),
+    [
+      collateralAccountId,
+      collateralAssetId,
+      isApprovalRequired,
+      repaymentAccountId,
+      repaymentAsset?.assetId,
+      repaymentPercent,
+    ],
+  )
+
+  const {
+    data: lendingQuoteCloseData,
+    isLoading: isLendingQuoteCloseLoading,
+    isRefetching: isLendingQuoteCloseRefetching,
+    isSuccess: isLendingQuoteCloseSuccess,
+    isError: isLendingQuoteCloseError,
+    error: lendingQuoteCloseError,
+  } = useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
+
+  const isThorchainLendingRepayEnabled = useFeatureFlag('ThorchainLendingRepay')
+
+  useEffect(() => {
+    setConfirmedQuote(lendingQuoteCloseData ?? null)
+  }, [lendingQuoteCloseData, setConfirmedQuote])
+
   const mixpanel = getMixPanel()
 
   const repaymentAccountNumberFilter = useMemo(
@@ -202,7 +207,7 @@ export const RepayInput = ({
       from: userAddress,
       amount: toBaseUnit(
         // Add 5% buffer to the repayment allowance to avoid asset rates fluctuations ending up in more asset needed to repay
-        bnOrZero(confirmedQuote?.repaymentAmountCryptoPrecision).times(1.05),
+        confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
         repaymentAsset?.precision ?? 0,
       ),
       wallet,

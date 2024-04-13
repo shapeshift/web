@@ -474,7 +474,7 @@ export const RepayInput = ({
         /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
         /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
       )
-        return translate('Repayment not yet available')
+        return translate('lending.repaymentUnavailable')
 
       if (/trading is halted/i.test(lendingQuoteCloseError.message))
         return translate('lending.errors.repaymentsHalted')

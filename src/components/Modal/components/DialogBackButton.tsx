@@ -9,6 +9,9 @@ type DialogBackButtonProps = Omit<IconButtonProps, 'aria-label'>
 
 export const DialogBackButton: React.FC<DialogBackButtonProps> = props => {
   const translate = useTranslate()
+
+  if (!props.onClick) return null
+
   return (
     <IconButton
       variant='ghost'

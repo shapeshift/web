@@ -7,6 +7,11 @@ import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 
+const initialProps = { opacity: 0 }
+const animateProps = { opacity: 1 }
+const exitProps = { opacity: 0, transition: { duration: 0.5 } }
+const transitionProps = { delay: 0.2, duration: 0.1 }
+
 const WarningOverlay: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <motion.div
@@ -20,10 +25,10 @@ const WarningOverlay: React.FC<PropsWithChildren> = ({ children }) => {
         right: 0,
         zIndex: 4,
       }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.5 } }}
-      transition={{ delay: 0.2, duration: 0.1 }}
+      initial={initialProps}
+      animate={animateProps}
+      exit={exitProps}
+      transition={transitionProps}
     >
       {children}
     </motion.div>

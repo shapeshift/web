@@ -495,10 +495,12 @@ export const BorrowInput = ({
   return (
     <SlideTransition>
       <WarningAcknowledgement
-        message={`This borrow has high slippage (${bnOrZero(quoteSlippageDecimalPercentage)
-          .times(100)
-          .toFixed(2)
-          .toString()}%). Proceed with caution.`}
+        message={translate('warningAcknowledgement.highSlippageBorrow', {
+          slippagePercentage: bnOrZero(quoteSlippageDecimalPercentage)
+            .times(100)
+            .toFixed(2)
+            .toString(),
+        })}
         onAcknowledge={onSubmit}
         shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}

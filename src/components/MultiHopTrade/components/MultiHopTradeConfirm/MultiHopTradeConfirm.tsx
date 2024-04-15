@@ -1,5 +1,6 @@
 import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
@@ -28,6 +29,7 @@ const useDisclosureProps = {
 
 export const MultiHopTradeConfirm = memo(() => {
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
   const tradeExecutionState = useAppSelector(selectTradeExecutionState)
   const previousTradeExecutionState = usePrevious(tradeExecutionState)
   const history = useHistory()
@@ -90,9 +92,9 @@ export const MultiHopTradeConfirm = memo(() => {
   return (
     <TradeSlideTransition>
       <WarningAcknowledgement
-        message={`This trade is impacted by price movement (${bnOrZero(priceImpactPercentage)
-          .toFixed(2)
-          .toString()}%). Proceed with caution.`}
+        message={translate('warningAcknowledgement.highSlippageTrade', {
+          slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
+        })}
         onAcknowledge={handleTradeConfirm}
         shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}

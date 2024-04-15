@@ -2225,8 +2225,7 @@
       "yourLoans": "Your Loans",
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
-    },
-    "unsafeBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",
@@ -2333,7 +2332,11 @@
   },
   "warningAcknowledgement": {
     "understand": "I understand",
-    "attention": "Attention!"
+    "attention": "Attention!",
+    "highSlippageDeposit": "This deposit has high slippage (%{slippagePercentage}%). Proceed with caution.",
+    "highSlippageBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution.",
+    "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
+    "unsafeTrade": "This trade may be unssafe, proceed with caution."
   },
   "watchlist": {
     "empty": {

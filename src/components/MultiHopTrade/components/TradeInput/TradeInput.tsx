@@ -603,7 +603,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     <TradeSlideTransition>
       <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <WarningAcknowledgement
-        message={`This trade may be unssafe, proceed with caution.`}
+        message={translate('warningAcknowledgement.unsafeTrade')}
         onAcknowledge={handleFormSubmit}
         shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}

@@ -486,9 +486,10 @@ export const BorrowInput = ({
     lendingQuoteError?.message,
   ])
 
-  const handleBorrowSubmit = useCallback(() => {
-    return !!isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : onSubmit()
-  }, [isUnsafeQuote, onSubmit])
+  const handleBorrowSubmit = useCallback(
+    () => (isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : onSubmit()),
+    [isUnsafeQuote, onSubmit],
+  )
 
   if (!(collateralAsset && borrowAsset && collateralFeeAsset)) return null
 

@@ -1,8 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
   Button,
   Card,
   CardFooter,
@@ -48,14 +45,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { positiveOrZero } from 'lib/bignumber/bignumber'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
@@ -380,10 +375,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   ])
 
   useEffect(() => {
-    if (isUnsafeQuote) setShouldShowWarningAcknowledgement(true)
-  }, [isUnsafeQuote])
-
-  useEffect(() => {
     // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
     // user has not yet confirmed the previous one
     if (shouldShowWarningAcknowledgement) setShouldShowWarningAcknowledgement(false)
@@ -429,34 +420,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     hasUserEnteredAmount,
     isTradeQuoteApiQueryPending,
   ])
-
-  const maybeUnsafeTradeWarning = useMemo(() => {
-    if (!isUnsafeQuote) return null
-
-    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
-      ?.recommendedMinimumCryptoBaseUnit
-    if (!recommendedMinimumCryptoBaseUnit) return null
-    const recommendedMinimumCryptoPrecision = fromBaseUnit(
-      recommendedMinimumCryptoBaseUnit,
-      sellAsset.precision,
-    )
-
-    return (
-      <Flex direction='column' gap={2}>
-        <Alert status='error' width='auto' fontSize='sm' variant='solid'>
-          <AlertIcon color='red' />
-          <Stack spacing={0}>
-            <AlertDescription lineHeight='short'>
-              {translate('trade.errors.unsafeQuote', {
-                symbol: sellAsset.symbol,
-                recommendedMin: recommendedMinimumCryptoPrecision,
-              })}
-            </AlertDescription>
-          </Stack>
-        </Alert>
-      </Flex>
-    )
-  }, [activeQuote, isUnsafeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
   const handleCloseCompactQuoteList = useCallback(() => setIsCompactQuoteListOpen(false), [])
 
@@ -522,7 +485,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         >
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
           <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
-          {maybeUnsafeTradeWarning}
 
           <Button
             type='submit'
@@ -556,7 +518,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       priceImpactPercentage,
       receiveAddress,
       walletSupportsBuyAssetChain,
-      maybeUnsafeTradeWarning,
       quoteHasError,
       shouldDisablePreviewButton,
       quoteStatusTranslation,
@@ -564,13 +525,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
-  const handleTradeQouteConfirm = useCallback(() => {
-    if (isUnsafeQuote) {
-      return setShouldShowWarningAcknowledgement(true)
-    } else {
-      handleFormSubmit()
-    }
-  }, [handleFormSubmit, isUnsafeQuote])
+  const handleTradeQouteConfirm = useCallback(
+    () => (isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : handleFormSubmit()),
+    [handleFormSubmit, isUnsafeQuote],
+  )
 
   const sellTradeAssetSelect = useMemo(
     () => (

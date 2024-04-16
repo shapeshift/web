@@ -527,7 +527,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
-  const handleTradeQouteConfirm = useCallback(
+  const handleTradeQuoteConfirm = useCallback(
     () => (isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : handleFormSubmit()),
     [handleFormSubmit, isUnsafeQuote],
   )
@@ -608,7 +608,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                 shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
                 setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
               >
-                <Stack spacing={0} as='form' onSubmit={handleTradeQouteConfirm}>
+                <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
                   <CardHeader px={6}>
                     <Flex alignItems='center' justifyContent='space-between'>
                       <Heading as='h5' fontSize='md'>

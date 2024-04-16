@@ -1,8 +1,9 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { type AccountMetadataById, KnownChainIds } from '@shapeshiftoss/types'
+import { type AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
+import { knownChainIds } from 'constants/chains'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import difference from 'lodash/difference'
 import React, { useEffect } from 'react'
@@ -86,7 +87,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   useEffect(() => {
     if (!wallet) return
-    const walletSupportedChainIds = Object.values(KnownChainIds).filter(chainId => {
+    const walletSupportedChainIds = knownChainIds.filter(chainId => {
       const chainAccountIds = accountIdsByChainId[chainId] ?? []
       return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
     })

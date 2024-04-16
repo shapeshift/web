@@ -2334,7 +2334,7 @@
   "watchlist": {
     "empty": {
       "title": "Commencez à créer votre liste de suivi",
-      "body": "Partout où vous voyez l’icône étoile, vous pouvez l’utiliser pour ajouter des actifs ici.",
+      "body": "Vous pouvez utiliser l'icône étoile partout où vous la voyez afin d'ajouter des actifs ici.",
       "cta": "Explorez plus d'actifs"
     }
   }

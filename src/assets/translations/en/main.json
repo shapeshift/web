@@ -2143,6 +2143,7 @@
   "lending": {
     "lending": "Lending",
     "repaymentAvailable": "Repayment available",
+    "repaymentUnavailable": "Repayment not yet available",
     "daysUntilRepayment": "%{numDays} days until repayment",
     "repaymentDays": "%{numDays} days",
     "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",

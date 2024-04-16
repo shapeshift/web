@@ -29,10 +29,6 @@ export const ReceiveRouter = ({ assetId, accountId }: ReceiveRouterProps) => {
     [history],
   )
 
-  const handleSelectBack = useCallback(() => {
-    history.push(ReceiveRoutes.Info)
-  }, [history])
-
   useEffect(() => {
     if (!selectedAsset && !asset) {
       history.push(ReceiveRoutes.Select)
@@ -49,7 +45,7 @@ export const ReceiveRouter = ({ assetId, accountId }: ReceiveRouterProps) => {
           {selectedAsset ? <ReceiveInfo asset={selectedAsset} accountId={accountId} /> : null}
         </Route>
         <Route path={ReceiveRoutes.Select}>
-          <SelectAssetRouter onBack={handleSelectBack} onClick={handleAssetSelect} />
+          <SelectAssetRouter onClick={handleAssetSelect} />
         </Route>
       </Switch>
     </AnimatePresence>

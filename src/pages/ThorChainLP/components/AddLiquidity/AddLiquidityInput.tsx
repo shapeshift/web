@@ -21,16 +21,14 @@ import {
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
@@ -64,9 +62,9 @@ import {
   poolAssetIdToAssetId,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import { useThorAllowance } from 'lib/utils/thorchain/hooks/useIsThorApprovalNeeded'
 import {
   estimateAddThorchainLiquidityPosition,
   getThorchainLpTransactionType,
@@ -85,7 +83,6 @@ import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
   selectAccountIdsByChainId,
-  selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
@@ -93,10 +90,8 @@ import {
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectTxById,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
@@ -177,7 +172,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
   const previousOpportunityId = usePrevious(activeOpportunityId)
 
-  const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
   const [runeTxFeeCryptoBaseUnit, setRuneTxFeeCryptoBaseUnit] = useState<string | undefined>()
   const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
     undefined,
@@ -368,14 +362,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const poolAssetAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
   )
-  const poolAssetAccountNumberFilter = useMemo(() => {
-    return { assetId: assetId ?? '', accountId: poolAssetAccountId ?? '' }
-  }, [assetId, poolAssetAccountId])
-
-  const poolAssetAccountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, poolAssetAccountNumberFilter),
-  )
-
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
   const poolAssetFeeAssetMarktData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
@@ -526,39 +512,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
 
-  const serializedApprovalTxIndex = useMemo(() => {
-    if (!(approvalTxId && poolAssetAccountAddress && poolAssetAccountId)) return ''
-    return serializeTxIndex(poolAssetAccountId, approvalTxId, poolAssetAccountAddress)
-  }, [approvalTxId, poolAssetAccountAddress, poolAssetAccountId])
-
   const {
-    mutate,
-    isPending: isApprovalMutationPending,
-    isSuccess: isApprovalMutationSuccess,
-  } = useMutation({
-    ...reactQueries.mutations.approve({
-      assetId: poolAsset?.assetId,
-      spender: inboundAddressesData?.router,
-      from: poolAssetAccountAddress,
-      amount: toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset?.precision ?? 0),
-      wallet,
-      accountNumber: poolAssetAccountNumber,
-    }),
-    onSuccess: (txId: string) => {
-      setApprovalTxId(txId)
-    },
+    isApprovalRequired,
+    isLoading: isApprovalRequiredLoading,
+    approve,
+    isApprovalIdle,
+    isApprovalTxPending,
+  } = useThorAllowance({
+    assetId: poolAsset?.assetId,
+    accountId: poolAssetAccountId,
+    amountCryptoPrecision: actualAssetDepositAmountCryptoPrecision,
   })
 
-  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
-  const isApprovalTxPending = useMemo(
-    () =>
-      isApprovalMutationPending ||
-      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
-    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
-  )
-
   useEffect(() => {
-    if (!approvalTx) return
+    if (!isApprovalIdle) return
     if (isApprovalTxPending) return
     ;(async () => {
       await queryClient.invalidateQueries(
@@ -570,38 +537,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       )
     })()
   }, [
-    approvalTx,
     poolAsset?.assetId,
     inboundAddressesData?.router,
     isApprovalTxPending,
     poolAssetAccountAddress,
     queryClient,
-  ])
-
-  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
-    assetId: poolAsset?.assetId,
-    spender: inboundAddressesData?.router,
-    from: poolAssetAccountAddress,
-  })
-
-  const isApprovalRequired = useMemo(() => {
-    if (!confirmedQuote) return false
-    if (!poolAsset) return false
-    if (incompleteSide === AsymSide.Rune) return false
-    if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) return false
-
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    if (!supportedEvmChainIds.includes(fromAssetId(poolAsset.assetId).chainId as KnownChainIds))
-      return false
-
-    const allowanceCryptoPrecision = fromBaseUnit(allowanceData ?? '0', poolAsset.precision)
-    return bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(allowanceCryptoPrecision)
-  }, [
-    actualAssetDepositAmountCryptoPrecision,
-    allowanceData,
-    confirmedQuote,
-    incompleteSide,
-    poolAsset,
+    isApprovalIdle,
   ])
 
   useEffect(() => {
@@ -938,7 +879,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [poolAssetGasFeeFiatUserCurrency, runeGasFeeFiatUserCurrency],
   )
 
-  const handleApprove = useCallback(() => mutate(undefined), [mutate])
+  const handleApprove = useCallback(() => approve(), [approve])
 
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) return handleApprove()
@@ -1446,7 +1387,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       return translate('trade.errors.smartContractWalletNotSupported')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
     // Not enough *fee* asset
-    if (poolAssetFeeAsset && notEnoughFeeAssetError)
+    if (poolAssetFeeAsset && notEnoughFeeAssetError && !isApprovalRequired)
       return translate('modals.send.errors.notEnoughNativeToken', {
         asset: poolAssetFeeAsset.symbol,
       })
@@ -1460,6 +1401,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return null
   }, [
+    isApprovalRequired,
     isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
     isTradingActive,
@@ -1639,6 +1581,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               !hasEnoughAssetBalance ||
               !hasEnoughRuneBalance ||
               isApprovalTxPending ||
+              isApprovalRequiredLoading ||
+              isApprovalTxPending ||
               (isSweepNeededEnabled && isSweepNeeded === undefined) ||
               isSweepNeededError ||
               isEstimatedPoolAssetFeesDataError ||
@@ -1646,7 +1590,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               bnOrZero(actualAssetDepositAmountCryptoPrecision)
                 .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
                 .isZero() ||
-              notEnoughFeeAssetError ||
+              (notEnoughFeeAssetError && !isApprovalRequired) ||
               notEnoughRuneFeeError ||
               !walletSupportsOpportunity
             }
@@ -1656,7 +1600,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isInboundAddressesDataLoading ||
               isTradingActiveLoading ||
               isSmartContractAccountAddressLoading ||
-              isAllowanceDataLoading ||
+              isApprovalRequiredLoading ||
               isApprovalTxPending ||
               (isSweepNeeded === undefined && isSweepNeededLoading) ||
               isInboundAddressesDataLoading ||

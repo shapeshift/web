@@ -42,7 +42,6 @@ import { isToken } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   createBuildCustomTxInput,
-  getErc20Allowance,
   getFeesWithWallet,
 } from 'lib/utils/evm'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -50,6 +49,7 @@ import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
+import { useThorAllowance } from 'lib/utils/thorchain/hooks/useIsThorApprovalNeeded'
 import {
   queryFn as getEstimatedFeesQueryFn,
   useGetEstimatedFeesQuery,
@@ -96,7 +96,6 @@ export const Deposit: React.FC<DepositProps> = ({
   onNext,
 }) => {
   const [outboundFeeCryptoBaseUnit, setOutboundFeeCryptoBaseUnit] = useState('')
-  const [isApprovalRequired, setIsApprovalRequired] = useState(false)
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
 
   const queryClient = useQueryClient()
@@ -209,33 +208,16 @@ export const Deposit: React.FC<DepositProps> = ({
     routerContractAddress: saversRouterContractAddress,
     isLoading: isSaversRouterContractAddressLoading,
   } = useRouterContractAddress({
-    feeAssetId: feeAsset?.assetId ?? '',
+    assetId: feeAsset?.assetId ?? '',
     skip: !isTokenDeposit || !feeAsset?.assetId,
     excludeHalted: true,
   })
 
-  useEffect(() => {
-    if (!inputValues || !accountId)
-      return // Router contract address is only set in case we're depositting a token, not a native asset
-    ;(async () => {
-      const isApprovalRequired = await (async () => {
-        if (!saversRouterContractAddress) return false
-        const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-          address: fromAssetId(assetId).assetReference,
-          spender: saversRouterContractAddress,
-          from: fromAccountId(accountId).account,
-          chainId: asset.chainId,
-        })
-        const { cryptoAmount } = inputValues
-
-        const cryptoAmountBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
-
-        if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit)) return true
-        return false
-      })()
-      setIsApprovalRequired(isApprovalRequired)
-    })()
-  }, [accountId, asset.chainId, asset.precision, assetId, inputValues, saversRouterContractAddress])
+  const { isApprovalRequired, isLoading: isApprovalRequiredLoading } = useThorAllowance({
+    assetId: assetId ?? '',
+    accountId,
+    amountCryptoPrecision: inputValues?.cryptoAmount,
+  })
 
   const {
     data: thorchainSaversDepositQuote,
@@ -941,6 +923,7 @@ export const Deposit: React.FC<DepositProps> = ({
         isSweepNeededLoading ||
         isThorchainSaversDepositQuoteLoading ||
         isSaversRouterContractAddressLoading ||
+        isApprovalRequiredLoading ||
         state.loading
       }
     >

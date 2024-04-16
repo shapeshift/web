@@ -30,19 +30,19 @@ export const fetchRouterContractAddress = async (assetId: AssetId, excludeHalted
 
 export const useRouterContractAddress = ({
   skip = false,
-  feeAssetId: assetId,
+  assetId,
   excludeHalted,
 }: {
   skip?: boolean
-  feeAssetId: AssetId
+  assetId: AssetId | undefined
   excludeHalted?: boolean
 }) => {
-  const { chainId } = fromAssetId(assetId)
-  const isEvmChain = isEvmChainId(chainId)
+  const chainId = assetId ? fromAssetId(assetId).chainId : undefined
+  const isEvmChain = chainId && isEvmChainId(chainId)
 
   const { data: routerContractAddress, isLoading } = useQuery({
     queryKey: ['routerContractAddress', assetId, excludeHalted],
-    queryFn: () => fetchRouterContractAddress(assetId, Boolean(excludeHalted)),
+    queryFn: () => fetchRouterContractAddress(assetId!, Boolean(excludeHalted)),
     enabled: !skip && isEvmChain,
     staleTime: 120_000, // 2mn arbitrary staleTime to avoid refetching for the same args (assetId, excludeHalted)
   })

@@ -1,8 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { getConfig } from 'config'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
@@ -13,30 +11,23 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isSome, isToken } from 'lib/utils'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-  getErc20Allowance,
-} from 'lib/utils/evm'
-import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
+import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
+import { useThorAllowance } from 'lib/utils/thorchain/hooks/useIsThorApprovalNeeded'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -56,7 +47,6 @@ import { DepositContext } from '../DepositContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
-  const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const history = useHistory()
@@ -108,12 +98,31 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   )
 
   const { routerContractAddress: saversRouterContractAddress } = useRouterContractAddress({
-    feeAssetId: feeAsset?.assetId ?? '',
+    assetId: assetId ?? '',
     skip: !isTokenDeposit || !feeAsset?.assetId,
     excludeHalted: true,
   })
 
+  const { approveAsync, isApprovalTxSuccess } = useThorAllowance({
+    assetId: assetId ?? '',
+    accountId,
+    amountCryptoPrecision: state?.isExactAllowance
+      ? state?.deposit.cryptoAmount
+      : fromBaseUnit(MAX_ALLOWANCE, feeAsset.precision),
+  })
+
   const handleApprove = useCallback(async () => {
+    if (!dispatch) return
+
+    dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+
+    await approveAsync()
+  }, [approveAsync, dispatch])
+
+  // React on successful approval, estimates deposit gas and route to deposit step
+  useEffect(() => {
+    if (!isApprovalTxSuccess) return
+
     if (
       !state?.deposit.cryptoAmount ||
       accountNumber === undefined ||
@@ -124,142 +133,84 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       !opportunityData
     )
       return
-
-    dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
-
-    try {
-      const daemonUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-      const maybeInboundAddressData = await getInboundAddressDataForChain(
-        daemonUrl,
-        feeAsset?.assetId,
-      )
-      if (maybeInboundAddressData.isErr())
-        throw new Error(maybeInboundAddressData.unwrapErr().message)
-
-      const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
-
-      const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
-
-      if (!poolId) throw new Error(`poolId not found for assetId ${asset.assetId}`)
-
-      const contract = getOrCreateContractByType({
-        address: fromAssetId(assetId).assetReference,
-        type: ContractType.ERC20,
-        chainId,
-      })
-
-      const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
-
-      const data = encodeFunctionData({
-        abi: contract.abi,
-        functionName: 'approve',
-        args: [getAddress(saversRouterContractAddress), BigInt(amountToApprove)],
-      })
-
-      const adapter = assertGetEvmChainAdapter(chainId)
-      const buildCustomTxInput = await createBuildCustomTxInput({
-        accountNumber,
-        adapter,
-        data,
-        value: '0',
-        to: fromAssetId(assetId).assetReference,
-        wallet,
-      })
-
-      await buildAndBroadcast({
-        adapter,
-        buildCustomTxInput,
-        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-      })
-      await poll({
-        fn: () =>
-          getErc20Allowance({
-            address: fromAssetId(assetId).assetReference,
-            spender: saversRouterContractAddress,
-            from: fromAccountId(accountId).account,
+    ;(async () => {
+      try {
+        const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
+        const estimatedDepositGasCryptoPrecision = await (async () => {
+          const maybeQuote = await getMaybeThorchainSaversDepositQuote({
+            asset,
+            amountCryptoBaseUnit,
+          })
+          if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
+          const quote = maybeQuote.unwrap()
+          const thorContract = getOrCreateContractByType({
+            address: saversRouterContractAddress!,
+            type: ContractType.ThorRouter,
             chainId: asset.chainId,
-          }),
-        validate: (allowanceCryptoBaseUnit: string) => {
-          return bnOrZero(allowanceCryptoBaseUnit).gte(amountCryptoBaseUnit)
-        },
-        interval: 15000,
-        maxAttempts: 60,
-      })
+          })
 
-      const estimatedDepositGasCryptoPrecision = await (async () => {
-        const maybeQuote = await getMaybeThorchainSaversDepositQuote({
-          asset,
-          amountCryptoBaseUnit,
+          const data = encodeFunctionData({
+            abi: thorContract.abi,
+            functionName: 'depositWithExpiry',
+            args: [
+              getAddress(quote.inbound_address),
+              getAddress(fromAssetId(assetId).assetReference),
+              BigInt(amountCryptoBaseUnit),
+              quote.memo,
+              BigInt(quote.expiry),
+            ],
+          })
+
+          const adapter = assertGetEvmChainAdapter(chainId)
+
+          const customTxInput = await createBuildCustomTxInput({
+            accountNumber,
+            adapter,
+            data,
+            value: '0', // this is not a token send, but a smart contract call so we don't send anything here, THOR router does
+            to: saversRouterContractAddress!,
+            wallet,
+          })
+
+          const fees = await adapter.getFeeData({
+            to: customTxInput.to,
+            value: customTxInput.value,
+            chainSpecific: {
+              from: fromAccountId(accountId).account,
+              data: customTxInput.data,
+            },
+          })
+
+          const fastFeeCryptoBaseUnit = fees.fast.txFee
+          const fastFeeCryptoPrecision = bnOrZero(
+            bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
+          )
+
+          return fastFeeCryptoPrecision.toString()
+        })()
+
+        dispatch({
+          type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+          payload: { estimatedGasCryptoPrecision: estimatedDepositGasCryptoPrecision },
         })
-        if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
-        const quote = maybeQuote.unwrap()
-        const thorContract = getOrCreateContractByType({
-          address: saversRouterContractAddress!,
-          type: ContractType.ThorRouter,
-          chainId: asset.chainId,
-        })
 
-        const data = encodeFunctionData({
-          abi: thorContract.abi,
-          functionName: 'depositWithExpiry',
-          args: [
-            getAddress(quote.inbound_address),
-            getAddress(fromAssetId(assetId).assetReference),
-            BigInt(amountCryptoBaseUnit),
-            quote.memo,
-            BigInt(quote.expiry),
-          ],
-        })
-
-        const adapter = assertGetEvmChainAdapter(chainId)
-
-        const customTxInput = await createBuildCustomTxInput({
-          accountNumber,
-          adapter,
-          data,
-          value: '0', // this is not a token send, but a smart contract call so we don't send anything here, THOR router does
-          to: saversRouterContractAddress!,
-          wallet,
-        })
-
-        const fees = await adapter.getFeeData({
-          to: customTxInput.to,
-          value: customTxInput.value,
-          chainSpecific: {
-            from: fromAccountId(accountId).account,
-            data: customTxInput.data,
+        trackOpportunityEvent(
+          MixPanelEvent.DepositApprove,
+          {
+            opportunity: opportunityData,
+            fiatAmounts: [state.deposit.fiatAmount],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
           },
-        })
-
-        const fastFeeCryptoBaseUnit = fees.fast.txFee
-        const fastFeeCryptoPrecision = bnOrZero(
-          bn(fastFeeCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)),
+          assets,
         )
 
-        return fastFeeCryptoPrecision.toString()
-      })()
-
-      dispatch({
-        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-        payload: { estimatedGasCryptoPrecision: estimatedDepositGasCryptoPrecision },
-      })
-
-      trackOpportunityEvent(
-        MixPanelEvent.DepositApprove,
-        {
-          opportunity: opportunityData,
-          fiatAmounts: [state.deposit.fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
-        },
-        assets,
-      )
-
-      onNext(DefiStep.Confirm)
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-    } catch (error) {
-      showErrorToast(error)
-      dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-    }
+        onNext(DefiStep.Confirm)
+        dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      } catch (error) {
+        showErrorToast(error)
+        dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      }
+    })()
   }, [
     accountId,
     accountNumber,
@@ -268,16 +219,14 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     assets,
     chainId,
     dispatch,
-    feeAsset?.assetId,
     feeAsset.precision,
+    isApprovalTxSuccess,
     onNext,
     opportunityData,
-    poll,
     saversRouterContractAddress,
     showErrorToast,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
-    state?.isExactAllowance,
     wallet,
   ])
 

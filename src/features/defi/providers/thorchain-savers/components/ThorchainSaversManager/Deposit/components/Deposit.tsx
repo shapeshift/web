@@ -49,7 +49,7 @@ import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
-import { useThorAllowance } from 'lib/utils/thorchain/hooks/useIsThorApprovalNeeded'
+import { useThorAllowance } from 'lib/utils/thorchain/hooks/useThorAllowance'
 import {
   queryFn as getEstimatedFeesQueryFn,
   useGetEstimatedFeesQuery,

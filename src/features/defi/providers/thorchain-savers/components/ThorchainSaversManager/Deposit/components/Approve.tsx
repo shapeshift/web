@@ -27,7 +27,7 @@ import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
 import { isSome, isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, createBuildCustomTxInput } from 'lib/utils/evm'
-import { useThorAllowance } from 'lib/utils/thorchain/hooks/useIsThorApprovalNeeded'
+import { useThorAllowance } from 'lib/utils/thorchain/hooks/useThorAllowance'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'

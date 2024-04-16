@@ -64,7 +64,7 @@ import {
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
-import { useThorAllowance } from 'lib/utils/thorchain/hooks/useIsThorApprovalNeeded'
+import { useThorAllowance } from 'lib/utils/thorchain/hooks/useThorAllowance'
 import {
   estimateAddThorchainLiquidityPosition,
   getThorchainLpTransactionType,

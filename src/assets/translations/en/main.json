@@ -2226,8 +2226,7 @@
       "yourLoans": "Your Loans",
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
-    },
-    "unsafeBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",
@@ -2331,6 +2330,14 @@
         "body": "While liquidity pools offer earning opportunities, it's important to be aware of the risks involved, including impermanent loss, smart contract vulnerabilities, and market volatility. Users should conduct thorough research before participating."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "I understand",
+    "attention": "Attention!",
+    "highSlippageDeposit": "This deposit has high slippage (%{slippagePercentage}%). Proceed with caution.",
+    "highSlippageBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution.",
+    "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
+    "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution."
   },
   "watchlist": {
     "empty": {

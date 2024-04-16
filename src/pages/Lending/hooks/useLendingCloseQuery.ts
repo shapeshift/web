@@ -31,6 +31,7 @@ type UseLendingQuoteCloseQueryProps = {
   collateralAccountId: AccountId
   collateralAssetId: AssetId
   repaymentPercent: number
+  enabled?: boolean
 }
 
 const selectLendingCloseQueryData = memoize(
@@ -149,6 +150,7 @@ export const useLendingQuoteCloseQuery = ({
   repaymentPercent: _repaymentPercent,
   repaymentAccountId: _repaymentAccountId,
   collateralAccountId: _collateralAccountId,
+  enabled = true,
 }: UseLendingQuoteCloseQueryProps & QueryObserverOptions) => {
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: _collateralAssetId,
@@ -235,11 +237,11 @@ export const useLendingQuoteCloseQuery = ({
         repaymentPercent,
       }),
     // Do not refetch if consumers explicitly set enabled to false
-    // They do so because the query should never run in the reactive react realm, but only programmatically with the refetch function
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: Boolean(enabled),
     refetchInterval: 20_000,
     enabled: Boolean(
-      lendingPositionData?.address &&
+      enabled &&
+        lendingPositionData?.address &&
         bnOrZero(repaymentPercent).gt(0) &&
         repaymentAccountId &&
         collateralAssetId &&

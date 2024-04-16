@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { type AccountMetadataById } from '@shapeshiftoss/types'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { knownChainIds } from 'constants/chains'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'

@@ -1,4 +1,4 @@
-import { type AccountId, type AssetId, type ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 
 import type { PartialRecord } from './utility'
 

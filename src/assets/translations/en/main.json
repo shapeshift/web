@@ -2337,7 +2337,7 @@
     "highSlippageDeposit": "This deposit has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "highSlippageBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
-    "unsafeTrade": "This trade may be unsafe, proceed with caution."
+    "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution."
   },
   "watchlist": {
     "empty": {

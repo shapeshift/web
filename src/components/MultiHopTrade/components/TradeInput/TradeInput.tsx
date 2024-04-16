@@ -562,7 +562,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const warningAcknowledgementMessage = (() => {
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
       ?.recommendedMinimumCryptoBaseUnit
-    if (!recommendedMinimumCryptoBaseUnit) return null
+    if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
     const recommendedMinimumCryptoPrecision = fromBaseUnit(
       recommendedMinimumCryptoBaseUnit,
       sellAsset.precision,

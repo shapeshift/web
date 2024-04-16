@@ -45,12 +45,14 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { positiveOrZero } from 'lib/bignumber/bignumber'
 import type { ParameterModel } from 'lib/fees/parameters/types'
+import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
+import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
@@ -557,39 +559,54 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     return !walletSupportsBuyAssetChain
   }, [walletSupportsBuyAssetChain])
 
+  const warningAcknowledgementMessage = (() => {
+    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
+      ?.recommendedMinimumCryptoBaseUnit
+    if (!recommendedMinimumCryptoBaseUnit) return null
+    const recommendedMinimumCryptoPrecision = fromBaseUnit(
+      recommendedMinimumCryptoBaseUnit,
+      sellAsset.precision,
+    )
+    const message = translate('trade.errors.unsafeQuote', {
+      symbol: sellAsset.symbol,
+      recommendedMin: recommendedMinimumCryptoPrecision,
+    })
+    return message
+  })()
+
   return (
     <TradeSlideTransition>
       <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
-      <WarningAcknowledgement
-        message={translate('warningAcknowledgement.unsafeTrade')}
-        onAcknowledge={handleFormSubmit}
-        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
-      >
-        <MessageOverlay show={isKeplr} title={overlayTitle}>
-          <Flex
-            width='full'
-            justifyContent='center'
-            maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
-          >
-            {(isCompact || isSmallerThanXl) && (
-              <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
-                <QuoteList
-                  onBack={handleCloseCompactQuoteList}
-                  isLoading={isLoading}
-                  height={tradeInputHeight ?? '500px'}
-                  width={tradeInputRef.current?.offsetWidth ?? 'full'}
-                />
-              </Center>
-            )}
-            <Center width='inherit'>
-              <Card
-                flex={1}
-                width='full'
-                maxWidth='500px'
-                ref={tradeInputRef}
-                visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
-                position={isCompactQuoteListOpen ? 'absolute' : undefined}
+      <MessageOverlay show={isKeplr} title={overlayTitle}>
+        <Flex
+          width='full'
+          justifyContent='center'
+          maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
+        >
+          {(isCompact || isSmallerThanXl) && (
+            <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
+              <QuoteList
+                onBack={handleCloseCompactQuoteList}
+                isLoading={isLoading}
+                height={tradeInputHeight ?? '500px'}
+                width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              />
+            </Center>
+          )}
+          <Center width='inherit'>
+            <Card
+              flex={1}
+              width='full'
+              maxWidth='500px'
+              ref={tradeInputRef}
+              visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
+              position={isCompactQuoteListOpen ? 'absolute' : undefined}
+            >
+              <WarningAcknowledgement
+                message={warningAcknowledgementMessage}
+                onAcknowledge={handleFormSubmit}
+                shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+                setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
               >
                 <Stack spacing={0} as='form' onSubmit={handleTradeQouteConfirm}>
                   <CardHeader px={6}>
@@ -677,21 +694,21 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                   </Stack>
                   {ConfirmSummary}
                 </Stack>
-              </Card>
+              </WarningAcknowledgement>
+            </Card>
 
-              <WithLazyMount
-                shouldUse={!isCompact && !isSmallerThanXl}
-                component={CollapsibleQuoteList}
-                isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
-                isLoading={isLoading}
-                width={tradeInputRef.current?.offsetWidth ?? 'full'}
-                height={tradeInputHeight ?? 'full'}
-                ml={4}
-              />
-            </Center>
-          </Flex>
-        </MessageOverlay>
-      </WarningAcknowledgement>
+            <WithLazyMount
+              shouldUse={!isCompact && !isSmallerThanXl}
+              component={CollapsibleQuoteList}
+              isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+              isLoading={isLoading}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              height={tradeInputHeight ?? 'full'}
+              ml={4}
+            />
+          </Center>
+        </Flex>
+      </MessageOverlay>
     </TradeSlideTransition>
   )
 })

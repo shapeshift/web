@@ -91,20 +91,20 @@ export const MultiHopTradeConfirm = memo(() => {
 
   return (
     <TradeSlideTransition>
-      <WarningAcknowledgement
-        message={translate('warningAcknowledgement.highSlippageTrade', {
-          slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
-        })}
-        onAcknowledge={handleTradeConfirm}
-        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+      <Card
+        flex={1}
+        borderRadius={cardBorderRadius}
+        width='full'
+        variant='dashboard'
+        maxWidth='500px'
       >
-        <Card
-          flex={1}
-          borderRadius={cardBorderRadius}
-          width='full'
-          variant='dashboard'
-          maxWidth='500px'
+        <WarningAcknowledgement
+          message={translate('warningAcknowledgement.highSlippageTrade', {
+            slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
+          })}
+          onAcknowledge={handleTradeConfirm}
+          shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+          setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
         >
           <CardHeader px={6} pt={4}>
             <WithBackButton onBack={handleBack}>
@@ -138,8 +138,8 @@ export const MultiHopTradeConfirm = memo(() => {
               <Footer handleSubmit={handleSubmit} />
             </>
           )}
-        </Card>
-      </WarningAcknowledgement>
+        </WarningAcknowledgement>
+      </Card>
     </TradeSlideTransition>
   )
 })

@@ -195,8 +195,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     thorfiAction: isDeposit ? 'ThorchainLpEnter' : 'ThorchainLpExit',
   })
 
-  console.log({ onSignTx, estimatedFeesData, txId, serializedTxIndex })
-
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
     mutationFn: ({ txId: _txId }: { txId: string }) => {

@@ -61,7 +61,6 @@ type Props = {
   isSubmitting?: boolean
 }
 
-// TODO(gomes): the hook is for react - extract the non-react parts to smaller bits
 export const useSendThorTx = ({
   amountCryptoBaseUnit,
   dustAmountCryptoBaseUnit,

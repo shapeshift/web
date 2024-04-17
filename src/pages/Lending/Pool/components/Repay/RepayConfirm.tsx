@@ -17,18 +17,20 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useMutationState } from '@tanstack/react-query'
+import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
+import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
-import { toHex } from 'viem'
+import { getAddress, toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAsset } from 'components/AssetToAsset/AssetToAsset'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -42,13 +44,21 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { isToken } from 'lib/utils'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+  getSupportedEvmChainIds,
+} from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
+import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import {
@@ -243,6 +253,13 @@ export const RepayConfirm = ({
   const { refetch: refetchQuote, isRefetching: isLendingQuoteCloseQueryRefetching } =
     useLendingQuoteCloseQuery(useLendingQuoteCloseQueryArgs)
 
+  const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
+    ...reactQueries.thornode.inboundAddresses(),
+    staleTime: 60_000,
+    select: data => selectInboundAddressData(data, repaymentAsset?.assetId),
+    enabled: !!repaymentAsset?.assetId,
+  })
+
   const handleConfirm = useCallback(async () => {
     if (isQuoteExpired) {
       const { data: refetchedQuote } = await refetchQuote()
@@ -265,7 +282,9 @@ export const RepayConfirm = ({
         wallet &&
         chainAdapter &&
         confirmedQuote?.repaymentAmountCryptoPrecision &&
-        repaymentAccountNumber !== undefined
+        repaymentAccountNumber !== undefined &&
+        (!isToken(fromAssetId(repaymentAsset.assetId).assetReference) ||
+          (isToken(fromAssetId(repaymentAsset.assetId).assetReference) && inboundAddressData))
       )
     )
       return
@@ -298,7 +317,7 @@ export const RepayConfirm = ({
       contractAddress: undefined,
     })
 
-    const maybeTxId = await (() => {
+    const maybeTxId = await (async () => {
       if (repaymentAsset.assetId === thorchainAssetId) {
         return (async () => {
           const { account } = fromAccountId(repaymentAccountId)
@@ -331,9 +350,41 @@ export const RepayConfirm = ({
         })()
       }
 
-      // TODO(gomes): isTokenDeposit. This doesn't exist yet but may in the future.
+      if (isToken(fromAssetId(repaymentAsset.assetId).assetReference)) {
+        const data = depositWithExpiry({
+          vault: getAddress(inboundAddressData!.address),
+          asset: getAddress(fromAssetId(repaymentAsset.assetId).assetReference),
+          amount: toBaseUnit(
+            confirmedQuote.repaymentAmountCryptoPrecision!,
+            repaymentAsset.precision,
+          ),
+          memo: confirmedQuote.quoteMemo,
+          expiry: confirmedQuote.quoteExpiry,
+        })
+
+        const adapter = assertGetEvmChainAdapter(repaymentAsset.chainId)
+
+        const buildCustomTxInput = await createBuildCustomTxInput({
+          accountNumber: repaymentAccountNumber,
+          adapter,
+          data,
+          // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
+          value: '0',
+          to: inboundAddressData!.router!,
+          wallet,
+        })
+
+        const _txId = await buildAndBroadcast({
+          adapter,
+          buildCustomTxInput,
+          receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+        })
+
+        return _txId
+      }
+
       const sendInput: SendInput = {
-        amountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision,
+        amountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision!,
         assetId: repaymentAsset.assetId,
         from: '',
         to: confirmedQuote.quoteInboundAddress,
@@ -367,6 +418,7 @@ export const RepayConfirm = ({
     return maybeTxId
   }, [
     chainAdapter,
+    confirmedQuote?.quoteExpiry,
     confirmedQuote?.quoteInboundAddress,
     confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision,
     confirmedQuote?.quoteMemo,
@@ -374,6 +426,7 @@ export const RepayConfirm = ({
     confirmedQuote?.repaymentPercent,
     eventData,
     history,
+    inboundAddressData,
     isQuoteExpired,
     loanTxStatus,
     mixpanel,
@@ -603,13 +656,15 @@ export const RepayConfirm = ({
                     isEstimatedFeesDataLoading ||
                     isLendingQuoteCloseQueryRefetching ||
                     loanTxStatus === 'pending' ||
-                    isLoanPending
+                    isLoanPending ||
+                    isInboundAddressLoading
                   }
                   disabled={
                     loanTxStatus === 'pending' ||
                     isLoanPending ||
                     isLendingQuoteCloseQueryRefetching ||
                     isEstimatedFeesDataLoading ||
+                    isInboundAddressLoading ||
                     isEstimatedFeesDataError ||
                     !confirmedQuote
                   }

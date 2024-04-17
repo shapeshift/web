@@ -57,7 +57,7 @@ type Props = {
   transactionType: 'MsgDeposit' | 'EvmCustomTx' | 'Send' | undefined
   assetAddress: string | null
   thorfiAction: ThorfiAction
-  // A variable to indicate the consumer is currently submitting and we should stop refetching
+  // Indicates whether the consumer is currently submitting, meaning we should stop refetching
   isSubmitting?: boolean
 }
 

@@ -17,12 +17,13 @@ import {
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
+import { ImportAccountsDrawer } from 'components/ImportAccountsDrawer/ImportAccountsDrawer'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
@@ -57,6 +58,7 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectAccountIdsByChainId,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
@@ -574,8 +576,16 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     return message
   })()
 
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+
   return (
     <TradeSlideTransition>
+      <ImportAccountsDrawer
+        accountIds={accountIdsByChainId[KnownChainIds.EthereumMainnet] ?? []}
+        toggleAccountId={() => {}}
+        isOpen
+        onClose={() => {}}
+      />
       <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex

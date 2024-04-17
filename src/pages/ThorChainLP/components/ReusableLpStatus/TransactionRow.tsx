@@ -1,4 +1,3 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Button,
   Card,
@@ -9,26 +8,11 @@ import {
   Flex,
   Link,
   Skeleton,
-  Text,
-  useToast,
 } from '@chakra-ui/react'
-import {
-  type AssetId,
-  fromAccountId,
-  fromAssetId,
-  thorchainAssetId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
-import {
-  CONTRACT_INTERACTION,
-  type FeeDataEstimate,
-  FeeDataKey,
-} from '@shapeshiftoss/chain-adapters'
+import { type AssetId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
@@ -36,12 +20,9 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { selectInboundAddressData } from 'react-queries/selectors'
-import { getAddress, zeroAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import type { SendInput } from 'components/Modals/Send/Form'
-import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { Row } from 'components/Row/Row'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getTxLink } from 'lib/getTxLink'
@@ -50,15 +31,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { assertUnreachable, isToken } from 'lib/utils'
-import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-} from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
 import type {
   LpConfirmedDepositQuote,
@@ -68,20 +41,16 @@ import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
-import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
-import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
+import { useSendThorTx } from 'pages/ThorChainLP/queries/hooks/useSendThorTx'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { OpportunityType } from 'pages/ThorChainLP/utils'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
-  selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectPortfolioAccountMetadataByAccountId,
-  selectSelectedCurrency,
   selectTxById,
 } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
@@ -106,16 +75,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   confirmedQuote,
   opportunityType,
 }) => {
-  const toast = useToast()
   const queryClient = useQueryClient()
   const translate = useTranslate()
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const wallet = useWallet().state.wallet
   const mixpanel = getMixPanel()
 
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [txId, setTxId] = useState<string | null>(null)
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
   const [assetAddress, setAssetAddress] = useState<string | null>(null)
   const [pairAssetAddress, setPairAssetAddress] = useState<string | null>(null)
@@ -129,13 +95,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const poolAssetAccountId = currentAccountIdByChainId[fromAssetId(poolAssetId).chainId]
-  const poolAssetAccountNumberFilter = useMemo(
-    () => ({ assetId: poolAssetId, accountId: poolAssetAccountId }),
-    [poolAssetAccountId, poolAssetId],
-  )
-  const poolAssetAccountNumber = useAppSelector(s =>
-    selectAccountNumberByAccountId(s, poolAssetAccountNumberFilter),
-  )
   const poolAssetAccountFilter = useMemo(
     () => ({ accountId: poolAssetAccountId }),
     [poolAssetAccountId],
@@ -145,13 +104,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   )
 
   const runeAccountId = currentAccountIdByChainId[thorchainChainId]
-  const runeAccountNumberFilter = useMemo(
-    () => ({ assetId: thorchainAssetId, accountId: runeAccountId }),
-    [runeAccountId],
-  )
-  const runeAccountNumber = useAppSelector(s =>
-    selectAccountNumberByAccountId(s, runeAccountNumberFilter),
-  )
   const runeAccountFilter = useMemo(() => ({ accountId: runeAccountId }), [runeAccountId])
   const runeAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, runeAccountFilter),
@@ -160,16 +112,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const isRuneTx = useMemo(() => assetId === thorchainAssetId, [assetId])
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
   const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
-
-  const {
-    isTradingActive,
-    refetch: refetchIsTradingActive,
-    isLoading: isTradingActiveLoading,
-  } = useIsTradingActive({
-    assetId: poolAssetId,
-    enabled: !txId,
-    swapperName: SwapperName.Thorchain,
-  })
 
   useEffect(() => {
     if (!wallet) return
@@ -225,9 +167,35 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     wallet,
   ])
 
-  const [serializedTxIndex, setSerializedTxIndex] = useState<string>('')
+  const thorchainNotationAssetId = useMemo(() => {
+    // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
+    // Left as-is for this PR to avoid a bigly diff
+    return assetIdToPoolAssetId({ assetId: poolAssetId })
+  }, [poolAssetId])
 
-  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+  const memo = useMemo(() => {
+    if (thorchainNotationAssetId === undefined) return
+    if (opportunityType === 'sym' && !pairAssetAddress) return
+
+    return isDeposit
+      ? `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
+      : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
+  }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
+
+  const { onSignTx, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
+    assetId: isRuneTx ? thorchainAssetId : poolAssetId,
+    accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
+    amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
+    dustAmountCryptoBaseUnit: feeAsset
+      ? THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
+      : '0',
+    memo,
+    transactionType: asset ? getThorchainLpTransactionType(asset.chainId) : undefined,
+    assetAddress,
+    thorfiAction: isDeposit ? 'ThorchainLpEnter' : 'ThorchainLpExit',
+  })
+
+  console.log({ onSignTx, estimatedFeesData, txId, serializedTxIndex })
 
   const { mutateAsync } = useMutation({
     mutationKey: [txId],
@@ -256,6 +224,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       setIsSubmitting(false)
     },
   })
+
+  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex ?? ''))
 
   // manages incomplete sym deposits by setting the already confirmed transaction as complete
   useEffect(() => {
@@ -317,131 +287,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     enabled: !!assetId,
   })
 
-  const thorchainNotationAssetId = useMemo(() => {
-    // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
-    // Left as-is for this PR to avoid a bigly diff
-    return assetIdToPoolAssetId({ assetId: poolAssetId })
-  }, [poolAssetId])
-
-  const memo = useMemo(() => {
-    if (thorchainNotationAssetId === undefined) return
-    if (opportunityType === 'sym' && !pairAssetAddress) return
-
-    return isDeposit
-      ? `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
-      : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
-  }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
-
-  const estimateFeesArgs = useMemo(() => {
-    if (!assetId || !wallet || !asset || !poolAsset || !memo || !feeAsset) return undefined
-
-    const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
-    const dustAmountCryptoBaseUnit =
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
-    const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
-
-    const transactionType = getThorchainLpTransactionType(asset.chainId)
-
-    switch (transactionType) {
-      case 'MsgDeposit': {
-        return {
-          amountCryptoPrecision: isDeposit ? amountCryptoPrecision : dustAmountCryptoPrecision,
-          assetId: asset.assetId,
-          memo,
-          to: THORCHAIN_POOL_MODULE_ADDRESS,
-          sendMax: false,
-          accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
-          contractAddress: undefined,
-        }
-      }
-      case 'EvmCustomTx': {
-        if (!inboundAddressData?.router) return undefined
-        if (!assetAddress) return undefined
-
-        const amountOrDustCryptoBaseUnit = isDeposit
-          ? amountCryptoBaseUnit
-          : dustAmountCryptoBaseUnit
-
-        const data = depositWithExpiry({
-          vault: getAddress(inboundAddressData.address),
-          asset:
-            // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
-            // which is *not* what we want for withdrawals, see
-            // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
-            isToken(fromAssetId(assetId).assetReference) && isDeposit
-              ? getAddress(fromAssetId(assetId).assetReference)
-              : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
-                // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                zeroAddress,
-          amount: amountOrDustCryptoBaseUnit,
-          memo,
-          expiry: BigInt(dayjs().add(15, 'minute').unix()),
-        })
-
-        return {
-          // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
-          amountCryptoPrecision:
-            isToken(fromAssetId(assetId).assetReference) && isDeposit
-              ? '0'
-              : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
-          // Withdrawals do NOT occur a dust send to the contract address.
-          // It's a regular 0-value contract-call
-          assetId: isDeposit ? asset.assetId : feeAsset.assetId,
-          to: inboundAddressData.router,
-          from: assetAddress,
-          sendMax: false,
-          // This is an ERC-20, we abuse the memo field for the actual hex-encoded calldata
-          memo: data,
-          accountId: poolAssetAccountId,
-          // Note, this is NOT a send.
-          // contractAddress is only needed when doing a send and the account interacts *directly* with the token's contract address.
-          // Here, the LP contract is approved beforehand to spend the token value, which it will when calling depositWithExpiry()
-          contractAddress: undefined,
-        }
-      }
-      case 'Send': {
-        if (!inboundAddressData || !assetAddress) return undefined
-        return {
-          amountCryptoPrecision: isDeposit ? amountCryptoPrecision : dustAmountCryptoPrecision,
-          assetId,
-          to: inboundAddressData.address,
-          from: assetAddress,
-          sendMax: false,
-          memo,
-          accountId: poolAssetAccountId,
-          contractAddress: undefined,
-        }
-      }
-      default:
-        return undefined
-    }
-  }, [
-    amountCryptoPrecision,
-    asset,
-    assetAddress,
-    assetId,
-    feeAsset,
-    inboundAddressData,
-    isDeposit,
-    isRuneTx,
-    memo,
-    poolAsset,
-    poolAssetAccountId,
-    runeAccountId,
-    wallet,
-  ])
-
-  const { data: estimatedFeesData } = useGetEstimatedFeesQuery({
-    amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
-    assetId: estimateFeesArgs?.assetId ?? '',
-    to: estimateFeesArgs?.to ?? '',
-    sendMax: estimateFeesArgs?.sendMax ?? false,
-    memo: estimateFeesArgs?.memo ?? '',
-    accountId: estimateFeesArgs?.accountId ?? '',
-    contractAddress: estimateFeesArgs?.contractAddress ?? '',
-    enabled: Boolean(estimateFeesArgs),
-    disableRefetch: Boolean(txId || isSubmitting),
+  const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
+    assetId: poolAssetId,
+    enabled: !txId,
+    swapperName: SwapperName.Thorchain,
   })
 
   useEffect(() => {
@@ -485,213 +334,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
     }
 
-    return (async () => {
-      // Pool just became halted at signing component mount, it's definitely not going to go back to active in just
-      // the few seconds it takes to go from mount to sign click
-      const _isTradingActive = await refetchIsTradingActive()
-      if (!_isTradingActive) throw new Error('Pool Halted')
-
-      const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
-      if (!accountId) throw new Error(`No accountId found for asset ${asset.assetId}`)
-      const { account } = fromAccountId(accountId)
-
-      const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
-      const dustAmountCryptoBaseUnit =
-        THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
-      const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
-
-      const transactionType = getThorchainLpTransactionType(asset.chainId)
-
-      await (async () => {
-        // We'll probably need to switch on chainNamespace instead here
-        switch (transactionType) {
-          case 'MsgDeposit': {
-            if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
-            if (runeAccountNumber === undefined) throw new Error(`No account number found`)
-
-            const adapter = assertGetThorchainChainAdapter()
-            const estimatedFees = await estimateFees(estimateFeesArgs)
-
-            // LP deposit using THOR is a MsgDeposit tx
-            const { txToSign } = await adapter.buildDepositTransaction({
-              from: account,
-              accountNumber: runeAccountNumber,
-              value: isDeposit ? amountCryptoBaseUnit : dustAmountCryptoBaseUnit,
-              memo,
-              chainSpecific: {
-                gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
-                  .chainSpecific.gasLimit,
-                fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
-              },
-            })
-            const signedTx = await adapter.signTransaction({
-              txToSign,
-              wallet,
-            })
-            const _txId = await adapter.broadcastTransaction({
-              senderAddress: account,
-              receiverAddress: THORCHAIN_POOL_MODULE_ADDRESS,
-              hex: signedTx,
-            })
-            const _txIdLink = getTxLink({
-              defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-              txId: _txId ?? '',
-              name: SwapperName.Thorchain,
-            })
-
-            toast({
-              title: translate('modals.send.transactionSent'),
-              description: _txId ? (
-                <Text>
-                  <Link href={_txIdLink} isExternal>
-                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-                  </Link>
-                </Text>
-              ) : undefined,
-              status: 'success',
-              duration: 9000,
-              isClosable: true,
-              position: 'top-right',
-            })
-
-            setTxId(_txId)
-            setSerializedTxIndex(
-              serializeTxIndex(runeAccountId, _txId, account, { memo, parser: 'thorchain' }),
-            )
-
-            break
-          }
-          case 'EvmCustomTx': {
-            if (!assetAddress) throw new Error('No account address found')
-            if (!inboundAddressData?.address) throw new Error('No vault address found')
-            if (!inboundAddressData?.router) throw new Error('No router address found')
-            if (poolAssetAccountNumber === undefined) throw new Error('No account number found')
-
-            const amountOrDustCryptoBaseUnit = isDeposit
-              ? amountCryptoBaseUnit
-              : dustAmountCryptoBaseUnit
-
-            const data = depositWithExpiry({
-              vault: getAddress(inboundAddressData.address),
-              // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
-              // which is *not* what we want for withdrawals, see
-              // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
-              asset:
-                isToken(fromAssetId(assetId).assetReference) && isDeposit
-                  ? getAddress(fromAssetId(assetId).assetReference)
-                  : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
-                    // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-                    zeroAddress,
-              amount: amountOrDustCryptoBaseUnit,
-              memo,
-              expiry: BigInt(dayjs().add(15, 'minute').unix()),
-            })
-
-            const adapter = assertGetEvmChainAdapter(asset.chainId)
-
-            const buildCustomTxInput = await createBuildCustomTxInput({
-              accountNumber: poolAssetAccountNumber,
-              adapter,
-              data,
-              // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-              // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
-              value:
-                isToken(fromAssetId(assetId).assetReference) && isDeposit
-                  ? '0'
-                  : amountOrDustCryptoBaseUnit,
-              to: inboundAddressData.router,
-              wallet,
-            })
-
-            const _txId = await buildAndBroadcast({
-              adapter,
-              buildCustomTxInput,
-              receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-            })
-            const _txIdLink = getTxLink({
-              defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-              txId: _txId ?? '',
-              name: SwapperName.Thorchain,
-            })
-            toast({
-              title: translate('modals.send.transactionSent'),
-              description: _txId ? (
-                <Text>
-                  <Link href={_txIdLink} isExternal>
-                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-                  </Link>
-                </Text>
-              ) : undefined,
-              status: 'success',
-              duration: 9000,
-              isClosable: true,
-              position: 'top-right',
-            })
-
-            setTxId(_txId)
-            setSerializedTxIndex(serializeTxIndex(poolAssetAccountId, _txId, assetAddress!))
-
-            break
-          }
-          case 'Send': {
-            if (!assetAddress) throw new Error('No account address found')
-            if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
-            if (!inboundAddressData?.address) throw new Error('No vault address found')
-
-            const estimatedFees = await estimateFees(estimateFeesArgs)
-            const sendInput: SendInput = {
-              amountCryptoPrecision: isDeposit ? amountCryptoPrecision : dustAmountCryptoPrecision,
-              assetId,
-              to: inboundAddressData?.address,
-              from: assetAddress,
-              sendMax: false,
-              accountId,
-              memo,
-              amountFieldError: '',
-              estimatedFees,
-              feeType: FeeDataKey.Fast,
-              fiatAmount: '',
-              fiatSymbol: selectedCurrency,
-              vanityAddress: '',
-              input: '',
-            }
-
-            const txId = await handleSend({
-              sendInput,
-              wallet,
-            })
-            const _txIdLink = getTxLink({
-              defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-              txId: txId ?? '',
-              name: SwapperName.Thorchain,
-            })
-            toast({
-              title: translate('modals.send.transactionSent'),
-              description: txId ? (
-                <Text>
-                  <Link href={_txIdLink} isExternal>
-                    {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-                  </Link>
-                </Text>
-              ) : undefined,
-              status: 'success',
-              duration: 9000,
-              isClosable: true,
-              position: 'top-right',
-            })
-
-            setTxId(txId)
-            setSerializedTxIndex(
-              serializeTxIndex(poolAssetAccountId, txId, fromAccountId(poolAssetAccountId).account),
-            )
-
-            break
-          }
-          default:
-            assertUnreachable(transactionType)
-        }
-      })()
-    })().then(() => {
+    return onSignTx().then(() => {
       onStart()
     })
   }, [
@@ -707,18 +350,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     memo,
     isRuneTx,
     inboundAddressData?.address,
-    inboundAddressData?.router,
-    refetchIsTradingActive,
-    runeAccountId,
-    poolAssetAccountId,
-    amountCryptoPrecision,
-    estimateFeesArgs,
-    runeAccountNumber,
-    toast,
-    translate,
-    assetAddress,
-    poolAssetAccountNumber,
-    selectedCurrency,
+    onSignTx,
     onStart,
   ])
 

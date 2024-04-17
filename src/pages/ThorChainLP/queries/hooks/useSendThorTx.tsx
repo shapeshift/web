@@ -50,7 +50,7 @@ type Action =
   | 'depositSavers'
   | 'withdrawSavers'
 
-type Props = {
+type UseSendThorTxProps = {
   amountCryptoBaseUnit: string | undefined
   assetId: AssetId
   memo: string | undefined
@@ -71,7 +71,7 @@ export const useSendThorTx = ({
   fromAddress,
   thorfiAction,
   isSubmitting = false,
-}: Props) => {
+}: UseSendThorTxProps) => {
   // TODO(gomes): savers sometimes also use dust amounts, ensure this works for them
   const shouldUseDustAmount = thorfiAction === 'withdrawLiquidity'
   const [txId, setTxId] = useState<string | null>(null)

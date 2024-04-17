@@ -242,7 +242,6 @@ export const useSendThorTx = ({
     const { account } = fromAccountId(accountId)
 
     await (async () => {
-      // We'll probably need to switch on chainNamespace instead here
       switch (transactionType) {
         case 'MsgDeposit': {
           if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')

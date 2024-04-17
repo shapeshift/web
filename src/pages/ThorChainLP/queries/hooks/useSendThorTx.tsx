@@ -52,7 +52,6 @@ type Action =
 
 type Props = {
   amountCryptoBaseUnit: string | undefined
-  dustAmountCryptoBaseUnit: string | undefined
   assetId: AssetId
   memo: string | undefined
   accountId: AccountId
@@ -65,7 +64,6 @@ type Props = {
 
 export const useSendThorTx = ({
   amountCryptoBaseUnit,
-  dustAmountCryptoBaseUnit,
   assetId, // i.e the AssetId of the Tx, either native asset, or token to be sent from the contract, assuming allowance has been set
   memo,
   accountId,
@@ -85,6 +83,12 @@ export const useSendThorTx = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
+  )
+
+  const dustAmountCryptoBaseUnit = useMemo(
+    () =>
+      feeAsset ? THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0' : '0',
+    [feeAsset],
   )
 
   const accountNumberFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
@@ -112,9 +116,6 @@ export const useSendThorTx = ({
 
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
-    // TODO(gomes): when consuming this in THORCHain savers, ensure we do not send dust amount instead of depositWithExpiry() Txs for EVM chains
-    const dustAmountCryptoBaseUnit =
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
     const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
 
     switch (transactionType) {
@@ -207,6 +208,7 @@ export const useSendThorTx = ({
     asset,
     assetAddress,
     assetId,
+    dustAmountCryptoBaseUnit,
     feeAsset,
     inboundAddressData,
     memo,

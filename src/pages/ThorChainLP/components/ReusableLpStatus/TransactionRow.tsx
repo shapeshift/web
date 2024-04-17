@@ -44,7 +44,6 @@ import {
 import { useSendThorTx } from 'pages/ThorChainLP/queries/hooks/useSendThorTx'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { OpportunityType } from 'pages/ThorChainLP/utils'
-import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
@@ -186,9 +185,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
     accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
-    dustAmountCryptoBaseUnit: feeAsset
-      ? THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
-      : '0',
     memo,
     transactionType: asset ? getThorchainLpTransactionType(asset.chainId) : undefined,
     assetAddress,

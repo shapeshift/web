@@ -6,7 +6,7 @@ const enabledFlags = selectFeatureFlags(store.getState())
 
 // returns known ChainIds as an array, excluding the ones that are currently flagged off
 export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
-  if (chainId === KnownChainIds.ArbitrumNovaMainnet && enabledFlags.ArbitrumNova) return false
+  if (chainId === KnownChainIds.ArbitrumNovaMainnet && !enabledFlags.ArbitrumNova) return false
   if (chainId === KnownChainIds.ArbitrumMainnet && !enabledFlags.Arbitrum) return false
   if (chainId === KnownChainIds.GnosisMainnet && !enabledFlags.Gnosis) return false
   if (chainId === KnownChainIds.PolygonMainnet && !enabledFlags.Polygon) return false

@@ -90,6 +90,10 @@ export const useSendThorTx = ({
       feeAsset ? THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0' : '0',
     [feeAsset],
   )
+  const dustAmountCryptoPrecision = useMemo(
+    () => fromBaseUnit(dustAmountCryptoBaseUnit ?? 0, asset?.precision ?? 0),
+    [dustAmountCryptoBaseUnit, asset],
+  )
 
   const accountNumberFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, accountNumberFilter))
@@ -98,10 +102,6 @@ export const useSendThorTx = ({
   const amountCryptoPrecision = useMemo(
     () => fromBaseUnit(amountCryptoBaseUnit ?? 0, asset?.precision ?? 0),
     [amountCryptoBaseUnit, asset],
-  )
-  const dustAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(dustAmountCryptoBaseUnit ?? 0, asset?.precision ?? 0),
-    [dustAmountCryptoBaseUnit, asset],
   )
 
   const { data: inboundAddressData } = useQuery({
@@ -115,8 +115,6 @@ export const useSendThorTx = ({
     if (!assetId || !feeAsset || !wallet || !asset) return undefined
 
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
-
-    const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
 
     switch (transactionType) {
       case 'MsgDeposit': {

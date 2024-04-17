@@ -32,7 +32,6 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -186,7 +185,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
     memo,
-    transactionType: asset ? getThorchainLpTransactionType(asset.chainId) : undefined,
     fromAddress,
     thorfiAction: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
   })

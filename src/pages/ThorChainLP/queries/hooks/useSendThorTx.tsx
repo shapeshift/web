@@ -29,6 +29,7 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -55,7 +56,6 @@ type UseSendThorTxProps = {
   assetId: AssetId
   memo: string | undefined
   accountId: AccountId
-  transactionType: 'MsgDeposit' | 'EvmCustomTx' | 'Send' | undefined
   fromAddress: string | null
   thorfiAction: Action
   // Indicates whether the consumer is currently submitting, meaning we should stop refetching
@@ -67,7 +67,6 @@ export const useSendThorTx = ({
   assetId, // i.e the AssetId of the Tx, either native asset, or token to be sent from the contract, assuming allowance has been set
   memo,
   accountId,
-  transactionType,
   fromAddress,
   thorfiAction,
   isSubmitting = false,
@@ -83,6 +82,11 @@ export const useSendThorTx = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
+  )
+
+  const transactionType = useMemo(
+    () => (asset ? getThorchainLpTransactionType(asset.chainId) : undefined),
+    [asset],
   )
 
   const dustAmountCryptoBaseUnit = useMemo(

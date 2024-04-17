@@ -47,11 +47,10 @@ type ThorfiActionBase = 'ThorchainLp' | 'ThorchainLending' | 'ThorchainSavers'
 type ThorfiAction = `${ThorfiActionBase}Enter` | `${ThorfiActionBase}Exit` | 'ThorchainSwap'
 
 type Props = {
-  // TODO(gomes): make this a union and pass one or ther other depending on some heuristics?
   amountCryptoBaseUnit: string | undefined
   dustAmountCryptoBaseUnit: string | undefined
   assetId: AssetId
-  // TODO(gomes): we should build this here too, but until this is properly implemented for all we're just passing it
+  // TODO(gomes): we should build this here too, but until this is properly implemented for all domains we're just passing it
   // to keep things simple
   memo: string | undefined
   accountId: AccountId
@@ -63,7 +62,6 @@ type Props = {
 }
 
 // TODO(gomes): the hook is for react - extract the non-react parts to smaller bits
-// TODO(gomes): what's a good name for that?
 export const useSendThorTx = ({
   amountCryptoBaseUnit,
   dustAmountCryptoBaseUnit,
@@ -113,7 +111,7 @@ export const useSendThorTx = ({
 
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
-    // TODO(gomes): ensure that as part of this PR, we do not send dust amount instead of depositWithExpiry() Txs for EVM chains
+    // TODO(gomes): when consuming this in THORCHain savers, ensure we do not send dust amount instead of depositWithExpiry() Txs for EVM chains
     const dustAmountCryptoBaseUnit =
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset.assetId] ?? '0'
     const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
@@ -184,7 +182,8 @@ export const useSendThorTx = ({
       case 'Send': {
         if (!inboundAddressData || !assetAddress) return undefined
         return {
-          // TODO(gomes): ensure the validity of this for other thorfi domains - e.g savers also use dust amounts
+          // TODO(gomes): When implementing this for savers, we will want to ensure that dust amount is only sent for non-UTXO chains
+          // EVM chains should make use of depositWithExpiry() for withdrawals
           amountCryptoPrecision:
             thorfiAction === 'ThorchainLpExit' ? dustAmountCryptoPrecision : amountCryptoPrecision,
           assetId,
@@ -251,7 +250,6 @@ export const useSendThorTx = ({
           if (!memo) return undefined
 
           const adapter = assertGetThorchainChainAdapter()
-          // TODO(gomes): build this too
           const estimatedFees = await estimateFees(estimateFeesArgs)
 
           // LP deposit using THOR is a MsgDeposit tx
@@ -296,7 +294,6 @@ export const useSendThorTx = ({
             position: 'top-right',
           })
 
-          // TODO(gomes): either return this, set it in local state exposed by the hook (better probably), or have some event handler
           setTxId(_txId)
           setSerializedTxIndex(
             serializeTxIndex(accountId, _txId, account, { memo, parser: 'thorchain' }),

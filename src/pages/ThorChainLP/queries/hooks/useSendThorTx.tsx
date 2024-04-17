@@ -50,8 +50,6 @@ type Props = {
   amountCryptoBaseUnit: string | undefined
   dustAmountCryptoBaseUnit: string | undefined
   assetId: AssetId
-  // TODO(gomes): we should build this here too, but until this is properly implemented for all domains we're just passing it
-  // to keep things simple
   memo: string | undefined
   accountId: AccountId
   transactionType: 'MsgDeposit' | 'EvmCustomTx' | 'Send' | undefined

@@ -103,14 +103,6 @@ export const ImportAccountsDrawer = ({
         <DrawerBody>
           <TableContainer>
             <Table variant='simple'>
-              <Thead>
-                <Tr>
-                  <Td>{translate('common.account')}</Td>
-                  <Td>{translate('accountManagementSidebar.import')}</Td>
-                  <Td>{translate('common.address')}</Td>
-                  <Td isNumeric>{translate('common.balance')}</Td>
-                </Tr>
-              </Thead>
               <Tbody>
                 {accountIds.map(accountId => (
                   <TableRow

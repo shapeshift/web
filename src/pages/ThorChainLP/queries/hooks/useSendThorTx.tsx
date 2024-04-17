@@ -41,10 +41,14 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-type ThorfiActionBase = 'ThorchainLp' | 'ThorchainLending' | 'ThorchainSavers'
-// Since there are different vernaculars (borrow/repay, deposit/withdraw) depending on the Thorfi action, we simplyfi it as enter/exit
-// Note, THORChain swaps *are* part of THORFi but there's no notion of enter/exit for them really
-type ThorfiAction = `${ThorfiActionBase}Enter` | `${ThorfiActionBase}Exit` | 'ThorchainSwap'
+type Action =
+  | 'swap'
+  | 'addLiquidity'
+  | 'withdrawLiquidity'
+  | 'openLoan'
+  | 'repayLoan'
+  | 'depositSavers'
+  | 'withdrawSavers'
 
 type Props = {
   amountCryptoBaseUnit: string | undefined
@@ -54,7 +58,7 @@ type Props = {
   accountId: AccountId
   transactionType: 'MsgDeposit' | 'EvmCustomTx' | 'Send' | undefined
   assetAddress: string | null
-  thorfiAction: ThorfiAction
+  thorfiAction: Action
   // Indicates whether the consumer is currently submitting, meaning we should stop refetching
   isSubmitting?: boolean
 }
@@ -71,7 +75,7 @@ export const useSendThorTx = ({
   isSubmitting = false,
 }: Props) => {
   // TODO(gomes): savers sometimes also use dust amounts, ensure this works for them
-  const shouldUseDustAmount = thorfiAction === 'ThorchainLpExit'
+  const shouldUseDustAmount = thorfiAction === 'withdrawLiquidity'
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
   const wallet = useWallet().state.wallet
@@ -142,7 +146,7 @@ export const useSendThorTx = ({
             // The asset param is a directive to initiate a transfer of said asset from the wallet to the contract
             // which is *not* what we want for withdrawals, see
             // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
-            isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'ThorchainLpExit'
+            isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'withdrawLiquidity'
               ? getAddress(fromAssetId(assetId).assetReference)
               : // THOR LP Native EVM asset deposits and THOR LP withdrawals (tokens/native assets) use the 0 address as the asset address
                 // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
@@ -157,13 +161,13 @@ export const useSendThorTx = ({
           // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
           amountCryptoPrecision:
             // TODO(gomes): this may not be applicable to other domains - verify the validity of this for others and adapt accordingly
-            isToken(fromAssetId(assetId).assetReference) && thorfiAction === 'ThorchainLpEnter'
+            isToken(fromAssetId(assetId).assetReference) && thorfiAction === 'addLiquidity'
               ? '0'
               : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
           // Withdrawals do NOT occur a dust send to the contract address.
           // It's a regular 0-value contract-call
           // TODO(gomes): double check that this logic is correct across all domains, it is critical and getting things wrong here can lead to funds being lost
-          assetId: thorfiAction === 'ThorchainLpExit' ? feeAsset.assetId : asset.assetId,
+          assetId: thorfiAction === 'withdrawLiquidity' ? feeAsset.assetId : asset.assetId,
           to: inboundAddressData.router,
           from: assetAddress,
           sendMax: false,
@@ -182,7 +186,9 @@ export const useSendThorTx = ({
           // TODO(gomes): When implementing this for savers, we will want to ensure that dust amount is only sent for non-UTXO chains
           // EVM chains should make use of depositWithExpiry() for withdrawals
           amountCryptoPrecision:
-            thorfiAction === 'ThorchainLpExit' ? dustAmountCryptoPrecision : amountCryptoPrecision,
+            thorfiAction === 'withdrawLiquidity'
+              ? dustAmountCryptoPrecision
+              : amountCryptoPrecision,
           assetId,
           to: inboundAddressData.address,
           from: assetAddress,
@@ -316,7 +322,7 @@ export const useSendThorTx = ({
             // which is *not* what we want for withdrawals, see
             // https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d
             asset:
-              isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'ThorchainLpExit'
+              isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'withdrawLiquidity'
                 ? getAddress(fromAssetId(assetId).assetReference)
                 : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
@@ -335,7 +341,7 @@ export const useSendThorTx = ({
             // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
             // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
             value:
-              isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'ThorchainLpExit'
+              isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'withdrawLiquidity'
                 ? '0'
                 : amountOrDustCryptoBaseUnit,
             to: inboundAddressData.router,

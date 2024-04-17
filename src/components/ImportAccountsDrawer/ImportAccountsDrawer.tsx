@@ -7,24 +7,26 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
-  Flex,
   Switch,
   Table,
   TableContainer,
   Tbody,
   Td,
-  Thead,
   Tooltip,
   Tr,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
-import { selectAccountNumberByAccountId } from 'state/slices/selectors'
+import {
+  selectAccountNumberByAccountId,
+  selectFeeAssetByChainId,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export type ImportAccountsDrawerProps = {
@@ -42,11 +44,22 @@ type TableRowProps = {
 
 const TableRow = ({ accountId, toggleAccountId }: TableRowProps) => {
   const translate = useTranslate()
-  const filter = useMemo(() => ({ accountId }), [accountId])
-  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
+  const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberFilter),
+  )
   const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
   const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-  const totalBalanceUserCurrency = '12.34'
+  const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  console.log({ chainId, feeAsset })
+  const balanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId, accountId }),
+    [feeAsset, accountId],
+  )
+  const feeAssetBalancePrecision = useAppSelector(s =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
+  )
   return (
     <Tr>
       <Td>
@@ -61,9 +74,7 @@ const TableRow = ({ accountId, toggleAccountId }: TableRowProps) => {
         </Tooltip>
       </Td>
       <Td>
-        <Flex flex={1} justifyContent='flex-end' alignItems='flex-end' direction='column'>
-          <Amount.Fiat value={totalBalanceUserCurrency} />
-        </Flex>
+        <Amount.Crypto value={feeAssetBalancePrecision} symbol={feeAsset?.symbol ?? ''} />
       </Td>
     </Tr>
   )

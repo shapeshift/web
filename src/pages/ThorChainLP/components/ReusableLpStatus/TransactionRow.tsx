@@ -82,7 +82,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
-  const [assetAddress, setAssetAddress] = useState<string | null>(null)
+  const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [pairAssetAddress, setPairAssetAddress] = useState<string | null>(null)
 
   const { currentAccountIdByChainId, positionStatus } = confirmedQuote
@@ -125,7 +125,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     if (!accountMetadata) return
     ;(async () => {
-      const _assetAddress = await getThorchainFromAddress({
+      const _fromAddress = await getThorchainFromAddress({
         accountId,
         assetId,
         opportunityId: confirmedQuote.opportunityId,
@@ -135,7 +135,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
 
       // use address as is for use in constructing the transaction (not related to memo)
-      setAssetAddress(_assetAddress)
+      setFromAddress(_fromAddress)
 
       // We don't want to set the other asset's address in the memo when doing asym deposits or we'll have bigly problems
       if (opportunityType !== 'sym') return
@@ -187,7 +187,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
     memo,
     transactionType: asset ? getThorchainLpTransactionType(asset.chainId) : undefined,
-    assetAddress,
+    fromAddress,
     thorfiAction: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
   })
 

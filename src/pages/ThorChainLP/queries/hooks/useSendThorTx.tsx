@@ -201,19 +201,20 @@ export const useSendThorTx = ({
         return undefined
     }
   }, [
-    accountId,
-    amountCryptoPrecision,
-    asset,
-    fromAddress,
     assetId,
-    dustAmountCryptoBaseUnit,
     feeAsset,
-    inboundAddressData,
-    memo,
-    shouldUseDustAmount,
-    thorfiAction,
-    transactionType,
     wallet,
+    asset,
+    amountCryptoPrecision,
+    transactionType,
+    shouldUseDustAmount,
+    dustAmountCryptoPrecision,
+    memo,
+    accountId,
+    inboundAddressData,
+    fromAddress,
+    dustAmountCryptoBaseUnit,
+    thorfiAction,
   ])
 
   const { data: estimatedFeesData } = useGetEstimatedFeesQuery({

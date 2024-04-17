@@ -231,10 +231,11 @@ export const useSendThorTx = ({
       !(
         asset &&
         wallet &&
-        inboundAddressData &&
         accountNumber !== undefined &&
         (dustAmountCryptoBaseUnit || amountCryptoBaseUnit) &&
-        transactionType
+        transactionType &&
+        (!isToken(fromAssetId(asset.assetId).assetReference) ||
+          (isToken(fromAssetId(asset.assetId).assetReference) && inboundAddressData))
       )
     )
       return

@@ -30,6 +30,7 @@ import {
 } from 'lib/utils/evm'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
+import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountNumberByAccountId,
@@ -52,11 +53,13 @@ type Props = {
   assetId: AssetId
   // TODO(gomes): we should build this here too, but until this is properly implemented for all we're just passing it
   // to keep things simple
-  memo: string
+  memo: string | undefined
   accountId: AccountId
-  transactionType: 'MsgDeposit' | 'EvmCustomTx' | 'Send'
-  assetAddress: string
+  transactionType: 'MsgDeposit' | 'EvmCustomTx' | 'Send' | undefined
+  assetAddress: string | null
   thorfiAction: ThorfiAction
+  // A variable to indicate the consumer is currently submitting and we should stop refetching
+  isSubmitting?: boolean
 }
 
 // TODO(gomes): the hook is for react - extract the non-react parts to smaller bits
@@ -70,6 +73,7 @@ export const useSendThorTx = ({
   transactionType,
   assetAddress,
   thorfiAction,
+  isSubmitting = false,
 }: Props) => {
   // TODO(gomes): savers sometimes also use dust amounts, ensure this works for them
   const shouldUseDustAmount = thorfiAction === 'ThorchainLpExit'
@@ -131,10 +135,11 @@ export const useSendThorTx = ({
       case 'EvmCustomTx': {
         if (!inboundAddressData?.router) return undefined
         if (!assetAddress) return undefined
+        if (!memo) return undefined
 
         const amountOrDustCryptoBaseUnit = shouldUseDustAmount
-          ? amountCryptoBaseUnit
-          : dustAmountCryptoBaseUnit
+          ? dustAmountCryptoBaseUnit
+          : amountCryptoBaseUnit
 
         const data = depositWithExpiry({
           vault: getAddress(inboundAddressData.address),
@@ -209,14 +214,27 @@ export const useSendThorTx = ({
     wallet,
   ])
 
-  const handleSignTx = useCallback(async () => {
+  const { data: estimatedFeesData } = useGetEstimatedFeesQuery({
+    amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
+    assetId: estimateFeesArgs?.assetId ?? '',
+    to: estimateFeesArgs?.to ?? '',
+    sendMax: estimateFeesArgs?.sendMax ?? false,
+    memo: estimateFeesArgs?.memo ?? '',
+    accountId: estimateFeesArgs?.accountId ?? '',
+    contractAddress: estimateFeesArgs?.contractAddress ?? '',
+    enabled: Boolean(estimateFeesArgs),
+    disableRefetch: Boolean(txId || isSubmitting),
+  })
+
+  const onSignTx = useCallback(async () => {
     if (
       !(
         asset &&
         wallet &&
         inboundAddressData &&
         accountNumber !== undefined &&
-        (dustAmountCryptoBaseUnit || amountCryptoBaseUnit)
+        (dustAmountCryptoBaseUnit || amountCryptoBaseUnit) &&
+        transactionType
       )
     )
       return
@@ -229,6 +247,7 @@ export const useSendThorTx = ({
         case 'MsgDeposit': {
           if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
           if (accountNumber === undefined) throw new Error(`No account number found`)
+          if (!memo) return undefined
 
           const adapter = assertGetThorchainChainAdapter()
           // TODO(gomes): build this too
@@ -289,6 +308,7 @@ export const useSendThorTx = ({
           if (!inboundAddressData?.address) throw new Error('No vault address found')
           if (!inboundAddressData?.router) throw new Error('No router address found')
           if (accountNumber === undefined) throw new Error('No account number found')
+          if (!memo) return undefined
 
           const amountOrDustCryptoBaseUnit = shouldUseDustAmount
             ? dustAmountCryptoBaseUnit
@@ -438,5 +458,5 @@ export const useSendThorTx = ({
     selectedCurrency,
   ])
 
-  return { handleSignTx, txId, serializedTxIndex }
+  return { onSignTx, estimatedFeesData, txId, serializedTxIndex }
 }

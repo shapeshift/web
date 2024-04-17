@@ -192,7 +192,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     memo,
     transactionType: asset ? getThorchainLpTransactionType(asset.chainId) : undefined,
     assetAddress,
-    thorfiAction: isDeposit ? 'ThorchainLpEnter' : 'ThorchainLpExit',
+    thorfiAction: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
   })
 
   const { mutateAsync } = useMutation({

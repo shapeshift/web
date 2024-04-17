@@ -56,7 +56,7 @@ type Props = {
   memo: string | undefined
   accountId: AccountId
   transactionType: 'MsgDeposit' | 'EvmCustomTx' | 'Send' | undefined
-  assetAddress: string | null
+  fromAddress: string | null
   thorfiAction: Action
   // Indicates whether the consumer is currently submitting, meaning we should stop refetching
   isSubmitting?: boolean
@@ -68,7 +68,7 @@ export const useSendThorTx = ({
   memo,
   accountId,
   transactionType,
-  assetAddress,
+  fromAddress,
   thorfiAction,
   isSubmitting = false,
 }: Props) => {
@@ -134,7 +134,7 @@ export const useSendThorTx = ({
       }
       case 'EvmCustomTx': {
         if (!inboundAddressData?.router) return undefined
-        if (!assetAddress) return undefined
+        if (!fromAddress) return undefined
         if (!memo) return undefined
 
         const amountOrDustCryptoBaseUnit = shouldUseDustAmount
@@ -170,7 +170,7 @@ export const useSendThorTx = ({
           // TODO(gomes): double check that this logic is correct across all domains, it is critical and getting things wrong here can lead to funds being lost
           assetId: thorfiAction === 'withdrawLiquidity' ? feeAsset.assetId : asset.assetId,
           to: inboundAddressData.router,
-          from: assetAddress,
+          from: fromAddress,
           sendMax: false,
           // This is an ERC-20, we abuse the memo field for the actual hex-encoded calldata
           memo: data,
@@ -182,7 +182,7 @@ export const useSendThorTx = ({
         }
       }
       case 'Send': {
-        if (!inboundAddressData || !assetAddress) return undefined
+        if (!inboundAddressData || !fromAddress) return undefined
         return {
           // TODO(gomes): When implementing this for savers, we will want to ensure that dust amount is only sent for non-UTXO chains
           // EVM chains should make use of depositWithExpiry() for withdrawals
@@ -192,7 +192,7 @@ export const useSendThorTx = ({
               : amountCryptoPrecision,
           assetId,
           to: inboundAddressData.address,
-          from: assetAddress,
+          from: fromAddress,
           sendMax: false,
           memo,
           accountId,
@@ -206,7 +206,7 @@ export const useSendThorTx = ({
     accountId,
     amountCryptoPrecision,
     asset,
-    assetAddress,
+    fromAddress,
     assetId,
     dustAmountCryptoBaseUnit,
     feeAsset,
@@ -306,7 +306,7 @@ export const useSendThorTx = ({
           break
         }
         case 'EvmCustomTx': {
-          if (!assetAddress) throw new Error('No account address found')
+          if (!fromAddress) throw new Error('No account address found')
           if (!inboundAddressData?.address) throw new Error('No vault address found')
           if (!inboundAddressData?.router) throw new Error('No router address found')
           if (accountNumber === undefined) throw new Error('No account number found')
@@ -376,12 +376,12 @@ export const useSendThorTx = ({
           })
 
           setTxId(_txId)
-          setSerializedTxIndex(serializeTxIndex(accountId, _txId, assetAddress!))
+          setSerializedTxIndex(serializeTxIndex(accountId, _txId, fromAddress!))
 
           break
         }
         case 'Send': {
-          if (!assetAddress) throw new Error('No account address found')
+          if (!fromAddress) throw new Error('No account address found')
           if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
           if (!inboundAddressData?.address) throw new Error('No vault address found')
 
@@ -392,7 +392,7 @@ export const useSendThorTx = ({
               : amountCryptoPrecision,
             assetId,
             to: inboundAddressData?.address,
-            from: assetAddress,
+            from: fromAddress,
             sendMax: false,
             accountId,
             memo,
@@ -452,7 +452,7 @@ export const useSendThorTx = ({
     memo,
     toast,
     translate,
-    assetAddress,
+    fromAddress,
     assetId,
     thorfiAction,
     dustAmountCryptoPrecision,

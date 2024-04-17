@@ -349,7 +349,7 @@ export const RepayConfirm = ({
         })()
       }
 
-      if (isToken(fromAssetId(repaymentAsset.assetId).assetReference)) {
+      if (isToken(fromAssetId(repaymentAsset.assetId).chainReference)) {
         const data = depositWithExpiry({
           vault: getAddress(inboundAddressData.address),
           asset: getAddress(fromAssetId(repaymentAsset.assetId).assetReference),

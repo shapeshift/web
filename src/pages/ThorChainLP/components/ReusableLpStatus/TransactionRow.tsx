@@ -32,6 +32,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -40,7 +41,6 @@ import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
-import { useSendThorTx } from 'pages/ThorChainLP/queries/hooks/useSendThorTx'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { OpportunityType } from 'pages/ThorChainLP/utils'
 import {

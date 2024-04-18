@@ -271,7 +271,7 @@ export const RepayConfirm = ({
     fromAddress: isUtxoAccountId(repaymentAccountId)
       ? ''
       : fromAccountId(repaymentAccountId).account,
-    thorfiAction: 'openLoan',
+    thorfiAction: 'repayLoan',
     onSend: setTxid,
   })
 

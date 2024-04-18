@@ -54,7 +54,7 @@ type Action =
 
 type UseSendThorTxProps = {
   amountCryptoBaseUnit: string | undefined
-  assetId: AssetId
+  assetId: AssetId | null
   memo: string | undefined
   accountId: AccountId
   fromAddress: string | null
@@ -82,9 +82,9 @@ export const useSendThorTx = ({
   const toast = useToast()
   const translate = useTranslate()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
+    selectFeeAssetByChainId(state, assetId ? fromAssetId(assetId).chainId : ''),
   )
 
   const transactionType = useMemo(
@@ -114,7 +114,7 @@ export const useSendThorTx = ({
   const { data: inboundAddressData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
     staleTime: 60_000,
-    select: data => selectInboundAddressData(data, assetId),
+    select: data => selectInboundAddressData(data, assetId!),
     enabled: !!assetId,
   })
 
@@ -167,7 +167,8 @@ export const useSendThorTx = ({
           // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
           amountCryptoPrecision:
             // TODO(gomes): this may not be applicable to other domains - verify the validity of this for others and adapt accordingly
-            isToken(fromAssetId(assetId).assetReference) && thorfiAction === 'addLiquidity'
+            isToken(fromAssetId(assetId).assetReference) &&
+            ['addLiquidity', 'repayLoan'].includes(thorfiAction)
               ? '0'
               : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
           // Withdrawals do NOT occur a dust send to the contract address.
@@ -240,6 +241,7 @@ export const useSendThorTx = ({
   const onSignTx = useCallback(async () => {
     if (
       !(
+        assetId &&
         asset &&
         wallet &&
         accountNumber !== undefined &&

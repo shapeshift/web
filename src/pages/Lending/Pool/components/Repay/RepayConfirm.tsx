@@ -67,8 +67,8 @@ type RepayConfirmProps = {
   collateralAssetId: AssetId
   repaymentAsset: Asset | null
   setRepaymentPercent: (percent: number) => void
-  collateralAccountId: AccountId
-  repaymentAccountId: AccountId
+  collateralAccountId: AccountId | null
+  repaymentAccountId: AccountId | null
   txId: string | null
   setTxid: (txId: string | null) => void
   confirmedQuote: LendingQuoteClose | null

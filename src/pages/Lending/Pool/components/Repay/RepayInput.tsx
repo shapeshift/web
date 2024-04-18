@@ -23,9 +23,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
+import { toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -45,10 +45,12 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
+import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -74,8 +76,8 @@ type RepayInputProps = {
   collateralAssetId: AssetId
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
-  collateralAccountId: AccountId
-  repaymentAccountId: AccountId
+  collateralAccountId: AccountId | null
+  repaymentAccountId: AccountId | null
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   repaymentAsset: Asset | null
@@ -190,7 +192,7 @@ export const RepayInput = ({
   const mixpanel = getMixPanel()
 
   const repaymentAccountNumberFilter = useMemo(
-    () => ({ accountId: repaymentAccountId }),
+    () => ({ accountId: repaymentAccountId ?? '' }),
     [repaymentAccountId],
   )
   const repaymentAccountNumber = useAppSelector(state =>
@@ -372,21 +374,37 @@ export const RepayInput = ({
     accountId: collateralAccountId,
   })
 
-  const {
-    data: estimatedFeesData,
-    isLoading: isEstimatedFeesDataLoading,
-    isError: isEstimatedFeesDataError,
-    isSuccess: isEstimatedFeesDataSuccess,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId,
-    collateralAccountId,
-    repaymentAccountId,
-    repaymentAsset,
-    confirmedQuote,
+  const memo = useMemo(() => {
+    const supportedEvmChainIds = getSupportedEvmChainIds()
+    if (!(supportedEvmChainIds && repaymentAsset && confirmedQuote)) return
+    return supportedEvmChainIds.includes(
+      fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
+    )
+      ? toHex(confirmedQuote.quoteMemo)
+      : confirmedQuote.quoteMemo
+  }, [confirmedQuote, repaymentAsset])
+
+  const fromAddress = useMemo(() => {
+    if (!repaymentAccountId) return ''
+    return isUtxoAccountId(repaymentAccountId) ? '' : fromAccountId(repaymentAccountId).account
+  }, [repaymentAccountId])
+
+  const { estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
+    assetId: repaymentAsset?.assetId ?? null,
+    accountId: repaymentAccountId ?? '',
+    amountCryptoBaseUnit: toBaseUnit(
+      confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+      repaymentAsset?.precision ?? 0,
+    ),
+    memo,
+    // For repayments, we don't need to send from a specific address for UTXOs
+    // Though THOR adapter explicitly requires it, and so does the EVM one for gas estimation
+    fromAddress,
+    thorfiAction: 'repayLoan',
   })
 
   const balanceFilter = useMemo(
-    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentAsset?.assetId, repaymentAccountId],
   )
 
@@ -394,7 +412,7 @@ export const RepayInput = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
   const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentFeeAsset?.assetId, repaymentAccountId],
   )
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -576,7 +594,7 @@ export const RepayInput = ({
         <Divider />
       </Flex>
       <TradeAssetInput
-        accountId={collateralAccountId}
+        accountId={collateralAccountId ?? ''}
         assetId={collateralAssetId}
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}
@@ -613,8 +631,8 @@ export const RepayInput = ({
           collateralDecreaseAmountCryptoPrecision={
             lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
           }
-          repaymentAccountId={repaymentAccountId}
-          collateralAccountId={collateralAccountId}
+          repaymentAccountId={repaymentAccountId ?? ''}
+          collateralAccountId={collateralAccountId ?? ''}
         />
         <Stack
           borderTopWidth={1}
@@ -642,9 +660,7 @@ export const RepayInput = ({
             <Row.Value>
               <Skeleton
                 isLoaded={
-                  isEstimatedFeesDataSuccess &&
-                  isLendingQuoteCloseSuccess &&
-                  !isLendingQuoteCloseRefetching
+                  estimatedFeesData && isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching
                 }
               >
                 {/* Actually defined at display time, see isLoaded above */}
@@ -686,11 +702,7 @@ export const RepayInput = ({
       >
         <Button
           size='lg'
-          colorScheme={
-            isLendingQuoteCloseError || isEstimatedFeesDataError || quoteErrorTranslation
-              ? 'red'
-              : 'blue'
-          }
+          colorScheme={isLendingQuoteCloseError || quoteErrorTranslation ? 'red' : 'blue'}
           mx={-2}
           onClick={onSubmit}
           isLoading={
@@ -713,8 +725,8 @@ export const RepayInput = ({
               isLendingQuoteCloseLoading ||
               isLendingQuoteCloseRefetching ||
               isEstimatedFeesDataLoading ||
+              !estimatedFeesData ||
               isLendingQuoteCloseError ||
-              isEstimatedFeesDataError ||
               disableSmartContractRepayment ||
               quoteErrorTranslation,
           )}

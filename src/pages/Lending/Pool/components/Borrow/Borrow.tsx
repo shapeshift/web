@@ -27,7 +27,7 @@ const suspenseFallback = <div>Loading...</div>
 
 type BorrowProps = {
   isAccountSelectionDisabled?: boolean
-  collateralAccountId: AccountId
+  collateralAccountId: AccountId | null
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void

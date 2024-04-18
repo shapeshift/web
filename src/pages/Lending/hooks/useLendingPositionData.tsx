@@ -10,7 +10,7 @@ import {
 import { store, useAppSelector } from 'state/store'
 
 type UseLendingPositionDataProps = {
-  accountId: AccountId
+  accountId: AccountId | null
   assetId: AssetId
 }
 

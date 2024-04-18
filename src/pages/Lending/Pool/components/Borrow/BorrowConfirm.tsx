@@ -306,7 +306,7 @@ export const BorrowConfirm = ({
     if (!fromAddress)
       throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
 
-    onSignTx()
+    await onSignTx()
   }, [
     confirmedQuote,
     isQuoteExpired,

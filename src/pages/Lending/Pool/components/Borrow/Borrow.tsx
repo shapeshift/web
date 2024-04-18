@@ -198,7 +198,7 @@ const BorrowRoutes = memo(
       () => (
         <BorrowConfirm
           collateralAssetId={collateralAssetId}
-          depositAmount={cryptoDepositAmount}
+          depositAmountCryptoPrecision={cryptoDepositAmount}
           setDepositAmount={setDepositAmount}
           borrowAccountId={borrowAccountId}
           collateralAccountId={collateralAccountId}

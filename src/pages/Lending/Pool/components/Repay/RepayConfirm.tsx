@@ -15,7 +15,7 @@ import {
   useInterval,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
@@ -51,6 +51,7 @@ import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
+import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -266,9 +267,10 @@ export const RepayConfirm = ({
     ),
     memo,
     // For repayments, we don't need to send from a specific address for UTXOs
-    // Though THOR adapter explicitly requires it
-    fromAddress:
-      repaymentAsset?.assetId === thorchainAssetId ? fromAccountId(repaymentAccountId).account : '',
+    // Though THOR adapter explicitly requires it, and so does the EVM one for gas estimation
+    fromAddress: isUtxoAccountId(repaymentAccountId)
+      ? ''
+      : fromAccountId(repaymentAccountId).account,
     thorfiAction: 'openLoan',
     onSend: setTxid,
   })

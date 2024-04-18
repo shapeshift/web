@@ -61,7 +61,9 @@
     "somethingWentWrong": "Il y a eu un problème",
     "somethingWentWrongBody": "Il y a eu un problème",
     "accountError": "Temporairement impossible de récupérer les données pour les chaînes suivantes :",
+    "accountTxHistoryError": "Temporairement incapable de récupérer l'historique des transactions pour les comptes suivants :",
     "degradedState": "L'app est dans un état dégradé",
+    "degradedTransactionHistory": "Historique des transactions dégradé",
     "degradedInfo": "Impossible de récupérer les données de certains comptes.",
     "success": "Succès",
     "retry": "Réessayer",
@@ -136,6 +138,7 @@
     "staged": "Aménagé",
     "poolHalted": "Pool arrêté",
     "poolDisabled": "Pool désactivé",
+    "prices": "Prix",
     "symmetric": "Symétrique",
     "asymmetric": "Asymétrique (%{assetSymbol})",
     "carousel": {
@@ -2242,6 +2245,17 @@
     "featureFee": "Frais %{feature}",
     "totalFeatureFee": "Total Frais %{feature}"
   },
+  "chart": {
+    "interval": {
+      "5min": "Cinq dernières minutes",
+      "hour": "Dernière heure",
+      "day": "Dernier jour",
+      "week": "Dernière semaine",
+      "month": "Dernier mois",
+      "year": "Dernière année",
+      "all": "Tout"
+    }
+  },
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
@@ -2263,6 +2277,7 @@
     "initialPricesAndPoolShare": "Prix ​​initiaux et part du pool",
     "pricePerAsset": "%{from} par %{to}",
     "symAlert": "Votre %{from} sera divisé en une exposition 50:50 à %{to} et %{from} dès votre entrée dans le pool.",
+    "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
     "unsupportedNetworkExplainer": "Votre porte-monnaie ne prend pas en charge %{network}. Veuillez passer à un porte-monnaie prenant en charge ce réseau.",
@@ -2314,6 +2329,13 @@
         "title": "Risques et considérations",
         "body": "Bien que les pools de liquidités offrent des opportunités de gains, il est important d'être conscient des risques impliqués, notamment des pertes impermanentes, des vulnérabilités des contrats intelligents et de la volatilité du marché. Les utilisateurs doivent effectuer des recherches approfondies avant de participer."
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "Commencez à créer votre liste de suivi",
+      "body": "Vous pouvez utiliser l'icône étoile partout où vous la voyez afin d'ajouter des actifs ici.",
+      "cta": "Explorez plus d'actifs"
     }
   }
 }

@@ -51,12 +51,13 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
-import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
-import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
-  estimateRemoveThorchainLiquidityPosition,
+  fromThorBaseUnit,
+  getThorchainFromAddress,
   getThorchainTransactionType,
-} from 'lib/utils/thorchain/lp'
+} from 'lib/utils/thorchain'
+import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import { estimateRemoveThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'

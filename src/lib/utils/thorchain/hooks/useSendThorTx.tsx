@@ -29,7 +29,6 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
-import { getThorchainTransactionType } from 'lib/utils/thorchain/lp'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -41,6 +40,8 @@ import {
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+
+import { getThorchainTransactionType } from '..'
 
 type Action =
   | 'swap'
@@ -223,17 +224,18 @@ export const useSendThorTx = ({
     thorfiAction,
   ])
 
-  const { data: estimatedFeesData } = useGetEstimatedFeesQuery({
-    amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
-    assetId: estimateFeesArgs?.assetId ?? '',
-    to: estimateFeesArgs?.to ?? '',
-    sendMax: estimateFeesArgs?.sendMax ?? false,
-    memo: estimateFeesArgs?.memo ?? '',
-    accountId: estimateFeesArgs?.accountId ?? '',
-    contractAddress: estimateFeesArgs?.contractAddress ?? '',
-    enabled: Boolean(estimateFeesArgs),
-    disableRefetch: Boolean(txId || isSubmitting),
-  })
+  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
+    useGetEstimatedFeesQuery({
+      amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
+      assetId: estimateFeesArgs?.assetId ?? '',
+      to: estimateFeesArgs?.to ?? '',
+      sendMax: estimateFeesArgs?.sendMax ?? false,
+      memo: estimateFeesArgs?.memo ?? '',
+      accountId: estimateFeesArgs?.accountId ?? '',
+      contractAddress: estimateFeesArgs?.contractAddress ?? '',
+      enabled: Boolean(estimateFeesArgs),
+      disableRefetch: Boolean(txId || isSubmitting),
+    })
 
   const onSignTx = useCallback(async () => {
     if (
@@ -470,5 +472,5 @@ export const useSendThorTx = ({
     txId,
   ])
 
-  return { onSignTx, estimatedFeesData, txId, serializedTxIndex }
+  return { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading, txId, serializedTxIndex }
 }

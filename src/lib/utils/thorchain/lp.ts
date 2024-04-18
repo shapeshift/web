@@ -1,6 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { type AssetId, cosmosChainId, thorchainChainId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { type AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type { BN } from 'lib/bignumber/bignumber'
@@ -8,9 +6,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
-import { getSupportedEvmChainIds } from '../evm'
 import { fromThorBaseUnit } from '.'
 import { THOR_PRECISION } from './constants'
 import type {
@@ -223,23 +219,4 @@ export const calculateEarnings = (
   const runeEarningsCryptoPrecision = runeFees.plus(runeBlockRewards).toFixed()
 
   return { totalEarningsFiat, assetEarningsCryptoPrecision, runeEarningsCryptoPrecision }
-}
-
-// A THOR LP deposit can either be:
-// - a RUNE MsgDeposit message type
-// - an EVM custom Tx, i.e., a Tx with calldata
-// - a regular send with a memo (for ATOM and UTXOs)
-export const getThorchainTransactionType = (chainId: ChainId) => {
-  const isRuneTx = chainId === thorchainChainId
-  if (isRuneTx) return 'MsgDeposit'
-
-  const supportedEvmChainIds = getSupportedEvmChainIds()
-  if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
-    return 'EvmCustomTx'
-  }
-  if (isUtxoChainId(chainId) || chainId === cosmosChainId) {
-    return 'Send'
-  }
-
-  throw new Error(`Unsupported ChainId ${chainId}`)
 }

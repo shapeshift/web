@@ -230,7 +230,7 @@ export const getAccountAddresses = memoize(
     (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
 
-// A THOR LP deposit can either be:
+// A THOR Tx can either be:
 // - a RUNE MsgDeposit message type
 // - an EVM custom Tx, i.e., a Tx with calldata
 // - a regular send with a memo (for ATOM and UTXOs)

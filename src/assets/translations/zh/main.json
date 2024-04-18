@@ -61,7 +61,9 @@
     "somethingWentWrong": "出了点问题",
     "somethingWentWrongBody": "出了点问题",
     "accountError": "暂时无法获取以下链上的数据：",
+    "accountTxHistoryError": "暂时无法获取以下帐户的交易历史记录：",
     "degradedState": "该应用程序处于降级状态",
+    "degradedTransactionHistory": "交易历史记录已降级",
     "degradedInfo": "无法获取某些帐户的数据。",
     "success": "成功",
     "retry": "重试",
@@ -136,6 +138,7 @@
     "staged": "进行的",
     "poolHalted": "已暂停的池",
     "poolDisabled": "池已禁用",
+    "prices": "价格",
     "symmetric": "对称",
     "asymmetric": "不对称 (%{assetSymbol})",
     "carousel": {
@@ -2242,6 +2245,17 @@
     "featureFee": "%{feature} 费用",
     "totalFeatureFee": "总费用%{feature}"
   },
+  "chart": {
+    "interval": {
+      "5min": "过去五分钟",
+      "hour": "过去一小时",
+      "day": "过去一天",
+      "week": "上周",
+      "month": "上个月",
+      "year": "去年",
+      "all": "所有时间"
+    }
+  },
   "pools": {
     "pools": "池",
     "pool": "池",
@@ -2263,6 +2277,7 @@
     "initialPricesAndPoolShare": "初始价格和池份额",
     "pricePerAsset": "%{from} 每 %{to}",
     "symAlert": "进入池后，你的 %{from} 将按照 50:50 的比例分为 %{to} 和 %{from}。",
+    "symAfterRuneAlert": "由于 THOR 网络的工作方式，非对称 RUNE 存款之后无法进行对称存款。",
     "incompletePositionDepositAlert": "此仓位尚未完成，请存入相应数量的 %{asset} 来完成此仓位。",
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
     "unsupportedNetworkExplainer": "你的钱包不支持 %{network} 。请切换到支持该网络的钱包。",
@@ -2314,6 +2329,13 @@
         "title": "风险和注意事项",
         "body": "虽然流动性池提供了盈利机会，但重要的是要意识到所涉及的风险，包括无常损失、智能合约漏洞和市场波动。用户在参与之前应进行彻底的研究。"
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "开始建立您的关注列表",
+      "body": "无论您在何处看到星形图标，您都可以使用它在这里添加资产。",
+      "cta": "探索更多资产"
     }
   }
 }

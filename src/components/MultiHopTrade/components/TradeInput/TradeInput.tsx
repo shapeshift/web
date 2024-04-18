@@ -58,7 +58,6 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
-  selectAccountIdsByChainId,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
@@ -576,12 +575,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     return message
   })()
 
-  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
-
   return (
     <TradeSlideTransition>
       <ImportAccountsDrawer
-        accountIds={accountIdsByChainId[KnownChainIds.EthereumMainnet] ?? []}
+        chainId={KnownChainIds.EthereumMainnet}
         toggleAccountId={() => {}}
         isOpen
         onClose={() => {}}

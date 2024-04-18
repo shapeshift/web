@@ -15,7 +15,9 @@ import {
   Tooltip,
   Tr,
 } from '@chakra-ui/react'
-import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { type AccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -23,6 +25,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAccountIdsByChainId,
   selectAccountNumberByAccountId,
   selectFeeAssetByChainId,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -30,7 +33,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 export type ImportAccountsDrawerProps = {
-  accountIds: AccountId[]
+  chainId: ChainId
   isOpen: boolean
   onClose: () => void
   toggleAccountId: (accountId: AccountId) => void
@@ -39,10 +42,11 @@ export type ImportAccountsDrawerProps = {
 
 type TableRowProps = {
   accountId: AccountId
+  feeAsset: Asset
   toggleAccountId: (accountId: AccountId) => void
 }
 
-const TableRow = ({ accountId, toggleAccountId }: TableRowProps) => {
+const TableRow = ({ feeAsset, accountId, toggleAccountId }: TableRowProps) => {
   const translate = useTranslate()
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
@@ -50,11 +54,8 @@ const TableRow = ({ accountId, toggleAccountId }: TableRowProps) => {
   )
   const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
   const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-  const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
-  console.log({ chainId, feeAsset })
   const balanceFilter = useMemo(
-    () => ({ assetId: feeAsset?.assetId, accountId }),
+    () => ({ assetId: feeAsset.assetId, accountId }),
     [feeAsset, accountId],
   )
   const feeAssetBalancePrecision = useAppSelector(s =>
@@ -81,14 +82,26 @@ const TableRow = ({ accountId, toggleAccountId }: TableRowProps) => {
 }
 
 export const ImportAccountsDrawer = ({
-  accountIds,
+  chainId,
   isOpen,
   onClose,
   toggleAccountId,
   finalFocusRef,
 }: ImportAccountsDrawerProps) => {
   const translate = useTranslate()
-  const chainNamespaceDisplayName = 'Ethereum' // TODO: make this dynamic
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const accountIds = useMemo(
+    () => accountIdsByChainId[chainId] ?? [],
+    [accountIdsByChainId, chainId],
+  )
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const chainNamespaceDisplayName = feeAsset?.networkName ?? ''
+
+  if (!feeAsset) {
+    console.error(`No fee asset found for chainId: ${chainId}`)
+    return null
+  }
+
   return (
     <Drawer
       isOpen={isOpen}
@@ -119,6 +132,7 @@ export const ImportAccountsDrawer = ({
                   <TableRow
                     key={accountId}
                     accountId={accountId}
+                    feeAsset={feeAsset}
                     toggleAccountId={toggleAccountId}
                   />
                 ))}

@@ -61,7 +61,9 @@
     "somethingWentWrong": "Algo salió mal",
     "somethingWentWrongBody": "Algo salió mal",
     "accountError": "Temporalmente no se puede obtener datos para las cadenas:",
+    "accountTxHistoryError": "Temporalmente no se puede recuperar historial transaccional de cuentas:",
     "degradedState": "La aplicación está en un estado degradado",
+    "degradedTransactionHistory": "Historial transaccional degradado",
     "degradedInfo": "No se pueden obtener los datos de algunas cuentas.",
     "success": "Éxito",
     "retry": "Reintentar",
@@ -136,6 +138,7 @@
     "staged": "Staged",
     "poolHalted": "Pool Detenida",
     "poolDisabled": "Pool Deshabilitado",
+    "prices": "Precios",
     "symmetric": "Simétrico",
     "asymmetric": "Asimétrico (%{assetSymbol})",
     "carousel": {
@@ -2242,6 +2245,17 @@
     "featureFee": "%{feature} Tarifa",
     "totalFeatureFee": "Tarifa %{feature} total"
   },
+  "chart": {
+    "interval": {
+      "5min": "Pasados cinco minutos",
+      "hour": "Hora pasada",
+      "day": "Dia pasado",
+      "week": "Semana pasada",
+      "month": "Mes pasado",
+      "year": "Año pasado",
+      "all": "Todo el tiempo"
+    }
+  },
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
@@ -2263,6 +2277,7 @@
     "initialPricesAndPoolShare": "Precios iniciales y participación en el pool",
     "pricePerAsset": "%{from} por %{to}",
     "symAlert": "Su %{from} se dividirá en exposición 50:50 para %{to} y %{from} al ingresar al grupo.",
+    "symAfterRuneAlert": "Depósitos simétricos no son posibles después de depósito RUNE asimétrico debido a como funciona la red THOR.",
     "incompletePositionDepositAlert": "Posición incompleta, deposite la cantidad correspondiente de %{asset} para finalizar esta posición.",
     "incompletePositionWithdrawAlert": "Posición incompleta, cancele la posición eliminando el 100% de la liquidez. También puede finalizar la posición a través de \"Agregar liquidez\".",
     "unsupportedNetworkExplainer": "Su billetera no es compatible con %{network}. Por favor cambie a una billetera que admita esta red.",
@@ -2314,6 +2329,13 @@
         "title": "Riesgos y Consideraciones",
         "body": "Si bien los fondos de liquidez ofrecen oportunidades de ganancias, es importante ser consciente de riesgos, como pérdidas no permanentes, vulnerabilidad de contratos inteligentes y volatilidad de mercado. Debe realizar una investigación exhaustiva antes."
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "Comience a crear su lista de seguimiento",
+      "body": "El ícono de estrella puede usarse para agregar recursos aquí.",
+      "cta": "Explora más activos"
     }
   }
 }

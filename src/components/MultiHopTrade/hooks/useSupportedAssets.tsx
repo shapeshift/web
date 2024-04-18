@@ -1,4 +1,4 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { knownChainIds } from 'constants/chains'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -18,7 +18,7 @@ export const useSupportedAssets = () => {
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const queryParams = useMemo(() => {
     return {
-      walletSupportedChainIds: Object.values(KnownChainIds).filter(chainId => {
+      walletSupportedChainIds: knownChainIds.filter(chainId => {
         const chainAccountIds = accountIdsByChainId[chainId] ?? []
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       }),

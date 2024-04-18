@@ -45,6 +45,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -185,6 +186,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [poolAssetTxFeeCryptoBaseUnit, setPoolAssetTxFeeCryptoBaseUnit] = useState<
     string | undefined
   >()
+  const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   // Virtual as in, these are the amounts if depositing symetrically. But a user may deposit asymetrically, so these are not the *actual* amounts
   // Keeping these as virtual amounts is useful from a UI perspective, as it allows rebalancing to automagically work when switching from sym. type,
@@ -199,17 +201,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     useState<string | undefined>()
 
   const [slippageDecimalPercentage, setSlippageDecimalPercentage] = useState<string | undefined>()
-  const [isUnsafeQuoteNoticeDismissed, setIsUnsafeQuoteNoticeDismissed] = useState<boolean | null>(
-    null,
-  )
-
-  const handleAcknowledgeUnsafeQuote = useCallback(() => {
-    // We don't want to *immediately* set this or there will be a "click-through"
-    // i.e the regular continue button will render immediately, and click will bubble to it
-    setTimeout(() => {
-      setIsUnsafeQuoteNoticeDismissed(true)
-    }, 100)
-  }, [])
 
   const isUnsafeQuote = useMemo(
     () =>
@@ -217,10 +208,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       bn(slippageDecimalPercentage).gt(UNSAFE_SLIPPAGE_DECIMAL_PERCENT),
     [slippageDecimalPercentage],
   )
-
-  useEffect(() => {
-    if (isUnsafeQuote) setIsUnsafeQuoteNoticeDismissed(false)
-  }, [isUnsafeQuote])
 
   const { data: pools } = usePools()
   const assets = useAppSelector(selectAssets)
@@ -1515,116 +1502,110 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     virtualRuneDepositAmountFiatUserCurrency,
   ])
 
+  const handleDepositSubmit = useCallback(() => {
+    return isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : handleSubmit()
+  }, [handleSubmit, isUnsafeQuote])
+
   if (!poolAsset || !runeAsset) return null
 
   return (
     <SlideTransition>
-      {renderHeader}
-      <Stack divider={divider} spacing={4} pb={4}>
-        {pairSelect}
-        <Stack>
-          <FormLabel mb={0} px={6} fontSize='sm'>
-            {translate('pools.depositAmounts')}
-          </FormLabel>
-          {!opportunityId && (
-            <LpType
-              assetId={poolAsset.assetId}
-              opportunityId={activeOpportunityId}
-              onAsymSideChange={handleAsymSideChange}
-            />
-          )}
-          {tradeAssetInputs}
+      <WarningAcknowledgement
+        message={translate('warningAcknowledgement.highSlippageDeposit', {
+          slippagePercentage: bnOrZero(slippageDecimalPercentage).times(100).toFixed(2).toString(),
+        })}
+        onAcknowledge={handleSubmit}
+        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+      >
+        {renderHeader}
+        <Stack divider={divider} spacing={4} pb={4}>
+          {pairSelect}
+          <Stack>
+            <FormLabel mb={0} px={6} fontSize='sm'>
+              {translate('pools.depositAmounts')}
+            </FormLabel>
+            {!opportunityId && (
+              <LpType
+                assetId={poolAsset.assetId}
+                opportunityId={activeOpportunityId}
+                onAsymSideChange={handleAsymSideChange}
+              />
+            )}
+            {tradeAssetInputs}
+          </Stack>
         </Stack>
-      </Stack>
-      <Collapse in={hasUserEnteredValue}>
-        <PoolSummary
-          assetId={poolAsset.assetId}
-          runePerAsset={runePerAsset}
-          shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
-          isLoading={isSlippageLoading}
-        />
+        <Collapse in={hasUserEnteredValue}>
+          <PoolSummary
+            assetId={poolAsset.assetId}
+            runePerAsset={runePerAsset}
+            shareOfPoolDecimalPercent={shareOfPoolDecimalPercent}
+            isLoading={isSlippageLoading}
+          />
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            py={4}
+            bg='background.surface.raised.accent'
+          >
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={!isSlippageLoading}>
+                  <Amount.Fiat value={slippageFiatUserCurrency ?? ''} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.gasFee')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={Boolean(confirmedQuote)}>
+                  <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium' isLoading={Boolean(!confirmedQuote)}>
+              <Row.Label display='flex'>
+                <Text translation={shapeshiftFeeTranslation} />
+                {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
+                  <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
+                )}
+              </Row.Label>
+              <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+                <Flex alignItems='center' gap={2}>
+                  {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
+                    <>
+                      <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
+                      <QuestionIcon />
+                    </>
+                  ) : (
+                    <>
+                      <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
+                      <QuestionIcon color={greenColor} />
+                    </>
+                  )}
+                </Flex>
+              </Row.Value>
+            </Row>
+          </CardFooter>
+        </Collapse>
         <CardFooter
           borderTopWidth={1}
           borderColor='border.subtle'
           flexDir='column'
           gap={4}
           px={6}
-          py={4}
           bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
         >
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!isSlippageLoading}>
-                <Amount.Fiat value={slippageFiatUserCurrency ?? ''} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium'>
-            <Row.Label>{translate('common.gasFee')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={Boolean(confirmedQuote)}>
-                <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row fontSize='sm' fontWeight='medium' isLoading={Boolean(!confirmedQuote)}>
-            <Row.Label display='flex'>
-              <Text translation={shapeshiftFeeTranslation} />
-              {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) && (
-                <RawText>{`(${confirmedQuote?.feeBps ?? 0} bps)`}</RawText>
-              )}
-            </Row.Label>
-            <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
-              <Flex alignItems='center' gap={2}>
-                {bnOrZero(confirmedQuote?.feeAmountFiatUserCurrency).gt(0) ? (
-                  <>
-                    <Amount.Fiat value={confirmedQuote?.feeAmountFiatUserCurrency ?? 0} />
-                    <QuestionIcon />
-                  </>
-                ) : (
-                  <>
-                    <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                    <QuestionIcon color={greenColor} />
-                  </>
-                )}
-              </Flex>
-            </Row.Value>
-          </Row>
-        </CardFooter>
-      </Collapse>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        bg='background.surface.raised.accent'
-        borderBottomRadius='xl'
-      >
-        {incompleteAlert}
-        {maybeOpportunityNotSupportedExplainer}
-        {maybeAlert}
-        {maybeSymAfterRuneAlert}
-        {isUnsafeQuote && !isUnsafeQuoteNoticeDismissed ? (
-          <>
-            <Flex direction='column' gap={2}>
-              <Alert status='error' width='auto' fontSize='sm' variant='solid'>
-                <AlertIcon color='red' />
-                <Stack spacing={0}>
-                  <AlertDescription lineHeight='short'>
-                    {translate('pools.unsafeQuote', {
-                      slippagePercentage: bnOrZero(slippageDecimalPercentage).times(100).toFixed(2),
-                    })}
-                  </AlertDescription>
-                </Stack>
-              </Alert>
-            </Flex>
-            <Button size='lg' colorScheme='red' onClick={handleAcknowledgeUnsafeQuote}>
-              <Text translation={'defi.modals.saversVaults.understand'} />
-            </Button>
-          </>
-        ) : (
+          {incompleteAlert}
+          {maybeOpportunityNotSupportedExplainer}
+          {maybeAlert}
+          {maybeSymAfterRuneAlert}
+
           <Button
             mx={-2}
             size='lg'
@@ -1662,18 +1643,18 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isInboundAddressesDataLoading ||
               (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
             }
-            onClick={handleSubmit}
+            onClick={handleDepositSubmit}
           >
             {confirmCopy}
           </Button>
-        )}
-      </CardFooter>
-      <FeeModal
-        isOpen={showFeeModal}
-        onClose={toggleFeeModal}
-        inputAmountUsd={confirmedQuote?.totalAmountUsd}
-        feeModel='THORCHAIN_LP'
-      />
+        </CardFooter>
+        <FeeModal
+          isOpen={showFeeModal}
+          onClose={toggleFeeModal}
+          inputAmountUsd={confirmedQuote?.totalAmountUsd}
+          feeModel='THORCHAIN_LP'
+        />
+      </WarningAcknowledgement>
     </SlideTransition>
   )
 }

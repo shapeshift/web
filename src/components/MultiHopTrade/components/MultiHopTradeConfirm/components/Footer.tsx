@@ -9,39 +9,34 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo } from 'react'
+import type { FC } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectActiveQuote,
   selectActiveSwapperName,
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-export const Footer = () => {
+type FooterProps = {
+  handleSubmit: () => void
+}
+
+export const Footer: FC<FooterProps> = ({ handleSubmit }) => {
   const translate = useTranslate()
-  const dispatch = useAppDispatch()
   const swapperName = useAppSelector(selectActiveSwapperName)
-  const activeQuote = useAppSelector(selectActiveQuote)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const tradeExecutionState = useAppSelector(selectTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
-  const { isModeratePriceImpact } = usePriceImpact(activeQuote)
-
-  const handleConfirm = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.confirmTrade())
-  }, [dispatch])
 
   const networkFeeToTradeRatioPercentage = useMemo(
     () =>
@@ -140,13 +135,13 @@ export const Footer = () => {
         </Alert>
       )}
       <Button
-        colorScheme={isModeratePriceImpact ? 'red' : 'blue'}
+        colorScheme={'blue'}
         size='lg'
         width='full'
-        onClick={handleConfirm}
+        onClick={handleSubmit}
         isLoading={isLoading}
       >
-        <Text translation={isModeratePriceImpact ? 'trade.tradeAnyway' : 'trade.confirmAndTrade'} />
+        <Text translation={'trade.confirmAndTrade'} />
       </Button>
     </CardFooter>
   ) : null

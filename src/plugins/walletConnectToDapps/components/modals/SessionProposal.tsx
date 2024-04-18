@@ -2,9 +2,10 @@ import { Alert, AlertIcon, AlertTitle, Button, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
+import { knownChainIds } from 'constants/chains'
 import { mergeWith } from 'lodash'
 import { DAppInfo } from 'plugins/walletConnectToDapps/components/DAppInfo'
 import { ModalSection } from 'plugins/walletConnectToDapps/components/modals/ModalSection'
@@ -160,7 +161,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               const chainAccountIds = accountIdsByChainId[chainId] ?? []
               const isRequired = requiredNamespaces[key]?.chains?.includes(chainId)
               const isSupported =
-                Object.values(KnownChainIds).includes(chainId as KnownChainIds) &&
+                knownChainIds.includes(chainId as KnownChainIds) &&
                 walletSupportsChain({ chainId, wallet, isSnapInstalled: false, chainAccountIds })
               return !isRequired && isSupported
             })

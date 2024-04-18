@@ -55,7 +55,7 @@ import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
   estimateRemoveThorchainLiquidityPosition,
-  getThorchainLpTransactionType,
+  getThorchainTransactionType,
 } from 'lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
@@ -514,7 +514,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const poolAssetInboundAddress = useMemo(() => {
     if (!poolAsset) return
 
-    const transactionType = getThorchainLpTransactionType(poolAsset.chainId)
+    const transactionType = getThorchainTransactionType(poolAsset.chainId)
 
     switch (transactionType) {
       case 'MsgDeposit':

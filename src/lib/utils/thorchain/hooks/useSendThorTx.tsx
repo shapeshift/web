@@ -29,7 +29,7 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
-import { getThorchainLpTransactionType } from 'lib/utils/thorchain/lp'
+import { getThorchainTransactionType } from 'lib/utils/thorchain/lp'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -60,6 +60,7 @@ type UseSendThorTxProps = {
   thorfiAction: Action
   // Indicates whether the consumer is currently submitting, meaning we should stop refetching
   isSubmitting?: boolean
+  onSend?: (txId: string) => void
 }
 
 export const useSendThorTx = ({
@@ -70,6 +71,7 @@ export const useSendThorTx = ({
   fromAddress,
   thorfiAction,
   isSubmitting = false,
+  onSend,
 }: UseSendThorTxProps) => {
   // TODO(gomes): savers sometimes also use dust amounts, ensure this works for them
   const shouldUseDustAmount = thorfiAction === 'withdrawLiquidity'
@@ -85,7 +87,7 @@ export const useSendThorTx = ({
   )
 
   const transactionType = useMemo(
-    () => (asset ? getThorchainLpTransactionType(asset.chainId) : undefined),
+    () => (asset ? getThorchainTransactionType(asset.chainId) : undefined),
     [asset],
   )
 
@@ -301,6 +303,7 @@ export const useSendThorTx = ({
             position: 'top-right',
           })
 
+          onSend?.(_txId)
           setTxId(_txId)
           setSerializedTxIndex(
             serializeTxIndex(accountId, _txId, account, { memo, parser: 'thorchain' }),
@@ -378,6 +381,7 @@ export const useSendThorTx = ({
             position: 'top-right',
           })
 
+          onSend?.(_txId)
           setTxId(_txId)
           setSerializedTxIndex(serializeTxIndex(accountId, _txId, fromAddress!))
 
@@ -408,7 +412,7 @@ export const useSendThorTx = ({
             input: '',
           }
 
-          const txId = await handleSend({
+          const _txId = await handleSend({
             sendInput,
             wallet,
           })
@@ -432,8 +436,9 @@ export const useSendThorTx = ({
             position: 'top-right',
           })
 
-          setTxId(txId)
-          setSerializedTxIndex(serializeTxIndex(accountId, txId, fromAccountId(accountId).account))
+          onSend?.(_txId)
+          setTxId(_txId)
+          setSerializedTxIndex(serializeTxIndex(accountId, _txId, fromAccountId(accountId).account))
 
           break
         }
@@ -444,23 +449,25 @@ export const useSendThorTx = ({
   }, [
     asset,
     wallet,
-    inboundAddressData,
     accountNumber,
     dustAmountCryptoBaseUnit,
     amountCryptoBaseUnit,
-    accountId,
     transactionType,
+    inboundAddressData,
+    accountId,
     estimateFeesArgs,
-    shouldUseDustAmount,
     memo,
+    shouldUseDustAmount,
     toast,
     translate,
+    onSend,
     fromAddress,
     assetId,
     thorfiAction,
     dustAmountCryptoPrecision,
     amountCryptoPrecision,
     selectedCurrency,
+    txId,
   ])
 
   return { onSignTx, estimatedFeesData, txId, serializedTxIndex }

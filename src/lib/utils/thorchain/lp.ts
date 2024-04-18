@@ -229,7 +229,7 @@ export const calculateEarnings = (
 // - a RUNE MsgDeposit message type
 // - an EVM custom Tx, i.e., a Tx with calldata
 // - a regular send with a memo (for ATOM and UTXOs)
-export const getThorchainLpTransactionType = (chainId: ChainId) => {
+export const getThorchainTransactionType = (chainId: ChainId) => {
   const isRuneTx = chainId === thorchainChainId
   if (isRuneTx) return 'MsgDeposit'
 

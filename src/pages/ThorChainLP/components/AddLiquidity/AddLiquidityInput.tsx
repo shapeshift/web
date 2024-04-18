@@ -70,7 +70,7 @@ import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import {
   estimateAddThorchainLiquidityPosition,
-  getThorchainLpTransactionType,
+  getThorchainTransactionType,
 } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
@@ -610,7 +610,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const poolAssetInboundAddress = useMemo(() => {
     if (!poolAsset) return
-    const transactionType = getThorchainLpTransactionType(poolAsset.chainId)
+    const transactionType = getThorchainTransactionType(poolAsset.chainId)
 
     switch (transactionType) {
       case 'MsgDeposit': {
@@ -656,7 +656,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       poolAsset.precision,
     )
 
-    const transactionType = getThorchainLpTransactionType(poolAsset.chainId)
+    const transactionType = getThorchainTransactionType(poolAsset.chainId)
 
     switch (transactionType) {
       case 'EvmCustomTx': {

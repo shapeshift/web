@@ -252,7 +252,7 @@ export const BorrowConfirm = ({
       : confirmedQuote.quoteMemo
   }, [collateralAssetId, confirmedQuote])
 
-  const { onSignTx, estimatedFeesData } = useSendThorTx({
+  const { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
     amountCryptoBaseUnit: toBaseUnit(
@@ -483,7 +483,12 @@ export const BorrowConfirm = ({
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
                 <Skeleton
-                  isLoaded={estimatedFeesData && isLendingQuoteSuccess && !isLendingQuoteRefetching}
+                  isLoaded={
+                    !isEstimatedFeesDataLoading &&
+                    estimatedFeesData &&
+                    isLendingQuoteSuccess &&
+                    !isLendingQuoteRefetching
+                  }
                 >
                   {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
@@ -525,13 +530,13 @@ export const BorrowConfirm = ({
                     isLoanPending ||
                     isLendingQuoteRefetching ||
                     loanTxStatus === 'pending' ||
-                    !estimatedFeesData ||
+                    isEstimatedFeesDataLoading ||
                     !confirmedQuote
                   }
                   disabled={
                     loanTxStatus === 'pending' ||
                     isLoanPending ||
-                    !estimatedFeesData ||
+                    isEstimatedFeesDataLoading ||
                     !confirmedQuote
                   }
                 >

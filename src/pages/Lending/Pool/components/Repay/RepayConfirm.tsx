@@ -257,7 +257,7 @@ export const RepayConfirm = ({
       : confirmedQuote.quoteMemo
   }, [confirmedQuote, repaymentAsset])
 
-  const { onSignTx, estimatedFeesData } = useSendThorTx({
+  const { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
     accountId: repaymentAccountId,
     amountCryptoBaseUnit: toBaseUnit(
@@ -497,7 +497,7 @@ export const RepayConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={!!estimatedFeesData}>
+                <Skeleton isLoaded={!isEstimatedFeesDataLoading}>
                   {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                 </Skeleton>
@@ -535,7 +535,7 @@ export const RepayConfirm = ({
               <Box width='full'>
                 <Button
                   isLoading={
-                    !estimatedFeesData ||
+                    isEstimatedFeesDataLoading ||
                     isLendingQuoteCloseQueryRefetching ||
                     loanTxStatus === 'pending' ||
                     isLoanPending ||
@@ -545,7 +545,7 @@ export const RepayConfirm = ({
                     loanTxStatus === 'pending' ||
                     isLoanPending ||
                     isLendingQuoteCloseQueryRefetching ||
-                    !estimatedFeesData ||
+                    isEstimatedFeesDataLoading ||
                     isInboundAddressLoading ||
                     !confirmedQuote
                   }

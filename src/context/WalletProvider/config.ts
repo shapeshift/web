@@ -17,6 +17,7 @@ import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConn
 
 import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
+import { DemoMenu } from './DemoWallet/DemoMenu'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
@@ -411,6 +412,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
+    connectedMenuComponent: DemoMenu,
   },
   [KeyManager.Keplr]: {
     ...KeplrConfig,

@@ -14,23 +14,23 @@ export const NativeMenu = () => {
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
   const backupNativePassphrase = useModal('backupNativePassphrase')
-  // const accountManagementPopover = useModal('accountManagementPopover') // FIXME: uncomment once modal added
+  const accountManagementPopover = useModal('backupNativePassphrase') // FIXME: use accountManagementPopover once ready
 
-  const onBackupMenuItemClick = useCallback(
+  const handleBackupMenuItemClick = useCallback(
     () => backupNativePassphrase.open({}),
     [backupNativePassphrase],
   )
 
-  const onManageAccountsMenuItemClick = useCallback(
-    () => backupNativePassphrase.open({}),
-    [backupNativePassphrase],
+  const handleManageAccountsMenuItemClick = useCallback(
+    () => accountManagementPopover.open({}),
+    [accountManagementPopover],
   )
 
   return (
     <>
       <MenuDivider />
       {isAccountManagementEnabled && (
-        <MenuItem icon={editIcon} onClick={onManageAccountsMenuItemClick}>
+        <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
           {translate('manageAccounts.menuTitle')}
         </MenuItem>
       )}
@@ -39,7 +39,7 @@ export const NativeMenu = () => {
         variant='ghost'
         justifyContent='space-between'
         rightIcon={chevronRightIcon}
-        onClick={onBackupMenuItemClick}
+        onClick={handleBackupMenuItemClick}
       >
         <Text translation='modals.shapeShift.backupPassphrase.menuItem' />
       </MenuItem>

@@ -171,9 +171,7 @@ export const useSendThorTx = ({
           // For tokens, the native asset value is usually 0 (no native asset being sent, we let the contract to trigger a token transfer)
           // though non-EVM LP withdrawals are regular sends with value, since they require a dust amount to be sent to the contract
           amountCryptoPrecision:
-            // TODO(gomes): this may not be applicable to other domains - verify the validity of this for others and adapt accordingly
-            isToken(fromAssetId(assetId).assetReference) &&
-            ['addLiquidity', 'repayLoan', 'depositSavers', 'withdrawSavers'].includes(thorfiAction)
+            isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'withdrawLiquidity'
               ? '0'
               : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
           // Withdrawals do NOT occur a dust send to the contract address.

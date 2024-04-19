@@ -149,7 +149,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
 
       const _quote = maybeQuote.unwrap()
-      setQuote(quote)
+      setQuote(_quote)
 
       const {
         expected_amount_deposit: expectedAmountOutThorBaseUnit,
@@ -243,7 +243,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
 
   useEffect(() => {
-    if (!(accountId && chainAdapter && wallet && bip44Params && accountType)) return
+    if (!(accountId && chainAdapter && wallet && bip44Params)) return
     ;(async () => {
       const accountAddress = await getThorchainFromAddress({
         accountId,

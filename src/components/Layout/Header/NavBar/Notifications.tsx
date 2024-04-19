@@ -89,7 +89,8 @@ export const Notifications = memo(() => {
   )
 
   useEffect(() => {
-    if (!(wallet && walletSupportsEth)) return
+    if (!(wallet && walletSupportsEth && eip712SupportedWallets.includes(modalType as KeyManager)))
+      return
     ;(async () => {
       const { addressNList } = (wallet as ETHWallet).ethGetAccountPaths({
         coin: 'Ethereum',
@@ -104,11 +105,16 @@ export const Notifications = memo(() => {
       setEthAddress(ethAddress)
       setAddressNList(addressNList)
     })()
-  }, [wallet, walletSupportsEth])
+  }, [modalType, wallet, walletSupportsEth])
 
   const signMessage = useCallback(
     async (message: string) => {
-      if (!addressNList || !wallet || !walletSupportsEth) {
+      if (
+        !addressNList ||
+        !wallet ||
+        !walletSupportsEth ||
+        !eip712SupportedWallets.includes(modalType as KeyManager)
+      ) {
         return
       }
 
@@ -123,12 +129,17 @@ export const Notifications = memo(() => {
         console.error(e)
       }
     },
-    [addressNList, wallet, walletSupportsEth],
+    [addressNList, modalType, wallet, walletSupportsEth],
   )
 
   const signTypedData = useCallback(
     async (typedData: ETHSignTypedData['typedData']) => {
-      if (!addressNList || !wallet || !walletSupportsEth) {
+      if (
+        !addressNList ||
+        !wallet ||
+        !walletSupportsEth ||
+        !eip712SupportedWallets.includes(modalType as KeyManager)
+      ) {
         return
       }
 
@@ -143,7 +154,7 @@ export const Notifications = memo(() => {
         console.error(e)
       }
     },
-    [addressNList, wallet, walletSupportsEth],
+    [addressNList, modalType, wallet, walletSupportsEth],
   )
 
   const customSignerProp = useMemo(

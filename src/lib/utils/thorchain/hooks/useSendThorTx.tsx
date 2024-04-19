@@ -157,7 +157,7 @@ export const useSendThorTx = ({
               : // THOR LP Native EVM asset deposits and THOR LP withdrawals (tokens/native assets) use the 0 address as the asset address
                 // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                 zeroAddress,
-          amount: amountCryptoBaseUnit,
+          amount: thorfiAction === 'withdrawSavers' ? '0' : amountCryptoBaseUnit,
           memo,
           expiry: BigInt(dayjs().add(15, 'minute').unix()),
         })
@@ -311,6 +311,7 @@ export const useSendThorTx = ({
           if (!inboundAddressData?.address) throw new Error('No vault address found')
           if (!inboundAddressData?.router) throw new Error('No router address found')
           if (accountNumber === undefined) throw new Error('No account number found')
+          if (!amountCryptoBaseUnit) throw new Error('Amount is required')
           if (!memo) return undefined
 
           const amountOrDustCryptoBaseUnit = shouldUseDustAmount
@@ -330,7 +331,7 @@ export const useSendThorTx = ({
                 : // Native EVM asset deposits and withdrawals (tokens/native assets) use the 0 address as the asset address
                   // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                   zeroAddress,
-            amount: amountOrDustCryptoBaseUnit,
+            amount: thorfiAction === 'withdrawSavers' ? '0' : amountCryptoBaseUnit,
             memo,
             expiry: BigInt(dayjs().add(15, 'minute').unix()),
           })

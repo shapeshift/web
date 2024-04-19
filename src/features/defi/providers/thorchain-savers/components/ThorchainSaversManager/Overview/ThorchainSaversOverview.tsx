@@ -272,7 +272,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         label: 'common.withdraw',
         icon: <ArrowDownIcon />,
         action: DefiAction.Withdraw,
-        isDisabled: hasPendingTxs || hasPendingQueries || isDisabledWithdrawals,
+        isDisabled: false,
         toolTip: (() => {
           if (isDisabledWithdrawals)
             return translate('defi.modals.saversVaults.disabledWithdrawTitle')

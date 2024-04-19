@@ -275,7 +275,6 @@ export const RepayConfirm = ({
     // Though THOR adapter explicitly requires it, and so does the EVM one for gas estimation
     fromAddress,
     thorfiAction: 'repayLoan',
-    onSend: setTxid,
   })
 
   const handleConfirm = useCallback(async () => {
@@ -319,7 +318,9 @@ export const RepayConfirm = ({
 
     mixpanel?.track(MixPanelEvent.RepayConfirm, eventData)
 
-    await onSignTx()
+    const _txId = await onSignTx()
+    if (!_txId) throw new Error('No txId returned from onSignTx')
+    setTxid(_txId)
   }, [
     chainAdapter,
     confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision,

@@ -262,7 +262,6 @@ export const BorrowConfirm = ({
     memo,
     fromAddress,
     thorfiAction: 'openLoan',
-    onSend: setTxid,
   })
 
   const handleConfirm = useCallback(async () => {
@@ -306,7 +305,9 @@ export const BorrowConfirm = ({
     if (!fromAddress)
       throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
 
-    await onSignTx()
+    const _txId = await onSignTx()
+    if (!_txId) throw new Error('No txId returned from onSignTx')
+    setTxid(_txId)
   }, [
     confirmedQuote,
     isQuoteExpired,

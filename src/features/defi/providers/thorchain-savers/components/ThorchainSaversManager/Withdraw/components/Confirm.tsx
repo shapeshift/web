@@ -281,54 +281,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return memoUtf8
   }, [quote?.memo])
 
-  const onSend = useCallback(
-    (txId: string) => {
-      if (
-        !(
-          contextDispatch &&
-          state?.withdraw.cryptoAmount &&
-          fromAddress &&
-          opportunity &&
-          opportunityData
-        )
-      )
-        return
-
-      contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_TXID, payload: txId })
-      contextDispatch({
-        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-        payload: {
-          dustAmountCryptoBaseUnit,
-          protocolFeeCryptoBaseUnit,
-          maybeFromUTXOAccountAddress: fromAddress,
-        },
-      })
-      onNext(DefiStep.Status)
-      trackOpportunityEvent(
-        MixPanelEvent.WithdrawConfirm,
-        {
-          opportunity: opportunityData,
-          fiatAmounts: [state.withdraw.fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
-        },
-        assets,
-      )
-    },
-    [
-      contextDispatch,
-      state?.withdraw.cryptoAmount,
-      state?.withdraw.fiatAmount,
-      fromAddress,
-      opportunity,
-      opportunityData,
-      dustAmountCryptoBaseUnit,
-      protocolFeeCryptoBaseUnit,
-      onNext,
-      assetId,
-      assets,
-    ],
-  )
-
   const { onSignTx, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
@@ -338,7 +290,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     thorfiAction: 'withdrawSavers',
     memo,
     fromAddress: fromAddress ?? null,
-    onSend,
   })
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
@@ -391,7 +342,28 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
-      await onSignTx()
+      const _txId = await onSignTx()
+      if (!_txId) throw new Error('No txId returned from onSignTx')
+
+      contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_TXID, payload: _txId })
+      contextDispatch({
+        type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+        payload: {
+          dustAmountCryptoBaseUnit,
+          protocolFeeCryptoBaseUnit,
+          maybeFromUTXOAccountAddress: fromAddress,
+        },
+      })
+      onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvent.WithdrawConfirm,
+        {
+          opportunity: opportunityData,
+          fiatAmounts: [state.withdraw.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+        },
+        assets,
+      )
     } catch (error) {
       console.error(error)
       toast({
@@ -418,12 +390,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     chainId,
     fromAddress,
     state?.withdraw.cryptoAmount,
+    state?.withdraw.fiatAmount,
     isTradingActive,
     refetchIsTradingActive,
     onSignTx,
+    dustAmountCryptoBaseUnit,
+    protocolFeeCryptoBaseUnit,
+    onNext,
+    assets,
     toast,
     translate,
-    onNext,
   ])
 
   const handleCancel = useCallback(() => {

@@ -194,41 +194,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return memoUtf8
   }, [quote?.memo])
 
-  const onSend = useCallback(
-    (txId: string) => {
-      if (!(contextDispatch && state?.deposit.cryptoAmount && fromAddress && opportunity)) return
-
-      contextDispatch({
-        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-        payload: {
-          protocolFeeCryptoBaseUnit,
-          maybeFromUTXOAccountAddress: fromAddress,
-        },
-      })
-      contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: txId })
-      onNext(DefiStep.Status)
-      trackOpportunityEvent(
-        MixPanelEvent.DepositConfirm,
-        {
-          opportunity,
-          fiatAmounts: [state.deposit.fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
-        },
-        assets,
-      )
-    },
-    [
-      contextDispatch,
-      state?.deposit.cryptoAmount,
-      state?.deposit.fiatAmount,
-      fromAddress,
-      opportunity,
-      protocolFeeCryptoBaseUnit,
-      onNext,
-      assetId,
-      assets,
-    ],
-  )
   const { onSignTx, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
@@ -238,7 +203,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     thorfiAction: 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,
-    onSend,
   })
 
   useEffect(() => {
@@ -295,7 +259,27 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
-      await onSignTx()
+      const _txId = await onSignTx()
+      if (!_txId) throw new Error('No txId returned from onSignTx')
+
+      contextDispatch({
+        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+        payload: {
+          protocolFeeCryptoBaseUnit,
+          maybeFromUTXOAccountAddress: fromAddress,
+        },
+      })
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_TXID, payload: _txId })
+      onNext(DefiStep.Status)
+      trackOpportunityEvent(
+        MixPanelEvent.DepositConfirm,
+        {
+          opportunity,
+          fiatAmounts: [state.deposit.fiatAmount],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
+        },
+        assets,
+      )
     } catch (error) {
       console.error(error)
       toast({
@@ -318,9 +302,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunity,
     chainAdapter,
     state?.deposit.cryptoAmount,
+    state?.deposit.fiatAmount,
     isTradingActive,
     refetchIsTradingActive,
     onSignTx,
+    protocolFeeCryptoBaseUnit,
+    onNext,
+    assets,
     toast,
     translate,
   ])

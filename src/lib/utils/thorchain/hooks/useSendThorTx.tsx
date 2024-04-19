@@ -61,7 +61,6 @@ type UseSendThorTxProps = {
   thorfiAction: Action
   // Indicates whether the consumer is currently submitting, meaning we should stop refetching
   isSubmitting?: boolean
-  onSend?: (txId: string) => void
 }
 
 export const useSendThorTx = ({
@@ -72,7 +71,6 @@ export const useSendThorTx = ({
   fromAddress,
   thorfiAction,
   isSubmitting = false,
-  onSend,
 }: UseSendThorTxProps) => {
   const shouldUseDustAmount = ['withdrawLiquidity', 'withdrawSavers'].includes(thorfiAction)
   const [txId, setTxId] = useState<string | null>(null)
@@ -258,7 +256,7 @@ export const useSendThorTx = ({
 
     const { account } = fromAccountId(accountId)
 
-    await (async () => {
+    const _txId = await (async () => {
       switch (transactionType) {
         case 'MsgDeposit': {
           if (!estimateFeesArgs) throw new Error('No estimateFeesArgs found')
@@ -310,13 +308,11 @@ export const useSendThorTx = ({
             position: 'top-right',
           })
 
-          onSend?.(_txId)
           setTxId(_txId)
           setSerializedTxIndex(
             serializeTxIndex(accountId, _txId, account, { memo, parser: 'thorchain' }),
           )
-
-          break
+          return _txId
         }
         case 'EvmCustomTx': {
           if (!fromAddress) throw new Error('No account address found')
@@ -388,11 +384,10 @@ export const useSendThorTx = ({
             position: 'top-right',
           })
 
-          onSend?.(_txId)
           setTxId(_txId)
           setSerializedTxIndex(serializeTxIndex(accountId, _txId, fromAddress!))
 
-          break
+          return _txId
         }
         case 'Send': {
           if (!fromAddress) throw new Error('No account address found')
@@ -425,12 +420,12 @@ export const useSendThorTx = ({
           })
           const _txIdLink = getTxLink({
             defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-            txId: txId ?? '',
+            txId: _txId ?? '',
             name: SwapperName.Thorchain,
           })
           toast({
             title: translate('modals.send.transactionSent'),
-            description: txId ? (
+            description: _txId ? (
               <Text>
                 <Link href={_txIdLink} isExternal>
                   {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
@@ -443,17 +438,20 @@ export const useSendThorTx = ({
             position: 'top-right',
           })
 
-          onSend?.(_txId)
           setTxId(_txId)
           setSerializedTxIndex(serializeTxIndex(accountId, _txId, fromAccountId(accountId).account))
 
-          break
+          return _txId
         }
         default:
           assertUnreachable(transactionType)
       }
     })()
+
+    return _txId
   }, [
+    accountId,
+    assetId,
     asset,
     wallet,
     accountNumber,
@@ -461,20 +459,16 @@ export const useSendThorTx = ({
     amountCryptoBaseUnit,
     transactionType,
     inboundAddressData,
-    accountId,
     estimateFeesArgs,
     memo,
     shouldUseDustAmount,
     toast,
     translate,
-    onSend,
     fromAddress,
-    assetId,
     thorfiAction,
     dustAmountCryptoPrecision,
     amountCryptoPrecision,
     selectedCurrency,
-    txId,
   ])
 
   return { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading, txId, serializedTxIndex }

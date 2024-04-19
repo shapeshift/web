@@ -17,13 +17,12 @@ import {
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { type Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { ImportAccountsDrawer } from 'components/ImportAccountsDrawer/ImportAccountsDrawer'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
@@ -577,12 +576,6 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   return (
     <TradeSlideTransition>
-      <ImportAccountsDrawer
-        chainId={KnownChainIds.EthereumMainnet}
-        toggleAccountId={() => {}}
-        isOpen={!!wallet}
-        onClose={() => {}}
-      />
       <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex

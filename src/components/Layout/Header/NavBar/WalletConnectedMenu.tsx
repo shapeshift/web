@@ -1,10 +1,12 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
+import { Flex, MenuDivider, MenuGroup, MenuItem, useDisclosure } from '@chakra-ui/react'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteProps } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'react-router-dom'
+import { ImportAccountsDrawer } from 'components/ImportAccountsDrawer/ImportAccountsDrawer'
 import {
   useMenuRoutes,
   WalletConnectedRoutes,
@@ -36,6 +38,7 @@ const ConnectedMenu = memo(
       () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
       [connectedType],
     )
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     const handleClick = useCallback(() => {
       if (!connectedWalletMenuRoutes) return
@@ -48,40 +51,51 @@ const ConnectedMenu = memo(
     const menuItemIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
 
     return (
-      <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
-        {walletInfo ? (
-          <MenuItem
-            closeOnSelect={!connectedWalletMenuRoutes}
-            isDisabled={!connectedWalletMenuRoutes}
-            onClick={handleClick}
-            icon={menuItemIcon}
-          >
-            <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-              <RawText>{walletInfo?.name}</RawText>
-              {!isConnected && (
-                <Text
-                  translation={'connectWallet.menu.disconnected'}
-                  fontSize='sm'
-                  color='yellow.500'
-                />
-              )}
-              {connectedWalletMenuRoutes && <ChevronRightIcon />}
-            </Flex>
+      <>
+        <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
+          {walletInfo ? (
+            <MenuItem
+              closeOnSelect={!connectedWalletMenuRoutes}
+              isDisabled={!connectedWalletMenuRoutes}
+              onClick={handleClick}
+              icon={menuItemIcon}
+            >
+              <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
+                <RawText>{walletInfo?.name}</RawText>
+                {!isConnected && (
+                  <Text
+                    translation={'connectWallet.menu.disconnected'}
+                    fontSize='sm'
+                    color='yellow.500'
+                  />
+                )}
+                {connectedWalletMenuRoutes && <ChevronRightIcon />}
+              </Flex>
+            </MenuItem>
+          ) : (
+            <MenuItem icon={warningTwoIcon} onClick={onSwitchProvider} isDisabled={true}>
+              {translate('connectWallet.menu.connecting')}
+            </MenuItem>
+          )}
+          {ConnectMenuComponent && <ConnectMenuComponent />}
+          <MenuDivider />
+          {accountManagement && (<MenuItem icon={repeatIcon} onClick={onOpen}>
+            TEMP Manage Accounts
+          </MenuItem>()
+  }
+          <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
+            {translate('connectWallet.menu.switchWallet')}
           </MenuItem>
-        ) : (
-          <MenuItem icon={warningTwoIcon} onClick={onSwitchProvider} isDisabled={true}>
-            {translate('connectWallet.menu.connecting')}
+          <MenuItem fontWeight='medium' icon={closeIcon} onClick={onDisconnect} color='red.500'>
+            {translate('connectWallet.menu.disconnect')}
           </MenuItem>
-        )}
-        {ConnectMenuComponent && <ConnectMenuComponent />}
-        <MenuDivider />
-        <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
-          {translate('connectWallet.menu.switchWallet')}
-        </MenuItem>
-        <MenuItem fontWeight='medium' icon={closeIcon} onClick={onDisconnect} color='red.500'>
-          {translate('connectWallet.menu.disconnect')}
-        </MenuItem>
-      </MenuGroup>
+        </MenuGroup>
+        <ImportAccountsDrawer
+          chainId={KnownChainIds.EthereumMainnet}
+          isOpen={isOpen}
+          onClose={onClose}
+        />
+      </>
     )
   },
 )

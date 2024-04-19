@@ -300,6 +300,9 @@
       "connecting": "Connecting..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Manage Accounts"
+  },
   "defi": {
     "modals": {
       "learnMore": {

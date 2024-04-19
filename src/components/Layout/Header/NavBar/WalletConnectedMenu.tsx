@@ -1,4 +1,4 @@
-import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, CloseIcon, EditIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
@@ -18,6 +18,7 @@ import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
 const repeatIcon = <RepeatIcon />
+const editIcon = <EditIcon />
 
 const ConnectedMenu = memo(
   ({
@@ -75,6 +76,9 @@ const ConnectedMenu = memo(
         )}
         {ConnectMenuComponent && <ConnectMenuComponent />}
         <MenuDivider />
+        <MenuItem icon={editIcon} onClick={onSwitchProvider}>
+          {translate('manageAccounts.menuTitle')}
+        </MenuItem>
         <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
           {translate('connectWallet.menu.switchWallet')}
         </MenuItem>

@@ -56,7 +56,7 @@ type UseSendThorTxProps = {
   amountCryptoBaseUnit: string | undefined
   assetId: AssetId | null
   memo: string | undefined
-  accountId: AccountId
+  accountId: AccountId | null
   fromAddress: string | null
   thorfiAction: Action
   // Indicates whether the consumer is currently submitting, meaning we should stop refetching
@@ -102,7 +102,10 @@ export const useSendThorTx = ({
     [dustAmountCryptoBaseUnit, asset],
   )
 
-  const accountNumberFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
+  const accountNumberFilter = useMemo(
+    () => ({ assetId, accountId: accountId ?? '' }),
+    [accountId, assetId],
+  )
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, accountNumberFilter))
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
 
@@ -119,7 +122,7 @@ export const useSendThorTx = ({
   })
 
   const estimateFeesArgs = useMemo(() => {
-    if (!assetId || !feeAsset || !wallet || !asset) return undefined
+    if (!assetId || !feeAsset || !wallet || !asset || !accountId) return undefined
 
     const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
 
@@ -241,6 +244,7 @@ export const useSendThorTx = ({
   const onSignTx = useCallback(async () => {
     if (
       !(
+        accountId &&
         assetId &&
         asset &&
         wallet &&

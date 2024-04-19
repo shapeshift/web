@@ -64,7 +64,7 @@ type BorrowConfirmProps = {
   collateralAssetId: AssetId
   depositAmountCryptoPrecision: string | null
   setDepositAmount: (amount: string | null) => void
-  collateralAccountId: AccountId
+  collateralAccountId: AccountId | null
   borrowAccountId: AccountId
   borrowAsset: Asset | null
   txId: string | null
@@ -180,7 +180,7 @@ export const BorrowConfirm = ({
   ])
 
   const collateralAccountFilter = useMemo(
-    () => ({ accountId: collateralAccountId }),
+    () => ({ accountId: collateralAccountId ?? '' }),
     [collateralAccountId],
   )
   const collateralAccountMetadata = useAppSelector(state =>
@@ -188,7 +188,7 @@ export const BorrowConfirm = ({
   )
 
   useEffect(() => {
-    if (!(wallet && collateralAccountMetadata !== undefined)) return
+    if (!(wallet && collateralAccountMetadata !== undefined && collateralAccountId?.length)) return
 
     getThorchainFromAddress({
       accountId: collateralAccountId,

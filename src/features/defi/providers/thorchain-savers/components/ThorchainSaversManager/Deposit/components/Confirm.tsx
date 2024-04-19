@@ -12,7 +12,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -23,7 +23,6 @@ import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -40,7 +39,6 @@ import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -83,8 +81,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const assets = useAppSelector(selectAssets)
 
   const chainAdapter = getChainAdapterManager().get(chainId)!
-
-  const supportedEvmChainIds = useMemo(() => getSupportedEvmChainIds(), [])
 
   const assetId = toAssetId({
     chainId,
@@ -190,10 +186,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const memo = useMemo(() => {
+    // Note: this is *always* an UTF-8 string as we use this for the memo field of depositWithExpiry()
+    // The only time this would need to be converted to hex is if we were to use it for EVM sends,
+    // which we should never do since depositWithExpiry() is the way
     const memoUtf8 = quote?.memo
     if (!memoUtf8) return
-    return supportedEvmChainIds.includes(chainId as KnownChainIds) ? toHex(memoUtf8) : memoUtf8
-  }, [chainId, quote?.memo, supportedEvmChainIds])
+    return memoUtf8
+  }, [quote?.memo])
 
   const onSend = useCallback(
     (txId: string) => {

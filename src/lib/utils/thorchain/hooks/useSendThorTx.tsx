@@ -74,8 +74,7 @@ export const useSendThorTx = ({
   isSubmitting = false,
   onSend,
 }: UseSendThorTxProps) => {
-  // TODO(gomes): savers sometimes also use dust amounts, ensure this works for them
-  const shouldUseDustAmount = thorfiAction === 'withdrawLiquidity'
+  const shouldUseDustAmount = ['withdrawLiquidity', 'withdrawSavers'].includes(thorfiAction)
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
   const wallet = useWallet().state.wallet

@@ -157,7 +157,7 @@ export const useSendThorTx = ({
               : // THOR LP Native EVM asset deposits and THOR LP withdrawals (tokens/native assets) use the 0 address as the asset address
                 // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
                 zeroAddress,
-          amount: amountOrDustCryptoBaseUnit,
+          amount: amountCryptoBaseUnit,
           memo,
           expiry: BigInt(dayjs().add(15, 'minute').unix()),
         })
@@ -165,16 +165,11 @@ export const useSendThorTx = ({
         return {
           // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
           // For native assets, things are pretty straightforward, the amount is the value we want to send.
-          // For tokens, the native asset value is usually 0 (no native asset being sent, we let the contract to trigger a token transfer)
-          // though non-EVM LP withdrawals are regular sends with value, since they require a dust amount to be sent to the contract
-          amountCryptoPrecision:
-            isToken(fromAssetId(assetId).assetReference) && thorfiAction !== 'withdrawLiquidity'
-              ? '0'
-              : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
-          // Withdrawals do NOT occur a dust send to the contract address.
-          // It's a regular 0-value contract-call
-          // TODO(gomes): double check that this logic is correct across all domains, it is critical and getting things wrong here can lead to funds being lost
-          assetId: thorfiAction === 'withdrawLiquidity' ? feeAsset.assetId : asset.assetId,
+          // For tokens, it's always a 0-value contract call
+          amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
+            ? '0'
+            : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
+          assetId: isToken(fromAssetId(assetId).assetReference) ? feeAsset.assetId : asset.assetId,
           to: inboundAddressData.router,
           from: fromAddress,
           sendMax: false,
@@ -190,12 +185,9 @@ export const useSendThorTx = ({
       case 'Send': {
         if (!inboundAddressData || !fromAddress) return undefined
         return {
-          // TODO(gomes): When implementing this for savers, we will want to ensure that dust amount is only sent for non-UTXO chains
-          // EVM chains should make use of depositWithExpiry() for withdrawals
-          amountCryptoPrecision:
-            thorfiAction === 'withdrawLiquidity'
-              ? dustAmountCryptoPrecision
-              : amountCryptoPrecision,
+          amountCryptoPrecision: ['withdrawLiquidity', 'withdrawSavers'].includes(thorfiAction)
+            ? dustAmountCryptoPrecision
+            : amountCryptoPrecision,
           assetId,
           to: inboundAddressData.address,
           from: fromAddress,

@@ -256,7 +256,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   useEffect(() => {
     ;(async () => {
-      if (fromAddress || !isUtxoChainId(chainId) || !accountId) return
+      if (fromAddress || !accountId) return
 
       try {
         const position = await getThorchainSaversPosition({ accountId, assetId })

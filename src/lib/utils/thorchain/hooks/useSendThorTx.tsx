@@ -114,6 +114,7 @@ export const useSendThorTx = ({
   const depositWithExpiryInputData = useMemo(() => {
     if (!memo) return
     if (!inboundAddressData?.address) return
+    if (transactionType !== 'EvmCustomTx') return
 
     /**
      * asset address should be [zero address](https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1)
@@ -134,7 +135,14 @@ export const useSendThorTx = ({
       memo,
       expiry: BigInt(dayjs().add(15, 'minute').unix()),
     })
-  }, [amountOrDustCryptoBaseUnit, assetId, inboundAddressData, memo, shouldUseDustAmount])
+  }, [
+    amountOrDustCryptoBaseUnit,
+    assetId,
+    inboundAddressData,
+    memo,
+    shouldUseDustAmount,
+    transactionType,
+  ])
 
   const estimateFeesArgs = useMemo(() => {
     if (!accountId || !asset || !assetId || !feeAsset || !memo || !transactionType || !wallet)

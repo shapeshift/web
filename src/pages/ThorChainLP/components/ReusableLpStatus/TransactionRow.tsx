@@ -329,7 +329,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     }
 
     const _txId = await onSignTx()
-    if (_txId) {
+    if (!_txId) {
       setIsSubmitting(false)
       throw new Error('failed to broadcast transaction')
     }

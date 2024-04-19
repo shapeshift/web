@@ -25,7 +25,6 @@ import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
-import { toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -50,7 +49,6 @@ import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -374,33 +372,17 @@ export const RepayInput = ({
     accountId: collateralAccountId,
   })
 
-  const memo = useMemo(() => {
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    if (!(supportedEvmChainIds && repaymentAsset && confirmedQuote)) return
-    return supportedEvmChainIds.includes(
-      fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
-    )
-      ? toHex(confirmedQuote.quoteMemo)
-      : confirmedQuote.quoteMemo
-  }, [confirmedQuote, repaymentAsset])
-
-  const fromAddress = useMemo(() => {
-    if (!repaymentAccountId) return ''
-    return isUtxoAccountId(repaymentAccountId) ? '' : fromAccountId(repaymentAccountId).account
-  }, [repaymentAccountId])
-
   const { estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
-    assetId: repaymentAsset?.assetId ?? null,
-    accountId: repaymentAccountId ?? '',
+    assetId: repaymentAsset?.assetId ?? '',
+    accountId: repaymentAccountId,
     amountCryptoBaseUnit: toBaseUnit(
       confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
       repaymentAsset?.precision ?? 0,
     ),
-    memo,
-    // For repayments, we don't need to send from a specific address for UTXOs
-    // Though THOR adapter explicitly requires it, and so does the EVM one for gas estimation
-    fromAddress,
-    thorfiAction: 'repayLoan',
+    memo: confirmedQuote?.quoteMemo,
+    // no explicit from address required for repayments
+    fromAddress: '',
+    action: 'repayLoan',
   })
 
   const balanceFilter = useMemo(

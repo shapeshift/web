@@ -167,11 +167,13 @@ export const useSendThorTx = ({
 
         return {
           // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          // which happens for deposits (0-value) and withdrawals (dust-value, failure to send it means Txs won't be seen by THOR)
+          // For native assets, things are pretty straightforward, the amount is the value we want to send.
+          // For tokens, the native asset value is usually 0 (no native asset being sent, we let the contract to trigger a token transfer)
+          // though non-EVM LP withdrawals are regular sends with value, since they require a dust amount to be sent to the contract
           amountCryptoPrecision:
             // TODO(gomes): this may not be applicable to other domains - verify the validity of this for others and adapt accordingly
             isToken(fromAssetId(assetId).assetReference) &&
-            ['addLiquidity', 'repayLoan'].includes(thorfiAction)
+            ['addLiquidity', 'repayLoan', 'depositSavers', 'withdrawSavers'].includes(thorfiAction)
               ? '0'
               : fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision),
           // Withdrawals do NOT occur a dust send to the contract address.

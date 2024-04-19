@@ -16,6 +16,7 @@ import type { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserM
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
 import { RawText, Text } from 'components/Text'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
@@ -39,6 +40,7 @@ const ConnectedMenu = memo(
       [connectedType],
     )
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
     const handleClick = useCallback(() => {
       if (!connectedWalletMenuRoutes) return
@@ -79,10 +81,11 @@ const ConnectedMenu = memo(
           )}
           {ConnectMenuComponent && <ConnectMenuComponent />}
           <MenuDivider />
-          {accountManagement && (<MenuItem icon={repeatIcon} onClick={onOpen}>
-            TEMP Manage Accounts
-          </MenuItem>()
-  }
+          {isAccountManagementEnabled && (
+            <MenuItem icon={repeatIcon} onClick={onOpen}>
+              Manage Accounts
+            </MenuItem>
+          )}
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
             {translate('connectWallet.menu.switchWallet')}
           </MenuItem>

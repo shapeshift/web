@@ -287,7 +287,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     amountCryptoBaseUnit: bnOrZero(state?.withdraw.cryptoAmount)
       .times(bn(10).pow(asset.precision))
       .toFixed(0),
-    thorfiAction: 'withdrawSavers',
+    action: 'withdrawSavers',
     memo,
     fromAddress: fromAddress ?? null,
   })

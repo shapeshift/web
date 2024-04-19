@@ -65,7 +65,7 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quote, setQuote] = useState<ThorchainSaversDepositQuoteResponseSuccess | null>(null)
-  const [fromAddress, setFromAddress] = useState<string | undefined>(undefined)
+  const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
@@ -185,24 +185,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     quote,
   ])
 
-  const memo = useMemo(() => {
-    // Note: this is *always* an UTF-8 string as we use this for the memo field of depositWithExpiry()
-    // The only time this would need to be converted to hex is if we were to use it for EVM sends,
-    // which we should never do since depositWithExpiry() is the way
-    const memoUtf8 = quote?.memo
-    if (!memoUtf8) return
-    return memoUtf8
-  }, [quote?.memo])
-
   const { onSignTx, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: bnOrZero(state?.deposit.cryptoAmount)
       .times(bn(10).pow(asset.precision))
       .toFixed(0),
-    thorfiAction: 'depositSavers',
-    memo,
-    fromAddress: fromAddress ?? null,
+    action: 'depositSavers',
+    memo: quote?.memo,
+    fromAddress,
   })
 
   useEffect(() => {
@@ -260,7 +251,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       }
 
       const _txId = await onSignTx()
-      if (!_txId) throw new Error('No txId returned from onSignTx')
+      if (!_txId) throw new Error('failed to broadcast transaction')
 
       contextDispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,

@@ -118,7 +118,7 @@ type BorrowRoutesProps = {
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
   isAccountSelectionDisabled?: boolean
-  collateralAccountId: AccountId
+  collateralAccountId: AccountId | null
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void

@@ -210,7 +210,7 @@ export const RepayConfirm = ({
     fromAssetId(repaymentAsset?.assetId ?? '').chainId,
   )
   const repaymentAccountNumberFilter = useMemo(
-    () => ({ accountId: repaymentAccountId }),
+    () => ({ accountId: repaymentAccountId ?? '' }),
     [repaymentAccountId],
   )
   const repaymentAccountNumber = useAppSelector(state =>
@@ -258,9 +258,14 @@ export const RepayConfirm = ({
       : confirmedQuote.quoteMemo
   }, [confirmedQuote, repaymentAsset])
 
+  const fromAddress = useMemo(() => {
+    if (!repaymentAccountId) return ''
+    return isUtxoAccountId(repaymentAccountId) ? '' : fromAccountId(repaymentAccountId).account
+  }, [repaymentAccountId])
+
   const { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
-    accountId: repaymentAccountId,
+    accountId: repaymentAccountId ?? '',
     amountCryptoBaseUnit: toBaseUnit(
       confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
       repaymentAsset?.precision ?? 0,
@@ -268,9 +273,7 @@ export const RepayConfirm = ({
     memo,
     // For repayments, we don't need to send from a specific address for UTXOs
     // Though THOR adapter explicitly requires it, and so does the EVM one for gas estimation
-    fromAddress: isUtxoAccountId(repaymentAccountId)
-      ? ''
-      : fromAccountId(repaymentAccountId).account,
+    fromAddress,
     thorfiAction: 'repayLoan',
     onSend: setTxid,
   })
@@ -525,8 +528,8 @@ export const RepayConfirm = ({
             collateralDecreaseAmountCryptoPrecision={
               confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
             }
-            repaymentAccountId={repaymentAccountId}
-            collateralAccountId={collateralAccountId}
+            repaymentAccountId={repaymentAccountId ?? ''}
+            collateralAccountId={collateralAccountId ?? ''}
             debtRepaidAmountUserCurrency={confirmedQuote?.quoteDebtRepaidAmountUserCurrency ?? '0'}
             borderTopWidth={0}
             mt={0}

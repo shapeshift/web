@@ -72,7 +72,7 @@ type BorrowInputProps = {
   depositAmountCryptoPrecision: string | null
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
-  collateralAccountId: AccountId
+  collateralAccountId: AccountId | null
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
@@ -155,7 +155,7 @@ export const BorrowInput = ({
   )
 
   const collateralAccountFilter = useMemo(
-    () => ({ accountId: collateralAccountId }),
+    () => ({ accountId: collateralAccountId ?? '' }),
     [collateralAccountId],
   )
   const collateralAccountMetadata = useAppSelector(state =>
@@ -163,7 +163,7 @@ export const BorrowInput = ({
   )
 
   const getBorrowFromAddress = useCallback(() => {
-    if (!(wallet && collateralAccountMetadata)) return null
+    if (!(wallet && collateralAccountMetadata && collateralAccountId)) return null
     return getThorchainFromAddress({
       accountId: collateralAccountId,
       assetId: collateralAssetId,
@@ -192,7 +192,7 @@ export const BorrowInput = ({
 
   const { estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: collateralAssetId,
-    accountId: collateralAccountId,
+    accountId: collateralAccountId ?? '',
     amountCryptoBaseUnit: toBaseUnit(
       depositAmountCryptoPrecision ?? '0',
       collateralAsset?.precision ?? 0,
@@ -203,7 +203,7 @@ export const BorrowInput = ({
   })
 
   const balanceFilter = useMemo(
-    () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
+    () => ({ assetId: collateralAssetId, accountId: collateralAccountId ?? '' }),
     [collateralAssetId, collateralAccountId],
   )
   const balanceCryptoBaseUnit = useAppSelector(state =>
@@ -215,7 +215,7 @@ export const BorrowInput = ({
   )
 
   const collateralFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: collateralFeeAsset?.assetId ?? '', accountId: collateralAccountId }),
+    () => ({ assetId: collateralFeeAsset?.assetId ?? '', accountId: collateralAccountId ?? '' }),
     [collateralAccountId, collateralFeeAsset?.assetId],
   )
   const collateralFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -295,7 +295,7 @@ export const BorrowInput = ({
     assetId: collateralAssetId,
     to: fromAddress ?? '',
     sendMax: true,
-    accountId: collateralAccountId,
+    accountId: collateralAccountId ?? '',
     contractAddress: undefined,
     enabled: isSweepNeededSuccess,
   })
@@ -322,7 +322,7 @@ export const BorrowInput = ({
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
-      collateralAccountId,
+      collateralAccountId: collateralAccountId ?? '',
       borrowAccountId,
       borrowAssetId: borrowAsset?.assetId ?? '',
       depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
@@ -515,7 +515,7 @@ export const BorrowInput = ({
       >
         <Stack spacing={0}>
           <TradeAssetInput
-            accountId={collateralAccountId}
+            accountId={collateralAccountId ?? undefined}
             assetId={collateralAssetId}
             assetSymbol={collateralAsset.symbol}
             assetIcon={collateralAsset.icon}
@@ -573,7 +573,7 @@ export const BorrowInput = ({
               confirmedQuote={confirmedQuote}
               isLoading={isLendingQuoteLoading || isLendingQuoteRefetching}
               collateralAssetId={collateralAssetId}
-              collateralAccountId={collateralAccountId}
+              collateralAccountId={collateralAccountId ?? ''}
               debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
               depositAmountCryptoPrecision={depositAmountCryptoPrecision ?? '0'}
               borrowAssetId={borrowAsset?.assetId ?? ''}

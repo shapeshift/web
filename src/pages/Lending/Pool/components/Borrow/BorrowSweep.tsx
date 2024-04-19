@@ -16,7 +16,7 @@ import { BorrowRoutePaths } from './types'
 
 type BorrowSweepProps = {
   collateralAssetId: AssetId
-  collateralAccountId: AccountId
+  collateralAccountId: AccountId | null
 }
 
 export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSweepProps) => {
@@ -33,7 +33,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
   }, [history])
 
   const collateralAccountFilter = useMemo(
-    () => ({ accountId: collateralAccountId }),
+    () => ({ accountId: collateralAccountId ?? '' }),
     [collateralAccountId],
   )
   const collateralAccountMetadata = useAppSelector(state =>
@@ -41,7 +41,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
   )
 
   const getBorrowFromAddress = useCallback(() => {
-    if (!(wallet && collateralAccountMetadata)) return null
+    if (!(wallet && collateralAccountMetadata && collateralAccountId)) return null
     return getThorchainFromAddress({
       accountId: collateralAccountId,
       assetId: collateralAssetId,
@@ -63,6 +63,8 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
   const handleSwepSeen = useCallback(() => {
     history.push(BorrowRoutePaths.Confirm)
   }, [history])
+
+  if (!collateralAccountId) return null
 
   return (
     <SlideTransition>

@@ -25,7 +25,7 @@ import { Amount } from 'components/Amount/Amount'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import { getAccountTitle } from 'lib/utils'
-import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { isUtxoAccountId, isUtxoChainId } from 'lib/utils/utxo'
 import {
   selectAssets,
   selectFeeAssetByChainId,

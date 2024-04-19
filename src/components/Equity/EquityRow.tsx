@@ -7,7 +7,8 @@ import { opportunityRowGrid } from 'components/EarnDashboard/components/Provider
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { accountIdToLabel, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
+import { isUtxoAccountId } from 'lib/utils/utxo'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 
 type EquityRowBaseProps = {
   label: string

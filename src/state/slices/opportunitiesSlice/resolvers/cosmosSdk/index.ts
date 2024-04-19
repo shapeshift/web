@@ -1,12 +1,11 @@
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { isFulfilled, isRejected, isSome } from 'lib/utils'
+import { accountIdToFeeAssetId, isFulfilled, isRejected, isSome } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import type { ReduxState } from 'state/reducer'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
 
 import type {
   GetOpportunityIdsOutput,

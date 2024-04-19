@@ -16,8 +16,8 @@ import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { middleEllipsis } from 'lib/utils'
-import { accountIdToFeeAssetId, accountIdToLabel } from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId, middleEllipsis } from 'lib/utils'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,

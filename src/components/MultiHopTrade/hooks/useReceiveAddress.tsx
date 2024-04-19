@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectInputBuyAsset,
   selectLastHopBuyAccountId,

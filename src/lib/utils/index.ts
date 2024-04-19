@@ -6,7 +6,13 @@ import type {
   ChainId,
   ChainNamespace,
 } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import {
+  accountIdToChainId,
+  ASSET_REFERENCE,
+  fromAccountId,
+  fromAssetId,
+  fromChainId,
+} from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -26,11 +32,21 @@ import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import {
-  accountIdToFeeAssetId,
-  firstFourLastFour,
-  isUtxoAccountId,
-} from 'state/slices/portfolioSlice/utils'
+
+import { isUtxoAccountId } from './utxo'
+
+export const firstFourLastFour = (address: string): string =>
+  `${address.slice(0, 6)}...${address.slice(-4)}`
+
+export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
+  if (!content) return ''
+
+  if (!trimmedContentLength) return content
+
+  if (content.length < trimmedContentLength) return content
+
+  return content.slice(0, trimmedContentLength).concat('...')
+}
 
 export const isKeepKeyHDWallet = (wallet: HDWallet): wallet is KeepKeyHDWallet => {
   return wallet.getVendor() === 'KeepKey'
@@ -319,3 +335,15 @@ export const getAccountTitle = (accountId: AccountId, assets: PartialRecord<Asse
     ? assets[feeAssetId]?.name ?? ''
     : firstFourLastFour(fromAccountId(accountId).account)
 }
+
+export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>
+  getChainAdapterManager().get(accountIdToChainId(accountId))?.getFeeAssetId()
+
+export const accountIdToChainDisplayName = (accountId: AccountId): AssetId | undefined =>
+  getChainAdapterManager().get(accountIdToChainId(accountId))?.getDisplayName()
+
+export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
+  getChainAdapterManager().get(chainId)?.getFeeAssetId()
+
+export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
+  chainIdToFeeAssetId(fromAssetId(assetId).chainId)

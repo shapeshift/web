@@ -7,11 +7,11 @@ import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 import { store } from 'state/store'
 
+import { isUtxoChainId } from '../utxo'
 import type {
   Borrower,
   BorrowersResponse,

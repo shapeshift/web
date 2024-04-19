@@ -580,7 +580,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       <ImportAccountsDrawer
         chainId={KnownChainIds.EthereumMainnet}
         toggleAccountId={() => {}}
-        isOpen
+        isOpen={!!wallet}
         onClose={() => {}}
       />
       <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />

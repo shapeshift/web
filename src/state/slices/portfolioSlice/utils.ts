@@ -1,6 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  accountIdToChainId,
   arbitrumChainId,
   arbitrumNovaChainId,
   avalancheChainId,
@@ -42,9 +41,9 @@ import {
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { assertUnreachable, firstFourLastFour } from 'lib/utils'
 import { isSpammyNftText } from 'state/apis/nft/constants'
 import type { NftCollectionType } from 'state/apis/nft/types'
 
@@ -54,19 +53,6 @@ import type {
   PortfolioAccounts as PortfolioSliceAccounts,
 } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
-
-export const firstFourLastFour = (address: string): string =>
-  `${address.slice(0, 6)}...${address.slice(-4)}`
-
-export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
-  if (!content) return ''
-
-  if (!trimmedContentLength) return content
-
-  if (content.length < trimmedContentLength) return content
-
-  return content.slice(0, trimmedContentLength).concat('...')
-}
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountId): string => {
@@ -107,24 +93,6 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     }
   }
 }
-
-export const isUtxoAccountId = (accountId: AccountId): boolean =>
-  fromAccountId(accountId).chainNamespace === CHAIN_NAMESPACE.Utxo
-
-export const isUtxoChainId = (chainId: ChainId): boolean =>
-  fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo
-
-export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>
-  getChainAdapterManager().get(accountIdToChainId(accountId))?.getFeeAssetId()
-
-export const accountIdToChainDisplayName = (accountId: AccountId): AssetId | undefined =>
-  getChainAdapterManager().get(accountIdToChainId(accountId))?.getDisplayName()
-
-export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
-  getChainAdapterManager().get(chainId)?.getFeeAssetId()
-
-export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
-  chainIdToFeeAssetId(fromAssetId(assetId).chainId)
 
 export const findAccountsByAssetId = (
   portfolioAccounts: PortfolioSliceAccounts['byId'],
@@ -174,14 +142,13 @@ export const accountToPortfolio: AccountToPortfolio = ({
     const { chainId } = account
     const { chainNamespace } = fromChainId(chainId)
 
+    const hasActivity = checkAccountHasActivity(account)
+
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
         const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
         const { chainId, assetId, pubkey } = account
         const accountId = toAccountId({ chainId, account: pubkey })
-
-        const hasActivity =
-          bnOrZero(ethAccount.chainSpecific.nonce).gt(0) || bnOrZero(ethAccount.balance).gt(0)
 
         portfolio.accounts.ids.push(accountId)
         portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
@@ -226,16 +193,10 @@ export const accountToPortfolio: AccountToPortfolio = ({
         break
       }
       case CHAIN_NAMESPACE.Utxo: {
-        const utxoAccount = account as Account<UtxoChainId>
         const { balance, chainId, assetId, pubkey } = account
 
         // Since btc the pubkeys (address) are base58Check encoded, we don't want to lowercase them and put them in state
         const accountId = `${chainId}:${pubkey}`
-
-        const hasActivity =
-          bnOrZero(balance).gt(0) ||
-          bnOrZero(utxoAccount.chainSpecific.nextChangeAddressIndex).gt(0) ||
-          bnOrZero(utxoAccount.chainSpecific.nextReceiveAddressIndex).gt(0)
 
         portfolio.accounts.ids.push(accountId)
         portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
@@ -248,10 +209,6 @@ export const accountToPortfolio: AccountToPortfolio = ({
         const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
         const { chainId, assetId } = account
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
-
-        const hasActivity =
-          bnOrZero(cosmosAccount.chainSpecific.sequence).gt(0) ||
-          bnOrZero(cosmosAccount.balance).gt(0)
 
         portfolio.accounts.ids.push(accountId)
         portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
@@ -270,11 +227,49 @@ export const accountToPortfolio: AccountToPortfolio = ({
         break
       }
       default:
-        break
+        assertUnreachable(chainNamespace)
     }
   })
 
   return portfolio
+}
+
+export const checkAccountHasActivity = (account: Account<ChainId>) => {
+  const { chainId } = account
+  const { chainNamespace } = fromChainId(chainId)
+
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Evm: {
+      const ethAccount = account as Account<KnownChainIds.EthereumMainnet>
+
+      const hasActivity =
+        bnOrZero(ethAccount.chainSpecific.nonce).gt(0) || bnOrZero(ethAccount.balance).gt(0)
+
+      return hasActivity
+    }
+    case CHAIN_NAMESPACE.Utxo: {
+      const utxoAccount = account as Account<UtxoChainId>
+      const { balance } = account
+
+      const hasActivity =
+        bnOrZero(balance).gt(0) ||
+        bnOrZero(utxoAccount.chainSpecific.nextChangeAddressIndex).gt(0) ||
+        bnOrZero(utxoAccount.chainSpecific.nextReceiveAddressIndex).gt(0)
+
+      return hasActivity
+    }
+    case CHAIN_NAMESPACE.CosmosSdk: {
+      const cosmosAccount = account as Account<KnownChainIds.CosmosMainnet>
+
+      const hasActivity =
+        bnOrZero(cosmosAccount.chainSpecific.sequence).gt(0) ||
+        bnOrZero(cosmosAccount.balance).gt(0)
+
+      return hasActivity
+    }
+    default:
+      assertUnreachable(chainNamespace)
+  }
 }
 
 export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {

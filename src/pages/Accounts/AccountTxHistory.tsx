@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { AssetHeader } from 'components/AssetHeader/AssetHeader'
 import { Main } from 'components/Layout/Main'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

@@ -9,13 +9,9 @@ import {
 } from '@shapeshiftoss/caip'
 import { mockChainAdapters } from 'test/mocks/portfolio'
 import { describe, expect, it, vi } from 'vitest'
+import { accountIdToFeeAssetId, trimWithEndEllipsis } from 'lib/utils'
 
-import {
-  accountIdToFeeAssetId,
-  accountIdToLabel,
-  findAccountsByAssetId,
-  trimWithEndEllipsis,
-} from './utils'
+import { accountIdToLabel, findAccountsByAssetId } from './utils'
 
 vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,

@@ -18,6 +18,7 @@ import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConn
 import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
 import { DemoMenu } from './DemoWallet/DemoMenu'
+import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConfig } from './Keplr/config'
 import { KeyManager } from './KeyManager'
@@ -385,6 +386,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: WalletConnectedRoutes.KeepKeyPassphrase, component: ChangePassphrase },
     ],
     connectedWalletMenuInitialPath: WalletConnectedRoutes.KeepKey,
+    connectedMenuComponent: KeepKeyConnectedMenuItems,
   },
   [KeyManager.MetaMask]: {
     ...MetaMaskConfig,

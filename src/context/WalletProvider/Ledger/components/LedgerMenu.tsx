@@ -42,6 +42,7 @@ export const LedgerMenu = () => {
           {translate('manageAccounts.menuTitle')}
         </MenuItem>
       )}
+      {/* TODO: Remove the below menu item once the new flow is added, and before the feature flag is enabled */}
       <MenuItem justifyContent='space-between' onClick={handleChainsClick}>
         {translate('walletProvider.ledger.chains.header')}
       </MenuItem>

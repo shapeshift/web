@@ -391,7 +391,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         disableSmartContractDeposit ||
         isTradingActive === false
       }
-      loading={state.loading || !userAddress || isAddressByteCodeLoading}
+      loading={state.loading || !fromAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
     >

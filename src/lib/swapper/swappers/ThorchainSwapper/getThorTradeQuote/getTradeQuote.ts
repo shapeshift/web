@@ -10,6 +10,7 @@ import { assertUnreachable } from 'lib/utils'
 import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
 import type { ThornodePoolResponse } from '../types'
 import { getL1quote } from '../utils/getL1quote'
+import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
 import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
@@ -19,8 +20,11 @@ type ThorTradeQuoteSpecificMetadata = {
   isStreaming: boolean
   memo: string
   recommendedMinimumCryptoBaseUnit: string
+  tradeType?: TradeType
+  expiry: number
   longtailData?: {
     longtailToL1ExpectedAmountOut?: bigint
+    L1ToLongtailExpectedAmountOut?: bigint
   }
 }
 export type ThorEvmTradeQuote = TradeQuote &
@@ -112,8 +116,9 @@ export const getThorTradeQuote = async (
       return getL1quote(input, streamingInterval, tradeType)
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, streamingInterval, assetsById)
-    case TradeType.LongTailToLongTail:
     case TradeType.L1ToLongTail:
+      return getL1ToLongtailQuote(input, streamingInterval, assetsById)
+    case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:
       assertUnreachable(tradeType)

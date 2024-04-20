@@ -221,6 +221,8 @@ export class TradeExecution {
         accountType,
       })
 
+      console.log(unsignedTxResult)
+
       return await swapper.executeUtxoTransaction(unsignedTxResult, { signAndBroadcastTransaction })
     }
 

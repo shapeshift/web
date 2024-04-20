@@ -259,6 +259,7 @@ export const getL1quote = async (
               data,
               router,
               vault,
+              expiry: quote.expiry,
               tradeType: tradeType ?? TradeType.L1ToL1,
               steps: [
                 {
@@ -353,6 +354,8 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
+              tradeType: tradeType ?? undefined,
+              expiry: quote.expiry,
               slippageTolerancePercentageDecimal: isStreaming
                 ? undefined
                 : slippageTolerancePercentageDecimal,
@@ -435,6 +438,7 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
+              expiry: quote.expiry,
               slippageTolerancePercentageDecimal: isStreaming
                 ? undefined
                 : slippageTolerancePercentageDecimal,

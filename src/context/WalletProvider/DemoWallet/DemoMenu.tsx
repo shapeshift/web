@@ -20,11 +20,13 @@ export const DemoMenu = () => {
 
   return (
     <>
-      <MenuDivider />
       {isAccountManagementEnabled && (
-        <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-          {translate('manageAccounts.menuTitle')}
-        </MenuItem>
+        <>
+          <MenuDivider />
+          <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
+            {translate('manageAccounts.menuTitle')}
+          </MenuItem>
+        </>
       )}
     </>
   )

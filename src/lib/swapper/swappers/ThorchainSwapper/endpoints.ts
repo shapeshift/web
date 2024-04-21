@@ -84,7 +84,6 @@ export const thorchainApi: SwapperApi = {
       slippageTolerancePercentageDecimal,
     } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
-    console.log(tradeQuote)
 
     const value = isNativeEvmAsset(sellAsset.assetId)
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -170,7 +169,6 @@ export const thorchainApi: SwapperApi = {
         }
       }
       case TradeType.L1ToLongTail:
-        // TODO: Redo all of this
         assert(router, 'router required for l1 to thorchain longtail swaps')
 
         const publicClient = viemClientByChainId[chainId as EvmChainId]
@@ -190,15 +188,6 @@ export const thorchainApi: SwapperApi = {
           value,
           from,
           supportsEIP1559,
-        })
-
-        console.log({
-          chainId: Number(fromChainId(chainId).chainReference),
-          data,
-          from,
-          to: router,
-          value,
-          ...feeData,
         })
 
         return {

@@ -17,17 +17,6 @@ export const addAggregatorAndDestinationToMemo = ({
 
   const [prefix, pool, address, limitWithManualSlippage, affiliate, memoAffiliateBps] =
     quotedMemo.split(MEMO_PART_DELIMITER)
-  console.log({
-    prefix,
-    pool,
-    address,
-    limitWithManualSlippage,
-    affiliate,
-    memoAffiliateBps,
-    aggregator,
-    destinationToken,
-    minAmountOut,
-  })
 
   const memo = [
     prefix,

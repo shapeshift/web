@@ -73,6 +73,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0',
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: '0.04357',
+    expiry: 1713710808,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,
@@ -111,6 +112,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0',
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: undefined,
+    expiry: 1713710808,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,

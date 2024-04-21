@@ -1,16 +1,20 @@
 import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { GetTradeQuoteInput, MultiHopTradeQuoteSteps } from '@shapeshiftoss/swapper'
-import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
+import {
+  makeSwapErrorRight,
+  type SwapErrorRight,
+  SwapperName,
+  TradeQuoteError,
+} from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import assert from 'assert'
-import BigNumber from 'bignumber.js'
+import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import { isFulfilled, isRejected } from 'lib/utils'
+import { isErrorPromise, isFulfilled, isRejected } from 'lib/utils'
+import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { addAggregatorAndDestinationToMemo } from './addAggregatorAndDestinationToMemo'
@@ -97,35 +101,31 @@ export const getL1ToLongtailQuote = async (
   let bestAggregator: AggregatorContract
   let quotedAmountOut: bigint
 
-  const promises: PromiseSettledResult<ThorTradeQuote>[] = await Promise.allSettled(
+  const promises = await Promise.allSettled(
     unwrappedThorchainQuotes.map(async quote => {
       const onlyStep = quote.steps[0]
 
-      const result = await getBestAggregator(
+      const maybeBestAggregator = await getBestAggregator(
         nativeBuyAsset,
         getWrappedToken(nativeBuyAsset),
         getTokenFromAsset(buyAsset),
         onlyStep.buyAmountAfterFeesCryptoBaseUnit,
       )
 
-      const unwrappedResult = result.unwrap()
+      if (maybeBestAggregator.isErr()) return Err(maybeBestAggregator.unwrapErr())
+
+      const unwrappedResult = maybeBestAggregator.unwrap()
 
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      const minAmountOut = BigInt(
-        bnOrZero(quotedAmountOut.toString())
-          .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
-          .toFixed(0, BigNumber.ROUND_UP),
-      )
-
-      // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
-      assert(minAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
-
       const updatedMemo = addAggregatorAndDestinationToMemo({
         aggregator: bestAggregator,
         destinationToken: fromAssetId(buyAsset.assetId).assetReference as Address,
-        minAmountOut: minAmountOut.toString(),
+        minAmountOut: convertDecimalPercentageToBasisPoints(
+          slippageTolerancePercentageDecimal ??
+            getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
+        ).toString(),
         quotedMemo: quote.memo,
       })
 
@@ -136,7 +136,7 @@ export const getL1ToLongtailQuote = async (
         expiry: quote.expiry,
       })
 
-      return {
+      return Ok({
         ...quote,
         memo: updatedMemo,
         data,
@@ -147,17 +147,19 @@ export const getL1ToLongtailQuote = async (
           ...s,
           buyAsset,
           buyAmountAfterFeesCryptoBaseUnit: quotedAmountOut.toString(),
+          // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
+          buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
           allowanceContract: ALLOWANCE_CONTRACT,
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {
           L1ToLongtailExpectedAmountOut: quotedAmountOut,
         },
-      }
+      })
     }),
   )
 
-  if (promises.every(isRejected)) {
+  if (promises.every(promise => isRejected(promise) || isErrorPromise(promise))) {
     return Err(
       makeSwapErrorRight({
         message: '[getThorTradeQuote] - failed to get best aggregator',
@@ -166,7 +168,7 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  const updatedQuotes = promises.filter(isFulfilled).map(({ value }) => value)
+  const updatedQuotes = promises.filter(isFulfilled).map(element => element.value.unwrap())
 
   return Ok(updatedQuotes)
 }

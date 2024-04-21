@@ -47,6 +47,8 @@ export const getThorTradeQuote = async (
   assetsById: AssetsByIdPartial,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
+  const thorchainSwapL1ToLongtailEnabled =
+    getConfig().REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
 
   if (!sellSupportedChainIds[sellAsset.chainId] || !buySupportedChainIds[buyAsset.chainId]) {
@@ -120,6 +122,9 @@ export const getThorTradeQuote = async (
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, streamingInterval, assetsById)
     case TradeType.L1ToLongTail:
+      if (!thorchainSwapL1ToLongtailEnabled)
+        return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
+
       return getL1ToLongtailQuote(input, streamingInterval, assetsById)
     case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))

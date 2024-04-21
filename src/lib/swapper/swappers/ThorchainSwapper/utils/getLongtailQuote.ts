@@ -56,23 +56,18 @@ export const getLongtailToL1Quote = async (
   const publicClient = viemClientByChainId[sellChainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 
-  const result = await getBestAggregator(
+  const maybeBestAggregator = await getBestAggregator(
     nativeBuyAsset,
     getTokenFromAsset(sellAsset),
     getWrappedToken(nativeBuyAsset),
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   )
 
-  const { bestAggregator, quotedAmountOut } = result.unwrap()
-
-  if (!bestAggregator || !quotedAmountOut) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No best aggregator contract found.`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
+  if (maybeBestAggregator.isErr()) {
+    return Err(maybeBestAggregator.unwrapErr())
   }
+
+  const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
 
   const l1Tol1QuoteInput: GetTradeQuoteInput = {
     ...input,

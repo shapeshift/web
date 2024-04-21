@@ -55,6 +55,7 @@ export type FeatureFlags = {
   ThorchainLpWithdraw: boolean
   LedgerWallet: boolean
   ThorchainSwapLongtail: boolean
+  ThorchainSwapL1ToLongtail: boolean
   ShapeShiftMobileWallet: boolean
 }
 
@@ -134,6 +135,7 @@ const initialState: Preferences = {
     ThorchainLpWithdraw: getConfig().REACT_APP_FEATURE_THORCHAIN_LP_WITHDRAW,
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
+    ThorchainSwapL1ToLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
     ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,
   },
   selectedLocale: simpleLocale(),

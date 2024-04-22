@@ -3,6 +3,7 @@ import type { BackupPassphraseModalProps } from 'components/Layout/Header/NavBar
 import type { AssetSearchModalProps } from 'components/Modals/AssetSearch/AssetSearchModal'
 import type { FiatRampsModalProps } from 'components/Modals/FiatRamps/FiatRampsModal'
 import type { NftModalProps } from 'components/Modals/Nfts/NftModal'
+import type { OpenLedgerAppProps } from 'components/Modals/OpenLedgerApp/OpenLedgerApp'
 import type { PopupWindowModalProps } from 'components/Modals/PopupWindowModal'
 import type { QrCodeModalProps } from 'components/Modals/QrCode/QrCode'
 import type { ReceivePropsType } from 'components/Modals/Receive/Receive'
@@ -32,6 +33,7 @@ export type Modals = {
   nft: FC<NftModalProps>
   feedbackSupport: FC<{}>
   snaps: FC<SnapsModalProps>
+  openLedgerApp: FC<OpenLedgerAppProps>
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

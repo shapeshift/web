@@ -162,6 +162,14 @@ const Snaps = makeSuspenseful(
   ),
 )
 
+const OpenLedgerApp = makeSuspenseful(
+  lazy(() =>
+    import('components/Modals/OpenLedgerApp/OpenLedgerApp').then(({ OpenLedgerApp }) => ({
+      default: OpenLedgerApp,
+    })),
+  ),
+)
+
 const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -182,6 +190,7 @@ const MODALS: Modals = {
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
   snaps: Snaps,
+  openLedgerApp: OpenLedgerApp,
 } as const
 
 export const createModalProvider = () => {

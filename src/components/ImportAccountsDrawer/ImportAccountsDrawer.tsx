@@ -176,6 +176,19 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
     console.log('handleToggleAccountId', accountId)
   }, [])
 
+  const accountRows = useMemo(() => {
+    if (!feeAsset) return null
+    return accounts.map(({ accountId, accountNumber }) => (
+      <TableRow
+        key={accountId}
+        accountId={accountId}
+        accountNumber={accountNumber}
+        feeAsset={feeAsset}
+        toggleAccountId={handleToggleAccountId}
+      />
+    ))
+  }, [accounts, feeAsset, handleToggleAccountId])
+
   if (!feeAsset) {
     console.error(`No fee asset found for chainId: ${chainId}`)
     return null
@@ -201,15 +214,7 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
           <TableContainer>
             <Table variant='simple'>
               <Tbody>
-                {accounts.map(({ accountId, accountNumber }) => (
-                  <TableRow
-                    key={accountId}
-                    accountId={accountId}
-                    accountNumber={accountNumber}
-                    feeAsset={feeAsset}
-                    toggleAccountId={handleToggleAccountId}
-                  />
-                ))}
+                {accountRows}
                 {isLoading && <LoadingRow />}
               </Tbody>
             </Table>

@@ -22,8 +22,8 @@ export const NativeMenu = () => {
   )
 
   const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({}),
-    [accountManagementPopover],
+    () => accountManagementPopover.open({ title: translate('manageAccounts.modalTitle') }),
+    [accountManagementPopover, translate],
   )
 
   return (

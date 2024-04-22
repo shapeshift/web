@@ -14,8 +14,8 @@ export const KeepKeyConnectedMenuItems = () => {
   const accountManagementPopover = useModal('manageAccounts')
 
   const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({}),
-    [accountManagementPopover],
+    () => accountManagementPopover.open({ title: translate('manageAccounts.modalTitle') }),
+    [accountManagementPopover, translate],
   )
 
   return (

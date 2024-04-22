@@ -304,7 +304,8 @@
     }
   },
   "manageAccounts": {
-    "menuTitle": "Manage Accounts"
+    "menuTitle": "Manage Accounts",
+    "modalTitle": "Select a Chain to Manage"
   },
   "defi": {
     "modals": {

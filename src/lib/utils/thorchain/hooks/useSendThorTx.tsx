@@ -66,7 +66,7 @@ export const useSendThorTx = ({
   action,
   amountCryptoBaseUnit,
   assetId,
-  enabled,
+  enabled = true,
   disableRefetch,
   fromAddress,
   memo,
@@ -399,5 +399,6 @@ export const useSendThorTx = ({
     isEstimatedFeesDataError,
     txId,
     serializedTxIndex,
+    dustAmountCryptoBaseUnit,
   }
 }

@@ -245,7 +245,7 @@ export const RepayConfirm = ({
     enabled: !!repaymentAsset?.assetId,
   })
 
-  const { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
     accountId: repaymentAccountId,
     amountCryptoBaseUnit: toBaseUnit(
@@ -300,7 +300,7 @@ export const RepayConfirm = ({
 
     mixpanel?.track(MixPanelEvent.RepayConfirm, eventData)
 
-    const _txId = await onSignTx()
+    const _txId = await executeTransaction()
     if (!_txId) throw new Error('failed to broadcast transaction')
 
     setTxid(_txId)
@@ -315,7 +315,7 @@ export const RepayConfirm = ({
     isQuoteExpired,
     loanTxStatus,
     mixpanel,
-    onSignTx,
+    executeTransaction,
     refetchQuote,
     repaymentAccountNumber,
     repaymentAsset,

@@ -185,7 +185,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     quote,
   ])
 
-  const { onSignTx, estimatedFeesData } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: bnOrZero(state?.deposit.cryptoAmount)
@@ -250,7 +250,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
-      const _txId = await onSignTx()
+      const _txId = await executeTransaction()
       if (!_txId) throw new Error('failed to broadcast transaction')
 
       contextDispatch({
@@ -296,7 +296,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.deposit.fiatAmount,
     isTradingActive,
     refetchIsTradingActive,
-    onSignTx,
+    executeTransaction,
     protocolFeeCryptoBaseUnit,
     onNext,
     assets,

@@ -181,7 +181,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
   }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
 
-  const { onSignTx, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
     accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
@@ -328,7 +328,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
     }
 
-    const _txId = await onSignTx()
+    const _txId = await executeTransaction()
     if (!_txId) {
       setIsSubmitting(false)
       throw new Error('failed to broadcast transaction')
@@ -348,7 +348,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     memo,
     isRuneTx,
     inboundAddressData?.address,
-    onSignTx,
+    executeTransaction,
     onStart,
   ])
 

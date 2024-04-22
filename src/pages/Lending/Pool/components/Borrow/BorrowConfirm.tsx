@@ -242,7 +242,7 @@ export const BorrowConfirm = ({
 
   const isLendingQuoteSuccess = Boolean(confirmedQuote)
 
-  const { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
     amountCryptoBaseUnit: toBaseUnit(
@@ -293,7 +293,7 @@ export const BorrowConfirm = ({
 
     mixpanel?.track(MixPanelEvent.BorrowConfirm, eventData)
 
-    const _txId = await onSignTx()
+    const _txId = await executeTransaction()
     if (!_txId) throw new Error('failed to broadcast transaction')
 
     setTxid(_txId)
@@ -312,7 +312,7 @@ export const BorrowConfirm = ({
     collateralAsset,
     mixpanel,
     eventData,
-    onSignTx,
+    executeTransaction,
     refetchLendingQuote,
     setConfirmedQuote,
     setTxid,

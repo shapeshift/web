@@ -229,7 +229,7 @@ export const useSendThorTx = ({
       disableRefetch: Boolean(txId || disableRefetch),
     })
 
-  const onSignTx = useCallback(async () => {
+  const executeTransaction = useCallback(async () => {
     if (!memo) return
     if (!asset) return
     if (!wallet) return
@@ -240,8 +240,6 @@ export const useSendThorTx = ({
     if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
 
     const { account } = fromAccountId(accountId)
-
-    console.log({ account, fromAddress })
 
     const { _txId, _serializedTxIndex } = await (async () => {
       switch (transactionType) {
@@ -279,6 +277,7 @@ export const useSendThorTx = ({
           }
         }
         case 'EvmCustomTx': {
+          if (fromAddress === null) throw new Error('No account address found')
           if (!inboundAddressData?.address) throw new Error('No vault address found')
           if (!inboundAddressData?.router) throw new Error('No router address found')
           if (!depositWithExpiryInputData) throw new Error('No depositWithExpiry input data found')
@@ -305,7 +304,7 @@ export const useSendThorTx = ({
 
           return {
             _txId,
-            _serializedTxIndex: serializeTxIndex(accountId, _txId, fromAddress ?? account),
+            _serializedTxIndex: serializeTxIndex(accountId, _txId, fromAddress || account),
           }
         }
         case 'Send': {
@@ -390,5 +389,11 @@ export const useSendThorTx = ({
     wallet,
   ])
 
-  return { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading, txId, serializedTxIndex }
+  return {
+    executeTransaction,
+    estimatedFeesData,
+    isEstimatedFeesDataLoading,
+    txId,
+    serializedTxIndex,
+  }
 }

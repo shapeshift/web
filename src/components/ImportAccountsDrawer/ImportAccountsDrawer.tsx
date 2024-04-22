@@ -7,6 +7,7 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
+  forwardRef,
   Skeleton,
   Switch,
   Table,
@@ -17,7 +18,7 @@ import {
   Tr,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId } from '@shapeshiftoss/caip'
+import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -49,35 +50,42 @@ type TableRowProps = {
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
-const TableRow = ({ feeAsset, accountId, accountNumber, toggleAccountId }: TableRowProps) => {
-  const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
-  const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-  const balanceFilter = useMemo(
-    () => ({ assetId: feeAsset.assetId, accountId }),
-    [feeAsset, accountId],
-  )
-  const feeAssetBalancePrecision = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
-  )
-  return (
-    <Tr>
-      <Td>
-        <RawText>{accountNumber}</RawText>
-      </Td>
-      <Td>
-        <Switch onChange={handleChange} />
-      </Td>
-      <Td>
-        <Tooltip label={accountLabel}>
-          <MiddleEllipsis value={accountLabel} />
-        </Tooltip>
-      </Td>
-      <Td>
-        <Amount.Crypto value={feeAssetBalancePrecision} symbol={feeAsset?.symbol ?? ''} />
-      </Td>
-    </Tr>
-  )
-}
+const TableRow = forwardRef<TableRowProps, 'div'>(
+  ({ feeAsset, accountId, accountNumber, toggleAccountId }, ref) => {
+    const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
+    const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
+    const balanceFilter = useMemo(
+      () => ({ assetId: feeAsset.assetId, accountId }),
+      [feeAsset, accountId],
+    )
+
+    const feeAssetBalancePrecision = useAppSelector(s =>
+      selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
+    )
+    const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
+
+    return (
+      <Tr>
+        <Td>
+          <RawText>{accountNumber}</RawText>
+        </Td>
+        <Td>
+          <Switch onChange={handleChange} />
+        </Td>
+        <Td>
+          <Tooltip label={pubkey}>
+            <div ref={ref}>
+              <MiddleEllipsis value={accountLabel} />
+            </div>
+          </Tooltip>
+        </Td>
+        <Td>
+          <Amount.Crypto value={feeAssetBalancePrecision} symbol={feeAsset?.symbol ?? ''} />
+        </Td>
+      </Tr>
+    )
+  },
+)
 
 const LoadingRow = () => {
   return (

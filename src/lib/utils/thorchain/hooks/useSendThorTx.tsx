@@ -54,7 +54,8 @@ type UseSendThorTxProps = {
   accountId: AccountId | null
   action: Action
   amountCryptoBaseUnit: string | undefined
-  assetId: AssetId
+  assetId: AssetId | undefined
+  enabled?: boolean
   disableRefetch?: boolean
   fromAddress: string | null
   memo: string | undefined
@@ -65,6 +66,7 @@ export const useSendThorTx = ({
   action,
   amountCryptoBaseUnit,
   assetId,
+  enabled,
   disableRefetch,
   fromAddress,
   memo,
@@ -113,6 +115,7 @@ export const useSendThorTx = ({
 
   const depositWithExpiryInputData = useMemo(() => {
     if (!memo) return
+    if (!assetId) return
     if (!inboundAddressData?.address) return
     if (transactionType !== 'EvmCustomTx') return
 
@@ -163,7 +166,6 @@ export const useSendThorTx = ({
         }
       }
       case 'EvmCustomTx': {
-        if (fromAddress === null) return
         if (!inboundAddressData?.router) return
         if (!depositWithExpiryInputData) return
 
@@ -174,7 +176,7 @@ export const useSendThorTx = ({
               : '0',
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
           to: inboundAddressData.router,
-          from: fromAddress || account,
+          from: account,
           sendMax: false,
           memo: depositWithExpiryInputData,
           accountId,
@@ -216,18 +218,21 @@ export const useSendThorTx = ({
     wallet,
   ])
 
-  const { data: estimatedFeesData, isLoading: isEstimatedFeesDataLoading } =
-    useGetEstimatedFeesQuery({
-      amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
-      assetId: estimateFeesArgs?.assetId ?? '',
-      to: estimateFeesArgs?.to ?? '',
-      sendMax: estimateFeesArgs?.sendMax ?? false,
-      memo: estimateFeesArgs?.memo ?? '',
-      accountId: estimateFeesArgs?.accountId ?? '',
-      contractAddress: estimateFeesArgs?.contractAddress ?? '',
-      enabled: Boolean(estimateFeesArgs),
-      disableRefetch: Boolean(txId || disableRefetch),
-    })
+  const {
+    data: estimatedFeesData,
+    isLoading: isEstimatedFeesDataLoading,
+    isError: isEstimatedFeesDataError,
+  } = useGetEstimatedFeesQuery({
+    amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
+    assetId: estimateFeesArgs?.assetId ?? '',
+    to: estimateFeesArgs?.to ?? '',
+    sendMax: estimateFeesArgs?.sendMax ?? false,
+    memo: estimateFeesArgs?.memo ?? '',
+    accountId: estimateFeesArgs?.accountId ?? '',
+    contractAddress: estimateFeesArgs?.contractAddress ?? '',
+    enabled: Boolean(estimateFeesArgs && enabled),
+    disableRefetch: Boolean(txId || disableRefetch),
+  })
 
   const executeTransaction = useCallback(async () => {
     if (!memo) return
@@ -277,7 +282,6 @@ export const useSendThorTx = ({
           }
         }
         case 'EvmCustomTx': {
-          if (fromAddress === null) throw new Error('No account address found')
           if (!inboundAddressData?.address) throw new Error('No vault address found')
           if (!inboundAddressData?.router) throw new Error('No router address found')
           if (!depositWithExpiryInputData) throw new Error('No depositWithExpiry input data found')
@@ -289,7 +293,7 @@ export const useSendThorTx = ({
             adapter,
             data: depositWithExpiryInputData,
             value:
-              !isToken(fromAssetId(assetId).assetReference) || shouldUseDustAmount
+              !isToken(fromAssetId(asset.assetId).assetReference) || shouldUseDustAmount
                 ? amountOrDustCryptoBaseUnit
                 : '0',
             to: inboundAddressData.router,
@@ -304,7 +308,7 @@ export const useSendThorTx = ({
 
           return {
             _txId,
-            _serializedTxIndex: serializeTxIndex(accountId, _txId, fromAddress || account),
+            _serializedTxIndex: serializeTxIndex(accountId, _txId, account),
           }
         }
         case 'Send': {
@@ -315,7 +319,7 @@ export const useSendThorTx = ({
 
           const sendInput: SendInput = {
             amountCryptoPrecision: fromBaseUnit(amountOrDustCryptoBaseUnit, asset.precision),
-            assetId,
+            assetId: asset.assetId,
             to: inboundAddressData?.address,
             from: fromAddress,
             sendMax: false,
@@ -375,7 +379,6 @@ export const useSendThorTx = ({
     accountNumber,
     amountOrDustCryptoBaseUnit,
     asset,
-    assetId,
     depositWithExpiryInputData,
     estimateFeesArgs,
     fromAddress,
@@ -393,6 +396,7 @@ export const useSendThorTx = ({
     executeTransaction,
     estimatedFeesData,
     isEstimatedFeesDataLoading,
+    isEstimatedFeesDataError,
     txId,
     serializedTxIndex,
   }

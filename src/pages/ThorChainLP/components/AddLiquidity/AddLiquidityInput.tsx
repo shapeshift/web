@@ -24,7 +24,6 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -32,10 +31,8 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
-import { getAddress, zeroAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FeeModal } from 'components/FeeModal/FeeModal'
@@ -68,10 +65,9 @@ import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress, getThorchainTransactionType } from 'lib/utils/thorchain'
 import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
-import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
-import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
@@ -645,91 +641,21 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
   }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
-  const estimateFeesArgs = useMemo(() => {
-    if (!assetId || !wallet || !poolAsset || !memo || !poolAssetAccountAddress) return undefined
-
-    const amountCryptoBaseUnit = toBaseUnit(
-      actualAssetDepositAmountCryptoPrecision,
-      poolAsset.precision,
-    )
-
-    const transactionType = getThorchainTransactionType(poolAsset.chainId)
-
-    switch (transactionType) {
-      case 'EvmCustomTx': {
-        if (!inboundAddressesData?.router) return undefined
-
-        const data = depositWithExpiry({
-          vault: getAddress(inboundAddressesData.address),
-          asset: isToken(fromAssetId(assetId).assetReference)
-            ? getAddress(fromAssetId(assetId).assetReference)
-            : // Native EVM asset deposits use the 0 address as the asset address
-              // https://dev.thorchain.org/concepts/sending-transactions.html#admonition-info-1
-              zeroAddress,
-          amount: amountCryptoBaseUnit,
-          memo,
-          expiry: BigInt(dayjs().add(15, 'minute').unix()),
-        })
-
-        return {
-          // amountCryptoPrecision is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          amountCryptoPrecision: isToken(fromAssetId(assetId).assetReference)
-            ? '0'
-            : actualAssetDepositAmountCryptoPrecision,
-          // It's a regular 0-value contract-call
-          assetId: poolAsset?.assetId,
-          to: inboundAddressesData.router,
-          from: poolAssetAccountAddress,
-          sendMax: false,
-          // This is an ERC-20, we abuse the memo field for the actual hex-encoded calldata
-          memo: data,
-          accountId: poolAssetAccountId,
-          // Note, this is NOT a send.
-          // contractAddress is only needed when doing a send and the account interacts *directly* with the token's contract address.
-          // Here, the LP contract is approved beforehand to spend the token value, which it will when calling depositWithExpiry()
-          contractAddress: undefined,
-        }
-      }
-      case 'Send': {
-        if (!inboundAddressesData) return undefined
-        return {
-          amountCryptoPrecision: actualAssetDepositAmountCryptoPrecision,
-          assetId: poolAsset.assetId,
-          to: inboundAddressesData.address,
-          from: poolAssetAccountAddress,
-          sendMax: false,
-          memo,
-          accountId: poolAssetAccountId,
-          contractAddress: undefined,
-        }
-      }
-      default:
-        return undefined
-    }
-  }, [
-    assetId,
-    wallet,
-    poolAsset,
-    memo,
-    poolAssetAccountAddress,
-    actualAssetDepositAmountCryptoPrecision,
-    inboundAddressesData,
-    poolAssetAccountId,
-  ])
-
   const {
-    data: estimatedPoolAssetFeesData,
-    isLoading: isEstimatedPoolAssetFeesDataLoading,
-    isError: isEstimatedPoolAssetFeesDataError,
-  } = useGetEstimatedFeesQuery({
-    amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
-    assetId: estimateFeesArgs?.assetId ?? '',
-    to: estimateFeesArgs?.to ?? '',
-    sendMax: estimateFeesArgs?.sendMax ?? false,
-    memo: estimateFeesArgs?.memo ?? '',
-    accountId: estimateFeesArgs?.accountId ?? '',
-    contractAddress: estimateFeesArgs?.contractAddress ?? '',
-    enabled: Boolean(estimateFeesArgs && !isApprovalRequired && incompleteSide !== AsymSide.Rune),
+    estimatedFeesData: estimatedPoolAssetFeesData,
+    isEstimatedFeesDataLoading: isEstimatedPoolAssetFeesDataLoading,
+    isEstimatedFeesDataError: isEstimatedPoolAssetFeesDataError,
+  } = useSendThorTx({
+    assetId: poolAsset?.assetId,
+    accountId: poolAssetAccountId,
+    amountCryptoBaseUnit: toBaseUnit(
+      actualAssetDepositAmountCryptoPrecision,
+      poolAsset?.precision ?? 0,
+    ),
+    memo,
+    fromAddress: poolAssetAccountAddress ?? null,
+    action: 'addLiquidity',
+    enabled: !isApprovalRequired && incompleteSide !== AsymSide.Rune,
   })
 
   useEffect(() => {
@@ -845,16 +771,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   // Rune balance / gas data and checks
 
-  // We reuse lending utils here since all this does is estimating fees for a given deposit amount with a memo
   const {
-    data: estimatedRuneFeesData,
-    isLoading: isEstimatedRuneFeesDataLoading,
-    isError: isEstimatedRuneFeesDataError,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId: thorchainAssetId,
-    collateralAccountId: runeAccountId,
-    depositAmountCryptoPrecision: actualRuneDepositAmountCryptoPrecision ?? '0',
-    confirmedQuote,
+    estimatedFeesData: estimatedRuneFeesData,
+    isEstimatedFeesDataLoading: isEstimatedRuneFeesDataLoading,
+    isEstimatedFeesDataError: isEstimatedRuneFeesDataError,
+  } = useSendThorTx({
+    assetId: thorchainAssetId,
+    accountId: runeAccountId,
+    amountCryptoBaseUnit: toBaseUnit(
+      actualRuneDepositAmountCryptoPrecision,
+      runeAsset?.precision ?? 0,
+    ),
+    memo,
+    fromAddress: null,
+    action: 'addLiquidity',
     enabled: incompleteSide !== AsymSide.Asset,
   })
 

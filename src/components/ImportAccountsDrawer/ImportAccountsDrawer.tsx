@@ -211,7 +211,7 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
         </DrawerHeader>
 
         <DrawerBody>
-          <TableContainer>
+          <TableContainer mb={4}>
             <Table variant='simple'>
               <Tbody>
                 {accountRows}

@@ -1,6 +1,6 @@
 import { Box, IconButton, useColorMode } from '@chakra-ui/react'
-import type { BIP32Path, ETHSignTypedData } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { BIP32Path, ETHSignTypedData, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { CustomTheme, ThemeMode as ThemeModeType } from '@wherever/react-notification-feed'
 import { getConfig } from 'config'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
@@ -8,7 +8,11 @@ import { useTranslate } from 'react-polyglot'
 import { toHex } from 'viem'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { breakpoints, theme } from 'theme/theme'
 
 const NotificationBell = lazy(() =>
@@ -40,6 +44,11 @@ export const Notifications = memo(() => {
   const {
     state: { wallet, modalType },
   } = useWallet()
+  const isSnapInstalled = useIsSnapInstalled()
+
+  const ethAccountIds = useAppSelector(state =>
+    selectAccountIdsByAssetId(state, { assetId: ethAssetId }),
+  )
 
   const [addressNList, setAddressNList] = useState<BIP32Path>()
   const [ethAddress, setEthAddress] = useState<string | null>()
@@ -68,29 +77,49 @@ export const Notifications = memo(() => {
     }
   }, [colorMode, mobileBreakpoint])
 
+  const walletSupportsEth = useMemo(
+    () =>
+      walletSupportsChain({
+        chainId: ethChainId,
+        wallet,
+        isSnapInstalled,
+        chainAccountIds: ethAccountIds,
+      }),
+    [ethAccountIds, isSnapInstalled, wallet],
+  )
+
   useEffect(() => {
-    if (!wallet || !supportsETH(wallet)) return
+    if (!(wallet && walletSupportsEth && eip712SupportedWallets.includes(modalType as KeyManager)))
+      return
     ;(async () => {
-      const { addressNList } = wallet.ethGetAccountPaths({
+      const { addressNList } = (wallet as ETHWallet).ethGetAccountPaths({
         coin: 'Ethereum',
         accountIdx: 0,
       })[0]
 
-      const ethAddress = await wallet.ethGetAddress({ addressNList, showDisplay: false })
+      const ethAddress = await (wallet as ETHWallet).ethGetAddress({
+        addressNList,
+        showDisplay: false,
+      })
 
       setEthAddress(ethAddress)
       setAddressNList(addressNList)
     })()
-  }, [wallet])
+  }, [modalType, wallet, walletSupportsEth])
 
   const signMessage = useCallback(
     async (message: string) => {
-      if (!addressNList || !wallet || !supportsETH(wallet)) {
+      if (
+        !addressNList ||
+        !wallet ||
+        !walletSupportsEth ||
+        !eip712SupportedWallets.includes(modalType as KeyManager)
+      ) {
         return
       }
 
       try {
-        const signedMsg = await wallet.ethSignMessage({
+        const signedMsg = await (wallet as ETHWallet).ethSignMessage({
           addressNList,
           message: toHex(message),
         })
@@ -100,17 +129,22 @@ export const Notifications = memo(() => {
         console.error(e)
       }
     },
-    [wallet, addressNList],
+    [addressNList, modalType, wallet, walletSupportsEth],
   )
 
   const signTypedData = useCallback(
     async (typedData: ETHSignTypedData['typedData']) => {
-      if (!addressNList || !wallet || !supportsETH(wallet)) {
+      if (
+        !addressNList ||
+        !wallet ||
+        !walletSupportsEth ||
+        !eip712SupportedWallets.includes(modalType as KeyManager)
+      ) {
         return
       }
 
       try {
-        const signedMsg = await wallet.ethSignTypedData?.({
+        const signedMsg = await (wallet as ETHWallet).ethSignTypedData?.({
           addressNList,
           typedData,
         })
@@ -120,7 +154,7 @@ export const Notifications = memo(() => {
         console.error(e)
       }
     },
-    [wallet, addressNList],
+    [addressNList, modalType, wallet, walletSupportsEth],
   )
 
   const customSignerProp = useMemo(
@@ -138,7 +172,7 @@ export const Notifications = memo(() => {
     !ethAddress ||
     !wallet ||
     !eip712SupportedWallets.includes(modalType as KeyManager) ||
-    !supportsETH(wallet)
+    !walletSupportsEth
   )
     return null
 

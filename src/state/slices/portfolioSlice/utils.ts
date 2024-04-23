@@ -55,7 +55,7 @@ import type {
 import { initialState } from './portfolioSliceCommon'
 
 // note - this isn't a selector, just a pure utility function
-export const accountIdToLabel = (accountId: AccountId, dontShorten = false): string => {
+export const accountIdToLabel = (accountId: AccountId): string => {
   const { chainId, account: pubkey } = fromAccountId(accountId)
   switch (chainId) {
     case avalancheChainId:
@@ -67,7 +67,7 @@ export const accountIdToLabel = (accountId: AccountId, dontShorten = false): str
     case arbitrumChainId:
     case arbitrumNovaChainId:
       // this will be the 0x account
-      return dontShorten ? pubkey : firstFourLastFour(pubkey)
+      return firstFourLastFour(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
       if (pubkey.startsWith('xpub')) return 'Legacy'

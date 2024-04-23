@@ -275,22 +275,24 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!inputValues) return
       if (!opportunityData) return
       if (!contextDispatch) return
-      if (!estimatedFeesData) return
+      if (!isApprovalRequired && !estimatedFeesData) return
 
       // set deposit state for future use
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_DEPOSIT, payload: formValues })
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
 
       try {
-        contextDispatch({
-          type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-          payload: {
-            estimatedGasCryptoPrecision: fromBaseUnit(
-              estimatedFeesData.txFeeCryptoBaseUnit,
-              feeAsset.precision,
-            ),
-          },
-        })
+        if (estimatedFeesData) {
+          contextDispatch({
+            type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+            payload: {
+              estimatedGasCryptoPrecision: fromBaseUnit(
+                estimatedFeesData.txFeeCryptoBaseUnit,
+                feeAsset.precision,
+              ),
+            },
+          })
+        }
 
         const approvalFees = await (() => {
           if (

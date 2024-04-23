@@ -9,41 +9,16 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  SimpleGrid,
-  VStack,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
-import { chainIdToFeeAssetId } from 'lib/utils'
-import { selectWalletSupportedChainIds } from 'state/slices/common-selectors'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 export type ManageAccountsModalProps = {
   title?: string
 }
 
 const infoIcon = <InfoIcon />
-
-const ChainButton = ({ chainId }: { chainId: ChainId }) => {
-  const feeAssetId = chainIdToFeeAssetId(chainId)
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-
-  if (!feeAsset) return null
-
-  return (
-    <Button height='100px' width='100px'>
-      <VStack direction='column'>
-        <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
-        <RawText>{feeAsset.symbol}</RawText>
-      </VStack>
-    </Button>
-  )
-}
 
 export const ManageAccountsModal = ({
   title = 'manageAccounts.modalTitle',
@@ -54,14 +29,6 @@ export const ManageAccountsModal = ({
   const handleInfoClick = useCallback(() => {
     console.log('info clicked')
   }, [])
-
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
-
-  const chainButtons = useMemo(() => {
-    return walletSupportedChainIds.map(chainId => {
-      return <ChainButton key={chainId} chainId={chainId} />
-    })
-  }, [walletSupportedChainIds])
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
@@ -82,9 +49,8 @@ export const ManageAccountsModal = ({
         />
         <ModalCloseButton position='absolute' top={3} right={3} />
         <ModalBody>
-          <SimpleGrid columns={3} spacing={4} placeItems='center' height='100%'>
-            {chainButtons}
-          </SimpleGrid>
+          {/* TODO: Implement me */}
+          Placeholder content
         </ModalBody>
         <ModalFooter justifyContent='center' pb={6}>
           <Button colorScheme='blue' onClick={close} width='full'>

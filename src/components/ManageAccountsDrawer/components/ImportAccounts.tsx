@@ -195,8 +195,8 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   return (
     <DrawerContentWrapper
-      title={translate('accountManagementSidebar.title', { chainNamespaceDisplayName })}
-      description={translate('accountManagementSidebar.description')}
+      title={translate('accountManagement.importAccounts.title', { chainNamespaceDisplayName })}
+      description={translate('accountManagement.importAccounts.description')}
       footer={
         <>
           <Button

@@ -15,10 +15,10 @@ import {
   useInterval,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -28,7 +28,6 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
-import { toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAsset } from 'components/AssetToAsset/AssetToAsset'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -45,13 +44,11 @@ import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -248,33 +245,18 @@ export const RepayConfirm = ({
     enabled: !!repaymentAsset?.assetId,
   })
 
-  const memo = useMemo(() => {
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    if (!(supportedEvmChainIds && repaymentAsset && confirmedQuote)) return
-    return supportedEvmChainIds.includes(
-      fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
-    )
-      ? toHex(confirmedQuote.quoteMemo)
-      : confirmedQuote.quoteMemo
-  }, [confirmedQuote, repaymentAsset])
-
-  const fromAddress = useMemo(() => {
-    if (!repaymentAccountId) return ''
-    return isUtxoAccountId(repaymentAccountId) ? '' : fromAccountId(repaymentAccountId).account
-  }, [repaymentAccountId])
-
-  const { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
-    accountId: repaymentAccountId ?? '',
+    accountId: repaymentAccountId,
     amountCryptoBaseUnit: toBaseUnit(
       confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
       repaymentAsset?.precision ?? 0,
     ),
-    memo,
-    // For repayments, we don't need to send from a specific address for UTXOs
-    // Though THOR adapter explicitly requires it, and so does the EVM one for gas estimation
-    fromAddress,
-    thorfiAction: 'repayLoan',
+    memo: confirmedQuote?.quoteMemo,
+    // no explicit from address required for repayments
+    fromAddress: '',
+    action: 'repayLoan',
+    disableRefetch: isLoanPending,
   })
 
   const handleConfirm = useCallback(async () => {
@@ -318,8 +300,9 @@ export const RepayConfirm = ({
 
     mixpanel?.track(MixPanelEvent.RepayConfirm, eventData)
 
-    const _txId = await onSignTx()
-    if (!_txId) throw new Error('No txId returned from onSignTx')
+    const _txId = await executeTransaction()
+    if (!_txId) throw new Error('failed to broadcast transaction')
+
     setTxid(_txId)
   }, [
     chainAdapter,
@@ -332,7 +315,7 @@ export const RepayConfirm = ({
     isQuoteExpired,
     loanTxStatus,
     mixpanel,
-    onSignTx,
+    executeTransaction,
     refetchQuote,
     repaymentAccountNumber,
     repaymentAsset,

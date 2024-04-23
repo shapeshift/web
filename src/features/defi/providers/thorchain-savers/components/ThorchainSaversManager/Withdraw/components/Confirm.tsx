@@ -44,7 +44,6 @@ import { isToken } from 'lib/utils'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { isUtxoChainId } from 'lib/utils/utxo'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getThorchainSaversPosition,
@@ -74,7 +73,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quote, setQuote] = useState<ThorchainSaversWithdrawQuoteResponseSuccess | null>(null)
   const [isDangerousWithdraw, setIsDangerousWithdraw] = useState(false)
   const [expiry, setExpiry] = useState<string>('')
-  const [fromAddress, setfromAddress] = useState<string>('')
+  const [fromAddress, setfromAddress] = useState<string | null>(null)
   const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
   const [dustAmountCryptoBaseUnit, setDustAmountCryptoBaseUnit] = useState<string>('')
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
@@ -272,24 +271,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })()
   }, [accountId, assetId, chainId, fromAddress])
 
-  const memo = useMemo(() => {
-    // Note: this is *always* an UTF-8 string as we use this for the memo field of depositWithExpiry()
-    // The only time this would need to be converted to hex is if we were to use it for EVM sends,
-    // which we should never do since depositWithExpiry() is the way
-    const memoUtf8 = quote?.memo
-    if (!memoUtf8) return
-    return memoUtf8
-  }, [quote?.memo])
-
-  const { onSignTx, estimatedFeesData } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    amountCryptoBaseUnit: bnOrZero(state?.withdraw.cryptoAmount)
-      .times(bn(10).pow(asset.precision))
-      .toFixed(0),
-    thorfiAction: 'withdrawSavers',
-    memo,
-    fromAddress: fromAddress ?? null,
+    // withdraw savers will use dust amount
+    amountCryptoBaseUnit: undefined,
+    action: 'withdrawSavers',
+    memo: quote?.memo,
+    fromAddress,
   })
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
@@ -313,8 +302,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         )
       )
         return
-
-      if (isUtxoChainId(chainId) && !fromAddress) return
 
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!state?.withdraw.cryptoAmount) return
@@ -342,7 +329,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         throw new Error(`THORChain pool halted for assetId: ${assetId}`)
       }
 
-      const _txId = await onSignTx()
+      const _txId = await executeTransaction()
       if (!_txId) throw new Error('No txId returned from onSignTx')
 
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_TXID, payload: _txId })
@@ -351,7 +338,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         payload: {
           dustAmountCryptoBaseUnit,
           protocolFeeCryptoBaseUnit,
-          maybeFromUTXOAccountAddress: fromAddress,
+          maybeFromUTXOAccountAddress: fromAddress ?? '',
         },
       })
       onNext(DefiStep.Status)
@@ -387,13 +374,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     wallet,
     opportunity,
     chainAdapter,
-    chainId,
     fromAddress,
     state?.withdraw.cryptoAmount,
     state?.withdraw.fiatAmount,
     isTradingActive,
     refetchIsTradingActive,
-    onSignTx,
+    executeTransaction,
     dustAmountCryptoBaseUnit,
     protocolFeeCryptoBaseUnit,
     onNext,

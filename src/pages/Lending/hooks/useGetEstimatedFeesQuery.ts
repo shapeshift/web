@@ -1,6 +1,6 @@
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { EstimatedFeesQueryKey } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { bn } from 'lib/bignumber/bignumber'
@@ -8,12 +8,22 @@ import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+export type EstimatedFeesQueryKey = [
+  'estimateFees',
+  {
+    enabled: boolean
+    asset: Asset | undefined
+    assetMarketData: MarketData
+    estimateFeesInput: EstimateFeesInput | undefined
+  },
+]
+
 // For use outside of react with queryClient.fetchQuery()
 export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
   const { estimateFeesInput, asset, assetMarketData } = queryKey[1]
 
   // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-  if (!asset || !estimateFeesInput?.to || !estimateFeesInput.accountId?.length) return
+  if (!asset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
 
   const estimatedFees = await estimateFees(estimateFeesInput)
   const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))

@@ -17,7 +17,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -25,7 +25,6 @@ import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAsset } from 'components/AssetToAsset/AssetToAsset'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -42,7 +41,6 @@ import { toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
@@ -244,24 +242,17 @@ export const BorrowConfirm = ({
 
   const isLendingQuoteSuccess = Boolean(confirmedQuote)
 
-  const memo = useMemo(() => {
-    if (!confirmedQuote) return
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    return supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId as KnownChainIds)
-      ? toHex(confirmedQuote.quoteMemo)
-      : confirmedQuote.quoteMemo
-  }, [collateralAssetId, confirmedQuote])
-
-  const { onSignTx, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
     amountCryptoBaseUnit: toBaseUnit(
       depositAmountCryptoPrecision ?? '0',
       collateralAsset?.precision ?? 0,
     ),
-    memo,
+    memo: confirmedQuote?.quoteMemo,
     fromAddress,
-    thorfiAction: 'openLoan',
+    action: 'openLoan',
+    disableRefetch: isLoanPending,
   })
 
   const handleConfirm = useCallback(async () => {
@@ -302,11 +293,9 @@ export const BorrowConfirm = ({
 
     mixpanel?.track(MixPanelEvent.BorrowConfirm, eventData)
 
-    if (!fromAddress)
-      throw new Error(`Could not get send address for AccountId ${collateralAccountId}`)
+    const _txId = await executeTransaction()
+    if (!_txId) throw new Error('failed to broadcast transaction')
 
-    const _txId = await onSignTx()
-    if (!_txId) throw new Error('No txId returned from onSignTx')
     setTxid(_txId)
   }, [
     confirmedQuote,
@@ -323,9 +312,7 @@ export const BorrowConfirm = ({
     collateralAsset,
     mixpanel,
     eventData,
-    fromAddress,
-    collateralAccountId,
-    onSignTx,
+    executeTransaction,
     refetchLendingQuote,
     setConfirmedQuote,
     setTxid,

@@ -6,7 +6,7 @@ import { assertGetChainAdapter } from 'lib/utils'
 import { checkAccountHasActivity } from 'state/slices/portfolioSlice/utils'
 
 export const accountManagement = createQueryKeys('accountManagement', {
-  loadAccount: (accountNumber: number, chainId: ChainId, wallet: HDWallet) => ({
+  accountIdWithActivity: (accountNumber: number, chainId: ChainId, wallet: HDWallet) => ({
     queryKey: ['accountManagement', accountNumber, chainId, wallet.getDeviceID()],
     queryFn: async () => {
       const input = { accountNumber, chainIds: [chainId], wallet }

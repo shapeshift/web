@@ -16,7 +16,8 @@ import { Allocations } from 'components/AccountRow/Allocations'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { accountIdToFeeAssetId, middleEllipsis } from 'lib/utils'
+import { middleEllipsis } from 'lib/utils'
+import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,

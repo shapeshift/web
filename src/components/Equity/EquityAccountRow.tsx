@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory } from 'react-router-dom'
 import { AccountsIcon } from 'components/Icons/Accounts'
-import { accountIdToFeeAssetId } from 'lib/utils'
+import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,

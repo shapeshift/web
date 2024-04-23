@@ -30,7 +30,7 @@ const ChainButton = ({
   if (!feeAsset) return null
 
   return (
-    <Button height='100px' width='100px' onClick={handleClick}>
+    <Button height='100px' width='full' onClick={handleClick}>
       <VStack direction='column'>
         <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
         <RawText>{feeAsset.symbol}</RawText>
@@ -74,7 +74,7 @@ export const SelectChain = ({ onSelectChainId }: SelectChainProps) => {
 
   const body = useMemo(() => {
     return (
-      <SimpleGrid columns={3} spacing={4} placeItems='center' height='100%'>
+      <SimpleGrid columns={3} spacing={6}>
         {chainButtons}
       </SimpleGrid>
     )

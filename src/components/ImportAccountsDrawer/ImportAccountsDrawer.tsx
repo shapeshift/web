@@ -18,7 +18,7 @@ import {
   Tr,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -53,13 +53,13 @@ const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 const TableRow = forwardRef<TableRowProps, 'div'>(
   ({ asset, accountId, accountNumber, toggleAccountId }, ref) => {
     const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
+    const tooltipLabel = useMemo(() => accountIdToLabel(accountId, true), [accountId])
     const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
     const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
 
     const assetBalancePrecision = useAppSelector(s =>
       selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
     )
-    const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
 
     return (
       <Tr>
@@ -70,7 +70,7 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
           <Switch onChange={handleChange} />
         </Td>
         <Td>
-          <Tooltip label={pubkey}>
+          <Tooltip label={tooltipLabel}>
             <div ref={ref}>
               <MiddleEllipsis value={accountLabel} />
             </div>

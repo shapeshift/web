@@ -24,7 +24,7 @@ import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
-import { getAccountTitle } from 'lib/utils'
+import { getAccountTitle } from 'lib/utils/accounts'
 import { isUtxoAccountId, isUtxoChainId } from 'lib/utils/utxo'
 import {
   selectAssets,

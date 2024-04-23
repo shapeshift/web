@@ -9,7 +9,8 @@ import {
 } from '@shapeshiftoss/caip'
 import { mockChainAdapters } from 'test/mocks/portfolio'
 import { describe, expect, it, vi } from 'vitest'
-import { accountIdToFeeAssetId, trimWithEndEllipsis } from 'lib/utils'
+import { trimWithEndEllipsis } from 'lib/utils'
+import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 
 import { accountIdToLabel, findAccountsByAssetId } from './utils'
 

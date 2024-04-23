@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { isUtxoChainId } from 'lib/utils/utxo'
 
 type UseIsSweepNeededQueryProps = {
   assetId: AssetId | undefined

@@ -10,11 +10,12 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { middleEllipsis } from 'lib/utils'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
 } from 'state/slices/portfolioSlice/selectors'
-import { accountIdToLabel, isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

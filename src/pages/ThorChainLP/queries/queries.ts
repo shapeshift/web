@@ -14,7 +14,7 @@ import type {
   MidgardMembersList,
 } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { isUtxoChainId } from 'lib/utils/utxo'
 
 const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
 

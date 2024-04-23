@@ -7,7 +7,7 @@ const RECEIVE_ADDRESS = '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6'
 
 describe('addSlippageToMemo', () => {
   it('should add slippage to memo correctly', () => {
-    const affiliateBps = '100' // Example affiliate basis points
+    const affiliateBps = '100'
     const quotedMemo = `=:ETH.ETH:${RECEIVE_ADDRESS}::ss:${affiliateBps}`
     const finalExpectedAmountOut = '99000000'
 

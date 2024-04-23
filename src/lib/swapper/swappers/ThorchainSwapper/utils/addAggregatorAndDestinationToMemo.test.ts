@@ -23,7 +23,6 @@ describe('addAggregatorAndDestinationToMemo', () => {
       minAmountOut,
     })
 
-    // Assert the modified memo matches the expected format
     expect(modifiedMemo).toBe(
       `=${MEMO_PART_DELIMITER}ETH.ETH${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${finalExpectedAmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_ADDRESS}${MEMO_PART_DELIMITER}${FINAL_ASSET_ADDRESS}${MEMO_PART_DELIMITER}${minAmountOut}`,
     )

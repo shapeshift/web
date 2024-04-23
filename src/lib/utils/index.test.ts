@@ -27,7 +27,6 @@ import {
   isSome,
   isToken,
   isUrl,
-  isValidAccountNumber,
   partitionCompare,
   partitionCompareWith,
   sha256,
@@ -109,37 +108,7 @@ describe('lib/utils', () => {
       expect(original).toEqual(updated)
     })
   })
-  describe('isValidAccountNumber', () => {
-    it('should return true for 0', () => {
-      const accountNumber = 0
-      expect(isValidAccountNumber(accountNumber)).toBeTruthy()
-    })
 
-    it('should return true for 1', () => {
-      const accountNumber = 1
-      expect(isValidAccountNumber(accountNumber)).toBeTruthy()
-    })
-
-    it('should return false for undefined', () => {
-      const accountNumber = undefined
-      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
-    })
-
-    it('should return false for null', () => {
-      const accountNumber = null
-      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
-    })
-
-    it('should return false for negative numbers', () => {
-      const accountNumber = -1
-      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
-    })
-
-    it('should return false for non integers', () => {
-      const accountNumber = 1.1
-      expect(isValidAccountNumber(accountNumber)).toBeFalsy()
-    })
-  })
   describe('partitionCompare', () => {
     it('should remove from first and keep from second', () => {
       const first = [1, 2]

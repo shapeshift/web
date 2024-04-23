@@ -9,7 +9,8 @@ import {
   Link,
   Skeleton,
 } from '@chakra-ui/react'
-import { type AssetId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -180,13 +181,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
   }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
 
-  const { onSignTx, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
+  const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
     accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
     memo,
     fromAddress,
-    thorfiAction: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
+    action: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
+    disableRefetch: isSubmitting,
   })
 
   const { mutateAsync } = useMutation({
@@ -304,7 +306,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     [txId],
   )
 
-  const handleSignTx = useCallback(() => {
+  const handleSignTx = useCallback(async () => {
     setIsSubmitting(true)
     mixpanel?.track(
       isDeposit ? MixPanelEvent.LpDepositInitiated : MixPanelEvent.LpWithdrawInitiated,
@@ -326,9 +328,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
     }
 
-    return onSignTx().then(() => {
-      onStart()
-    })
+    const _txId = await executeTransaction()
+    if (!_txId) {
+      setIsSubmitting(false)
+      throw new Error('failed to broadcast transaction')
+    }
+
+    onStart()
   }, [
     mixpanel,
     isDeposit,
@@ -342,7 +348,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     memo,
     isRuneTx,
     inboundAddressData?.address,
-    onSignTx,
+    executeTransaction,
     onStart,
   ])
 

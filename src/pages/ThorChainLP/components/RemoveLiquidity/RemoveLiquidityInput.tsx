@@ -24,15 +24,11 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
-import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
@@ -52,11 +48,9 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
 import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
-import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
-import {
-  estimateRemoveThorchainLiquidityPosition,
-  getThorchainLpTransactionType,
-} from 'lib/utils/thorchain/lp'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
+import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
+import { estimateRemoveThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
@@ -65,7 +59,6 @@ import { usePool } from 'pages/ThorChainLP/queries/hooks/usePool'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
-import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -181,19 +174,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const runeBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
   )
-
-  const { data: inboundAddressesData } = useQuery({
-    ...reactQueries.thornode.inboundAddresses(),
-    select: data => selectInboundAddressData(data, assetId),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-  })
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
@@ -384,55 +364,47 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     )
   }, [percentageSelection, position])
 
-  const poolAssetFeeAssetDustAmountCryptoPrecision = useMemo(() => {
-    if (!poolAssetFeeAsset) return '0'
-    const dustAmountCryptoBaseUnit =
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[poolAssetFeeAsset?.assetId] ?? '0'
-    return fromBaseUnit(dustAmountCryptoBaseUnit, poolAssetFeeAsset?.precision)
-  }, [poolAssetFeeAsset])
+  const memo = useMemo(() => {
+    const withdrawalBps = bnOrZero(percentageSelection).times(100).toFixed()
+    return `-:${poolAssetId}:${withdrawalBps}`
+  }, [poolAssetId, percentageSelection])
 
-  const runeDustAmountCryptoPrecision = useMemo(() => {
-    if (!runeAsset) return '0'
-    const dustAmountCryptoBaseUnit =
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[runeAsset?.assetId] ?? '0'
-    return fromBaseUnit(dustAmountCryptoBaseUnit, runeAsset?.precision)
-  }, [runeAsset])
-
-  // We reuse lending utils here since all this does is estimating fees for a given withdrawal amount with a memo
-  // It's not going to be 100% accurate for EVM chains as it doesn't calculate the cost of depositWithExpiry, but rather a simple send,
-  // however that's fine for now until accurate fees estimation is implemented
   const {
-    data: estimatedRuneFeesData,
-    isLoading: isEstimatedRuneFeesDataLoading,
-    isError: isEstimatedRuneFeesDataError,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId: thorchainAssetId,
-    collateralAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
-    repaymentAccountId: runeAccountId ?? '', // This will be undefined for asym asset side LPs, and that's ok
-    repaymentAsset: runeAsset ?? null,
-    repaymentAmountCryptoPrecision: runeDustAmountCryptoPrecision,
-    confirmedQuote,
+    estimatedFeesData: estimatedRuneFeesData,
+    isEstimatedFeesDataLoading: isEstimatedRuneFeesDataLoading,
+    isEstimatedFeesDataError: isEstimatedRuneFeesDataError,
+    dustAmountCryptoBaseUnit: runeDustAmountCryptoBaseUnit,
+  } = useSendThorTx({
+    assetId: thorchainAssetId,
+    accountId: runeAccountId ?? null,
+    // withdraw liquidity will use dust amount
+    amountCryptoBaseUnit: undefined,
+    memo,
+    fromAddress: null,
+    action: 'withdrawLiquidity',
   })
 
   const {
-    data: estimatedPoolAssetFeesData,
-    isLoading: isEstimatedPoolAssetFeesDataLoading,
-    isError: isEstimatedPoolAssetFeesDataError,
-  } = useQuoteEstimatedFeesQuery({
-    // Sym opportunities do *not* require a pool asset Tx, all we need is a RUNE Tx to trigger the withdraw
-    enabled: opportunityType !== 'sym',
-    collateralAssetId: poolAssetFeeAsset?.assetId ?? '',
-    collateralAccountId: accountId,
-    repaymentAccountId: accountId,
-    repaymentAsset: poolAssetFeeAsset ?? null,
-    confirmedQuote,
-    repaymentAmountCryptoPrecision: poolAssetFeeAssetDustAmountCryptoPrecision,
+    estimatedFeesData: estimatedPoolAssetFeesData,
+    isEstimatedFeesDataLoading: isEstimatedPoolAssetFeesDataLoading,
+    isEstimatedFeesDataError: isEstimatedPoolAssetFeesDataError,
+    dustAmountCryptoBaseUnit: poolAssetFeeAssetDustAmountCryptoBaseUnit,
+    outboundFeeCryptoBaseUnit,
+  } = useSendThorTx({
+    assetId: poolAsset?.assetId,
+    accountId,
+    // withdraw liquidity will use dust amount
+    amountCryptoBaseUnit: undefined,
+    memo,
+    fromAddress: null,
+    action: 'withdrawLiquidity',
   })
 
   const poolAssetProtocolFeeCryptoPrecision = useMemo(() => {
+    if (!poolAssetFeeAsset || !outboundFeeCryptoBaseUnit) return bn(0)
     if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
-    return fromThorBaseUnit(inboundAddressesData?.outbound_fee ?? '0')
-  }, [inboundAddressesData?.outbound_fee, actualAssetWithdrawAmountCryptoPrecision])
+    return bnOrZero(fromBaseUnit(outboundFeeCryptoBaseUnit, poolAssetFeeAsset.precision))
+  }, [outboundFeeCryptoBaseUnit, actualAssetWithdrawAmountCryptoPrecision, poolAssetFeeAsset])
 
   const poolAssetProtocolFeeFiatUserCurrency = useMemo(() => {
     return poolAssetProtocolFeeCryptoPrecision.times(poolAssetFeeAssetMarketData.price)
@@ -510,28 +482,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       </Flex>
     )
   }, [])
-
-  const poolAssetInboundAddress = useMemo(() => {
-    if (!poolAsset) return
-
-    const transactionType = getThorchainLpTransactionType(poolAsset.chainId)
-
-    switch (transactionType) {
-      case 'MsgDeposit':
-        return THORCHAIN_POOL_MODULE_ADDRESS
-
-      case 'EvmCustomTx':
-        // TODO: this should really be inboundAddressData?.router, but useQuoteEstimatedFeesQuery doesn't yet handle contract calls
-        // for the purpose of naively assuming a send, using the inbound address instead of the router is fine
-        return inboundAddressesData?.address
-
-      case 'Send':
-        return inboundAddressesData?.address
-
-      default:
-        assertUnreachable(transactionType as never)
-    }
-  }, [poolAsset, inboundAddressesData?.address])
 
   const renderHeader = useMemo(() => {
     if (headerComponent) return headerComponent
@@ -646,7 +596,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!actualRuneWithdrawAmountCryptoPrecision) return
     if (!actualRuneWithdrawAmountFiatUserCurrency) return
     if (!shareOfPoolDecimalPercent) return
-    if (!poolAssetInboundAddress) return
 
     setConfirmedQuote({
       assetWithdrawAmountCryptoPrecision: actualAssetWithdrawAmountCryptoPrecision,
@@ -656,7 +605,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       shareOfPoolDecimalPercent,
       slippageFiatUserCurrency,
       opportunityId,
-      quoteInboundAddress: poolAssetInboundAddress,
       runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
       totalGasFeeFiatUserCurrency: totalGasFeeFiatUserCurrency.toFixed(2),
@@ -676,7 +624,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     percentageSelection,
     poolAsset,
     poolAssetGasFeeFiatUserCurrency,
-    poolAssetInboundAddress,
     position,
     runeAccountId,
     runeGasFeeFiatUserCurrency,
@@ -880,6 +827,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetFeeAsset?.precision,
     )
 
+    const poolAssetFeeAssetDustAmountCryptoPrecision = fromBaseUnit(
+      poolAssetFeeAssetDustAmountCryptoBaseUnit,
+      poolAssetFeeAsset?.precision,
+    )
+
     return bnOrZero(poolAssetTxFeeCryptoPrecision)
       .plus(poolAssetFeeAssetDustAmountCryptoPrecision)
       .lte(poolAssetFeeAssetBalanceCryptoPrecision)
@@ -888,7 +840,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     opportunityType,
     poolAssetFeeAsset,
     poolAssetFeeAssetBalanceCryptoBaseUnit,
-    poolAssetFeeAssetDustAmountCryptoPrecision,
+    poolAssetFeeAssetDustAmountCryptoBaseUnit,
     poolAssetTxFeeCryptoPrecision,
   ])
 
@@ -899,6 +851,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!runeAsset) return false
 
     const runeBalanceCryptoPrecision = fromBaseUnit(runeBalanceCryptoBaseUnit, runeAsset?.precision)
+    const runeDustAmountCryptoPrecision = fromBaseUnit(
+      runeDustAmountCryptoBaseUnit,
+      runeAsset?.precision,
+    )
 
     return bnOrZero(runeTxFeeCryptoPrecision)
       .plus(runeDustAmountCryptoPrecision)
@@ -908,7 +864,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     opportunityType,
     runeAsset,
     runeBalanceCryptoBaseUnit,
-    runeDustAmountCryptoPrecision,
+    runeDustAmountCryptoBaseUnit,
     runeTxFeeCryptoPrecision,
   ])
 

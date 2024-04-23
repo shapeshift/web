@@ -10,7 +10,7 @@ import {
 import { store, useAppSelector } from 'state/store'
 
 type UseLendingPositionDataProps = {
-  accountId: AccountId
+  accountId: AccountId | null
   assetId: AssetId
 }
 
@@ -25,10 +25,8 @@ export const thorchainLendingPositionQueryFn = async ({
 }
 
 export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
-  const lendingPositionQueryKey: [string, { accountId: AccountId; assetId: AssetId }] = useMemo(
-    () => ['thorchainLendingPosition', { accountId, assetId }],
-    [accountId, assetId],
-  )
+  const lendingPositionQueryKey: [string, { accountId: AccountId | null; assetId: AssetId }] =
+    useMemo(() => ['thorchainLendingPosition', { accountId, assetId }], [accountId, assetId])
   const poolAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId),
   )

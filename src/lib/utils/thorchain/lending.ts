@@ -137,9 +137,11 @@ export const getThorchainLendingPosition = async ({
   accountId,
   assetId,
 }: {
-  accountId: AccountId
+  accountId: AccountId | null
   assetId: AssetId
 }): Promise<Borrower | null> => {
+  if (!accountId) return null
+
   const address = fromAccountId(accountId).account
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 

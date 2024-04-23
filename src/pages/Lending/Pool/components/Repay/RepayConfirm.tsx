@@ -15,11 +15,10 @@ import {
   useInterval,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { CONTRACT_INTERACTION, FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -27,15 +26,11 @@ import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
-import { getAddress, toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAsset } from 'components/AssetToAsset/AssetToAsset'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import type { SendInput } from 'components/Modals/Send/Form'
-import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -49,16 +44,9 @@ import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
-import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-  getSupportedEvmChainIds,
-} from 'lib/utils/evm'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
-import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import {
@@ -66,7 +54,6 @@ import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
-  selectSelectedCurrency,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -77,8 +64,8 @@ type RepayConfirmProps = {
   collateralAssetId: AssetId
   repaymentAsset: Asset | null
   setRepaymentPercent: (percent: number) => void
-  collateralAccountId: AccountId
-  repaymentAccountId: AccountId
+  collateralAccountId: AccountId | null
+  repaymentAccountId: AccountId | null
   txId: string | null
   setTxid: (txId: string | null) => void
   confirmedQuote: LendingQuoteClose | null
@@ -219,10 +206,8 @@ export const RepayConfirm = ({
   const chainAdapter = getChainAdapterManager().get(
     fromAssetId(repaymentAsset?.assetId ?? '').chainId,
   )
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
-
   const repaymentAccountNumberFilter = useMemo(
-    () => ({ accountId: repaymentAccountId }),
+    () => ({ accountId: repaymentAccountId ?? '' }),
     [repaymentAccountId],
   )
   const repaymentAccountNumber = useAppSelector(state =>
@@ -258,6 +243,20 @@ export const RepayConfirm = ({
     staleTime: 60_000,
     select: data => selectInboundAddressData(data, repaymentAsset?.assetId),
     enabled: !!repaymentAsset?.assetId,
+  })
+
+  const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
+    assetId: repaymentAsset?.assetId ?? '',
+    accountId: repaymentAccountId,
+    amountCryptoBaseUnit: toBaseUnit(
+      confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+      repaymentAsset?.precision ?? 0,
+    ),
+    memo: confirmedQuote?.quoteMemo,
+    // no explicit from address required for repayments
+    fromAddress: '',
+    action: 'repayLoan',
+    disableRefetch: isLoanPending,
   })
 
   const handleConfirm = useCallback(async () => {
@@ -301,127 +300,13 @@ export const RepayConfirm = ({
 
     mixpanel?.track(MixPanelEvent.RepayConfirm, eventData)
 
-    const supportedEvmChainIds = getSupportedEvmChainIds()
+    const _txId = await executeTransaction()
+    if (!_txId) throw new Error('failed to broadcast transaction')
 
-    const estimatedFees = await estimateFees({
-      amountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision,
-      assetId: repaymentAsset.assetId,
-      memo: supportedEvmChainIds.includes(
-        fromAssetId(repaymentAsset.assetId).chainId as KnownChainIds,
-      )
-        ? toHex(confirmedQuote.quoteMemo)
-        : confirmedQuote.quoteMemo,
-      to: confirmedQuote.quoteInboundAddress,
-      sendMax: false,
-      accountId: repaymentAccountId,
-      contractAddress: undefined,
-    })
-
-    const maybeTxId = await (async () => {
-      if (repaymentAsset.assetId === thorchainAssetId) {
-        return (async () => {
-          const { account } = fromAccountId(repaymentAccountId)
-
-          const adapter = assertGetThorchainChainAdapter()
-
-          // repayment using THOR is a MsgDeposit tx
-          const { txToSign } = await adapter.buildDepositTransaction({
-            from: account,
-            accountNumber: repaymentAccountNumber,
-            value: bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision)
-              .times(bn(10).pow(repaymentAsset.precision))
-              .toFixed(0),
-            memo: confirmedQuote.quoteMemo,
-            chainSpecific: {
-              gas: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast
-                .chainSpecific.gasLimit,
-              fee: (estimatedFees as FeeDataEstimate<KnownChainIds.ThorchainMainnet>).fast.txFee,
-            },
-          })
-          const signedTx = await adapter.signTransaction({
-            txToSign,
-            wallet,
-          })
-          return adapter.broadcastTransaction({
-            senderAddress: account,
-            receiverAddress: confirmedQuote.quoteInboundAddress,
-            hex: signedTx,
-          })
-        })()
-      }
-
-      if (isToken(fromAssetId(repaymentAsset.assetId).assetReference)) {
-        const data = depositWithExpiry({
-          vault: getAddress(inboundAddressData!.address),
-          asset: getAddress(fromAssetId(repaymentAsset.assetId).assetReference),
-          amount: toBaseUnit(
-            confirmedQuote.repaymentAmountCryptoPrecision!,
-            repaymentAsset.precision,
-          ),
-          memo: confirmedQuote.quoteMemo,
-          expiry: confirmedQuote.quoteExpiry,
-        })
-
-        const adapter = assertGetEvmChainAdapter(repaymentAsset.chainId)
-
-        const buildCustomTxInput = await createBuildCustomTxInput({
-          accountNumber: repaymentAccountNumber,
-          adapter,
-          data,
-          // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
-          value: '0',
-          to: inboundAddressData!.router!,
-          wallet,
-        })
-
-        const _txId = await buildAndBroadcast({
-          adapter,
-          buildCustomTxInput,
-          receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-        })
-
-        return _txId
-      }
-
-      const sendInput: SendInput = {
-        amountCryptoPrecision: confirmedQuote.repaymentAmountCryptoPrecision!,
-        assetId: repaymentAsset.assetId,
-        from: '',
-        to: confirmedQuote.quoteInboundAddress,
-        sendMax: false,
-        accountId: repaymentAccountId,
-        memo: supportedEvmChainIds.includes(
-          fromAssetId(repaymentAsset?.assetId).chainId as KnownChainIds,
-        )
-          ? toHex(confirmedQuote.quoteMemo)
-          : confirmedQuote.quoteMemo,
-        amountFieldError: '',
-        estimatedFees,
-        feeType: FeeDataKey.Fast,
-        fiatAmount: '',
-        fiatSymbol: selectedCurrency,
-        vanityAddress: '',
-        input: confirmedQuote.quoteInboundAddress,
-      }
-
-      if (!sendInput) throw new Error('Error building send input')
-
-      return handleSend({ sendInput, wallet })
-    })()
-
-    if (!maybeTxId) {
-      throw new Error('Error sending THORCHain lending Txs')
-    }
-
-    setTxid(maybeTxId)
-
-    return maybeTxId
+    setTxid(_txId)
   }, [
     chainAdapter,
-    confirmedQuote?.quoteExpiry,
-    confirmedQuote?.quoteInboundAddress,
     confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision,
-    confirmedQuote?.quoteMemo,
     confirmedQuote?.repaymentAmountCryptoPrecision,
     confirmedQuote?.repaymentPercent,
     eventData,
@@ -430,29 +315,15 @@ export const RepayConfirm = ({
     isQuoteExpired,
     loanTxStatus,
     mixpanel,
+    executeTransaction,
     refetchQuote,
-    repaymentAccountId,
     repaymentAccountNumber,
     repaymentAsset,
-    selectedCurrency,
     setConfirmedQuote,
     setRepaymentPercent,
     setTxid,
     wallet,
   ])
-
-  const {
-    data: estimatedFeesData,
-    isLoading: isEstimatedFeesDataLoading,
-    isError: isEstimatedFeesDataError,
-    isSuccess: isEstimatedFeesDataSuccess,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId,
-    collateralAccountId,
-    repaymentAccountId,
-    repaymentAsset,
-    confirmedQuote,
-  })
 
   const swapStatus = useMemo(() => {
     if (loanTxStatus === 'success') return TxStatus.Confirmed
@@ -615,7 +486,7 @@ export const RepayConfirm = ({
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
-                <Skeleton isLoaded={isEstimatedFeesDataSuccess}>
+                <Skeleton isLoaded={!isEstimatedFeesDataLoading}>
                   {/* Actually defined at display time, see isLoaded above */}
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                 </Skeleton>
@@ -641,8 +512,8 @@ export const RepayConfirm = ({
             collateralDecreaseAmountCryptoPrecision={
               confirmedQuote?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
             }
-            repaymentAccountId={repaymentAccountId}
-            collateralAccountId={collateralAccountId}
+            repaymentAccountId={repaymentAccountId ?? ''}
+            collateralAccountId={collateralAccountId ?? ''}
             debtRepaidAmountUserCurrency={confirmedQuote?.quoteDebtRepaidAmountUserCurrency ?? '0'}
             borderTopWidth={0}
             mt={0}
@@ -665,7 +536,6 @@ export const RepayConfirm = ({
                     isLendingQuoteCloseQueryRefetching ||
                     isEstimatedFeesDataLoading ||
                     isInboundAddressLoading ||
-                    isEstimatedFeesDataError ||
                     !confirmedQuote
                   }
                   onClick={handleConfirm}

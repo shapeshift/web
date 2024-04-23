@@ -1,5 +1,7 @@
 import BigNumber from 'bignumber.js'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectIsSnapshotApiQueriesRejected } from 'state/apis/snapshot/selectors'
+import { store } from 'state/store'
 
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
@@ -50,7 +52,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   // trades below the fee threshold are free.
   const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
   // failure to fetch fox discount results in free trades.
-  const isFallbackFees = foxHeld === undefined
+  const isFallbackFees = selectIsSnapshotApiQueriesRejected(store.getState())
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {
@@ -60,7 +62,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
 
     return BigNumber.minimum(
       bn(100),
-      foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
+      bnOrZero(foxHeld).times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
     )
   })()
 

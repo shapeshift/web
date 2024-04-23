@@ -69,17 +69,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   )
 
   const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
-  const userAddress = useMemo(
-    () => state?.deposit.maybeFromUTXOAccountAddress || accountAddress,
-    [accountAddress, state?.deposit.maybeFromUTXOAccountAddress],
-  )
 
   const opportunity = state?.opportunity
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && userAddress && accountId)) return ''
-    return serializeTxIndex(accountId, state.txid, userAddress)
-  }, [state?.txid, userAddress, accountId])
+    if (!(state?.txid && accountId && accountAddress)) return ''
+    return serializeTxIndex(accountId, state.txid, accountAddress)
+  }, [state?.txid, accountId, accountAddress])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

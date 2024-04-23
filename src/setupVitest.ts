@@ -1,4 +1,16 @@
+import 'module-alias/register'
+
+import moduleAlias from 'module-alias'
+import path from 'path'
 import { beforeAll, vi } from 'vitest'
+
+// Redirect 'ethers' imports to 'ethers5' only for specific modules
+moduleAlias.addAlias('ethers', (fromPath: string) => {
+  if (fromPath.includes('/node_modules/@shapeshiftoss/hdwallet-shapeshift-multichain')) {
+    return path.resolve(__dirname, '../node_modules/ethers5')
+  }
+  return 'ethers'
+})
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_MIXPANEL', 'false')

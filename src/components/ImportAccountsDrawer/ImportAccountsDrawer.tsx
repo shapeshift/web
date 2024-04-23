@@ -28,6 +28,7 @@ import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
@@ -52,6 +53,7 @@ const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const TableRow = forwardRef<TableRowProps, 'div'>(
   ({ asset, accountId, accountNumber, toggleAccountId }, ref) => {
+    const translate = useTranslate()
     const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
     const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
     const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
@@ -60,6 +62,8 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
       selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
     )
     const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
+
+    const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
 
     return (
       <Tr>
@@ -70,9 +74,13 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
           <Switch onChange={handleChange} />
         </Td>
         <Td>
-          <Tooltip label={pubkey}>
+          <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
             <div ref={ref}>
-              <MiddleEllipsis value={accountLabel} />
+              {isUtxoAccount ? (
+                <RawText>{`${accountLabel} ${translate('common.account')}`}</RawText>
+              ) : (
+                <MiddleEllipsis value={accountLabel} />
+              )}
             </div>
           </Tooltip>
         </Td>

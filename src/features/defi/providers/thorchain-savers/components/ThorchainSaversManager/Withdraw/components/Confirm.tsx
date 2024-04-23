@@ -274,9 +274,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    amountCryptoBaseUnit: bnOrZero(state?.withdraw.cryptoAmount)
-      .times(bn(10).pow(asset.precision))
-      .toFixed(0),
+    // withdraw savers will use dust amount
+    amountCryptoBaseUnit: undefined,
     action: 'withdrawSavers',
     memo: quote?.memo,
     fromAddress,

@@ -68,14 +68,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
   )
 
-  const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
-
-  const opportunity = state?.opportunity
+  const account = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && accountId && accountAddress)) return ''
-    return serializeTxIndex(accountId, state.txid, accountAddress)
-  }, [state?.txid, accountId, accountAddress])
+    if (!(state?.txid && accountId && account)) return ''
+    return serializeTxIndex(accountId, state.txid, account)
+  }, [state?.txid, accountId, account])
+
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
@@ -110,12 +109,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   useEffect(() => {
-    if (!opportunity || !assetId) return
+    if (!state?.opportunity || !assetId) return
     if (state?.deposit.txStatus === 'success') {
       trackOpportunityEvent(
         MixPanelEvent.DepositSuccess,
         {
-          opportunity,
+          opportunity: state.opportunity,
           fiatAmounts: [state.deposit.fiatAmount],
           cryptoAmounts: [{ assetId, amountCryptoHuman: state.deposit.cryptoAmount }],
         },
@@ -126,7 +125,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     assets,
     assetId,
     mixpanel,
-    opportunity,
+    state?.opportunity,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
     state?.deposit.txStatus,

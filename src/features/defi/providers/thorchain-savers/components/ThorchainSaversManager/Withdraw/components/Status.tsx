@@ -69,12 +69,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
   )
 
-  const accountAddress = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
+  const account = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
 
   const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && accountId && accountAddress)) return ''
-    return serializeTxIndex(accountId, state.txid, accountAddress)
-  }, [state?.txid, accountId, accountAddress])
+    if (!(state?.txid && accountId && account)) return ''
+    return serializeTxIndex(accountId, state.txid, account)
+  }, [state?.txid, accountId, account])
+
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -109,8 +109,8 @@ export const useSendThorTx = ({
   const { data: inboundAddressData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
     staleTime: 60_000,
-    select: data => selectInboundAddressData(data, assetId!),
-    enabled: !!assetId,
+    select: data => selectInboundAddressData(data, assetId),
+    enabled: Boolean(assetId && assetId !== thorchainAssetId),
   })
 
   const depositWithExpiryInputData = useMemo(() => {
@@ -400,5 +400,6 @@ export const useSendThorTx = ({
     txId,
     serializedTxIndex,
     dustAmountCryptoBaseUnit,
+    outboundFee: inboundAddressData?.outbound_fee,
   }
 }

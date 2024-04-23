@@ -5,6 +5,7 @@ import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { knownChainIds } from 'constants/chains'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import difference from 'lodash/difference'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -81,7 +82,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const selectedLocale = useAppSelector(selectSelectedLocale)
   useEffect(() => {
-    require(`dayjs/locale/${selectedLocale}.js`)
+    if (selectedLocale in LanguageTypeEnum ?? {}) {
+      require(`dayjs/locale/${selectedLocale}.js`)
+    }
   }, [selectedLocale])
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)

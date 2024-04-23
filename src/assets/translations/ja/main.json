@@ -61,7 +61,9 @@
     "somethingWentWrong": "問題が発生しました",
     "somethingWentWrongBody": "問題が発生しました",
     "accountError": "以下のチェーンのデータを一時的に入手できません:",
+    "accountTxHistoryError": "一時的に以下のアカウントの取引履歴を取得できません:\n",
     "degradedState": "アプリは一時的な定価状態です",
+    "degradedTransactionHistory": "取引履歴の質が低下しました",
     "degradedInfo": "アカウントのデータを取得できません。",
     "success": "成功",
     "retry": "リトライ",
@@ -136,6 +138,7 @@
     "staged": "段階的",
     "poolHalted": "プールが停止しています",
     "poolDisabled": "プールが無効です",
+    "prices": "価格",
     "symmetric": "対称",
     "asymmetric": "非対称 (%{assetSymbol})",
     "carousel": {
@@ -2242,6 +2245,17 @@
     "featureFee": "%{feature} 料金",
     "totalFeatureFee": "合計 %{feature} 料金"
   },
+  "chart": {
+    "interval": {
+      "5min": "過去5分間",
+      "hour": "過去1時間",
+      "day": "過去1日間",
+      "week": "過去1週間",
+      "month": "過去1ヶ月間",
+      "year": "過去1年間",
+      "all": "常に"
+    }
+  },
   "pools": {
     "pools": "プール",
     "pool": "プール",
@@ -2263,6 +2277,7 @@
     "initialPricesAndPoolShare": "初期価格とプールシェア",
     "pricePerAsset": "%{from}/%{to}",
     "symAlert": "あなたの %{from} は、プールに入ると %{to} と %{from} の両方に 50:50 の割合で公開されます。",
+    "symAfterRuneAlert": "THOR ネットワークの仕組み上、等価値でない RUNEの 入金の後に、等価値の入金を行うことはできません。",
     "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
     "unsupportedNetworkExplainer": "お使いのウォレットは %{network} をサポートしていません。このネットワークをサポートするウォレットに切り替えてください。",
@@ -2314,6 +2329,13 @@
         "title": "リスクと考慮事項",
         "body": "流動性プールは収益機会を提供しますが、一時的な損失、スマートコントラクトの脆弱性、市場の変動性など、関連するリスクを認識することが重要です。ユーザーは参加する前に十分な調査を行う必要があります。"
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "ウォッチリストの作成を開始する",
+      "body": "星のアイコンが表示されていれば、それを使用してこちらにアセットを追加できます。",
+      "cta": "資産をさらに探索する"
     }
   }
 }

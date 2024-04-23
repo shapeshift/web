@@ -176,6 +176,7 @@ export const LedgerChains = () => {
                     <Link
                       color='blue.200'
                       href='https://support.ledger.com/hc/en-us/articles/4402987997841-THORChain-RUNE-?docs=true'
+                      isExternal
                     >
                       here
                     </Link>{' '}

@@ -57,6 +57,8 @@ export type FeatureFlags = {
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
   ShapeShiftMobileWallet: boolean
+  AccountManagement: boolean
+  AccountManagementLedger: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -137,6 +139,8 @@ const initialState: Preferences = {
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
     ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,
+    AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
+    AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

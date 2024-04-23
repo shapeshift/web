@@ -2,7 +2,7 @@ import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import type { Location } from 'history'
 import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { matchPath, Redirect, Route, Switch, useLocation } from 'react-router-dom'
+import { matchPath, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -46,6 +46,7 @@ const PrivacyPolicy = makeSuspenseful(
 export const Routes = memo(() => {
   const dispatch = useDispatch()
   const location = useLocation<{ background: Location }>()
+  const history = useHistory()
   const { connectDemo, state } = useWallet()
   const { appRoutes } = useBrowserRouter()
   const hasWallet = Boolean(state.walletInfo?.deviceId) || state.isLoadingLocalWallet
@@ -57,14 +58,28 @@ export const Routes = memo(() => {
   })
 
   useEffect(() => {
-    const selectedLocalteExists = selectedLocale in LanguageTypeEnum ?? {}
-    if (lang && selectedLocalteExists && selectedLocale !== lang) {
+    const selectedLocaleExists = selectedLocale in LanguageTypeEnum ?? {}
+    if (lang && selectedLocaleExists && selectedLocale !== lang) {
       dispatch(preferences.actions.setSelectedLocale({ locale: lang }))
-    } else if (!selectedLocalteExists) {
+    } else if (!selectedLocaleExists) {
       // Set default language if locale in settings is not supported
       dispatch(preferences.actions.setSelectedLocale({ locale: 'en' }))
     }
-  }, [lang, dispatch, selectedLocale])
+    // Delete "lang" param from URL once handled.
+    if (lang) {
+      const params = new URLSearchParams(location.search)
+      params.delete('lang')
+      history.push({
+        pathname: location.pathname,
+        search: params.toString(),
+      })
+    }
+  }, [lang, dispatch, selectedLocale, location, history])
+
+  useEffect(() => {
+    // Set <html> language attribute
+    document.querySelector('html')?.setAttribute('lang', selectedLocale)
+  }, [selectedLocale])
 
   useEffect(() => {
     if (!matchDemoPath && shouldRedirectDemoRoute) return setShouldRedirectDemoRoute(false)

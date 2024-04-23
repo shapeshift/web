@@ -11,6 +11,9 @@
     "next": "Next",
     "error": "Error",
     "show": "Show",
+    "account": "Account",
+    "address": "Address",
+    "done": "Done",
     "cancel": "Cancel",
     "close": "Close",
     "loadMore": "Load More",
@@ -300,6 +303,9 @@
       "connecting": "Connecting..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Manage Accounts"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -414,7 +420,7 @@
         },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
-        "dangerousWithdrawWarning": "Withdrawal disabled as the THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue."
+        "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue."
       }
     },
     "memoNote": {
@@ -1761,6 +1767,11 @@
     "hideAssets": "Hide assets",
     "viewAccount": "View account",
     "expandAccount": "Expand account"
+  },
+  "accountManagementSidebar": {
+    "title": "Import %{chainNamespaceDisplayName} Accounts",
+    "description": "Select the accounts you would like to import from the list below.",
+    "import": "Import"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

@@ -1,28 +1,45 @@
-import { ChevronRightIcon } from '@chakra-ui/icons'
+import { ChevronRightIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, MenuDivider, MenuItem } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 
 const chevronRightIcon = <ChevronRightIcon />
+const editIcon = <EditIcon />
 
 export const NativeMenu = () => {
-  const backupNativePassphrase = useModal('backupNativePassphrase')
+  const translate = useTranslate()
+  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
-  const onMenuItemClick = useCallback(
+  const backupNativePassphrase = useModal('backupNativePassphrase')
+  const accountManagementPopover = useModal('backupNativePassphrase') // FIXME: use accountManagementPopover once ready
+
+  const handleBackupMenuItemClick = useCallback(
     () => backupNativePassphrase.open({}),
     [backupNativePassphrase],
+  )
+
+  const handleManageAccountsMenuItemClick = useCallback(
+    () => accountManagementPopover.open({}),
+    [accountManagementPopover],
   )
 
   return (
     <>
       <MenuDivider />
+      {isAccountManagementEnabled && (
+        <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
+          {translate('manageAccounts.menuTitle')}
+        </MenuItem>
+      )}
       <MenuItem
         as={Button}
         variant='ghost'
         justifyContent='space-between'
         rightIcon={chevronRightIcon}
-        onClick={onMenuItemClick}
+        onClick={handleBackupMenuItemClick}
       >
         <Text translation='modals.shapeShift.backupPassphrase.menuItem' />
       </MenuItem>

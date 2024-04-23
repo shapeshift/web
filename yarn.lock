@@ -10856,6 +10856,7 @@ __metadata:
     lodash: ^4.17.21
     match-sorter: ^6.3.0
     mixpanel-browser: ^2.45.0
+    module-alias: ^2.2.3
     msw: ^0.36.5
     multiformats: ^9.6.3
     myzod: ^1.10.1
@@ -27975,6 +27976,13 @@ __metadata:
     _mocha: bin/_mocha
     mocha: bin/mocha
   checksum: c069edeffb4bfd0cdfbe21d11c2f93e44ab75440d6b4b20fe9d357e0eb92c4e921fb38175093d3242a9577155eece4c337d0aae5b3ffc3d65959ea01c3d552a6
+  languageName: node
+  linkType: hard
+
+"module-alias@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "module-alias@npm:2.2.3"
+  checksum: 6169187f69de8dcf8af8fab4d9e53ada6338a43f7670d38d0b27a089c28f9eb18d85a6fd46f11b54c63079a68449b85d071d7db0ac067f9f7faedbcd6231456d
   languageName: node
   linkType: hard
 

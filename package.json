@@ -271,6 +271,7 @@
     "jscodeshift": "^0.15.2",
     "limiter": "^2.1.0",
     "lit-html": "^2.6.1",
+    "module-alias": "^2.2.3",
     "msw": "^0.36.5",
     "multiformats": "^9.6.3",
     "patch-package": "^8.0.0",

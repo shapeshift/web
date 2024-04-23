@@ -1,7 +1,9 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeModelParamFromFilter } from 'state/selectors'
+import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
 
@@ -13,5 +15,10 @@ export const selectVotingPowerByModel = (state: ReduxState) => state.snapshot.vo
 export const selectVotingPower = createSelector(
   selectVotingPowerByModel,
   selectFeeModelParamFromFilter,
-  (votingPowerByModel, feeModel) => votingPowerByModel[feeModel!],
+  selectAccountIdsByChainId,
+  (votingPowerByModel, feeModel, accountIdsbyChainId) => {
+    const ethAccountIds = accountIdsbyChainId[ethChainId]
+    if (!ethAccountIds?.length) return undefined
+    return votingPowerByModel[feeModel!]
+  },
 )

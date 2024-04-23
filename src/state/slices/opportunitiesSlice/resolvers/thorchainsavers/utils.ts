@@ -23,7 +23,7 @@ import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { isUtxoChainId } from 'lib/utils/utxo'
 
 import type {
   MidgardPoolPeriod,

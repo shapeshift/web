@@ -1,12 +1,5 @@
 import {
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
   forwardRef,
   Skeleton,
   Switch,
@@ -26,7 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -35,9 +28,10 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export type ImportAccountsDrawerProps = {
+import { DrawerContentWrapper } from './DrawerContent'
+
+export type ImportAccountsProps = {
   chainId: ChainId
-  isOpen: boolean
   onClose: () => void
 }
 
@@ -106,7 +100,7 @@ const LoadingRow = () => {
   )
 }
 
-export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccountsDrawerProps) => {
+export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
@@ -195,22 +189,27 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
   }
 
   return (
-    <Drawer isOpen={isOpen} size='lg' placement='right' onClose={onClose}>
-      <DrawerOverlay />
-      <DrawerContent>
-        <DrawerCloseButton />
-        <DrawerHeader>
-          <RawText as='h3'>
-            {translate('accountManagementSidebar.title', { chainNamespaceDisplayName })}
-          </RawText>
-          <Text
-            color='text.subtle'
-            fontSize='md'
-            translation={'accountManagementSidebar.description'}
-          />
-        </DrawerHeader>
-
-        <DrawerBody>
+    <DrawerContentWrapper
+      title={translate('accountManagementSidebar.title', { chainNamespaceDisplayName })}
+      description={translate('accountManagementSidebar.description')}
+      footer={
+        <>
+          <Button
+            colorScheme='gray'
+            mr={3}
+            onClick={onClose}
+            isDisabled={isLoading}
+            _disabled={disabledProp}
+          >
+            {translate('common.cancel')}
+          </Button>
+          <Button colorScheme='blue' isDisabled={isLoading} _disabled={disabledProp}>
+            {translate('common.done')}
+          </Button>
+        </>
+      }
+      body={
+        <>
           <TableContainer mb={4}>
             <Table variant='simple'>
               <Tbody>
@@ -227,23 +226,8 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
           >
             {translate('common.loadMore')}
           </Button>
-        </DrawerBody>
-
-        <DrawerFooter>
-          <Button
-            colorScheme='gray'
-            mr={3}
-            onClick={onClose}
-            isDisabled={isLoading}
-            _disabled={disabledProp}
-          >
-            {translate('common.cancel')}
-          </Button>
-          <Button colorScheme='blue' isDisabled={isLoading} _disabled={disabledProp}>
-            {translate('common.done')}
-          </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </>
+      }
+    />
   )
 }

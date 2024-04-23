@@ -97,7 +97,6 @@ export const useSendThorTx = ({
     return THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
   }, [feeAsset])
 
-  // TODO: verify if it is sane to use bnOrZero on amountCryptoBaseUnit or if we want to return undefined and throw if not defined
   const amountOrDustCryptoBaseUnit = useMemo(() => {
     return shouldUseDustAmount ? dustAmountCryptoBaseUnit : bnOrZero(amountCryptoBaseUnit).toFixed()
   }, [shouldUseDustAmount, dustAmountCryptoBaseUnit, amountCryptoBaseUnit])

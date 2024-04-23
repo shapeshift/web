@@ -300,7 +300,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         setMissingFunds(null)
         setQuoteLoading(true)
 
-        // TODO: can we just use the `thorchainSaversWithdrawQuote`?
         const thorchainSaversWithdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = [
           'thorchainSaversWithdrawQuote',
           { asset, accountId, amountCryptoBaseUnit },

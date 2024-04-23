@@ -1,4 +1,4 @@
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type { BN } from 'lib/bignumber/bignumber'

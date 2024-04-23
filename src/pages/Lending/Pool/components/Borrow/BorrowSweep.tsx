@@ -64,8 +64,6 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
     history.push(BorrowRoutePaths.Confirm)
   }, [history])
 
-  if (!collateralAccountId) return null
-
   return (
     <SlideTransition>
       <Flex flexDir='column' width='full'>
@@ -77,7 +75,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
           </WithBackButton>
         </CardHeader>
         <Sweep
-          accountId={collateralAccountId}
+          accountId={collateralAccountId ?? ''}
           assetId={collateralAssetId}
           fromAddress={fromAddress}
           onBack={handleBack}

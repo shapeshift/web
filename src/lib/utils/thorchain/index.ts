@@ -1,6 +1,5 @@
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  type AssetId,
   bchChainId,
   cosmosChainId,
   fromAccountId,

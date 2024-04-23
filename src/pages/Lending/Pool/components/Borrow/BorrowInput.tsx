@@ -9,13 +9,13 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { toHex } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -34,7 +34,6 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
@@ -182,24 +181,16 @@ export const BorrowInput = ({
     })()
   }, [getBorrowFromAddress, fromAddress])
 
-  const memo = useMemo(() => {
-    if (!confirmedQuote) return
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    return supportedEvmChainIds.includes(fromAssetId(collateralAssetId).chainId as KnownChainIds)
-      ? toHex(confirmedQuote.quoteMemo)
-      : confirmedQuote.quoteMemo
-  }, [collateralAssetId, confirmedQuote])
-
   const { estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: collateralAssetId,
-    accountId: collateralAccountId ?? '',
+    accountId: collateralAccountId,
     amountCryptoBaseUnit: toBaseUnit(
       depositAmountCryptoPrecision ?? '0',
       collateralAsset?.precision ?? 0,
     ),
-    memo,
+    memo: confirmedQuote?.quoteMemo,
     fromAddress,
-    thorfiAction: 'openLoan',
+    action: 'openLoan',
   })
 
   const balanceFilter = useMemo(
@@ -515,7 +506,7 @@ export const BorrowInput = ({
       >
         <Stack spacing={0}>
           <TradeAssetInput
-            accountId={collateralAccountId ?? undefined}
+            accountId={collateralAccountId ?? ''}
             assetId={collateralAssetId}
             assetSymbol={collateralAsset.symbol}
             assetIcon={collateralAsset.icon}

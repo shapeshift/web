@@ -133,7 +133,7 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
       while (true) {
         try {
           const accountResult = await queryClient.fetchQuery(
-            reactQueries.accountManagement.loadAccount(accountNumber, chainId, wallet),
+            reactQueries.accountManagement.accountIdWithActivity(accountNumber, chainId, wallet),
           )
 
           if (!accountResult) break
@@ -163,7 +163,7 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
     if (!wallet) return
     const accountNumber = accounts.length
     const accountResult = await queryClient.fetchQuery(
-      reactQueries.accountManagement.loadAccount(accountNumber, chainId, wallet),
+      reactQueries.accountManagement.accountIdWithActivity(accountNumber, chainId, wallet),
     )
     if (!accountResult) return
     setAccounts(previousAccounts => {

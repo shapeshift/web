@@ -1,12 +1,10 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Flex, MenuDivider, MenuGroup, MenuItem, useDisclosure } from '@chakra-ui/react'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteProps } from 'react-router-dom'
 import { Route, Switch, useLocation } from 'react-router-dom'
-import { ImportAccountsDrawer } from 'components/ImportAccountsDrawer/ImportAccountsDrawer'
 import {
   useMenuRoutes,
   WalletConnectedRoutes,
@@ -14,6 +12,7 @@ import {
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
 import type { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
+import { ManageAccountsDrawer } from 'components/ManageAccountsDrawer/ManageAccountsDrawer'
 import { RawText, Text } from 'components/Text'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -93,11 +92,7 @@ const ConnectedMenu = memo(
             {translate('connectWallet.menu.disconnect')}
           </MenuItem>
         </MenuGroup>
-        <ImportAccountsDrawer
-          chainId={KnownChainIds.EthereumMainnet}
-          isOpen={isOpen}
-          onClose={onClose}
-        />
+        <ManageAccountsDrawer isOpen={isOpen} onClose={onClose} />
       </>
     )
   },

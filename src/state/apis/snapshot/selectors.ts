@@ -10,15 +10,25 @@ const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.querie
 export const selectIsSnapshotApiQueriesPending = createSelector(selectSnapshotApiQueries, queries =>
   Object.values(queries).some(query => query?.status === QueryStatus.pending),
 )
+export const selectIsSnapshotApiQueriesRejected = createSelector(
+  selectSnapshotApiQueries,
+  queries =>
+    Object.values(queries).some(query => query?.status === QueryStatus.rejected) &&
+    !Object.values(queries).some(query => query?.status === QueryStatus.fulfilled),
+)
 
 export const selectVotingPowerByModel = (state: ReduxState) => state.snapshot.votingPowerByModel
 export const selectVotingPower = createSelector(
   selectVotingPowerByModel,
   selectFeeModelParamFromFilter,
   selectAccountIdsByChainId,
-  (votingPowerByModel, feeModel, accountIdsbyChainId) => {
+  selectIsSnapshotApiQueriesRejected,
+  (votingPowerByModel, feeModel, accountIdsbyChainId, isSnapshotApiQueriesRejected) => {
+    if (isSnapshotApiQueriesRejected) return '0'
+
     const ethAccountIds = accountIdsbyChainId[ethChainId]
     if (!ethAccountIds?.length) return '0'
+
     return votingPowerByModel[feeModel!]
   },
 )

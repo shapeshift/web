@@ -354,7 +354,7 @@ export const getL1quote = async (
               potentialAffiliateBps,
               isStreaming,
               recommendedMinimumCryptoBaseUnit,
-              tradeType: tradeType ?? undefined,
+              tradeType: tradeType ?? TradeType.L1ToL1,
               expiry: quote.expiry,
               slippageTolerancePercentageDecimal: isStreaming
                 ? undefined

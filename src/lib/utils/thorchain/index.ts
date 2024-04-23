@@ -25,10 +25,9 @@ import type {
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
 import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 import { getSupportedEvmChainIds } from '../evm'
-import { assertGetUtxoChainAdapter } from '../utxo'
+import { assertGetUtxoChainAdapter, isUtxoAccountId, isUtxoChainId } from '../utxo'
 import { THOR_PRECISION } from './constants'
 import type { getThorchainLendingPosition } from './lending'
 

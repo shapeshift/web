@@ -16,8 +16,8 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainIcon } from 'components/ChainMenu'
 import { RawText, Text } from 'components/Text'
-import { getAccountTitle } from 'lib/utils'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { getAccountTitle } from 'lib/utils/accounts'
+import { isUtxoChainId } from 'lib/utils/utxo'
 import {
   selectAccountNumberByAccountId,
   selectAssets,

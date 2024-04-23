@@ -6,7 +6,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,

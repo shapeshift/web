@@ -44,22 +44,19 @@ export type ImportAccountsDrawerProps = {
 type TableRowProps = {
   accountId: AccountId
   accountNumber: number
-  feeAsset: Asset
+  asset: Asset
   toggleAccountId: (accountId: AccountId) => void
 }
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const TableRow = forwardRef<TableRowProps, 'div'>(
-  ({ feeAsset, accountId, accountNumber, toggleAccountId }, ref) => {
+  ({ asset, accountId, accountNumber, toggleAccountId }, ref) => {
     const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
     const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-    const balanceFilter = useMemo(
-      () => ({ assetId: feeAsset.assetId, accountId }),
-      [feeAsset, accountId],
-    )
+    const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
 
-    const feeAssetBalancePrecision = useAppSelector(s =>
+    const assetBalancePrecision = useAppSelector(s =>
       selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
     )
     const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
@@ -80,7 +77,7 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
           </Tooltip>
         </Td>
         <Td>
-          <Amount.Crypto value={feeAssetBalancePrecision} symbol={feeAsset?.symbol ?? ''} />
+          <Amount.Crypto value={assetBalancePrecision} symbol={asset?.symbol ?? ''} />
         </Td>
       </Tr>
     )
@@ -109,8 +106,8 @@ const LoadingRow = () => {
 export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccountsDrawerProps) => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
-  const chainNamespaceDisplayName = feeAsset?.networkName ?? ''
+  const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [accounts, setAccounts] = useState<{ accountNumber: number; accountId: AccountId }[]>([])
   const queryClient = useQueryClient()
   const isLoading = useIsFetching({ queryKey: ['accountManagement', 'loadAccount'] }) > 0
@@ -177,19 +174,19 @@ export const ImportAccountsDrawer = ({ chainId, isOpen, onClose }: ImportAccount
   }, [])
 
   const accountRows = useMemo(() => {
-    if (!feeAsset) return null
+    if (!asset) return null
     return accounts.map(({ accountId, accountNumber }) => (
       <TableRow
         key={accountId}
         accountId={accountId}
         accountNumber={accountNumber}
-        feeAsset={feeAsset}
+        asset={asset}
         toggleAccountId={handleToggleAccountId}
       />
     ))
-  }, [accounts, feeAsset, handleToggleAccountId])
+  }, [accounts, asset, handleToggleAccountId])
 
-  if (!feeAsset) {
+  if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)
     return null
   }

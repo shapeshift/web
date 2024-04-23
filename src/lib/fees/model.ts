@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn } from 'lib/bignumber/bignumber'
 
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
@@ -49,20 +49,24 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
 
   // trades below the fee threshold are free.
   const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
+  // failure to fetch fox discount results in free trades.
+  const isFallbackFees = foxHeld === undefined
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {
     if (isFree) return bn(100)
+    // No discount if we cannot fetch FOX holdings
+    if (isFallbackFees) return bn(0)
 
     return BigNumber.minimum(
       bn(100),
-      bnOrZero(foxHeld).times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
+      foxHeld.times(100).div(bn(FEE_CURVE_FOX_MAX_DISCOUNT_THRESHOLD)),
     )
   })()
 
   // the fee bps before the fox discount is applied, as a floating point number
   const feeBpsBeforeDiscountFloat =
-    bnOrZero(foxHeld).isZero() && !isFree
+    isFallbackFees && !isFree
       ? bn(FEE_CURVE_MAX_FEE_BPS)
       : minFeeBps.plus(
           maxFeeBps
@@ -82,7 +86,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
         )
 
   const feeBpsFloat =
-    bnOrZero(foxHeld).isZero() && !isFree
+    isFallbackFees && !isFree
       ? bn(FEE_CURVE_MAX_FEE_BPS)
       : BigNumber.maximum(
           feeBpsBeforeDiscountFloat.multipliedBy(bn(1).minus(foxBaseDiscountPercent.div(100))),

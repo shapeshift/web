@@ -24,7 +24,6 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import type { GetThorchainSaversWithdrawQuoteQueryKey } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
@@ -167,23 +166,26 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       amountCryptoBaseUnit: toBaseUnit(getValues()?.cryptoAmount, asset.precision),
     })
 
-  const { estimatedFeesData, isEstimatedFeesDataLoading, dustAmountCryptoBaseUnit, outboundFee } =
-    useSendThorTx({
-      assetId,
-      accountId: accountId ?? '',
-      // withdraw savers will use dust amount
-      amountCryptoBaseUnit: undefined,
-      memo: thorchainSaversWithdrawQuote?.memo,
-      fromAddress,
-      action: 'withdrawSavers',
-    })
+  const {
+    estimatedFeesData,
+    isEstimatedFeesDataLoading,
+    dustAmountCryptoBaseUnit,
+    outboundFeeCryptoBaseUnit,
+  } = useSendThorTx({
+    assetId,
+    accountId: accountId ?? '',
+    // withdraw savers will use dust amount
+    amountCryptoBaseUnit: undefined,
+    memo: thorchainSaversWithdrawQuote?.memo,
+    fromAddress,
+    action: 'withdrawSavers',
+  })
 
   const safeOutboundFeeCryptoBaseUnit = useMemo(() => {
-    if (!asset || !outboundFee) return
-    const outboundFeeCryptoBaseUnit = bn(toBaseUnit(fromThorBaseUnit(outboundFee), asset.precision))
+    if (!outboundFeeCryptoBaseUnit) return
     // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
-    return outboundFeeCryptoBaseUnit.times(1.05).toFixed()
-  }, [outboundFee, asset])
+    return bnOrZero(outboundFeeCryptoBaseUnit).times(1.05).toFixed()
+  }, [outboundFeeCryptoBaseUnit])
 
   const isSweepNeededArgs = useMemo(
     () => ({

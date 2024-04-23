@@ -18,7 +18,7 @@ import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { assertUnreachable, isToken } from 'lib/utils'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import {
@@ -39,7 +39,7 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { getThorchainTransactionType } from '..'
+import { fromThorBaseUnit, getThorchainTransactionType } from '..'
 
 type Action =
   | 'swap'
@@ -112,6 +112,11 @@ export const useSendThorTx = ({
     select: data => selectInboundAddressData(data, assetId),
     enabled: Boolean(assetId && assetId !== thorchainAssetId),
   })
+
+  const outboundFeeCryptoBaseUnit = useMemo(() => {
+    if (!asset || !inboundAddressData) return
+    return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), asset.precision)
+  }, [asset, inboundAddressData])
 
   const depositWithExpiryInputData = useMemo(() => {
     if (!memo) return
@@ -400,6 +405,6 @@ export const useSendThorTx = ({
     txId,
     serializedTxIndex,
     dustAmountCryptoBaseUnit,
-    outboundFee: inboundAddressData?.outbound_fee,
+    outboundFeeCryptoBaseUnit,
   }
 }

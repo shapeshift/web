@@ -113,10 +113,23 @@ export const useSendThorTx = ({
     enabled: Boolean(assetId && assetId !== thorchainAssetId),
   })
 
+  const inboundAddress = useMemo(() => {
+    switch (transactionType) {
+      case 'MsgDeposit':
+        return THORCHAIN_POOL_MODULE_ADDRESS
+      case 'EvmCustomTx':
+        return inboundAddressData?.router
+      case 'Send':
+        return inboundAddressData?.address
+      default:
+        return undefined
+    }
+  }, [inboundAddressData, transactionType])
+
   const outboundFeeCryptoBaseUnit = useMemo(() => {
-    if (!asset || !inboundAddressData) return
-    return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), asset.precision)
-  }, [asset, inboundAddressData])
+    if (!feeAsset || !inboundAddressData) return
+    return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), feeAsset.precision)
+  }, [feeAsset, inboundAddressData])
 
   const depositWithExpiryInputData = useMemo(() => {
     if (!memo) return
@@ -406,5 +419,6 @@ export const useSendThorTx = ({
     serializedTxIndex,
     dustAmountCryptoBaseUnit,
     outboundFeeCryptoBaseUnit,
+    inboundAddress,
   }
 }

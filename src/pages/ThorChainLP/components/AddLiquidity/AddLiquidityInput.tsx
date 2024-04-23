@@ -23,7 +23,7 @@ import { ethChainId, fromAssetId, thorchainAssetId, thorchainChainId } from '@sh
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -31,7 +31,6 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
-import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
@@ -63,8 +62,8 @@ import {
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
-import { getThorchainFromAddress, getThorchainTransactionType } from 'lib/utils/thorchain'
-import { THOR_PRECISION, THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
@@ -172,6 +171,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const previousOpportunityId = usePrevious(activeOpportunityId)
 
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
+  const [isApprovalRequired, setIsApprovalRequired] = useState<boolean>(false)
   const [runeTxFeeCryptoBaseUnit, setRuneTxFeeCryptoBaseUnit] = useState<string | undefined>()
   const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
     undefined,
@@ -483,6 +483,42 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return '0'
   }, [opportunityType, virtualRuneDepositAmountFiatUserCurrency])
 
+  const thorchainNotationPoolAssetId = useMemo(() => {
+    if (!poolAsset) return undefined
+    return assetIdToPoolAssetId({
+      assetId: poolAsset.assetId,
+    })
+  }, [poolAsset])
+
+  const memo = useMemo(() => {
+    if (thorchainNotationPoolAssetId === undefined) return
+
+    if (opportunityType === 'sym') {
+      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`
+    }
+
+    return `+:${thorchainNotationPoolAssetId}::ss:50`
+    // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
+  }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
+
+  const {
+    estimatedFeesData: estimatedPoolAssetFeesData,
+    isEstimatedFeesDataLoading: isEstimatedPoolAssetFeesDataLoading,
+    isEstimatedFeesDataError: isEstimatedPoolAssetFeesDataError,
+    inboundAddress: poolAssetInboundAddress,
+  } = useSendThorTx({
+    assetId: poolAsset?.assetId,
+    accountId: poolAssetAccountId,
+    amountCryptoBaseUnit: toBaseUnit(
+      actualAssetDepositAmountCryptoPrecision,
+      poolAsset?.precision ?? 0,
+    ),
+    memo,
+    fromAddress: poolAssetAccountAddress ?? null,
+    action: 'addLiquidity',
+    enabled: !isApprovalRequired && incompleteSide !== AsymSide.Rune,
+  })
+
   const hasEnoughAssetBalance = useMemo(() => {
     if (incompleteSide === AsymSide.Rune) return true
 
@@ -498,20 +534,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAsset?.precision,
     poolAssetBalanceCryptoBaseUnit,
   ])
-
-  const { data: inboundAddressesData, isLoading: isInboundAddressesDataLoading } = useQuery({
-    ...reactQueries.thornode.inboundAddresses(),
-    enabled: !!poolAsset,
-    select: data => selectInboundAddressData(data, poolAsset?.assetId),
-    // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
-    // Go stale instantly
-    staleTime: 0,
-    // Never store queries in cache since we always want fresh data
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 60_000,
-  })
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
@@ -533,7 +555,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   } = useMutation({
     ...reactQueries.mutations.approve({
       assetId: poolAsset?.assetId,
-      spender: inboundAddressesData?.router,
+      spender: poolAssetInboundAddress,
       from: poolAssetAccountAddress,
       amount: toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset?.precision ?? 0),
       wallet,
@@ -559,7 +581,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
           poolAsset?.assetId,
-          inboundAddressesData?.router,
+          poolAssetInboundAddress,
           poolAssetAccountAddress,
         ),
       )
@@ -567,7 +589,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     approvalTx,
     poolAsset?.assetId,
-    inboundAddressesData?.router,
+    poolAssetInboundAddress,
     isApprovalTxPending,
     poolAssetAccountAddress,
     queryClient,
@@ -575,11 +597,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
     assetId: poolAsset?.assetId,
-    spender: inboundAddressesData?.router,
+    spender: poolAssetInboundAddress,
     from: poolAssetAccountAddress,
   })
 
-  const isApprovalRequired = useMemo(() => {
+  const _isApprovalRequired = useMemo(() => {
     if (!confirmedQuote) return false
     if (!poolAsset) return false
     if (incompleteSide === AsymSide.Rune) return false
@@ -599,6 +621,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAsset,
   ])
 
+  useEffect(() => setIsApprovalRequired(_isApprovalRequired), [_isApprovalRequired])
+
   useEffect(() => {
     if (!(wallet && poolAsset && activeOpportunityId && poolAssetAccountMetadata)) return
     ;(async () => {
@@ -615,63 +639,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [activeOpportunityId, poolAsset, poolAssetAccountId, poolAssetAccountMetadata, wallet])
 
   // Pool asset fee/balance/sweep data and checks
-
-  const poolAssetInboundAddress = useMemo(() => {
-    if (!poolAsset) return
-    const transactionType = getThorchainTransactionType(poolAsset.chainId)
-
-    switch (transactionType) {
-      case 'MsgDeposit': {
-        return THORCHAIN_POOL_MODULE_ADDRESS
-      }
-      case 'EvmCustomTx': {
-        // TODO: this should really be inboundAddressData?.router, but useQuoteEstimatedFeesQuery doesn't yet handle contract calls
-        // for the purpose of naively assuming a send, using the inbound address instead of the router is fine
-        return inboundAddressesData?.address
-      }
-      case 'Send': {
-        return inboundAddressesData?.address
-      }
-      default: {
-        assertUnreachable(transactionType as never)
-      }
-    }
-  }, [poolAsset, inboundAddressesData?.address])
-
-  const thorchainNotationPoolAssetId = useMemo(() => {
-    if (!poolAsset) return undefined
-    return assetIdToPoolAssetId({
-      assetId: poolAsset.assetId,
-    })
-  }, [poolAsset])
-
-  const memo = useMemo(() => {
-    if (thorchainNotationPoolAssetId === undefined) return
-
-    if (opportunityType === 'sym') {
-      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`
-    }
-
-    return `+:${thorchainNotationPoolAssetId}::ss:50`
-    // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
-  }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
-
-  const {
-    estimatedFeesData: estimatedPoolAssetFeesData,
-    isEstimatedFeesDataLoading: isEstimatedPoolAssetFeesDataLoading,
-    isEstimatedFeesDataError: isEstimatedPoolAssetFeesDataError,
-  } = useSendThorTx({
-    assetId: poolAsset?.assetId,
-    accountId: poolAssetAccountId,
-    amountCryptoBaseUnit: toBaseUnit(
-      actualAssetDepositAmountCryptoPrecision,
-      poolAsset?.precision ?? 0,
-    ),
-    memo,
-    fromAddress: poolAssetAccountAddress ?? null,
-    action: 'addLiquidity',
-    enabled: !isApprovalRequired && incompleteSide !== AsymSide.Rune,
-  })
 
   useEffect(() => {
     if (!estimatedPoolAssetFeesData) return
@@ -990,7 +957,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     if (!slippageFiatUserCurrency) return
     if (!activeOpportunityId) return
-    if (!poolAssetInboundAddress) return
     if (!actualAssetDepositAmountCryptoPrecision) return
     if (!actualAssetDepositAmountFiatUserCurrency) return
     if (!actualRuneDepositAmountCryptoPrecision) return
@@ -1025,7 +991,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       feeAmountFiatUserCurrency: feeUsd.times(userCurrencyToUsdRate).toFixed(2),
       feeAmountUSD: feeUsd.toFixed(2),
       assetAddress: poolAssetAccountAddress,
-      quoteInboundAddress: poolAssetInboundAddress,
       runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
       totalGasFeeFiatUserCurrency: totalGasFeeFiatUserCurrency.toFixed(2),
@@ -1041,7 +1006,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     dispatch,
     poolAssetAccountAddress,
     poolAssetGasFeeFiatUserCurrency,
-    poolAssetInboundAddress,
     position,
     runeGasFeeFiatUserCurrency,
     setConfirmedQuote,
@@ -1576,13 +1540,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             isLoading={
               (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
               isVotingPowerLoading ||
-              isInboundAddressesDataLoading ||
               isTradingActiveLoading ||
               isSmartContractAccountAddressLoading ||
               isAllowanceDataLoading ||
               isApprovalTxPending ||
               (isSweepNeeded === undefined && isSweepNeededLoading) ||
-              isInboundAddressesDataLoading ||
               (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
             }
             onClick={handleDepositSubmit}

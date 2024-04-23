@@ -36,6 +36,10 @@ export const addSlippageToMemo = ({
     BigNumber.ROUND_DOWN,
   )
 
+  // Thorchain memo format:
+  // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
+  // Dex aggregator address, final asset address and minAmountOut are optional
+  // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
   const memo = [prefix, pool, address, limitWithManualSlippage, affiliate, memoAffiliateBps].join(
     MEMO_PART_DELIMITER,
   )

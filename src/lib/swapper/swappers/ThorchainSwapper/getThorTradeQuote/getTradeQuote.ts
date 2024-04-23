@@ -39,9 +39,6 @@ export type ThorEvmTradeQuote = TradeQuote &
 export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
 export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
-export const isThorEvmTradeQuote = (quote: ThorTradeQuote): quote is ThorEvmTradeQuote =>
-  'isStreaming' in quote && quote.isStreaming !== undefined
-
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
   assetsById: AssetsByIdPartial,

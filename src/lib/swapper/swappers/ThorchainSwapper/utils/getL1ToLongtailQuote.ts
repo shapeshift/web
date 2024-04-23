@@ -13,9 +13,10 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
-import { isErrorPromise, isFulfilled, isRejected } from 'lib/utils'
+import { isFulfilled, isRejected, isResolvedErr } from 'lib/utils'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
+import { ALLOWANCE_CONTRACT } from '../constants'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { addAggregatorAndDestinationToMemo } from './addAggregatorAndDestinationToMemo'
 import { getBestAggregator } from './getBestAggregator'
@@ -23,7 +24,7 @@ import { getL1quote } from './getL1quote'
 import type { AggregatorContract } from './longTailHelpers'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
-// This just gets uses UniswapV3 to get the longtail quote for now.
+// This just uses UniswapV3 to get the longtail quote for now.
 export const getL1ToLongtailQuote = async (
   input: GetTradeQuoteInput,
   streamingInterval: number,
@@ -79,10 +80,7 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  // TODO: Move these constants outside
-  // TODO2: use more than just UniswapV3, and also consider trianglar routes.
-  const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
-
+  // TODO: use more than just UniswapV3, and also consider trianglar routes.
   const l1Tol1QuoteInput: GetTradeQuoteInput = {
     ...input,
     buyAsset: nativeBuyAsset,
@@ -90,19 +88,21 @@ export const getL1ToLongtailQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
 
-  const thorchainQuotes = await getL1quote(
+  const maybeThorchainQuotes = await getL1quote(
     l1Tol1QuoteInput,
     streamingInterval,
     TradeType.L1ToLongTail,
   )
 
-  const unwrappedThorchainQuotes = thorchainQuotes.unwrap()
+  if (maybeThorchainQuotes.isErr()) return Err(maybeThorchainQuotes.unwrapErr())
+
+  const thorchainQuotes = maybeThorchainQuotes.unwrap()
 
   let bestAggregator: AggregatorContract
   let quotedAmountOut: bigint
 
   const promises = await Promise.allSettled(
-    unwrappedThorchainQuotes.map(async quote => {
+    thorchainQuotes.map(async quote => {
       const onlyStep = quote.steps[0]
 
       const maybeBestAggregator = await getBestAggregator(
@@ -121,7 +121,7 @@ export const getL1ToLongtailQuote = async (
 
       const updatedMemo = addAggregatorAndDestinationToMemo({
         aggregator: bestAggregator,
-        destinationToken: fromAssetId(buyAsset.assetId).assetReference as Address,
+        finalAssetAddress: fromAssetId(buyAsset.assetId).assetReference as Address,
         minAmountOut: convertDecimalPercentageToBasisPoints(
           slippageTolerancePercentageDecimal ??
             getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
@@ -159,7 +159,7 @@ export const getL1ToLongtailQuote = async (
     }),
   )
 
-  if (promises.every(promise => isRejected(promise) || isErrorPromise(promise))) {
+  if (promises.every(promise => isRejected(promise) || isResolvedErr(promise))) {
     return Err(
       makeSwapErrorRight({
         message: '[getThorTradeQuote] - failed to get best aggregator',

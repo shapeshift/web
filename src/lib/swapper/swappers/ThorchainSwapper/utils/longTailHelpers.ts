@@ -173,17 +173,17 @@ export const getQuotedAmountOutByPool = async (
 
 export const selectBestRate = (
   quotedAmounts: Map<Address, bigint>,
-): [Address, bigint] | undefined => {
+): [Address | undefined, bigint | undefined] => {
   return Array.from(quotedAmounts.entries()).reduce(
     (
-      addressWithHighestAmount: [Address, bigint] | undefined,
+      addressWithHighestAmount: [Address | undefined, bigint | undefined],
       [poolAddress, amount]: [Address, bigint],
     ) => {
-      if (addressWithHighestAmount === undefined) return [poolAddress, amount]
-      return amount > addressWithHighestAmount?.[1]
+      if (addressWithHighestAmount[1] === undefined) return [poolAddress, amount]
+      return addressWithHighestAmount?.[1] && amount > addressWithHighestAmount[1]
         ? [poolAddress, amount]
         : addressWithHighestAmount
     },
-    undefined,
+    [undefined, undefined],
   )
 }

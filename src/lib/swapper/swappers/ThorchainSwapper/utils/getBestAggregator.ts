@@ -9,6 +9,7 @@ import type { Address, GetContractReturnType, PublicClient, WalletClient } from 
 import { getContract } from 'viem'
 import { viemClientByChainId } from 'lib/viem-client'
 
+import { POOL_FACTORY_CONTRACT_ADDRESS, QUOTER_CONTRACT_ADDRESS } from '../constants'
 import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import {
   feeAmountToContractMap,
@@ -24,8 +25,6 @@ export const getBestAggregator = async (
   buyToken: Token,
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string,
 ) => {
-  const POOL_FACTORY_CONTRACT_ADDRESS = '0x1F98431c8aD98523631AE4a59f267346ea31F984' // FIXME: this is only true for Ethereum
-
   const publicClient = viemClientByChainId[buyAsset.chainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${buyAsset.chainId}'`)
 
@@ -41,8 +40,6 @@ export const getBestAggregator = async (
     buyToken.address,
   )
 
-  // TODO: Move these constants outside
-  const QUOTER_CONTRACT_ADDRESS = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6' // FIXME: this is only true for Ethereum
   const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient> =
     getContract({
       abi: QuoterAbi,
@@ -56,10 +53,7 @@ export const getBestAggregator = async (
     quoterContract,
   )
 
-  const [bestPool, quotedAmountOut] = selectBestRate(quotedAmountOutByPool) ?? [
-    undefined,
-    undefined,
-  ]
+  const [bestPool, quotedAmountOut] = selectBestRate(quotedAmountOutByPool)
 
   const bestContractData = bestPool ? poolContractData.get(bestPool) : undefined
   const bestAggregator = bestContractData ? feeAmountToContractMap[bestContractData.fee] : undefined

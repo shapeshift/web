@@ -119,12 +119,9 @@ export const thorchainApi: SwapperApi = {
         const publicClient = viemClientByChainId[chainId as EvmChainId]
         assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
-        const expectedAmountOut = BigInt(longtailData?.longtailToL1ExpectedAmountOut ?? 0)
+        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(
-          expectedAmountOut !== undefined && expectedAmountOut > 0n,
-          'expected expectedAmountOut to be a positive amount',
-        )
+        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
 
         const amountOutMin = BigInt(
           bnOrZero(expectedAmountOut.toString())
@@ -174,12 +171,9 @@ export const thorchainApi: SwapperApi = {
         const publicClient = viemClientByChainId[chainId as EvmChainId]
         assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
-        const expectedAmountOut = BigInt(longtailData?.L1ToLongtailExpectedAmountOut ?? 0)
+        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? 0n
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(
-          expectedAmountOut !== undefined && expectedAmountOut > 0n,
-          'expected expectedAmountOut to be a positive amount',
-        )
+        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
 
         const feeData = await getFees({
           adapter: assertGetEvmChainAdapter(chainId),

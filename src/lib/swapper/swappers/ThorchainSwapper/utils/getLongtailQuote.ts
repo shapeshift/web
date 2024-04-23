@@ -9,12 +9,13 @@ import assert from 'assert'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { viemClientByChainId } from 'lib/viem-client'
 
+import { ALLOWANCE_CONTRACT } from '../constants'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1quote } from './getL1quote'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
-// This just gets uses UniswapV3 to get the longtail quote for now.
+// This just uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Quote = async (
   input: GetTradeQuoteInput,
   streamingInterval: number,
@@ -51,8 +52,6 @@ export const getLongtailToL1Quote = async (
   }
 
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
-  const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
-
   const publicClient = viemClientByChainId[sellChainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 

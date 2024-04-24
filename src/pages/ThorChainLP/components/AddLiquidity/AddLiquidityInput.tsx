@@ -19,7 +19,7 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -157,8 +157,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isSnapInstalled = useIsSnapInstalled()
   const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
+    () => isSnapshotApiQueriesPending,
+    [isSnapshotApiQueriesPending],
   )
 
   const [showFeeModal, toggleShowFeeModal] = useState(false)
@@ -400,12 +400,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return walletSupport && poolAssetAccountIds.length > 0
   }, [assetId, accountIdsByChainId, wallet, isSnapInstalled, poolAssetAccountIds.length])
 
-  const walletSupportsEth = useMemo(() => {
-    const chainId = ethChainId
-    const chainAccountIds = accountIdsByChainId[chainId] ?? []
-    return walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
-  }, [accountIdsByChainId, isSnapInstalled, wallet])
-
   // While we do wallet feature detection, we may still end up with a pool type that the wallet doesn't support, which is expected either:
   // - as a default pool, so we can show some input and not some seemingly broken blank state
   // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
@@ -416,15 +410,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityType === AsymSide.Rune) return walletSupportsRune
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
   }, [opportunityType, walletSupportsAsset, walletSupportsRune])
-
-  const isVotingPowerReady = useMemo(() => {
-    // No ETH accountIds in the store - we can't get voting power
-    // Meaning this is either a Ledger without EVM accounts connected, or a wallet that explicitly doesn't support ETH (e.g Keplr)
-    if (!walletSupportsEth) return true
-    if (votingPower !== undefined) return true
-
-    return false
-  }, [votingPower, walletSupportsEth])
 
   const handleToggleRuneIsFiat = useCallback(
     (_isFiat: boolean) => {
@@ -962,6 +947,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!actualRuneDepositAmountCryptoPrecision) return
     if (!actualRuneDepositAmountFiatUserCurrency) return
     if (!shareOfPoolDecimalPercent) return
+    if (isVotingPowerLoading) return
 
     const totalAmountFiatUserCurrency = bnOrZero(actualAssetDepositAmountFiatUserCurrency)
       .plus(actualRuneDepositAmountFiatUserCurrency)
@@ -973,7 +959,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
-      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+      foxHeld: bnOrZero(votingPower),
       feeModel: 'THORCHAIN_LP',
     })
 
@@ -1004,6 +990,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     dispatch,
+    isVotingPowerLoading,
     poolAssetAccountAddress,
     poolAssetGasFeeFiatUserCurrency,
     position,
@@ -1521,7 +1508,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isTradingActive === false ||
               !isThorchainLpDepositEnabled ||
               !confirmedQuote ||
-              !isVotingPowerReady ||
               isVotingPowerLoading ||
               !hasEnoughAssetBalance ||
               !hasEnoughRuneBalance ||

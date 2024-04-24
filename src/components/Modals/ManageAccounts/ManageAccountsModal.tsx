@@ -9,9 +9,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  VStack,
 } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
 export type ManageAccountsModalProps = {
@@ -21,7 +23,7 @@ export type ManageAccountsModalProps = {
 const infoIcon = <InfoIcon />
 
 export const ManageAccountsModal = ({
-  title = 'accountManagement.manageAccounts.modalTitle',
+  title = 'accountManagement.manageAccounts.title',
 }: ManageAccountsModalProps) => {
   const translate = useTranslate()
   const { close, isOpen } = useModal('manageAccounts')
@@ -34,8 +36,11 @@ export const ManageAccountsModal = ({
     <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
       <ModalOverlay />
       <ModalContent borderRadius='xl' mx={3} maxW='400px'>
-        <ModalHeader textAlign='center' py={12}>
-          {translate(title)}
+        <ModalHeader textAlign='left' py={12}>
+          <RawText as='h3'>{translate(title)}</RawText>
+          <RawText color='text.subtle' fontSize='md'>
+            {translate('accountManagement.manageAccounts.description')}
+          </RawText>
         </ModalHeader>
         <IconButton
           aria-label='Info'
@@ -53,9 +58,14 @@ export const ManageAccountsModal = ({
           Placeholder content
         </ModalBody>
         <ModalFooter justifyContent='center' pb={6}>
-          <Button colorScheme='blue' onClick={close} width='full'>
-            Done
-          </Button>
+          <VStack spacing={2} width='full'>
+            <Button colorScheme='blue' onClick={close} width='full'>
+              {translate('accountManagement.manageAccounts.addChain')}
+            </Button>
+            <Button colorScheme='gray' onClick={close} width='full'>
+              {translate('common.done')}
+            </Button>
+          </VStack>
         </ModalFooter>
       </ModalContent>
     </Modal>

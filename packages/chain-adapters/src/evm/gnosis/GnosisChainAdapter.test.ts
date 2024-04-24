@@ -12,9 +12,8 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
-import { zeroAddress } from 'viem'
+import { toHex, zeroAddress } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
-import { numberToHex } from 'web3-utils'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
@@ -23,7 +22,7 @@ import type { ChainAdapterArgs, EvmChainId } from '../EvmBaseAdapter'
 import * as gnosis from './GnosisChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
-  validateAddress: vi.fn(),
+  assertAddressNotSanctioned: vi.fn(),
 }))
 
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
@@ -474,11 +473,11 @@ describe('GnosisChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(gnosisChainId).chainReference),
           data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
+          gasLimit: toHex(BigInt(gasLimit)),
+          gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',
           to: EOA_ADDRESS,
-          value: numberToHex(value),
+          value: toHex(BigInt(value)),
         },
       })
 
@@ -510,8 +509,8 @@ describe('GnosisChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(gnosisChainId).chainReference),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
+          gasLimit: toHex(BigInt(gasLimit)),
+          gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',
           to: contractAddress,
           value: '0x0',

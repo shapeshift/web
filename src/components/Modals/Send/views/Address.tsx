@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { YatBanner } from 'components/Banners/YatBanner'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
@@ -14,7 +13,6 @@ import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { SelectAssetRoutes } from 'components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { selectAssetById } from 'state/slices/selectors'
@@ -37,12 +35,10 @@ export const Address = () => {
   const input = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const send = useModal('send')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
-  const isYatFeatureEnabled = useFeatureFlag('Yat')
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const isYatSupportedChain = asset?.chainId === ethChainId // yat only supports eth mainnet
-  const isYatSupported = isYatFeatureEnabled && isYatSupportedChain
+  const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
   useEffect(() => {
@@ -81,14 +77,12 @@ export const Address = () => {
           // set returned values
           setValue(SendFormFields.To, address)
           setValue(SendFormFields.VanityAddress, vanityAddress)
-          const invalidMessage = isYatSupported
-            ? 'common.invalidAddressOrYat'
-            : 'common.invalidAddress'
+          const invalidMessage = 'common.invalidAddress'
           return address ? true : invalidMessage
         },
       },
     }),
-    [asset, isYatSupported, setValue],
+    [asset, setValue],
   )
 
   const handleCancel = useCallback(() => send.close(), [send])
@@ -112,14 +106,13 @@ export const Address = () => {
             rules={addressInputRules}
             enableQr={true}
             placeholder={translate(
-              isYatSupported ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
+              supportsENS ? 'modals.send.addressInput' : 'modals.send.tokenAddress',
             )}
           />
         </FormControl>
-        {isYatFeatureEnabled && isYatSupportedChain && <YatBanner mt={6} />}
       </DialogBody>
-      <DialogFooter {...(isYatFeatureEnabled && { display: 'flex', flexDir: 'column' })}>
-        <Stack flex={1} {...(isYatFeatureEnabled && { w: 'full' })}>
+      <DialogFooter>
+        <Stack flex={1}>
           <Button
             width='full'
             isDisabled={!address || !input || addressError}

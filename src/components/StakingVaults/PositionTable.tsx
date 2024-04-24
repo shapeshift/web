@@ -19,6 +19,7 @@ import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import {
+  selectAccountIdsByChainId,
   selectAggregatedEarnOpportunitiesByAssetId,
   selectAssetById,
   selectAssetsSortedByMarketCap,
@@ -94,17 +95,20 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const isSnapInstalled = useIsSnapInstalled()
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
 
   const filteredPositions = useMemo(
     () =>
-      positions.filter(position =>
-        walletSupportsChain({
+      positions.filter(position => {
+        const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
+        return walletSupportsChain({
+          chainAccountIds,
           chainId: fromAssetId(position.assetId).chainId,
           wallet,
           isSnapInstalled,
-        }),
-      ),
-    [isSnapInstalled, positions, wallet],
+        })
+      }),
+    [accountIdsByChainId, isSnapInstalled, positions, wallet],
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
@@ -210,7 +214,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     return searchQuery ? (
       <SearchEmpty searchQuery={searchQuery} />
     ) : (
-      <ResultsEmpty ctaHref='/earn' />
+      <ResultsEmpty ctaHref='/earn' ctaText='defi.startEarning' />
     )
   }, [includeEarnBalances, includeRewardsBalances, searchQuery])
 

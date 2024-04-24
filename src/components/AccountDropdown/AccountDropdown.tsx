@@ -10,7 +10,6 @@ import {
   type MenuItemOptionProps,
   MenuList,
   MenuOptionGroup,
-  Portal,
   Text,
   usePrevious,
 } from '@chakra-ui/react'
@@ -351,19 +350,17 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
               )}
             </Flex>
           </MenuButton>
-          <Portal>
-            <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
-              <MenuOptions
-                accountIdsByNumberAndType={accountIdsByNumberAndType}
-                asset={asset}
-                autoSelectHighestBalance={autoSelectHighestBalance}
-                disabled={disabled}
-                listProps={listProps}
-                selectedAccountId={selectedAccountId}
-                onClick={handleClick}
-              />
-            </MenuList>
-          </Portal>
+          <MenuList minWidth='fit-content' maxHeight='200px' overflowY='auto' zIndex='modal'>
+            <MenuOptions
+              accountIdsByNumberAndType={accountIdsByNumberAndType}
+              asset={asset}
+              autoSelectHighestBalance={autoSelectHighestBalance}
+              disabled={disabled}
+              listProps={listProps}
+              selectedAccountId={selectedAccountId}
+              onClick={handleClick}
+            />
+          </MenuList>
         </Menu>
       </Box>
     )

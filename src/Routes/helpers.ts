@@ -29,6 +29,7 @@ export type Route = {
   icon?: JSX.Element
   disable?: boolean
   hide?: boolean
+  hideDesktop?: boolean
   breadcrumb?: string | React.ReactNode
   isNew?: boolean
   category?: RouteCategory

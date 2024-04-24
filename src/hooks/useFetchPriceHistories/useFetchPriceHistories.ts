@@ -5,29 +5,19 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-type UseFetchPriceHistoriesArgs = {
-  assetIds: AssetId[]
-  timeframe: HistoryTimeframe
-}
+const { findPriceHistoryByAssetIds, findPriceHistoryByFiatSymbol } = marketApi.endpoints
 
-type UseFetchPriceHistories = (args: UseFetchPriceHistoriesArgs) => void
-
-export const useFetchPriceHistories: UseFetchPriceHistories = ({ assetIds, timeframe }) => {
+export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTimeframe) => {
   const dispatch = useAppDispatch()
   const symbol = useAppSelector(selectSelectedCurrency)
 
-  const { findPriceHistoryByAssetIds, findPriceHistoryByFiatSymbol } = marketApi.endpoints
-  useEffect(
-    () => {
-      dispatch(findPriceHistoryByAssetIds.initiate({ assetIds, timeframe }))
-    },
-    // assetIds ref changes, prevent infinite render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [assetIds, dispatch, timeframe],
-  )
+  useEffect(() => {
+    dispatch(findPriceHistoryByAssetIds.initiate({ assetIds, timeframe }))
+  }, [assetIds, dispatch, timeframe])
+
   useEffect(() => {
     // we already know 1usd costs 1usd
     if (symbol === 'USD') return
     dispatch(findPriceHistoryByFiatSymbol.initiate({ symbol, timeframe }))
-  }, [dispatch, findPriceHistoryByFiatSymbol, symbol, timeframe])
+  }, [dispatch, symbol, timeframe])
 }

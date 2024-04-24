@@ -1,4 +1,5 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
+import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Circle, Flex } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import { useTranslate } from 'react-polyglot'
@@ -11,6 +12,8 @@ type ResultsEmptyProp = {
   title?: string
   body?: string
   ctaHref?: string | null
+  ctaText?: string
+  buttonProps?: ButtonProps
 }
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -20,6 +23,8 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
   title = 'defi.noActivePositions',
   body = 'assets.assetCards.stakingBody',
   ctaHref,
+  ctaText,
+  buttonProps,
 }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
   const translate = useTranslate()
@@ -33,9 +38,16 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
       <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
         <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
         <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
-        {ctaHref && (
-          <Button colorScheme='purple' as={Link} to={ctaHref} mt={4} rightIcon={arrowForwardIcon}>
-            {translate('defi.startEarning')}
+        {ctaHref && ctaText && (
+          <Button
+            colorScheme='purple'
+            as={Link}
+            to={ctaHref}
+            mt={4}
+            rightIcon={arrowForwardIcon}
+            {...buttonProps}
+          >
+            {translate(ctaText)}
           </Button>
         )}
       </Flex>

@@ -13,11 +13,13 @@ export const useNfts = () => {
     { skip: requestedAccountIds.length === 0 },
   )
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       isLoading: requestedAccountIds.length === 0 || isUninitialized || isLoading || isFetching,
       data,
     }),
     [data, isFetching, isLoading, isUninitialized, requestedAccountIds.length],
   )
+
+  return result
 }

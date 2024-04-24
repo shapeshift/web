@@ -59,6 +59,7 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
       ...(maybeTreasuryAddress && {
         feeRecipient: maybeTreasuryAddress, // Where affiliate fees are sent
+        feeRecipientTradeSurplus: maybeTreasuryAddress, // Where trade surplus is sent
         buyTokenPercentageFee: convertBasisPointsToDecimalPercentage(affiliateBps).toNumber(),
       }),
     },

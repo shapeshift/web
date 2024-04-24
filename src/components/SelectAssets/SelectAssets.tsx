@@ -18,14 +18,14 @@ type SelectAssetsProps = {
   onBack?: () => void
 }
 
-export const SelectAssets = ({ onClick }: SelectAssetsProps) => {
+export const SelectAssets = ({ onClick, onBack }: SelectAssetsProps) => {
   const translate = useTranslate()
   const handleAssetClick = useCallback((asset: Asset) => onClick(asset.assetId), [onClick])
   return (
     <>
       <DialogHeader>
         <DialogHeaderLeft>
-          <DialogBackButton />
+          <DialogBackButton onClick={onBack} />
         </DialogHeaderLeft>
         <DialogHeaderMiddle>{translate('common.selectAsset')}</DialogHeaderMiddle>
         <DialogHeaderRight>

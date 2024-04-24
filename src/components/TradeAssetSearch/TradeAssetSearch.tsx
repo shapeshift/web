@@ -88,7 +88,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       variant: 'filled',
       borderWidth: 0,
       autoComplete: 'off',
-      autoFocus: true,
     }),
     [register, translate],
   )

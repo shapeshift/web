@@ -6,8 +6,8 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
+import { toHex } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
-import { numberToHex } from 'web3-utils'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
@@ -16,7 +16,7 @@ import type { EvmChainId } from '../EvmBaseAdapter'
 import * as bsc from './BscChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
-  validateAddress: vi.fn(),
+  assertAddressNotSanctioned: vi.fn(),
 }))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -451,11 +451,11 @@ describe('BscChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(bscChainId).chainReference),
           data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
+          gasLimit: toHex(BigInt(gasLimit)),
+          gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',
           to: EOA_ADDRESS,
-          value: numberToHex(value),
+          value: toHex(BigInt(value)),
         },
       })
 
@@ -487,8 +487,8 @@ describe('BscChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(bscChainId).chainReference),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
+          gasLimit: toHex(BigInt(gasLimit)),
+          gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',
           to: contractAddress,
           value: '0x0',

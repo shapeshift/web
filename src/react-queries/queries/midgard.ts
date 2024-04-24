@@ -9,7 +9,7 @@ import type {
 } from 'lib/utils/thorchain/lp/types'
 
 type Period = 'all'
-type Interval = '5min' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
+export type Interval = '5min' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
 
 const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
 

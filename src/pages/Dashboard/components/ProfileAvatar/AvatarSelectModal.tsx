@@ -25,7 +25,7 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { SearchEmpty } from 'components/StakingVaults/SearchEmpty'
 import { RawText } from 'components/Text'
-import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
+import { useProfileAvatar } from 'hooks/useProfileAvatar/useProfileAvatar'
 import { nft } from 'state/apis/nft/nftApi'
 import {
   selectPortfolioNftItemsWithCollectionExcludeSpams,
@@ -37,8 +37,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { NftRow } from './NftRow'
 
-type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> &
-  Pick<ModalProps, 'onClose'> & { walletImage: string }
+type AvatarSelectModalProps = Pick<ModalProps, 'isOpen'> & Pick<ModalProps, 'onClose'>
 
 const narwhalIcon = <NarwhalIcon color='pink.200' />
 const modalSizeProp = { base: 'full', md: 'lg' }
@@ -57,10 +56,7 @@ export const AvatarSelectModal: React.FC<AvatarSelectModalProps> = props => {
   const { isLoading } = useNfts()
   const nftItems = useAppSelector(selectPortfolioNftItemsWithCollectionExcludeSpams)
 
-  const defaultWalletImage = useMemo(
-    () => makeBlockiesUrl(`${walletId}ifyoudriveatruckdriveitlikeyouhaveafarm`),
-    [walletId],
-  )
+  const defaultWalletImage = useProfileAvatar()
   const filteredData = useMemo(
     () => nftItems.filter(item => item.medias[0]?.type === 'image'),
     [nftItems],

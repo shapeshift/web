@@ -11,6 +11,13 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
+import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './swappers/CowSwapper/utils/constants'
+import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants'
+import { ONE_INCH_SUPPORTED_CHAIN_IDS } from './swappers/OneInchSwapper/utils/constants'
+import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
+import { ZRX_SUPPORTED_CHAIN_IDS } from './swappers/ZrxSwapper/utils/constants'
+import type { SupportedChainIds } from './types'
+
 export const QUOTE_TIMEOUT_MS = 60_000
 
 export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
@@ -18,11 +25,30 @@ export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
 })
 
 // PartialRecord not used to ensure exhaustiveness
-export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> = {
-  [SwapperName.LIFI]: { ...lifiSwapper, ...lifiApi },
-  [SwapperName.Thorchain]: { ...thorchainSwapper, ...thorchainApi },
-  [SwapperName.Zrx]: { ...zrxSwapper, ...zrxApi },
-  [SwapperName.CowSwap]: { ...cowSwapper, ...cowApi },
-  [SwapperName.OneInch]: { ...oneInchSwapper, ...oneInchApi },
+export const swappers: Record<
+  SwapperName,
+  (SwapperApi & Swapper & { supportedChainIds: SupportedChainIds }) | undefined
+> = {
+  [SwapperName.LIFI]: {
+    ...lifiSwapper,
+    ...lifiApi,
+    supportedChainIds: LIFI_SUPPORTED_CHAIN_IDS,
+  },
+  [SwapperName.Thorchain]: {
+    ...thorchainSwapper,
+    ...thorchainApi,
+    supportedChainIds: THORCHAIN_SUPPORTED_CHAIN_IDS,
+  },
+  [SwapperName.Zrx]: { ...zrxSwapper, ...zrxApi, supportedChainIds: ZRX_SUPPORTED_CHAIN_IDS },
+  [SwapperName.CowSwap]: {
+    ...cowSwapper,
+    ...cowApi,
+    supportedChainIds: COW_SWAP_SUPPORTED_CHAIN_IDS,
+  },
+  [SwapperName.OneInch]: {
+    ...oneInchSwapper,
+    ...oneInchApi,
+    supportedChainIds: ONE_INCH_SUPPORTED_CHAIN_IDS,
+  },
   [SwapperName.Test]: undefined,
 }

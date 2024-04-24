@@ -11,8 +11,8 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
+import { toHex } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
-import { numberToHex } from 'web3-utils'
 
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
@@ -21,7 +21,7 @@ import type { EvmChainId } from '../EvmBaseAdapter'
 import * as avalanche from './AvalancheChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
-  validateAddress: vi.fn(),
+  assertAddressNotSanctioned: vi.fn(),
 }))
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -474,11 +474,11 @@ describe('AvalancheChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(avalancheChainId).chainReference),
           data: '',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
+          gasLimit: toHex(BigInt(gasLimit)),
+          gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',
           to: EOA_ADDRESS,
-          value: numberToHex(value),
+          value: toHex(BigInt(value)),
         },
       })
 
@@ -510,8 +510,8 @@ describe('AvalancheChainAdapter', () => {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(avalancheChainId).chainReference),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
-          gasLimit: numberToHex(gasLimit),
-          gasPrice: numberToHex(gasPrice),
+          gasLimit: toHex(BigInt(gasLimit)),
+          gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',
           to: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
           value: '0x0',

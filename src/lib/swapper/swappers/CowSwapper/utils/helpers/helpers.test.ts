@@ -3,7 +3,7 @@ import type { AxiosStatic } from 'axios'
 import type { Awaitable, HookCleanupCallback } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { domain, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
+import { domain, getFullAppData, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
 
 vi.mock('../cowService', async () => {
   const axios: AxiosStatic = await vi.importMock('axios')
@@ -59,6 +59,41 @@ describe('utils', () => {
       expect(orderDigest).toEqual(
         '0x36f3ae3a19c9c5898d921ce86c1be9e3ae0c8ec1bdd162e7d2f6e83e6bf9a4e6',
       )
+    })
+  })
+  describe('getFullAppData', () => {
+    it('should return correct AppData for given inputs for no affiliate fee', async () => {
+      const slippageTolerancePercentage = '0.005' // 0.5%
+      const affiliateAppDataFragment = {} // no affiliate fee
+
+      const result = await getFullAppData(slippageTolerancePercentage, affiliateAppDataFragment)
+
+      expect(result).toHaveProperty('appDataHash')
+      expect(result).toHaveProperty('appData')
+      expect(result).toEqual({
+        appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+        appData:
+          '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
+      })
+    })
+    it('should return correct AppData for given inputs for affiliate fee', async () => {
+      const slippageTolerancePercentage = '0.005' // 0.5%
+      const affiliateAppDataFragment = {
+        partnerFee: {
+          bps: 48,
+          recipient: '0xb0E3175341794D1dc8E5F02a02F9D26989EbedB3',
+        },
+      }
+
+      const result = await getFullAppData(slippageTolerancePercentage, affiliateAppDataFragment)
+
+      expect(result).toHaveProperty('appDataHash')
+      expect(result).toHaveProperty('appData')
+      expect(result).toEqual({
+        appDataHash: '0x415378688feaaa6cfcdb873d9b467c8201b821cfa3a567f058c04871d317da34',
+        appData:
+          '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"partnerFee":{"bps":48,"recipient":"0xb0E3175341794D1dc8E5F02a02F9D26989EbedB3"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
+      })
     })
   })
 })

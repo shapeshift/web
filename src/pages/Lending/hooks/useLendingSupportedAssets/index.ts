@@ -12,8 +12,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import { selectAssetById, selectWalletChainIds } from 'state/slices/selectors'
-import { store } from 'state/store'
+import {
+  selectAccountIdsByChainId,
+  selectAssetById,
+  selectWalletChainIds,
+} from 'state/slices/selectors'
+import { store, useAppSelector } from 'state/store'
 
 const queryKey = ['lendingSupportedAssets']
 
@@ -29,12 +33,14 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     select: pools => pools.filter(pool => pool.status === 'Available'),
   })
 
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const walletSupportChains = useMemo(
     () =>
-      Object.values(KnownChainIds).filter(chainId =>
-        walletSupportsChain({ chainId, wallet, isSnapInstalled }),
-      ),
-    [isSnapInstalled, wallet],
+      Object.values(KnownChainIds).filter(chainId => {
+        const chainAccountIds = accountIdsByChainId[chainId] ?? []
+        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+      }),
+    [accountIdsByChainId, isSnapInstalled, wallet],
   )
 
   const walletChainIds = useSelector(selectWalletChainIds)

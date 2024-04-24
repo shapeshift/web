@@ -10,7 +10,7 @@ import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
 import * as dogecoin from './DogecoinChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({
-  validateAddress: vi.fn(),
+  assertAddressNotSanctioned: vi.fn(),
 }))
 
 const testMnemonic = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'

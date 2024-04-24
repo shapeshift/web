@@ -12,14 +12,15 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   ORDER_KIND_SELL,
+  SUPPORTED_CHAIN_IDS,
 } from 'lib/swapper/swappers/CowSwapper/utils/constants'
 import { cowService } from 'lib/swapper/swappers/CowSwapper/utils/cowService'
 import {
   assertValidTrade,
+  getAffiliateAppDataFragmentByChainId,
   getCowswapNetwork,
   getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
-  getSupportedChainIds,
   getValuesFromQuoteResponse,
 } from 'lib/swapper/swappers/CowSwapper/utils/helpers/helpers'
 import { isNativeEvmAsset } from 'lib/swapper/swappers/utils/helpers/helpers'
@@ -34,15 +35,19 @@ export async function getCowSwapTradeQuote(
     chainId,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    potentialAffiliateBps,
+    affiliateBps,
   } = input
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)
 
-  const supportedChainIds = getSupportedChainIds()
-
-  const assertion = assertValidTrade({ buyAsset, sellAsset, supportedChainIds })
+  const assertion = assertValidTrade({
+    buyAsset,
+    sellAsset,
+    supportedChainIds: SUPPORTED_CHAIN_IDS,
+  })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const buyToken = !isNativeEvmAsset(buyAsset.assetId)
@@ -55,7 +60,15 @@ export async function getCowSwapTradeQuote(
   const network = maybeNetwork.unwrap()
   const baseUrl = getConfig().REACT_APP_COWSWAP_BASE_URL
 
-  const { appData, appDataHash } = await getFullAppData(slippageTolerancePercentageDecimal)
+  const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
+    affiliateBps,
+    chainId: sellAsset.chainId,
+  })
+
+  const { appData, appDataHash } = await getFullAppData(
+    slippageTolerancePercentageDecimal,
+    affiliateAppDataFragment,
+  )
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
@@ -93,24 +106,21 @@ export async function getCowSwapTradeQuote(
 
   const { data } = maybeQuoteResponse.unwrap()
 
-  const {
-    feeAmount: feeAmountInSellTokenCryptoBaseUnit,
-    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
-  } = data.quote
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
 
-  const { rate, buyAmountBeforeFeesCryptoBaseUnit } = getValuesFromQuoteResponse({
-    buyAsset,
-    sellAsset,
-    response: data,
-  })
+  const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
+    getValuesFromQuoteResponse({
+      buyAsset,
+      sellAsset,
+      response: data,
+      affiliateBps,
+    })
 
   const quote: TradeQuote = {
     id: data.id.toString(),
     receiveAddress,
-    // CowSwap does not support affiliate bps
-    // But we still need to return them as 0, so they are properly displayed as such at view-layer
-    affiliateBps: '0',
-    potentialAffiliateBps: '0',
+    affiliateBps,
+    potentialAffiliateBps,
     rate,
     slippageTolerancePercentageDecimal,
     steps: [

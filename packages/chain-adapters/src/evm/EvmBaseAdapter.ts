@@ -23,7 +23,6 @@ import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'
-import { numberToHex } from 'web3-utils'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
@@ -51,7 +50,7 @@ import type {
 import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
 import { bnOrZero } from '../utils/bignumber'
-import { validateAddress } from '../utils/validateAddress'
+import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type {
   arbitrum,
   arbitrumNova,
@@ -277,27 +276,27 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const fees = ((): Fees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {
           return {
-            maxFeePerGas: numberToHex(maxFeePerGas),
-            maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas),
+            maxFeePerGas: toHex(BigInt(maxFeePerGas)),
+            maxPriorityFeePerGas: toHex(BigInt(maxPriorityFeePerGas)),
           }
         }
 
-        return { gasPrice: numberToHex(gasPrice!) }
+        return { gasPrice: toHex(BigInt(gasPrice!)) }
       })()
 
       const nonce =
         customNonce !== undefined
-          ? numberToHex(customNonce)
-          : numberToHex(account.chainSpecific.nonce)
+          ? toHex(BigInt(customNonce))
+          : toHex(BigInt(account.chainSpecific.nonce))
 
       const txToSign = {
         addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
-        value: numberToHex(isTokenSend ? '0' : value),
+        value: toHex(isTokenSend ? 0n : BigInt(value)),
         to: isTokenSend ? contractAddress : to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data: data || (await getErc20Data(to, value, contractAddress)),
         nonce,
-        gasLimit: numberToHex(gasLimit),
+        gasLimit: toHex(BigInt(gasLimit)),
         ...fees,
       } as SignTx<T>
 
@@ -418,8 +417,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
     await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
+      assertAddressNotSanctioned(senderAddress),
+      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
     ])
 
     try {
@@ -446,8 +445,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     hex,
   }: BroadcastTransactionInput): Promise<string> {
     await Promise.all([
-      validateAddress(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && validateAddress(receiverAddress),
+      assertAddressNotSanctioned(senderAddress),
+      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
     ])
     return this.providers.http.sendTx({ sendTxBody: { hex } })
   }
@@ -559,20 +558,20 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const fees: Fees =
         maxFeePerGas && maxPriorityFeePerGas
           ? {
-              maxFeePerGas: numberToHex(maxFeePerGas),
-              maxPriorityFeePerGas: numberToHex(maxPriorityFeePerGas),
+              maxFeePerGas: toHex(BigInt(maxFeePerGas)),
+              maxPriorityFeePerGas: toHex(BigInt(maxPriorityFeePerGas)),
             }
-          : { gasPrice: numberToHex(gasPrice ?? '0') }
+          : { gasPrice: toHex(gasPrice ? BigInt(gasPrice) : 0n) }
 
       const bip44Params = this.getBIP44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
-        value: numberToHex(value),
+        value: toHex(BigInt(value)),
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
         data,
-        nonce: numberToHex(account.chainSpecific.nonce),
-        gasLimit: numberToHex(gasLimit),
+        nonce: toHex(BigInt(account.chainSpecific.nonce)),
+        gasLimit: toHex(BigInt(gasLimit)),
         ...fees,
       } as SignTx<T>
 

@@ -14,7 +14,6 @@ import {
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import NightSky from 'assets/nightsky.jpg'
@@ -32,9 +31,12 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isMobile } from 'lib/globals'
 import { isSome } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
+
+import { MobileConnect } from './MobileConnect'
 
 const IncludeChains = [
   KnownChainIds.BitcoinMainnet,
@@ -131,6 +133,10 @@ export const ConnectWallet = () => {
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [dispatch],
   )
+
+  if (isMobile) {
+    return <MobileConnect />
+  }
 
   return (
     <Page>

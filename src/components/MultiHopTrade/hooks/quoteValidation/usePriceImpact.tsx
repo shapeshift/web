@@ -68,5 +68,10 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
     return priceImpactPercentage.gt(10)
   }, [priceImpactPercentage])
 
-  return { isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact }
+  const result = useMemo(
+    () => ({ isModeratePriceImpact, priceImpactPercentage, isHighPriceImpact }),
+    [isHighPriceImpact, isModeratePriceImpact, priceImpactPercentage],
+  )
+
+  return result
 }

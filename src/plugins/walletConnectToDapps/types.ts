@@ -1,8 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord } from '@shapeshiftoss/types'
-import type { ICore, SessionTypes, SignClientTypes } from '@walletconnect/types'
-import type { PairingTypes } from '@walletconnect/types/dist/types/core/pairing'
+import type WalletConnectCore from '@walletconnect/core'
+import type { PairingTypes, SessionTypes } from '@walletconnect/types'
 import type { IWeb3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet'
 import type { Dispatch } from 'react'
 
@@ -32,6 +32,10 @@ export enum EIP155_SigningMethod {
   ETH_SIGN_TYPED_DATA_V3 = 'eth_signTypedData_v3',
   ETH_SIGN_TYPED_DATA_V4 = 'eth_signTypedData_v4',
   ETH_SEND_TRANSACTION = 'eth_sendTransaction',
+  // The app has no notion of adding a chain, or "active" chain for that matter
+  // So just assume this is supported so we don't error in case a dApp is trying to add a chain
+  WALLET_ADD_ETHEREUM_CHAIN = 'wallet_addEthereumChain',
+  WALLET_SWITCH_ETHEREUM_CHAIN = 'wallet_switchEthereumChain',
 }
 
 export enum CosmosSigningMethod {
@@ -42,14 +46,14 @@ export enum CosmosSigningMethod {
 export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod
 
 export interface ModalData<T = WalletConnectRequest> {
-  proposal?: SignClientTypes.EventArguments['session_proposal']
+  proposal?: Web3WalletTypes.EventArguments['session_proposal']
   requestEvent?: SupportedSessionRequest<T>
   requestSession?: SessionTypes.Struct
   request?: Web3WalletTypes.AuthRequest
 }
 
 export type WalletConnectState<T = WalletConnectRequest> = {
-  core?: ICore
+  core?: WalletConnectCore
   web3wallet?: IWeb3Wallet
   pair?: (params: { uri: string }) => Promise<PairingTypes.Struct>
   modalData?: ModalData<T>
@@ -81,7 +85,7 @@ export type WalletConnectAction =
   | {
       type: WalletConnectActionType.INITIALIZE
       payload: {
-        core: ICore
+        core: WalletConnectCore
         web3wallet: IWeb3Wallet
         pair: WalletConnectState['pair']
       }
@@ -150,6 +154,16 @@ export type SupportedSessionRequest<T = WalletConnectRequest> = Omit<
     chainId: ChainId
     request: T
   }
+}
+
+type WalletAddEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN
+  params: TransactionParams[]
+}
+
+type WalletSwitchEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN
+  params: TransactionParams[]
 }
 
 export type EthSignTransactionCallRequest = {
@@ -222,6 +236,8 @@ export type EthSignTypedDataCallRequest = {
 }
 
 export type WalletConnectRequest =
+  | WalletSwitchEthereumChainCallRequest
+  | WalletAddEthereumChainCallRequest
   | EthSignTransactionCallRequest
   | EthSignCallRequest
   | EthPersonalSignCallRequest

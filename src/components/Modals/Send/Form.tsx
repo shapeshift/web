@@ -147,7 +147,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         <AnimatePresence mode='wait' initial={false}>
           <Switch location={location} key={location.key}>
             <Route path={SendRoutes.Select}>
-              <SelectAssetRouter onBack={handleBack} onClick={handleAssetSelect} />
+              <SelectAssetRouter onClick={handleAssetSelect} />
             </Route>
             <Route path={SendRoutes.Address}>
               <Address />

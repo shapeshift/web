@@ -47,7 +47,7 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
             {(() => {
               if (!(includeEarnBalances || includeRewardsBalances)) return null
               if (searchQuery) return <SearchEmpty searchQuery={searchQuery} />
-              return <ResultsEmpty ctaHref='/earn' />
+              return <ResultsEmpty ctaHref='/earn' ctaText='defi.startEarning' />
             })()}
           </CardBody>
         </Card>

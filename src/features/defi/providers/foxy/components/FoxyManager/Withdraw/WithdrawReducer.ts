@@ -13,7 +13,7 @@ export const initialState: FoxyWithdrawState = {
     provider: '',
     chain: KnownChainIds.EthereumMainnet,
     type: DefiType.Staking,
-    expired: false,
+    expired: true,
     version: '',
     rewardToken: '',
     tvl: bn(0),

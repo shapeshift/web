@@ -1790,7 +1790,9 @@
   "accountManagement": {
     "menuTitle": "Manage Accounts",
     "manageAccounts": {
-      "modalTitle": "Manage Accounts"
+      "title": "Manage Accounts",
+      "description": "These are the chains you have connected and the number of accounts you have imported.",
+      "addChain": "Add another chain"
     },
     "selectChain": {
       "title": "Select Chain",

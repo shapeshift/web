@@ -379,7 +379,7 @@ export const Pool = () => {
                     isAccountSelectionDisabled={Boolean(poolAccountId)}
                     borrowAsset={borrowAsset}
                     setBorrowAsset={setBorrowAsset}
-                    collateralAccountId={collateralAccountId}
+                    collateralAccountId={collateralAccountId ?? ''}
                     depositAmountCryptoPrecision={depositAmountCryptoPrecision}
                     setCryptoDepositAmount={setDepositAmountCryptoPrecision}
                     borrowAccountId={borrowAccountId}

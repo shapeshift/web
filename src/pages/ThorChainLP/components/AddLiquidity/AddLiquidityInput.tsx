@@ -658,7 +658,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (bnOrZero(actualAssetDepositAmountCryptoPrecision).isZero()) return true
     if (incompleteSide === AsymSide.Rune) return true
 
-    if (!poolAssetTxFeeCryptoBaseUnit || !poolAsset) return false
+    if ((!isApprovalRequired && !poolAssetTxFeeCryptoBaseUnit) || !poolAsset) return false
 
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
     if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) {
@@ -667,7 +667,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         poolAsset?.precision,
       )
       return bnOrZero(assetAmountCryptoBaseUnit)
-        .plus(poolAssetTxFeeCryptoBaseUnit)
+        .plus(bnOrZero(poolAssetTxFeeCryptoBaseUnit))
         .lte(poolAssetBalanceCryptoBaseUnit)
     }
 
@@ -677,6 +677,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [
     actualAssetDepositAmountCryptoPrecision,
     incompleteSide,
+    isApprovalRequired,
     poolAsset,
     poolAssetBalanceCryptoBaseUnit,
     poolAssetFeeAssetBalanceCryptoBaseUnit,

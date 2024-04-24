@@ -1,14 +1,11 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue, SkeletonOptions } from '@chakra-ui/react'
 import {
   Card,
   CardBody,
   CardFooter,
   CardHeader,
-  Container,
   Flex,
   Heading,
-  IconButton,
   Skeleton,
   Stack,
   Tab,
@@ -21,13 +18,15 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useHistory, useParams, useRouteMatch } from 'react-router'
 import type { AmountProps } from 'components/Amount/Amount'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { Display } from 'components/Display'
 import { DynamicComponent } from 'components/DynamicComponent'
+import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
@@ -48,11 +47,14 @@ import { Faq } from './components/Faq'
 import { PoolInfo } from './components/PoolInfo'
 import { Repay } from './components/Repay/Repay'
 
-const containerPadding = { base: 6, '2xl': 8 }
 const tabSelected = { color: 'text.base' }
 const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
-const PoolHeader = () => {
+
+type PoolHeaderProps = {
+  assetName?: string
+}
+const PoolHeader: React.FC<PoolHeaderProps> = ({ assetName }) => {
   const translate = useTranslate()
   const history = useHistory()
   const { path } = useRouteMatch()
@@ -66,18 +68,22 @@ const PoolHeader = () => {
       history.push('/lending')
     }
   }, [history, path])
-  const backIcon = useMemo(() => <ArrowBackIcon />, [])
   return (
-    <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
-      <Flex gap={4} alignItems='center'>
-        <IconButton
-          icon={backIcon}
-          aria-label={translate('lending.backToLending')}
-          onClick={handleBack}
-        />
-        <Heading>{translate('lending.lending')}</Heading>
-      </Flex>
-    </Container>
+    <PageHeader>
+      <PageHeader.Left>
+        <PageBackButton onBack={handleBack} />
+        <Display.Desktop>
+          <PageHeader.Title>{translate('lending.lending')}</PageHeader.Title>
+        </Display.Desktop>
+      </PageHeader.Left>
+      <Display.Mobile>
+        <PageHeader.Middle>
+          <PageHeader.Title>
+            {assetName} {translate('lending.lending')}
+          </PageHeader.Title>
+        </PageHeader.Middle>
+      </Display.Mobile>
+    </PageHeader>
   )
 }
 
@@ -143,7 +149,7 @@ export const Pool = () => {
   const { data: defaultRepaymentLock, isSuccess: isDefaultRepaymentLockSuccess } =
     useRepaymentLockData({})
 
-  const headerComponent = useMemo(() => <PoolHeader />, [])
+  const headerComponent = useMemo(() => <PoolHeader assetName={asset?.symbol} />, [asset?.symbol])
 
   const borrowMutationStatus = useMutationState({
     filters: { mutationKey: [borrowTxid] },
@@ -297,7 +303,7 @@ export const Pool = () => {
   ])
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage>
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Card>

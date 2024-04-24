@@ -2356,5 +2356,19 @@
       "body": "Wherever you see the star icon, you can use it to add assets here.",
       "cta": "Explore more assets"
     }
+  },
+  "explore": {
+    "staking": {
+      "title": "Earn more with staking",
+      "body": "Earn passive income by staking your assets with THORChain Savers Vault."
+    },
+    "pools": {
+      "title": "Pools",
+      "body": "Earn Fees on trades in pools."
+    },
+    "lending": {
+      "title": "Lending",
+      "body": "Borrow against your assets."
+    }
   }
 }

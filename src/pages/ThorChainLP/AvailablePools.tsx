@@ -1,4 +1,4 @@
-import type { GridProps } from '@chakra-ui/react'
+import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -28,6 +28,11 @@ export const lendingRowGrid: GridProps['gridTemplateColumns'] = {
 const mobileDisplay = {
   base: 'none',
   lg: 'flex',
+}
+
+const poolDetailsDirection: FlexProps['flexDirection'] = {
+  base: 'column',
+  md: 'row',
 }
 
 const stackPadding = { base: 2, md: 0 }
@@ -102,7 +107,7 @@ export const AvailablePools = () => {
             <Skeleton isLoaded={!!value}>
               <Flex gap={4} alignItems='center'>
                 <PoolIcon assetIds={poolAssetIds} size='sm' />
-                <Flex gap={2} flexWrap='wrap' flex='0 1 auto'>
+                <Flex gap={2} flexDir={poolDetailsDirection} flex='0 1 auto'>
                   <RawText fontWeight='semibold'>{pool.name}</RawText>
                   <Skeleton isLoaded={!isTradingActiveLoading}>
                     <Tag size='sm'>
@@ -119,6 +124,8 @@ export const AvailablePools = () => {
       {
         Header: translate('pools.tvl'),
         accessor: 'tvlFiat',
+        justifyContent: { base: 'flex-end', md: 'flex-start' },
+        textAlign: { base: 'right', md: 'left' },
         Cell: ({ value }: { value: string; row: RowProps }) => {
           return (
             <Skeleton isLoaded={!!value}>
@@ -165,7 +172,7 @@ export const AvailablePools = () => {
   )
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
         {pools.length ? (

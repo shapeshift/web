@@ -112,7 +112,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [accounts, setAccounts] = useState<{ accountNumber: number; accountId: AccountId }[]>([])
   const queryClient = useQueryClient()
-  const isLoading = useIsFetching({ queryKey: ['accountManagement', 'loadAccount'] }) > 0
+  const isLoading = useIsFetching({ queryKey: ['accountManagement', 'accountIdWithActivity'] }) > 0
 
   // TODO:
   // when "done" is clicked, all enabled accounts for this chain will be upserted into the portfolio

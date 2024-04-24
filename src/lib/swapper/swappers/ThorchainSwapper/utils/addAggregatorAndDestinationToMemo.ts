@@ -48,7 +48,7 @@ export const addAggregatorAndDestinationToMemo = ({
     affiliateBps,
     aggregator,
     finalAssetAddress,
-    finalAssetLimitWithManualSlippage,
+    bn(finalAssetLimitWithManualSlippage).toExponential(),
   ].join(MEMO_PART_DELIMITER)
 
   return memo

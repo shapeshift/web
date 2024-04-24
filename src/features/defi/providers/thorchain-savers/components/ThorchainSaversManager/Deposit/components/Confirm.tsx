@@ -35,7 +35,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -195,6 +195,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     memo: quote?.memo,
     fromAddress,
   })
+
+  useEffect(() => {
+    if (!estimatedFeesData || !contextDispatch) return
+
+    contextDispatch({
+      type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+      payload: {
+        estimatedGasCryptoPrecision: fromBaseUnit(
+          estimatedFeesData.txFeeCryptoBaseUnit,
+          feeAsset.precision,
+        ),
+      },
+    })
+  }, [contextDispatch, estimatedFeesData, feeAsset.precision])
 
   useEffect(() => {
     if (!(accountId && chainAdapter && wallet && bip44Params)) return

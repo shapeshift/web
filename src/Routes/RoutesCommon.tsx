@@ -191,7 +191,7 @@ export const routes: NestedRoute[] = [
     icon: <FaCreditCard />,
     main: Buy,
     category: RouteCategory.Featured,
-    mobileNav: true,
+    mobileNav: false,
     priority: 5,
     routes: assetIdPaths.map(assetIdPath => ({
       label: 'Buy Asset',

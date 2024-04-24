@@ -153,6 +153,7 @@ export const routes: NestedRoute[] = [
     icon: <ExploreIcon />,
     main: Explore,
     mobileNav: true,
+    hideDesktop: true,
     priority: 6,
   },
   {

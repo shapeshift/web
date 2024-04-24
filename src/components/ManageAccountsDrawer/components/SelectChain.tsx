@@ -31,9 +31,11 @@ const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const ChainButton = ({
   chainId,
+  isActive,
   onClick,
 }: {
   chainId: ChainId
+  isActive: boolean
   onClick: (chainId: ChainId) => void
 }) => {
   const feeAssetId = chainIdToFeeAssetId(chainId)
@@ -47,7 +49,7 @@ const ChainButton = ({
   if (!feeAsset) return null
 
   return (
-    <Button height='100px' width='full' onClick={handleClick}>
+    <Button height='100px' width='full' onClick={handleClick} isActive={isActive}>
       <VStack direction='column'>
         <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
         <RawText>{chainAdapter.getDisplayName()}</RawText>
@@ -91,9 +93,16 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   const chainButtons = useMemo(() => {
     const listChainIds = searching ? searchTermChainIds : walletSupportedChainIds
     return listChainIds.map(chainId => {
-      return <ChainButton key={chainId} chainId={chainId} onClick={setSelectedChainId} />
+      return (
+        <ChainButton
+          key={chainId}
+          chainId={chainId}
+          isActive={Boolean(selectedChainId) && selectedChainId === chainId}
+          onClick={setSelectedChainId}
+        />
+      )
     })
-  }, [searchTermChainIds, searching, walletSupportedChainIds])
+  }, [searchTermChainIds, searching, selectedChainId, walletSupportedChainIds])
 
   const footer = useMemo(() => {
     return (

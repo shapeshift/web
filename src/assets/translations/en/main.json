@@ -1788,7 +1788,6 @@
     "expandAccount": "Expand account"
   },
   "accountManagement": {
-<<<<<<< HEAD
     "menuTitle": "Manage Accounts",
     "manageAccounts": {
       "title": "Manage Accounts",
@@ -1799,11 +1798,6 @@
       "title": "Select Chain",
       "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import.",
       "searchChains": "Search by name"
-=======
-    "selectChain": {
-      "title": "Select Chain",
-      "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import."
->>>>>>> d3d710611c (chore: move previous manage accounts UI into select chain UI)
     },
     "importAccounts": {
       "title": "Import %{chainNamespaceDisplayName} Accounts",

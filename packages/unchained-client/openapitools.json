@@ -58,7 +58,7 @@
         }
       },
       "cosmos": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/cosmos/api/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/cosmos/go/coinstacks/cosmos/api/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/cosmos",
         "enablePostProcessFile": true,

@@ -283,7 +283,8 @@ export const RepayConfirm = ({
         chainAdapter &&
         confirmedQuote?.repaymentAmountCryptoPrecision &&
         repaymentAccountNumber !== undefined &&
-        inboundAddressData
+        (!isToken(fromAssetId(repaymentAsset.assetId).assetReference) ||
+          (isToken(fromAssetId(repaymentAsset.assetId).assetReference) && inboundAddressData))
       )
     )
       return
@@ -349,9 +350,9 @@ export const RepayConfirm = ({
         })()
       }
 
-      if (isToken(fromAssetId(repaymentAsset.assetId).chainReference)) {
+      if (isToken(fromAssetId(repaymentAsset.assetId).assetReference)) {
         const data = depositWithExpiry({
-          vault: getAddress(inboundAddressData.address),
+          vault: getAddress(inboundAddressData!.address),
           asset: getAddress(fromAssetId(repaymentAsset.assetId).assetReference),
           amount: toBaseUnit(
             confirmedQuote.repaymentAmountCryptoPrecision!,
@@ -369,7 +370,7 @@ export const RepayConfirm = ({
           data,
           // value is always denominated in fee asset - the only value we can send when calling a contract is native asset value
           value: '0',
-          to: inboundAddressData.router!,
+          to: inboundAddressData!.router!,
           wallet,
         })
 

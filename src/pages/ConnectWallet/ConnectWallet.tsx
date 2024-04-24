@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { knownChainIds } from 'constants/chains'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
@@ -66,7 +67,7 @@ export const ConnectWallet = () => {
   const isSnapEnabled = useFeatureFlag('Snaps')
 
   const allNativeAssets = useMemo(() => {
-    return Object.values(KnownChainIds)
+    return knownChainIds
       .filter(chainId => IncludeChains.includes(chainId))
       .map(knownChainId => {
         const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()!
@@ -77,7 +78,7 @@ export const ConnectWallet = () => {
   }, [])
 
   const evmChains = useMemo(() => {
-    return Object.values(KnownChainIds)
+    return knownChainIds
       .filter(isEvmChainId)
       .map(knownChainId => {
         const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()!

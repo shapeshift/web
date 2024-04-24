@@ -1,7 +1,8 @@
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
+import { knownChainIds } from 'constants/chains'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { useSelector } from 'react-redux'
@@ -36,7 +37,7 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const walletSupportChains = useMemo(
     () =>
-      Object.values(KnownChainIds).filter(chainId => {
+      knownChainIds.filter(chainId => {
         const chainAccountIds = accountIdsByChainId[chainId] ?? []
         return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
       }),

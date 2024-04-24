@@ -61,7 +61,9 @@
     "somethingWentWrong": "Algo de errado aconteceu",
     "somethingWentWrongBody": "Algo de errado aconteceu",
     "accountError": "Temporariamente incapaz de buscar dados para as seguintes redes:",
+    "accountTxHistoryError": "Temporariamente não é possível buscar o histórico de transações para as seguintes contas:",
     "degradedState": "Este aplicativo foi descontinuado.",
+    "degradedTransactionHistory": "Histórico de transações degradado",
     "degradedInfo": "Incapaz de encontrar dados de algumas contas. ",
     "success": "Sucesso",
     "retry": "Tente novamente",
@@ -136,6 +138,7 @@
     "staged": "Staged",
     "poolHalted": "Pool Pausada",
     "poolDisabled": "Pool Desabilitada",
+    "prices": "Preços",
     "symmetric": "Simétrico",
     "asymmetric": "Assimétrico (%{assetSymbol})",
     "carousel": {
@@ -2242,6 +2245,17 @@
     "featureFee": "%{feature} Taxa",
     "totalFeatureFee": "Taxa %{feature} Total"
   },
+  "chart": {
+    "interval": {
+      "5min": "Passados ​​cinco minutos",
+      "hour": "Hora anterior",
+      "day": "Dia anterior",
+      "week": "Semana passada",
+      "month": "Mês passado",
+      "year": "Ano passado",
+      "all": "Tempo todo"
+    }
+  },
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
@@ -2263,6 +2277,7 @@
     "initialPricesAndPoolShare": "Preços Iniciais e Participação na Pool",
     "pricePerAsset": "%{from} por %{to}",
     "symAlert": "Seu %{from} será dividido em uma exposição de 50:50 para %{to} e %{from} ao entrar na pool.",
+    "symAfterRuneAlert": "Depósitos simétricos não são possíveis após um depósito RUNE assimétrico devido à forma como a rede THOR funciona.",
     "incompletePositionDepositAlert": "Esta posição está incompleta, por favor deposite o valor correspondente de %{asset} para finalizar esta posição.",
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
     "unsupportedNetworkExplainer": "Sua carteira não suporta %{network}. Mude para uma carteira que suporte esta rede.",
@@ -2314,6 +2329,13 @@
         "title": "Riscos e Considerações",
         "body": "Embora as pools de liquidez ofereçam oportunidades de ganhos, é importante estar ciente dos riscos envolvidos, incluindo perdas impermanentes, vulnerabilidades de contratos inteligentes e volatilidade do mercado. Os usuários devem realizar uma pesquisa completa antes de participar."
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "Comece a construir sua watchlist",
+      "body": "Onde quer que você veja o ícone de estrela, você pode usá-lo para adicionar ativos aqui.",
+      "cta": "Explore mais recursos"
     }
   }
 }

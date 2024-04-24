@@ -58,12 +58,12 @@ import {
 import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
+import { isUtxoChainId } from 'lib/utils/utxo'
 import {
   getMaybeThorchainSaversDepositQuote,
   getThorchainSaversPosition,
   makeDaysToBreakEven,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,

@@ -11,7 +11,7 @@ import {
   ModalHeader,
   Text,
 } from '@chakra-ui/react'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import { knownChainIds } from 'constants/chains'
 import { useCallback, useMemo } from 'react'
 import { FaArrowRightArrowLeft } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -40,7 +40,7 @@ export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
     : 'walletProvider.metaMaskSnap.subtitle'
 
   const allNativeAssets = useMemo(() => {
-    return Object.values(KnownChainIds)
+    return knownChainIds
       .map(knownChainId => {
         const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()!
         const asset = selectAssetById(store.getState(), assetId)

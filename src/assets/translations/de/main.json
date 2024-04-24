@@ -61,7 +61,9 @@
     "somethingWentWrong": "Etwas ist schief gelaufen",
     "somethingWentWrongBody": "Etwas ist schief gelaufen",
     "accountError": "Für die folgenden Ketten können vorübergehend keine Daten abgerufen werden:",
+    "accountTxHistoryError": "Der Transaktionsverlauf für die folgenden Konten kann vorübergehend nicht abgerufen werden:",
     "degradedState": "Die App befindet sich in einem heruntergestuften Zustand",
+    "degradedTransactionHistory": "Transaktionsverlauf verschlechtert",
     "degradedInfo": "Für einige Konten können keine Daten abgerufen werden.",
     "success": "Erfolgreich",
     "retry": "Neuer Versuch",
@@ -136,6 +138,7 @@
     "staged": "Gestaffelt",
     "poolHalted": "Pool angehalten",
     "poolDisabled": "Pool deaktiviert",
+    "prices": "Preise",
     "symmetric": "Symmetrische",
     "asymmetric": "Asymmetrische (%{assetSymbol})",
     "carousel": {
@@ -2242,6 +2245,17 @@
     "featureFee": "%{feature} Gebühr",
     "totalFeatureFee": "Gesamte %{feature} Gebühr"
   },
+  "chart": {
+    "interval": {
+      "5min": "Letzten fünf Minuten",
+      "hour": "Letzte Stunde",
+      "day": "Letzter Tag",
+      "week": "Letzte Woche",
+      "month": "Letzten Monat",
+      "year": "Letztes Jahr",
+      "all": "Allzeit"
+    }
+  },
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
@@ -2263,6 +2277,7 @@
     "initialPricesAndPoolShare": "Anfangspreise und Poolanteil",
     "pricePerAsset": "%{from} pro %{to}",
     "symAlert": "Ihr %{from} wird beim Eintritt in den Pool in ein 50:50-Engagement für %{to} und %{from} aufgeteilt.",
+    "symAfterRuneAlert": "Aufgrund der Funktionsweise des THOR-Netzwerks sind symmetrische Einzahlungen nach einer asymmetrischen RUNE-Einzahlung nicht möglich.",
     "incompletePositionDepositAlert": "Diese Position ist unvollständig. Bitte zahlen Sie den entsprechenden Betrag von %{asset} ein, um diese Position abzuschließen.",
     "incompletePositionWithdrawAlert": "Diese Position ist unvollständig. Bitte stornieren Sie die Position, indem Sie 100 % der Liquidität entfernen. Sie können die Position auch über „Liquidität hinzufügen“ abschließen.",
     "unsupportedNetworkExplainer": "Ihre Wallet unterstützt %{network} nicht. Bitte wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
@@ -2314,6 +2329,13 @@
         "title": "Risiken und Überlegungen",
         "body": "Während Liquiditätspools Ertragsmöglichkeiten bieten, ist es wichtig, sich der damit verbundenen Risiken bewusst zu sein, einschließlich vorübergehender Verluste, Schwachstellen bei intelligenten Verträgen und Marktvolatilität. Benutzer sollten vor der Teilnahme gründliche Recherchen durchführen."
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "Beginnen Sie mit dem Aufbau Ihrer Beobachtungsliste",
+      "body": "Überall, wo Sie das Sternsymbol sehen, können Sie es verwenden, um Assets hinzuzufügen.",
+      "cta": "Weitere Assets entdecken"
     }
   }
 }

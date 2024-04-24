@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { bchChainId, btcChainId, dogeChainId, ethChainId, ltcChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import bip21 from 'bip21'
+import { knownChainIds } from 'constants/chains'
 import { parse as parseEthUrl } from 'eth-url-parser'
 import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -102,7 +102,7 @@ export const parseMaybeUrl = async ({
   urlOrAddress: string
 }): Promise<ParseMaybeUrlResult> => {
   // Iterate over supportedChainIds
-  for (const chainId of Object.values(KnownChainIds)) {
+  for (const chainId of knownChainIds) {
     try {
       const maybeUrl = parseMaybeUrlWithChainId({ chainId, urlOrAddress })
       const isValidUrl = maybeUrl.maybeAddress !== urlOrAddress
@@ -341,7 +341,7 @@ export const parseAddressInputWithChainId: ParseAddressByChainIdInput = async ar
 
 // Parses an address or vanity address for an **unknown** ChainId, exhausting known ChainIds until we maybe find a match
 export const parseAddressInput: ParseAddressInput = async args => {
-  for (const chainId of Object.values(KnownChainIds)) {
+  for (const chainId of knownChainIds) {
     const parsedArgs = parseMaybeUrlWithChainId(Object.assign(args, { chainId }))
 
     const isValidAddress = await validateAddress(parsedArgs)

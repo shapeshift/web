@@ -1,4 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  type AccountId,
+  CHAIN_NAMESPACE,
+  type ChainId,
+  fromAccountId,
+  fromChainId,
+} from '@shapeshiftoss/caip'
 import type { UtxoChainAdapter, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -18,3 +24,9 @@ export const assertGetUtxoChainAdapter = (chainId: ChainId | KnownChainIds): Utx
 
   return adapter
 }
+
+export const isUtxoAccountId = (accountId: AccountId): boolean =>
+  fromAccountId(accountId).chainNamespace === CHAIN_NAMESPACE.Utxo
+
+export const isUtxoChainId = (chainId: ChainId): boolean =>
+  fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Utxo

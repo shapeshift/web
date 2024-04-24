@@ -603,7 +603,7 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
     (feeModel, inputAmountUsd, votingPower) => {
       const fees: CalculateFeeBpsReturn = calculateFees({
         tradeAmountUsd: bnOrZero(inputAmountUsd),
-        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        foxHeld: bnOrZero(votingPower),
         feeModel,
       })
 

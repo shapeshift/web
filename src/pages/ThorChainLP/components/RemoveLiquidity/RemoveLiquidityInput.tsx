@@ -39,6 +39,7 @@ import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
+import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -128,6 +129,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
     undefined,
   )
+  const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const { assetId, type: opportunityType } = useMemo(
     () => fromOpportunityId(opportunityId),
@@ -971,140 +973,146 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     return translate('pools.removeLiquidity')
   }, [errorCopy, translate])
 
+  const handleSubmitIntent = useCallback(() => {
+    if (isBelowMinimumWithdrawAmount) {
+      setShouldShowWarningAcknowledgement(true)
+    } else {
+      handleSubmit()
+    }
+  }, [handleSubmit, isBelowMinimumWithdrawAmount])
+
   if (!poolAsset || !poolAssetFeeAsset || !runeAsset) return null
 
   return (
     <SlideTransition>
-      {renderHeader}
-      <Stack divider={divider} spacing={4} pb={4}>
-        <Stack>
-          <FormLabel mb={0} px={6} fontSize='sm'>
-            {translate('pools.removeAmounts')}
-          </FormLabel>
-          <Stack px={6} py={4} spacing={4}>
-            <Amount.Percent value={sliderValue / 100} fontSize='2xl' />
-            <Slider
-              value={sliderValue}
-              onChange={handlePercentageSliderChange}
-              onChangeEnd={handlePercentageSliderChangeEnd}
-            >
-              <SliderTrack>
-                <SliderFilledTrack />
-              </SliderTrack>
-              <SliderThumb />
-            </Slider>
-            <ButtonGroup size='sm' justifyContent='space-between'>
-              <Button onClick={handlePercentageClick(25)} flex={1}>
-                25%
-              </Button>
-              <Button onClick={handlePercentageClick(50)} flex={1}>
-                50%
-              </Button>
-              <Button onClick={handlePercentageClick(75)} flex={1}>
-                75%
-              </Button>
-              <Button onClick={handlePercentageClick(100)} flex={1}>
-                Max
-              </Button>
-            </ButtonGroup>
-          </Stack>
-          <Divider borderColor='border.base' />
-          <Stack divider={pairDivider} spacing={0}>
-            {tradeAssetInputs}
+      <WarningAcknowledgement
+        message={translate('defi.modals.saversVaults.dangerousWithdrawWarning')}
+        onAcknowledge={handleSubmit}
+        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+      >
+        {renderHeader}
+        <Stack divider={divider} spacing={4} pb={4}>
+          <Stack>
+            <FormLabel mb={0} px={6} fontSize='sm'>
+              {translate('pools.removeAmounts')}
+            </FormLabel>
+            <Stack px={6} py={4} spacing={4}>
+              <Amount.Percent value={sliderValue / 100} fontSize='2xl' />
+              <Slider
+                value={sliderValue}
+                onChange={handlePercentageSliderChange}
+                onChangeEnd={handlePercentageSliderChangeEnd}
+              >
+                <SliderTrack>
+                  <SliderFilledTrack />
+                </SliderTrack>
+                <SliderThumb />
+              </Slider>
+              <ButtonGroup size='sm' justifyContent='space-between'>
+                <Button onClick={handlePercentageClick(25)} flex={1}>
+                  25%
+                </Button>
+                <Button onClick={handlePercentageClick(50)} flex={1}>
+                  50%
+                </Button>
+                <Button onClick={handlePercentageClick(75)} flex={1}>
+                  75%
+                </Button>
+                <Button onClick={handlePercentageClick(100)} flex={1}>
+                  Max
+                </Button>
+              </ButtonGroup>
+            </Stack>
+            <Divider borderColor='border.base' />
+            <Stack divider={pairDivider} spacing={0}>
+              {tradeAssetInputs}
+            </Stack>
           </Stack>
         </Stack>
-      </Stack>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        py={4}
-        bg='background.surface.raised.accent'
-      >
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isSlippageLoading}>
-              <Amount.Fiat value={slippageFiatUserCurrency ?? ''} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('common.gasFee')}</Row.Label>
-          <Row.Value>
-            <Skeleton
-              isLoaded={
-                (!isEstimatedPoolAssetFeesDataLoading || opportunityType === AsymSide.Rune) &&
-                (!isEstimatedRuneFeesDataLoading || opportunityType === AsymSide.Asset)
-              }
-            >
-              <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row fontSize='sm' fontWeight='medium'>
-          <Row.Label>{translate('trade.protocolFee')}</Row.Label>
-          <Row.Value>
-            <Amount.Fiat value={totalProtocolFeeFiatUserCurrency} />
-          </Row.Value>
-        </Row>
-      </CardFooter>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        bg='background.surface.raised.accent'
-        borderBottomRadius='xl'
-      >
-        {position?.status.incomplete && (
-          <Alert status='info' mx={-2} width='auto'>
-            <AlertIcon as={BiSolidBoltCircle} />
-            <AlertDescription fontSize='sm' fontWeight='medium'>
-              {translate('pools.incompletePositionWithdrawAlert')}
-            </AlertDescription>
-          </Alert>
-        )}
-        {isBelowMinimumWithdrawAmount && (
-          <Alert status='warning' mx={-2} width='auto'>
-            <AlertIcon />
-            <AlertDescription fontSize='sm' fontWeight='medium'>
-              {translate('defi.modals.saversVaults.dangerousWithdrawWarning')}
-            </AlertDescription>
-          </Alert>
-        )}
-        {maybeOpportunityNotSupportedExplainer}
-        <Button
-          mx={-2}
-          size='lg'
-          colorScheme={errorCopy ? 'red' : 'blue'}
-          onClick={handleSubmit}
-          isDisabled={
-            isUnsupportedSymWithdraw ||
-            isTradingActive === false ||
-            !isThorchainLpWithdrawEnabled ||
-            !hasEnoughPoolAssetFeeAssetBalanceForTx ||
-            !hasEnoughRuneBalanceForTx ||
-            !confirmedQuote ||
-            (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
-            (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
-            !validInputAmount ||
-            isSweepNeededLoading ||
-            isBelowMinimumWithdrawAmount
-          }
-          isLoading={
-            isTradingActiveLoading ||
-            (isEstimatedPoolAssetFeesDataLoading && opportunityType !== AsymSide.Rune) ||
-            (isEstimatedRuneFeesDataLoading && opportunityType !== AsymSide.Asset) ||
-            isSweepNeededLoading
-          }
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          py={4}
+          bg='background.surface.raised.accent'
         >
-          {confirmCopy}
-        </Button>
-      </CardFooter>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isSlippageLoading}>
+                <Amount.Fiat value={slippageFiatUserCurrency ?? ''} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('common.gasFee')}</Row.Label>
+            <Row.Value>
+              <Skeleton
+                isLoaded={
+                  (!isEstimatedPoolAssetFeesDataLoading || opportunityType === AsymSide.Rune) &&
+                  (!isEstimatedRuneFeesDataLoading || opportunityType === AsymSide.Asset)
+                }
+              >
+                <Amount.Fiat value={confirmedQuote?.totalGasFeeFiatUserCurrency ?? 0} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row fontSize='sm' fontWeight='medium'>
+            <Row.Label>{translate('trade.protocolFee')}</Row.Label>
+            <Row.Value>
+              <Amount.Fiat value={totalProtocolFeeFiatUserCurrency} />
+            </Row.Value>
+          </Row>
+        </CardFooter>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          {position?.status.incomplete && (
+            <Alert status='info' mx={-2} width='auto'>
+              <AlertIcon as={BiSolidBoltCircle} />
+              <AlertDescription fontSize='sm' fontWeight='medium'>
+                {translate('pools.incompletePositionWithdrawAlert')}
+              </AlertDescription>
+            </Alert>
+          )}
+          {maybeOpportunityNotSupportedExplainer}
+          <Button
+            mx={-2}
+            size='lg'
+            colorScheme={errorCopy ? 'red' : 'blue'}
+            onClick={handleSubmitIntent}
+            isDisabled={
+              isUnsupportedSymWithdraw ||
+              isTradingActive === false ||
+              !isThorchainLpWithdrawEnabled ||
+              !hasEnoughPoolAssetFeeAssetBalanceForTx ||
+              !hasEnoughRuneBalanceForTx ||
+              !confirmedQuote ||
+              (isEstimatedPoolAssetFeesDataError && opportunityType !== AsymSide.Rune) ||
+              (isEstimatedRuneFeesDataError && opportunityType !== AsymSide.Asset) ||
+              !validInputAmount ||
+              isSweepNeededLoading
+            }
+            isLoading={
+              isTradingActiveLoading ||
+              (isEstimatedPoolAssetFeesDataLoading && opportunityType !== AsymSide.Rune) ||
+              (isEstimatedRuneFeesDataLoading && opportunityType !== AsymSide.Asset) ||
+              isSweepNeededLoading
+            }
+          >
+            {confirmCopy}
+          </Button>
+        </CardFooter>
+      </WarningAcknowledgement>
     </SlideTransition>
   )
 }

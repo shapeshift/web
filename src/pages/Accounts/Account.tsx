@@ -2,7 +2,7 @@ import { Flex } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom'
 import { AccountDetails } from 'components/AccountDetails'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

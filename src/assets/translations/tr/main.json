@@ -61,7 +61,9 @@
     "somethingWentWrong": "Bir şeyler ters gitti",
     "somethingWentWrongBody": "Bir şeyler ters gitti",
     "accountError": "Aşağıdaki zincirler için veriler geçici olarak getirilemiyor:",
+    "accountTxHistoryError": "Aşağıdaki hesapların işlem geçmişi geçici olarak getirilemiyor:",
     "degradedState": "Uygulama bozulmuş",
+    "degradedTransactionHistory": "İşlem geçmişi bozuldu",
     "degradedInfo": "Bazı hesaplar için veri gösterilemiyor.",
     "success": "Başarılı",
     "retry": "Tekrar Dene",
@@ -136,6 +138,7 @@
     "staged": "Aşamalı",
     "poolHalted": "Havuz Durduruldu",
     "poolDisabled": "Havuz Devre Dışı",
+    "prices": "Fiyatlar",
     "symmetric": "Simetrik",
     "asymmetric": "Asimetrik (%{assetSymbol})",
     "carousel": {
@@ -2242,6 +2245,17 @@
     "featureFee": "%{feature} Ücret",
     "totalFeatureFee": "Toplam %{feature} Ücret"
   },
+  "chart": {
+    "interval": {
+      "5min": "Son beş dakika",
+      "hour": "Geçen saat",
+      "day": "Geçen gün",
+      "week": "Geçen hafta",
+      "month": "Geçen ay",
+      "year": "Geçen yıl",
+      "all": "Tüm zamanlar"
+    }
+  },
   "pools": {
     "pools": "Havuzlar",
     "pool": "Havuz",
@@ -2263,6 +2277,7 @@
     "initialPricesAndPoolShare": "Başlangıç ​​Fiyatları ve Havuz Payı",
     "pricePerAsset": "%{to} başına %{from}",
     "symAlert": "%{from}'unuz, havuza girdikten sonra hem %{to} hem de %{from}'a 50:50'lik bir maruziyete bölünecek.",
+    "symAfterRuneAlert": "THOR ağının çalışma şekli nedeniyle asimetrik bir RUNE yatırma sonrasında simetrik yatırmalar mümkün değildir.",
     "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
     "unsupportedNetworkExplainer": "Cüzdanınız %{network}'ı desteklemiyor. Lütfen bu ağı destekleyen bir cüzdana geçin.",
@@ -2314,6 +2329,13 @@
         "title": "Riskler ve Hususlar",
         "body": "Likidite havuzları kazanç fırsatları sunarken, kalıcı kayıplar, akıllı sözleşme zayıflıkları ve piyasa dalgalanmaları dahil olmak üzere ilgili risklerin farkında olmak önemlidir. Kullanıcılar katılmadan önce kapsamlı bir araştırma yapmalıdır."
       }
+    }
+  },
+  "watchlist": {
+    "empty": {
+      "title": "İzleme listenizi oluşturmaya başlayın",
+      "body": "Yıldız simgesini gördüğünüz her yerde, onu buraya öğe eklemek için onu kullanabilirsiniz.",
+      "cta": "Daha fazla varlığı keşfedin"
     }
   }
 }

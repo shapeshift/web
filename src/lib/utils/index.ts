@@ -1,19 +1,13 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type {
-  AccountId,
-  AssetId,
-  AssetReference,
-  ChainId,
-  ChainNamespace,
-} from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetReference, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { Asset, KnownChainIds, NestedArray, PartialRecord } from '@shapeshiftoss/types'
+import type { KnownChainIds, NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -26,11 +20,19 @@ import intersection from 'lodash/intersection'
 import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import {
-  accountIdToFeeAssetId,
-  firstFourLastFour,
-  isUtxoAccountId,
-} from 'state/slices/portfolioSlice/utils'
+
+export const firstFourLastFour = (address: string): string =>
+  `${address.slice(0, 6)}...${address.slice(-4)}`
+
+export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
+  if (!content) return ''
+
+  if (!trimmedContentLength) return content
+
+  if (content.length < trimmedContentLength) return content
+
+  return content.slice(0, trimmedContentLength).concat('...')
+}
 
 export const isKeepKeyHDWallet = (wallet: HDWallet): wallet is KeepKeyHDWallet => {
   return wallet.getVendor() === 'KeepKey'
@@ -109,15 +111,6 @@ export const isSome = <T>(option: T | null | undefined): option is T =>
 
 type Falsy = false | null | undefined | '' | 0
 export const isTruthy = <T>(value: T | Falsy): value is T => Boolean(value)
-
-// 0 is valid but falsy, dum language
-export const isValidAccountNumber = (
-  accountNumber: number | undefined | null,
-): accountNumber is number => {
-  if (accountNumber === undefined) return false
-  if (accountNumber === null) return false
-  return Number.isInteger(accountNumber) && accountNumber >= 0
-}
 
 export const walletCanEditMemo = (wallet: HDWallet): boolean => {
   switch (true) {
@@ -312,10 +305,8 @@ export const getTimeFrameBounds = (timeframe: HistoryTimeframe): { start: Dayjs;
   }
 }
 
-export const getAccountTitle = (accountId: AccountId, assets: PartialRecord<AssetId, Asset>) => {
-  const isUtxoAccount = isUtxoAccountId(accountId)
-  const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
-  return isUtxoAccount
-    ? assets[feeAssetId]?.name ?? ''
-    : firstFourLastFour(fromAccountId(accountId).account)
-}
+export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
+  getChainAdapterManager().get(chainId)?.getFeeAssetId()
+
+export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
+  chainIdToFeeAssetId(fromAssetId(assetId).chainId)

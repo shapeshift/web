@@ -57,7 +57,9 @@ const ConnectedChain = ({
           <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
           <RawText>{chainAdapter.getDisplayName()}</RawText>
         </HStack>
-        <Box>{numAccounts}</Box>
+        <Box bgColor='gray.600' width='22px' p={1} borderRadius='8px' fontSize='xs'>
+          {numAccounts}
+        </Box>
       </Flex>
     </Button>
   )

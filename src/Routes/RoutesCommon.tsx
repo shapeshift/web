@@ -127,7 +127,7 @@ export const routes: NestedRoute[] = [
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
-    mobileNav: true,
+    mobileNav: false,
     mobileOrder: 2,
     priority: 2,
     main: Trade,

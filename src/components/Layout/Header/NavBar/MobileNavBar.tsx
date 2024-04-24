@@ -25,6 +25,7 @@ import { DialogHeader } from 'components/Modal/components/DialogHeader'
 import { RawText } from 'components/Text'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { MobileNavLink } from './MobileNavLink'
@@ -43,6 +44,7 @@ type ActionMenuButtonProps = {
   body: string
   onClick?: () => void
   iconColor?: CenterProps['bg']
+  isDisabled?: boolean
 }
 
 const actionMenuButtonHover = { bg: 'transparent' }
@@ -54,6 +56,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
   body,
   iconColor = 'blue.500',
   onClick,
+  isDisabled,
 }) => {
   return (
     <Button
@@ -68,6 +71,7 @@ const ActionMenuButton: React.FC<ActionMenuButtonProps> = ({
       textAlign='left'
       gap={4}
       px={0}
+      isDisabled={isDisabled}
       _hover={actionMenuButtonHover}
       _active={actionButtonActive}
     >
@@ -127,6 +131,9 @@ export const MobileNavBar = memo(() => {
     );`,
   )
   const { isOpen, onClose, onOpen } = useDisclosure()
+  const {
+    state: { isConnected },
+  } = useWallet()
   const send = useModal('send')
   const receive = useModal('receive')
   const qrCode = useModal('qrCode')
@@ -227,6 +234,7 @@ export const MobileNavBar = memo(() => {
             icon={sendIcon}
             title={translate('navBar.actionMenu.send.title')}
             body={translate('navBar.actionMenu.send.body')}
+            isDisabled={!isConnected}
           />
           <ActionMenuButton
             onClick={handleReceiveClick}
@@ -234,6 +242,7 @@ export const MobileNavBar = memo(() => {
             icon={receiveIcon}
             title={translate('navBar.actionMenu.receive.title')}
             body={translate('navBar.actionMenu.receive.body')}
+            isDisabled={!isConnected}
           />
           <ActionMenuButton
             onClick={handleTradeClick}

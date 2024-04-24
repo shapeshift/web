@@ -1794,7 +1794,8 @@
   "accountManagement": {
     "selectChain": {
       "title": "Select Chain",
-      "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import."
+      "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import.",
+      "searchChains": "Search by name"
     },
     "importAccounts": {
       "title": "Import %{chainNamespaceDisplayName} Accounts",

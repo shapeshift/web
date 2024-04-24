@@ -15,7 +15,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
-import { chainIdToFeeAssetId } from 'lib/utils'
+import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
 import { selectAssetById, selectWalletSupportedChainIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -40,13 +40,17 @@ const ChainButton = ({
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const handleClick = useCallback(() => onClick(chainId), [chainId, onClick])
 
+  const chainAdapter = useMemo(() => {
+    return assertGetChainAdapter(chainId)
+  }, [chainId])
+
   if (!feeAsset) return null
 
   return (
     <Button height='100px' width='full' onClick={handleClick}>
       <VStack direction='column'>
         <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
-        <RawText>{feeAsset.symbol}</RawText>
+        <RawText>{chainAdapter.getDisplayName()}</RawText>
       </VStack>
     </Button>
   )
@@ -121,7 +125,7 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
             <Input
               {...register('search')}
               type={'text'}
-              placeholder={translate('accountManagement.searchChains')}
+              placeholder={translate('accountManagement.selectChain.searchChains')}
               pl={10}
               variant={'filled'}
               autoComplete={'off'}

@@ -12,6 +12,7 @@ import { DrawerContentWrapper } from './DrawerContent'
 
 export type SelectChainProps = {
   onSelectChainId: (chainId: ChainId) => void
+  onClose: () => void
 }
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
@@ -39,7 +40,7 @@ const ChainButton = ({
   )
 }
 
-export const SelectChain = ({ onSelectChainId }: SelectChainProps) => {
+export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
@@ -60,17 +61,21 @@ export const SelectChain = ({ onSelectChainId }: SelectChainProps) => {
 
   const footer = useMemo(() => {
     return (
-      <Button
-        disabled={selectedChainId === null}
-        colorScheme='blue'
-        onClick={handleClickDone}
-        width='full'
-        _disabled={disabledProp}
-      >
-        {translate('common.done')}
-      </Button>
+      <>
+        <Button colorScheme='gray' mr={3} onClick={onClose}>
+          {translate('common.cancel')}
+        </Button>
+        <Button
+          colorScheme='blue'
+          onClick={handleClickDone}
+          isDisabled={selectedChainId === null}
+          _disabled={disabledProp}
+        >
+          {translate('common.next')}
+        </Button>
+      </>
     )
-  }, [handleClickDone, selectedChainId, translate])
+  }, [handleClickDone, onClose, selectedChainId, translate])
 
   const body = useMemo(() => {
     return (

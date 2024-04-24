@@ -43,6 +43,7 @@ type ActionMenuButtonProps = {
   title: string
   body: string
   onClick?: () => void
+  onClose?: () => void
   iconColor?: CenterProps['bg']
   isDisabled?: boolean
 }
@@ -166,29 +167,33 @@ export const MobileNavBar = memo(() => {
   }, [])
 
   const handleQrCodeClick = useCallback(() => {
-    onClose()
     qrCode.open({})
-  }, [onClose, qrCode])
+  }, [qrCode])
 
   const handleSendClick = useCallback(() => {
-    onClose()
     send.open({})
-  }, [onClose, send])
+  }, [send])
 
   const handleReceiveClick = useCallback(() => {
-    onClose()
     receive.open({})
-  }, [onClose, receive])
+  }, [receive])
 
   const handleTradeClick = useCallback(() => {
-    onClose()
     history.push('/trade')
-  }, [history, onClose])
+  }, [history])
 
   const handleBuyClick = useCallback(() => {
     onClose()
     history.push('/buy-crypto')
   }, [history, onClose])
+
+  const handleActionButtonClick = useCallback(
+    (onClick: () => void) => {
+      onClose()
+      return onClick
+    },
+    [onClose],
+  )
 
   return (
     <>
@@ -230,14 +235,14 @@ export const MobileNavBar = memo(() => {
           px={6}
         >
           <ActionMenuButton
-            onClick={handleSendClick}
+            onClick={handleActionButtonClick(handleSendClick)}
             icon={sendIcon}
             title={translate('navBar.actionMenu.send.title')}
             body={translate('navBar.actionMenu.send.body')}
             isDisabled={!isConnected}
           />
           <ActionMenuButton
-            onClick={handleReceiveClick}
+            onClick={handleActionButtonClick(handleReceiveClick)}
             iconColor='green.600'
             icon={receiveIcon}
             title={translate('navBar.actionMenu.receive.title')}
@@ -245,20 +250,20 @@ export const MobileNavBar = memo(() => {
             isDisabled={!isConnected}
           />
           <ActionMenuButton
-            onClick={handleTradeClick}
+            onClick={handleActionButtonClick(handleTradeClick)}
             iconColor='purple.500'
             icon={swapIcon}
             title={translate('navBar.actionMenu.trade.title')}
             body={translate('navBar.actionMenu.trade.body')}
           />
           <ActionMenuButton
-            onClick={handleBuyClick}
+            onClick={handleActionButtonClick(handleBuyClick)}
             icon={buyIcon}
             title={translate('navBar.actionMenu.buy.title')}
             body={translate('navBar.actionMenu.buy.body')}
           />
           <ActionMenuButton
-            onClick={handleQrCodeClick}
+            onClick={handleActionButtonClick(handleQrCodeClick)}
             icon={qrCodeIcon}
             title={translate('navBar.actionMenu.qrcode.title')}
             body={translate('navBar.actionMenu.qrcode.body')}

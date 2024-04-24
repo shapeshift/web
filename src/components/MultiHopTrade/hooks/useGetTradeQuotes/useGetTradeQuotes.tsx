@@ -9,7 +9,7 @@ import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddr
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -209,7 +209,7 @@ export const useGetTradeQuotes = () => {
 
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
-        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        foxHeld: bnOrZero(votingPower),
         feeModel: 'SWAPPER',
       })
 

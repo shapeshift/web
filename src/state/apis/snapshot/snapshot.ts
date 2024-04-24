@@ -84,54 +84,60 @@ export const snapshotApi = createApi({
     }),
     getVotingPower: build.query<FoxVotingPowerCryptoBalance, { model: ParameterModel }>({
       queryFn: async ({ model }, { dispatch, getState }) => {
-        const accountIds: AccountId[] =
-          (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
-        const strategies = await (async () => {
-          const maybeSliceStragies = (getState() as ReduxState).snapshot.strategies
-          if (maybeSliceStragies) return maybeSliceStragies
+        try {
+          const accountIds: AccountId[] =
+            (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
+          const strategies = await (async () => {
+            const maybeSliceStragies = (getState() as ReduxState).snapshot.strategies
+            if (maybeSliceStragies) return maybeSliceStragies
 
-          const strategiesResult = await dispatch(snapshotApi.endpoints.getStrategies.initiate())
-          return strategiesResult?.data
-        })()
-        if (!strategies) {
-          console.log('snapshotApi getVotingPower could not get strategies')
-          return { data: bn(0).toString() }
+            const strategiesResult = await dispatch(snapshotApi.endpoints.getStrategies.initiate())
+            return strategiesResult?.data
+          })()
+          if (!strategies) {
+            console.log('snapshotApi getVotingPower could not get strategies')
+            return { data: bn(0).toString() }
+          }
+          const evmAddresses = Array.from(
+            accountIds.reduce<Set<string>>((acc, accountId) => {
+              const { account, chainId } = fromAccountId(accountId)
+              isEvmChainId(chainId) && acc.add(account)
+              return acc
+            }, new Set()),
+          )
+          const foxDiscountBlock = await findClosestFoxDiscountDelayBlockNumber(
+            FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
+          )
+          const delegation = false // don't let people delegate for discounts - ambiguous in spec
+          const votingPowerResults = await Promise.all(
+            evmAddresses.map(async address => {
+              const votingPowerUnvalidated = await getVotingPower(
+                address,
+                '1',
+                strategies,
+                foxDiscountBlock,
+                SNAPSHOT_SPACE,
+                delegation,
+              )
+              // vp is FOX in crypto balance
+              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+            }),
+          )
+          const foxHeld = BigNumber.sum(...votingPowerResults).toNumber()
+
+          // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
+          if (isNaN(foxHeld)) {
+            const data = 'NaN foxHeld value'
+            return { error: { data, status: 400 } }
+          }
+
+          dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
+          return { data: foxHeld.toString() }
+        } catch (e) {
+          console.error(e)
+
+          return { error: { data: e, status: 400 } }
         }
-        const evmAddresses = Array.from(
-          accountIds.reduce<Set<string>>((acc, accountId) => {
-            const { account, chainId } = fromAccountId(accountId)
-            isEvmChainId(chainId) && acc.add(account)
-            return acc
-          }, new Set()),
-        )
-        const foxDiscountBlock = await findClosestFoxDiscountDelayBlockNumber(
-          FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
-        )
-        const delegation = false // don't let people delegate for discounts - ambiguous in spec
-        const votingPowerResults = await Promise.all(
-          evmAddresses.map(async address => {
-            const votingPowerUnvalidated = await getVotingPower(
-              address,
-              '1',
-              strategies,
-              foxDiscountBlock,
-              SNAPSHOT_SPACE,
-              delegation,
-            )
-            // vp is FOX in crypto balance
-            return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-          }),
-        )
-        const foxHeld = BigNumber.sum(...votingPowerResults).toNumber()
-
-        // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
-        if (isNaN(foxHeld)) {
-          const data = 'NaN foxHeld value'
-          return { error: { data, status: 400 } }
-        }
-
-        dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
-        return { data: foxHeld.toString() }
       },
     }),
   }),

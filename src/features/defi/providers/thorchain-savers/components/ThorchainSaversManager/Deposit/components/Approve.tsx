@@ -22,7 +22,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -110,7 +110,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
   })
 
-  const { estimatedFeesData, inboundAddress } = useSendThorTx({
+  const { inboundAddress } = useSendThorTx({
     assetId,
     accountId: accountId ?? null,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
@@ -128,8 +128,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       !accountId ||
       !dispatch ||
       !opportunityData ||
-      !inboundAddress ||
-      !estimatedFeesData
+      !inboundAddress
     )
       return
 
@@ -186,16 +185,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         maxAttempts: 60,
       })
 
-      dispatch({
-        type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-        payload: {
-          estimatedGasCryptoPrecision: fromBaseUnit(
-            estimatedFeesData.txFeeCryptoBaseUnit,
-            feeAsset.precision,
-          ),
-        },
-      })
-
       trackOpportunityEvent(
         MixPanelEvent.DepositApprove,
         {
@@ -220,8 +209,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     assets,
     chainId,
     dispatch,
-    estimatedFeesData,
-    feeAsset.precision,
     inboundAddress,
     onNext,
     opportunityData,

@@ -20,7 +20,7 @@ type ThorTradeQuoteSpecificMetadata = {
   isStreaming: boolean
   memo: string
   recommendedMinimumCryptoBaseUnit: string
-  tradeType?: TradeType
+  tradeType: TradeType
   expiry: number
   longtailData?: {
     longtailToL1ExpectedAmountOut?: bigint
@@ -40,7 +40,7 @@ export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMeta
 export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
 export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
-  !!quote && 'tradeType' in quote && quote.tradeType !== undefined
+  !!quote && 'tradeType' in quote
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,

@@ -9,7 +9,10 @@ import type { Address, GetContractReturnType, PublicClient, WalletClient } from 
 import { getContract } from 'viem'
 import { viemClientByChainId } from 'lib/viem-client'
 
-import { POOL_FACTORY_CONTRACT_ADDRESS, QUOTER_CONTRACT_ADDRESS } from '../constants'
+import {
+  UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS,
+  UNI_V3_ETHEREUM_QUOTER_ADDRESS,
+} from '../constants'
 import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import {
   feeAmountToContractMap,
@@ -31,7 +34,11 @@ export const getBestAggregator = async (
   const poolAddresses: Map<
     Address,
     { token0Address: Address; token1Address: Address; fee: FeeAmount }
-  > = generateV3PoolAddressesAcrossFeeRange(POOL_FACTORY_CONTRACT_ADDRESS, sellToken, buyToken)
+  > = generateV3PoolAddressesAcrossFeeRange(
+    UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS,
+    sellToken,
+    buyToken,
+  )
 
   const poolContractData = getContractDataByPool(
     poolAddresses,
@@ -43,7 +50,7 @@ export const getBestAggregator = async (
   const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient> =
     getContract({
       abi: QuoterAbi,
-      address: QUOTER_CONTRACT_ADDRESS,
+      address: UNI_V3_ETHEREUM_QUOTER_ADDRESS,
       publicClient,
     })
 

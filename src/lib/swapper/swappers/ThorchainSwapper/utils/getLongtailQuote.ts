@@ -39,9 +39,9 @@ export const getLongtailToL1Quote = async (
 
   const chainAdapterManager = getChainAdapterManager()
   const sellChainId = sellAsset.chainId
-  const nativeBuyAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
-  const nativeBuyAsset = nativeBuyAssetId ? assetsById[nativeBuyAssetId] : undefined
-  if (!nativeBuyAsset) {
+  const buyAssetFeeAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
+  const buyAssetFeeAsset = buyAssetFeeAssetId ? assetsById[buyAssetFeeAssetId] : undefined
+  if (!buyAssetFeeAsset) {
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No native buy asset found for ${sellChainId}.`,
@@ -56,9 +56,9 @@ export const getLongtailToL1Quote = async (
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 
   const maybeBestAggregator = await getBestAggregator(
-    nativeBuyAsset,
+    buyAssetFeeAsset,
     getTokenFromAsset(sellAsset),
-    getWrappedToken(nativeBuyAsset),
+    getWrappedToken(buyAssetFeeAsset),
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   )
 
@@ -70,7 +70,7 @@ export const getLongtailToL1Quote = async (
 
   const l1Tol1QuoteInput: GetTradeQuoteInput = {
     ...input,
-    sellAsset: nativeBuyAsset,
+    sellAsset: buyAssetFeeAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 

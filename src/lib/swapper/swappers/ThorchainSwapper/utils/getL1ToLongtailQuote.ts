@@ -54,13 +54,13 @@ export const getL1ToLongtailQuote = async (
   const sellChainId = sellAsset.chainId
   const buyChainId = buyAsset.chainId
 
-  const nativeSellAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
-  const nativeSellAsset = nativeSellAssetId ? assetsById[nativeSellAssetId] : undefined
+  const sellAssetFeeAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
+  const sellAssetFeeAsset = sellAssetFeeAssetId ? assetsById[sellAssetFeeAssetId] : undefined
 
-  const nativeBuyAssetId = chainAdapterManager.get(buyChainId)?.getFeeAssetId()
-  const nativeBuyAsset = nativeBuyAssetId ? assetsById[nativeBuyAssetId] : undefined
+  const buyAssetFeeAssetId = chainAdapterManager.get(buyChainId)?.getFeeAssetId()
+  const buyAssetFeeAsset = buyAssetFeeAssetId ? assetsById[buyAssetFeeAssetId] : undefined
 
-  if (!nativeBuyAsset) {
+  if (!buyAssetFeeAsset) {
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No native buy asset found for ${buyChainId}.`,
@@ -70,7 +70,7 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  if (!nativeSellAsset) {
+  if (!sellAssetFeeAsset) {
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - No native buy asset found for ${sellChainId}.`,
@@ -80,10 +80,9 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  // TODO: use more than just UniswapV3, and also consider trianglar routes.
   const l1Tol1QuoteInput: GetTradeQuoteInput = {
     ...input,
-    buyAsset: nativeBuyAsset,
+    buyAsset: buyAssetFeeAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
@@ -106,8 +105,8 @@ export const getL1ToLongtailQuote = async (
       const onlyStep = quote.steps[0]
 
       const maybeBestAggregator = await getBestAggregator(
-        nativeBuyAsset,
-        getWrappedToken(nativeBuyAsset),
+        buyAssetFeeAsset,
+        getWrappedToken(buyAssetFeeAsset),
         getTokenFromAsset(buyAsset),
         onlyStep.buyAmountAfterFeesCryptoBaseUnit,
       )
@@ -122,7 +121,8 @@ export const getL1ToLongtailQuote = async (
       const updatedMemo = addAggregatorAndDestinationToMemo({
         aggregator: bestAggregator,
         finalAssetAddress: fromAssetId(buyAsset.assetId).assetReference as Address,
-        minAmountOut: convertDecimalPercentageToBasisPoints(
+        minAmountOut: quotedAmountOut.toString(),
+        slippageBps: convertDecimalPercentageToBasisPoints(
           slippageTolerancePercentageDecimal ??
             getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
         ).toString(),

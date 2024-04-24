@@ -443,6 +443,7 @@ export const getL1quote = async (
                 ? undefined
                 : slippageTolerancePercentageDecimal,
               rate,
+              tradeType: tradeType ?? TradeType.L1ToL1,
               steps: [
                 {
                   estimatedExecutionTimeMs,

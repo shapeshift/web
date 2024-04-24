@@ -1,7 +1,6 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
 import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -30,7 +29,6 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 import { getInboundAddressDataForChain } from 'lib/utils/thorchain/getInboundAddressDataForChain'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { viemClientByChainId } from 'lib/viem-client'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
@@ -116,9 +114,6 @@ export const thorchainApi: SwapperApi = {
           'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
         )
 
-        const publicClient = viemClientByChainId[chainId as EvmChainId]
-        assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
-
         const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
         assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
@@ -167,9 +162,6 @@ export const thorchainApi: SwapperApi = {
       }
       case TradeType.L1ToLongTail:
         assert(router, 'router required for l1 to thorchain longtail swaps')
-
-        const publicClient = viemClientByChainId[chainId as EvmChainId]
-        assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
         const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? 0n
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.

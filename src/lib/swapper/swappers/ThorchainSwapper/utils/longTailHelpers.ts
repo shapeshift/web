@@ -180,9 +180,7 @@ export const selectBestRate = (
       [poolAddress, amount]: [Address, bigint],
     ) => {
       if (addressWithHighestAmount[1] === undefined) return [poolAddress, amount]
-      return addressWithHighestAmount?.[1] && amount > addressWithHighestAmount[1]
-        ? [poolAddress, amount]
-        : addressWithHighestAmount
+      return amount > addressWithHighestAmount[1] ? [poolAddress, amount] : addressWithHighestAmount
     },
     [undefined, undefined],
   )

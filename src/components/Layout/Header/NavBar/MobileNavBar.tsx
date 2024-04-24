@@ -262,6 +262,7 @@ export const MobileNavBar = memo(() => {
             icon={qrCodeIcon}
             title={translate('navBar.actionMenu.qrcode.title')}
             body={translate('navBar.actionMenu.qrcode.body')}
+            isDisabled={!isConnected}
           />
         </DialogBody>
       </Dialog>

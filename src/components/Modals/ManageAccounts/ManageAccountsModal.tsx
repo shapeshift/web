@@ -30,6 +30,7 @@ export type ManageAccountsModalProps = {
 }
 
 const infoIcon = <InfoIcon />
+const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const ConnectedChain = ({
   chainId,
@@ -92,6 +93,8 @@ export const ManageAccountsModal = ({
     })
   }, [handleClickChain, walletSupportedChainIds])
 
+  const disableAddChain = walletSupportedChainIds.length === connectedChains.length
+
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
       <ModalOverlay />
@@ -120,7 +123,13 @@ export const ManageAccountsModal = ({
         </ModalBody>
         <ModalFooter justifyContent='center' pb={6}>
           <VStack spacing={2} width='full'>
-            <Button colorScheme='blue' onClick={handleClickAddChain} width='full'>
+            <Button
+              colorScheme='blue'
+              onClick={handleClickAddChain}
+              width='full'
+              isDisabled={disableAddChain}
+              _disabled={disabledProp}
+            >
               {translate('accountManagement.manageAccounts.addChain')}
             </Button>
             <Button colorScheme='gray' onClick={close} width='full'>

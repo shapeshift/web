@@ -149,7 +149,7 @@ export const routes: NestedRoute[] = [
   },
   {
     path: '/explore',
-    label: 'navbar.explore',
+    label: 'navBar.explore',
     icon: <ExploreIcon />,
     main: Explore,
     mobileNav: true,

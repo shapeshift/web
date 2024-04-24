@@ -22,8 +22,8 @@ export const NativeMenu = () => {
   )
 
   const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({ title: translate('manageAccounts.modalTitle') }),
-    [accountManagementPopover, translate],
+    () => accountManagementPopover.open({}),
+    [accountManagementPopover],
   )
 
   return (
@@ -31,7 +31,7 @@ export const NativeMenu = () => {
       <MenuDivider />
       {isAccountManagementEnabled && (
         <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-          {translate('manageAccounts.menuTitle')}
+          {translate('accountManagement.menuTitle')}
         </MenuItem>
       )}
       <MenuItem

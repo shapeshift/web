@@ -8,7 +8,7 @@ import type { ParameterModel } from './parameters/types'
 
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber
-  foxHeld: BigNumber | undefined
+  foxHeld: BigNumber
   feeModel: ParameterModel
 }
 

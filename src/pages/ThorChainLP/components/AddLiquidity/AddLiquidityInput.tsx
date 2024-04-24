@@ -1054,6 +1054,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!actualRuneDepositAmountCryptoPrecision) return
     if (!actualRuneDepositAmountFiatUserCurrency) return
     if (!shareOfPoolDecimalPercent) return
+    if (isVotingPowerLoading) return
 
     const totalAmountFiatUserCurrency = bnOrZero(actualAssetDepositAmountFiatUserCurrency)
       .plus(actualRuneDepositAmountFiatUserCurrency)
@@ -1065,7 +1066,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     const { feeBps, feeUsd } = calculateFees({
       tradeAmountUsd: bn(totalAmountUsd),
-      foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+      foxHeld: bnOrZero(votingPower),
       feeModel: 'THORCHAIN_LP',
     })
 
@@ -1097,6 +1098,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     dispatch,
+    isVotingPowerLoading,
     poolAssetAccountAddress,
     poolAssetGasFeeFiatUserCurrency,
     poolAssetInboundAddress,

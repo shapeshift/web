@@ -21,7 +21,7 @@ export type ManageAccountsModalProps = {
 const infoIcon = <InfoIcon />
 
 export const ManageAccountsModal = ({
-  title = 'manageAccounts.modalTitle',
+  title = 'accountManagement.manageAccounts.modalTitle',
 }: ManageAccountsModalProps) => {
   const translate = useTranslate()
   const { close, isOpen } = useModal('manageAccounts')

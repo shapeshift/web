@@ -6,9 +6,10 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -109,7 +110,7 @@ export const useGetTradeQuotes = () => {
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
-  const [hasFocus, setHasFocus] = useState(document.hasFocus())
+  const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const useReceiveAddressArgs = useMemo(
@@ -127,21 +128,30 @@ export const useGetTradeQuotes = () => {
 
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
-  const sellAccountMetadata = useMemo(() => {
-    return selectPortfolioAccountMetadataByAccountId(store.getState(), {
+  const sellAccountMetadataFilter = useMemo(
+    () => ({
       accountId: sellAccountId,
-    })
-  }, [sellAccountId])
+    }),
+    [sellAccountId],
+  )
 
-  const receiveAccountMetadata = useMemo(() => {
-    return selectPortfolioAccountMetadataByAccountId(store.getState(), {
+  const buyAccountMetadataFilter = useMemo(
+    () => ({
       accountId: buyAccountId,
-    })
-  }, [buyAccountId])
+    }),
+    [buyAccountId],
+  )
+
+  const sellAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, sellAccountMetadataFilter),
+  )
+  const receiveAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
+  )
 
   const mixpanel = getMixPanel()
 
-  const sellAssetUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, sellAsset.assetId))
+  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
@@ -156,9 +166,14 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        wallet && sellAccountId && sellAccountMetadata && receiveAddress && !isVotingPowerLoading,
+        hasFocus &&
+          wallet &&
+          sellAccountId &&
+          sellAccountMetadata &&
+          receiveAddress &&
+          !isVotingPowerLoading,
       ),
-    [wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
+    [hasFocus, wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
   )
 
   useEffect(() => {
@@ -194,7 +209,7 @@ export const useGetTradeQuotes = () => {
 
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
-        foxHeld: votingPower !== undefined ? bn(votingPower) : undefined,
+        foxHeld: bnOrZero(votingPower),
         feeModel: 'SWAPPER',
       })
 
@@ -237,22 +252,13 @@ export const useGetTradeQuotes = () => {
     isBuyAssetChainSupported,
   ])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHasFocus(document.hasFocus())
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [])
-
   const commonTradeQuoteArgs: SwapperTradeQuoteCommonArgs = useMemo(() => {
-    const skip = !shouldRefetchTradeQuotes
-    const pollingInterval = hasFocus ? GET_TRADE_QUOTE_POLLING_INTERVAL : undefined
     return {
       tradeQuoteInput,
-      skip,
-      pollingInterval,
+      skip: !shouldRefetchTradeQuotes,
+      pollingInterval: GET_TRADE_QUOTE_POLLING_INTERVAL,
     }
-  }, [hasFocus, shouldRefetchTradeQuotes, tradeQuoteInput])
+  }, [shouldRefetchTradeQuotes, tradeQuoteInput])
 
   useGetSwapperTradeQuote(SwapperName.CowSwap, commonTradeQuoteArgs)
   useGetSwapperTradeQuote(SwapperName.OneInch, commonTradeQuoteArgs)

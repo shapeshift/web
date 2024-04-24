@@ -24,8 +24,8 @@ import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
-import { getAccountTitle } from 'lib/utils'
-import { isUtxoAccountId, isUtxoChainId } from 'state/slices/portfolioSlice/utils'
+import { getAccountTitle } from 'lib/utils/accounts'
+import { isUtxoAccountId, isUtxoChainId } from 'lib/utils/utxo'
 import {
   selectAssets,
   selectFeeAssetByChainId,
@@ -56,7 +56,7 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, cha
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const assetId = feeAsset?.assetId
 
-  return useMemo(
+  const result = useMemo(
     () =>
       assetId ? (
         <>
@@ -71,6 +71,8 @@ const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, cha
       ) : null,
     [accountIds, assetId],
   )
+
+  return result
 }
 
 type AccountBasedChainEntriesProps = {
@@ -84,7 +86,7 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
     () => Object.keys(accountAssetBalancesSortedUserCurrency[accountId] ?? {}),
     [accountAssetBalancesSortedUserCurrency, accountId],
   )
-  return useMemo(
+  const result = useMemo(
     () => (
       <>
         {assetIds.map(assetId => (
@@ -94,6 +96,8 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
     ),
     [accountId, assetIds],
   )
+
+  return result
 }
 
 const accountNumberRowButtonFontSizeProps = { base: 'sm', md: 'md' }

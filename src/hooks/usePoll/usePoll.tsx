@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { PollArgs } from 'lib/poll/poll'
 import { poll as pollFn } from 'lib/poll/poll'
 
@@ -26,5 +26,7 @@ export const usePoll = <T extends unknown>() => {
     return promise
   }, [])
 
-  return { poll, cancelPolling: cancelPollingRef.current }
+  const result = useMemo(() => ({ poll, cancelPolling: cancelPollingRef.current }), [poll])
+
+  return result
 }

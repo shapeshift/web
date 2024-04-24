@@ -43,7 +43,7 @@ export const useFetchOpportunities = () => {
     gcTime: 60 * 1000 * 5,
   })
 
-  return useMemo(
+  const result = useMemo(
     () => ({
       isLoading:
         isLoading ||
@@ -58,4 +58,6 @@ export const useFetchOpportunities = () => {
       portfolioLoadingStatus,
     ],
   )
+
+  return result
 }

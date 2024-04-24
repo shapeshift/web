@@ -1,7 +1,7 @@
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { CurrencyFormats } from 'state/slices/preferencesSlice/preferencesSlice'
+import { CurrencyFormats, HomeMarketView } from 'state/slices/preferencesSlice/preferencesSlice'
 import { initialTradeExecutionState } from 'state/slices/tradeQuoteSlice/constants'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
@@ -107,6 +107,8 @@ export const mockStore: ReduxState = {
       LedgerWallet: false,
       ThorchainSwapLongtail: false,
       ShapeShiftMobileWallet: false,
+      AccountManagement: false,
+      AccountManagementLedger: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -117,6 +119,8 @@ export const mockStore: ReduxState = {
     showConsentBanner: true,
     showSnapsModal: true,
     snapInstalled: false,
+    watchedAssets: [],
+    selectedHomeView: HomeMarketView.TopAssets,
     // the following object is required by redux-persist
     _persist: {
       version: 0,

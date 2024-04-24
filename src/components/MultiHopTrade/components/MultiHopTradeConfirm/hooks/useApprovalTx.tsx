@@ -2,7 +2,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -59,10 +59,15 @@ export const useApprovalTx = (
     })
   }, [sellAssetAccountId, isExactAllowance, poll, tradeQuoteStep, wallet])
 
-  return {
-    approvalNetworkFeeCryptoBaseUnit,
-    buildCustomTxInput,
-    stopPolling,
-    isLoading,
-  }
+  const result = useMemo(
+    () => ({
+      approvalNetworkFeeCryptoBaseUnit,
+      buildCustomTxInput,
+      stopPolling,
+      isLoading,
+    }),
+    [approvalNetworkFeeCryptoBaseUnit, buildCustomTxInput, isLoading, stopPolling],
+  )
+
+  return result
 }

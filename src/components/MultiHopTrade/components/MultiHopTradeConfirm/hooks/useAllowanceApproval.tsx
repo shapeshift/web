@@ -1,6 +1,6 @@
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import type { Hash } from 'viem'
 import { useApprovalTx } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useApprovalTx'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -89,9 +89,14 @@ export const useAllowanceApproval = (
     stopPollingBuildApprovalTx,
   ])
 
-  return {
-    isLoading,
-    executeAllowanceApproval,
-    approvalNetworkFeeCryptoBaseUnit,
-  }
+  const result = useMemo(
+    () => ({
+      isLoading,
+      executeAllowanceApproval,
+      approvalNetworkFeeCryptoBaseUnit,
+    }),
+    [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isLoading],
+  )
+
+  return result
 }

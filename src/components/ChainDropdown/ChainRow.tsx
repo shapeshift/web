@@ -3,7 +3,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { chainIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { chainIdToFeeAssetId } from 'lib/utils'
 import {
   selectAssetById,
   selectPortfolioTotalBalanceByChainIdIncludeStaking,

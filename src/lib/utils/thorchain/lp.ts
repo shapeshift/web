@@ -8,9 +8,9 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorService'
-import { isUtxoChainId } from 'state/slices/portfolioSlice/utils'
 
 import { getSupportedEvmChainIds } from '../evm'
+import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
 import { THOR_PRECISION } from './constants'
 import type {

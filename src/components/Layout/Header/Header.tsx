@@ -13,8 +13,8 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioDegradedState,
   selectShowSnapsModal,
@@ -53,7 +53,7 @@ export const Header = memo(() => {
   const isSnapInstalled = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
   const showSnapModal = useSelector(selectShowSnapsModal)
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const history = useHistory()
   const {

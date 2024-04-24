@@ -9,7 +9,7 @@ export const useIsWalletConnectToDappsSupportedWallet = () => {
   } = useWallet()
   const { isEIP712SupportedFirmwareVersion } = useKeepKeyVersions()
 
-  return useMemo((): boolean => {
+  const result = useMemo((): boolean => {
     if (!wallet) return false
     if (isDemoWallet) return false
     switch (true) {
@@ -22,4 +22,6 @@ export const useIsWalletConnectToDappsSupportedWallet = () => {
         return false
     }
   }, [wallet, isEIP712SupportedFirmwareVersion, isDemoWallet])
+
+  return result
 }

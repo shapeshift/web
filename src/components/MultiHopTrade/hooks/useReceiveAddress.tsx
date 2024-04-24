@@ -1,11 +1,11 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
-import { isUtxoAccountId } from 'state/slices/portfolioSlice/utils'
 import {
   selectInputBuyAsset,
   selectLastHopBuyAccountId,
@@ -39,8 +39,9 @@ export const useReceiveAddress = ({
   // Selectors
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
+  const buyAccountMetadataFilter = useMemo(() => ({ accountId: buyAccountId }), [buyAccountId])
   const buyAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, { accountId: buyAccountId }),
+    selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
@@ -93,5 +94,10 @@ export const useReceiveAddress = ({
   }, [buyAsset, getReceiveAddressFromBuyAsset])
 
   // Always use the manual receive address if it is set
-  return { manualReceiveAddress, walletReceiveAddress }
+  const result = useMemo(
+    () => ({ manualReceiveAddress, walletReceiveAddress }),
+    [manualReceiveAddress, walletReceiveAddress],
+  )
+
+  return result
 }

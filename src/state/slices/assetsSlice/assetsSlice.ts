@@ -14,12 +14,10 @@ import {
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
-import { sha256 } from 'lib/utils'
+import { chainIdToFeeAssetId, sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
-
-import { chainIdToFeeAssetId } from '../portfolioSlice/utils'
 
 let service: AssetService | undefined = undefined
 

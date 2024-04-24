@@ -22,7 +22,7 @@ export const LanguageSelector: React.FC<SelectProps> = props => {
   )
 
   return (
-    <Select onChange={handleLanguageChange} defaultValue={selectedLocale} {...props}>
+    <Select onChange={handleLanguageChange} value={selectedLocale} {...props}>
       {locales.map(locale => (
         <option key={locale.key} value={locale.key}>
           {locale.label}

@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
 import { isSome } from 'lib/utils'
-import { accountIdToFeeAssetId } from 'state/slices/portfolioSlice/utils'
+import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

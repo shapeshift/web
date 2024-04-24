@@ -11,6 +11,9 @@
     "next": "Next",
     "error": "Error",
     "show": "Show",
+    "account": "Account",
+    "address": "Address",
+    "done": "Done",
     "cancel": "Cancel",
     "close": "Close",
     "loadMore": "Load More",
@@ -138,6 +141,7 @@
     "staged": "Staged",
     "poolHalted": "Pool Halted",
     "poolDisabled": "Pool Disabled",
+    "prices": "Prices",
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
     "carousel": {
@@ -299,6 +303,9 @@
       "connecting": "Connecting..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Manage Accounts"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -413,7 +420,7 @@
         },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
-        "dangerousWithdrawWarning": "Withdrawal disabled as the THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue."
+        "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue."
       }
     },
     "memoNote": {
@@ -1761,6 +1768,11 @@
     "viewAccount": "View account",
     "expandAccount": "Expand account"
   },
+  "accountManagementSidebar": {
+    "title": "Import %{chainNamespaceDisplayName} Accounts",
+    "description": "Select the accounts you would like to import from the list below.",
+    "import": "Import"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "Transaction History",
@@ -2142,6 +2154,7 @@
   "lending": {
     "lending": "Lending",
     "repaymentAvailable": "Repayment available",
+    "repaymentUnavailable": "Repayment not yet available",
     "daysUntilRepayment": "%{numDays} days until repayment",
     "repaymentDays": "%{numDays} days",
     "lendingBody": "A listing of all pools that can be borrowed at zero-interest and zero liquidations.",
@@ -2224,8 +2237,7 @@
       "yourLoans": "Your Loans",
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
-    },
-    "unsafeBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Your FOX Power",
@@ -2243,6 +2255,17 @@
     "breakdownBody": "Below is a breakdown of your %{featureLowerCase} fees and the corresponding FOX Power Discount applied. Learn how much more you can save on the simulate tab.",
     "featureFee": "%{feature} Fee",
     "totalFeatureFee": "Total %{feature} Fee"
+  },
+  "chart": {
+    "interval": {
+      "5min": "Past five minutes",
+      "hour": "Past hour",
+      "day": "Past day",
+      "week": "Past week",
+      "month": "Past month",
+      "year": "Past year",
+      "all": "All time"
+    }
   },
   "pools": {
     "pools": "Pools",
@@ -2317,6 +2340,21 @@
         "title": "Risks and Considerations",
         "body": "While liquidity pools offer earning opportunities, it's important to be aware of the risks involved, including impermanent loss, smart contract vulnerabilities, and market volatility. Users should conduct thorough research before participating."
       }
+    }
+  },
+  "warningAcknowledgement": {
+    "understand": "I understand",
+    "attention": "Attention!",
+    "highSlippageDeposit": "This deposit has high slippage (%{slippagePercentage}%). Proceed with caution.",
+    "highSlippageBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution.",
+    "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
+    "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution."
+  },
+  "watchlist": {
+    "empty": {
+      "title": "Start building your watchlist",
+      "body": "Wherever you see the star icon, you can use it to add assets here.",
+      "cta": "Explore more assets"
     }
   }
 }

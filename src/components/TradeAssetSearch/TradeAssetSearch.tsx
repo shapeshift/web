@@ -3,6 +3,7 @@ import type { BoxProps, InputProps } from '@chakra-ui/react'
 import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
+import { knownChainIds } from 'constants/chains'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -134,7 +135,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
       if (allowWalletUnsupportedAssets) {
-        return Object.values(KnownChainIds)
+        return knownChainIds
       }
 
       return walletSupportedChainIds

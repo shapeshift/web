@@ -2,30 +2,17 @@ import axios from 'axios'
 
 const ADDRESS_VALIDATION_URL = 'https://api.proxy.shapeshift.com/api/v1/validate'
 
-const cache: Record<string, Promise<boolean>> = {}
-
-const checkIsSanctioned = async (address: string): Promise<boolean> => {
-  type validationResponse = {
-    valid: boolean
-  }
-
-  const response = await axios.get<validationResponse>(`${ADDRESS_VALIDATION_URL}/${address}`)
-  return response.data.valid
-}
-
 export const assertAddressNotSanctioned = async (address: string): Promise<void> => {
-  try {
-    // dedupe and cache promises in memory
-    if (cache[address] === undefined) {
-      const newEntry = checkIsSanctioned(address)
-      cache[address] = newEntry
+  const valid = await (async () => {
+    try {
+      const { data } = await axios.get<{ valid: boolean }>(`${ADDRESS_VALIDATION_URL}/${address}`)
+      return data.valid
+    } catch (err) {
+      // Log the error for debugging purposes
+      console.error(`Error validating address: ${address}. Defaulting to valid.`, err)
+      return true
     }
+  })()
 
-    const isValidPromise = cache[address]
-    const isValid = await isValidPromise
-    if (!isValid) throw Error('Address not supported')
-  } catch (error) {
-    // Log the error for debugging purposes
-    console.error(`Error validating address: ${address}. Defaulting to valid.`, error)
-  }
+  if (!valid) throw Error('Address not supported')
 }

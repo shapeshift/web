@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { type AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -55,6 +56,8 @@ export type FeatureFlags = {
   LedgerWallet: boolean
   ThorchainSwapLongtail: boolean
   ShapeShiftMobileWallet: boolean
+  AccountManagement: boolean
+  AccountManagementLedger: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -65,6 +68,11 @@ export enum CurrencyFormats {
   DotDecimalQuoteThousands = 'de-CH', // $ 123’456.78
   CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
+}
+
+export enum HomeMarketView {
+  TopAssets = 'TopAssets',
+  Watchlist = 'Watchlist',
 }
 
 export type Preferences = {
@@ -78,6 +86,8 @@ export type Preferences = {
   showConsentBanner: boolean
   showSnapsModal: boolean
   snapInstalled: boolean
+  watchedAssets: AssetId[]
+  selectedHomeView: HomeMarketView
 }
 
 const initialState: Preferences = {
@@ -127,6 +137,8 @@ const initialState: Preferences = {
     LedgerWallet: getConfig().REACT_APP_FEATURE_LEDGER_WALLET,
     ThorchainSwapLongtail: getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL,
     ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,
+    AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
+    AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',
@@ -137,6 +149,8 @@ const initialState: Preferences = {
   showConsentBanner: true,
   showSnapsModal: true,
   snapInstalled: false,
+  watchedAssets: [],
+  selectedHomeView: HomeMarketView.TopAssets,
 }
 
 export const preferences = createSlice({
@@ -175,6 +189,15 @@ export const preferences = createSlice({
     },
     setSnapInstalled(state, { payload }: { payload: boolean }) {
       state.snapInstalled = payload
+    },
+    addWatchedAssetId(state, { payload }: { payload: AssetId }) {
+      state.watchedAssets = state.watchedAssets.concat(payload)
+    },
+    removeWatchedAssetId(state, { payload }: { payload: AssetId }) {
+      state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
+    },
+    setHomeMarketView(state, { payload }: { payload: HomeMarketView }) {
+      state.selectedHomeView = payload
     },
   },
 })

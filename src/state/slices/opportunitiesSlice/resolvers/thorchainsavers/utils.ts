@@ -23,7 +23,6 @@ import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
-import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { isUtxoChainId } from 'lib/utils/utxo'
 
 import type {
@@ -177,12 +176,7 @@ export const getMaybeThorchainSaversDepositQuote = async ({
   if (!quoteData || 'error' in quoteData)
     return Err(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return Ok({
-    ...quoteData,
-    // Note, THORChain endpoint does not return the memo with the affiliate name in the memo, despite us sending the affiliate queryparams
-    // Once that's explicitly supported and the returned memo contains the affiliate name and bps, we should remove the monkey patch and return the memo as-is
-    memo: assertAndProcessMemo(`${quoteData.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`),
-  })
+  return Ok(quoteData)
 }
 
 export const getThorchainSaversWithdrawQuote = async ({
@@ -223,11 +217,7 @@ export const getThorchainSaversWithdrawQuote = async ({
   if (!quoteData || 'error' in quoteData)
     return Err(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return Ok({
-    ...quoteData,
-    // Note, THORCHain is very unlikely to ever return a quote with a memo containing the affiliate name, since you can't have affiliate bps for withdraws
-    memo: assertAndProcessMemo(`${quoteData.memo}::${THORCHAIN_AFFILIATE_NAME}:0`),
-  })
+  return Ok(quoteData)
 }
 
 export const getMidgardPools = async (

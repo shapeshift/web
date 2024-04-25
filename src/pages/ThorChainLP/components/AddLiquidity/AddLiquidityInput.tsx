@@ -63,11 +63,10 @@ import {
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import { THOR_PRECISION, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
-import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
@@ -476,19 +475,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
   }, [poolAsset])
 
-  // Note, bps is a placeholder and not the actual bps here, as this memo is just used to estimate fees
   const feeEstimationMemo = useMemo(() => {
     if (thorchainNotationPoolAssetId === undefined) return null
 
     if (opportunityType === 'sym') {
-      return assertAndProcessMemo(
-        `+:${thorchainNotationPoolAssetId}:${
-          poolAssetAccountAddress ?? ''
-        }:${THORCHAIN_AFFILIATE_NAME}:50`,
-      )
+      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}`
     }
 
-    return assertAndProcessMemo(`+:${thorchainNotationPoolAssetId}::${THORCHAIN_AFFILIATE_NAME}:50`)
+    return `+:${thorchainNotationPoolAssetId}`
   }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
   const {

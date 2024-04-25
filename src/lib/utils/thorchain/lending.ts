@@ -21,7 +21,6 @@ import type {
   LendingWithdrawQuoteResponse,
   LendingWithdrawQuoteResponseSuccess,
 } from './lending/types'
-import { assertAndProcessMemo } from './memo'
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work
 // but we might need e.g min_out and affiliate_bps
@@ -115,11 +114,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
   if (!data) return Err('Could not get quote data')
   if ('error' in data) return Err(data.error)
 
-  return Ok({
-    ...data,
-    // Note, THORCHain is very unlikely to ever return a quote with a memo containing the affiliate name, since you can't have affiliate bps for repayments
-    memo: assertAndProcessMemo(data.memo),
-  })
+  return Ok(data)
 }
 
 export const getAllThorchainLendingPositions = async (

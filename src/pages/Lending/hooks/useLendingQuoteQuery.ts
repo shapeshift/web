@@ -14,12 +14,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingOpenQuote } from 'lib/utils/thorchain/lending'
 import type {
   LendingDepositQuoteResponseSuccess,
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
+import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -37,10 +38,6 @@ type UseLendingQuoteQueryProps = {
 }
 
 type UseLendingQuoteQueryKey = UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }
-
-// 0bps won't incur any fees, only used for tracking purposes for now
-// TODO(gomes): once THOR's API supports affiliate name and fees, we can remove this in profit of programmatic bps
-const AFFILIATE_BPS = 0
 
 const selectLendingQuoteQuery = memoize(
   ({
@@ -111,8 +108,8 @@ const selectLendingQuoteQuery = memoize(
       .toString()
 
     const quoteInboundAddress = quote.inbound_address
-    // TODO(gomes): once THOR's API supports affiliate name and fees, we can remove this in profit of programmatic bps
-    const quoteMemo = `${quote.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`
+    // TODO: return quote as is once borrow is using useSendThorTx
+    const quoteMemo = assertAndProcessMemo(quote.memo)
     const quoteExpiry = quote.expiry
     const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
     const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)

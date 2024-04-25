@@ -43,7 +43,6 @@ import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
-import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { OpportunityType } from 'pages/ThorChainLP/utils'
 import {
@@ -178,16 +177,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (thorchainNotationAssetId === undefined) return null
     if (opportunityType === 'sym' && !pairAssetAddress) return null
 
+    const pairedAddress = pairAssetAddress ?? ''
+
     return isDeposit
-      ? assertAndProcessMemo(
-          `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${
-            confirmedQuote.feeBps
-          }`,
-        )
-      : // Note, THORCHain is very unlikely to ever return a quote with a memo containing the affiliate name, since you can't have affiliate bps for withdraws
-        assertAndProcessMemo(
-          `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}::${THORCHAIN_AFFILIATE_NAME}:0`,
-        )
+      ? `+:${thorchainNotationAssetId}:${pairedAddress}:${THORCHAIN_AFFILIATE_NAME}:${confirmedQuote.feeBps}`
+      : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
   }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({

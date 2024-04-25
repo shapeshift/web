@@ -2,6 +2,7 @@ import { bn } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
 import type { Address } from 'viem'
+import { fromBaseUnit } from 'lib/math'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { MEMO_PART_DELIMITER } from './constants'
@@ -32,25 +33,39 @@ export const addAggregatorAndDestinationToMemo = ({
     BigNumber.ROUND_DOWN,
   )
 
-  const minimumPrecision = 5
-  const endingExponential = finalAssetPrecision - minimumPrecision
+  const maximumPrecision = 6
+  const endingExponential = finalAssetPrecision - maximumPrecision
+  const finalAssetLimitCryptoPrecision = fromBaseUnit(
+    finalAssetLimitWithManualSlippage,
+    finalAssetPrecision,
+    maximumPrecision,
+  )
+  const shouldPrependZero = endingExponential < 10
+  const thorAggregatorExponential = shouldPrependZero
+    ? `0${endingExponential ?? '1'}`
+    : endingExponential
 
-  // The uniswap aggregator expects this amount to be an exponent, we need to add two numbers at the end which are used at exponents in the contract
+  // The THORChain aggregators expects this amount to be an exponent, we need to add two numbers at the end which are used at exponents in the contract
   // We trim 10 of precisions to make sure the THORChain parser can handle the amount without precisions and rounding issues
   // If the finalAssetPrecision is under 5, the THORChain parser won't fail and we add one exponent at the end so the aggregator contract won't multiply the amount
   const finalAssetLimitWithTwoLastNumbersAsExponent =
-    finalAssetPrecision <= 5
+    finalAssetPrecision < maximumPrecision
       ? `${finalAssetLimitWithManualSlippage}01`
-      : `${bn(finalAssetLimitWithManualSlippage)
-          .dividedBy(10 ** finalAssetPrecision)
-          .toFixed(minimumPrecision, BigNumber.ROUND_DOWN)
-          .replace('.', '')}${endingExponential < 10 ? `0${endingExponential}` : endingExponential}`
+      : `${finalAssetLimitCryptoPrecision.replace('.', '')}${thorAggregatorExponential}`
 
   // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
   assert(
     BigInt(finalAssetLimitWithTwoLastNumbersAsExponent) > 0n,
     'expected finalAssetLimitWithManualSlippage to be a positive amount',
   )
+
+  console.log({
+    minAmountOut,
+    finalAssetLimitWithManualSlippage,
+    finalAssetLimitWithTwoLastNumbersAsExponent,
+    maximumPrecision,
+    endingExponential,
+  })
 
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut

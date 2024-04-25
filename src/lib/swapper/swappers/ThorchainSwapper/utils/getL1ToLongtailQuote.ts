@@ -127,6 +127,7 @@ export const getL1ToLongtailQuote = async (
             getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
         ).toString(),
         quotedMemo: quote.memo,
+        finalAssetPrecision: buyAsset.precision,
       })
 
       const { data, router, vault } = await getEvmThorTxInfo({

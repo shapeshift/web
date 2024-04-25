@@ -33,7 +33,7 @@ export const addAggregatorAndDestinationToMemo = ({
     BigNumber.ROUND_DOWN,
   )
 
-  const maximumPrecision = 4
+  const maximumPrecision = 6
   const endingExponential = finalAssetPrecision - maximumPrecision
   const finalAssetLimitCryptoPrecision = fromBaseUnit(
     finalAssetLimitWithManualSlippage,

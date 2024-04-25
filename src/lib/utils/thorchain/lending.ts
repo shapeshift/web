@@ -116,7 +116,7 @@ export const getMaybeThorchainLendingCloseQuote = async ({
 
   return Ok({
     ...data,
-    // Note, THORCHain is very unlikely to ever return a quote with a memo containing the affiliate name, since you can't have affiliate bps for withdraws
+    // Note, THORCHain is very unlikely to ever return a quote with a memo containing the affiliate name, since you can't have affiliate bps for repayments
     memo: `${data.memo}::${THORCHAIN_AFFILIATE_NAME}:0`,
   })
 }

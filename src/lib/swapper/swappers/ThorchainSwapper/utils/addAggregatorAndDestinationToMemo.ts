@@ -32,12 +32,6 @@ export const addAggregatorAndDestinationToMemo = ({
     BigNumber.ROUND_DOWN,
   )
 
-  // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-  assert(
-    BigInt(finalAssetLimitWithManualSlippage) > 0n,
-    'expected finalAssetLimitWithManualSlippage to be a positive amount',
-  )
-
   const minimumPrecision = 5
   const endingExponential = finalAssetPrecision - minimumPrecision
 
@@ -51,6 +45,12 @@ export const addAggregatorAndDestinationToMemo = ({
           .dividedBy(10 ** finalAssetPrecision)
           .toFixed(minimumPrecision, BigNumber.ROUND_DOWN)
           .replace('.', '')}${endingExponential < 10 ? `0${endingExponential}` : endingExponential}`
+
+  // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
+  assert(
+    BigInt(finalAssetLimitWithTwoLastNumbersAsExponent) > 0n,
+    'expected finalAssetLimitWithManualSlippage to be a positive amount',
+  )
 
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut

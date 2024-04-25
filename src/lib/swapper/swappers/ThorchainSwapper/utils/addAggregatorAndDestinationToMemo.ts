@@ -33,7 +33,7 @@ export const addAggregatorAndDestinationToMemo = ({
     BigNumber.ROUND_DOWN,
   )
 
-  const maximumPrecision = 6
+  const maximumPrecision = 4
   const endingExponential = finalAssetPrecision - maximumPrecision
   const finalAssetLimitCryptoPrecision = fromBaseUnit(
     finalAssetLimitWithManualSlippage,
@@ -42,30 +42,23 @@ export const addAggregatorAndDestinationToMemo = ({
   )
   const shouldPrependZero = endingExponential < 10
   const thorAggregatorExponential = shouldPrependZero
-    ? `0${endingExponential ?? '1'}`
+    ? `0${endingExponential > 0 ? endingExponential : '1'}`
     : endingExponential
 
   // The THORChain aggregators expects this amount to be an exponent, we need to add two numbers at the end which are used at exponents in the contract
   // We trim 10 of precisions to make sure the THORChain parser can handle the amount without precisions and rounding issues
   // If the finalAssetPrecision is under 5, the THORChain parser won't fail and we add one exponent at the end so the aggregator contract won't multiply the amount
-  const finalAssetLimitWithTwoLastNumbersAsExponent =
+  const finalAssetLimitWithTwoLastNumbersAsExponent = `${
     finalAssetPrecision < maximumPrecision
-      ? `${finalAssetLimitWithManualSlippage}01`
-      : `${finalAssetLimitCryptoPrecision.replace('.', '')}${thorAggregatorExponential}`
+      ? finalAssetLimitWithManualSlippage
+      : finalAssetLimitCryptoPrecision.replace('.', '')
+  }${thorAggregatorExponential}`
 
   // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
   assert(
     BigInt(finalAssetLimitWithTwoLastNumbersAsExponent) > 0n,
     'expected finalAssetLimitWithManualSlippage to be a positive amount',
   )
-
-  console.log({
-    minAmountOut,
-    finalAssetLimitWithManualSlippage,
-    finalAssetLimitWithTwoLastNumbersAsExponent,
-    maximumPrecision,
-    endingExponential,
-  })
 
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut

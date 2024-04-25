@@ -67,6 +67,7 @@ import { THOR_PRECISION, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/co
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
+import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePools } from 'pages/ThorChainLP/queries/hooks/usePools'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
@@ -480,12 +481,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (thorchainNotationPoolAssetId === undefined) return null
 
     if (opportunityType === 'sym') {
-      return `+:${thorchainNotationPoolAssetId}:${
-        poolAssetAccountAddress ?? ''
-      }:${THORCHAIN_AFFILIATE_NAME}:50`
+      return assertAndProcessMemo(
+        `+:${thorchainNotationPoolAssetId}:${
+          poolAssetAccountAddress ?? ''
+        }:${THORCHAIN_AFFILIATE_NAME}:50`,
+      )
     }
 
-    return `+:${thorchainNotationPoolAssetId}::${THORCHAIN_AFFILIATE_NAME}:50`
+    return assertAndProcessMemo(`+:${thorchainNotationPoolAssetId}::${THORCHAIN_AFFILIATE_NAME}:50`)
   }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
   const {

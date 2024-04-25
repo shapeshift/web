@@ -405,9 +405,10 @@ export const Deposit: React.FC<DepositProps> = ({
     return toBaseUnit(outboundFeeInAssetCryptoPrecision, asset.precision)
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
-  const validateCryptoAmount = useCallback(
+  const _validateCryptoAmount = useCallback(
     async (value: string) => {
-      if (!accountId || !outboundFeeInAssetCryptoBaseUnit) return
+      if (!accountId) return
+      if (state?.loading) return
 
       const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
       const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
@@ -460,6 +461,7 @@ export const Deposit: React.FC<DepositProps> = ({
     },
     [
       accountId,
+      state?.loading,
       asset,
       balanceCryptoBaseUnit,
       assetId,
@@ -470,10 +472,20 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  const validateFiatAmount = useCallback(
-    async (value: string) => {
-      if (!accountId || !outboundFeeInAssetCryptoBaseUnit) return
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      return _validateCryptoAmount(value).finally(() => {
+        contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      })
+    },
+    [_validateCryptoAmount, contextDispatch],
+  )
 
+  const _validateFiatAmount = useCallback(
+    async (value: string) => {
+      if (!accountId) return
+      if (state?.loading) return
       const valueCryptoPrecision = bnOrZero(value).div(assetMarketData.price)
       const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
 
@@ -524,6 +536,7 @@ export const Deposit: React.FC<DepositProps> = ({
     },
     [
       accountId,
+      state?.loading,
       assetMarketData.price,
       balanceCryptoBaseUnit,
       asset,
@@ -533,6 +546,16 @@ export const Deposit: React.FC<DepositProps> = ({
       chainId,
       fromAddress,
     ],
+  )
+
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      return _validateFiatAmount(value).finally(() => {
+        contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      })
+    },
+    [_validateFiatAmount, contextDispatch],
   )
 
   const balanceCryptoPrecision = useMemo(

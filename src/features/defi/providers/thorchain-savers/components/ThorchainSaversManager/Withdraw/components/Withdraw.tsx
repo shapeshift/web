@@ -308,9 +308,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     return bnOrZero(outboundFeeInAssetCryptoBaseUnit).times(1.05).toFixed()
   }, [outboundFeeInAssetCryptoBaseUnit])
 
-  const validateCryptoAmount = useCallback(
+  const _validateCryptoAmount = useCallback(
     async (value: string) => {
-      if (!dispatch) return false
       if (!accountId) return false
       if (!opportunityData) return false
       if (!safeOutboundFeeInAssetCryptoBaseUnit) return false
@@ -402,7 +401,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         console.error(e)
       } finally {
         setQuoteLoading(false)
-        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },
     [
@@ -410,13 +408,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       amountAvailableCryptoPrecision,
       asset,
       chainId,
-      dispatch,
       fromAddress,
       opportunityData,
       queryClient,
       safeOutboundFeeInAssetCryptoBaseUnit,
       translate,
     ],
+  )
+
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
+      return _validateCryptoAmount(value).finally(() => {
+        dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+      })
+    },
+    [_validateCryptoAmount, dispatch],
   )
 
   const missingFundsForGasTranslation: TextPropTypes['translation'] = useMemo(
@@ -430,10 +437,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [missingFunds, feeAsset.symbol],
   )
 
-  const validateFiatAmount = useCallback(
+  const _validateFiatAmount = useCallback(
     async (value: string) => {
       if (!(opportunityData && accountId && dispatch)) return false
-      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
 
       setMissingFunds(null)
       setQuoteLoading(true)
@@ -480,7 +486,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         return translate('trade.errors.amountTooSmallUnknownMinimum')
       } finally {
         setQuoteLoading(false)
-        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       }
     },
     [
@@ -494,6 +499,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       opportunityData,
       translate,
     ],
+  )
+
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
+      return _validateFiatAmount(value).finally(() => {
+        dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+      })
+    },
+    [_validateFiatAmount, dispatch],
   )
 
   const cryptoInputValidation = useMemo(

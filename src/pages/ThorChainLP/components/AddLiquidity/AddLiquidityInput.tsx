@@ -63,7 +63,7 @@ import {
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
-import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
+import { THOR_PRECISION, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
@@ -480,10 +480,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (thorchainNotationPoolAssetId === undefined) return null
 
     if (opportunityType === 'sym') {
-      return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`
+      return `+:${thorchainNotationPoolAssetId}:${
+        poolAssetAccountAddress ?? ''
+      }:${THORCHAIN_AFFILIATE_NAME}:50`
     }
 
-    return `+:${thorchainNotationPoolAssetId}::ss:50`
+    return `+:${thorchainNotationPoolAssetId}::${THORCHAIN_AFFILIATE_NAME}:50`
   }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
   const {

@@ -33,6 +33,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type {
   LpConfirmedDepositQuote,
@@ -177,8 +178,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (opportunityType === 'sym' && !pairAssetAddress) return null
 
     return isDeposit
-      ? `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
-      : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
+      ? `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${
+          confirmedQuote.feeBps
+        }`
+      : // Note, THORCHain is very unlikely to ever return a quote with a memo containing the affiliate name, since you can't have affiliate bps for withdraws
+        `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}::${THORCHAIN_AFFILIATE_NAME}:0`
   }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({

@@ -100,94 +100,37 @@ const checkIsSpam = (tx: Tx): boolean => {
   })
 }
 
-/**
- * Manage state of the txHistory slice
- *
- * If transaction already exists, update the value, otherwise add the new transaction
- */
-
-const updateOrInsertTx = (txHistory: TxHistory, tx: Tx, accountId: AccountId) => {
-  const { txs, hydrationMeta } = txHistory
-
-  if (checkIsSpam(tx)) return
-
-  const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
-
-  const isNew = !txs.byId[txIndex]
-
-  // update or insert tx
-  txs.byId[txIndex] = tx
-
-  // add id to ordered set for new tx
-  if (isNew) {
-    const orderedTxs = orderBy(txs.byId, 'blockTime', ['desc'])
-    const index = orderedTxs.findIndex(
-      tx => serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data) === txIndex,
-    )
-    txs.ids.splice(index, 0, txIndex)
-  }
-
-  // for a given tx, find all the related assetIds, and keep an index of
-  // txids related to each asset id
-  getRelatedAssetIds(tx).forEach(relatedAssetId =>
-    deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
-  )
-
-  // update the min tx blocktime
-  const hydrationMetadataForAccountId = hydrationMeta[accountId]
-  if (
-    hydrationMetadataForAccountId === undefined ||
-    tx.blockTime < (hydrationMetadataForAccountId.minTxBlockTime ?? Infinity)
-  ) {
-    hydrationMeta[accountId] = {
-      isHydrated: false,
-      isErrored: false,
-      minTxBlockTime: tx.blockTime,
-    }
-  }
-}
-
 const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: AccountId) => {
   const { txs, hydrationMeta } = txHistory
 
-  const filteredIncomingTxsWithIndex = incomingTxs
-    .filter(tx => !checkIsSpam(tx))
-    .map(tx => {
-      const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
-      return { tx, txIndex }
-    })
-
+  let newTxAdded = false
   let minTxBlockTime = Infinity
+  for (const tx of incomingTxs) {
+    if (checkIsSpam(tx)) continue
+    if (tx.blockTime < minTxBlockTime) minTxBlockTime = tx.blockTime
 
-  for (const { txIndex, tx } of filteredIncomingTxsWithIndex) {
-    if (minTxBlockTime > tx.blockTime) {
-      minTxBlockTime = tx.blockTime
-    }
+    const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
 
-    const isNew = !txs.byId[txIndex]
-
-    if (!isNew) continue
+    // track if new transactions have been added to prompt (re)sort of ids
+    if (newTxAdded === false && !txs.byId[txIndex]) newTxAdded = true
 
     // update or insert tx
     txs.byId[txIndex] = tx
 
-    // for a given tx, find all the related assetIds, and keep an index of
-    // txids related to each asset id
+    // find all the related assetIds, and keep an index of txids related to each assetId
     getRelatedAssetIds(tx).forEach(relatedAssetId =>
       deepUpsertArray(txs.byAccountIdAssetId, accountId, relatedAssetId, txIndex),
     )
   }
 
-  const getBlockTime = ([_, tx]: [string, Tx]) => tx.blockTime
-  txs.ids = orderBy(Object.entries(txs.byId), getBlockTime, 'desc').map(([txIndex, _]) => txIndex)
+  // (re)sort ids by block timestamp if any new transaction were added
+  if (newTxAdded) {
+    const getBlockTime = ([_, tx]: [string, Tx]) => tx.blockTime
+    txs.ids = orderBy(Object.entries(txs.byId), getBlockTime, 'desc').map(([txIndex, _]) => txIndex)
+  }
 
   // update the min tx block time if required
-  const hydrationMetadataForAccountId = hydrationMeta[accountId]
-  if (
-    minTxBlockTime < Infinity &&
-    (hydrationMetadataForAccountId === undefined ||
-      minTxBlockTime < (hydrationMetadataForAccountId.minTxBlockTime ?? Infinity))
-  ) {
+  if (minTxBlockTime < (hydrationMeta[accountId]?.minTxBlockTime ?? Infinity)) {
     hydrationMeta[accountId] = {
       isHydrated: false,
       isErrored: false,
@@ -233,8 +176,9 @@ export const txHistory = createSlice({
     clear: () => {
       return initialState
     },
-    onMessage: (txState, { payload }: TxMessage) =>
-      updateOrInsertTx(txState, payload.message, payload.accountId),
+    onMessage: (txState, { payload }: TxMessage) => {
+      updateOrInsertTxs(txState, [payload.message], payload.accountId)
+    },
     upsertTxsByAccountId: (txState, { payload }: TxsMessage) => {
       for (const [accountId, txs] of Object.entries(payload)) {
         updateOrInsertTxs(txState, txs, accountId)
@@ -295,11 +239,8 @@ export const txHistoryApi = createApi({
                 const state = getState() as State
                 const txsById = state.txHistory.txs.byId
 
-                // TODO: Another edge case exists where the status of a transaction has changed since it was last cached.
-                // We'll need to re-fetch all transactions in history which aren't completed (success or fail) to updated them.
                 const hasTx = transactions.some(
-                  tx =>
-                    txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)] !== undefined,
+                  tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
                 )
 
                 const results: TransactionsByAccountId = { [accountId]: transactions }
@@ -308,11 +249,20 @@ export const txHistoryApi = createApi({
                 /**
                  * We have run into a transaction that already exists in the store, stop fetching more history
                  *
-                 * TODO: An edge case exists if there was an error fetching transaction history after at least one page was fetched.
-                 * We will think we ran into the latest existing transaction in the store and stop fetching,
-                 * but all transaction history after the failed response on the initial `getAllTxHistory` call will still be missing.
+                 * Two edge cases exist currently:
+                 *
+                 * 1) If there was an error fetching transaction history after at least one page was fetched,
+                 * the user would be missing all transactions thereafter. The next time we fetch tx history,
+                 * we will think we ran into the latest existing transaction in the store and stop fetching.
+                 * This means we will never upsert those missing transactions until the cache is cleared and
+                 * they are successfully fetched again.
                  *
                  * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
+                 *
+                 * 2) Cached pending transactions will not be updated to completed if they are older than the
+                 * last page found containing cached transactions.
+                 *
+                 * We can either invalidate tx history and refetch all, or refetch on a per transaction basis any cached pending txs
                  */
                 if (hasTx) break
 

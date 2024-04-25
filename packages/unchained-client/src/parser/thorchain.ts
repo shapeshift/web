@@ -139,7 +139,8 @@ export class Parser {
         }
       }
       case 'add':
-      case '+': {
+      case '+':
+      case 'a': {
         const [, pool] = memo.split(':')
         const type = getLiquidityType(pool)
         return { data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type } } }

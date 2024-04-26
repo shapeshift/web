@@ -8,7 +8,6 @@ export const getQuoteErrorTranslation = (
   tradeQuoteError: ErrorWithMeta<TradeQuoteError>,
 ): string | [string, InterpolationOptions] => {
   const error = tradeQuoteError.error
-  console.log({ error })
   const translationKey = (() => {
     switch (error) {
       case SwapperTradeQuoteError.UnsupportedTradePair:

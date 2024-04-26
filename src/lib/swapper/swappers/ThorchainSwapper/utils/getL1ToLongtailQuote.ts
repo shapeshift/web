@@ -12,7 +12,6 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import { isFulfilled, isRejected, isResolvedErr } from 'lib/utils'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
@@ -130,19 +129,9 @@ export const getL1ToLongtailQuote = async (
         finalAssetPrecision: buyAsset.precision,
       })
 
-      const { data, router, vault } = await getEvmThorTxInfo({
-        sellAsset,
-        sellAmountCryptoBaseUnit,
-        memo: updatedMemo,
-        expiry: quote.expiry,
-      })
-
       return Ok({
         ...quote,
         memo: updatedMemo,
-        data,
-        router,
-        vault,
         aggregator: bestAggregator,
         steps: quote.steps.map(s => ({
           ...s,

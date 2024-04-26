@@ -24,6 +24,7 @@ import { getConfig } from 'config'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getThorTxInfo as getEvmThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/evm/utils/getThorTxData'
 import { getThorTxInfo as getUtxoThorTxInfo } from 'lib/swapper/swappers/ThorchainSwapper/utxo/utils/getThorTxData'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
@@ -78,6 +79,7 @@ export const thorchainApi: SwapperApi = {
       steps,
       memo: tcMemo,
       tradeType,
+      expiry,
       longtailData,
       slippageTolerancePercentageDecimal,
     } = tradeQuote as ThorEvmTradeQuote
@@ -161,16 +163,23 @@ export const thorchainApi: SwapperApi = {
         }
       }
       case TradeType.L1ToLongTail:
-        assert(router, 'router required for l1 to thorchain longtail swaps')
-
         const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? 0n
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
         assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
 
+        const { data: dataWithAmountOut, router: updatedRouter } = await getEvmThorTxInfo({
+          sellAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+        })
+
+        assert(router, 'router required for l1 to thorchain longtail swaps')
+
         const feeData = await getFees({
           adapter: assertGetEvmChainAdapter(chainId),
-          data,
-          to: router,
+          data: dataWithAmountOut,
+          to: updatedRouter,
           value,
           from,
           supportsEIP1559,
@@ -178,9 +187,9 @@ export const thorchainApi: SwapperApi = {
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),
-          data,
+          data: dataWithAmountOut,
           from,
-          to: router,
+          to: updatedRouter,
           value,
           ...feeData,
         }

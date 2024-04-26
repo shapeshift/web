@@ -209,8 +209,6 @@ export const validateTradeQuote = async (
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 
-  debugger
-
   const feesExceedsSellAmount =
     bnOrZero(sellAmountCryptoBaseUnit).isGreaterThan(0) &&
     bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)

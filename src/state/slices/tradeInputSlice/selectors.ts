@@ -126,9 +126,6 @@ export const selectSecondHopSellAccountId = createSelector(
   },
 )
 
-// TODO: this isn't true for multi-hops
-export const selectLastHopSellAccountId = selectFirstHopSellAccountId
-
 // selects the account ID we're buying into for the last hop
 export const selectLastHopBuyAccountId = createSelector(
   selectTradeInput,

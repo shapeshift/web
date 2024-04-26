@@ -50,7 +50,7 @@ import {
   selectMarketDataUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
-import { selectFeatureFlags } from '../selectors'
+import { selectFeatureFlags } from '../preferencesSlice/selectors'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
 

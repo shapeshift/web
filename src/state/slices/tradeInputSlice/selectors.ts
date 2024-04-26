@@ -4,6 +4,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import { selectAccountNumberParamFromFilter, selectChainIdParamFromFilter } from 'state/selectors'
 
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -19,6 +20,7 @@ import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '../portfolioSlice/utils'
+// import { selectIsActiveQuoteMultiHop } from '../tradeQuoteSlice/selectors'
 
 const selectTradeInput = (state: ReduxState) => state.tradeInput
 
@@ -99,9 +101,32 @@ export const selectFirstHopSellAccountId = createSelector(
   },
 )
 
-// selects the account ID we're selling from for the other hops
-// for posterity, every hop always sells from the same account as the first hop
-export const selectSecondHopSellAccountId = selectFirstHopSellAccountId
+// if multi-hop, selects the account ID we're selling from for fee asset of the last hop and its account number
+// else, selects the AccountId from the first hop
+export const selectSecondHopSellAccountId = createSelector(
+  selectAccountNumberParamFromFilter,
+  selectAccountIdByAccountNumberAndChainId,
+  selectChainIdParamFromFilter,
+  // selectIsActiveQuoteMultiHop,
+  selectFirstHopSellAccountId,
+  (
+    sellAssetAccountNumber,
+    sellAssetAccountIds,
+    sellAssetChainId,
+    // isMultiHopTrade,
+    firstHopSellAccountId,
+  ) => {
+    // TODO(gomes): fix circular deps here
+    const isMultiHopTrade = true
+    if (!isMultiHopTrade) return firstHopSellAccountId
+    if (sellAssetAccountNumber === undefined) return
+    if (!sellAssetChainId) return
+    const chainIdAccountNumbers = sellAssetAccountIds[sellAssetAccountNumber]
+    return chainIdAccountNumbers?.[sellAssetChainId]
+  },
+)
+
+// TODO: this isn't true for multi-hops
 export const selectLastHopSellAccountId = selectFirstHopSellAccountId
 
 // selects the account ID we're buying into for the last hop

@@ -17,11 +17,18 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectFirstHopSellAccountId,
+  selectPortfolioAccountMetadataByAccountId,
+  selectSecondHopSellAccountId,
+} from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
-  selectHopSellAccountId,
+  selectIsActiveQuoteMultiHop,
+  selectSecondHop,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -38,7 +45,27 @@ export const useTradeExecution = (hopIndex: number) => {
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
 
-  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
+  const secondHop = useAppSelector(selectSecondHop)
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  // TODO(gomes): this is temporary while devving - we should use the previous selectHopSellAccountId selector, if arity is happy there,
+  // else fix it and still use it because this is ugly
+  const firstHopSellAssetAccountId = useAppSelector(state => selectFirstHopSellAccountId(state))
+
+  // the network fee asset for the second hop in the trade
+  const secondHopSellFeeAsset = useAppSelector(state =>
+    isMultiHopTrade && secondHop
+      ? selectFeeAssetById(state, secondHop?.sellAsset.assetId)
+      : undefined,
+  )
+
+  const secondHopSellAssetAccountId = useAppSelector(state =>
+    selectSecondHopSellAccountId(state, {
+      chainId: secondHopSellFeeAsset?.chainId,
+      accountNumber: secondHop?.accountNumber,
+    }),
+  )
+  const sellAssetAccountId =
+    hopIndex === 0 ? firstHopSellAssetAccountId : secondHopSellAssetAccountId
 
   const accountMetadataFilter = useMemo(
     () => ({ accountId: sellAssetAccountId }),

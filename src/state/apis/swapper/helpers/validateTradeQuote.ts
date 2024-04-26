@@ -137,7 +137,10 @@ export const validateTradeQuote = async (
 
   // this is the account we're selling from - network fees are paid from the sell account for the current hop
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
-  const secondHopSellAccountId = selectSecondHopSellAccountId(state)
+  const secondHopSellAccountId = selectSecondHopSellAccountId(state, {
+    chainId: secondHopSellFeeAsset?.chainId,
+    accountNumber: secondHop?.accountNumber,
+  })
 
   const firstHopAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
     assetId: firstHop.sellAsset.assetId,
@@ -205,6 +208,8 @@ export const validateTradeQuote = async (
     bnOrZero(secondHopFeeAssetBalancePrecision)
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
+
+  debugger
 
   const feesExceedsSellAmount =
     bnOrZero(sellAmountCryptoBaseUnit).isGreaterThan(0) &&

@@ -102,6 +102,7 @@ export const Footer: FC<FooterProps> = ({ handleSubmit }) => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
+  console.log({ tradeExecutionState })
   const isLoading = useMemo(
     () => tradeExecutionState === TradeExecutionState.Initializing,
     [tradeExecutionState],

@@ -1,7 +1,11 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
-import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
+import {
+  selectFeeAssetById,
+  selectFirstHopSellAccountId,
+  selectSecondHopSellAccountId,
+} from 'state/slices/selectors'
 import {
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
@@ -47,7 +51,19 @@ export const useIsApprovalInitiallyNeeded = () => {
   const secondHop = useAppSelector(selectSecondHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const firstHopSellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const secondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
+
+  // the network fee asset for the second hop in the trade
+  const secondHopSellFeeAsset = useAppSelector(state =>
+    isMultiHopTrade && secondHop
+      ? selectFeeAssetById(state, secondHop?.sellAsset.assetId)
+      : undefined,
+  )
+  const secondHopSellAssetAccountId = useAppSelector(state =>
+    selectSecondHopSellAccountId(state, {
+      chainId: secondHopSellFeeAsset?.chainId,
+      accountNumber: secondHop?.accountNumber,
+    }),
+  )
 
   const {
     isLoading: isFirstHopLoading,

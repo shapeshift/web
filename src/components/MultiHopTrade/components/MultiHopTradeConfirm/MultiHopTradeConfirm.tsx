@@ -40,6 +40,8 @@ export const MultiHopTradeConfirm = memo(() => {
 
   const { isLoading } = useIsApprovalInitiallyNeeded()
 
+  console.log({ isLoading })
+
   useEffect(() => {
     if (isLoading) return
 

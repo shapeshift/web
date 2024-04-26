@@ -206,7 +206,7 @@ export const Deposit: React.FC<DepositProps> = ({
       memo: thorchainSaversDepositQuote?.memo,
       fromAddress,
       action: 'depositSavers',
-      enabled: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
+      enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
     })
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms

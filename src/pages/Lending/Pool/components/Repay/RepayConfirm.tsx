@@ -256,7 +256,7 @@ export const RepayConfirm = ({
     // no explicit from address required for repayments
     fromAddress: '',
     action: 'repayLoan',
-    disableRefetch: isLoanPending,
+    disableEstimateFeesRefetch: isLoanPending,
   })
 
   const handleConfirm = useCallback(async () => {

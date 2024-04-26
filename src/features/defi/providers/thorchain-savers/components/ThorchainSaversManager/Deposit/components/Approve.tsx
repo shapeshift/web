@@ -117,7 +117,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     memo: thorchainSaversDepositQuote?.memo,
     fromAddress: '',
     action: 'depositSavers',
-    enabled: false,
+    enableEstimateFees: false,
   })
 
   const handleApprove = useCallback(async () => {

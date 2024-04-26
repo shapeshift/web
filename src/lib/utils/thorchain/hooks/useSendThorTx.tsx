@@ -55,8 +55,8 @@ type UseSendThorTxProps = {
   action: Action
   amountCryptoBaseUnit: string | undefined
   assetId: AssetId | undefined
-  enabled?: boolean
-  disableRefetch?: boolean
+  enableEstimateFees?: boolean
+  disableEstimateFeesRefetch?: boolean
   fromAddress: string | null
   memo: string | undefined
 }
@@ -66,8 +66,8 @@ export const useSendThorTx = ({
   action,
   amountCryptoBaseUnit,
   assetId,
-  enabled = true,
-  disableRefetch,
+  enableEstimateFees = true,
+  disableEstimateFeesRefetch,
   fromAddress,
   memo,
 }: UseSendThorTxProps) => {
@@ -247,8 +247,8 @@ export const useSendThorTx = ({
     memo: estimateFeesArgs?.memo ?? '',
     accountId: estimateFeesArgs?.accountId ?? '',
     contractAddress: estimateFeesArgs?.contractAddress ?? '',
-    enabled: Boolean(estimateFeesArgs && enabled),
-    disableRefetch: Boolean(txId || disableRefetch),
+    enabled: Boolean(estimateFeesArgs && enableEstimateFees),
+    disableRefetch: Boolean(txId || disableEstimateFeesRefetch),
   })
 
   const executeTransaction = useCallback(async () => {

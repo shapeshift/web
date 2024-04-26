@@ -188,7 +188,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     memo,
     fromAddress,
     action: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
-    disableRefetch: isSubmitting,
+    disableEstimateFeesRefetch: isSubmitting,
   })
 
   const { mutateAsync } = useMutation({

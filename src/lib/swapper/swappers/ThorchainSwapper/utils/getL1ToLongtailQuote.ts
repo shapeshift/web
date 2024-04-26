@@ -1,4 +1,4 @@
-import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, MultiHopTradeQuoteSteps } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -36,6 +36,8 @@ export const getL1ToLongtailQuote = async (
     slippageTolerancePercentageDecimal,
   } = input
 
+  const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
   /*
     We only support L1 -> ethereum longtail swaps for now.
   */
@@ -43,6 +45,17 @@ export const getL1ToLongtailQuote = async (
     return Err(
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - Unsupported chainId ${buyAsset.chainId}.`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { buyAssetChainId: buyAsset.chainId },
+      }),
+    )
+  }
+
+  // Due to memo 80 bytes limit we don't support UTXO for now
+  if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Unsupported chain namespace ${chainNamespace}.`,
         code: TradeQuoteError.UnsupportedChain,
         details: { buyAssetChainId: buyAsset.chainId },
       }),

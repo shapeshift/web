@@ -163,7 +163,7 @@ export const Deposit: React.FC<DepositProps> = ({
   })
 
   useEffect(() => {
-    if (!inputValues || !accountId) return
+    if (!accountId) return
     ;(async () => {
       const isApprovalRequired = await (async () => {
         // Router contract address is only set in case we're depositting a token, not a native asset
@@ -176,7 +176,9 @@ export const Deposit: React.FC<DepositProps> = ({
           chainId: asset.chainId,
         })
 
-        const cryptoAmountBaseUnit = toBaseUnit(inputValues.cryptoAmount, asset.precision)
+        const cryptoAmountBaseUnit = toBaseUnit(inputValues?.cryptoAmount, asset.precision)
+
+        if (bnOrZero(allowanceOnChainCryptoBaseUnit).eq(0)) return true
         if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit)) return true
 
         return false

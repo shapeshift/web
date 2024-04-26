@@ -501,7 +501,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     memo,
     fromAddress: poolAssetAccountAddress ?? null,
     action: 'addLiquidity',
-    enableEstimateFees: !isApprovalRequired && incompleteSide !== AsymSide.Rune,
+    enableEstimateFees: Boolean(
+      actualAssetDepositAmountCryptoPrecision &&
+        !isApprovalRequired &&
+        incompleteSide !== AsymSide.Rune,
+    ),
   })
 
   const hasEnoughAssetBalance = useMemo(() => {

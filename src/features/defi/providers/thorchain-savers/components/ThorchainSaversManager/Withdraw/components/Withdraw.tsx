@@ -289,7 +289,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       if (!dispatch) return false
       if (!accountId) return false
       if (!opportunityData) return false
-      if (!estimatedFeesData) return false
       if (!safeOutboundFeeCryptoBaseUnit) return false
 
       try {
@@ -387,7 +386,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       asset,
       chainId,
       dispatch,
-      estimatedFeesData,
       fromAddress,
       opportunityData,
       queryClient,

@@ -11,6 +11,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import pDebounce from 'p-debounce'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -428,6 +429,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [_validateCryptoAmount, dispatch],
   )
 
+  const validateCryptoAmountDebounced = useMemo(
+    () => pDebounce(validateCryptoAmount, 500),
+    [validateCryptoAmount],
+  )
+
   const missingFundsForGasTranslation: TextPropTypes['translation'] = useMemo(
     () => [
       'modals.confirm.missingFundsForGas',
@@ -515,20 +521,25 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [_validateFiatAmount, dispatch],
   )
 
+  const validateFiatAmountDebounced = useMemo(
+    () => pDebounce(validateFiatAmount, 500),
+    [validateFiatAmount],
+  )
+
   const cryptoInputValidation = useMemo(
     () => ({
       required: true,
-      validate: { validateCryptoAmount },
+      validate: { validateCryptoAmountDebounced },
     }),
-    [validateCryptoAmount],
+    [validateCryptoAmountDebounced],
   )
 
   const fiatInputValidation = useMemo(
     () => ({
       required: true,
-      validate: { validateFiatAmount },
+      validate: { validateFiatAmountDebounced },
     }),
-    [validateFiatAmount],
+    [validateFiatAmountDebounced],
   )
 
   if (!state) return null

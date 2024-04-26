@@ -57,7 +57,6 @@ export const getL1ToLongtailQuote = async (
       makeSwapErrorRight({
         message: `[getThorTradeQuote] - Unsupported chain namespace ${chainNamespace}.`,
         code: TradeQuoteError.UnsupportedChain,
-        details: { buyAssetChainId: buyAsset.chainId },
       }),
     )
   }

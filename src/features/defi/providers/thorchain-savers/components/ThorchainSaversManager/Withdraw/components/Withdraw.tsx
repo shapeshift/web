@@ -418,9 +418,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
+      if (!dispatch) return
+
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       return _validateCryptoAmount(value).finally(() => {
-        dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       })
     },
     [_validateCryptoAmount, dispatch],
@@ -503,9 +505,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
+      if (!dispatch) return
+
+      dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       return _validateFiatAmount(value).finally(() => {
-        dispatch?.({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
+        dispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: false })
       })
     },
     [_validateFiatAmount, dispatch],

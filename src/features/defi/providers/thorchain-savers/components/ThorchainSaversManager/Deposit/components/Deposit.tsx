@@ -474,9 +474,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      if (!contextDispatch) return
+
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       return _validateCryptoAmount(value).finally(() => {
-        contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       })
     },
     [_validateCryptoAmount, contextDispatch],
@@ -550,9 +552,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      if (!contextDispatch) return
+
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
       return _validateFiatAmount(value).finally(() => {
-        contextDispatch?.({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       })
     },
     [_validateFiatAmount, contextDispatch],

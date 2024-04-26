@@ -10,6 +10,20 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
+      const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
+      const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
+    })
+
     it('processes with affiliate name and no fee bps', () => {
       let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss'
       let expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
@@ -40,6 +54,20 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
+      const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345'
+      const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
+    })
+
     it('processes with wrong affiliate name', () => {
       const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:bad:50'
       const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
@@ -52,6 +80,20 @@ describe('assertAndProcessMemo', () => {
       const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
       const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
+      const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
+      const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('processes with affiliate name and with no fee bps', () => {
@@ -68,6 +110,20 @@ describe('assertAndProcessMemo', () => {
       const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:::50'
       const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
+      const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
+      const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('processes with no affiliate name and with no fee bps', () => {
@@ -100,6 +156,20 @@ describe('assertAndProcessMemo', () => {
       const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
       const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
+      const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
+      const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('processes with affiliate name and with no fee bps', () => {
@@ -136,6 +206,20 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
+      const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
+      const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
+    })
+
     it('processes with paired address', () => {
       const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:pairedAddr:ss:50'
       const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:pairedAddr:ss:50'
@@ -154,6 +238,20 @@ describe('assertAndProcessMemo', () => {
       const memo = '-:ETH/ETH:5000::ss:50'
       const expected = '-:ETH/ETH:5000::ss:0'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
+      const memo = '-:ETH/ETH:5000::ss:50'
+      const expected = '-:ETH/ETH:5000::ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('processes with affiliate name and with no fee bps', () => {
@@ -190,6 +288,20 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
+      const memo = '-:ETH/ETH:5000'
+      const expected = '-:ETH/ETH:5000::ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
+    })
+
     it('processes with wrong affiliate name', () => {
       const memo = '-:ETH/ETH:5000::bad:0'
       const expected = '-:ETH/ETH:5000::ss:0'
@@ -202,6 +314,20 @@ describe('assertAndProcessMemo', () => {
       const memo = '-:ETH.ETH:5000::ss:50'
       const expected = '-:ETH.ETH:5000::ss:0'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
+      const memo = '-:ETH.ETH:5000::ss:50'
+      const expected = '-:ETH.ETH:5000::ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('processes with affiliate name and with no fee bps', () => {
@@ -238,6 +364,20 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
+      const memo = '-:ETH.ETH:5000'
+      const expected = '-:ETH.ETH:5000::ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
+    })
+
     it('processes with asset', () => {
       const memo = '-:ETH.ETH:5000:ETH.ETH:ss:0'
       const expected = '-:ETH.ETH:5000:ETH.ETH:ss:0'
@@ -258,6 +398,22 @@ describe('assertAndProcessMemo', () => {
       const expected =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
+      const memo =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
+      const expected =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('processes with affiliate name and with no fee bps', () => {
@@ -302,6 +458,22 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
+      const memo =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345'
+      const expected =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
+    })
+
     it('processes with wrong affiliate name', () => {
       const memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::bad:50'
@@ -316,6 +488,20 @@ describe('assertAndProcessMemo', () => {
       const memo = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:50'
       const expected = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:0'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with affiliate name and fee bps', () => {
+      const memo = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:50'
+      const expected = '$-:BTC.BTC:1JBYZbazQAh9z59jnc7fvFSj2sTzKvVsgr:9786345:ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('process with affiliate name and with no fee bps', () => {
@@ -346,6 +532,20 @@ describe('assertAndProcessMemo', () => {
       memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345::'
       expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should gracefully handle being called multiple times in a row - with no affiliate name and no fee bps', () => {
+      const memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345'
+      const expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
+
+      const first = assertAndProcessMemo(memo)
+      expect(first).toBe(expected)
+      const second = assertAndProcessMemo(first)
+      expect(second).toBe(expected)
+      const third = assertAndProcessMemo(second)
+      expect(third).toBe(expected)
+      const fourth = assertAndProcessMemo(third)
+      expect(fourth).toBe(expected)
     })
 
     it('processes with wrong affiliate name', () => {

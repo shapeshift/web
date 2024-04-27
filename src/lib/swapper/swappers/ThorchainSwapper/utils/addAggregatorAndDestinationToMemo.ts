@@ -65,10 +65,10 @@ export const addAggregatorAndDestinationToMemo = ({
     'expected finalAssetLimitWithManualSlippage to be a positive amount',
   )
 
-  const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 3, aggregator.length - 1)
+  const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 2, aggregator.length)
   const finalAssetAddressLastTwoChars = finalAssetAddress.slice(
-    finalAssetAddress.length - 3,
-    finalAssetAddress.length - 1,
+    finalAssetAddress.length - 2,
+    finalAssetAddress.length,
   )
   const shortenedPool = poolToShortenedPool[pool as keyof typeof poolToShortenedPool]
 
@@ -92,10 +92,9 @@ export const addAggregatorAndDestinationToMemo = ({
   const memoBytesLength = new Blob([memo]).size
 
   // UTXO only supports 80 bytes memo and we don't want to lose more precision
-  assert(
-    memoBytesLength <= UTXO_MAXIMUM_BYTES_LENGTH && chainNamespace === CHAIN_NAMESPACE.Utxo,
-    'memo is too long',
-  )
+  if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
+    assert(memoBytesLength <= UTXO_MAXIMUM_BYTES_LENGTH, 'memo is too long')
+  }
 
   return memo
 }

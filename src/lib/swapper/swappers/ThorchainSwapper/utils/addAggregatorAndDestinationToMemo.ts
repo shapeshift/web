@@ -1,3 +1,4 @@
+import { CHAIN_NAMESPACE, type ChainNamespace } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
@@ -5,7 +6,9 @@ import type { Address } from 'viem'
 import { fromBaseUnit } from 'lib/math'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
+import { UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
+import { poolToShortenedPool } from './longTailHelpers'
 
 export const addAggregatorAndDestinationToMemo = ({
   quotedMemo,
@@ -14,6 +17,7 @@ export const addAggregatorAndDestinationToMemo = ({
   minAmountOut,
   slippageBps,
   finalAssetPrecision,
+  chainNamespace,
 }: {
   slippageBps: BigNumber.Value
   quotedMemo: string | undefined
@@ -21,6 +25,7 @@ export const addAggregatorAndDestinationToMemo = ({
   finalAssetAddress: Address
   minAmountOut: string
   finalAssetPrecision: number
+  chainNamespace: ChainNamespace
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
 
@@ -60,20 +65,37 @@ export const addAggregatorAndDestinationToMemo = ({
     'expected finalAssetLimitWithManualSlippage to be a positive amount',
   )
 
+  const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 3, aggregator.length - 1)
+  const finalAssetAddressLastTwoChars = finalAssetAddress.slice(
+    finalAssetAddress.length - 3,
+    finalAssetAddress.length - 1,
+  )
+  const shortenedPool = poolToShortenedPool[pool as keyof typeof poolToShortenedPool]
+
+  assert(shortenedPool, 'cannot find shortened pool name')
+
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
   // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
   const memo = [
     prefix,
-    pool,
+    shortenedPool,
     address,
     nativeAssetLimitWithManualSlippage,
     affiliate,
     affiliateBps,
-    aggregator,
-    finalAssetAddress,
+    aggregatorLastTwoChars,
+    finalAssetAddressLastTwoChars,
     finalAssetLimitWithTwoLastNumbersAsExponent,
   ].join(MEMO_PART_DELIMITER)
+
+  const memoBytesLength = new Blob([memo]).size
+
+  // UTXO only supports 80 bytes memo and we don't want to lose more precision
+  assert(
+    memoBytesLength <= UTXO_MAXIMUM_BYTES_LENGTH && chainNamespace === CHAIN_NAMESPACE.Utxo,
+    'memo is too long',
+  )
 
   return memo
 }

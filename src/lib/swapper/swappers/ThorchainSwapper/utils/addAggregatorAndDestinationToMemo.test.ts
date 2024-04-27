@@ -1,3 +1,4 @@
+import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { addAggregatorAndDestinationToMemo } from './addAggregatorAndDestinationToMemo'
@@ -6,6 +7,8 @@ import { MEMO_PART_DELIMITER } from './constants'
 const RECEIVE_ADDRESS = '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6'
 const AGGREGATOR_ADDRESS = '0xd31f7e39afECEc4855fecc51b693F9A0Cec49fd2'
 const FINAL_ASSET_ADDRESS = '0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741'
+const AGGREGATOR_TWO_LAST_CHARS = 'd2'
+const FINAL_ASSET_TWO_LAST_CHARS = '41'
 
 describe('addAggregatorAndDestinationToMemo', () => {
   it('should add aggregator address, destination address and minAmountOut correctly', () => {
@@ -23,10 +26,11 @@ describe('addAggregatorAndDestinationToMemo', () => {
       minAmountOut,
       slippageBps,
       finalAssetPrecision: 9,
+      chainNamespace: CHAIN_NAMESPACE.Evm,
     })
 
     expect(modifiedMemo).toBe(
-      `=${MEMO_PART_DELIMITER}ETH.ETH${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${finalExpectedAmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_ADDRESS}${MEMO_PART_DELIMITER}${FINAL_ASSET_ADDRESS}${MEMO_PART_DELIMITER}941367103`,
+      `=${MEMO_PART_DELIMITER}e${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${finalExpectedAmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}941367103`,
     )
   })
 
@@ -45,10 +49,11 @@ describe('addAggregatorAndDestinationToMemo', () => {
       minAmountOut,
       slippageBps,
       finalAssetPrecision: 18,
+      chainNamespace: CHAIN_NAMESPACE.Evm,
     })
 
     expect(modifiedMemo).toBe(
-      `=${MEMO_PART_DELIMITER}ETH.ETH${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${finalExpectedAmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_ADDRESS}${MEMO_PART_DELIMITER}${FINAL_ASSET_ADDRESS}${MEMO_PART_DELIMITER}206301621786412`,
+      `=${MEMO_PART_DELIMITER}e${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${finalExpectedAmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}206301621786412`,
     )
   })
 })

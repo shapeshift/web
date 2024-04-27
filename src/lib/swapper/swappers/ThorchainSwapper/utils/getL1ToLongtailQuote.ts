@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, MultiHopTradeQuoteSteps } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -47,16 +47,6 @@ export const getL1ToLongtailQuote = async (
         message: `[getThorTradeQuote] - Unsupported chainId ${buyAsset.chainId}.`,
         code: TradeQuoteError.UnsupportedChain,
         details: { buyAssetChainId: buyAsset.chainId },
-      }),
-    )
-  }
-
-  // Due to memo 80 bytes limit we don't support UTXO for now
-  if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - Unsupported chain namespace ${chainNamespace}.`,
-        code: TradeQuoteError.UnsupportedChain,
       }),
     )
   }
@@ -139,6 +129,7 @@ export const getL1ToLongtailQuote = async (
         ).toString(),
         quotedMemo: quote.memo,
         finalAssetPrecision: buyAsset.precision,
+        chainNamespace,
       })
 
       return Ok({

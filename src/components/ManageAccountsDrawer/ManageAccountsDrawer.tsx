@@ -17,7 +17,13 @@ export const ManageAccountsDrawer = ({ isOpen, onClose }: ManageAccountsDrawerPr
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
+  // TODO: Implement Ledger specific logic
   const isLedger = false
+
+  const handleClose = useCallback(() => {
+    setStep('selectChain')
+    onClose()
+  }, [onClose])
 
   const handleNext = useCallback(() => {
     switch (step) {
@@ -31,12 +37,12 @@ export const ManageAccountsDrawer = ({ isOpen, onClose }: ManageAccountsDrawerPr
         setStep('importAccounts')
         break
       case 'importAccounts':
-        onClose()
+        handleClose()
         break
       default:
         assertUnreachable(step)
     }
-  }, [isLedger, onClose, step])
+  }, [isLedger, handleClose, step])
 
   const handleSelectChainId = useCallback(
     (chainId: ChainId) => {
@@ -49,20 +55,20 @@ export const ManageAccountsDrawer = ({ isOpen, onClose }: ManageAccountsDrawerPr
   const drawerContent = useMemo(() => {
     switch (step) {
       case 'selectChain':
-        return <SelectChain onSelectChainId={handleSelectChainId} onClose={onClose} />
+        return <SelectChain onSelectChainId={handleSelectChainId} onClose={handleClose} />
       case 'ledgerOpenApp':
         // TODO: Implement LedgerOpenApp component
         return null
       case 'importAccounts':
         if (!selectedChainId) return null
-        return <ImportAccounts chainId={selectedChainId} onClose={onClose} />
+        return <ImportAccounts chainId={selectedChainId} onClose={handleClose} />
       default:
         assertUnreachable(step)
     }
-  }, [handleSelectChainId, onClose, selectedChainId, step])
+  }, [handleSelectChainId, handleClose, selectedChainId, step])
 
   return (
-    <DrawerWrapper isOpen={isOpen} onClose={onClose}>
+    <DrawerWrapper isOpen={isOpen} onClose={handleClose}>
       {drawerContent}
     </DrawerWrapper>
   )

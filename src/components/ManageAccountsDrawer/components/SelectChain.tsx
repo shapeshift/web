@@ -83,7 +83,7 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
     setSearchTermChainIds(filterChainIdsBySearchTerm(searchString, walletSupportedChainIds))
   }, [searchString, searching, walletSupportedChainIds])
 
-  const handleClickDone = useCallback(() => {
+  const handleClickNext = useCallback(() => {
     // This should never happen, but just in case.
     if (!selectedChainId) return
 
@@ -112,7 +112,7 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
         </Button>
         <Button
           colorScheme='blue'
-          onClick={handleClickDone}
+          onClick={handleClickNext}
           isDisabled={selectedChainId === null}
           _disabled={disabledProp}
         >
@@ -120,7 +120,7 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
         </Button>
       </>
     )
-  }, [handleClickDone, onClose, selectedChainId, translate])
+  }, [handleClickNext, onClose, selectedChainId, translate])
 
   const body = useMemo(() => {
     return (

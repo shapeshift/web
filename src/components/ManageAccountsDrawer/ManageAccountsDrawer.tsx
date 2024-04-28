@@ -55,11 +55,7 @@ export const ManageAccountsDrawer = ({ isOpen, onClose }: ManageAccountsDrawerPr
   const drawerContent = useMemo(() => {
     switch (step) {
       case 'selectChain':
-<<<<<<< HEAD
         return <SelectChain onSelectChainId={handleSelectChainId} onClose={handleClose} />
-=======
-        return <SelectChain onSelectChainId={handleSelectChainId} onClose={onClose} />
->>>>>>> c2805a1157 (feat: improve select chain next and cancel buttons)
       case 'ledgerOpenApp':
         // TODO: Implement LedgerOpenApp component
         return null

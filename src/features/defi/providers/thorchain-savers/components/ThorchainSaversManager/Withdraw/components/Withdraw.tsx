@@ -127,6 +127,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const assetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId),
   )
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
+
+  const assetPriceInFeeAsset = useMemo(() => {
+    return bn(assetMarketData.price).div(feeAssetMarketData.price)
+  }, [assetMarketData.price, feeAssetMarketData.price])
+
   const fiatAmountAvailable = useMemo(
     () => bnOrZero(amountAvailableCryptoPrecision).times(assetMarketData.price),
     [amountAvailableCryptoPrecision, assetMarketData.price],
@@ -180,12 +188,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     fromAddress,
     action: 'withdrawSavers',
   })
-
-  const safeOutboundFeeCryptoBaseUnit = useMemo(() => {
-    if (!outboundFeeCryptoBaseUnit) return
-    // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
-    return bnOrZero(outboundFeeCryptoBaseUnit).times(1.05).toFixed()
-  }, [outboundFeeCryptoBaseUnit])
 
   const isSweepNeededArgs = useMemo(
     () => ({
@@ -284,12 +286,31 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [amountAvailableCryptoPrecision, assetMarketData, setValue],
   )
 
+  const outboundFeeInAssetCryptoBaseUnit = useMemo(() => {
+    if (!asset) return bn(0)
+    if (!feeAsset) return bn(0)
+    if (!outboundFeeCryptoBaseUnit) return bn(0)
+
+    const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, feeAsset.precision)
+    const outboundFeeInAssetCryptoPrecision = bn(outboundFeeCryptoPrecision).div(
+      assetPriceInFeeAsset,
+    )
+
+    return toBaseUnit(outboundFeeInAssetCryptoPrecision, asset.precision)
+  }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
+
+  const safeOutboundFeeInAssetCryptoBaseUnit = useMemo(() => {
+    if (!outboundFeeInAssetCryptoBaseUnit) return
+    // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
+    return bnOrZero(outboundFeeInAssetCryptoBaseUnit).times(1.05).toFixed()
+  }, [outboundFeeInAssetCryptoBaseUnit])
+
   const validateCryptoAmount = useCallback(
     async (value: string) => {
       if (!dispatch) return false
       if (!accountId) return false
       if (!opportunityData) return false
-      if (!safeOutboundFeeCryptoBaseUnit) return false
+      if (!safeOutboundFeeInAssetCryptoBaseUnit) return false
 
       try {
         const withdrawAmountCryptoPrecision = bnOrZero(value)
@@ -358,12 +379,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         })()
 
         const isBelowWithdrawThreshold = bn(withdrawAmountCryptoBaseUnit)
-          .minus(safeOutboundFeeCryptoBaseUnit)
+          .minus(safeOutboundFeeInAssetCryptoBaseUnit)
           .lt(0)
 
         if (isBelowWithdrawThreshold) {
           const minLimitCryptoPrecision = fromBaseUnit(
-            safeOutboundFeeCryptoBaseUnit,
+            safeOutboundFeeInAssetCryptoBaseUnit,
             asset.precision,
           )
           const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
@@ -390,7 +411,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       fromAddress,
       opportunityData,
       queryClient,
-      safeOutboundFeeCryptoBaseUnit,
+      safeOutboundFeeInAssetCryptoBaseUnit,
       translate,
     ],
   )

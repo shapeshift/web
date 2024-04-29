@@ -115,6 +115,8 @@ describe('addAggregatorAndDestinationToMemo', () => {
 
       // Memo/output
       const quotedMemo = `=:BCH.BCH:${RECEIVE_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${AGGREGATOR_ADDRESS}:${FINAL_ASSET_ADDRESS}:10`
+      const memoMinAmountOutCryptoBaseUnit = '188677585320144445511519818'
+      const memoMinAmountOutThorchainParserNotation = '18867758532014444551151981801'
 
       // Memo after processing
       const modifiedMemo = addAggregatorAndDestinationToMemo({
@@ -128,14 +130,14 @@ describe('addAggregatorAndDestinationToMemo', () => {
       })
 
       const [, , , , , , , , memoMinAmountOut] = modifiedMemo.split(MEMO_PART_DELIMITER)
-      expect(thorchainParserToBaseUnit(memoMinAmountOut)).toBe('188677585320144445511519818')
+      expect(thorchainParserToBaseUnit(memoMinAmountOut)).toBe(memoMinAmountOutCryptoBaseUnit)
 
       // Ensure the memo does not exceed 220 bytes
       expect(new Blob([modifiedMemo]).size).toBeLessThanOrEqual(220)
 
       // Optionally, check if the memo format matches the expected format exactly
       expect(modifiedMemo).toBe(
-        `=${MEMO_PART_DELIMITER}c${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${expectedL1AmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${affiliateBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}18867758532014444551151981801`,
+        `=${MEMO_PART_DELIMITER}c${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${expectedL1AmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${affiliateBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${memoMinAmountOutThorchainParserNotation}`,
       )
     })
   })

@@ -28,7 +28,9 @@ import { reactQueries } from 'react-queries'
 import { useHistory, useParams } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { Display } from 'components/Display'
 import { DynamicComponent } from 'components/DynamicComponent'
+import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
@@ -57,7 +59,7 @@ const containerPadding = { base: 6, '2xl': 8 }
 const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
 
-const PoolHeader = () => {
+const PoolHeader: React.FC<{ name?: string }> = ({ name }) => {
   const history = useHistory()
   const translate = useTranslate()
 
@@ -66,16 +68,30 @@ const PoolHeader = () => {
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
   return (
-    <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
-      <Flex gap={4} alignItems='center'>
-        <IconButton
-          icon={backIcon}
-          aria-label={translate('pools.positions')}
-          onClick={handleBack}
-        />
-        <Heading>{translate('pools.positions')}</Heading>
-      </Flex>
-    </Container>
+    <>
+      <Display.Mobile>
+        <PageHeader>
+          <PageHeader.Left>
+            <PageBackButton />
+          </PageHeader.Left>
+          <PageHeader.Middle>
+            <PageHeader.Title>{name}</PageHeader.Title>
+          </PageHeader.Middle>
+        </PageHeader>
+      </Display.Mobile>
+      <Display.Desktop>
+        <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
+          <Flex gap={4} alignItems='center'>
+            <IconButton
+              icon={backIcon}
+              aria-label={translate('pools.positions')}
+              onClick={handleBack}
+            />
+            <Heading>{translate('pools.positions')}</Heading>
+          </Flex>
+        </Container>
+      </Display.Desktop>
+    </>
   )
 }
 
@@ -191,7 +207,10 @@ export const Position = () => {
     [earnings?.totalEarningsFiat],
   )
 
-  const headerComponent = useMemo(() => <PoolHeader />, [])
+  const headerComponent = useMemo(
+    () => <PoolHeader name={position?.name ?? pool?.name ?? ''} />,
+    [pool?.name, position?.name],
+  )
 
   const TabHeader = useMemo(
     () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
@@ -232,7 +251,7 @@ export const Position = () => {
   }, [position])
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage>
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Card>

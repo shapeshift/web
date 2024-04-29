@@ -132,10 +132,9 @@ describe('addAggregatorAndDestinationToMemo', () => {
       const [, , , , , , , , memoMinAmountOut] = modifiedMemo.split(MEMO_PART_DELIMITER)
       expect(thorchainParserToBaseUnit(memoMinAmountOut)).toBe(memoMinAmountOutCryptoBaseUnit)
 
-      // Ensure the memo does not exceed 220 bytes
+      // Ensure the memo does not exceed 220 bytes for BCH
       expect(new Blob([modifiedMemo]).size).toBeLessThanOrEqual(220)
 
-      // Optionally, check if the memo format matches the expected format exactly
       expect(modifiedMemo).toBe(
         `=${MEMO_PART_DELIMITER}c${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${expectedL1AmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${affiliateBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${memoMinAmountOutThorchainParserNotation}`,
       )
@@ -170,6 +169,7 @@ describe('addAggregatorAndDestinationToMemo', () => {
       const [, , , , , , , , memoMinAmountOut] = modifiedMemo.split(MEMO_PART_DELIMITER)
       expect(thorchainParserToBaseUnit(memoMinAmountOut)).toBe(memoMinAmountOutCryptoBaseUnit)
 
+      // Ensure the memo doesn't exceed 80 bytes for DOGE/BTC/LTC
       expect(new Blob([modifiedMemo]).size).toBeLessThanOrEqual(80)
 
       expect(modifiedMemo).toBe(
@@ -202,6 +202,7 @@ describe('addAggregatorAndDestinationToMemo', () => {
       const [, , , , , , , , memoMinAmountOut] = modifiedMemo.split(MEMO_PART_DELIMITER)
       expect(thorchainParserToBaseUnit(memoMinAmountOut)).toBe(memoMinAmountOutCryptoBaseUnit)
 
+      // Ensure the memo is still under 80 bytes (you never know)
       expect(new Blob([modifiedMemo]).size).toBeLessThanOrEqual(80)
 
       expect(modifiedMemo).toBe(

@@ -67,6 +67,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
+import { convertPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { RemoveLiquidityRoutePaths } from './types'
@@ -365,7 +366,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [percentageSelection, position])
 
   const memo = useMemo(() => {
-    const withdrawalBps = bnOrZero(percentageSelection).times(100).toFixed()
+    const withdrawalBps = convertPercentageToBasisPoints(percentageSelection).toFixed()
     return `-:${poolAssetId}:${withdrawalBps}`
   }, [poolAssetId, percentageSelection])
 
@@ -563,7 +564,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
       const estimate = await estimateRemoveThorchainLiquidityPosition({
         liquidityUnits: position?.liquidityUnits,
-        bps: bnOrZero(percentageSelection).times(100).toFixed(),
+        bps: convertPercentageToBasisPoints(percentageSelection).toFixed(),
         assetId: poolAsset.assetId,
         runeAmountThorBaseUnit,
         assetAmountThorBaseUnit,
@@ -609,7 +610,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
       totalGasFeeFiatUserCurrency: totalGasFeeFiatUserCurrency.toFixed(2),
       feeBps: '0',
-      withdrawalBps: bnOrZero(percentageSelection).times(100).toString(),
+      withdrawalBps: convertPercentageToBasisPoints(percentageSelection).toString(),
       currentAccountIdByChainId,
       assetAddress: poolAssetAccountAddress,
       positionStatus: position?.status,

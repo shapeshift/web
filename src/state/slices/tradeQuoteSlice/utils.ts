@@ -14,6 +14,9 @@ export const convertDecimalPercentageToBasisPoints = (decimalPercentage: BigNumb
 export const convertBasisPointsToPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(100)
 
+export const convertPercentageToBasisPoints = (percentage: BigNumber.Value) =>
+  bnOrZero(percentage).times(100)
+
 type SumProtocolFeesToDenomArgs = {
   marketDataByAssetIdUsd: Partial<Record<AssetId, Pick<MarketData, 'price'>>>
   outputAssetPriceUsd: BigNumber.Value

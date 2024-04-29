@@ -113,6 +113,8 @@ export const useSendThorTx = ({
   })
 
   const inboundAddress = useMemo(() => {
+    if (!transactionType) return
+
     switch (transactionType) {
       case 'MsgDeposit':
         return THORCHAIN_POOL_MODULE_ADDRESS
@@ -121,7 +123,7 @@ export const useSendThorTx = ({
       case 'Send':
         return inboundAddressData?.address
       default:
-        return undefined
+        assertUnreachable(transactionType)
     }
   }, [inboundAddressData, transactionType])
 

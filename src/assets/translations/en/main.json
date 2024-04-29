@@ -304,7 +304,8 @@
     }
   },
   "manageAccounts": {
-    "menuTitle": "Manage Accounts"
+    "menuTitle": "Manage Accounts",
+    "modalTitle": "Select a Chain to Manage"
   },
   "defi": {
     "modals": {
@@ -590,7 +591,29 @@
     "buyCryptoShort": "Buy/Sell",
     "arkeo": "Arkeo Airdrop",
     "lending": "Lending",
-    "pools": "Pools"
+    "pools": "Pools",
+    "actionMenu": {
+      "send": {
+        "title": "Send",
+        "body": "Send your crypto"
+      },
+      "receive": {
+        "title": "Receive",
+        "body": "Receive crypto"
+      },
+      "trade": {
+        "title": "Trade or Bridge",
+        "body": "Trade of bridge your crypto"
+      },
+      "buy": {
+        "title": "Buy or Sell",
+        "body": "Buy or sell crypto with credit card"
+      },
+      "qrcode": {
+        "title": "Scan QR Code",
+        "body": "Easily scan to send or receive crypto"
+      }
+    }
   },
   "transactionRow": {
     "send": "Sent",
@@ -1768,10 +1791,17 @@
     "viewAccount": "View account",
     "expandAccount": "Expand account"
   },
-  "accountManagementSidebar": {
-    "title": "Import %{chainNamespaceDisplayName} Accounts",
-    "description": "Select the accounts you would like to import from the list below.",
-    "import": "Import"
+  "accountManagement": {
+    "selectChain": {
+      "title": "Select Chain",
+      "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import.",
+      "searchChains": "Search by name"
+    },
+    "importAccounts": {
+      "title": "Import %{chainNamespaceDisplayName} Accounts",
+      "description": "Select the accounts you would like to import from the list below.",
+      "import": "Import"
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2224,7 +2254,8 @@
       "repaymentsHalted": "Repayments are temporarily halted.",
       "borrowingHalted": "Borrowing is temporarily halted.",
       "repaymentsDisabled": "Repayments are temporarily disabled.",
-      "borrowingDisabled": "Borrowing is temporarily disabled."
+      "borrowingDisabled": "Borrowing is temporarily disabled.",
+      "amountTooLowToReturnCollateral": "Amount too low to return collateral"
     },
     "quote": {
       "collateral": "Total asset amount which will be secured against your loan",

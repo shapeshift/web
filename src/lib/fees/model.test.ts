@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { bn } from 'lib/bignumber/bignumber'
 
 import { calculateFees } from './model'
@@ -11,6 +11,20 @@ const {
   FEE_CURVE_MAX_FEE_BPS,
   FEE_CURVE_MIN_FEE_BPS,
 } = swapperParameters
+
+const mocks = vi.hoisted(() => {
+  return {
+    selectIsSnapshotApiQueriesRejected: vi.fn().mockReturnValue(false),
+  }
+})
+
+vi.mock('state/apis/snapshot/selectors', async importActual => {
+  const actual: Record<any, any> = await importActual()
+  return {
+    ...actual,
+    selectIsSnapshotApiQueriesRejected: mocks.selectIsSnapshotApiQueriesRejected,
+  }
+})
 
 describe('calculateFees', () => {
   it('should return 0 bps for < no fee threshold', () => {
@@ -92,9 +106,12 @@ describe('calculateFees', () => {
     expect(foxDiscountPercent).toEqual(bn(100))
   })
 
-  it('should return FEE_CURVE_MAX_FEE_BPS  for missing foxHeld and above no fee threshold', () => {
+  it('should return FEE_CURVE_MAX_FEE_BPS for failed voting power requests and above no fee threshold', () => {
     const tradeAmountUsd = bn(FEE_CURVE_NO_FEE_THRESHOLD_USD + 0.01)
-    const foxHeld = undefined
+
+    mocks.selectIsSnapshotApiQueriesRejected.mockReturnValueOnce(true)
+    const foxHeld = bn(0)
+
     const { feeBps, foxDiscountPercent } = calculateFees({
       tradeAmountUsd,
       foxHeld,

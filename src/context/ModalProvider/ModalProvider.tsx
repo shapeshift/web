@@ -162,6 +162,16 @@ const Snaps = makeSuspenseful(
   ),
 )
 
+const ManageAccountsModal = makeSuspenseful(
+  lazy(() =>
+    import('components/Modals/ManageAccounts/ManageAccountsModal').then(
+      ({ ManageAccountsModal }) => ({
+        default: ManageAccountsModal,
+      }),
+    ),
+  ),
+)
+
 const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -182,6 +192,7 @@ const MODALS: Modals = {
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
   snaps: Snaps,
+  manageAccounts: ManageAccountsModal,
 } as const
 
 export const createModalProvider = () => {

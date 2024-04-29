@@ -1,4 +1,3 @@
-import { ModalContent, ModalOverlay } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { MemoryRouter } from 'react-router-dom'
 import { Dialog } from 'components/Modal/components/Dialog'
@@ -19,12 +18,9 @@ export const QrCodeModal = ({ assetId, accountId }: QrCodeModalProps) => {
 
   return (
     <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <ModalOverlay />
-      <ModalContent maxW='500px'>
-        <MemoryRouter initialEntries={entries}>
-          <Form assetId={assetId} accountId={accountId} />
-        </MemoryRouter>
-      </ModalContent>
+      <MemoryRouter initialEntries={entries}>
+        <Form assetId={assetId} accountId={accountId} />
+      </MemoryRouter>
     </Dialog>
   )
 }

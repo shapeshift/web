@@ -1,17 +1,34 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeModelParamFromFilter } from 'state/selectors'
+import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries
 
 export const selectIsSnapshotApiQueriesPending = createSelector(selectSnapshotApiQueries, queries =>
   Object.values(queries).some(query => query?.status === QueryStatus.pending),
 )
+export const selectIsSnapshotApiQueriesRejected = createSelector(
+  selectSnapshotApiQueries,
+  queries =>
+    Object.values(queries).some(query => query?.status === QueryStatus.rejected) &&
+    !Object.values(queries).some(query => query?.status === QueryStatus.fulfilled),
+)
 
 export const selectVotingPowerByModel = (state: ReduxState) => state.snapshot.votingPowerByModel
 export const selectVotingPower = createSelector(
   selectVotingPowerByModel,
   selectFeeModelParamFromFilter,
-  (votingPowerByModel, feeModel) => votingPowerByModel[feeModel!],
+  selectAccountIdsByChainId,
+  selectIsSnapshotApiQueriesRejected,
+  (votingPowerByModel, feeModel, accountIdsbyChainId, isSnapshotApiQueriesRejected) => {
+    if (isSnapshotApiQueriesRejected) return '0'
+
+    const ethAccountIds = accountIdsbyChainId[ethChainId]
+    if (!ethAccountIds?.length) return '0'
+
+    return votingPowerByModel[feeModel!]
+  },
 )

@@ -29,11 +29,9 @@ export type SelectChainProps = {
 
 const ChainButton = ({
   chainId,
-  isActive,
   onClick,
 }: {
   chainId: ChainId
-  isActive: boolean
   onClick: (chainId: ChainId) => void
 }) => {
   const feeAssetId = chainIdToFeeAssetId(chainId)
@@ -47,7 +45,7 @@ const ChainButton = ({
   if (!feeAsset) return null
 
   return (
-    <Button height='100px' width='full' onClick={handleClick} isActive={isActive}>
+    <Button height='100px' width='full' onClick={handleClick}>
       <VStack direction='column'>
         <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
         <RawText>{chainAdapter.getDisplayName()}</RawText>

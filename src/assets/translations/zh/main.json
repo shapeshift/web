@@ -413,8 +413,7 @@
           "tooltip": "预计收益能支付手续费的时间"
         },
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
-        "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
-        "dangerousWithdrawWarning": "提款被禁止，因为 THORChain 费用可能会导致提款资金全部损失。考虑提取更高的金额以避免此问题。"
+        "cannotWithdrawWhilePendingTx": "交易待处理时无法提现"
       }
     },
     "memoNote": {

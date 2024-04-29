@@ -413,8 +413,7 @@
           "tooltip": "Tempo estimado para cobrir taxas de depósito e ganhos."
         },
         "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
-        "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
-        "dangerousWithdrawWarning": "Saque desativada porque a taxa THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema."
+        "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes"
       }
     },
     "memoNote": {

@@ -413,8 +413,7 @@
           "tooltip": "入金手数料と収益をカバーするまでの推定時間"
         },
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
-        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
-        "dangerousWithdrawWarning": "THORChainの手数料により、出金された資金が全額失われる可能性があるため、出金は無効になっています。この問題を回避するには、より多くの金額を引き出すことを検討してください。"
+        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません"
       }
     },
     "memoNote": {

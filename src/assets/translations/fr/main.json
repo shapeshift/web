@@ -413,8 +413,7 @@
           "tooltip": "Temps estimé pour couvrir les frais de dépôt et les gains."
         },
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
-        "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
-        "dangerousWithdrawWarning": "Retrait désactivé car les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème."
+        "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente"
       }
     },
     "memoNote": {

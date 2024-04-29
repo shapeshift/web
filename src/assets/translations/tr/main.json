@@ -413,8 +413,7 @@
           "tooltip": "Para yatırma ücretlerini ve kazançları karşılamak için tahmini süre."
         },
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
-        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
-        "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine yol açabileceğinden para çekme işlemi devre dışı bırakıldı. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün."
+        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz"
       }
     },
     "memoNote": {

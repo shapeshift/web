@@ -413,8 +413,7 @@
           "tooltip": "Geschätzte Zeit zur Deckung von Einzahlungsgebühren und Einnahmen."
         },
         "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
-        "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
-        "dangerousWithdrawWarning": "Die Auszahlung ist deaktiviert, da die THORChain-Gebühr zum Totalverlust der abgehobenen Gelder führen könnte. Erwägen Sie, einen höheren Betrag abzuheben, um dieses Problem zu vermeiden."
+        "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen"
       }
     },
     "memoNote": {

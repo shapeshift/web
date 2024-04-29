@@ -110,7 +110,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const wallet = useWallet().state.wallet
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const chainNamespaceDisplayName = asset?.networkName ?? ''
-  const [accounts, setAccounts] = useState<{ accountNumber: number; accountId: AccountId }[]>([])
+  const [accounts, setAccounts] = useState<
+    Record<ChainId, { accountNumber: number; accountId: AccountId }[]>
+  >({})
   const queryClient = useQueryClient()
   const isLoading = useIsFetching({ queryKey: ['accountManagement', 'accountIdWithActivity'] }) > 0
 
@@ -127,7 +129,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       if (!wallet) return
 
       let accountNumber = 0
-      const accounts = []
+      const accounts: { accountNumber: number; accountId: AccountId }[] = []
 
       while (true) {
         try {
@@ -154,20 +156,22 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         accountNumber++
       }
 
-      setAccounts(accounts)
+      setAccounts(previousAccounts => {
+        return { ...previousAccounts, [chainId]: accounts }
+      })
     })()
   }, [chainId, queryClient, wallet])
 
   const handleLoadMore = useCallback(async () => {
     if (!wallet) return
-    const accountNumber = accounts.length
+    const accountNumber = accounts[chainId]?.length ?? 0
     const accountResult = await queryClient.fetchQuery(
       reactQueries.accountManagement.accountIdWithActivity(accountNumber, chainId, wallet),
     )
     if (!accountResult) return
     setAccounts(previousAccounts => {
       const { accountId } = accountResult
-      return [...previousAccounts, { accountNumber, accountId }]
+      return { [chainId]: [...(previousAccounts[chainId] ?? []), { accountNumber, accountId }] }
     })
   }, [accounts, chainId, queryClient, wallet])
 
@@ -177,7 +181,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   const accountRows = useMemo(() => {
     if (!asset) return null
-    return accounts.map(({ accountId, accountNumber }) => (
+    return (accounts[chainId] ?? []).map(({ accountId, accountNumber }) => (
       <TableRow
         key={accountId}
         accountId={accountId}
@@ -186,7 +190,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         toggleAccountId={handleToggleAccountId}
       />
     ))
-  }, [accounts, asset, handleToggleAccountId])
+  }, [accounts, asset, chainId, handleToggleAccountId])
 
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)

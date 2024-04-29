@@ -469,7 +469,11 @@ export const RepayInput = ({
         /not enough fee/i.test(lendingQuoteCloseError.message) ||
         /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
       )
-        return translate('trade.errors.amountTooSmallUnknownMinimum')
+        return translate(
+          repaymentPercent === 100
+            ? 'lending.errors.amountTooLowToReturnCollateral'
+            : 'trade.errors.amountTooSmallUnknownMinimum',
+        )
       if (
         /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
         /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
@@ -495,6 +499,7 @@ export const RepayInput = ({
     isLendingQuoteCloseError,
     isThorchainLendingRepayEnabled,
     lendingQuoteCloseError?.message,
+    repaymentPercent,
     translate,
   ])
 

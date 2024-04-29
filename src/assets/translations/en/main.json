@@ -2246,7 +2246,8 @@
       "repaymentsHalted": "Repayments are temporarily halted.",
       "borrowingHalted": "Borrowing is temporarily halted.",
       "repaymentsDisabled": "Repayments are temporarily disabled.",
-      "borrowingDisabled": "Borrowing is temporarily disabled."
+      "borrowingDisabled": "Borrowing is temporarily disabled.",
+      "amountTooLowToReturnCollateral": "Amount too low to return collateral"
     },
     "quote": {
       "collateral": "Total asset amount which will be secured against your loan",

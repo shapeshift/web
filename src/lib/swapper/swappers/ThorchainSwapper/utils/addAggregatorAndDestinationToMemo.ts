@@ -7,8 +7,9 @@ import type { Address } from 'viem'
 import { fromBaseUnit } from 'lib/math'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
-import { UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
+import { BCH_MAXIMUM_BYTES_LENGTH, UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
+import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
 
 export const addAggregatorAndDestinationToMemo = ({
   sellChainId,
@@ -73,17 +74,26 @@ export const addAggregatorAndDestinationToMemo = ({
     'expected finalAssetLimitWithManualSlippage to be a positive amount',
   )
 
+  const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 2, aggregator.length)
+
+  const shortenedNativeAssetName =
+    shortenedNativeAssetNameByNativeAssetName[
+      nativeAssetName as keyof typeof shortenedNativeAssetNameByNativeAssetName
+    ]
+
+  assert(shortenedNativeAssetName, 'cannot find shortened native asset name')
+
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
   // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
   const memo = [
     prefix,
-    nativeAssetName,
+    shortenedNativeAssetName,
     address,
     nativeAssetLimitWithManualSlippage,
     affiliate,
     affiliateBps,
-    aggregator,
+    aggregatorLastTwoChars,
     finalAssetAddress,
     finalAssetLimitWithTwoLastNumbersAsExponent,
   ].join(MEMO_PART_DELIMITER)
@@ -94,6 +104,11 @@ export const addAggregatorAndDestinationToMemo = ({
   // We already check it in the L1ToLongtail handler but paranoia double security as this function is reusable.
   if (chainNamespace === CHAIN_NAMESPACE.Utxo && sellChainId !== bchChainId) {
     assert(memoBytesLength < UTXO_MAXIMUM_BYTES_LENGTH, 'memo is too long')
+  }
+
+  // BCH supports 220 bytes of data
+  if (sellChainId === bchChainId) {
+    assert(memoBytesLength < BCH_MAXIMUM_BYTES_LENGTH, 'memo is too long')
   }
 
   return memo

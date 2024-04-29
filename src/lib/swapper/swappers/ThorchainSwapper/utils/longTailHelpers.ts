@@ -185,3 +185,16 @@ export const selectBestRate = (
     [undefined, undefined],
   )
 }
+
+export const shortenedNativeAssetNameByNativeAssetName = {
+  'THOR.RUNE': 'r',
+  'BTC.BTC': 'b',
+  'ETH.ETH': 'e',
+  'BNB.BNB': 'n',
+  'GAIA.ATOM': 'g',
+  'DOGE.DOGE': 'd',
+  'LTC.LTC': 'l',
+  'BCH.BCH': 'c',
+  'AVAX.AVAX': 'a',
+  'BSC.BNB': 's',
+} as const

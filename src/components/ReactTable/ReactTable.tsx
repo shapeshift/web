@@ -121,6 +121,7 @@ export const ReactTable = <T extends {}>({
                   ? { 'data-label': cell.column.Header }
                   : undefined)}
                 display={cell.column.display}
+                textAlign={cell.column.textAlign}
                 key={cell.column.id}
               >
                 {cell.render('Cell')}

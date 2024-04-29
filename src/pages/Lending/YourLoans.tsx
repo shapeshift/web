@@ -273,7 +273,7 @@ export const YourLoans = () => {
   }, [isActive, translate])
 
   return (
-    <Main headerComponent={lendingHeader}>
+    <Main headerComponent={lendingHeader} isSubPage>
       <SEO title={translate('lending.yourLoans.yourLoans')} />
       <Stack>
         {renderHeader}

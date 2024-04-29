@@ -475,7 +475,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
   }, [poolAsset])
 
-  const memo = useMemo(() => {
+  // Note, bps is a placeholder and not the actual bps here, as this memo is just used to estimate fees
+  const feeEstimationMemo = useMemo(() => {
     if (thorchainNotationPoolAssetId === undefined) return
 
     if (opportunityType === 'sym') {
@@ -483,7 +484,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     }
 
     return `+:${thorchainNotationPoolAssetId}::ss:50`
-    // Note, bps is a placeholder and not the actual bps here, this memo is just used to estimate fees
   }, [opportunityType, poolAssetAccountAddress, thorchainNotationPoolAssetId])
 
   const {
@@ -498,7 +498,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       actualAssetDepositAmountCryptoPrecision,
       poolAsset?.precision ?? 0,
     ),
-    memo,
+    memo: feeEstimationMemo,
     fromAddress: poolAssetAccountAddress ?? null,
     action: 'addLiquidity',
     enableEstimateFees: Boolean(
@@ -754,7 +754,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       actualRuneDepositAmountCryptoPrecision,
       runeAsset?.precision ?? 0,
     ),
-    memo,
+    memo: feeEstimationMemo,
     fromAddress: null,
     action: 'addLiquidity',
     enableEstimateFees: incompleteSide !== AsymSide.Asset,

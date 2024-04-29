@@ -281,6 +281,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     fromAddress,
   })
 
+  const estimatedGasCryptoPrecision = useMemo(() => {
+    if (!estimatedFeesData) return
+    return fromBaseUnit(estimatedFeesData?.estimatedFees.fast.txFee, feeAsset.precision)
+  }, [estimatedFeesData, feeAsset.precision])
+
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,
     enabled: !!assetId,
@@ -526,16 +531,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Skeleton isLoaded={!quoteLoading}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(protocolFeeCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
+                  value={bn(fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision))
                     .times(marketData.price)
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(protocolFeeCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
-                    .toFixed()}
+                  value={fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision)}
                   symbol={asset.symbol}
                 />
               </Skeleton>
@@ -553,16 +555,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Skeleton isLoaded={!quoteLoading}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(estimatedFeesData?.estimatedFees.fast.txFee)
-                    .div(bn(10).pow(feeAsset.precision))
-                    .times(feeMarketData.price)
-                    .toFixed()}
+                  value={bnOrZero(estimatedGasCryptoPrecision).times(feeMarketData.price).toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(estimatedFeesData?.estimatedFees.fast.txFee)
-                    .div(bn(10).pow(feeAsset.precision))
-                    .toFixed()}
+                  value={estimatedGasCryptoPrecision ?? '0'}
                   symbol={feeAsset.symbol}
                 />
               </Skeleton>
@@ -581,16 +578,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 <Skeleton isLoaded={!quoteLoading}>
                   <Amount.Fiat
                     fontWeight='bold'
-                    value={bnOrZero(dustAmountCryptoBaseUnit)
-                      .div(bn(10).pow(asset.precision))
+                    value={bn(fromBaseUnit(dustAmountCryptoBaseUnit, asset.precision))
                       .times(marketData.price)
                       .toFixed(2)}
                   />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={bnOrZero(dustAmountCryptoBaseUnit)
-                      .div(bn(10).pow(asset.precision))
-                      .toFixed()}
+                    value={fromBaseUnit(dustAmountCryptoBaseUnit, asset.precision)}
                     symbol={asset.symbol}
                   />
                 </Skeleton>

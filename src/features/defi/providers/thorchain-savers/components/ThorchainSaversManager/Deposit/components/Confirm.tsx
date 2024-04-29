@@ -129,9 +129,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       if (!(accountId && state?.deposit.cryptoAmount && asset)) return
       if (protocolFeeCryptoBaseUnit) return
 
-      const amountCryptoBaseUnit = bnOrZero(state?.deposit.cryptoAmount).times(
-        bn(10).pow(asset.precision),
-      )
+      const amountCryptoBaseUnit = bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision))
 
       if (amountCryptoBaseUnit.isZero()) return
 
@@ -188,27 +186,27 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    amountCryptoBaseUnit: bnOrZero(state?.deposit.cryptoAmount)
-      .times(bn(10).pow(asset.precision))
-      .toFixed(0),
+    amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
     action: 'depositSavers',
     memo: quote?.memo,
     fromAddress,
   })
 
+  const estimatedGasCryptoPrecision = useMemo(() => {
+    if (!estimatedFeesData) return
+    return fromBaseUnit(estimatedFeesData?.estimatedFees.fast.txFee, feeAsset.precision)
+  }, [estimatedFeesData, feeAsset.precision])
+
   useEffect(() => {
-    if (!estimatedFeesData || !contextDispatch) return
+    if (!estimatedGasCryptoPrecision || !contextDispatch) return
 
     contextDispatch({
       type: ThorchainSaversDepositActionType.SET_DEPOSIT,
       payload: {
-        estimatedGasCryptoPrecision: fromBaseUnit(
-          estimatedFeesData.txFeeCryptoBaseUnit,
-          feeAsset.precision,
-        ),
+        estimatedGasCryptoPrecision,
       },
     })
-  }, [contextDispatch, estimatedFeesData, feeAsset.precision])
+  }, [contextDispatch, estimatedGasCryptoPrecision, feeAsset.precision])
 
   useEffect(() => {
     if (!(accountId && chainAdapter && wallet && bip44Params)) return
@@ -431,16 +429,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(protocolFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
+                value={bn(fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision))
                   .times(marketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(protocolFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
-                  .toFixed()}
+                value={fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision)}
                 symbol={asset.symbol}
               />
             </Box>
@@ -456,16 +451,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(estimatedFeesData?.estimatedFees.fast.txFee)
-                  .div(bn(10).pow(feeAsset.precision))
-                  .times(feeMarketData.price)
-                  .toFixed()}
+                value={bnOrZero(estimatedGasCryptoPrecision).times(feeMarketData.price).toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(estimatedFeesData?.estimatedFees.fast.txFee)
-                  .div(bn(10).pow(feeAsset.precision))
-                  .toFixed()}
+                value={estimatedGasCryptoPrecision ?? '0'}
                 symbol={feeAsset.symbol}
               />
             </Box>

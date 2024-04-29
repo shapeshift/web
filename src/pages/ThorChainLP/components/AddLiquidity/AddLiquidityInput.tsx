@@ -23,7 +23,7 @@ import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -62,7 +62,6 @@ import {
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
@@ -173,9 +172,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
   const [isApprovalRequired, setIsApprovalRequired] = useState<boolean>(false)
   const [runeTxFeeCryptoBaseUnit, setRuneTxFeeCryptoBaseUnit] = useState<string | undefined>()
-  const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
-    undefined,
-  )
   const [poolAssetTxFeeCryptoBaseUnit, setPoolAssetTxFeeCryptoBaseUnit] = useState<
     string | undefined
   >()
@@ -212,6 +208,33 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const poolAssetIds = useMemo(() => {
     return poolAssets.map(poolAsset => poolAsset.assetId)
   }, [poolAssets])
+
+  const poolAssetAccountId = useMemo(() => {
+    return currentAccountIdByChainId[
+      poolAsset?.assetId ? fromAssetId(poolAsset.assetId).chainId : ''
+    ]
+  }, [currentAccountIdByChainId, poolAsset?.assetId])
+
+  const poolAssetAccountMetadataFilter = useMemo(
+    () => ({ accountId: poolAssetAccountId }),
+    [poolAssetAccountId],
+  )
+
+  const poolAssetAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
+  )
+
+  const { data: poolAssetAccountAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId: poolAssetAccountId,
+      assetId: poolAsset?.assetId!,
+      opportunityId: activeOpportunityId,
+      wallet: wallet!,
+      accountMetadata: poolAssetAccountMetadata!,
+      getPosition: getThorchainLpPosition,
+    }),
+    enabled: Boolean(poolAsset?.assetId && wallet && poolAssetAccountMetadata),
+  })
 
   const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
     useIsSmartContractAddress(poolAssetAccountAddress ?? '')
@@ -332,21 +355,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const poolAssetAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: assetId ?? '' }),
   )
-  const poolAssetAccountId = useMemo(() => {
-    return currentAccountIdByChainId[assetId ? fromAssetId(assetId).chainId : '']
-  }, [currentAccountIdByChainId, assetId])
   const poolAssetBalanceFilter = useMemo(() => {
     return { assetId, accountId: poolAssetAccountId }
   }, [assetId, poolAssetAccountId])
   const poolAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, poolAssetBalanceFilter),
-  )
-  const poolAssetAccountMetadataFilter = useMemo(
-    () => ({ accountId: poolAssetAccountId }),
-    [poolAssetAccountId],
-  )
-  const poolAssetAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
   )
   const poolAssetAccountNumberFilter = useMemo(() => {
     return { assetId: assetId ?? '', accountId: poolAssetAccountId ?? '' }
@@ -610,21 +623,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   useEffect(() => setIsApprovalRequired(_isApprovalRequired), [_isApprovalRequired])
-
-  useEffect(() => {
-    if (!(wallet && poolAsset && activeOpportunityId && poolAssetAccountMetadata)) return
-    ;(async () => {
-      const _accountAssetAddress = await getThorchainFromAddress({
-        accountId: poolAssetAccountId,
-        assetId: poolAsset?.assetId,
-        opportunityId: activeOpportunityId,
-        wallet,
-        accountMetadata: poolAssetAccountMetadata,
-        getPosition: getThorchainLpPosition,
-      })
-      setPoolAssetAccountAddress(_accountAssetAddress)
-    })()
-  }, [activeOpportunityId, poolAsset, poolAssetAccountId, poolAssetAccountMetadata, wallet])
 
   // Pool asset fee/balance/sweep data and checks
 
@@ -1210,6 +1208,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleAssetChange = useCallback(
     (asset: Asset) => {
       const type = getDefaultOpportunityType(asset.assetId)
+      setPoolAsset(undefined)
       setActiveOpportunityId(toOpportunityId({ assetId: asset.assetId, type }))
     },
     [getDefaultOpportunityType],

@@ -29,7 +29,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { useRouterContractAddress } from 'lib/swapper/swappers/ThorchainSwapper/utils/useRouterContractAddress'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, getErc20Allowance, getFeesWithWallet } from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
@@ -144,7 +143,16 @@ export const Deposit: React.FC<DepositProps> = ({
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
-  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
+
+  const assetPriceInFeeAsset = useMemo(() => {
+    return bn(assetMarketData.price).div(feeAssetMarketData.price)
+  }, [assetMarketData.price, feeAssetMarketData.price])
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
@@ -154,12 +162,29 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const {
-    routerContractAddress: saversRouterContractAddress,
-    isLoading: isSaversRouterContractAddressLoading,
-  } = useRouterContractAddress({
-    feeAssetId: feeAsset?.assetId ?? '',
-    skip: !isTokenDeposit || !feeAsset?.assetId,
-    excludeHalted: true,
+    data: thorchainSaversDepositQuote,
+    isLoading: isThorchainSaversDepositQuoteLoading,
+    isSuccess: isThorchainSaversDepositQuoteSuccess,
+    isError: isThorchainSaversDepositQuoteError,
+    error: thorchainSaversDepositQuoteError,
+  } = useGetThorchainSaversDepositQuoteQuery({
+    asset,
+    amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset.precision),
+  })
+
+  const {
+    estimatedFeesData,
+    isEstimatedFeesDataLoading,
+    outboundFeeCryptoBaseUnit,
+    inboundAddress,
+  } = useSendThorTx({
+    assetId,
+    accountId: accountId ?? null,
+    amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
+    memo: thorchainSaversDepositQuote?.memo ?? null,
+    fromAddress,
+    action: 'depositSavers',
+    enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
 
   useEffect(() => {
@@ -167,11 +192,11 @@ export const Deposit: React.FC<DepositProps> = ({
     ;(async () => {
       const isApprovalRequired = await (async () => {
         // Router contract address is only set in case we're depositting a token, not a native asset
-        if (!saversRouterContractAddress) return false
+        if (!inboundAddress) return false
 
         const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
           address: fromAssetId(assetId).assetReference,
-          spender: saversRouterContractAddress,
+          spender: inboundAddress,
           from: fromAccountId(accountId).account,
           chainId: asset.chainId,
         })
@@ -185,29 +210,7 @@ export const Deposit: React.FC<DepositProps> = ({
       })()
       setIsApprovalRequired(isApprovalRequired)
     })()
-  }, [accountId, asset.chainId, asset.precision, assetId, inputValues, saversRouterContractAddress])
-
-  const {
-    data: thorchainSaversDepositQuote,
-    isLoading: isThorchainSaversDepositQuoteLoading,
-    isSuccess: isThorchainSaversDepositQuoteSuccess,
-    isError: isThorchainSaversDepositQuoteError,
-    error: thorchainSaversDepositQuoteError,
-  } = useGetThorchainSaversDepositQuoteQuery({
-    asset,
-    amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset.precision),
-  })
-
-  const { estimatedFeesData, isEstimatedFeesDataLoading, outboundFeeCryptoBaseUnit } =
-    useSendThorTx({
-      assetId,
-      accountId: accountId ?? null,
-      amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
-      memo: thorchainSaversDepositQuote?.memo ?? null,
-      fromAddress,
-      action: 'depositSavers',
-      enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
-    })
+  }, [accountId, asset.chainId, asset.precision, assetId, inputValues, inboundAddress])
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
   // the current workaround is to not do fee deduction for non-UTXO chains,
@@ -297,12 +300,7 @@ export const Deposit: React.FC<DepositProps> = ({
         }
 
         const approvalFees = await (() => {
-          if (
-            !isApprovalRequired ||
-            !saversRouterContractAddress ||
-            accountNumber === undefined ||
-            !wallet
-          )
+          if (!isApprovalRequired || !inboundAddress || accountNumber === undefined || !wallet)
             return undefined
 
           const contract = getOrCreateContractByType({
@@ -315,7 +313,7 @@ export const Deposit: React.FC<DepositProps> = ({
           const data = encodeFunctionData({
             abi: contract.abi,
             functionName: 'approve',
-            args: [getAddress(saversRouterContractAddress), maxUint256],
+            args: [getAddress(inboundAddress), maxUint256],
           })
 
           const adapter = assertGetEvmChainAdapter(chainId)
@@ -380,7 +378,7 @@ export const Deposit: React.FC<DepositProps> = ({
       assetId,
       assets,
       isApprovalRequired,
-      saversRouterContractAddress,
+      inboundAddress,
       accountNumber,
       wallet,
       asset.chainId,
@@ -393,9 +391,22 @@ export const Deposit: React.FC<DepositProps> = ({
     browserHistory.goBack()
   }, [browserHistory])
 
+  const outboundFeeInAssetCryptoBaseUnit = useMemo(() => {
+    if (!asset) return bn(0)
+    if (!feeAsset) return bn(0)
+    if (!outboundFeeCryptoBaseUnit) return bn(0)
+
+    const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, feeAsset.precision)
+    const outboundFeeInAssetCryptoPrecision = bn(outboundFeeCryptoPrecision).div(
+      assetPriceInFeeAsset,
+    )
+
+    return toBaseUnit(outboundFeeInAssetCryptoPrecision, asset.precision)
+  }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
+
   const validateCryptoAmount = useCallback(
     async (value: string) => {
-      if (!accountId || !outboundFeeCryptoBaseUnit) return
+      if (!accountId || !outboundFeeInAssetCryptoBaseUnit) return
 
       const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
       const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
@@ -408,14 +419,17 @@ export const Deposit: React.FC<DepositProps> = ({
 
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
       const isBelowOutboundFee =
-        bn(outboundFeeCryptoBaseUnit).gt(0) &&
-        bnOrZero(valueCryptoBaseUnit).lt(outboundFeeCryptoBaseUnit)
+        bn(outboundFeeInAssetCryptoBaseUnit).gt(0) &&
+        bnOrZero(valueCryptoBaseUnit).lt(outboundFeeInAssetCryptoBaseUnit)
 
       const minLimitCryptoPrecision = fromBaseUnit(
         THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
         asset.precision,
       )
-      const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, asset.precision)
+      const outboundFeeCryptoPrecision = fromBaseUnit(
+        outboundFeeInAssetCryptoBaseUnit,
+        asset.precision,
+      )
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
       const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
@@ -448,7 +462,7 @@ export const Deposit: React.FC<DepositProps> = ({
       asset,
       balanceCryptoBaseUnit,
       assetId,
-      outboundFeeCryptoBaseUnit,
+      outboundFeeInAssetCryptoBaseUnit,
       translate,
       chainId,
       fromAddress,
@@ -457,26 +471,29 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = useCallback(
     async (value: string) => {
-      if (!accountId || !outboundFeeCryptoBaseUnit) return
+      if (!accountId || !outboundFeeInAssetCryptoBaseUnit) return
 
-      const valueCryptoPrecision = bnOrZero(value).div(marketData.price)
+      const valueCryptoPrecision = bnOrZero(value).div(assetMarketData.price)
       const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
 
-      const fiatBalance = balanceCryptoPrecision.times(marketData.price)
+      const fiatBalance = balanceCryptoPrecision.times(assetMarketData.price)
       if (fiatBalance.isZero() || fiatBalance.lt(value)) return 'common.insufficientFunds'
 
       const valueCryptoBaseUnit = toBaseUnit(valueCryptoPrecision, asset.precision)
 
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
       const isBelowOutboundFee =
-        bn(outboundFeeCryptoBaseUnit).gt(0) &&
-        bnOrZero(valueCryptoBaseUnit).lt(outboundFeeCryptoBaseUnit)
+        bn(outboundFeeInAssetCryptoBaseUnit).gt(0) &&
+        bnOrZero(valueCryptoBaseUnit).lt(outboundFeeInAssetCryptoBaseUnit)
 
       const minLimitCryptoPrecision = fromBaseUnit(
         THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
         asset.precision,
       )
-      const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, asset.precision)
+      const outboundFeeCryptoPrecision = fromBaseUnit(
+        outboundFeeInAssetCryptoBaseUnit,
+        asset.precision,
+      )
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
       const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
@@ -506,11 +523,11 @@ export const Deposit: React.FC<DepositProps> = ({
     },
     [
       accountId,
-      marketData.price,
+      assetMarketData.price,
       balanceCryptoBaseUnit,
       asset,
       assetId,
-      outboundFeeCryptoBaseUnit,
+      outboundFeeInAssetCryptoBaseUnit,
       translate,
       chainId,
       fromAddress,
@@ -522,8 +539,8 @@ export const Deposit: React.FC<DepositProps> = ({
     [balanceCryptoBaseUnit, asset?.precision],
   )
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(balanceCryptoPrecision).times(marketData.price),
-    [balanceCryptoPrecision, marketData?.price],
+    () => bnOrZero(balanceCryptoPrecision).times(assetMarketData.price),
+    [balanceCryptoPrecision, assetMarketData?.price],
   )
 
   const setIsSendMax = useCallback(
@@ -563,7 +580,7 @@ export const Deposit: React.FC<DepositProps> = ({
           contractAddress: undefined,
         },
         asset,
-        assetMarketData: marketData,
+        assetMarketData,
         enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
       }
       const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
@@ -604,7 +621,7 @@ export const Deposit: React.FC<DepositProps> = ({
       )
       const estimatedSweepFeesQueryArgs = {
         asset,
-        assetMarketData: marketData,
+        assetMarketData,
         estimateFeesInput: {
           amountCryptoPrecision: '0',
           assetId,
@@ -632,7 +649,7 @@ export const Deposit: React.FC<DepositProps> = ({
           .minus(fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
 
       const _percentageFiatAmount = _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
-        marketData.price,
+        assetMarketData.price,
       )
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       return {
@@ -647,7 +664,7 @@ export const Deposit: React.FC<DepositProps> = ({
       contextDispatch,
       balanceCryptoPrecision,
       fromAddress,
-      marketData,
+      assetMarketData,
       queryClient,
       setIsSendMax,
     ],
@@ -755,7 +772,7 @@ export const Deposit: React.FC<DepositProps> = ({
       cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
       fiatInputValidation={fiatInputValidation}
-      marketData={marketData}
+      marketData={assetMarketData}
       onCancel={handleCancel}
       onPercentClick={handlePercentClick}
       onContinue={handleContinue}
@@ -767,7 +784,6 @@ export const Deposit: React.FC<DepositProps> = ({
         isEstimatedFeesDataLoading ||
         isSweepNeededLoading ||
         isThorchainSaversDepositQuoteLoading ||
-        isSaversRouterContractAddressLoading ||
         state.loading
       }
     >

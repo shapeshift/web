@@ -131,9 +131,9 @@ export const useSendThorTx = ({
   }, [inboundAddressData, transactionType])
 
   const outboundFeeCryptoBaseUnit = useMemo(() => {
-    if (!feeAsset || !asset || !inboundAddressData) return
-    return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), asset.precision)
-  }, [asset, feeAsset, inboundAddressData])
+    if (!feeAsset || !inboundAddressData) return
+    return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), feeAsset.precision)
+  }, [feeAsset, inboundAddressData])
 
   const depositWithExpiryInputData = useMemo(() => {
     if (!memo) return

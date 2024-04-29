@@ -14,7 +14,7 @@ export const NativeMenu = () => {
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
   const backupNativePassphrase = useModal('backupNativePassphrase')
-  const accountManagementPopover = useModal('backupNativePassphrase') // FIXME: use accountManagementPopover once ready
+  const accountManagementPopover = useModal('manageAccounts')
 
   const handleBackupMenuItemClick = useCallback(
     () => backupNativePassphrase.open({}),
@@ -22,8 +22,8 @@ export const NativeMenu = () => {
   )
 
   const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({}),
-    [accountManagementPopover],
+    () => accountManagementPopover.open({ title: translate('manageAccounts.modalTitle') }),
+    [accountManagementPopover, translate],
   )
 
   return (

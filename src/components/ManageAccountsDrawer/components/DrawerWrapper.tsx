@@ -1,4 +1,4 @@
-import { Drawer, DrawerOverlay } from '@chakra-ui/react'
+import { Drawer, DrawerCloseButton, DrawerContent, DrawerOverlay } from '@chakra-ui/react'
 
 export type DrawerWrapperProps = {
   children: React.ReactNode
@@ -10,7 +10,10 @@ export const DrawerWrapper = ({ children, isOpen, onClose }: DrawerWrapperProps)
   return (
     <Drawer isOpen={isOpen} size='lg' placement='right' onClose={onClose}>
       <DrawerOverlay />
-      {children}
+      <DrawerContent>
+        <DrawerCloseButton />
+        {children}
+      </DrawerContent>
     </Drawer>
   )
 }

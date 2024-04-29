@@ -1,4 +1,5 @@
-import { CHAIN_NAMESPACE, type ChainNamespace } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { bchChainId, CHAIN_NAMESPACE, type ChainNamespace } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
@@ -8,9 +9,9 @@ import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
-import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
 
 export const addAggregatorAndDestinationToMemo = ({
+  sellChainId,
   quotedMemo,
   aggregator,
   finalAssetAddress,
@@ -19,6 +20,7 @@ export const addAggregatorAndDestinationToMemo = ({
   finalAssetPrecision,
   chainNamespace,
 }: {
+  sellChainId: ChainId
   slippageBps: BigNumber.Value
   quotedMemo: string | undefined
   aggregator: Address
@@ -71,37 +73,26 @@ export const addAggregatorAndDestinationToMemo = ({
     'expected finalAssetLimitWithManualSlippage to be a positive amount',
   )
 
-  const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 2, aggregator.length)
-  const finalAssetAddressLastTwoChars = finalAssetAddress.slice(
-    finalAssetAddress.length - 2,
-    finalAssetAddress.length,
-  )
-  const shortenedNativeAssetName =
-    shortenedNativeAssetNameByNativeAssetName[
-      nativeAssetName as keyof typeof shortenedNativeAssetNameByNativeAssetName
-    ]
-
-  assert(shortenedNativeAssetName, 'cannot find shortened native asset name')
-
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
   // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
   const memo = [
     prefix,
-    shortenedNativeAssetName,
+    nativeAssetName,
     address,
     nativeAssetLimitWithManualSlippage,
     affiliate,
     affiliateBps,
-    aggregatorLastTwoChars,
-    finalAssetAddressLastTwoChars,
+    aggregator,
+    finalAssetAddress,
     finalAssetLimitWithTwoLastNumbersAsExponent,
   ].join(MEMO_PART_DELIMITER)
 
   const memoBytesLength = new Blob([memo]).size
 
-  // UTXO only supports 80 bytes memo and we don't want to lose more precision
-  if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
+  // Dogecoin, BTC and LTC only supports 80 bytes memo and we don't want to lose more precision for now
+  // We already check it in the L1ToLongtail handler but paranoia double security as this function is reusable.
+  if (chainNamespace === CHAIN_NAMESPACE.Utxo && sellChainId !== bchChainId) {
     assert(memoBytesLength < UTXO_MAXIMUM_BYTES_LENGTH, 'memo is too long')
   }
 

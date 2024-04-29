@@ -2248,7 +2248,7 @@
       "repaymentsDisabled": "Repayments are temporarily disabled.",
       "borrowingDisabled": "Borrowing is temporarily disabled.",
       "amountTooLowToReturnCollateral": "Amount too low to return collateral",
-      "amountTooLowToReturnCollateralTooltip": "The repayment is too low for your collateral to be returned. Please try again with a higher amount, or repay a partial amount (which will not return your collateral, but will decrease your debt)",
+      "amountTooLowToReturnCollateralTooltip": "The repayment is too low for your collateral to be returned. Please try again with a higher amount, or repay a partial amount (which will not return your collateral, but will decrease your debt).",
       "amountTooSmallUnknownMinimumTooltip": "The repayment amount you have entered is too small. Please try again with a higher amount.",
       "repaymentUnavailableTooltip": "It is not possible to repay your loan yet. Please wait until the repayment lock has elapsed.",
       "repaymentsHaltedTooltip": "Repayments are temporarily halted. Please try again later.",

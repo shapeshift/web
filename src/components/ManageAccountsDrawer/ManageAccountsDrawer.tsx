@@ -4,6 +4,7 @@ import { assertUnreachable } from 'lib/utils'
 
 import { DrawerWrapper } from './components/DrawerWrapper'
 import { ImportAccounts } from './components/ImportAccounts'
+import { LedgerOpenApp } from './components/LedgerOpenApp'
 import { SelectChain } from './components/SelectChain'
 
 export type ManageAccountsDrawerProps = {
@@ -23,7 +24,7 @@ export const ManageAccountsDrawer = ({
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
   // TODO: Implement Ledger specific logic
-  const isLedger = false
+  const isLedger = true
 
   const handleClose = useCallback(() => {
     setStep('selectChain')
@@ -35,8 +36,9 @@ export const ManageAccountsDrawer = ({
       case 'selectChain':
         if (isLedger) {
           setStep('ledgerOpenApp')
+        } else {
+          setStep('importAccounts')
         }
-        setStep('importAccounts')
         break
       case 'ledgerOpenApp':
         setStep('importAccounts')
@@ -81,8 +83,8 @@ export const ManageAccountsDrawer = ({
       case 'selectChain':
         return <SelectChain onSelectChainId={handleSelectChainId} onClose={handleClose} />
       case 'ledgerOpenApp':
-        // TODO: Implement LedgerOpenApp component
-        return null
+        if (!selectedChainId) return null
+        return <LedgerOpenApp chainId={selectedChainId} onClose={handleClose} />
       case 'importAccounts':
         if (!selectedChainId) return null
         return <ImportAccounts chainId={selectedChainId} onClose={handleClose} />
@@ -91,8 +93,10 @@ export const ManageAccountsDrawer = ({
     }
   }, [handleSelectChainId, handleClose, selectedChainId, step])
 
+  const drawVariant = step === 'ledgerOpenApp' ? 'centered' : undefined
+
   return (
-    <DrawerWrapper isOpen={isOpen} onClose={handleClose}>
+    <DrawerWrapper isOpen={isOpen} onClose={handleClose} variant={drawVariant}>
       {drawerContent}
     </DrawerWrapper>
   )

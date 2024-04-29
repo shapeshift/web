@@ -1,3 +1,30 @@
+import { drawerAnatomy as parts } from '@chakra-ui/anatomy'
+import { createMultiStyleConfigHelpers } from '@chakra-ui/styled-system'
+
+const { definePartsStyle } = createMultiStyleConfigHelpers(parts.keys)
+
+const centeredContent = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  height: '100%',
+  width: '100%',
+}
+
+const centered = definePartsStyle({
+  header: {
+    ...centeredContent,
+    textAlign: 'center',
+  },
+
+  body: {
+    ...centeredContent,
+  },
+  footer: {
+    marginTop: 'auto',
+  },
+})
+
 export const DrawerStyle = {
   parts: ['dialog'],
   // Styles for the base style
@@ -9,7 +36,7 @@ export const DrawerStyle = {
   // Styles for the size variations
   sizes: {},
   // Styles for the visual style variations
-  variants: {},
+  variants: { centered },
   // The default `size` or `variant` values
   defaultProps: {},
 }

@@ -14,7 +14,7 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
@@ -52,9 +52,10 @@ const maxWidth = { base: '100%', md: '450px' }
 const responsiveFlex = { base: 'auto', lg: 1 }
 
 type PoolHeaderProps = {
-  assetName?: string
+  assetId?: AssetId
 }
-const PoolHeader: React.FC<PoolHeaderProps> = ({ assetName }) => {
+const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const translate = useTranslate()
   const history = useHistory()
   const { path } = useRouteMatch()
@@ -68,6 +69,9 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetName }) => {
       history.push('/lending')
     }
   }, [history, path])
+
+  if (!asset) return null
+
   return (
     <PageHeader>
       <PageHeader.Left>
@@ -79,7 +83,7 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetName }) => {
       <Display.Mobile>
         <PageHeader.Middle>
           <PageHeader.Title>
-            {assetName} {translate('lending.lending')}
+            {asset.name} {translate('lending.lending')}
           </PageHeader.Title>
         </PageHeader.Middle>
       </Display.Mobile>
@@ -149,7 +153,7 @@ export const Pool = () => {
   const { data: defaultRepaymentLock, isSuccess: isDefaultRepaymentLockSuccess } =
     useRepaymentLockData({})
 
-  const headerComponent = useMemo(() => <PoolHeader assetName={asset?.symbol} />, [asset?.symbol])
+  const headerComponent = useMemo(() => <PoolHeader assetId={poolAssetId} />, [poolAssetId])
 
   const borrowMutationStatus = useMutationState({
     filters: { mutationKey: [borrowTxid] },

@@ -1210,7 +1210,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     (asset: Asset) => {
       const type = getDefaultOpportunityType(asset.assetId)
       setPoolAsset(undefined)
-      setPoolAssetAccountAddress(undefined)
       setActiveOpportunityId(toOpportunityId({ assetId: asset.assetId, type }))
     },
     [getDefaultOpportunityType],

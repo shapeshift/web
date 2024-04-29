@@ -8,7 +8,7 @@ import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
-import { poolToShortenedPool } from './longTailHelpers'
+import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
 
 export const addAggregatorAndDestinationToMemo = ({
   quotedMemo,
@@ -29,8 +29,14 @@ export const addAggregatorAndDestinationToMemo = ({
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
 
-  const [prefix, pool, address, nativeAssetLimitWithManualSlippage, affiliate, affiliateBps] =
-    quotedMemo.split(MEMO_PART_DELIMITER)
+  const [
+    prefix,
+    nativeAssetName,
+    address,
+    nativeAssetLimitWithManualSlippage,
+    affiliate,
+    affiliateBps,
+  ] = quotedMemo.split(MEMO_PART_DELIMITER)
 
   const finalAssetLimitWithManualSlippage = subtractBasisPointAmount(
     bn(minAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
@@ -70,16 +76,19 @@ export const addAggregatorAndDestinationToMemo = ({
     finalAssetAddress.length - 2,
     finalAssetAddress.length,
   )
-  const shortenedPool = poolToShortenedPool[pool as keyof typeof poolToShortenedPool]
+  const shortenedNativeAssetName =
+    shortenedNativeAssetNameByNativeAssetName[
+      nativeAssetName as keyof typeof shortenedNativeAssetNameByNativeAssetName
+    ]
 
-  assert(shortenedPool, 'cannot find shortened pool name')
+  assert(shortenedNativeAssetName, 'cannot find shortened native asset name')
 
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
   // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
   const memo = [
     prefix,
-    shortenedPool,
+    shortenedNativeAssetName,
     address,
     nativeAssetLimitWithManualSlippage,
     affiliate,
@@ -93,7 +102,7 @@ export const addAggregatorAndDestinationToMemo = ({
 
   // UTXO only supports 80 bytes memo and we don't want to lose more precision
   if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-    assert(memoBytesLength <= UTXO_MAXIMUM_BYTES_LENGTH, 'memo is too long')
+    assert(memoBytesLength < UTXO_MAXIMUM_BYTES_LENGTH, 'memo is too long')
   }
 
   return memo

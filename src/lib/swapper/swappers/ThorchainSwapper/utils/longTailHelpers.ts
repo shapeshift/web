@@ -186,7 +186,7 @@ export const selectBestRate = (
   )
 }
 
-export const poolToShortenedPool = {
+export const shortenedNativeAssetNameByNativeAssetName = {
   'THOR.RUNE': 'r',
   'BTC.BTC': 'b',
   'ETH.ETH': 'e',

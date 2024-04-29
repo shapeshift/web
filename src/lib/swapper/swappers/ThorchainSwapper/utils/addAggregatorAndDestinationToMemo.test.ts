@@ -14,8 +14,8 @@ describe('addAggregatorAndDestinationToMemo', () => {
   it('should add aggregator address, destination address and minAmountOut correctly', () => {
     const minAmountOut = '9508759019'
     const affiliateBps = '100'
-    const finalExpectedAmountOut = '9413671428'
-    const quotedMemo = `=:ETH.ETH:${RECEIVE_ADDRESS}:${finalExpectedAmountOut}:ss:${affiliateBps}:${AGGREGATOR_ADDRESS}:${FINAL_ASSET_ADDRESS}:10`
+    const expectedL1AmountOut = '42' // we don't care about this for the purpose of tests
+    const quotedMemo = `=:ETH.ETH:${RECEIVE_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${AGGREGATOR_ADDRESS}:${FINAL_ASSET_ADDRESS}:10`
 
     const slippageBps = 100 // 1%
 
@@ -30,15 +30,15 @@ describe('addAggregatorAndDestinationToMemo', () => {
     })
 
     expect(modifiedMemo).toBe(
-      `=${MEMO_PART_DELIMITER}e${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${finalExpectedAmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}941367103`,
+      `=${MEMO_PART_DELIMITER}e${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${expectedL1AmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}941367103`,
     )
   })
 
   it('should add aggregator address, destination address and minAmountOut correctly with a bigger precision', () => {
     const minAmountOut = '2083854765519275828179229'
     const affiliateBps = '100'
-    const finalExpectedAmountOut = '2063016217864083069897436'
-    const quotedMemo = `=:ETH.ETH:${RECEIVE_ADDRESS}:${finalExpectedAmountOut}:ss:${affiliateBps}:${AGGREGATOR_ADDRESS}:${FINAL_ASSET_ADDRESS}:10`
+    const expectedL1AmountOut = '42' // we don't care about this for the purpose of tests
+    const quotedMemo = `=:ETH.ETH:${RECEIVE_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${AGGREGATOR_ADDRESS}:${FINAL_ASSET_ADDRESS}:10`
 
     const slippageBps = 100 // 1%
 
@@ -53,7 +53,7 @@ describe('addAggregatorAndDestinationToMemo', () => {
     })
 
     expect(modifiedMemo).toBe(
-      `=${MEMO_PART_DELIMITER}e${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${finalExpectedAmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${slippageBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}206301621786412`,
+      `=${MEMO_PART_DELIMITER}e${MEMO_PART_DELIMITER}${RECEIVE_ADDRESS}${MEMO_PART_DELIMITER}${expectedL1AmountOut}${MEMO_PART_DELIMITER}ss${MEMO_PART_DELIMITER}${affiliateBps}${MEMO_PART_DELIMITER}${AGGREGATOR_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}${FINAL_ASSET_TWO_LAST_CHARS}${MEMO_PART_DELIMITER}206301621786412`,
     )
   })
 })

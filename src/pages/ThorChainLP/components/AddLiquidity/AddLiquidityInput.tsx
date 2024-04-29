@@ -477,7 +477,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   // Note, bps is a placeholder and not the actual bps here, as this memo is just used to estimate fees
   const feeEstimationMemo = useMemo(() => {
-    if (thorchainNotationPoolAssetId === undefined) return
+    if (thorchainNotationPoolAssetId === undefined) return null
 
     if (opportunityType === 'sym') {
       return `+:${thorchainNotationPoolAssetId}:${poolAssetAccountAddress ?? ''}:ss:50`

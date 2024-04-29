@@ -378,7 +378,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     assetId: thorchainAssetId,
     accountId: runeAccountId ?? null,
     // withdraw liquidity will use dust amount
-    amountCryptoBaseUnit: undefined,
+    amountCryptoBaseUnit: null,
     memo,
     fromAddress: null,
     action: 'withdrawLiquidity',
@@ -394,7 +394,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     assetId: poolAsset?.assetId,
     accountId,
     // withdraw liquidity will use dust amount
-    amountCryptoBaseUnit: undefined,
+    amountCryptoBaseUnit: null,
     memo,
     fromAddress: null,
     action: 'withdrawLiquidity',

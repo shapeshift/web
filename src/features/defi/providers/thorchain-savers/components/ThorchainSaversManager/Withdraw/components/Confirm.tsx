@@ -275,9 +275,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId: accountId ?? null,
     assetId,
     // withdraw savers will use dust amount
-    amountCryptoBaseUnit: undefined,
+    amountCryptoBaseUnit: null,
     action: 'withdrawSavers',
-    memo: quote?.memo,
+    memo: quote?.memo ?? null,
     fromAddress,
   })
 

@@ -379,7 +379,7 @@ export const RepayInput = ({
       confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
       repaymentAsset?.precision ?? 0,
     ),
-    memo: confirmedQuote?.quoteMemo,
+    memo: confirmedQuote?.quoteMemo ?? null,
     // no explicit from address required for repayments
     fromAddress: '',
     action: 'repayLoan',

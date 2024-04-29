@@ -175,8 +175,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     assetId,
     accountId: accountId ?? '',
     // withdraw savers will use dust amount
-    amountCryptoBaseUnit: undefined,
-    memo: thorchainSaversWithdrawQuote?.memo,
+    amountCryptoBaseUnit: null,
+    memo: thorchainSaversWithdrawQuote?.memo ?? null,
     fromAddress,
     action: 'withdrawSavers',
   })

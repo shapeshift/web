@@ -173,8 +173,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [poolAssetId])
 
   const memo = useMemo(() => {
-    if (thorchainNotationAssetId === undefined) return
-    if (opportunityType === 'sym' && !pairAssetAddress) return
+    if (thorchainNotationAssetId === undefined) return null
+    if (opportunityType === 'sym' && !pairAssetAddress) return null
 
     return isDeposit
       ? `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`

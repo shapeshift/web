@@ -188,7 +188,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
     action: 'depositSavers',
-    memo: quote?.memo,
+    memo: quote?.memo ?? null,
     fromAddress,
   })
 

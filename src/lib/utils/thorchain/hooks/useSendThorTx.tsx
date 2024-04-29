@@ -53,12 +53,12 @@ type Action =
 type UseSendThorTxProps = {
   accountId: AccountId | null
   action: Action
-  amountCryptoBaseUnit: string | undefined
+  amountCryptoBaseUnit: string | null
   assetId: AssetId | undefined
   enableEstimateFees?: boolean
   disableEstimateFeesRefetch?: boolean
   fromAddress: string | null
-  memo: string | undefined
+  memo: string | null
 }
 
 export const useSendThorTx = ({

@@ -203,7 +203,7 @@ export const Deposit: React.FC<DepositProps> = ({
       assetId,
       accountId: accountId ?? null,
       amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
-      memo: thorchainSaversDepositQuote?.memo,
+      memo: thorchainSaversDepositQuote?.memo ?? null,
       fromAddress,
       action: 'depositSavers',
       enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),

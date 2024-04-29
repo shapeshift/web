@@ -114,7 +114,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     assetId,
     accountId: accountId ?? null,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
-    memo: thorchainSaversDepositQuote?.memo,
+    memo: thorchainSaversDepositQuote?.memo ?? null,
     fromAddress: '',
     action: 'depositSavers',
     enableEstimateFees: false,

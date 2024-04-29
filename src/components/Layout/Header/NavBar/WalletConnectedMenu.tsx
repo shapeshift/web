@@ -1,5 +1,5 @@
 import { ChevronRightIcon, CloseIcon, RepeatIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Flex, MenuDivider, MenuGroup, MenuItem, useDisclosure } from '@chakra-ui/react'
+import { Flex, MenuDivider, MenuGroup, MenuItem } from '@chakra-ui/react'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -12,10 +12,8 @@ import {
 import { SubMenuContainer } from 'components/Layout/Header/NavBar/SubMenuContainer'
 import type { WalletConnectedProps } from 'components/Layout/Header/NavBar/UserMenu'
 import { WalletImage } from 'components/Layout/Header/NavBar/WalletImage'
-import { ManageAccountsDrawer } from 'components/ManageAccountsDrawer/ManageAccountsDrawer'
 import { RawText, Text } from 'components/Text'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 const warningTwoIcon = <WarningTwoIcon />
 const closeIcon = <CloseIcon />
@@ -38,8 +36,6 @@ const ConnectedMenu = memo(
       () => connectedType && SUPPORTED_WALLETS[connectedType].connectedMenuComponent,
       [connectedType],
     )
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
     const handleClick = useCallback(() => {
       if (!connectedWalletMenuRoutes) return
@@ -80,11 +76,6 @@ const ConnectedMenu = memo(
           )}
           {ConnectMenuComponent && <ConnectMenuComponent />}
           <MenuDivider />
-          {isAccountManagementEnabled && (
-            <MenuItem icon={repeatIcon} onClick={onOpen}>
-              Manage Accounts
-            </MenuItem>
-          )}
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
             {translate('connectWallet.menu.switchWallet')}
           </MenuItem>
@@ -92,7 +83,6 @@ const ConnectedMenu = memo(
             {translate('connectWallet.menu.disconnect')}
           </MenuItem>
         </MenuGroup>
-        <ManageAccountsDrawer isOpen={isOpen} onClose={onClose} />
       </>
     )
   },

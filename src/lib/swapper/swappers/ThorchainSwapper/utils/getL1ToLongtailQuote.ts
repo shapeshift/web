@@ -36,8 +36,6 @@ export const getL1ToLongtailQuote = async (
     slippageTolerancePercentageDecimal,
   } = input
 
-  const { chainNamespace } = fromAssetId(sellAsset.assetId)
-
   /*
     We only support L1 -> ethereum longtail swaps for now.
   */
@@ -129,7 +127,7 @@ export const getL1ToLongtailQuote = async (
         ).toString(),
         quotedMemo: quote.memo,
         finalAssetPrecision: buyAsset.precision,
-        chainNamespace,
+        sellAssetChainId: sellAsset.chainId,
       })
 
       return Ok({

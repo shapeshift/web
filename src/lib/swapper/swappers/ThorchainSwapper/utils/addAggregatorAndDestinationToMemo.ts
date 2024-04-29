@@ -1,14 +1,30 @@
-import { CHAIN_NAMESPACE, type ChainNamespace } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/chain-adapters'
+import { bchChainId, type ChainId } from '@shapeshiftoss/caip'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
 import type { Address } from 'viem'
-import { fromBaseUnit } from 'lib/math'
+import { bn } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { isUtxoChainId } from 'lib/utils/utxo'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
-import { UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
 import { poolToShortenedPool } from './longTailHelpers'
+
+// Allows us to convert a THORChain parser value back to its base unit
+// for testing purposes
+export const thorchainParserToBaseUnit = (thorchainParserValue: string) => {
+  if (thorchainParserValue.length < 3) {
+    throw new Error('Number too short to contain an exponent.')
+  }
+
+  const exponent = parseInt(thorchainParserValue.slice(-2), 10)
+
+  const baseNumber = thorchainParserValue.slice(0, -2)
+
+  const fullNumber = toBaseUnit(baseNumber, exponent === 1 ? 0 : exponent)
+
+  return fullNumber
+}
 
 export const addAggregatorAndDestinationToMemo = ({
   quotedMemo,
@@ -17,7 +33,7 @@ export const addAggregatorAndDestinationToMemo = ({
   minAmountOut,
   slippageBps,
   finalAssetPrecision,
-  chainNamespace,
+  sellAssetChainId,
 }: {
   slippageBps: BigNumber.Value
   quotedMemo: string | undefined
@@ -25,76 +41,58 @@ export const addAggregatorAndDestinationToMemo = ({
   finalAssetAddress: Address
   minAmountOut: string
   finalAssetPrecision: number
-  chainNamespace: ChainNamespace
+  sellAssetChainId: ChainId
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
 
+  const maxMemoSize = (() => {
+    if (sellAssetChainId === bchChainId) return 220
+    if (isUtxoChainId(sellAssetChainId)) return 80
+    return Infinity
+  })()
+
   const [prefix, pool, address, nativeAssetLimitWithManualSlippage, affiliate, affiliateBps] =
     quotedMemo.split(MEMO_PART_DELIMITER)
-
-  const finalAssetLimitWithManualSlippage = subtractBasisPointAmount(
-    bn(minAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
-    slippageBps,
-    BigNumber.ROUND_DOWN,
-  )
-
-  const maximumPrecision = 6
-  const endingExponential = finalAssetPrecision - maximumPrecision
-  const finalAssetLimitCryptoPrecision = fromBaseUnit(
-    finalAssetLimitWithManualSlippage,
-    finalAssetPrecision,
-    maximumPrecision,
-  )
-  const shouldPrependZero = endingExponential < 10
-  const thorAggregatorExponential = shouldPrependZero
-    ? `0${endingExponential > 0 ? endingExponential : '1'}`
-    : endingExponential
-
-  // The THORChain aggregators expects this amount to be an exponent, we need to add two numbers at the end which are used at exponents in the contract
-  // We trim 10 of precisions to make sure the THORChain parser can handle the amount without precisions and rounding issues
-  // If the finalAssetPrecision is under 5, the THORChain parser won't fail and we add one exponent at the end so the aggregator contract won't multiply the amount
-  const finalAssetLimitWithTwoLastNumbersAsExponent = `${
-    finalAssetPrecision < maximumPrecision
-      ? finalAssetLimitWithManualSlippage
-      : finalAssetLimitCryptoPrecision.replace('.', '')
-  }${thorAggregatorExponential}`
-
-  // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-  assert(
-    BigInt(finalAssetLimitWithTwoLastNumbersAsExponent) > 0n,
-    'expected finalAssetLimitWithManualSlippage to be a positive amount',
-  )
-
-  const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 2, aggregator.length)
-  const finalAssetAddressLastTwoChars = finalAssetAddress.slice(
-    finalAssetAddress.length - 2,
-    finalAssetAddress.length,
-  )
   const shortenedPool = poolToShortenedPool[pool as keyof typeof poolToShortenedPool]
-
   assert(shortenedPool, 'cannot find shortened pool name')
 
-  // Thorchain memo format:
-  // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
-  // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
-  const memo = [
-    prefix,
-    shortenedPool,
-    address,
-    nativeAssetLimitWithManualSlippage,
-    affiliate,
-    affiliateBps,
-    aggregatorLastTwoChars,
-    finalAssetAddressLastTwoChars,
-    finalAssetLimitWithTwoLastNumbersAsExponent,
-  ].join(MEMO_PART_DELIMITER)
+  const aggregatorLastTwoChars = aggregator.slice(-2)
+  const finalAssetAddressLastTwoChars = finalAssetAddress.slice(-2)
 
-  const memoBytesLength = new Blob([memo]).size
+  let exponent = 0
+  let formattedAmountOut = subtractBasisPointAmount(minAmountOut, slippageBps, BigNumber.ROUND_DOWN)
 
-  // UTXO only supports 80 bytes memo and we don't want to lose more precision
-  if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-    assert(memoBytesLength <= UTXO_MAXIMUM_BYTES_LENGTH, 'memo is too long')
+  let potentialMemo
+  do {
+    let amountWithExponent = formattedAmountOut
+    if (exponent > 0) {
+      amountWithExponent = fromBaseUnit(amountWithExponent, exponent)
+      amountWithExponent = bn(amountWithExponent).integerValue(BigNumber.ROUND_DOWN).toFixed(0)
+    } else {
+      amountWithExponent = bn(formattedAmountOut).toFixed(0)
+    }
+    const amountOutStr =
+      amountWithExponent + (exponent === 0 ? '01' : exponent < 10 ? `0${exponent}` : `${exponent}`)
+
+    potentialMemo = [
+      prefix,
+      shortenedPool,
+      address,
+      nativeAssetLimitWithManualSlippage,
+      affiliate,
+      affiliateBps,
+      aggregatorLastTwoChars,
+      finalAssetAddressLastTwoChars,
+      amountOutStr,
+    ].join(MEMO_PART_DELIMITER)
+
+    if (new Blob([potentialMemo]).size <= maxMemoSize) break
+    exponent++
+  } while (exponent < finalAssetPrecision)
+
+  if (new Blob([potentialMemo]).size > maxMemoSize) {
+    throw new Error('Unable to fit the memo within the size limit.')
   }
 
-  return memo
+  return potentialMemo
 }

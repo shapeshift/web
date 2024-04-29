@@ -24,10 +24,12 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -47,7 +49,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
-import { fromThorBaseUnit, getThorchainFromAddress } from 'lib/utils/thorchain'
+import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateRemoveThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
@@ -120,9 +122,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [percentageSelection, setPercentageSelection] = useState<number>(INITIAL_REMOVAL_PERCENTAGE)
   const [sliderValue, setSliderValue] = useState<number>(INITIAL_REMOVAL_PERCENTAGE)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
-  const [poolAssetAccountAddress, setPoolAssetAccountAddress] = useState<string | undefined>(
-    undefined,
-  )
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const { assetId, type: opportunityType } = useMemo(
@@ -588,6 +587,23 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     runeMarketData.price,
   ])
 
+  const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])
+  const poolAssetAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
+  )
+
+  const { data: poolAssetAccountAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId,
+      assetId: poolAsset?.assetId!,
+      opportunityId,
+      wallet: wallet!,
+      accountMetadata: poolAssetAccountMetadata!,
+      getPosition: getThorchainLpPosition,
+    }),
+    enabled: Boolean(poolAsset?.assetId && wallet && poolAssetAccountMetadata),
+  })
+
   useEffect(() => {
     if (!poolAsset) return
     if (!slippageFiatUserCurrency) return
@@ -635,26 +651,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     currentAccountIdByChainId,
     poolAssetAccountAddress,
   ])
-
-  const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])
-  const poolAssetAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
-  )
-
-  useEffect(() => {
-    if (!(wallet && poolAsset && opportunityId && poolAssetAccountMetadata)) return
-    ;(async () => {
-      const _accountAssetAddress = await getThorchainFromAddress({
-        accountId,
-        assetId: poolAsset?.assetId,
-        opportunityId,
-        wallet,
-        accountMetadata: poolAssetAccountMetadata,
-        getPosition: getThorchainLpPosition,
-      })
-      setPoolAssetAccountAddress(_accountAssetAddress)
-    })()
-  }, [accountId, opportunityId, poolAsset, poolAssetAccountMetadata, wallet])
 
   const isDeposit = useMemo(() => isLpConfirmedDepositQuote(confirmedQuote), [confirmedQuote])
   const isSymWithdraw = useMemo(

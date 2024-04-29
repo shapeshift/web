@@ -13,6 +13,7 @@ import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
 import type {
@@ -22,6 +23,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -39,7 +41,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { fromThorBaseUnit, getThorchainFromAddress, toThorBaseUnit } from 'lib/utils/thorchain'
+import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -65,7 +67,6 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quote, setQuote] = useState<ThorchainSaversDepositQuoteResponseSuccess | null>(null)
-  const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
   const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
@@ -104,7 +105,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )
-  const accountType = accountMetadata?.accountType
   const bip44Params = accountMetadata?.bip44Params
   // user info
   const {
@@ -183,13 +183,24 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     quote,
   ])
 
+  const { data: fromAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId: accountId!,
+      assetId,
+      wallet: wallet!,
+      accountMetadata: accountMetadata!,
+      getPosition: getThorchainSaversPosition,
+    }),
+    enabled: Boolean(accountId && wallet && accountMetadata),
+  })
+
   const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
     action: 'depositSavers',
     memo: quote?.memo ?? null,
-    fromAddress,
+    fromAddress: fromAddress ?? null,
   })
 
   const estimatedGasCryptoPrecision = useMemo(() => {
@@ -207,21 +218,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       },
     })
   }, [contextDispatch, estimatedGasCryptoPrecision, feeAsset.precision])
-
-  useEffect(() => {
-    if (!(accountId && chainAdapter && wallet && bip44Params)) return
-    ;(async () => {
-      const accountAddress = await getThorchainFromAddress({
-        accountId,
-        assetId,
-        wallet,
-        accountMetadata,
-        getPosition: getThorchainSaversPosition,
-      })
-
-      setFromAddress(accountAddress)
-    })()
-  }, [accountId, accountMetadata, accountType, assetId, bip44Params, chainAdapter, wallet])
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,

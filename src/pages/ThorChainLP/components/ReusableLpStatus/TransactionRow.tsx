@@ -32,7 +32,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type {
   LpConfirmedDepositQuote,
@@ -82,8 +82,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [status, setStatus] = useState(TxStatus.Unknown)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
-  const [fromAddress, setFromAddress] = useState<string | null>(null)
-  const [pairAssetAddress, setPairAssetAddress] = useState<string | null>(null)
 
   const { currentAccountIdByChainId, positionStatus } = confirmedQuote
 
@@ -112,59 +110,57 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
   const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
 
-  useEffect(() => {
-    if (!wallet) return
+  const accountId = useMemo(
+    () => (isRuneTx ? runeAccountId : poolAssetAccountId),
+    [isRuneTx, poolAssetAccountId, runeAccountId],
+  )
 
-    const accountId = isRuneTx ? runeAccountId : poolAssetAccountId
-    const assetId = isRuneTx ? thorchainAssetId : poolAssetId
-    const accountMetadata = isRuneTx ? runeAccountMetadata : poolAssetAccountMetadata
+  const accountMetadata = useMemo(
+    () => (isRuneTx ? runeAccountMetadata : poolAssetAccountMetadata),
+    [isRuneTx, poolAssetAccountMetadata, runeAccountMetadata],
+  )
 
-    const pairAssetAssetId = isRuneTx ? poolAssetId : thorchainAssetId
-    const pairAssetAccountId = isRuneTx ? poolAssetAccountId : runeAccountId
-    const pairAssetAccountMetadata = isRuneTx ? poolAssetAccountMetadata : runeAccountMetadata
+  const pairAssetAssetId = useMemo(
+    () => (isRuneTx ? poolAssetId : thorchainAssetId),
+    [isRuneTx, poolAssetId],
+  )
 
-    if (!accountMetadata) return
-    ;(async () => {
-      const _fromAddress = await getThorchainFromAddress({
-        accountId,
-        assetId,
-        opportunityId: confirmedQuote.opportunityId,
+  const pairAssetAccountMetadata = useMemo(
+    () => (isRuneTx ? poolAssetAccountMetadata : runeAccountMetadata),
+    [isRuneTx, poolAssetAccountMetadata, runeAccountMetadata],
+  )
+
+  const { data: fromAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId,
+      assetId: isRuneTx ? thorchainAssetId : poolAssetId,
+      opportunityId: confirmedQuote.opportunityId,
+      wallet: wallet!,
+      accountMetadata: accountMetadata!,
+      getPosition: getThorchainLpPosition,
+    }),
+    enabled: Boolean(poolAsset?.assetId && accountMetadata && wallet && poolAssetAccountMetadata),
+  })
+
+  const { data: pairAssetAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId,
+      assetId: pairAssetAssetId,
+      opportunityId: confirmedQuote.opportunityId,
+      wallet: wallet!,
+      accountMetadata: pairAssetAccountMetadata!,
+      getPosition: getThorchainLpPosition,
+    }),
+    // strip bech32 prefix for use in thorchain memo (bech32 not supported)
+    select: address => address?.replace('bitcoincash:', ''),
+    enabled: Boolean(
+      opportunityType === 'sym' &&
+        poolAsset?.assetId &&
+        pairAssetAccountMetadata &&
+        poolAssetAccountMetadata &&
         wallet,
-        accountMetadata,
-        getPosition: getThorchainLpPosition,
-      })
-
-      // use address as is for use in constructing the transaction (not related to memo)
-      setFromAddress(_fromAddress)
-
-      // We don't want to set the other asset's address in the memo when doing asym deposits or we'll have bigly problems
-      if (opportunityType !== 'sym') return
-      if (!pairAssetAccountMetadata) return
-
-      const _pairAssetAddress = await getThorchainFromAddress({
-        accountId: pairAssetAccountId,
-        assetId: pairAssetAssetId,
-        opportunityId: confirmedQuote.opportunityId,
-        wallet,
-        accountMetadata: pairAssetAccountMetadata,
-        getPosition: getThorchainLpPosition,
-      })
-
-      // strip bech32 prefix for use in thorchain memo (bech32 not supported)
-      setPairAssetAddress(_pairAssetAddress.replace('bitcoincash:', ''))
-    })()
-  }, [
-    assetId,
-    opportunityType,
-    confirmedQuote.opportunityId,
-    isRuneTx,
-    poolAssetAccountId,
-    poolAssetAccountMetadata,
-    poolAssetId,
-    runeAccountId,
-    runeAccountMetadata,
-    wallet,
-  ])
+    ),
+  })
 
   const thorchainNotationAssetId = useMemo(() => {
     // TODO(gomes): rename the utils to use the same terminology as well instead of the current poolAssetId one.
@@ -186,7 +182,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
     memo,
-    fromAddress,
+    fromAddress: fromAddress ?? null,
     action: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
     disableEstimateFeesRefetch: isSubmitting,
   })

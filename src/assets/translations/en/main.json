@@ -304,7 +304,8 @@
     }
   },
   "manageAccounts": {
-    "menuTitle": "Manage Accounts"
+    "menuTitle": "Manage Accounts",
+    "modalTitle": "Select a Chain to Manage"
   },
   "defi": {
     "modals": {
@@ -1790,10 +1791,17 @@
     "viewAccount": "View account",
     "expandAccount": "Expand account"
   },
-  "accountManagementSidebar": {
-    "title": "Import %{chainNamespaceDisplayName} Accounts",
-    "description": "Select the accounts you would like to import from the list below.",
-    "import": "Import"
+  "accountManagement": {
+    "selectChain": {
+      "title": "Select Chain",
+      "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import.",
+      "searchChains": "Search by name"
+    },
+    "importAccounts": {
+      "title": "Import %{chainNamespaceDisplayName} Accounts",
+      "description": "Select the accounts you would like to import from the list below.",
+      "import": "Import"
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

@@ -16,7 +16,7 @@ export const LedgerMenu = () => {
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
-  const accountManagementPopover = useModal('backupNativePassphrase') // FIXME: use accountManagementPopover once ready
+  const accountManagementPopover = useModal('manageAccounts')
 
   const handleChainsClick = useCallback(() => {
     const ledgerRoutes = SUPPORTED_WALLETS[KeyManager.Ledger].routes
@@ -30,8 +30,8 @@ export const LedgerMenu = () => {
   }, [dispatch])
 
   const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({}),
-    [accountManagementPopover],
+    () => accountManagementPopover.open({ title: translate('manageAccounts.modalTitle') }),
+    [accountManagementPopover, translate],
   )
 
   return (

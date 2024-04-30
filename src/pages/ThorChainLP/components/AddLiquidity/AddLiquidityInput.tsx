@@ -515,7 +515,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     fromAddress: poolAssetAccountAddress ?? null,
     action: 'addLiquidity',
     enableEstimateFees: Boolean(
-      actualAssetDepositAmountCryptoPrecision &&
+      bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
         !isApprovalRequired &&
         incompleteSide !== AsymSide.Rune,
     ),
@@ -755,7 +755,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     memo: feeEstimationMemo,
     fromAddress: null,
     action: 'addLiquidity',
-    enableEstimateFees: incompleteSide !== AsymSide.Asset,
+    enableEstimateFees: Boolean(
+      bnOrZero(actualRuneDepositAmountCryptoPrecision).gt(0) && incompleteSide !== AsymSide.Asset,
+    ),
   })
 
   useEffect(() => {
@@ -817,10 +819,29 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     [runeMarketData.price, runeTxFeeCryptoPrecision],
   )
 
-  const totalGasFeeFiatUserCurrency = useMemo(
-    () => poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency),
-    [poolAssetGasFeeFiatUserCurrency, runeGasFeeFiatUserCurrency],
-  )
+  const totalGasFeeFiatUserCurrency = useMemo(() => {
+    if (!opportunityType) return bn(0)
+
+    switch (opportunityType) {
+      case AsymSide.Rune:
+        return runeGasFeeFiatUserCurrency
+      case AsymSide.Asset:
+        return poolAssetGasFeeFiatUserCurrency
+      case 'sym': {
+        if (!poolAssetTxFeeCryptoBaseUnit) return bn(0)
+        if (!runeTxFeeCryptoBaseUnit) return bn(0)
+        return poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency)
+      }
+      default:
+        assertUnreachable(opportunityType)
+    }
+  }, [
+    opportunityType,
+    poolAssetGasFeeFiatUserCurrency,
+    poolAssetTxFeeCryptoBaseUnit,
+    runeGasFeeFiatUserCurrency,
+    runeTxFeeCryptoBaseUnit,
+  ])
 
   const handleApprove = useCallback(() => mutate(undefined), [mutate])
 
@@ -1210,6 +1231,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     (asset: Asset) => {
       const type = getDefaultOpportunityType(asset.assetId)
       setPoolAsset(undefined)
+      setPoolAssetTxFeeCryptoBaseUnit(undefined)
+      setRuneTxFeeCryptoBaseUnit(undefined)
+      setVirtualAssetDepositAmountCryptoPrecision('0')
+      setVirtualAssetDepositAmountFiatUserCurrency('0')
+      setVirtualRuneDepositAmountCryptoPrecision('0')
+      setVirtualRuneDepositAmountFiatUserCurrency('0')
       setActiveOpportunityId(toOpportunityId({ assetId: asset.assetId, type }))
     },
     [getDefaultOpportunityType],

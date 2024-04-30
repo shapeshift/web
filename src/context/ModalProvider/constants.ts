@@ -23,4 +23,5 @@ export const MODAL_KEYS: (keyof Modals)[] = [
   'nft',
   'feedbackSupport',
   'snaps',
+  'manageAccounts',
 ]

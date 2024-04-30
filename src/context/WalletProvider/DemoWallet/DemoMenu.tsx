@@ -24,7 +24,7 @@ export const DemoMenu = () => {
         <>
           <MenuDivider />
           <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-            {translate('manageAccounts.menuTitle')}
+            {translate('accountManagement.menuTitle')}
           </MenuItem>
         </>
       )}

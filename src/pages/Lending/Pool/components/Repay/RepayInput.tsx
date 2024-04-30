@@ -372,18 +372,20 @@ export const RepayInput = ({
     accountId: collateralAccountId,
   })
 
-  const { estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
-    assetId: repaymentAsset?.assetId ?? '',
-    accountId: repaymentAccountId,
-    amountCryptoBaseUnit: toBaseUnit(
-      confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-      repaymentAsset?.precision ?? 0,
-    ),
-    memo: confirmedQuote?.quoteMemo ?? null,
-    // no explicit from address required for repayments
-    fromAddress: '',
-    action: 'repayLoan',
-  })
+  const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
+    {
+      assetId: repaymentAsset?.assetId ?? '',
+      accountId: repaymentAccountId,
+      amountCryptoBaseUnit: toBaseUnit(
+        confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+        repaymentAsset?.precision ?? 0,
+      ),
+      memo: confirmedQuote?.quoteMemo ?? null,
+      // no explicit from address required for repayments
+      fromAddress: '',
+      action: 'repayLoan',
+    },
+  )
 
   const balanceFilter = useMemo(
     () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
@@ -469,7 +471,11 @@ export const RepayInput = ({
         /not enough fee/i.test(lendingQuoteCloseError.message) ||
         /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
       )
-        return translate('trade.errors.amountTooSmallUnknownMinimum')
+        return translate(
+          repaymentPercent === 100
+            ? 'lending.errors.amountTooLowToReturnCollateral'
+            : 'trade.errors.amountTooSmallUnknownMinimum',
+        )
       if (
         /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
         /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
@@ -495,8 +501,31 @@ export const RepayInput = ({
     isLendingQuoteCloseError,
     isThorchainLendingRepayEnabled,
     lendingQuoteCloseError?.message,
+    repaymentPercent,
     translate,
   ])
+
+  const quoteErrorTooltipTranslation = useMemo(() => {
+    if (!isLendingQuoteCloseError) return null
+
+    if (
+      /not enough fee/i.test(lendingQuoteCloseError.message) ||
+      /not enough to pay transaction fee/i.test(lendingQuoteCloseError.message)
+    )
+      return translate(
+        repaymentPercent === 100
+          ? 'lending.errors.amountTooLowToReturnCollateralTooltip'
+          : 'lending.errors.amountTooSmallUnknownMinimumTooltip',
+      )
+    if (
+      /loan hasn't reached maturity/i.test(lendingQuoteCloseError.message) ||
+      /loan repayment is unavailable/i.test(lendingQuoteCloseError.message)
+    )
+      return translate('lending.errors.repaymentUnavailableTooltip')
+
+    if (/trading is halted/i.test(lendingQuoteCloseError.message))
+      return translate('lending.errors.repaymentsHaltedTooltip')
+  }, [isLendingQuoteCloseError, lendingQuoteCloseError?.message, repaymentPercent, translate])
 
   const confirmTranslation = useMemo(() => {
     if (isApprovalRequired && repaymentAsset)
@@ -540,6 +569,7 @@ export const RepayInput = ({
         formControlProps={formControlProps}
         layout='inline'
         labelPostFix={repaymentAssetSelectComponent}
+        hideAmounts={isLendingQuoteCloseError}
       >
         <Stack spacing={4} px={6} pb={4}>
           <Slider defaultValue={100} onChange={onRepaymentPercentChange}>
@@ -682,39 +712,48 @@ export const RepayInput = ({
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Button
-          size='lg'
-          colorScheme={isLendingQuoteCloseError || quoteErrorTranslation ? 'red' : 'blue'}
-          mx={-2}
-          onClick={onSubmit}
-          isLoading={
-            isApprovalTxPending ||
-            isLendingPositionDataLoading ||
-            isLendingQuoteCloseLoading ||
-            isLendingQuoteCloseRefetching ||
-            isEstimatedFeesDataLoading ||
-            isAddressByteCodeLoading ||
-            isInboundAddressLoading ||
-            isAllowanceDataLoading
-          }
-          isDisabled={Boolean(
-            !isThorchainLendingRepayEnabled ||
+        <Tooltip
+          label={translate(quoteErrorTooltipTranslation)}
+          isDisabled={!lendingQuoteCloseError}
+        >
+          <Button
+            size='lg'
+            colorScheme={
+              isLendingQuoteCloseError || isEstimatedFeesDataError || quoteErrorTranslation
+                ? 'red'
+                : 'blue'
+            }
+            mx={-2}
+            onClick={onSubmit}
+            isLoading={
               isApprovalTxPending ||
-              isInboundAddressLoading ||
-              isAllowanceDataLoading ||
               isLendingPositionDataLoading ||
-              isLendingPositionDataError ||
               isLendingQuoteCloseLoading ||
               isLendingQuoteCloseRefetching ||
               isEstimatedFeesDataLoading ||
-              !estimatedFeesData ||
-              isLendingQuoteCloseError ||
-              disableSmartContractRepayment ||
-              quoteErrorTranslation,
-          )}
-        >
-          {quoteErrorTranslation ? quoteErrorTranslation : confirmTranslation}
-        </Button>
+              isAddressByteCodeLoading ||
+              isInboundAddressLoading ||
+              isAllowanceDataLoading
+            }
+            isDisabled={Boolean(
+              !isThorchainLendingRepayEnabled ||
+                isApprovalTxPending ||
+                isInboundAddressLoading ||
+                isAllowanceDataLoading ||
+                isLendingPositionDataLoading ||
+                isLendingPositionDataError ||
+                isLendingQuoteCloseLoading ||
+                isLendingQuoteCloseRefetching ||
+                isEstimatedFeesDataLoading ||
+                isLendingQuoteCloseError ||
+                isEstimatedFeesDataError ||
+                disableSmartContractRepayment ||
+                quoteErrorTranslation,
+            )}
+          >
+            {quoteErrorTranslation ? quoteErrorTranslation : confirmTranslation}
+          </Button>
+        </Tooltip>
       </Stack>
     </Stack>
   )

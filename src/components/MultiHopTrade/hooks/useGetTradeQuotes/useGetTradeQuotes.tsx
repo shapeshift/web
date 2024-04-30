@@ -14,6 +14,7 @@ import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { isThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper'
@@ -81,6 +82,7 @@ const getMixPanelDataFromApiQuotes = (
         quoteReceived: !!quote,
         isStreaming: quote?.isStreaming ?? false,
         isLongtail: quote?.isLongtail ?? false,
+        tradeType: isThorTradeQuote(quote) ? quote?.tradeType : null,
         errors: errors.map(({ error }) => error),
         isActionable: !!quote && !errors.length,
       }

@@ -23,6 +23,11 @@ Sentry.init({
       failedRequestStatusCodes: [[400, 599]],
     }),
   ],
+  beforeSend(event) {
+    // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3
+    event.fingerprint = [(Math.random() * 1000000).toString()]
+    return event
+  },
   // Performance Monitoring
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled

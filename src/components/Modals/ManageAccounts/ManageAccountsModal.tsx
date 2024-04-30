@@ -106,7 +106,7 @@ export const ManageAccountsModal = ({
     })
   }, [handleClickChain, walletSupportedChainIds])
 
-  const disableAddChain = walletSupportedChainIds.length === connectedChains.length
+  const disableAddChain = false // walletSupportedChainIds.length === connectedChains.length
 
   return (
     <>

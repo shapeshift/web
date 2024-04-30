@@ -1,5 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 
 import { DrawerWrapper } from './components/DrawerWrapper'
@@ -20,11 +22,12 @@ export const ManageAccountsDrawer = ({
   onClose,
   chainId: parentSelectedChainId,
 }: ManageAccountsDrawerProps) => {
+  const wallet = useWallet().state.wallet
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
   // TODO: Implement Ledger specific logic
-  const isLedger = true
+  const isLedgerWallet = wallet ? isLedger(wallet) : false
 
   const handleClose = useCallback(() => {
     setStep('selectChain')
@@ -34,7 +37,7 @@ export const ManageAccountsDrawer = ({
   const handleNext = useCallback(() => {
     switch (step) {
       case 'selectChain':
-        if (isLedger) {
+        if (isLedgerWallet) {
           setStep('ledgerOpenApp')
         } else {
           setStep('importAccounts')
@@ -49,7 +52,7 @@ export const ManageAccountsDrawer = ({
       default:
         assertUnreachable(step)
     }
-  }, [isLedger, handleClose, step])
+  }, [step, isLedgerWallet, handleClose])
 
   // Set the selected chainId from parent if required
   useEffect(() => {

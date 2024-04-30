@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 import { useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -24,13 +24,14 @@ import { RawText } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isUtxoAccountId } from 'lib/utils/utxo'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
-  selectPortfolioAccounts,
+  selectIsAccountIdEnabled,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { DrawerContentWrapper } from './DrawerContent'
 
@@ -57,18 +58,18 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
     const translate = useTranslate()
     const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
     const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
+    const isAccountEnabledFilter = useMemo(() => ({ accountId }), [accountId])
+    const isAccountEnabledInRedux = useAppSelector(state =>
+      selectIsAccountIdEnabled(state, isAccountEnabledFilter),
+    )
 
-    const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
-
-    const isAccountActiveInRedux = useMemo(() => {
-      return portfolioAccounts[accountId] !== undefined
-    }, [accountId, portfolioAccounts])
-    const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountActiveInRedux)
+    const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabledInRedux)
 
     useEffect(() => {
       onAccountIdActiveChange(accountId, isAccountActive)
-    }, [accountId, isAccountActive, isAccountActiveInRedux, onAccountIdActiveChange])
+    }, [accountId, isAccountActive, isAccountEnabledInRedux, onAccountIdActiveChange])
 
+    // TODO: Redux wont have this for new accounts and will be 0, so we'll need to fetch it
     const assetBalancePrecision = useAppSelector(s =>
       selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
     )
@@ -124,26 +125,27 @@ const LoadingRow = () => {
 
 export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
-  const wallet = useWallet().state.wallet
+  const dispatch = useAppDispatch()
+  const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const chainNamespaceDisplayName = asset?.networkName ?? ''
-  const [accounts, setAccounts] = useState<{ accountNumber: number; accountId: AccountId }[]>([])
+  const [accounts, setAccounts] = useState<
+    { accountNumber: number; accountId: AccountId; accountMetadata: AccountMetadata }[]
+  >([])
   const queryClient = useQueryClient()
   const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
   const [accountIdActiveStateUpdate, setAccountIdActiveStateUpdate] = useState<
     Record<string, boolean>
   >({})
 
-  // TODO:
-  // when "done" is clicked, all enabled accounts for this chain will be upserted into the portfolio
-  // all disabled ones will be removed.
-  // need to call dispatch(portfolioApi.getAccount({ accountId, upsertOnFetch: true }))
-  // which internally calls dispatch(portfolio.actions.upsertPortfolio(account)) and upserts assets
-  // But also need to remove accounts that were disabled.
-
   // initial fetch to detect the number of accounts based on the "first empty account" heuristic
   const { data: allAccountIdsWithActivity } = useQuery(
-    accountManagement.allAccountIdsWithActivity(chainId, wallet, NUM_ADDITIONAL_EMPTY_ACCOUNTS),
+    accountManagement.allAccountIdsWithActivityAndMetadata(
+      chainId,
+      wallet,
+      walletDeviceId,
+      NUM_ADDITIONAL_EMPTY_ACCOUNTS,
+    ),
   )
 
   useEffect(() => {
@@ -154,14 +156,19 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     if (!wallet) return
     const accountNumber = accounts.length
     const accountResult = await queryClient.fetchQuery(
-      reactQueries.accountManagement.accountIdWithActivity(accountNumber, chainId, wallet),
+      reactQueries.accountManagement.accountIdWithActivityAndMetadata(
+        accountNumber,
+        chainId,
+        wallet,
+        walletDeviceId,
+      ),
     )
     if (!accountResult) return
     setAccounts(previousAccounts => {
-      const { accountId } = accountResult
-      return [...previousAccounts, { accountNumber, accountId }]
+      const { accountId, accountMetadata } = accountResult
+      return [...previousAccounts, { accountNumber, accountId, accountMetadata }]
     })
-  }, [accounts, chainId, queryClient, wallet])
+  }, [accounts, chainId, queryClient, wallet, walletDeviceId])
 
   const handleAccountIdActiveChange = useCallback((accountId: AccountId, isActive: boolean) => {
     setAccountIdActiveStateUpdate(previousState => {
@@ -169,11 +176,36 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     })
   }, [])
 
-  const handleDone = useCallback(() => {
-    // TODO: actually update the redux state with the new account state
-    console.log('handleDone', accountIdActiveStateUpdate)
+  // TODO: Loading state
+  const handleDone = useCallback(async () => {
+    // for every new account that is active, fetch the account and upsert it into the redux state
+    for (const [accountId, isActive] of Object.entries(accountIdActiveStateUpdate)) {
+      if (!isActive) continue
+      await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
+    }
+
+    const accountMetadataByAccountId = accounts.reduce(
+      (accumulator, { accountId, accountMetadata }) => {
+        return { ...accumulator, [accountId]: accountMetadata }
+      },
+      {},
+    )
+
+    dispatch(
+      portfolio.actions.upsertAccountMetadata({
+        accountMetadataByAccountId,
+        walletId: walletDeviceId,
+      }),
+    )
+
+    const disabledAccountIds = Object.entries(accountIdActiveStateUpdate)
+      .filter(([_, isActive]) => !isActive)
+      .map(([accountId]) => accountId)
+
+    dispatch(portfolio.actions.setDisabledAccountIds(disabledAccountIds))
+
     onClose()
-  }, [accountIdActiveStateUpdate, onClose])
+  }, [accountIdActiveStateUpdate, accounts, dispatch, onClose, walletDeviceId])
 
   const accountRows = useMemo(() => {
     if (!asset) return null

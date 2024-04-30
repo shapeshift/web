@@ -73,6 +73,53 @@ describe('assertAndProcessMemo', () => {
       const expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
+
+    it('should throw on invalid asset', () => {
+      const memo = '=::0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid destination address', () => {
+      const memo = '=:ETH.ETH::9786345:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid limit standard swap', () => {
+      let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:bad:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid limit streaming swap', () => {
+      let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:/:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6://:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:///:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0//:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/0/:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:/0/:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:/0/0:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6://0:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
   })
 
   describe('deposit savers', () => {
@@ -148,6 +195,16 @@ describe('assertAndProcessMemo', () => {
       const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::bad:50'
       const expected = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should throw on invalid pool', () => {
+      const memo = '+:::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on paired address', () => {
+      const memo = '+:ETH/USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:bad:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 
@@ -231,6 +288,11 @@ describe('assertAndProcessMemo', () => {
       const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48::ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
+
+    it('should throw on invalid pool', () => {
+      const memo = '+:::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
   })
 
   describe('withdraw savers', () => {
@@ -306,6 +368,24 @@ describe('assertAndProcessMemo', () => {
       const memo = '-:ETH/ETH:5000::bad:0'
       const expected = '-:ETH/ETH:5000::ss:0'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should throw on invalid pool', () => {
+      const memo = '-::5000::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on asset', () => {
+      const memo = '-:ETH/ETH:5000:ETH/ETH:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid basis points', () => {
+      let memo = '-:ETH/ETH:50000::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '-:ETH/ETH:-1::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 
@@ -388,6 +468,16 @@ describe('assertAndProcessMemo', () => {
       const memo = '-:ETH.ETH:5000::bad:0'
       const expected = '-:ETH.ETH:5000::ss:0'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should throw on invalid pool', () => {
+      const memo = '-::5000::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid basis points', () => {
+      const memo = '-:ETH/ETH:50000::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 
@@ -476,10 +566,30 @@ describe('assertAndProcessMemo', () => {
 
     it('processes with wrong affiliate name', () => {
       const memo =
-        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::bad:50'
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:bad:50'
       const expected =
-        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should throw on invalid asset', () => {
+      const memo = '$+::0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid destination address', () => {
+      const memo = '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F::9786345:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid min out', () => {
+      let memo =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:0:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 
@@ -552,6 +662,24 @@ describe('assertAndProcessMemo', () => {
       const memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:bad:0'
       const expected = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:0'
       expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('should throw on invalid asset', () => {
+      const memo = '$+::bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:9786345:ss:50'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid destination address', () => {
+      const memo = '$-:BTC.BTC::9786345:ss:0'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+    })
+
+    it('should throw on invalid min out', () => {
+      let memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq::bad:0'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
+
+      memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:0:bad:0'
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 })

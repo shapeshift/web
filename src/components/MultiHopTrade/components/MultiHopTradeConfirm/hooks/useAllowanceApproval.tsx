@@ -6,12 +6,7 @@ import { useApprovalTx } from 'components/MultiHopTrade/components/MultiHopTrade
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { assertGetEvmChainAdapter, buildAndBroadcast } from 'lib/utils/evm'
 import { assertGetViemClient } from 'lib/viem-client'
-import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
-import {
-  selectIsActiveQuoteMultiHop,
-  selectSecondHop,
-} from 'state/slices/tradeQuoteSlice/selectors'
+import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -26,27 +21,7 @@ export const useAllowanceApproval = (
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
 
-  const secondHop = useAppSelector(selectSecondHop)
-  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  // TODO(gomes): this is temporary while devving - we should use the previous selectHopSellAccountId selector, if arity is happy there,
-  // else fix it and still use it because this is ugly
-  const firstHopSellAssetAccountId = useAppSelector(state => selectFirstHopSellAccountId(state))
-
-  // the network fee asset for the second hop in the trade
-  const secondHopSellFeeAsset = useAppSelector(state =>
-    isMultiHopTrade && secondHop
-      ? selectFeeAssetById(state, secondHop?.sellAsset.assetId)
-      : undefined,
-  )
-
-  const secondHopSellAssetAccountId = useAppSelector(state =>
-    selectSecondHopSellAccountId(state, {
-      chainId: secondHopSellFeeAsset?.chainId,
-      accountNumber: secondHop?.accountNumber,
-    }),
-  )
-  const sellAssetAccountId =
-    hopIndex === 0 ? firstHopSellAssetAccountId : secondHopSellAssetAccountId
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   const {
     approvalNetworkFeeCryptoBaseUnit,

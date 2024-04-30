@@ -1,10 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import type { Selector } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { isSome } from 'lib/utils'
+import type { ApiQuote } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAccountNumberParamFromFilter, selectChainIdParamFromFilter } from 'state/selectors'
 
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -20,7 +22,7 @@ import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '../portfolioSlice/utils'
-// import { selectIsActiveQuoteMultiHop } from '../tradeQuoteSlice/selectors'
+import { sortQuotes } from '../tradeQuoteSlice/helpers'
 
 const selectTradeInput = (state: ReduxState) => state.tradeInput
 
@@ -98,31 +100,6 @@ export const selectFirstHopSellAccountId = createSelector(
 
     // otherwise return a sane default
     return highestFiatBalanceSellAccountId ?? firstSellAssetAccountId
-  },
-)
-
-// if multi-hop, selects the account ID we're selling from for fee asset of the last hop and its account number
-// else, selects the AccountId from the first hop
-export const selectSecondHopSellAccountId = createSelector(
-  selectAccountNumberParamFromFilter,
-  selectAccountIdByAccountNumberAndChainId,
-  selectChainIdParamFromFilter,
-  // selectIsActiveQuoteMultiHop,
-  selectFirstHopSellAccountId,
-  (
-    sellAssetAccountNumber,
-    sellAssetAccountIds,
-    sellAssetChainId,
-    // isMultiHopTrade,
-    firstHopSellAccountId,
-  ) => {
-    // TODO(gomes): fix circular deps here
-    const isMultiHopTrade = true
-    if (!isMultiHopTrade) return firstHopSellAccountId
-    if (sellAssetAccountNumber === undefined) return
-    if (!sellAssetChainId) return
-    const chainIdAccountNumbers = sellAssetAccountIds[sellAssetAccountNumber]
-    return chainIdAccountNumbers?.[sellAssetChainId]
   },
 )
 
@@ -245,4 +222,94 @@ export const selectIsInputtingFiatSellAmount = createSelector(
 export const selectHasUserEnteredAmount = createSelector(
   selectInputSellAmountCryptoPrecision,
   sellAmountCryptoPrecision => bnOrZero(sellAmountCryptoPrecision).gt(0),
+)
+
+// All the below selectors are re-declared from tradeQuoteSlice/selectors to avoid circular deps
+// and allow selectSecondHopSellAccountId to keep a pwetty API
+
+const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
+const selectTradeQuotes = createDeepEqualOutputSelector(
+  selectTradeQuoteSlice,
+  tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
+)
+const selectSortedTradeQuotes = createDeepEqualOutputSelector(selectTradeQuotes, tradeQuotes => {
+  const allQuotes = Object.values(tradeQuotes)
+    .filter(isSome)
+    .map(swapperQuotes => Object.values(swapperQuotes))
+    .flat()
+  const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
+  const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
+  return [...happyQuotes, ...errorQuotes]
+})
+
+const selectActiveQuoteMeta: Selector<
+  ReduxState,
+  { swapperName: SwapperName; identifier: string } | undefined
+> = createSelector(
+  selectTradeQuoteSlice,
+  selectSortedTradeQuotes,
+  (tradeQuoteSlice, sortedQuotes) => {
+    const bestQuote = sortedQuotes[0]
+    const bestQuoteMeta = bestQuote
+      ? { swapperName: bestQuote.swapperName, identifier: bestQuote.id }
+      : undefined
+    // Return the "best" quote even if it has errors, provided there is a quote to display data for
+    // this allows users to explore trades that aren't necessarily actionable. The UI will prevent
+    // executing these downstream.
+    const isSelectable = bestQuote?.quote !== undefined
+    const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
+    return tradeQuoteSlice.activeQuoteMeta ?? defaultQuoteMeta
+  },
+)
+
+const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
+  createDeepEqualOutputSelector(
+    selectTradeQuotes,
+    selectActiveQuoteMeta,
+    (tradeQuotes, activeQuoteMeta) => {
+      // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
+      if (activeQuoteMeta === undefined) return undefined
+
+      return tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]
+    },
+  )
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
+const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
+  createDeepEqualOutputSelector(
+    selectActiveSwapperApiResponse,
+    selectConfirmedQuote,
+    (response, confirmedQuote) => {
+      // Return the confirmed quote for trading, if it exists.
+      // This prevents the quote changing during trade execution, but has implications on the UI
+      // displaying stale data. To prevent displaying stale data, we must ensure to clear the
+      // confirmedQuote when not executing a trade.
+      if (confirmedQuote) return confirmedQuote
+      return response?.quote
+    },
+  )
+
+const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
+  createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[1] : undefined))
+
+export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =
+  createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))
+
+// if multi-hop, selects the account ID we're selling from for fee asset of the last hop and its account number
+// else, selects none because there's obviously no AccountId if there's no hop
+export const selectSecondHopSellAccountId = createSelector(
+  selectAccountIdByAccountNumberAndChainId,
+  selectIsActiveQuoteMultiHop,
+  selectSecondHop,
+  (accountIdsByAccountNumberAndChainId, isMultiHopTrade, secondHop) => {
+    // No second hop sellAccountId if there is no second hop
+    if (!isMultiHopTrade || !secondHop) return
+    const secondHopSellAssetAccountNumber = secondHop.accountNumber
+    const secondHopSellAssetChainId = secondHop.sellAsset.chainId
+
+    const chainIdAccountNumbers =
+      accountIdsByAccountNumberAndChainId[secondHopSellAssetAccountNumber]
+    if (!chainIdAccountNumbers) return
+    return chainIdAccountNumbers?.[secondHopSellAssetChainId]
+  },
 )

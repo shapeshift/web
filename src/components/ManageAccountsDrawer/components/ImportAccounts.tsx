@@ -28,6 +28,7 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
+  selectHighestAccountNumberForChainId,
   selectIsAccountIdEnabled,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -128,6 +129,10 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const dispatch = useAppDispatch()
   const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
+  const highestAccountNumber = useAppSelector(state =>
+    selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
+  )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [accounts, setAccounts] = useState<
     { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[]
@@ -144,7 +149,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       chainId,
       wallet,
       walletDeviceId,
-      NUM_ADDITIONAL_EMPTY_ACCOUNTS,
+      // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
+      // Add additional empty accounts to show more accounts without having to load more.
+      highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS,
     ),
   )
 

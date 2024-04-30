@@ -130,7 +130,7 @@ export const AvailablePools = () => {
   }, [handlePoolClick, lendingSupportedAssets])
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.lending')} />
       <Stack>
         <SimpleGrid

@@ -21,7 +21,9 @@ import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { generatePath, useHistory, useParams } from 'react-router'
+import { Display } from 'components/Display'
 import { SwapIcon } from 'components/Icons/SwapIcon'
+import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
@@ -59,15 +61,33 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetIds, name }) => {
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 
   return (
-    <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
-      <Flex gap={4} alignItems='center'>
-        <IconButton icon={backIcon} aria-label={translate('pools.pools')} onClick={handleBack} />
-        <Flex gap={4} alignItems='center'>
-          <PoolIcon assetIds={assetIds} size='sm' />
-          <Heading as='h3'>{name}</Heading>
-        </Flex>
-      </Flex>
-    </Container>
+    <>
+      <Display.Mobile>
+        <PageHeader>
+          <PageHeader.Left>
+            <PageBackButton />
+          </PageHeader.Left>
+          <PageHeader.Middle>
+            <PageHeader.Title>{name}</PageHeader.Title>
+          </PageHeader.Middle>
+        </PageHeader>
+      </Display.Mobile>
+      <Display.Desktop>
+        <Container maxWidth='container.4xl' px={containerPadding} pt={8} pb={4}>
+          <Flex gap={4} alignItems='center'>
+            <IconButton
+              icon={backIcon}
+              aria-label={translate('pools.pools')}
+              onClick={handleBack}
+            />
+            <Flex gap={4} alignItems='center'>
+              <PoolIcon assetIds={assetIds} size='sm' />
+              <Heading as='h3'>{name}</Heading>
+            </Flex>
+          </Flex>
+        </Container>
+      </Display.Desktop>
+    </>
   )
 }
 
@@ -125,7 +145,7 @@ export const Pool = () => {
   const swapIcon = useMemo(() => <SwapIcon />, [])
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage>
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Flex

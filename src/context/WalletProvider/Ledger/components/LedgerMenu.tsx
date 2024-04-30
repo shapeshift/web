@@ -16,7 +16,7 @@ export const LedgerMenu = () => {
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
-  const accountManagementPopover = useModal('backupNativePassphrase') // FIXME: use accountManagementPopover once ready
+  const accountManagementPopover = useModal('manageAccounts')
 
   const handleChainsClick = useCallback(() => {
     const ledgerRoutes = SUPPORTED_WALLETS[KeyManager.Ledger].routes
@@ -39,7 +39,7 @@ export const LedgerMenu = () => {
       <MenuDivider />
       {isAccountManagementEnabled && (
         <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-          {translate('manageAccounts.menuTitle')}
+          {translate('accountManagement.menuTitle')}
         </MenuItem>
       )}
       {/* TODO: Remove the below menu item once the new flow is added, and before the feature flag is enabled */}

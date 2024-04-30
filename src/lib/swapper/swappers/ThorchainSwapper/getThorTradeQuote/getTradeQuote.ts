@@ -10,6 +10,7 @@ import { assertUnreachable } from 'lib/utils'
 import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
 import type { ThornodePoolResponse } from '../types'
 import { getL1quote } from '../utils/getL1quote'
+import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
 import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
 import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
@@ -19,8 +20,11 @@ type ThorTradeQuoteSpecificMetadata = {
   isStreaming: boolean
   memo: string
   recommendedMinimumCryptoBaseUnit: string
+  tradeType: TradeType
+  expiry: number
   longtailData?: {
     longtailToL1ExpectedAmountOut?: bigint
+    L1ToLongtailExpectedAmountOut?: bigint
   }
 }
 export type ThorEvmTradeQuote = TradeQuote &
@@ -35,11 +39,16 @@ export type ThorEvmTradeQuote = TradeQuote &
 export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
 export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
+export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
+  !!quote && 'tradeType' in quote
+
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
   assetsById: AssetsByIdPartial,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = getConfig().REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
+  const thorchainSwapL1ToLongtailEnabled =
+    getConfig().REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL
   const { sellAsset, buyAsset } = input
 
   if (!sellSupportedChainIds[sellAsset.chainId] || !buySupportedChainIds[buyAsset.chainId]) {
@@ -112,8 +121,12 @@ export const getThorTradeQuote = async (
       return getL1quote(input, streamingInterval, tradeType)
     case TradeType.LongTailToL1:
       return getLongtailToL1Quote(input, streamingInterval, assetsById)
-    case TradeType.LongTailToLongTail:
     case TradeType.L1ToLongTail:
+      if (!thorchainSwapL1ToLongtailEnabled)
+        return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
+
+      return getL1ToLongtailQuote(input, streamingInterval, assetsById)
+    case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:
       assertUnreachable(tradeType)

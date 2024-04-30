@@ -303,9 +303,6 @@
       "connecting": "Connecting..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Manage Accounts"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -602,7 +599,7 @@
       },
       "trade": {
         "title": "Trade or Bridge",
-        "body": "Trade of bridge your crypto"
+        "body": "Trade or bridge your crypto"
       },
       "buy": {
         "title": "Buy or Sell",
@@ -1790,10 +1787,23 @@
     "viewAccount": "View account",
     "expandAccount": "Expand account"
   },
-  "accountManagementSidebar": {
-    "title": "Import %{chainNamespaceDisplayName} Accounts",
-    "description": "Select the accounts you would like to import from the list below.",
-    "import": "Import"
+  "accountManagement": {
+    "menuTitle": "Manage Accounts",
+    "manageAccounts": {
+      "title": "Manage Accounts",
+      "description": "These are the chains you have connected and the number of accounts you have imported.",
+      "addChain": "Add another chain"
+    },
+    "selectChain": {
+      "title": "Select Chain",
+      "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import.",
+      "searchChains": "Search by name"
+    },
+    "importAccounts": {
+      "title": "Import %{chainNamespaceDisplayName} Accounts",
+      "description": "Select the accounts you would like to import from the list below.",
+      "import": "Import"
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2247,7 +2257,12 @@
       "borrowingHalted": "Borrowing is temporarily halted.",
       "repaymentsDisabled": "Repayments are temporarily disabled.",
       "borrowingDisabled": "Borrowing is temporarily disabled.",
-      "amountTooLowToReturnCollateral": "Amount too low to return collateral"
+      "amountTooLowToReturnCollateral": "Amount too low to return collateral",
+      "amountTooLowToReturnCollateralTooltip": "The repayment is too low for your collateral to be returned. Please try again with a higher amount, or repay a partial amount (which will not return your collateral, but will decrease your debt).",
+      "amountTooSmallUnknownMinimumTooltip": "The repayment amount you have entered is too small. Please try again with a higher amount.",
+      "repaymentUnavailableTooltip": "It is not possible to repay your loan yet. Please wait until the repayment lock has elapsed.",
+      "repaymentsHaltedTooltip": "Repayments are temporarily halted. Please try again later.",
+      "errorGettingQuote": "There was an error getting the quote. Please try again."
     },
     "quote": {
       "collateral": "Total asset amount which will be secured against your loan",
@@ -2378,6 +2393,20 @@
       "title": "Start building your watchlist",
       "body": "Wherever you see the star icon, you can use it to add assets here.",
       "cta": "Explore more assets"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Earn more with staking",
+      "body": "Earn passive income by staking your assets with THORChain Savers Vault."
+    },
+    "pools": {
+      "title": "Pools",
+      "body": "Earn Fees on trades in pools."
+    },
+    "lending": {
+      "title": "Lending",
+      "body": "Borrow against your assets."
     }
   }
 }

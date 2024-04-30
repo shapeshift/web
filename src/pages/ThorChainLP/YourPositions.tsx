@@ -1,4 +1,4 @@
-import type { GridProps } from '@chakra-ui/react'
+import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Box, Flex, Skeleton, Spinner, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
@@ -8,6 +8,7 @@ import { reactQueries } from 'react-queries'
 import { generatePath, useHistory } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { Display } from 'components/Display'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
@@ -45,6 +46,17 @@ const alignItems = {
   base: 'flex-end',
   lg: 'flex-start',
 }
+
+const poolDetailsDirection: FlexProps['flexDirection'] = {
+  base: 'column',
+  md: 'row',
+}
+const poolDetailsAlignItems: FlexProps['alignItems'] = {
+  base: 'flex-start',
+  md: 'center',
+}
+
+const stackPadding = { base: 2, md: 0 }
 
 type RowProps = Row<UserLpDataPosition>
 const reactTableInitialState = {
@@ -117,17 +129,46 @@ export const YourPositions = () => {
           return (
             <Flex gap={4} alignItems='center'>
               <PoolIcon assetIds={poolAssetIds} size='sm' />
-              <RawText>{position.name}</RawText>
-              <Tag>
-                {position.asym ? (
-                  <Text
-                    // eslint-disable-next-line react-memo/require-usememo
-                    translation={['common.asymmetric', { assetSymbol: position.asym.asset.symbol }]}
-                  />
-                ) : (
-                  <Text translation='common.symmetric' />
-                )}
-              </Tag>
+              <Flex
+                rowGap={1}
+                columnGap={4}
+                alignItems={poolDetailsAlignItems}
+                flexDir={poolDetailsDirection}
+              >
+                <RawText fontWeight='semibold'>{position.name}</RawText>
+                <Display.Desktop>
+                  <Tag size='sm'>
+                    {position.asym ? (
+                      <Text
+                        whiteSpace='nowrap'
+                        // eslint-disable-next-line react-memo/require-usememo
+                        translation={[
+                          'common.asymmetric',
+                          { assetSymbol: position.asym.asset.symbol },
+                        ]}
+                      />
+                    ) : (
+                      <Text whiteSpace='nowrap' translation='common.symmetric' />
+                    )}
+                  </Tag>
+                </Display.Desktop>
+                <Display.Mobile>
+                  {position.asym ? (
+                    <Text
+                      whiteSpace='nowrap'
+                      color='text.subtle'
+                      // eslint-disable-next-line react-memo/require-usememo
+                      translation={[
+                        'common.asymmetric',
+                        { assetSymbol: position.asym.asset.symbol },
+                      ]}
+                    />
+                  ) : (
+                    <Text color='text.subtle' whiteSpace='nowrap' translation='common.symmetric' />
+                  )}
+                </Display.Mobile>
+              </Flex>
+
               {positionStatusTag}
             </Flex>
           )
@@ -136,6 +177,8 @@ export const YourPositions = () => {
       {
         Header: translate('pools.balance'),
         accessor: 'totalValueFiatUserCurrency',
+        textAlign: { base: 'right', md: 'left' },
+        justifyContent: { base: 'flex-end', md: 'flex-start' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => {
           const position = row.original
           const { assetId } = position
@@ -147,18 +190,20 @@ export const YourPositions = () => {
             <Skeleton isLoaded={!!value}>
               <Stack spacing={0} alignItems={alignItems}>
                 <Amount.Fiat value={position.totalValueFiatUserCurrency} />
-                <Amount.Crypto
-                  value={position.underlyingAssetAmountCryptoPrecision}
-                  symbol={asset.symbol}
-                  fontSize='sm'
-                  color='text.subtle'
-                />
-                <Amount.Crypto
-                  value={position.underlyingRuneAmountCryptoPrecision}
-                  symbol={runeAsset.symbol}
-                  fontSize='sm'
-                  color='text.subtle'
-                />
+                <Display.Desktop>
+                  <Amount.Crypto
+                    value={position.underlyingAssetAmountCryptoPrecision}
+                    symbol={asset.symbol}
+                    fontSize='sm'
+                    color='text.subtle'
+                  />
+                  <Amount.Crypto
+                    value={position.underlyingRuneAmountCryptoPrecision}
+                    symbol={runeAsset.symbol}
+                    fontSize='sm'
+                    color='text.subtle'
+                  />
+                </Display.Desktop>
               </Stack>
             </Skeleton>
           )
@@ -291,9 +336,9 @@ export const YourPositions = () => {
   }, [columns, emptyIcon, handlePoolClick, isEmpty, positions])
 
   return (
-    <Main headerComponent={headerComponent}>
+    <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('pools.yourPositions.yourPositions')} />
-      <Stack>{body}</Stack>
+      <Stack padding={stackPadding}>{body}</Stack>
     </Main>
   )
 }

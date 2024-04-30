@@ -245,7 +245,12 @@ export const RepayConfirm = ({
     enabled: !!repaymentAsset?.assetId,
   })
 
-  const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
+  const {
+    executeTransaction,
+    estimatedFeesData,
+    isEstimatedFeesDataLoading,
+    isEstimatedFeesDataError,
+  } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
     accountId: repaymentAccountId,
     amountCryptoBaseUnit: toBaseUnit(
@@ -536,6 +541,7 @@ export const RepayConfirm = ({
                     isLendingQuoteCloseQueryRefetching ||
                     isEstimatedFeesDataLoading ||
                     isInboundAddressLoading ||
+                    isEstimatedFeesDataError ||
                     !confirmedQuote
                   }
                   onClick={handleConfirm}

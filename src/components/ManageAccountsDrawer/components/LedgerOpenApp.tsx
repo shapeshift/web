@@ -1,6 +1,19 @@
 import { Button } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  bchChainId,
+  btcChainId,
+  type ChainId,
+  cosmosChainId,
+  dogeChainId,
+  ethChainId,
+  ltcChainId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
+import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -12,10 +25,59 @@ export type LedgerOpenAppProps = {
   onNext: () => void
 }
 
+type Slip44Key = keyof typeof slip44Table
+const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
+  switch (chainId) {
+    case btcChainId:
+      return 'Bitcoin'
+    case dogeChainId:
+      return 'Dogecoin'
+    case bchChainId:
+      return 'BitcoinCash'
+    case ltcChainId:
+      return 'Litecoin'
+    case ethChainId:
+      return 'Ethereum'
+    case thorchainChainId:
+      return 'Thorchain'
+    case cosmosChainId:
+      return 'Atom'
+    default:
+      return undefined
+  }
+}
+
 export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const maybeLedgerWallet = useWallet().state.wallet
+  const wallet = maybeLedgerWallet && isLedger(maybeLedgerWallet) ? maybeLedgerWallet : undefined
   const chainNamespaceDisplayName = asset?.networkName ?? ''
+
+  const slip44Key = getSlip44KeyFromChainId(chainId)
+  const isCorrectAppOpen = useCallback(async () => {
+    if (!wallet || !slip44Key) return false
+    try {
+      await wallet.validateCurrentApp(slip44Key)
+      return true
+    } catch (error) {
+      console.error(error)
+      return false
+    }
+  }, [wallet, slip44Key])
+
+  useEffect(() => {
+    // Poll the Ledger every second to see if the correct app is open
+    const intervalId = setInterval(async () => {
+      const isValidApp = await isCorrectAppOpen()
+      if (isValidApp) {
+        clearInterval(intervalId)
+        onNext()
+      }
+    }, 1000)
+
+    return () => clearInterval(intervalId) // Clean up on component unmount
+  }, [isCorrectAppOpen, onNext])
 
   return (
     <DrawerContentWrapper

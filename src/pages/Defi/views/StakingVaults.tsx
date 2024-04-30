@@ -1,5 +1,6 @@
-import { Box, Heading } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
+import { Display } from 'components/Display'
+import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { DeFiEarn } from 'components/StakingVaults/DeFiEarn'
@@ -10,9 +11,16 @@ import { EligibleSlider } from '../components/EligibleSlider'
 const DefiHeader = () => {
   const translate = useTranslate()
   return (
-    <Box pb={6}>
-      <Heading>{translate('defi.earn')}</Heading>
-    </Box>
+    <PageHeader>
+      <PageHeader.Left>
+        <Display.Mobile>
+          <PageBackButton />
+        </Display.Mobile>
+      </PageHeader.Left>
+      <PageHeader.Middle>
+        <PageHeader.Title>{translate('defi.earn')}</PageHeader.Title>
+      </PageHeader.Middle>
+    </PageHeader>
   )
 }
 
@@ -24,10 +32,13 @@ export const StakingVaults = () => {
   useFetchOpportunities()
 
   return (
-    <Main titleComponent={defiHeader} hideBreadcrumbs>
-      <SEO title={translate('defi.earn')} description={translate('navBar.defi')} />
-      <EligibleSlider />
-      <DeFiEarn mt={6} />
-    </Main>
+    <>
+      {defiHeader}
+      <Main hideBreadcrumbs isSubPage>
+        <SEO title={translate('defi.earn')} description={translate('navBar.defi')} />
+        <EligibleSlider />
+        <DeFiEarn mt={6} />
+      </Main>
+    </>
   )
 }

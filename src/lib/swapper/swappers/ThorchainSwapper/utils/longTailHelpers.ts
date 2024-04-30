@@ -173,17 +173,28 @@ export const getQuotedAmountOutByPool = async (
 
 export const selectBestRate = (
   quotedAmounts: Map<Address, bigint>,
-): [Address, bigint] | undefined => {
+): [Address | undefined, bigint | undefined] => {
   return Array.from(quotedAmounts.entries()).reduce(
     (
-      addressWithHighestAmount: [Address, bigint] | undefined,
+      addressWithHighestAmount: [Address | undefined, bigint | undefined],
       [poolAddress, amount]: [Address, bigint],
     ) => {
-      if (addressWithHighestAmount === undefined) return [poolAddress, amount]
-      return amount > addressWithHighestAmount?.[1]
-        ? [poolAddress, amount]
-        : addressWithHighestAmount
+      if (addressWithHighestAmount[1] === undefined) return [poolAddress, amount]
+      return amount > addressWithHighestAmount[1] ? [poolAddress, amount] : addressWithHighestAmount
     },
-    undefined,
+    [undefined, undefined],
   )
 }
+
+export const shortenedNativeAssetNameByNativeAssetName = {
+  'THOR.RUNE': 'r',
+  'BTC.BTC': 'b',
+  'ETH.ETH': 'e',
+  'BNB.BNB': 'n',
+  'GAIA.ATOM': 'g',
+  'DOGE.DOGE': 'd',
+  'LTC.LTC': 'l',
+  'BCH.BCH': 'c',
+  'AVAX.AVAX': 'a',
+  'BSC.BNB': 's',
+} as const

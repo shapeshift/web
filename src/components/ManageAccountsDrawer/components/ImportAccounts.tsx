@@ -13,10 +13,11 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useIsFetching, useQueryClient } from '@tanstack/react-query'
+import { useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
@@ -30,6 +31,10 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { DrawerContentWrapper } from './DrawerContent'
+
+// The number of additional empty accounts to include in the initial fetch
+// Allows users to see more accounts without having to load more
+const NUM_ADDITIONAL_EMPTY_ACCOUNTS = 1
 
 export type ImportAccountsProps = {
   chainId: ChainId
@@ -112,7 +117,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [accounts, setAccounts] = useState<{ accountNumber: number; accountId: AccountId }[]>([])
   const queryClient = useQueryClient()
-  const isLoading = useIsFetching({ queryKey: ['accountManagement', 'accountIdWithActivity'] }) > 0
+  const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
 
   // TODO:
   // when "done" is clicked, all enabled accounts for this chain will be upserted into the portfolio
@@ -122,41 +127,13 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   // But also need to remove accounts that were disabled.
 
   // initial fetch to detect the number of accounts based on the "first empty account" heuristic
+  const { data: allAccountIdsWithActivity } = useQuery(
+    accountManagement.allAccountIdsWithActivity(chainId, wallet, NUM_ADDITIONAL_EMPTY_ACCOUNTS),
+  )
+
   useEffect(() => {
-    ;(async () => {
-      if (!wallet) return
-
-      let accountNumber = 0
-      const accounts = []
-
-      while (true) {
-        try {
-          const accountResult = await queryClient.fetchQuery(
-            reactQueries.accountManagement.accountIdWithActivity(accountNumber, chainId, wallet),
-          )
-
-          if (!accountResult) break
-
-          const { accountId, hasActivity } = accountResult
-
-          // Add the account before checking if it has activity so user has ability to toggle it if needed.
-          accounts.push({ accountNumber, accountId })
-
-          // If the account has no activity, it's the first empty account.
-          if (!hasActivity) {
-            break
-          }
-        } catch (error) {
-          console.error(error)
-          break
-        }
-
-        accountNumber++
-      }
-
-      setAccounts(accounts)
-    })()
-  }, [chainId, queryClient, wallet])
+    setAccounts(allAccountIdsWithActivity ?? [])
+  }, [allAccountIdsWithActivity])
 
   const handleLoadMore = useCallback(async () => {
     if (!wallet) return

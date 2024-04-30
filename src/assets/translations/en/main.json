@@ -599,7 +599,7 @@
       },
       "trade": {
         "title": "Trade or Bridge",
-        "body": "Trade of bridge your crypto"
+        "body": "Trade or bridge your crypto"
       },
       "buy": {
         "title": "Buy or Sell",
@@ -2261,7 +2261,12 @@
       "borrowingHalted": "Borrowing is temporarily halted.",
       "repaymentsDisabled": "Repayments are temporarily disabled.",
       "borrowingDisabled": "Borrowing is temporarily disabled.",
-      "amountTooLowToReturnCollateral": "Amount too low to return collateral"
+      "amountTooLowToReturnCollateral": "Amount too low to return collateral",
+      "amountTooLowToReturnCollateralTooltip": "The repayment is too low for your collateral to be returned. Please try again with a higher amount, or repay a partial amount (which will not return your collateral, but will decrease your debt).",
+      "amountTooSmallUnknownMinimumTooltip": "The repayment amount you have entered is too small. Please try again with a higher amount.",
+      "repaymentUnavailableTooltip": "It is not possible to repay your loan yet. Please wait until the repayment lock has elapsed.",
+      "repaymentsHaltedTooltip": "Repayments are temporarily halted. Please try again later.",
+      "errorGettingQuote": "There was an error getting the quote. Please try again."
     },
     "quote": {
       "collateral": "Total asset amount which will be secured against your loan",
@@ -2392,6 +2397,20 @@
       "title": "Start building your watchlist",
       "body": "Wherever you see the star icon, you can use it to add assets here.",
       "cta": "Explore more assets"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Earn more with staking",
+      "body": "Earn passive income by staking your assets with THORChain Savers Vault."
+    },
+    "pools": {
+      "title": "Pools",
+      "body": "Earn Fees on trades in pools."
+    },
+    "lending": {
+      "title": "Lending",
+      "body": "Borrow against your assets."
     }
   }
 }

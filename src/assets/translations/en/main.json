@@ -303,10 +303,6 @@
       "connecting": "Connecting..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Manage Accounts",
-    "modalTitle": "Select a Chain to Manage"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -1792,6 +1788,12 @@
     "expandAccount": "Expand account"
   },
   "accountManagement": {
+    "menuTitle": "Manage Accounts",
+    "manageAccounts": {
+      "title": "Manage Accounts",
+      "description": "These are the chains you have connected and the number of accounts you have imported.",
+      "addChain": "Add another chain"
+    },
     "selectChain": {
       "title": "Select Chain",
       "description": "To see your balances for each chain, you'll need to connect each chain and select accounts to import.",

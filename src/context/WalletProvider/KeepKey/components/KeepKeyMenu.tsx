@@ -14,8 +14,8 @@ export const KeepKeyConnectedMenuItems = () => {
   const accountManagementPopover = useModal('manageAccounts')
 
   const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({ title: translate('manageAccounts.modalTitle') }),
-    [accountManagementPopover, translate],
+    () => accountManagementPopover.open({}),
+    [accountManagementPopover],
   )
 
   return (
@@ -24,7 +24,7 @@ export const KeepKeyConnectedMenuItems = () => {
         <>
           <MenuDivider />
           <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-            {translate('manageAccounts.menuTitle')}
+            {translate('accountManagement.menuTitle')}
           </MenuItem>
         </>
       )}

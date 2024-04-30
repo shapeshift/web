@@ -21,6 +21,7 @@ import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
@@ -46,22 +47,27 @@ type TableRowProps = {
   accountId: AccountId
   accountNumber: number
   asset: Asset
-  toggleAccountId: (accountId: AccountId) => void
+  onAccountIdActiveChange: (accountId: AccountId, isActive: boolean) => void
 }
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const TableRow = forwardRef<TableRowProps, 'div'>(
-  ({ asset, accountId, accountNumber, toggleAccountId }, ref) => {
+  ({ asset, accountId, accountNumber, onAccountIdActiveChange }, ref) => {
     const translate = useTranslate()
-    const handleChange = useCallback(() => toggleAccountId(accountId), [accountId, toggleAccountId])
     const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
     const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
 
     const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
-    const isAccountActive = useMemo(() => {
+
+    const isAccountActiveInRedux = useMemo(() => {
       return portfolioAccounts[accountId] !== undefined
     }, [accountId, portfolioAccounts])
+    const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountActiveInRedux)
+
+    useEffect(() => {
+      onAccountIdActiveChange(accountId, isAccountActive)
+    }, [accountId, isAccountActive, isAccountActiveInRedux, onAccountIdActiveChange])
 
     const assetBalancePrecision = useAppSelector(s =>
       selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
@@ -76,7 +82,7 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
           <RawText>{accountNumber}</RawText>
         </Td>
         <Td>
-          <Switch isChecked={isAccountActive} onChange={handleChange} />
+          <Switch isChecked={isAccountActive} onChange={toggleIsAccountActive} />
         </Td>
         <Td>
           <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
@@ -124,6 +130,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const [accounts, setAccounts] = useState<{ accountNumber: number; accountId: AccountId }[]>([])
   const queryClient = useQueryClient()
   const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
+  const [accountIdActiveStateUpdate, setAccountIdActiveStateUpdate] = useState<
+    Record<string, boolean>
+  >({})
 
   // TODO:
   // when "done" is clicked, all enabled accounts for this chain will be upserted into the portfolio
@@ -154,9 +163,17 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     })
   }, [accounts, chainId, queryClient, wallet])
 
-  const handleToggleAccountId = useCallback((accountId: AccountId) => {
-    console.log('handleToggleAccountId', accountId)
+  const handleAccountIdActiveChange = useCallback((accountId: AccountId, isActive: boolean) => {
+    setAccountIdActiveStateUpdate(previousState => {
+      return { ...previousState, [accountId]: isActive }
+    })
   }, [])
+
+  const handleDone = useCallback(() => {
+    // TODO: actually update the redux state with the new account state
+    console.log('handleDone', accountIdActiveStateUpdate)
+    onClose()
+  }, [accountIdActiveStateUpdate, onClose])
 
   const accountRows = useMemo(() => {
     if (!asset) return null
@@ -166,10 +183,10 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         accountId={accountId}
         accountNumber={accountNumber}
         asset={asset}
-        toggleAccountId={handleToggleAccountId}
+        onAccountIdActiveChange={handleAccountIdActiveChange}
       />
     ))
-  }, [accounts, asset, handleToggleAccountId])
+  }, [accounts, asset, handleAccountIdActiveChange])
 
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)
@@ -191,7 +208,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           >
             {translate('common.cancel')}
           </Button>
-          <Button colorScheme='blue' isDisabled={isLoading} _disabled={disabledProp}>
+          <Button
+            colorScheme='blue'
+            onClick={handleDone}
+            isDisabled={isLoading}
+            _disabled={disabledProp}
+          >
             {translate('common.done')}
           </Button>
         </>

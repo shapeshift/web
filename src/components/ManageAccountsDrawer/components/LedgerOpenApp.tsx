@@ -77,15 +77,14 @@ const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
 export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
-  const maybeLedgerWallet = useWallet().state.wallet
-  const wallet = maybeLedgerWallet && isLedger(maybeLedgerWallet) ? maybeLedgerWallet : undefined
-  const chainNamespaceDisplayName = asset?.networkName ?? ''
+  const wallet = useWallet().state.wallet
 
   const slip44Key = getSlip44KeyFromChainId(chainId)
   const isCorrectAppOpen = useCallback(async () => {
-    if (!wallet || !slip44Key) return false
+    const ledgerWallet = wallet && isLedger(wallet) ? wallet : undefined
+    if (!ledgerWallet || !slip44Key) return false
     try {
-      await wallet.validateCurrentApp(slip44Key)
+      await ledgerWallet.validateCurrentApp(slip44Key)
       return true
     } catch (error) {
       console.error(error)
@@ -115,9 +114,13 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
     }
   }, [isCorrectAppOpen, onNext, slip44Key])
 
+  if (!asset) return null
+
   return (
     <DrawerContentWrapper
-      title={translate('accountManagement.ledgerOpenApp.title', { chainNamespaceDisplayName })}
+      title={translate('accountManagement.ledgerOpenApp.title', {
+        chainNamespaceDisplayName: asset.networkName ?? '',
+      })}
       description={translate('accountManagement.ledgerOpenApp.description')}
       footer={
         <>

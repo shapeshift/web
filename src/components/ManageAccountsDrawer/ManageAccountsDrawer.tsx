@@ -26,17 +26,16 @@ export const ManageAccountsDrawer = ({
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
-  const isLedgerWallet = wallet ? isLedger(wallet) : false
-
   const handleClose = useCallback(() => {
     setStep('selectChain')
     onClose()
   }, [onClose])
 
   const handleNext = useCallback(() => {
+    if (!wallet) return
     switch (step) {
       case 'selectChain':
-        if (isLedgerWallet) {
+        if (isLedger(wallet)) {
           setStep('ledgerOpenApp')
         } else {
           setStep('importAccounts')
@@ -51,7 +50,7 @@ export const ManageAccountsDrawer = ({
       default:
         assertUnreachable(step)
     }
-  }, [step, isLedgerWallet, handleClose])
+  }, [wallet, step, handleClose])
 
   // Set the selected chainId from parent if required
   useEffect(() => {

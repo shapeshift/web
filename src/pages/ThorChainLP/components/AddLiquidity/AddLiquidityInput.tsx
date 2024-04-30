@@ -1230,7 +1230,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleAssetChange = useCallback(
     (asset: Asset) => {
       const type = getDefaultOpportunityType(asset.assetId)
-      setPoolAsset(undefined)
       setPoolAssetTxFeeCryptoBaseUnit(undefined)
       setRuneTxFeeCryptoBaseUnit(undefined)
       setVirtualAssetDepositAmountCryptoPrecision('0')

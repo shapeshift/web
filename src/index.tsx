@@ -13,7 +13,9 @@ import { reportWebVitals } from 'lib/reportWebVitals'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
 Sentry.init({
-  dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
+  ...(window.location.hostname === 'localhost'
+    ? {}
+    : { dsn: getConfig().REACT_APP_SENTRY_DSN_URL }),
   integrations: [
     // Sentry.browserTracingIntegration(),
     // Sentry.replayIntegration(),

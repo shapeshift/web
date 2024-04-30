@@ -19,7 +19,6 @@ import {
 } from '@shapeshiftoss/caip'
 import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { arbitrumNova } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'

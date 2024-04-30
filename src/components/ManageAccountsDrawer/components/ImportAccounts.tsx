@@ -26,6 +26,7 @@ import { isUtxoAccountId } from 'lib/utils/utxo'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
+  selectPortfolioAccounts,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -57,6 +58,11 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
     const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
     const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
 
+    const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
+    const isAccountActive = useMemo(() => {
+      return portfolioAccounts[accountId] !== undefined
+    }, [accountId, portfolioAccounts])
+
     const assetBalancePrecision = useAppSelector(s =>
       selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
     )
@@ -70,7 +76,7 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
           <RawText>{accountNumber}</RawText>
         </Td>
         <Td>
-          <Switch onChange={handleChange} />
+          <Switch isChecked={isAccountActive} onChange={handleChange} />
         </Td>
         <Td>
           <Tooltip label={pubkey} isDisabled={isUtxoAccount}>

@@ -485,7 +485,6 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
       stakingOpportunitiesById,
       assets,
     ): StakingEarnOpportunityType[] => {
-      console.log({ aggregatedEarnUserStakingOpportunities })
       const emptyEarnOpportunitiesTypes = Object.values(stakingOpportunitiesById)
         .filter(isSome)
         .reduce((acc, opportunity) => {

@@ -146,8 +146,6 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
       bip44Params,
     })
 
-    console.log({ withdrawInfo })
-
     const undelegations = [
       {
         completionTime: dayjs(withdrawInfo.releaseTime).unix(),
@@ -155,11 +153,9 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
       },
     ]
 
-    console.log({ undelegations })
-
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       userStakingId,
-      stakedAmountCryptoBaseUnit: '0',
+      stakedAmountCryptoBaseUnit: balance,
       rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: true },
       undelegations,
     }

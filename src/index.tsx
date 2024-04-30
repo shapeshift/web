@@ -1,14 +1,31 @@
 import './wdyr'
 import 'lib/polyfills'
 
+import * as Sentry from '@sentry/react'
 import { App } from 'App'
 import { AppProviders } from 'AppProviders'
+import { getConfig } from 'config'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { renderConsoleArt } from 'lib/consoleArt'
 import { reportWebVitals } from 'lib/reportWebVitals'
 
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
+
+Sentry.init({
+  dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
+  integrations: [
+    // Sentry.browserTracingIntegration(),
+    // Sentry.replayIntegration(),
+    Sentry.httpClientIntegration({
+      failedRequestStatusCodes: [[400, 599]],
+    }),
+  ],
+  // Performance Monitoring
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+  tracePropagationTargets: ['localhost'],
+})
 
 const rootElement = document.getElementById('root')!
 const root = createRoot(rootElement)

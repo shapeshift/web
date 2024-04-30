@@ -6,15 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import {
-  selectFeeAssetById,
-  selectFirstHopSellAccountId,
-  selectSecondHopSellAccountId,
-} from 'state/slices/selectors'
-import {
-  selectIsActiveQuoteMultiHop,
-  selectSecondHop,
-} from 'state/slices/tradeQuoteSlice/selectors'
+import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../../hooks/constants'
@@ -31,29 +23,9 @@ export const useApprovalTx = (
   const [isLoading, setIsLoading] = useState(true)
   const [buildCustomTxInput, setBuildCustomTxInput] = useState<evm.BuildCustomTxInput | undefined>()
   const wallet = useWallet().state.wallet
-  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  const secondHop = useAppSelector(selectSecondHop)
   const { poll, cancelPolling: stopPolling } = usePoll()
 
-  // TODO(gomes): this is temporary while devving - we should use the previous selectHopSellAccountId selector, if arity is happy there,
-  // else fix it and still use it because this is ugly
-  const firstHopSellAssetAccountId = useAppSelector(state => selectFirstHopSellAccountId(state))
-
-  // the network fee asset for the second hop in the trade
-  const secondHopSellFeeAsset = useAppSelector(state =>
-    isMultiHopTrade && secondHop
-      ? selectFeeAssetById(state, secondHop?.sellAsset.assetId)
-      : undefined,
-  )
-
-  const secondHopSellAssetAccountId = useAppSelector(state =>
-    selectSecondHopSellAccountId(state, {
-      chainId: secondHopSellFeeAsset?.chainId,
-      accountNumber: secondHop?.accountNumber,
-    }),
-  )
-  const sellAssetAccountId =
-    hopIndex === 0 ? firstHopSellAssetAccountId : secondHopSellAssetAccountId
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   useEffect(() => {
     poll({

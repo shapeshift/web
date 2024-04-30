@@ -79,6 +79,15 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
     return () => clearInterval(intervalId) // Clean up on component unmount
   }, [isCorrectAppOpen, onNext])
 
+  const maybeNext = useCallback(async () => {
+    const isValidApp = await isCorrectAppOpen()
+    if (isValidApp) {
+      onNext()
+    } else {
+      console.error('Correct Ledger app is not open', slip44Key)
+    }
+  }, [isCorrectAppOpen, onNext, slip44Key])
+
   return (
     <DrawerContentWrapper
       title={translate('accountManagement.ledgerOpenApp.title', { chainNamespaceDisplayName })}
@@ -88,7 +97,7 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
           <Button colorScheme='gray' mr={3} onClick={onClose}>
             {translate('common.cancel')}
           </Button>
-          <Button colorScheme='blue' onClick={onNext}>
+          <Button colorScheme='blue' onClick={maybeNext}>
             {translate('common.next')}
           </Button>
         </>

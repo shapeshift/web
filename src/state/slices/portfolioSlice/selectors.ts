@@ -79,8 +79,6 @@ import type {
 import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
 
-const selectDisabledAccountIds = (state: ReduxState) => state.portfolio.disabledAccountIds
-
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.portfolio.accounts.byId,
@@ -93,14 +91,9 @@ export const selectPortfolioAccounts = createDeepEqualOutputSelector(
 
 export const selectIsAccountIdEnabled = createCachedSelector(
   selectPortfolioAccounts,
-  selectDisabledAccountIds,
   selectAccountIdParamFromFilter,
-  (accountsById, disabledAccountIds, accountId): boolean => {
-    return (
-      accountId !== undefined &&
-      accountsById[accountId] !== undefined &&
-      !disabledAccountIds.includes(accountId)
-    )
+  (accountsById, accountId): boolean => {
+    return accountId !== undefined && accountsById[accountId] !== undefined
   },
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 
@@ -123,9 +116,8 @@ export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
 
 export const selectHighestAccountNumberForChainId = createCachedSelector(
   selectPortfolioAccountMetadata,
-  selectDisabledAccountIds,
   selectChainIdParamFromFilter,
-  (portfolioAccountMetadata, disabledAccountIds, filterChainId): number => {
+  (portfolioAccountMetadata, filterChainId): number => {
     if (!filterChainId) return 0
 
     return Math.max(
@@ -133,7 +125,7 @@ export const selectHighestAccountNumberForChainId = createCachedSelector(
       ...Object.entries(portfolioAccountMetadata)
         .filter(([accountId]) => {
           const { chainId } = fromAccountId(accountId)
-          return chainId === filterChainId && !disabledAccountIds.includes(accountId)
+          return chainId === filterChainId
         })
         .map(([_accountId, accountMetadata]) => accountMetadata.bip44Params.accountNumber),
     )

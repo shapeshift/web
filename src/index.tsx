@@ -16,6 +16,8 @@ Sentry.init({
   ...(window.location.hostname === 'localhost'
     ? {}
     : { dsn: getConfig().REACT_APP_SENTRY_DSN_URL }),
+  attachStacktrace: true,
+  denyUrls: ['alchemy.com'],
   integrations: [
     // Sentry.browserTracingIntegration(),
     // Sentry.replayIntegration(),
@@ -28,8 +30,7 @@ Sentry.init({
     event.fingerprint = [(Math.random() * 1000000).toString()]
     return event
   },
-  // Performance Monitoring
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+  enableTracing: true,
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
   tracePropagationTargets: ['localhost'],
 })

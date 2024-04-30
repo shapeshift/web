@@ -87,14 +87,14 @@ export const ManageAccountsDrawer = ({
         return <SelectChain onSelectChainId={handleSelectChainId} onClose={handleClose} />
       case 'ledgerOpenApp':
         if (!selectedChainId) return null
-        return <LedgerOpenApp chainId={selectedChainId} onClose={handleClose} />
+        return <LedgerOpenApp chainId={selectedChainId} onClose={handleClose} onNext={handleNext} />
       case 'importAccounts':
         if (!selectedChainId) return null
         return <ImportAccounts chainId={selectedChainId} onClose={handleClose} />
       default:
         assertUnreachable(step)
     }
-  }, [handleSelectChainId, handleClose, selectedChainId, step])
+  }, [step, handleSelectChainId, handleClose, selectedChainId, handleNext])
 
   const drawVariant = step === 'ledgerOpenApp' ? 'centered' : undefined
 

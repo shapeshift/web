@@ -9,9 +9,10 @@ import { DrawerContentWrapper } from './DrawerContent'
 export type LedgerOpenAppProps = {
   chainId: ChainId
   onClose: () => void
+  onNext: () => void
 }
 
-export const LedgerOpenApp = ({ chainId, onClose }: LedgerOpenAppProps) => {
+export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const chainNamespaceDisplayName = asset?.networkName ?? ''
@@ -25,7 +26,9 @@ export const LedgerOpenApp = ({ chainId, onClose }: LedgerOpenAppProps) => {
           <Button colorScheme='gray' mr={3} onClick={onClose}>
             {translate('common.cancel')}
           </Button>
-          <Button colorScheme='blue'>{translate('common.next')}</Button>
+          <Button colorScheme='blue' onClick={onNext}>
+            {translate('common.next')}
+          </Button>
         </>
       }
     />

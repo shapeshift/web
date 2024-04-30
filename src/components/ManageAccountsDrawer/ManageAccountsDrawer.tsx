@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { assertUnreachable } from 'lib/utils'
 
 import { DrawerWrapper } from './components/DrawerWrapper'
@@ -8,12 +8,17 @@ import { SelectChain } from './components/SelectChain'
 
 export type ManageAccountsDrawerProps = {
   isOpen: boolean
+  chainId: ChainId | null
   onClose: () => void
 }
 
 type ManageAccountsStep = 'selectChain' | 'ledgerOpenApp' | 'importAccounts'
 
-export const ManageAccountsDrawer = ({ isOpen, onClose }: ManageAccountsDrawerProps) => {
+export const ManageAccountsDrawer = ({
+  isOpen,
+  onClose,
+  chainId: parentSelectedChainId,
+}: ManageAccountsDrawerProps) => {
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
@@ -43,6 +48,25 @@ export const ManageAccountsDrawer = ({ isOpen, onClose }: ManageAccountsDrawerPr
         assertUnreachable(step)
     }
   }, [isLedger, handleClose, step])
+
+  // Set the selected chainId from parent if required
+  useEffect(() => {
+    setSelectedChainId(parentSelectedChainId)
+  }, [parentSelectedChainId])
+
+  // Skip chain selection if chainId is already selected by parent
+  useEffect(() => {
+    if (step === 'selectChain' && parentSelectedChainId !== null) {
+      handleNext()
+    }
+  }, [parentSelectedChainId, handleNext, step])
+
+  // Reset the step if the parent chainId is reset
+  useEffect(() => {
+    if (parentSelectedChainId === null) {
+      setStep('selectChain')
+    }
+  }, [parentSelectedChainId])
 
   const handleSelectChainId = useCallback(
     (chainId: ChainId) => {

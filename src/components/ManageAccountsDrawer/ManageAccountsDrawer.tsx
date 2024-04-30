@@ -26,7 +26,6 @@ export const ManageAccountsDrawer = ({
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
-  // TODO: Implement Ledger specific logic
   const isLedgerWallet = wallet ? isLedger(wallet) : false
 
   const handleClose = useCallback(() => {

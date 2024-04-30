@@ -130,7 +130,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [accounts, setAccounts] = useState<
-    { accountNumber: number; accountId: AccountId; accountMetadata: AccountMetadata }[]
+    { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[]
   >([])
   const queryClient = useQueryClient()
   const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
@@ -165,8 +165,8 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     )
     if (!accountResult) return
     setAccounts(previousAccounts => {
-      const { accountId, accountMetadata } = accountResult
-      return [...previousAccounts, { accountNumber, accountId, accountMetadata }]
+      const { accountId, accountMetadata, hasActivity } = accountResult
+      return [...previousAccounts, { accountId, accountMetadata, hasActivity }]
     })
   }, [accounts, chainId, queryClient, wallet, walletDeviceId])
 
@@ -209,7 +209,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   const accountRows = useMemo(() => {
     if (!asset) return null
-    return accounts.map(({ accountId, accountNumber }) => (
+    return accounts.map(({ accountId }, accountNumber) => (
       <TableRow
         key={accountId}
         accountId={accountId}

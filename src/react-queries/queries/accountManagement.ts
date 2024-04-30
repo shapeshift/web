@@ -40,21 +40,16 @@ export const accountManagement = createQueryKeys('accountManagement', {
     chainId: ChainId,
     wallet: HDWallet | null,
     walletDeviceId: string,
-    numEmptyAccountsToInclude: number,
+    minResults: number,
   ) => ({
-    queryKey: [
-      'allAccountIdsWithActivityAndMetadata',
-      chainId,
-      walletDeviceId,
-      numEmptyAccountsToInclude,
-    ],
+    queryKey: ['allAccountIdsWithActivityAndMetadata', chainId, walletDeviceId, minResults],
     queryFn: async () => {
       let accountNumber = 0
-      let emptyAccountCount = 0
+
       const accounts: {
-        accountNumber: number
         accountId: AccountId
         accountMetadata: AccountMetadata
+        hasActivity: boolean
       }[] = []
 
       if (!wallet) return []
@@ -71,13 +66,11 @@ export const accountManagement = createQueryKeys('accountManagement', {
 
           const { accountId, accountMetadata, hasActivity } = accountResult
 
-          if (!hasActivity) emptyAccountCount++
-
-          if (!hasActivity && emptyAccountCount > numEmptyAccountsToInclude) {
+          if (accountNumber >= minResults) {
             break
           }
 
-          accounts.push({ accountNumber, accountId, accountMetadata })
+          accounts.push({ accountId, accountMetadata, hasActivity })
         } catch (error) {
           console.error(error)
           break

@@ -1,16 +1,25 @@
 import { Button } from '@chakra-ui/react'
 import {
+  arbitrumChainId,
+  arbitrumNovaChainId,
+  avalancheChainId,
   bchChainId,
+  binanceChainId,
+  bscChainId,
   btcChainId,
   type ChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  gnosisChainId,
   ltcChainId,
+  optimismChainId,
+  polygonChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { arbitrumNova } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -28,6 +37,7 @@ export type LedgerOpenAppProps = {
 type Slip44Key = keyof typeof slip44Table
 const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
   switch (chainId) {
+    // UTXO chains
     case btcChainId:
       return 'Bitcoin'
     case dogeChainId:
@@ -36,12 +46,30 @@ const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
       return 'BitcoinCash'
     case ltcChainId:
       return 'Litecoin'
+    // EVM chains
     case ethChainId:
       return 'Ethereum'
+    case avalancheChainId:
+      return 'Avalanche'
+    case optimismChainId:
+      return 'Optimism'
+    case bscChainId:
+      return 'BnbSmartChain'
+    case polygonChainId:
+      return 'Polygon'
+    case gnosisChainId:
+      return 'Gnosis'
+    case arbitrumChainId:
+      return 'Arbitrum'
+    case arbitrumNovaChainId:
+      return 'ArbitrumNova'
+    // Cosmos chains
     case thorchainChainId:
-      return 'Thorchain'
+      return 'Rune'
     case cosmosChainId:
       return 'Atom'
+    case binanceChainId:
+      return 'Binance'
     default:
       return undefined
   }

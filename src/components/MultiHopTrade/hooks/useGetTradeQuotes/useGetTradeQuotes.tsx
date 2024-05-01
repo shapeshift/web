@@ -31,7 +31,7 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
 import {
-  selectActiveQuoteMeta,
+  selectActiveQuoteMetaOrDefault,
   selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -272,7 +272,7 @@ export const useGetTradeQuotes = () => {
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
-  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {

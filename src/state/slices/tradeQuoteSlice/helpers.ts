@@ -9,6 +9,8 @@ import { isSome } from 'lib/utils'
 import type { ApiQuote } from 'state/apis/swapper'
 import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
+import type { ActiveQuoteMeta } from './types'
+
 export const getHopTotalNetworkFeeUserCurrencyPrecision = (
   networkFeeCryptoBaseUnit: string | undefined,
   feeAsset: Asset,
@@ -121,4 +123,20 @@ export const sortTradeQuotes = (
   const happyQuotes = sortApiQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
   const errorQuotes = sortApiQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
   return [...happyQuotes, ...errorQuotes]
+}
+
+export const getActiveQuoteMetaOrDefault = (
+  activeQuoteMeta: ActiveQuoteMeta | undefined,
+  sortedQuotes: ApiQuote[],
+) => {
+  const bestQuote = sortedQuotes[0]
+  const bestQuoteMeta = bestQuote
+    ? { swapperName: bestQuote.swapperName, identifier: bestQuote.id }
+    : undefined
+  // Return the "best" quote even if it has errors, provided there is a quote to display data for
+  // this allows users to explore trades that aren't necessarily actionable. The UI will prevent
+  // executing these downstream.
+  const isSelectable = bestQuote?.quote !== undefined
+  const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
+  return activeQuoteMeta ?? defaultQuoteMeta
 }

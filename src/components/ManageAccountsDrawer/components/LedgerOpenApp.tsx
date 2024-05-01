@@ -1,4 +1,4 @@
-import { Button, Center, Flex } from '@chakra-ui/react'
+import { Button, Center, Flex, useToast } from '@chakra-ui/react'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -80,6 +80,7 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
   const translate = useTranslate()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const wallet = useWallet().state.wallet
+  const toast = useToast()
 
   const slip44Key = getSlip44KeyFromChainId(chainId)
   const isCorrectAppOpen = useCallback(async () => {
@@ -112,9 +113,18 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
     if (isValidApp) {
       onNext()
     } else {
-      console.error('Correct Ledger app is not open', slip44Key)
+      toast({
+        title: translate('walletProvider.ledger.errors.appNotOpen', { app: slip44Key }),
+        description: translate('walletProvider.ledger.errors.appNotOpenDescription', {
+          app: slip44Key,
+        }),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
     }
-  }, [isCorrectAppOpen, onNext, slip44Key])
+  }, [isCorrectAppOpen, onNext, slip44Key, toast, translate])
 
   const body = useMemo(() => {
     if (!asset) return null

@@ -1410,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "Unable to connect Ledger wallet",
-        "unknown": "An unexpected error occurred communicating with Ledger wallet"
+        "unknown": "An unexpected error occurred communicating with Ledger wallet",
+        "appNotOpen": "%{app} not open on Ledger",
+        "appNotOpenDescription": "Please open the %{app} app on your device and try again."
       },
       "connect": {
         "header": "Pair Ledger",

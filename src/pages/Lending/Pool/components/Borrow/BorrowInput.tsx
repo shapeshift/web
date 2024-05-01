@@ -11,9 +11,11 @@ import {
 } from '@chakra-ui/react'
 import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -34,7 +36,6 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { isUtxoChainId } from 'lib/utils/utxo'
@@ -97,7 +98,6 @@ export const BorrowInput = ({
   confirmedQuote,
   setConfirmedQuote,
 }: BorrowInputProps) => {
-  const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [borrowAssetIsFiat, toggleBorrowAssetIsFiat] = useToggle(false)
   const [collateralAssetIsFiat, toggleCollateralAssetIsFiat] = useToggle(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -160,25 +160,16 @@ export const BorrowInput = ({
     selectPortfolioAccountMetadataByAccountId(state, collateralAccountFilter),
   )
 
-  const getBorrowFromAddress = useCallback(() => {
-    if (!(wallet && collateralAccountMetadata)) return null
-    return getThorchainFromAddress({
+  const { data: fromAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
       accountId: collateralAccountId,
       assetId: collateralAssetId,
       getPosition: getThorchainLendingPosition,
-      accountMetadata: collateralAccountMetadata,
-      wallet,
-    })
-  }, [collateralAccountId, collateralAccountMetadata, collateralAssetId, wallet])
-
-  useEffect(() => {
-    if (fromAddress) return
-    ;(async () => {
-      const _fromAddress = await getBorrowFromAddress()
-      if (!_fromAddress) return
-      setFromAddress(_fromAddress)
-    })()
-  }, [getBorrowFromAddress, fromAddress])
+      accountMetadata: collateralAccountMetadata!,
+      wallet: wallet!,
+    }),
+    enabled: Boolean(collateralAccountMetadata && wallet),
+  })
 
   const {
     data: estimatedFeesData,
@@ -249,7 +240,7 @@ export const BorrowInput = ({
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: collateralAssetId,
-      address: fromAddress,
+      address: fromAddress ?? null,
       amountCryptoBaseUnit: toBaseUnit(
         depositAmountCryptoPrecision ?? 0,
         collateralAsset?.precision ?? 0,

@@ -207,7 +207,6 @@ export type LpConfirmedDepositQuote = {
   feeAmountFiatUserCurrency: string
   feeAmountUSD: string
   assetAddress?: string
-  quoteInboundAddress: string
   positionStatus?: PositionStatus
   // For informative purposes only at confirm step - to be recalculated before signing
   totalGasFeeFiatUserCurrency: string
@@ -226,7 +225,6 @@ export type LpConfirmedWithdrawalQuote = {
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
   assetAddress: string | undefined
-  quoteInboundAddress: string
   withdrawalBps: string
   positionStatus?: PositionStatus
   // For informative purposes only at confirm step - to be recalculated before signing

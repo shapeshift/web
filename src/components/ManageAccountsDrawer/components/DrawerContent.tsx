@@ -4,7 +4,7 @@ import { RawText } from 'components/Text'
 export type DrawerContentWrapperProps = {
   title: string
   description: string
-  body: React.ReactNode
+  body?: React.ReactNode
   footer: React.ReactNode
 }
 
@@ -22,7 +22,7 @@ export const DrawerContentWrapper = ({
           {description}
         </RawText>
       </DrawerHeader>
-      <DrawerBody>{body}</DrawerBody>
+      {body && <DrawerBody>{body}</DrawerBody>}
       <DrawerFooter>{footer}</DrawerFooter>
     </>
   )

@@ -9,7 +9,7 @@ import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/th
 import { thorchainLendingPositionQueryFn } from './useLendingPositionData'
 
 type UseLendingPositionDataProps = {
-  accountId?: AccountId
+  accountId?: AccountId | null
   assetId?: AssetId
 }
 

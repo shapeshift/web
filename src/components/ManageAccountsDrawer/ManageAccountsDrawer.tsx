@@ -1,9 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 
 import { DrawerWrapper } from './components/DrawerWrapper'
 import { ImportAccounts } from './components/ImportAccounts'
+import { LedgerOpenApp } from './components/LedgerOpenApp'
 import { SelectChain } from './components/SelectChain'
 
 export type ManageAccountsDrawerProps = {
@@ -19,11 +22,9 @@ export const ManageAccountsDrawer = ({
   onClose,
   chainId: parentSelectedChainId,
 }: ManageAccountsDrawerProps) => {
+  const wallet = useWallet().state.wallet
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
-
-  // TODO: Implement Ledger specific logic
-  const isLedger = false
 
   const handleClose = useCallback(() => {
     setStep('selectChain')
@@ -31,12 +32,14 @@ export const ManageAccountsDrawer = ({
   }, [onClose])
 
   const handleNext = useCallback(() => {
+    if (!wallet) return
     switch (step) {
       case 'selectChain':
-        if (isLedger) {
+        if (isLedger(wallet)) {
           setStep('ledgerOpenApp')
+        } else {
+          setStep('importAccounts')
         }
-        setStep('importAccounts')
         break
       case 'ledgerOpenApp':
         setStep('importAccounts')
@@ -47,7 +50,7 @@ export const ManageAccountsDrawer = ({
       default:
         assertUnreachable(step)
     }
-  }, [isLedger, handleClose, step])
+  }, [wallet, step, handleClose])
 
   // Set the selected chainId from parent if required
   useEffect(() => {
@@ -81,18 +84,20 @@ export const ManageAccountsDrawer = ({
       case 'selectChain':
         return <SelectChain onSelectChainId={handleSelectChainId} onClose={handleClose} />
       case 'ledgerOpenApp':
-        // TODO: Implement LedgerOpenApp component
-        return null
+        if (!selectedChainId) return null
+        return <LedgerOpenApp chainId={selectedChainId} onClose={handleClose} onNext={handleNext} />
       case 'importAccounts':
         if (!selectedChainId) return null
         return <ImportAccounts chainId={selectedChainId} onClose={handleClose} />
       default:
         assertUnreachable(step)
     }
-  }, [handleSelectChainId, handleClose, selectedChainId, step])
+  }, [step, handleSelectChainId, handleClose, selectedChainId, handleNext])
+
+  const drawVariant = step === 'ledgerOpenApp' ? 'centered' : undefined
 
   return (
-    <DrawerWrapper isOpen={isOpen} onClose={handleClose}>
+    <DrawerWrapper isOpen={isOpen} onClose={handleClose} variant={drawVariant}>
       {drawerContent}
     </DrawerWrapper>
   )

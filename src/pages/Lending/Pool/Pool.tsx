@@ -123,7 +123,9 @@ export const Pool = () => {
     null,
   )
   const [repayTxid, setRepayTxid] = useState<string | null>(null)
-  const [collateralAccountId, setCollateralAccountId] = useState<AccountId>(poolAccountId ?? '')
+  const [collateralAccountId, setCollateralAccountId] = useState<AccountId | null>(
+    poolAccountId ?? null,
+  )
   const [borrowAsset, setBorrowAsset] = useState<Asset | null>(null)
   const [repaymentAsset, setRepaymentAsset] = useState<Asset | null>(null)
   const [repaymentPercent, setRepaymentPercent] = useState<number>(100)
@@ -131,7 +133,7 @@ export const Pool = () => {
     null,
   )
   const [borrowAccountId, setBorrowAccountId] = useState<AccountId>('')
-  const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId>('')
+  const [repaymentAccountId, setRepaymentAccountId] = useState<AccountId | null>(null)
 
   const poolAssetId = useRouteAssetId()
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
@@ -387,7 +389,7 @@ export const Pool = () => {
                     isAccountSelectionDisabled={Boolean(poolAccountId)}
                     borrowAsset={borrowAsset}
                     setBorrowAsset={setBorrowAsset}
-                    collateralAccountId={collateralAccountId}
+                    collateralAccountId={collateralAccountId ?? ''}
                     depositAmountCryptoPrecision={depositAmountCryptoPrecision}
                     setCryptoDepositAmount={setDepositAmountCryptoPrecision}
                     borrowAccountId={borrowAccountId}

@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkChainId,
@@ -36,7 +36,7 @@ export type EstimateFeesInput = {
   from?: string
   to: string
   sendMax: boolean
-  accountId: string
+  accountId: AccountId
   contractAddress: string | undefined
 }
 

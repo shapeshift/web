@@ -286,6 +286,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return fromBaseUnit(estimatedFeesData?.estimatedFees.fast.txFee, feeAsset.precision)
   }, [estimatedFeesData, feeAsset.precision])
 
+  useEffect(() => {
+    if (!estimatedFeesData?.estimatedFees.fast.txFee || !contextDispatch) return
+
+    contextDispatch({
+      type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+      payload: {
+        networkFeeCryptoBaseUnit: estimatedFeesData.estimatedFees.fast.txFee,
+      },
+    })
+  }, [contextDispatch, estimatedFeesData?.estimatedFees.fast.txFee, feeAsset.precision])
+
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,
     enabled: !!assetId,

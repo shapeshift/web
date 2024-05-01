@@ -36,6 +36,7 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
+  getActiveQuoteMetaOrDefault,
   getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeUserCurrencyPrecision,
   getHopTotalProtocolFeesFiatPrecision,
@@ -50,8 +51,13 @@ import {
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../preferencesSlice/selectors'
+import type { ActiveQuoteMeta } from './types'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
+const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> = createSelector(
+  selectTradeQuoteSlice,
+  tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta,
+)
 
 const selectTradeQuotes = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
@@ -182,39 +188,28 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 
-export const selectActiveQuoteMeta: Selector<
+export const selectActiveQuoteMetaOrDefault: Selector<
   ReduxState,
   { swapperName: SwapperName; identifier: string } | undefined
-> = createSelector(
-  selectTradeQuoteSlice,
-  selectSortedTradeQuotes,
-  (tradeQuoteSlice, sortedQuotes) => {
-    const bestQuote = sortedQuotes[0]
-    const bestQuoteMeta = bestQuote
-      ? { swapperName: bestQuote.swapperName, identifier: bestQuote.id }
-      : undefined
-    // Return the "best" quote even if it has errors, provided there is a quote to display data for
-    // this allows users to explore trades that aren't necessarily actionable. The UI will prevent
-    // executing these downstream.
-    const isSelectable = bestQuote?.quote !== undefined
-    const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
-    return tradeQuoteSlice.activeQuoteMeta ?? defaultQuoteMeta
-  },
-)
+> = createSelector(selectActiveQuoteMeta, selectSortedTradeQuotes, getActiveQuoteMetaOrDefault)
 
 export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefined> =
-  createSelector(selectActiveQuoteMeta, selectTradeQuotes, (activeQuoteMeta, tradeQuotes) => {
-    if (activeQuoteMeta === undefined) return
-    // need to ensure a quote exists for the selection
-    if (tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]) {
-      return activeQuoteMeta.swapperName
-    }
-  })
+  createSelector(
+    selectActiveQuoteMetaOrDefault,
+    selectTradeQuotes,
+    (activeQuoteMeta, tradeQuotes) => {
+      if (activeQuoteMeta === undefined) return
+      // need to ensure a quote exists for the selection
+      if (tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]) {
+        return activeQuoteMeta.swapperName
+      }
+    },
+  )
 
 export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
     selectTradeQuotes,
-    selectActiveQuoteMeta,
+    selectActiveQuoteMetaOrDefault,
     (tradeQuotes, activeQuoteMeta) => {
       // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
       if (activeQuoteMeta === undefined) return undefined

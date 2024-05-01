@@ -21,7 +21,8 @@ import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '../portfolioSlice/utils'
-import { sortTradeQuotes } from '../tradeQuoteSlice/helpers'
+import { getActiveQuoteMetaOrDefault, sortTradeQuotes } from '../tradeQuoteSlice/helpers'
+import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
 
 const selectTradeInput = (state: ReduxState) => state.tradeInput
 
@@ -227,38 +228,27 @@ export const selectHasUserEnteredAmount = createSelector(
 // and allow selectSecondHopSellAccountId to keep a pwetty API
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
+const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> = createSelector(
+  selectTradeQuoteSlice,
+  tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta,
+)
 const selectTradeQuotes = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
-const selectSortedTradeQuotes = createDeepEqualOutputSelector(selectTradeQuotes, tradeQuotes => {
-  return sortTradeQuotes(tradeQuotes)
-})
+const selectSortedTradeQuotes = createDeepEqualOutputSelector(selectTradeQuotes, tradeQuotes =>
+  sortTradeQuotes(tradeQuotes),
+)
 
-const selectActiveQuoteMeta: Selector<
+const selectActiveQuoteMetaOrDefault: Selector<
   ReduxState,
   { swapperName: SwapperName; identifier: string } | undefined
-> = createSelector(
-  selectTradeQuoteSlice,
-  selectSortedTradeQuotes,
-  (tradeQuoteSlice, sortedQuotes) => {
-    const bestQuote = sortedQuotes[0]
-    const bestQuoteMeta = bestQuote
-      ? { swapperName: bestQuote.swapperName, identifier: bestQuote.id }
-      : undefined
-    // Return the "best" quote even if it has errors, provided there is a quote to display data for
-    // this allows users to explore trades that aren't necessarily actionable. The UI will prevent
-    // executing these downstream.
-    const isSelectable = bestQuote?.quote !== undefined
-    const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
-    return tradeQuoteSlice.activeQuoteMeta ?? defaultQuoteMeta
-  },
-)
+> = createSelector(selectActiveQuoteMeta, selectSortedTradeQuotes, getActiveQuoteMetaOrDefault)
 
 const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined> =
   createDeepEqualOutputSelector(
     selectTradeQuotes,
-    selectActiveQuoteMeta,
+    selectActiveQuoteMetaOrDefault,
     (tradeQuotes, activeQuoteMeta) => {
       // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
       if (activeQuoteMeta === undefined) return undefined

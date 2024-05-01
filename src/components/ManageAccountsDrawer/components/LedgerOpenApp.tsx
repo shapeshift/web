@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react'
+import { Button, Center, Flex } from '@chakra-ui/react'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -19,8 +19,10 @@ import {
 } from '@shapeshiftoss/caip'
 import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { AssetOnLedger } from 'components/AssetIcon'
+import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -114,14 +116,29 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
     }
   }, [isCorrectAppOpen, onNext, slip44Key])
 
-  if (!asset) return null
+  const body = useMemo(() => {
+    if (!asset) return null
+    return (
+      <Center>
+        <Flex direction='column' justifyContent='center'>
+          <AssetOnLedger assetId={asset.assetId} size={'xl'} />
+          <RawText fontSize={'xl'} fontWeight={'bold'} mt={10} mb={3}>
+            {translate('accountManagement.ledgerOpenApp.title', {
+              chainNamespaceDisplayName: asset?.networkName ?? '',
+            })}
+          </RawText>
+          <Text
+            translation={'accountManagement.ledgerOpenApp.description'}
+            color={'whiteAlpha.600'}
+          />
+        </Flex>
+      </Center>
+    )
+  }, [asset, translate])
 
   return (
     <DrawerContentWrapper
-      title={translate('accountManagement.ledgerOpenApp.title', {
-        chainNamespaceDisplayName: asset.networkName ?? '',
-      })}
-      description={translate('accountManagement.ledgerOpenApp.description')}
+      body={body}
       footer={
         <>
           <Button colorScheme='gray' mr={3} onClick={onClose}>

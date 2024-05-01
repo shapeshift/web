@@ -140,6 +140,7 @@ const validators = {
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api-shapeshift.1inch.io/v5.0',
   }),
+  REACT_APP_SENTRY_DSN_URL: url(),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),

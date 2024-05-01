@@ -13,6 +13,7 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import debounce from 'lodash/debounce'
+import pDebounce from 'p-debounce'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -405,9 +406,10 @@ export const Deposit: React.FC<DepositProps> = ({
     return toBaseUnit(outboundFeeInAssetCryptoPrecision, asset.precision)
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
-  const validateCryptoAmount = useCallback(
+  const _validateCryptoAmount = useCallback(
     async (value: string) => {
-      if (!accountId || !outboundFeeInAssetCryptoBaseUnit) return
+      if (!accountId) return
+      if (state?.loading) return
 
       const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
       const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
@@ -460,6 +462,7 @@ export const Deposit: React.FC<DepositProps> = ({
     },
     [
       accountId,
+      state?.loading,
       asset,
       balanceCryptoBaseUnit,
       assetId,
@@ -470,10 +473,27 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  const validateFiatAmount = useCallback(
-    async (value: string) => {
-      if (!accountId || !outboundFeeInAssetCryptoBaseUnit) return
+  const validateCryptoAmount = useCallback(
+    (value: string) => {
+      if (!contextDispatch) return
 
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      return _validateCryptoAmount(value).finally(() => {
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      })
+    },
+    [_validateCryptoAmount, contextDispatch],
+  )
+
+  const validateCryptoAmountDebounced = useMemo(
+    () => pDebounce(validateCryptoAmount, 500),
+    [validateCryptoAmount],
+  )
+
+  const _validateFiatAmount = useCallback(
+    async (value: string) => {
+      if (!accountId) return
+      if (state?.loading) return
       const valueCryptoPrecision = bnOrZero(value).div(assetMarketData.price)
       const balanceCryptoPrecision = bn(fromBaseUnit(balanceCryptoBaseUnit, asset.precision))
 
@@ -524,6 +544,7 @@ export const Deposit: React.FC<DepositProps> = ({
     },
     [
       accountId,
+      state?.loading,
       assetMarketData.price,
       balanceCryptoBaseUnit,
       asset,
@@ -533,6 +554,23 @@ export const Deposit: React.FC<DepositProps> = ({
       chainId,
       fromAddress,
     ],
+  )
+
+  const validateFiatAmount = useCallback(
+    (value: string) => {
+      if (!contextDispatch) return
+
+      contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
+      return _validateFiatAmount(value).finally(() => {
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      })
+    },
+    [_validateFiatAmount, contextDispatch],
+  )
+
+  const validateFiatAmountDebounced = useMemo(
+    () => pDebounce(validateFiatAmount, 500),
+    [validateFiatAmount],
   )
 
   const balanceCryptoPrecision = useMemo(
@@ -750,17 +788,17 @@ export const Deposit: React.FC<DepositProps> = ({
   const cryptoInputValidation = useMemo(
     () => ({
       required: true,
-      validate: { validateCryptoAmount },
+      validate: { validateCryptoAmountDebounced },
     }),
-    [validateCryptoAmount],
+    [validateCryptoAmountDebounced],
   )
 
   const fiatInputValidation = useMemo(
     () => ({
       required: true,
-      validate: { validateFiatAmount },
+      validate: { validateFiatAmountDebounced },
     }),
-    [validateFiatAmount],
+    [validateFiatAmountDebounced],
   )
 
   if (!state || !contextDispatch || !opportunityData) return null

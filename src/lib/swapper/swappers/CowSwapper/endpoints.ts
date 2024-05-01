@@ -18,6 +18,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import { v4 as uuid } from 'uuid'
 import { bn } from 'lib/bignumber/bignumber'
 import { createDefaultStatusResponse } from 'lib/utils/evm'
+import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
@@ -50,8 +51,9 @@ export const cowApi: SwapperApi = {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(tradeQuote => {
+      const firstStep = getHopByIndex(tradeQuote, 0)
       const id = uuid()
-      tradeQuoteMetadata.set(id, { chainId: tradeQuote.steps[0].sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
     })
   },
@@ -62,8 +64,8 @@ export const cowApi: SwapperApi = {
     stepIndex,
     chainId,
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
-    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
-      tradeQuote.steps[stepIndex]
+    const hop = getHopByIndex(tradeQuote, stepIndex)
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = hop
     const {
       receiveAddress,
       slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(

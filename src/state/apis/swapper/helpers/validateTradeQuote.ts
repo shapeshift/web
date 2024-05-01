@@ -28,7 +28,10 @@ import {
   selectPortfolioAccountIdByNumberByChainId,
   selectSecondHopSellAccountId,
 } from 'state/slices/selectors'
-import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
+import {
+  getHopByIndex,
+  getTotalProtocolFeeByAssetForStep,
+} from 'state/slices/tradeQuoteSlice/helpers'
 
 import type { ErrorWithMeta } from '../types'
 import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
@@ -115,8 +118,8 @@ export const validateTradeQuote = async (
   // This should really never happen but in case it does:
   if (!sendAddress) throw new Error('sendAddress is required')
 
-  const firstHop = quote.steps[0]
-  const secondHop = quote.steps[1]
+  const firstHop = getHopByIndex(quote, 0)
+  const secondHop = getHopByIndex(quote, 1)
 
   const isMultiHopTrade = isMultiHopTradeQuote(quote)
 

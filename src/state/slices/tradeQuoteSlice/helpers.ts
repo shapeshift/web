@@ -1,7 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type {
+  ProtocolFee,
+  SupportedTradeQuoteStepIndex,
+  SwapperName,
+  TradeQuote,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
+import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -66,7 +73,8 @@ export const getHopTotalProtocolFeesFiatPrecision = (
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
 export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
-  const lastStep = quote.steps[quote.steps.length - 1]
+  const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
+  const lastStep = getHopByIndex(quote, lastStepIndex)
   const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 
   const netReceiveAmountCryptoPrecision = fromBaseUnit(
@@ -139,4 +147,26 @@ export const getActiveQuoteMetaOrDefault = (
   const isSelectable = bestQuote?.quote !== undefined
   const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
   return activeQuoteMeta ?? defaultQuoteMeta
+}
+
+export const getHopByIndex = <T extends TradeQuote | undefined>(
+  quote: T,
+  index: SupportedTradeQuoteStepIndex,
+): T extends undefined ? undefined : TradeQuoteStep => {
+  if (quote === undefined) {
+    return undefined as T extends undefined ? undefined : TradeQuoteStep
+  }
+  if (index > 1) {
+    throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
+  }
+  if (index > 0 && !isMultiHopTradeQuote(quote)) {
+    throw new Error('Index out of bounds - This is a single-hop trade quote.')
+  }
+  const hop = quote.steps[index]
+
+  // This should never happen according to our types, but TS is drunk
+  if (hop === undefined) {
+    throw new Error('Hop is undefined')
+  }
+  return hop as T extends undefined ? undefined : TradeQuoteStep
 }

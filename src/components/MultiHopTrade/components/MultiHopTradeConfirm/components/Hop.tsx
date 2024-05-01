@@ -10,7 +10,11 @@ import {
   Stepper,
   Tooltip,
 } from '@chakra-ui/react'
-import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type {
+  SupportedTradeQuoteStepIndex,
+  SwapperName,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -51,7 +55,7 @@ export const Hop = ({
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
-  hopIndex: number
+  hopIndex: SupportedTradeQuoteStepIndex
   isOpen: boolean
   slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void

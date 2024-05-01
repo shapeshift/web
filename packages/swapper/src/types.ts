@@ -163,6 +163,8 @@ type TupleOf<T, N extends number> = N extends N
 export type SingleHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 1>
 export type MultiHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 2>
 
+export type SupportedTradeQuoteStepIndex = 0 | 1
+
 export type SingleHopTradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps
 }
@@ -227,7 +229,7 @@ type CosmosSdkAccountMetadata = { from: string }
 export type CommonGetUnsignedTransactionArgs = {
   tradeQuote: TradeQuote
   chainId: ChainId
-  stepIndex: number
+  stepIndex: SupportedTradeQuoteStepIndex
   slippageTolerancePercentageDecimal: string
 }
 
@@ -261,7 +263,7 @@ export type CheckTradeStatusInput = {
   quoteId: string
   txHash: string
   chainId: ChainId
-  stepIndex: number
+  stepIndex: SupportedTradeQuoteStepIndex
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where
@@ -335,7 +337,7 @@ export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
 export type CommonTradeExecutionInput = {
   swapperName: SwapperName
   tradeQuote: TradeQuote
-  stepIndex: number
+  stepIndex: SupportedTradeQuoteStepIndex
   slippageTolerancePercentageDecimal: string
 }
 
@@ -363,7 +365,7 @@ export enum TradeExecutionEvent {
   Error = 'error',
 }
 
-export type SellTxHashArgs = { stepIndex: number; sellTxHash: string }
+export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
 export type StatusArgs = {
   stepIndex: number
   status: TxStatus

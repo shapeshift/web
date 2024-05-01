@@ -13,6 +13,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { isFulfilled, isRejected, isResolvedErr } from 'lib/utils'
+import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
 import { ALLOWANCE_CONTRACT } from '../constants'
@@ -112,7 +113,7 @@ export const getL1ToLongtailQuote = async (
 
   const promises = await Promise.allSettled(
     thorchainQuotes.map(async quote => {
-      const onlyStep = quote.steps[0]
+      const onlyStep = getHopByIndex(quote, 0)
 
       const maybeBestAggregator = await getBestAggregator(
         buyAssetFeeAsset,

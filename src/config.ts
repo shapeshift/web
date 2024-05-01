@@ -163,6 +163,7 @@ const validators = {
   REACT_APP_FEATURE_THORCHAIN_LP_DEPOSIT: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LP_WITHDRAW: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: bool({ default: false }),
   REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),

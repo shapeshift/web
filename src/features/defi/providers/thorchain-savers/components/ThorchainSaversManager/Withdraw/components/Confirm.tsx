@@ -283,8 +283,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     if (!estimatedFeesData) return
-    return fromBaseUnit(estimatedFeesData?.estimatedFees.fast.txFee, feeAsset.precision)
+    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset.precision)
   }, [estimatedFeesData, feeAsset.precision])
+
+  useEffect(() => {
+    if (!estimatedFeesData || !contextDispatch) return
+
+    contextDispatch({
+      type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
+      payload: {
+        estimatedGasCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
+        networkFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
+      },
+    })
+  }, [contextDispatch, estimatedFeesData])
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,

@@ -1,16 +1,10 @@
-import {
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-} from '@chakra-ui/react'
+import { DrawerBody, DrawerFooter, DrawerHeader } from '@chakra-ui/react'
 import { RawText } from 'components/Text'
 
 export type DrawerContentWrapperProps = {
   title: string
   description: string
-  body: React.ReactNode
+  body?: React.ReactNode
   footer: React.ReactNode
 }
 
@@ -21,16 +15,15 @@ export const DrawerContentWrapper = ({
   footer,
 }: DrawerContentWrapperProps) => {
   return (
-    <DrawerContent>
-      <DrawerCloseButton />
+    <>
       <DrawerHeader>
         <RawText as='h3'>{title}</RawText>
         <RawText color='text.subtle' fontSize='md'>
           {description}
         </RawText>
       </DrawerHeader>
-      <DrawerBody>{body}</DrawerBody>
+      {body && <DrawerBody>{body}</DrawerBody>}
       <DrawerFooter>{footer}</DrawerFooter>
-    </DrawerContent>
+    </>
   )
 }

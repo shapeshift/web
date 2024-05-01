@@ -384,6 +384,23 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     action: 'withdrawLiquidity',
   })
 
+  const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])
+  const poolAssetAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
+  )
+
+  const { data: poolAssetAccountAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId,
+      assetId: poolAsset?.assetId!,
+      opportunityId,
+      wallet: wallet!,
+      accountMetadata: poolAssetAccountMetadata!,
+      getPosition: getThorchainLpPosition,
+    }),
+    enabled: Boolean(poolAsset?.assetId && wallet && poolAssetAccountMetadata),
+  })
+
   const {
     estimatedFeesData: estimatedPoolAssetFeesData,
     isEstimatedFeesDataLoading: isEstimatedPoolAssetFeesDataLoading,
@@ -396,7 +413,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     // withdraw liquidity will use dust amount
     amountCryptoBaseUnit: null,
     memo,
-    fromAddress: null,
+    fromAddress: poolAssetAccountAddress ?? null,
     action: 'withdrawLiquidity',
   })
 
@@ -586,23 +603,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     position,
     runeMarketData.price,
   ])
-
-  const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])
-  const poolAssetAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
-  )
-
-  const { data: poolAssetAccountAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId,
-      assetId: poolAsset?.assetId!,
-      opportunityId,
-      wallet: wallet!,
-      accountMetadata: poolAssetAccountMetadata!,
-      getPosition: getThorchainLpPosition,
-    }),
-    enabled: Boolean(poolAsset?.assetId && wallet && poolAssetAccountMetadata),
-  })
 
   useEffect(() => {
     if (!poolAsset) return

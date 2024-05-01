@@ -295,6 +295,7 @@ export const Deposit: React.FC<DepositProps> = ({
                 estimatedFeesData.txFeeCryptoBaseUnit,
                 feeAsset.precision,
               ),
+              networkFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
             },
           })
         }
@@ -684,7 +685,9 @@ export const Deposit: React.FC<DepositProps> = ({
       if (isThorchainSaversDepositQuoteError)
         throw new Error(thorchainSaversDepositQuoteError.message)
 
-      const quote = thorchainSaversDepositQuote!
+      const quote = thorchainSaversDepositQuote
+
+      if (!quote) return
 
       const {
         fees: { slippage_bps },

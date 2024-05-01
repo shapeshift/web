@@ -5,6 +5,8 @@ import { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { Display } from 'components/Display'
+import { PageBackButton, PageHeader, PageHeaderButton } from 'components/Layout/Header/PageHeader'
 import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
 import { Text } from 'components/Text'
@@ -37,28 +39,54 @@ export const PoolsHeader = () => {
     history.push('/pools/add')
   }, [history])
 
+  const handleBack = useCallback(() => {
+    history.push('/explore')
+  }, [history])
+
   return (
-    <Stack mb={4}>
-      <Container
-        display='flex'
-        justifyContent='space-between'
-        alignItems={alignItems}
-        maxWidth='container.4xl'
-        gap={2}
-        px={containerPadding}
-        flexDir={flexDirection}
-        pt={8}
-        pb={4}
-      >
-        <Stack>
-          <Heading>{translate('pools.pools')}</Heading>
-          <Text color='text.subtle' translation='pools.poolsBody' />
-        </Stack>
-        <Button colorScheme='blue' onClick={handleAddLiquidityClick} rightIcon={plusIcon}>
-          {translate('pools.addLiquidity')}
-        </Button>
-      </Container>
-      <TabMenu items={NavItems} />
-    </Stack>
+    <>
+      <Display.Mobile>
+        <PageHeader>
+          <PageHeader.Left>
+            <PageBackButton onBack={handleBack} />
+          </PageHeader.Left>
+          <PageHeader.Middle>
+            <PageHeader.Title>{translate('pools.pools')}</PageHeader.Title>
+          </PageHeader.Middle>
+          <PageHeader.Right>
+            <PageHeaderButton
+              icon={plusIcon}
+              aria-label='Add Liquidity'
+              onClick={handleAddLiquidityClick}
+            />
+          </PageHeader.Right>
+        </PageHeader>
+      </Display.Mobile>
+      <Stack mb={4}>
+        <Display.Desktop>
+          <Container
+            display='flex'
+            justifyContent='space-between'
+            alignItems={alignItems}
+            maxWidth='container.4xl'
+            gap={2}
+            px={containerPadding}
+            flexDir={flexDirection}
+            pt={8}
+            pb={4}
+          >
+            <Stack>
+              <Heading>{translate('pools.pools')}</Heading>
+              <Text color='text.subtle' translation='pools.poolsBody' />
+            </Stack>
+
+            <Button colorScheme='blue' onClick={handleAddLiquidityClick} rightIcon={plusIcon}>
+              {translate('pools.addLiquidity')}
+            </Button>
+          </Container>
+        </Display.Desktop>
+        <TabMenu items={NavItems} />
+      </Stack>
+    </>
   )
 }

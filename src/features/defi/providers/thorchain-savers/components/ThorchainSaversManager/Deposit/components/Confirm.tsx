@@ -209,15 +209,26 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [estimatedFeesData, feeAsset.precision])
 
   useEffect(() => {
-    if (!estimatedGasCryptoPrecision || !contextDispatch) return
+    if (
+      !estimatedGasCryptoPrecision ||
+      !estimatedFeesData?.estimatedFees.fast.txFee ||
+      !contextDispatch
+    )
+      return
 
     contextDispatch({
       type: ThorchainSaversDepositActionType.SET_DEPOSIT,
       payload: {
         estimatedGasCryptoPrecision,
+        networkFeeCryptoBaseUnit: estimatedFeesData.estimatedFees.fast.txFee,
       },
     })
-  }, [contextDispatch, estimatedGasCryptoPrecision, feeAsset.precision])
+  }, [
+    contextDispatch,
+    estimatedFeesData?.estimatedFees.fast.txFee,
+    estimatedGasCryptoPrecision,
+    feeAsset.precision,
+  ])
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,

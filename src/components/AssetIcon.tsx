@@ -139,7 +139,6 @@ export const AssetOnLedger: React.FC<AssetOnLedgerProps> = ({ assetId, size, ...
           fontSize='inherit'
           icon={ledgerIcon}
           size={size}
-          // clipPath={defaultClipPath}
         />
         <Avatar src={asset?.icon} border={0} size={size} clipPath={defaultClipPath} {...rest} />
       </Center>

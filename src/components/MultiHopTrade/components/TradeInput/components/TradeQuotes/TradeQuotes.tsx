@@ -7,7 +7,7 @@ import type { ApiQuote } from 'state/apis/swapper'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
-  selectActiveQuoteMeta,
+  selectActiveQuoteMetaOrDefault,
   selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
   selectLoadingSwappers,
@@ -48,7 +48,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
 
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const sortedQuotes = useAppSelector(selectSortedTradeQuotes)
-  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperResponseAvailable)
   const tradeQuoteDisplayCache = useAppSelector(selectTradeQuoteDisplayCache)

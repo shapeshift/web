@@ -1,4 +1,4 @@
-import type { TradeQuoteSliceState } from './tradeQuoteSlice'
+import type { TradeQuoteSliceState } from './types'
 import { HopExecutionState, TradeExecutionState, TransactionExecutionState } from './types'
 
 const initialTransactionState = {

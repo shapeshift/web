@@ -184,6 +184,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     ? await queryClient.fetchQuery({
         queryKey: isSweepNeededQueryKey,
         queryFn: isSweepNeededQueryFn,
+        staleTime: 60_000,
       })
     : undefined
 

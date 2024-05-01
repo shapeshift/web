@@ -10,6 +10,7 @@ const centeredContent = {
   height: '100%',
   width: '100%',
   textAlign: 'center',
+  justifyContent: 'center',
 }
 
 const centered = definePartsStyle({

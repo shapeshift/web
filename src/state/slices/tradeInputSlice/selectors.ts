@@ -3,7 +3,6 @@ import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import type { Selector } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { isSome } from 'lib/utils'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -22,7 +21,7 @@ import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
 } from '../portfolioSlice/utils'
-import { sortQuotes } from '../tradeQuoteSlice/helpers'
+import { sortTradeQuotes } from '../tradeQuoteSlice/helpers'
 
 const selectTradeInput = (state: ReduxState) => state.tradeInput
 
@@ -233,13 +232,7 @@ const selectTradeQuotes = createDeepEqualOutputSelector(
   tradeQuoteSlice => tradeQuoteSlice.tradeQuotes,
 )
 const selectSortedTradeQuotes = createDeepEqualOutputSelector(selectTradeQuotes, tradeQuotes => {
-  const allQuotes = Object.values(tradeQuotes)
-    .filter(isSome)
-    .map(swapperQuotes => Object.values(swapperQuotes))
-    .flat()
-  const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
-  const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
-  return [...happyQuotes, ...errorQuotes]
+  return sortTradeQuotes(tradeQuotes)
 })
 
 const selectActiveQuoteMeta: Selector<

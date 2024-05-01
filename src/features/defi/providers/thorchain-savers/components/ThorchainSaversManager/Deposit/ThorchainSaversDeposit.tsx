@@ -2,6 +2,7 @@ import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -10,8 +11,9 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useSelector } from 'react-redux'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -20,7 +22,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { Sweep } from 'components/Sweep'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -51,8 +52,6 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const [fromAddress, setFromAddress] = useState<string | null>(null)
-
   const {
     state: { wallet },
   } = useWallet()
@@ -126,21 +125,16 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )
 
-  useEffect(() => {
-    if (!(accountId && wallet && accountMetadata)) return
-    ;(async () => {
-      const _fromAddress = await getThorchainFromAddress({
-        accountId,
-        getPosition: getThorchainSaversPosition,
-        assetId,
-        wallet,
-        accountMetadata,
-      })
-
-      if (!_fromAddress) return
-      setFromAddress(_fromAddress)
-    })()
-  }, [accountId, accountMetadata, assetId, fromAddress, wallet])
+  const { data: fromAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId: accountId!,
+      getPosition: getThorchainSaversPosition,
+      assetId,
+      wallet: wallet!,
+      accountMetadata: accountMetadata!,
+    }),
+    enabled: Boolean(accountId && wallet && accountMetadata),
+  })
 
   const makeHandleSweepBack = useCallback(
     (onNext: StepComponentProps['onNext']) => () => onNext(DefiStep.Info),
@@ -162,7 +156,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
           <Deposit
             {...ownProps}
             accountId={accountId}
-            fromAddress={fromAddress}
+            fromAddress={fromAddress ?? null}
             onAccountIdChange={handleAccountIdChange}
           />
         ),
@@ -172,7 +166,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
         component: ({ onNext }) => (
           <Sweep
             accountId={accountId}
-            fromAddress={fromAddress}
+            fromAddress={fromAddress ?? null}
             assetId={assetId}
             onBack={makeHandleSweepBack(onNext)}
             onSweepSeen={makeHandleSweepSeen(onNext)}

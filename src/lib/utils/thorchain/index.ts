@@ -1,8 +1,14 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, bchChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import {
+  bchChainId,
+  cosmosChainId,
+  fromAccountId,
+  fromAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
+import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -20,6 +26,7 @@ import { thorService } from 'lib/swapper/swappers/ThorchainSwapper/utils/thorSer
 import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
+import { getSupportedEvmChainIds } from '../evm'
 import { assertGetUtxoChainAdapter, isUtxoAccountId, isUtxoChainId } from '../utxo'
 import { THOR_PRECISION } from './constants'
 import type { getThorchainLendingPosition } from './lending'
@@ -220,3 +227,22 @@ export const getAccountAddresses = memoize(
   async (accountId: AccountId): Promise<string[]> =>
     (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
 )
+
+// A THOR Tx can either be:
+// - a RUNE MsgDeposit message type
+// - an EVM custom Tx, i.e., a Tx with calldata
+// - a regular send with a memo (for ATOM and UTXOs)
+export const getThorchainTransactionType = (chainId: ChainId) => {
+  const isRuneTx = chainId === thorchainChainId
+  if (isRuneTx) return 'MsgDeposit'
+
+  const supportedEvmChainIds = getSupportedEvmChainIds()
+  if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
+    return 'EvmCustomTx'
+  }
+  if (isUtxoChainId(chainId) || chainId === cosmosChainId) {
+    return 'Send'
+  }
+
+  throw new Error(`Unsupported ChainId ${chainId}`)
+}

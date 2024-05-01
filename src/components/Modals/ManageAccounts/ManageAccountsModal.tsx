@@ -106,7 +106,7 @@ export const ManageAccountsModal = ({
     })
   }, [handleClickChain, walletSupportedChainIds])
 
-  const disableAddChain = walletSupportedChainIds.length === connectedChains.length
+  const disableAddChain = false // FIXME: walletSupportedChainIds.length === connectedChains.length - blocked on Redux PR
 
   return (
     <>

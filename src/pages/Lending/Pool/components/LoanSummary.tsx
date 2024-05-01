@@ -46,7 +46,7 @@ type LoanSummaryProps = {
     | {
         borrowAssetId: AssetId
         borrowAccountId: AccountId
-        collateralAccountId: AccountId
+        collateralAccountId: AccountId | null
         collateralDecreaseAmountCryptoPrecision?: never
         debtRepaidAmountUserCurrency?: never
         debtOccuredAmountUserCurrency: string
@@ -59,7 +59,7 @@ type LoanSummaryProps = {
     | {
         borrowAssetId?: never
         borrowAccountId?: never
-        collateralAccountId: AccountId
+        collateralAccountId: AccountId | null
         collateralDecreaseAmountCryptoPrecision: string
         debtRepaidAmountUserCurrency: string
         debtOccuredAmountUserCurrency?: never

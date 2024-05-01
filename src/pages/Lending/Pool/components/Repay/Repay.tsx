@@ -12,8 +12,8 @@ const RepayEntries = [RepayRoutePaths.Input, RepayRoutePaths.Confirm]
 
 type RepayProps = {
   isAccountSelectionDisabled?: boolean
-  collateralAccountId: AccountId
-  repaymentAccountId: AccountId
+  collateralAccountId: AccountId | null
+  repaymentAccountId: AccountId | null
   repaymentAsset: Asset | null
   setRepaymentAsset: (asset: Asset | null) => void
   onCollateralAccountIdChange: (accountId: AccountId) => void
@@ -72,8 +72,8 @@ type RepayRoutesProps = {
   setRepaymentAsset: (asset: Asset | null) => void
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
-  collateralAccountId: AccountId
-  repaymentAccountId: AccountId
+  collateralAccountId: AccountId | null
+  repaymentAccountId: AccountId | null
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   txId: string | null

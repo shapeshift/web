@@ -295,6 +295,7 @@ export const Deposit: React.FC<DepositProps> = ({
                 estimatedFeesData.txFeeCryptoBaseUnit,
                 feeAsset.precision,
               ),
+              networkFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
             },
           })
         }

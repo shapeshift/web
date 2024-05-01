@@ -205,30 +205,22 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     if (!estimatedFeesData) return
-    return fromBaseUnit(estimatedFeesData?.estimatedFees.fast.txFee, feeAsset.precision)
+    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset.precision)
   }, [estimatedFeesData, feeAsset.precision])
 
   useEffect(() => {
-    if (
-      !estimatedGasCryptoPrecision ||
-      !estimatedFeesData?.estimatedFees.fast.txFee ||
-      !contextDispatch
-    )
-      return
+    if (!contextDispatch) return
+    if (!estimatedFeesData) return
+    if (!estimatedGasCryptoPrecision) return
 
     contextDispatch({
       type: ThorchainSaversDepositActionType.SET_DEPOSIT,
       payload: {
         estimatedGasCryptoPrecision,
-        networkFeeCryptoBaseUnit: estimatedFeesData.estimatedFees.fast.txFee,
+        networkFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
       },
     })
-  }, [
-    contextDispatch,
-    estimatedFeesData?.estimatedFees.fast.txFee,
-    estimatedGasCryptoPrecision,
-    feeAsset.precision,
-  ])
+  }, [contextDispatch, estimatedFeesData, estimatedGasCryptoPrecision])
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,
@@ -330,9 +322,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const hasEnoughBalanceForGas = useMemo(
     () =>
       bnOrZero(feeAssetBalanceCryptoBaseUnit)
-        .minus(state?.deposit.estimatedGasCryptoPrecision ?? 0)
+        .minus(
+          toBaseUnit(state?.deposit.estimatedGasCryptoPrecision ?? 0, feeAsset?.precision ?? 0),
+        )
         .gte(0),
-    [feeAssetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCryptoPrecision],
+    [feeAssetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCryptoPrecision, feeAsset],
   )
 
   useEffect(() => {

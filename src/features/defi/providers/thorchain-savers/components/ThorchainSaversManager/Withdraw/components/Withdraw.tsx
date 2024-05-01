@@ -232,7 +232,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       try {
         dispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit },
+          payload: {
+            estimatedGasCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
+            networkFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
+          },
         })
 
         onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)

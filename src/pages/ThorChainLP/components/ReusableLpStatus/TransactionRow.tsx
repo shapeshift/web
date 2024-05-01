@@ -110,55 +110,31 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
   const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
 
-  const accountId = useMemo(
-    () => (isRuneTx ? runeAccountId : poolAssetAccountId),
-    [isRuneTx, poolAssetAccountId, runeAccountId],
-  )
-
-  const accountMetadata = useMemo(
-    () => (isRuneTx ? runeAccountMetadata : poolAssetAccountMetadata),
-    [isRuneTx, poolAssetAccountMetadata, runeAccountMetadata],
-  )
-
-  const pairAssetAssetId = useMemo(
-    () => (isRuneTx ? poolAssetId : thorchainAssetId),
-    [isRuneTx, poolAssetId],
-  )
-
-  const pairAssetAccountMetadata = useMemo(
-    () => (isRuneTx ? poolAssetAccountMetadata : runeAccountMetadata),
-    [isRuneTx, poolAssetAccountMetadata, runeAccountMetadata],
-  )
-
   const { data: fromAddress } = useQuery({
     ...reactQueries.common.thorchainFromAddress({
-      accountId,
+      accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
       assetId: isRuneTx ? thorchainAssetId : poolAssetId,
       opportunityId: confirmedQuote.opportunityId,
       wallet: wallet!,
-      accountMetadata: accountMetadata!,
+      accountMetadata: isRuneTx ? runeAccountMetadata! : poolAssetAccountMetadata!,
       getPosition: getThorchainLpPosition,
     }),
-    enabled: Boolean(poolAsset?.assetId && accountMetadata && wallet && poolAssetAccountMetadata),
+    enabled: Boolean(poolAssetAccountMetadata && runeAccountMetadata && wallet),
   })
 
   const { data: pairAssetAddress } = useQuery({
     ...reactQueries.common.thorchainFromAddress({
-      accountId,
-      assetId: pairAssetAssetId,
+      accountId: isRuneTx ? poolAssetAccountId : runeAccountId,
+      assetId: isRuneTx ? poolAssetId : thorchainAssetId,
       opportunityId: confirmedQuote.opportunityId,
       wallet: wallet!,
-      accountMetadata: pairAssetAccountMetadata!,
+      accountMetadata: isRuneTx ? poolAssetAccountMetadata! : runeAccountMetadata!,
       getPosition: getThorchainLpPosition,
     }),
     // strip bech32 prefix for use in thorchain memo (bech32 not supported)
     select: address => address?.replace('bitcoincash:', ''),
     enabled: Boolean(
-      opportunityType === 'sym' &&
-        poolAsset?.assetId &&
-        pairAssetAccountMetadata &&
-        poolAssetAccountMetadata &&
-        wallet,
+      opportunityType === 'sym' && poolAssetAccountMetadata && runeAccountMetadata && wallet,
     ),
   })
 

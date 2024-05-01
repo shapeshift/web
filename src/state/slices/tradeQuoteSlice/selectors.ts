@@ -13,7 +13,6 @@ import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getEnabledSwappers } from 'lib/swapper/utils'
-import { isSome } from 'lib/utils'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
 import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
@@ -41,7 +40,7 @@ import {
   getHopTotalNetworkFeeUserCurrencyPrecision,
   getHopTotalProtocolFeesFiatPrecision,
   getTotalProtocolFeeByAsset,
-  sortQuotes,
+  sortTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
 
 import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
@@ -171,13 +170,7 @@ export const selectTradeQuoteResponseErrors = createDeepEqualOutputSelector(
 export const selectSortedTradeQuotes = createDeepEqualOutputSelector(
   selectTradeQuotes,
   tradeQuotes => {
-    const allQuotes = Object.values(tradeQuotes)
-      .filter(isSome)
-      .map(swapperQuotes => Object.values(swapperQuotes))
-      .flat()
-    const happyQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
-    const errorQuotes = sortQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
-    return [...happyQuotes, ...errorQuotes]
+    return sortTradeQuotes(tradeQuotes)
   },
 )
 

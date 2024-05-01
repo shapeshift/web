@@ -197,11 +197,13 @@ export const selectActiveSwapperName: Selector<ReduxState, SwapperName | undefin
   createSelector(
     selectActiveQuoteMetaOrDefault,
     selectTradeQuotes,
-    (activeQuoteMeta, tradeQuotes) => {
-      if (activeQuoteMeta === undefined) return
+    (activeQuoteMetaOrDefault, tradeQuotes) => {
+      if (activeQuoteMetaOrDefault === undefined) return
       // need to ensure a quote exists for the selection
-      if (tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]) {
-        return activeQuoteMeta.swapperName
+      if (
+        tradeQuotes[activeQuoteMetaOrDefault.swapperName]?.[activeQuoteMetaOrDefault.identifier]
+      ) {
+        return activeQuoteMetaOrDefault.swapperName
       }
     },
   )

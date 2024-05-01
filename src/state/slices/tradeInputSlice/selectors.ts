@@ -249,11 +249,13 @@ const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined>
   createDeepEqualOutputSelector(
     selectTradeQuotes,
     selectActiveQuoteMetaOrDefault,
-    (tradeQuotes, activeQuoteMeta) => {
+    (tradeQuotes, activeQuoteMetaOrDefault) => {
       // If the active quote was reset, we do NOT want to return a stale quote as an "active" quote
-      if (activeQuoteMeta === undefined) return undefined
+      if (activeQuoteMetaOrDefault === undefined) return undefined
 
-      return tradeQuotes[activeQuoteMeta.swapperName]?.[activeQuoteMeta.identifier]
+      return tradeQuotes[activeQuoteMetaOrDefault.swapperName]?.[
+        activeQuoteMetaOrDefault.identifier
+      ]
     },
   )
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =

@@ -13,17 +13,23 @@ import { reportWebVitals } from 'lib/reportWebVitals'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
 Sentry.init({
-  ...(window.location.hostname === 'localhost'
-    ? {}
-    : { dsn: getConfig().REACT_APP_SENTRY_DSN_URL }),
+  dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
   attachStacktrace: true,
   denyUrls: ['alchemy.com'],
   integrations: [
     // Sentry.browserTracingIntegration(),
     // Sentry.replayIntegration(),
     Sentry.httpClientIntegration({
-      failedRequestStatusCodes: [[400, 599]],
+      failedRequestStatusCodes: [
+        [400, 428],
+        // i.e no 429s
+        [430, 599],
+      ],
     }),
+    Sentry.browserApiErrorsIntegration(),
+    Sentry.breadcrumbsIntegration(),
+    Sentry.globalHandlersIntegration(),
+    Sentry.httpContextIntegration(),
   ],
   beforeSend(event) {
     // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3

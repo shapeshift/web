@@ -11,7 +11,7 @@ import type { getThorchainLendingPosition } from '../lending'
 type UseThorchainFromAddressArgs = {
   accountId: AccountId | undefined
   assetId: AssetId | undefined
-  opportunityId?: string | undefined
+  opportunityId: string | undefined
   wallet: HDWallet | null
   accountMetadata: AccountMetadata | undefined
   getPosition:

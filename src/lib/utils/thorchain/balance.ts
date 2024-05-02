@@ -1,9 +1,9 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import type { EstimatedFeesQueryKey } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
@@ -184,6 +184,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     ? await queryClient.fetchQuery({
         queryKey: isSweepNeededQueryKey,
         queryFn: isSweepNeededQueryFn,
+        staleTime: 60_000,
       })
     : undefined
 

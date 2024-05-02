@@ -88,6 +88,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@react-spring/web": "^9.5.2",
     "@reduxjs/toolkit": "^1.9.3",
+    "@sentry/react": "^7.112.2",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/errors": "workspace:^",

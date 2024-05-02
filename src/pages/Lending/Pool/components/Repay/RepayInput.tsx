@@ -23,7 +23,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -45,6 +44,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
+import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
@@ -74,8 +74,8 @@ type RepayInputProps = {
   collateralAssetId: AssetId
   repaymentPercent: number
   onRepaymentPercentChange: (value: number) => void
-  collateralAccountId: AccountId
-  repaymentAccountId: AccountId
+  collateralAccountId: AccountId | null
+  repaymentAccountId: AccountId | null
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onRepaymentAccountIdChange: (accountId: AccountId) => void
   repaymentAsset: Asset | null
@@ -190,7 +190,7 @@ export const RepayInput = ({
   const mixpanel = getMixPanel()
 
   const repaymentAccountNumberFilter = useMemo(
-    () => ({ accountId: repaymentAccountId }),
+    () => ({ accountId: repaymentAccountId ?? '' }),
     [repaymentAccountId],
   )
   const repaymentAccountNumber = useAppSelector(state =>
@@ -372,21 +372,23 @@ export const RepayInput = ({
     accountId: collateralAccountId,
   })
 
-  const {
-    data: estimatedFeesData,
-    isLoading: isEstimatedFeesDataLoading,
-    isError: isEstimatedFeesDataError,
-    isSuccess: isEstimatedFeesDataSuccess,
-  } = useQuoteEstimatedFeesQuery({
-    collateralAssetId,
-    collateralAccountId,
-    repaymentAccountId,
-    repaymentAsset,
-    confirmedQuote,
-  })
+  const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
+    {
+      assetId: repaymentAsset?.assetId ?? '',
+      accountId: repaymentAccountId,
+      amountCryptoBaseUnit: toBaseUnit(
+        confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+        repaymentAsset?.precision ?? 0,
+      ),
+      memo: confirmedQuote?.quoteMemo ?? null,
+      // no explicit from address required for repayments
+      fromAddress: '',
+      action: 'repayLoan',
+    },
+  )
 
   const balanceFilter = useMemo(
-    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentAsset?.assetId, repaymentAccountId],
   )
 
@@ -394,7 +396,7 @@ export const RepayInput = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
   const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId }),
+    () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentFeeAsset?.assetId, repaymentAccountId],
   )
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -604,7 +606,7 @@ export const RepayInput = ({
         <Divider />
       </Flex>
       <TradeAssetInput
-        accountId={collateralAccountId}
+        accountId={collateralAccountId ?? ''}
         assetId={collateralAssetId}
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}
@@ -641,8 +643,8 @@ export const RepayInput = ({
           collateralDecreaseAmountCryptoPrecision={
             lendingQuoteCloseData?.quoteLoanCollateralDecreaseCryptoPrecision ?? '0'
           }
-          repaymentAccountId={repaymentAccountId}
-          collateralAccountId={collateralAccountId}
+          repaymentAccountId={repaymentAccountId ?? ''}
+          collateralAccountId={collateralAccountId ?? ''}
         />
         <Stack
           borderTopWidth={1}
@@ -670,9 +672,7 @@ export const RepayInput = ({
             <Row.Value>
               <Skeleton
                 isLoaded={
-                  isEstimatedFeesDataSuccess &&
-                  isLendingQuoteCloseSuccess &&
-                  !isLendingQuoteCloseRefetching
+                  estimatedFeesData && isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching
                 }
               >
                 {/* Actually defined at display time, see isLoaded above */}

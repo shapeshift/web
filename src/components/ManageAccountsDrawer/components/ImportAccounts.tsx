@@ -29,7 +29,7 @@ import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
   selectHighestAccountNumberForChainId,
-  selectIsAccountIdEnabled,
+  selectIsAnyAccountIdEnabled,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -46,37 +46,63 @@ export type ImportAccountsProps = {
 }
 
 type TableRowProps = {
-  accountId: AccountId
+  accountIds: AccountId[]
   accountNumber: number
   asset: Asset
-  onAccountIdActiveChange: (accountId: AccountId, isActive: boolean) => void
+  onAccountIdsActiveChange: (accountIds: AccountId[], isActive: boolean) => void
+}
+
+type TableRowAccountProps = {
+  accountId: AccountId
+  asset: Asset
 }
 
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
+const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
+  const translate = useTranslate()
+  const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
+  const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
+
+  // TODO: Redux wont have this for new accounts and will be 0, so we'll need to fetch it
+  const assetBalancePrecision = useAppSelector(s =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
+  )
+  const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
+
+  const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+
+  return (
+    <Tr>
+      <Td>
+        <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
+          <div ref={ref}>
+            {isUtxoAccount ? (
+              <RawText>{`${accountLabel} ${translate('common.account')}`}</RawText>
+            ) : (
+              <MiddleEllipsis value={accountLabel} />
+            )}
+          </div>
+        </Tooltip>
+      </Td>
+      <Td>
+        <Amount.Crypto value={assetBalancePrecision} symbol={asset?.symbol ?? ''} />
+      </Td>
+    </Tr>
+  )
+})
+
 const TableRow = forwardRef<TableRowProps, 'div'>(
-  ({ asset, accountId, accountNumber, onAccountIdActiveChange }, ref) => {
-    const translate = useTranslate()
-    const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-    const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
-    const isAccountEnabledFilter = useMemo(() => ({ accountId }), [accountId])
+  ({ asset, accountNumber, accountIds, onAccountIdsActiveChange }, ref) => {
     const isAccountEnabledInRedux = useAppSelector(state =>
-      selectIsAccountIdEnabled(state, isAccountEnabledFilter),
+      selectIsAnyAccountIdEnabled(state, accountIds),
     )
 
     const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabledInRedux)
 
     useEffect(() => {
-      onAccountIdActiveChange(accountId, isAccountActive)
-    }, [accountId, isAccountActive, isAccountEnabledInRedux, onAccountIdActiveChange])
-
-    // TODO: Redux wont have this for new accounts and will be 0, so we'll need to fetch it
-    const assetBalancePrecision = useAppSelector(s =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
-    )
-    const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
-
-    const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+      onAccountIdsActiveChange(accountIds, isAccountActive)
+    }, [accountIds, isAccountActive, isAccountEnabledInRedux, onAccountIdsActiveChange])
 
     return (
       <Tr>
@@ -87,18 +113,9 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
           <Switch isChecked={isAccountActive} onChange={toggleIsAccountActive} />
         </Td>
         <Td>
-          <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
-            <div ref={ref}>
-              {isUtxoAccount ? (
-                <RawText>{`${accountLabel} ${translate('common.account')}`}</RawText>
-              ) : (
-                <MiddleEllipsis value={accountLabel} />
-              )}
-            </div>
-          </Tooltip>
-        </Td>
-        <Td>
-          <Amount.Crypto value={assetBalancePrecision} symbol={asset?.symbol ?? ''} />
+          {accountIds.map(accountId => (
+            <TableRowAccount key={accountId} ref={ref} asset={asset} accountId={accountId} />
+          ))}
         </Td>
       </Tr>
     )
@@ -135,7 +152,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [accounts, setAccounts] = useState<
-    { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[]
+    { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[][]
   >([])
   const queryClient = useQueryClient()
   const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
@@ -162,7 +179,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const handleLoadMore = useCallback(async () => {
     if (!wallet) return
     const accountNumber = accounts.length
-    const accountResult = await queryClient.fetchQuery(
+    const accountResults = await queryClient.fetchQuery(
       reactQueries.accountManagement.accountIdWithActivityAndMetadata(
         accountNumber,
         chainId,
@@ -170,16 +187,18 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         walletDeviceId,
       ),
     )
-    if (!accountResult) return
+    if (!accountResults.length) return
     setAccounts(previousAccounts => {
-      const { accountId, accountMetadata, hasActivity } = accountResult
-      return [...previousAccounts, { accountId, accountMetadata, hasActivity }]
+      return [...previousAccounts, accountResults]
     })
   }, [accounts, chainId, queryClient, wallet, walletDeviceId])
 
-  const handleAccountIdActiveChange = useCallback((accountId: AccountId, isActive: boolean) => {
+  const handleAccountIdsActiveChange = useCallback((accountIds: AccountId[], isActive: boolean) => {
     setAccountIdActiveStateUpdate(previousState => {
-      return { ...previousState, [accountId]: isActive }
+      const stateUpdate = accountIds.reduce((accumulator, accountId) => {
+        return { ...accumulator, [accountId]: isActive }
+      }, {})
+      return { ...previousState, ...stateUpdate }
     })
   }, [])
 
@@ -191,12 +210,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     }
 
-    const accountMetadataByAccountId = accounts.reduce(
-      (accumulator, { accountId, accountMetadata }) => {
-        return { ...accumulator, [accountId]: accountMetadata }
-      },
-      {},
-    )
+    const accountMetadataByAccountId = accounts.reduce((accumulator, accounts) => {
+      const obj = accounts.reduce((innerAccumulator, { accountId, accountMetadata }) => {
+        return { ...innerAccumulator, [accountId]: accountMetadata }
+      }, {})
+      return { ...accumulator, ...obj }
+    }, {})
 
     dispatch(
       portfolio.actions.upsertAccountMetadata({
@@ -216,16 +235,19 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   const accountRows = useMemo(() => {
     if (!asset) return null
-    return accounts.map(({ accountId }, accountNumber) => (
-      <TableRow
-        key={accountId}
-        accountId={accountId}
-        accountNumber={accountNumber}
-        asset={asset}
-        onAccountIdActiveChange={handleAccountIdActiveChange}
-      />
-    ))
-  }, [accounts, asset, handleAccountIdActiveChange])
+    return accounts.map((accountsForAccountNumber, accountNumber) => {
+      const accountIds = accountsForAccountNumber.map(({ accountId }) => accountId)
+      return (
+        <TableRow
+          key={accountNumber}
+          accountNumber={accountNumber}
+          accountIds={accountIds}
+          asset={asset}
+          onAccountIdsActiveChange={handleAccountIdsActiveChange}
+        />
+      )
+    })
+  }, [accounts, asset, handleAccountIdsActiveChange])
 
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)

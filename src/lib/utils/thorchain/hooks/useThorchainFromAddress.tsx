@@ -9,10 +9,10 @@ import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice
 import type { getThorchainLendingPosition } from '../lending'
 
 type UseThorchainFromAddressArgs = {
-  accountId: AccountId
-  assetId: AssetId
+  accountId: AccountId | undefined
+  assetId: AssetId | undefined
   opportunityId?: string | undefined
-  wallet: HDWallet | undefined
+  wallet: HDWallet | null
   accountMetadata: AccountMetadata | undefined
   getPosition:
     | typeof getThorchainLendingPosition
@@ -34,8 +34,8 @@ export const useThorchainFromAddress = ({
 }: UseThorchainFromAddressArgs) => {
   const query = useQuery({
     ...reactQueries.common.thorchainFromAddress({
-      accountId,
-      assetId,
+      accountId: accountId!,
+      assetId: assetId!,
       opportunityId,
       wallet: wallet!,
       accountMetadata: accountMetadata!,

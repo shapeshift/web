@@ -227,12 +227,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { data: poolAssetAccountAddress } = useThorchainFromAddress({
     accountId: poolAssetAccountId,
-    assetId: poolAsset?.assetId!,
+    assetId: poolAsset?.assetId,
     opportunityId: activeOpportunityId,
-    wallet: wallet!,
-    accountMetadata: poolAssetAccountMetadata!,
+    wallet,
+    accountMetadata: poolAssetAccountMetadata,
     getPosition: getThorchainLpPosition,
-    enabled: Boolean(poolAsset?.assetId && wallet && poolAssetAccountMetadata),
   })
 
   const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =

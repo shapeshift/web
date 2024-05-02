@@ -143,7 +143,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     accountId: pairAssetAccountId,
     assetId: isRuneTx ? poolAssetId : thorchainAssetId,
     opportunityId: confirmedQuote.opportunityId,
-    wallet: wallet!,
+    wallet,
     accountMetadata: pairAssetAccountMetadata,
     getPosition: getThorchainLpPosition,
     // strip bech32 prefix for use in thorchain memo (bech32 not supported)
@@ -152,9 +152,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       if (opportunityType !== 'sym') return
       return address.replace('bitcoincash:', '')
     },
-    enabled: Boolean(
-      opportunityType === 'sym' && pairAssetAccountId && pairAssetAccountMetadata && wallet,
-    ),
+    enabled: Boolean(opportunityType === 'sym'),
   })
 
   const thorchainNotationAssetId = useMemo(() => {

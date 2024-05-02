@@ -1,6 +1,5 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import {
-  Box,
   Button,
   Flex,
   HStack,
@@ -12,6 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Tag,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -54,15 +54,13 @@ const ConnectedChain = ({
 
   if (numAccounts === 0 || !feeAsset) return null
   return (
-    <Button width='full' onClick={handleClick} p={2}>
+    <Button width='full' height='auto' onClick={handleClick} p={2} pr={3}>
       <Flex justifyContent='space-between' width='full' alignItems='center'>
         <HStack>
           <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
           <RawText>{chainAdapter.getDisplayName()}</RawText>
         </HStack>
-        <Box bgColor='gray.600' width='22px' p={1} borderRadius='8px' fontSize='xs'>
-          {numAccounts}
-        </Box>
+        <Tag>{numAccounts}</Tag>
       </Flex>
     </Button>
   )
@@ -115,12 +113,14 @@ export const ManageAccountsModal = ({
         onClose={handleDrawerClose}
         chainId={selectedChainId}
       />
-      <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
+      <Modal isOpen={isOpen} onClose={close} isCentered size='md'>
         <ModalOverlay />
-        <ModalContent borderRadius='xl' mx={3} maxW='400px'>
-          <ModalHeader textAlign='left' py={12}>
-            <RawText as='h3'>{translate(title)}</RawText>
-            <RawText color='text.subtle' fontSize='md'>
+        <ModalContent>
+          <ModalHeader textAlign='left' pt={14}>
+            <RawText as='h3' fontWeight='semibold'>
+              {translate(title)}
+            </RawText>
+            <RawText color='text.subtle' fontSize='md' fontWeight='normal'>
               {translate('accountManagement.manageAccounts.description')}
             </RawText>
           </ModalHeader>
@@ -146,12 +146,13 @@ export const ManageAccountsModal = ({
                 colorScheme='blue'
                 onClick={handleClickAddChain}
                 width='full'
+                size='lg'
                 isDisabled={disableAddChain}
                 _disabled={disabledProp}
               >
                 {translate('accountManagement.manageAccounts.addChain')}
               </Button>
-              <Button colorScheme='gray' onClick={close} width='full'>
+              <Button size='lg' colorScheme='gray' onClick={close} width='full'>
                 {translate('common.done')}
               </Button>
             </VStack>

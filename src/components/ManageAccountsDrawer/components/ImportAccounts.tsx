@@ -73,8 +73,8 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   }, [account, asset.precision])
 
   return (
-    <Tr>
-      <Td>
+    <>
+      <Td fontWeight='bold'>
         <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
           <div ref={ref}>
             {isUtxoAccount ? (
@@ -85,14 +85,14 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
           </div>
         </Tooltip>
       </Td>
-      <Td>
+      <Td textAlign='right'>
         {isLoading ? (
           <Skeleton height='24px' width='100%' />
         ) : (
           <Amount.Crypto value={assetBalancePrecision} symbol={asset.symbol} />
         )}
       </Td>
-    </Tr>
+    </>
   )
 })
 
@@ -108,20 +108,28 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
       onAccountIdsActiveChange(accountIds, isAccountActive)
     }, [accountIds, isAccountActive, isAccountEnabledInRedux, onAccountIdsActiveChange])
 
+    const firstAccount = useMemo(() => accountIds[0], [accountIds])
+    const otherAccounts = useMemo(() => accountIds.slice(1), [accountIds])
+
     return (
-      <Tr>
-        <Td>
-          <RawText>{accountNumber}</RawText>
-        </Td>
-        <Td>
-          <Switch isChecked={isAccountActive} onChange={toggleIsAccountActive} />
-        </Td>
-        <Td>
-          {accountIds.map(accountId => (
+      <>
+        <Tr opacity={isAccountActive ? '1' : '0.5'}>
+          <Td>
+            <Switch size='lg' isChecked={isAccountActive} onChange={toggleIsAccountActive} />
+          </Td>
+          <Td>
+            <RawText color='text.subtle'>{accountNumber}</RawText>
+          </Td>
+
+          <TableRowAccount ref={ref} asset={asset} accountId={firstAccount} />
+        </Tr>
+        {otherAccounts.map(accountId => (
+          <Tr opacity={isAccountActive ? '1' : '0.5'}>
+            <Td colSpan={2} bg='background.surface.raised.base'></Td>
             <TableRowAccount key={accountId} ref={ref} asset={asset} accountId={accountId} />
-          ))}
-        </Td>
-      </Tr>
+          </Tr>
+        ))}
+      </>
     )
   },
 )

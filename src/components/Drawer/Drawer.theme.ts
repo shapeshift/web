@@ -9,12 +9,13 @@ const centeredContent = {
   alignItems: 'center',
   height: '100%',
   width: '100%',
+  textAlign: 'center',
+  justifyContent: 'center',
 }
 
 const centered = definePartsStyle({
   header: {
     ...centeredContent,
-    textAlign: 'center',
   },
 
   body: {

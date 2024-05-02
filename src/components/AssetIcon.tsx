@@ -29,11 +29,8 @@ type AssetIconProps = {
 } & AvatarProps
 
 // @TODO: this will be replaced with whatever we do for icons later
-
 // The icon prop is used as the placeholder while the icon loads, or if it fails to load.
-
 // Either src or assetId can be passed, if both are passed src takes precedence
-
 type AssetWithNetworkProps = {
   assetId: AssetId
   showNetworkIcon?: boolean

@@ -1,3 +1,19 @@
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { PartialRecord } from '@shapeshiftoss/types'
+import type { ApiQuote } from 'state/apis/swapper'
+
+export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
+
+export type TradeQuoteSliceState = {
+  activeStep: number | undefined // Make sure to actively check for undefined vs. falsy here. 0 is the first step, undefined means no active step yet
+  activeQuoteMeta: ActiveQuoteMeta | undefined // the selected quote metadata used to find the active quote in the api responses
+  confirmedQuote: TradeQuote | undefined // the quote being executed
+  tradeExecution: TradeExecutionMetadata
+  tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>> // mapping from swapperName to quoteId to ApiQuote
+  tradeQuoteDisplayCache: ApiQuote[]
+  isTradeQuoteRequestAborted: boolean // used to conditionally render results and loading state
+}
+
 export enum TransactionExecutionState {
   AwaitingConfirmation = 'AwaitingConfirmation',
   Pending = 'Pending',

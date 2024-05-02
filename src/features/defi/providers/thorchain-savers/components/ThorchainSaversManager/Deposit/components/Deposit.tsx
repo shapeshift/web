@@ -580,7 +580,7 @@ export const Deposit: React.FC<DepositProps> = ({
           accountId: accountId ?? '',
           contractAddress: undefined,
         },
-        asset,
+        feeAsset,
         assetMarketData,
         enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
       }
@@ -621,7 +621,7 @@ export const Deposit: React.FC<DepositProps> = ({
         _isSweepNeeded && accountId && isUtxoChainId(asset.chainId),
       )
       const estimatedSweepFeesQueryArgs = {
-        asset,
+        feeAsset,
         assetMarketData,
         estimateFeesInput: {
           amountCryptoPrecision: '0',
@@ -659,15 +659,17 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      accountId,
-      asset,
-      assetId,
+      asset.chainId,
+      asset.precision,
       contextDispatch,
+      setIsSendMax,
       balanceCryptoPrecision,
       fromAddress,
+      accountId,
+      assetId,
+      feeAsset,
       assetMarketData,
       queryClient,
-      setIsSendMax,
     ],
   )
 

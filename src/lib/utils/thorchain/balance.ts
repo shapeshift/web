@@ -9,7 +9,7 @@ import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeeded
 import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { isUtxoChainId } from '../utxo'
@@ -95,6 +95,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     assetId: asset.assetId,
     accountId,
   })
+  const feeAsset = selectFeeAssetById(store.getState(), asset.assetId)
   const assetMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), asset.assetId)
   const quote = await (async () => {
     switch (type) {
@@ -146,9 +147,9 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
       accountId: accountId ?? '',
       contractAddress: undefined,
     },
-    asset,
+    feeAsset,
     assetMarketData,
-    enabled: estimateFeesQueryEnabled,
+    enabled: Boolean(feeAsset && estimateFeesQueryEnabled),
   }
 
   const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
@@ -190,7 +191,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   const isEstimateSweepFeesQueryEnabled = Boolean(_isSweepNeeded && accountId && isUtxoChain)
 
   const estimatedSweepFeesQueryArgs = {
-    asset,
+    feeAsset,
     assetMarketData,
     estimateFeesInput: {
       amountCryptoPrecision: '0',

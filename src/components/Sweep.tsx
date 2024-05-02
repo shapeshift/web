@@ -9,7 +9,7 @@ import { fromBaseUnit } from 'lib/math'
 import { sleep } from 'lib/poll/poll'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Amount } from './Amount/Amount'
@@ -41,6 +41,7 @@ export const Sweep = ({
   } = useWallet()
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
 
   const {
     data: estimatedFeesData,
@@ -48,12 +49,13 @@ export const Sweep = ({
     isSuccess: isEstimatedFeesDataSuccess,
   } = useGetEstimatedFeesQuery({
     amountCryptoPrecision: '0',
+    feeAssetId: feeAsset?.assetId ?? '',
     assetId,
     to: fromAddress ?? '',
     sendMax: true,
     accountId: accountId ?? '',
     contractAddress: undefined,
-    enabled: Boolean(accountId),
+    enabled: Boolean(feeAsset?.assetId && accountId),
   })
 
   const handleSweep = useCallback(async () => {

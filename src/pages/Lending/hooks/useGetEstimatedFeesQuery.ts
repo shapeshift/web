@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -12,7 +13,7 @@ export type EstimatedFeesQueryKey = [
   'estimateFees',
   {
     enabled: boolean
-    asset: Asset | undefined
+    feeAsset: Asset | undefined
     assetMarketData: MarketData
     estimateFeesInput: EstimateFeesInput | undefined
   },
@@ -20,13 +21,13 @@ export type EstimatedFeesQueryKey = [
 
 // For use outside of react with queryClient.fetchQuery()
 export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
-  const { estimateFeesInput, asset, assetMarketData } = queryKey[1]
+  const { estimateFeesInput, feeAsset, assetMarketData } = queryKey[1]
 
   // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-  if (!asset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
+  if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
 
   const estimatedFees = await estimateFees(estimateFeesInput)
-  const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, asset.precision))
+  const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
     .times(assetMarketData.price)
     .toString()
   return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
@@ -35,8 +36,8 @@ export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey })
 export const useGetEstimatedFeesQuery = ({
   enabled,
   ...estimateFeesInput
-}: EstimateFeesInput & { enabled: boolean; disableRefetch?: boolean }) => {
-  const asset = useAppSelector(state => selectAssetById(state, estimateFeesInput.assetId))
+}: EstimateFeesInput & { enabled: boolean; disableRefetch?: boolean; feeAssetId: AssetId }) => {
+  const feeAsset = useAppSelector(state => selectAssetById(state, estimateFeesInput.feeAssetId))
   const assetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, estimateFeesInput.assetId),
   )
@@ -46,12 +47,12 @@ export const useGetEstimatedFeesQuery = ({
       'estimateFees',
       {
         enabled,
-        asset,
+        feeAsset,
         assetMarketData,
         estimateFeesInput,
       },
     ],
-    [asset, assetMarketData, enabled, estimateFeesInput],
+    [feeAsset, assetMarketData, enabled, estimateFeesInput],
   )
 
   const getEstimatedFeesQuery = useQuery({
@@ -61,7 +62,7 @@ export const useGetEstimatedFeesQuery = ({
     enabled:
       enabled &&
       Boolean(
-        asset &&
+        feeAsset &&
           estimateFeesInput.to &&
           estimateFeesInput.accountId &&
           estimateFeesInput.amountCryptoPrecision,

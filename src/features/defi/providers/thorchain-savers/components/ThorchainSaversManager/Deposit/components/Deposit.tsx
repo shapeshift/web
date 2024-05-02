@@ -524,11 +524,11 @@ export const Deposit: React.FC<DepositProps> = ({
     },
     [
       accountId,
-      outboundFeeInAssetCryptoBaseUnit,
       assetMarketData.price,
       balanceCryptoBaseUnit,
       asset,
       assetId,
+      outboundFeeInAssetCryptoBaseUnit,
       translate,
       chainId,
       fromAddress,
@@ -541,7 +541,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
   const fiatAmountAvailable = useMemo(
     () => bnOrZero(balanceCryptoPrecision).times(assetMarketData.price),
-    [assetMarketData.price, balanceCryptoPrecision],
+    [balanceCryptoPrecision, assetMarketData?.price],
   )
 
   const setIsSendMax = useCallback(
@@ -574,8 +574,9 @@ export const Deposit: React.FC<DepositProps> = ({
       const estimatedFeesQueryArgs = {
         estimateFeesInput: {
           amountCryptoPrecision: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),
+          // The same as assetId since this only runs for UTXOs
+          feeAssetId: assetId,
           assetId,
-          feeAssetId: feeAsset?.assetId ?? '',
           to: fromAddress ?? '',
           sendMax: false,
           accountId: accountId ?? '',
@@ -583,7 +584,7 @@ export const Deposit: React.FC<DepositProps> = ({
         },
         feeAsset,
         feeAssetMarketData,
-        enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
+        enabled: Boolean(accountId && feeAsset?.assetId && isUtxoChainId(asset.chainId)),
       }
       const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
 
@@ -627,7 +628,8 @@ export const Deposit: React.FC<DepositProps> = ({
         estimateFeesInput: {
           amountCryptoPrecision: '0',
           assetId,
-          feeAssetId: feeAsset?.assetId ?? '',
+          // The same as assetId since this only runs for UTXOs
+          feeAssetId: assetId,
           to: fromAddress ?? '',
           sendMax: true,
           accountId: accountId ?? '',
@@ -652,7 +654,7 @@ export const Deposit: React.FC<DepositProps> = ({
           .minus(fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision))
 
       const _percentageFiatAmount = _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
-        feeAssetMarketData.price,
+        assetMarketData.price,
       )
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
       return {
@@ -672,6 +674,7 @@ export const Deposit: React.FC<DepositProps> = ({
       feeAsset,
       feeAssetMarketData,
       queryClient,
+      assetMarketData.price,
     ],
   )
 
@@ -779,7 +782,7 @@ export const Deposit: React.FC<DepositProps> = ({
       cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
       fiatInputValidation={fiatInputValidation}
-      marketData={feeAssetMarketData}
+      marketData={assetMarketData}
       onCancel={handleCancel}
       onPercentClick={handlePercentClick}
       onContinue={handleContinue}

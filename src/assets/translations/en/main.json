@@ -1807,7 +1807,7 @@
       "import": "Import"
     },
     "ledgerOpenApp": {
-      "title": "Open the %{chainNamespaceDisplayName} App",
+      "title": "Open the %{appName} App",
       "description": "To connect this chain, you will need to open the Ledger app on your device."
     }
   },

@@ -11,6 +11,9 @@
     "next": "Далі",
     "error": "Помилка",
     "show": "Показати",
+    "account": "Акаунт",
+    "address": "Адрес",
+    "done": "Готово",
     "cancel": "Відмінити",
     "close": "Закрити",
     "loadMore": "Читати далі",
@@ -300,6 +303,9 @@
       "connecting": "З'єднуємо..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Керувати акаунтами"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -413,7 +419,8 @@
           "tooltip": "Орієнтовний час для покриття депозитних комісій та отримання прибутку."
         },
         "cannotDepositWhilePendingTx": "Неможливо внести депозит, доки триває обробка транзакцій",
-        "cannotWithdrawWhilePendingTx": "Неможливо вивести кошти, доки триває обробка транзакцій"
+        "cannotWithdrawWhilePendingTx": "Неможливо вивести кошти, доки триває обробка транзакцій",
+        "dangerousWithdrawWarning": "Комісія THORchain може призвести до повної втрати виведених коштів. Щоб уникнути цієї проблеми, розгляньте можливість виведення більшої суми."
       }
     },
     "memoNote": {
@@ -583,7 +590,29 @@
     "buyCryptoShort": "Купити/продати",
     "arkeo": "Arkeo Airdrop",
     "lending": "Кредитування",
-    "pools": "Пули"
+    "pools": "Пули",
+    "actionMenu": {
+      "send": {
+        "title": "Надіслати",
+        "body": "Надіслати криптовалюту"
+      },
+      "receive": {
+        "title": "Отримати",
+        "body": "Отримати криптовалюту"
+      },
+      "trade": {
+        "title": "Торгівля або міст",
+        "body": "Торгуйте або скористайтесь мостом для вашої криптовалюти"
+      },
+      "buy": {
+        "title": "Купити або продати",
+        "body": "Купуйте або продавайте криптовалюту за допомогою кредитної картки"
+      },
+      "qrcode": {
+        "title": "Відскануйте QR-код",
+        "body": "Легке сканування для надсилання або отримання криптовалюти"
+      }
+    }
   },
   "transactionRow": {
     "send": "Надіслано",
@@ -1761,6 +1790,11 @@
     "viewAccount": "Переглянути акаунти",
     "expandAccount": "Розширити рахунок"
   },
+  "accountManagementSidebar": {
+    "title": "Імпорт %{chainNamespaceDisplayName} Облікових записів",
+    "description": "Виберіть облікові записи, які ви хочете імпортувати, зі списку нижче.",
+    "import": "Імпорт"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "Історія транзакцій",
@@ -2142,6 +2176,7 @@
   "lending": {
     "lending": "Кредитування",
     "repaymentAvailable": "Доступне погашення",
+    "repaymentUnavailable": "Погашення ще не доступне",
     "daysUntilRepayment": "%{numDays} днів до погашення",
     "repaymentDays": "%{numDays} днів",
     "lendingBody": "Перелік усіх пулів, які можна позичити під нульову відсоткову ставку та з нульовою ліквідацією.",
@@ -2211,7 +2246,8 @@
       "repaymentsHalted": "Виплати тимчасово припинені.",
       "borrowingHalted": "Запозичення тимчасово призупинено.",
       "repaymentsDisabled": "Погашення тимчасово відключено.",
-      "borrowingDisabled": "Кредитування тимчасово відключено."
+      "borrowingDisabled": "Кредитування тимчасово відключено.",
+      "amountTooLowToReturnCollateral": "Занадто мала сума для повернення застави"
     },
     "quote": {
       "collateral": "Загальна сума активів, які будуть забезпечені під заставу вашого кредиту",
@@ -2224,8 +2260,7 @@
       "yourLoans": "Ваші позики",
       "emptyTitle": "Країна нульових кредитів!",
       "emptyBody": "Схоже, що у вас немає жодних кредитів на даний момент. Це фінансовий дзен чи просто перерва перед наступною великою кредитною пригодою? У будь-якому випадку, насолоджуйтеся спокоєм!"
-    },
-    "unsafeBorrow": "Ця позика має високе прослизання (%{slippagePercentage}%). Будьте обережні."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Ваша сила FOX",
@@ -2329,6 +2364,14 @@
         "body": "Хоча пули ліквідності пропонують можливості для заробітку, важливо усвідомлювати ризики, пов'язані з ними, включаючи непостійні втрати, вразливість смарт-контрактів і волатильність ринку. Користувачі повинні провести ретельне дослідження перед тим, як брати участь у пулах."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "Я розумію.",
+    "attention": "Увага!",
+    "highSlippageDeposit": "Цей депозит має високе прослизання (%{slippagePercentage}%). Дійте з обережністю.",
+    "highSlippageBorrow": "Ця позика має високе прослизання (%{slippagePercentage}%). Дійте з обережністю.",
+    "highSlippageTrade": "На цю торгівлю впливає рух цін (%{slippagePercentage}%). Дійте з обережністю.",
+    "unsafeTrade": "Ця торгівля може бути небезпечною або нижче рекомендованого мінімального розміру, дійте з обережністю."
   },
   "watchlist": {
     "empty": {

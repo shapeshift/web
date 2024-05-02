@@ -11,6 +11,9 @@
     "next": "Siguiente",
     "error": "Error",
     "show": "Mostrar",
+    "account": "Cuenta",
+    "address": "Dirección",
+    "done": "Finalizado",
     "cancel": "Cancelar",
     "close": "Cerrar",
     "loadMore": "Cargar más",
@@ -300,6 +303,9 @@
       "connecting": "Conectando..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Administrar Cuentas"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -413,7 +419,8 @@
           "tooltip": "Tiempo estimado para cubrir tarifas de depósito y ganancias."
         },
         "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
-        "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes"
+        "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes",
+        "dangerousWithdrawWarning": "La tarifa de THORChain podría resultar en la pérdida total de los fondos retirados. Considere retirar una cantidad mayor para evitar este problema."
       }
     },
     "memoNote": {
@@ -583,7 +590,29 @@
     "buyCryptoShort": "Comprar/Vender",
     "arkeo": "Airdrop Arkeo ",
     "lending": "Préstamo",
-    "pools": "Pools"
+    "pools": "Pools",
+    "actionMenu": {
+      "send": {
+        "title": "Enviar",
+        "body": "Enviar tu cripto"
+      },
+      "receive": {
+        "title": "Recibir",
+        "body": "Recibir cripto"
+      },
+      "trade": {
+        "title": "Intercambie o Bridge",
+        "body": "Intercambiar o Bridge su cripto"
+      },
+      "buy": {
+        "title": "Comprar o Vender",
+        "body": "Compre o venda cripto con tarjeta de crédito"
+      },
+      "qrcode": {
+        "title": "Escanear código QR",
+        "body": "Escanee fácilmente para enviar o recibir cripto"
+      }
+    }
   },
   "transactionRow": {
     "send": "Enviado",
@@ -1761,6 +1790,11 @@
     "viewAccount": "Ver cuenta",
     "expandAccount": "Expandir cuenta"
   },
+  "accountManagementSidebar": {
+    "title": "Importar cuentas %{chainNamespaceDisplayName}",
+    "description": "Seleccione las cuentas que desea importar de la lista a continuación.",
+    "import": "Importar"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "Historial de transacciones",
@@ -2142,6 +2176,7 @@
   "lending": {
     "lending": "Préstamo",
     "repaymentAvailable": "Pago disponible",
+    "repaymentUnavailable": "Pago aún no disponible",
     "daysUntilRepayment": "%{numDays} días hasta el pago",
     "repaymentDays": "%{numDays} días",
     "lendingBody": "Una lista de todas las piscinas donde puedes pedir préstamos sin intereses ni liquidaciones.",
@@ -2211,7 +2246,8 @@
       "repaymentsHalted": "Pagos suspendidos temporalmente.",
       "borrowingHalted": "Préstamos suspendidos temporalmente.",
       "repaymentsDisabled": "Pagos temporalmente inhabilitados.",
-      "borrowingDisabled": "Préstamo temporalmente deshabilitado."
+      "borrowingDisabled": "Préstamo temporalmente deshabilitado.",
+      "amountTooLowToReturnCollateral": "Monto demasiado bajo para devolver la garantía"
     },
     "quote": {
       "collateral": "Monto total del activo garantizado contra su préstamo",
@@ -2224,8 +2260,7 @@
       "yourLoans": "Tus préstamos",
       "emptyTitle": "¡La Tierra de Cero Préstamos!",
       "emptyBody": "No tienes préstamo en este momento. ¿Es esto un zen financiero o un descanso antes de su próxima aventura crediticia? De cualquier manera, ¡disfruta de la calma!"
-    },
-    "unsafeBorrow": "Préstamo tiene alto deslizamiento (%{slippagePercentage}%). Proceda con precaución."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Tu Poder FOX",
@@ -2329,6 +2364,14 @@
         "body": "Si bien los fondos de liquidez ofrecen oportunidades de ganancias, es importante ser consciente de riesgos, como pérdidas no permanentes, vulnerabilidad de contratos inteligentes y volatilidad de mercado. Debe realizar una investigación exhaustiva antes."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "Entiendo",
+    "attention": "¡Atención!",
+    "highSlippageDeposit": "Este depósito tiene un alto deslizamiento (%{slippagePercentage}%). Proceda con precaución.",
+    "highSlippageBorrow": "Este préstamo tiene un alto deslizamiento (%{slippagePercentage}%). Proceda con precaución.",
+    "highSlippageTrade": "Esta operación se ve afectada por el movimiento de precios (%{slippagePercentage}%). Proceda con precaución.",
+    "unsafeTrade": "Esta operación puede ser insegura o estar por debajo del tamaño mínimo recomendado; proceda con precaución."
   },
   "watchlist": {
     "empty": {

@@ -140,6 +140,7 @@ const validators = {
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api-shapeshift.1inch.io/v5.0',
   }),
+  REACT_APP_SENTRY_DSN_URL: url(),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
@@ -163,6 +164,7 @@ const validators = {
   REACT_APP_FEATURE_THORCHAIN_LP_DEPOSIT: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LP_WITHDRAW: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: bool({ default: false }),
+  REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: bool({ default: false }),
   REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),

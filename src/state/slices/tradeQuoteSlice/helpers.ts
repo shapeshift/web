@@ -1,12 +1,15 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import { isSome } from 'lib/utils'
 import type { ApiQuote } from 'state/apis/swapper'
 import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
+
+import type { ActiveQuoteMeta } from './types'
 
 export const getHopTotalNetworkFeeUserCurrencyPrecision = (
   networkFeeCryptoBaseUnit: string | undefined,
@@ -106,6 +109,34 @@ export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, P
     {},
   )
 
-export const sortQuotes = (unorderedQuotes: ApiQuote[]): ApiQuote[] => {
+const sortApiQuotes = (unorderedQuotes: ApiQuote[]): ApiQuote[] => {
   return orderBy(unorderedQuotes, ['inputOutputRatio', 'swapperName'], ['desc', 'asc'])
+}
+
+export const sortTradeQuotes = (
+  tradeQuotes: Partial<Record<SwapperName, Record<string, ApiQuote>>>,
+): ApiQuote[] => {
+  const allQuotes = Object.values(tradeQuotes)
+    .filter(isSome)
+    .map(swapperQuotes => Object.values(swapperQuotes))
+    .flat()
+  const happyQuotes = sortApiQuotes(allQuotes.filter(({ errors }) => errors.length === 0))
+  const errorQuotes = sortApiQuotes(allQuotes.filter(({ errors }) => errors.length > 0))
+  return [...happyQuotes, ...errorQuotes]
+}
+
+export const getActiveQuoteMetaOrDefault = (
+  activeQuoteMeta: ActiveQuoteMeta | undefined,
+  sortedQuotes: ApiQuote[],
+) => {
+  const bestQuote = sortedQuotes[0]
+  const bestQuoteMeta = bestQuote
+    ? { swapperName: bestQuote.swapperName, identifier: bestQuote.id }
+    : undefined
+  // Return the "best" quote even if it has errors, provided there is a quote to display data for
+  // this allows users to explore trades that aren't necessarily actionable. The UI will prevent
+  // executing these downstream.
+  const isSelectable = bestQuote?.quote !== undefined
+  const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
+  return activeQuoteMeta ?? defaultQuoteMeta
 }

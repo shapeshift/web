@@ -19,7 +19,6 @@ import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import NightSky from 'assets/nightsky.jpg'
 import { AssetIcon } from 'components/AssetIcon'
-import { AuroraBackground } from 'components/AuroraBackground'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { LanguageSelector } from 'components/LanguageSelector'
@@ -318,7 +317,6 @@ export const ConnectWallet = () => {
             </Stack>
           </Center>
         </Flex>
-        <AuroraBackground />
       </Flex>
     </Page>
   )

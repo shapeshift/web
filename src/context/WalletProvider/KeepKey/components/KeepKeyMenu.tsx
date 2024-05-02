@@ -11,7 +11,7 @@ export const KeepKeyConnectedMenuItems = () => {
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
-  const accountManagementPopover = useModal('backupNativePassphrase') // FIXME: use accountManagementPopover once ready
+  const accountManagementPopover = useModal('manageAccounts')
 
   const handleManageAccountsMenuItemClick = useCallback(
     () => accountManagementPopover.open({}),
@@ -24,7 +24,7 @@ export const KeepKeyConnectedMenuItems = () => {
         <>
           <MenuDivider />
           <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-            {translate('manageAccounts.menuTitle')}
+            {translate('accountManagement.menuTitle')}
           </MenuItem>
         </>
       )}

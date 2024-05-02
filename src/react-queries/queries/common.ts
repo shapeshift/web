@@ -1,11 +1,18 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { assertGetChainAdapter } from 'lib/utils'
 import { getErc20Allowance } from 'lib/utils/evm'
+import { getThorchainFromAddress } from 'lib/utils/thorchain'
+import type { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
+import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
+import type { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
 import { GetAllowanceErr } from '../types'
 
@@ -44,5 +51,34 @@ export const common = createQueryKeys('common', {
 
       return Ok(allowanceOnChainCryptoBaseUnit)
     },
+  }),
+  thorchainFromAddress: ({
+    accountId,
+    assetId,
+    opportunityId,
+    wallet,
+    accountMetadata,
+    getPosition,
+  }: {
+    accountId: AccountId
+    assetId: AssetId
+    opportunityId?: string | undefined
+    wallet: HDWallet
+    accountMetadata: AccountMetadata
+    getPosition:
+      | typeof getThorchainLendingPosition
+      | typeof getThorchainSaversPosition
+      | typeof getThorchainLpPosition
+  }) => ({
+    queryKey: ['thorchainFromAddress', accountId, assetId, opportunityId],
+    queryFn: async () =>
+      await getThorchainFromAddress({
+        accountId,
+        assetId,
+        opportunityId,
+        getPosition,
+        accountMetadata,
+        wallet,
+      }),
   }),
 })

@@ -155,6 +155,10 @@ export const isFulfilled = <T>(
 export const isRejected = <T>(promise: PromiseSettledResult<T>): promise is PromiseRejectedResult =>
   promise.status === 'rejected'
 
+export const isResolvedErr = <U, V, T extends Result<U, V>>(
+  promise: PromiseSettledResult<T>,
+): promise is PromiseRejectedResult => 'value' in promise && promise.value.isErr()
+
 export const setTimeoutAsync = (waitMs: number) =>
   new Promise(resolve => setTimeout(resolve, waitMs))
 

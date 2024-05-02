@@ -532,10 +532,17 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
 
       const results = aggregatedEarnUserStakingOpportunitiesIncludeEmpty.filter(opportunity => {
         if (opportunity?.expired) {
+          const undelegations = [
+            ...(supportsUndelegations(opportunity) ? opportunity.undelegations : []),
+          ]
+
           return (
             !bnOrZero(opportunity.stakedAmountCryptoBaseUnit).isZero() ||
             opportunity?.rewardsCryptoBaseUnit?.amounts.some(rewardsAmount =>
               bnOrZero(rewardsAmount).gt(0),
+            ) ||
+            undelegations.some(undelegation =>
+              bnOrZero(undelegation.undelegationAmountCryptoBaseUnit).gt(0),
             )
           )
         }

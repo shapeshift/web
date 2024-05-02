@@ -27,8 +27,8 @@ import { useLendingPositionData } from './useLendingPositionData'
 
 type UseLendingQuoteCloseQueryProps = {
   repaymentAssetId: AssetId
-  repaymentAccountId: AccountId
-  collateralAccountId: AccountId
+  repaymentAccountId: AccountId | null
+  collateralAccountId: AccountId | null
   collateralAssetId: AssetId
   repaymentPercent: number
   enabled?: boolean
@@ -190,7 +190,7 @@ export const useLendingQuoteCloseQuery = ({
   )
 
   const collateralAccountMetadataFilter = useMemo(
-    () => ({ accountId: collateralAccountId }),
+    () => ({ accountId: collateralAccountId ?? '' }),
     [collateralAccountId],
   )
   const collateralAccountMetadata = useAppSelector(state =>

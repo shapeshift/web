@@ -73,6 +73,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0',
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: '0.04357',
+    expiry: 1713710808,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,
@@ -111,6 +112,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     memo: '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:0/10/0:ss:0',
     tradeType: TradeType.L1ToL1,
     slippageTolerancePercentageDecimal: undefined,
+    expiry: 1713710808,
     steps: [
       {
         estimatedExecutionTimeMs: undefined,
@@ -167,7 +169,7 @@ describe('getTradeQuote', () => {
           const mockThorQuote: { data: ThornodeQuoteResponseSuccess } = {
             data: {
               expected_amount_out: '10232161',
-              expiry: 1681132269,
+              expiry: 1713710808,
               fees: {
                 affiliate: '0',
                 asset: 'ETH.ETH',

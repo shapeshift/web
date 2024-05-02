@@ -31,7 +31,7 @@ import { store, useAppSelector } from 'state/store'
 type UseLendingQuoteQueryProps = {
   collateralAssetId: AssetId
   borrowAccountId: AccountId
-  collateralAccountId: AccountId
+  collateralAccountId: AccountId | null
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
 }

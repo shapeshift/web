@@ -1,4 +1,5 @@
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
+import { isThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
 import {
@@ -54,5 +55,6 @@ export const getMixpanelEventData = () => {
     [compositeSellAsset]: sellAmountBeforeFeesCryptoPrecision,
     isStreaming: activeQuote?.isStreaming ?? false,
     isLongtail: activeQuote?.isLongtail ?? false,
+    tradeType: isThorTradeQuote(activeQuote) ? activeQuote?.tradeType : null,
   }
 }

@@ -1,6 +1,7 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
 import type {
@@ -9,8 +10,9 @@ import type {
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps, StepComponentProps } from 'components/DeFi/components/Steps'
@@ -18,7 +20,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { Sweep } from 'components/Sweep'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
@@ -43,7 +44,6 @@ type WithdrawProps = {
 }
 
 export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) => {
-  const [fromAddress, setFromAddress] = useState<string | null>(null)
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, history, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -98,21 +98,16 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
     selectPortfolioAccountMetadataByAccountId(state, accountFilter),
   )
 
-  useEffect(() => {
-    if (!(accountId && wallet && accountMetadata)) return
-    ;(async () => {
-      const _fromAddress = await getThorchainFromAddress({
-        accountId,
-        getPosition: getThorchainSaversPosition,
-        assetId,
-        wallet,
-        accountMetadata,
-      })
-
-      if (!_fromAddress) return
-      setFromAddress(_fromAddress)
-    })()
-  }, [accountId, accountMetadata, assetId, fromAddress, wallet])
+  const { data: fromAddress } = useQuery({
+    ...reactQueries.common.thorchainFromAddress({
+      accountId: accountId!,
+      getPosition: getThorchainSaversPosition,
+      assetId,
+      wallet: wallet!,
+      accountMetadata: accountMetadata!,
+    }),
+    enabled: Boolean(accountId && wallet && accountMetadata),
+  })
 
   useEffect(() => {
     if (state.opportunity) return
@@ -147,7 +142,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
           asset: asset.symbol,
         }),
         component: ownProps => (
-          <Withdraw {...ownProps} accountId={accountId} fromAddress={fromAddress} />
+          <Withdraw {...ownProps} accountId={accountId} fromAddress={fromAddress ?? null} />
         ),
       },
       [DefiStep.Sweep]: {
@@ -155,7 +150,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
         component: ({ onNext }) => (
           <Sweep
             accountId={accountId}
-            fromAddress={fromAddress}
+            fromAddress={fromAddress ?? null}
             assetId={assetId}
             onBack={makeHandleSweepBack(onNext)}
             onSweepSeen={makeHandleSweepSeen(onNext)}

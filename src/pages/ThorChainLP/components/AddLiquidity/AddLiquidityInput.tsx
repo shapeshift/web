@@ -23,7 +23,7 @@ import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -64,6 +64,7 @@ import { assertUnreachable, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
@@ -224,15 +225,13 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
   )
 
-  const { data: poolAssetAccountAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: poolAssetAccountId,
-      assetId: poolAsset?.assetId!,
-      opportunityId: activeOpportunityId,
-      wallet: wallet!,
-      accountMetadata: poolAssetAccountMetadata!,
-      getPosition: getThorchainLpPosition,
-    }),
+  const { data: poolAssetAccountAddress } = useThorchainFromAddress({
+    accountId: poolAssetAccountId,
+    assetId: poolAsset?.assetId!,
+    opportunityId: activeOpportunityId,
+    wallet: wallet!,
+    accountMetadata: poolAssetAccountMetadata!,
+    getPosition: getThorchainLpPosition,
     enabled: Boolean(poolAsset?.assetId && wallet && poolAssetAccountMetadata),
   })
 

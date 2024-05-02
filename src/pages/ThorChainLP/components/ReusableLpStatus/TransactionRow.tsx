@@ -34,6 +34,7 @@ import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -138,15 +139,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return isRuneTx ? poolAssetAccountMetadata : runeAccountMetadata
   }, [isRuneTx, runeAccountMetadata, poolAssetAccountMetadata])
 
-  const { data: pairAssetAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: pairAssetAccountId,
-      assetId: isRuneTx ? poolAssetId : thorchainAssetId,
-      opportunityId: confirmedQuote.opportunityId,
-      wallet: wallet!,
-      accountMetadata: pairAssetAccountMetadata!,
-      getPosition: getThorchainLpPosition,
-    }),
+  const { data: pairAssetAddress } = useThorchainFromAddress({
+    accountId: pairAssetAccountId,
+    assetId: isRuneTx ? poolAssetId : thorchainAssetId,
+    opportunityId: confirmedQuote.opportunityId,
+    wallet: wallet!,
+    accountMetadata: pairAssetAccountMetadata,
+    getPosition: getThorchainLpPosition,
     // strip bech32 prefix for use in thorchain memo (bech32 not supported)
     select: address => {
       // Paranoia against previously cached calls, this should never happen but it could

@@ -11,6 +11,9 @@
     "next": "次へ",
     "error": "エラー",
     "show": "表示する",
+    "account": "アカウント",
+    "address": "アドレス",
+    "done": "完了",
     "cancel": "キャンセルする",
     "close": "閉じる",
     "loadMore": "もっと見る",
@@ -300,6 +303,9 @@
       "connecting": "接続中..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "アカウントの管理"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -413,7 +419,8 @@
           "tooltip": "入金手数料と収益をカバーするまでの推定時間"
         },
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
-        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません"
+        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
+        "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。"
       }
     },
     "memoNote": {
@@ -583,7 +590,29 @@
     "buyCryptoShort": "売買",
     "arkeo": "Arkeoエアドロップ",
     "lending": "貸し出し",
-    "pools": "プール"
+    "pools": "プール",
+    "actionMenu": {
+      "send": {
+        "title": "送信",
+        "body": "暗号資産を送る"
+      },
+      "receive": {
+        "title": "受け取る",
+        "body": "暗号通貨を受け取る"
+      },
+      "trade": {
+        "title": "取引またはブリッジ",
+        "body": "暗号資産のブリッジまたは取引"
+      },
+      "buy": {
+        "title": "買うか売るか",
+        "body": "クレジットカードで暗号資産を購入または販売する"
+      },
+      "qrcode": {
+        "title": "QRコードをスキャンする",
+        "body": "簡単にスキャンして暗号通貨を送受信する"
+      }
+    }
   },
   "transactionRow": {
     "send": "送信済み",
@@ -1761,6 +1790,11 @@
     "viewAccount": "アカウントをみる",
     "expandAccount": "アカウントを広げる"
   },
+  "accountManagementSidebar": {
+    "title": "%{chainNamespaceDisplayName} アカウントをインポートする",
+    "description": "以下のリストからインポートしたいアカウントを選択してください。",
+    "import": "インポート"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "取引履歴",
@@ -2142,6 +2176,7 @@
   "lending": {
     "lending": "貸し出し",
     "repaymentAvailable": "返済可能",
+    "repaymentUnavailable": "返済はまだできません",
     "daysUntilRepayment": "返済まであと %{numDays} 日",
     "repaymentDays": "%{numDays} 日",
     "lendingBody": "ゼロ金利およびゼロ清算で借りられるすべてのプールのリスト。",
@@ -2211,7 +2246,8 @@
       "repaymentsHalted": "返済は一時停止されます。",
       "borrowingHalted": "貸出は一時停止となります。",
       "repaymentsDisabled": "返済は一時的に無効になります。",
-      "borrowingDisabled": "借用は一時的に無効になっています。"
+      "borrowingDisabled": "借用は一時的に無効になっています。",
+      "amountTooLowToReturnCollateral": "担保を返還するには金額が低すぎます"
     },
     "quote": {
       "collateral": "ローンに対して担保される資産総額",
@@ -2224,8 +2260,7 @@
       "yourLoans": "あなたのローン",
       "emptyTitle": "ローンゼロ",
       "emptyBody": "現在、ローンはありません。この時間をお楽しみください！"
-    },
-    "unsafeBorrow": "この借入には高いスリッページ（%{slippagePercentage}%）があります。注意して進めてください。"
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "あなたのFOX",
@@ -2329,6 +2364,14 @@
         "body": "流動性プールは収益機会を提供しますが、一時的な損失、スマートコントラクトの脆弱性、市場の変動性など、関連するリスクを認識することが重要です。ユーザーは参加する前に十分な調査を行う必要があります。"
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "承知しました",
+    "attention": "注意！",
+    "highSlippageDeposit": "この預金には高いスリッページ（%{slippagePercentage}%）があります。注意して進めてください。",
+    "highSlippageBorrow": "この借入には高いスリッページ（%{slippagePercentage}%）があります。注意して進めてください。",
+    "highSlippageTrade": "この取引は価格変動の影響を受けます (%{slippagePercentage}%)。注意して進めてください。",
+    "unsafeTrade": "この取引は安全ではないか、推奨される最小サイズを下回っている可能性がありますので、注意して進めてください。"
   },
   "watchlist": {
     "empty": {

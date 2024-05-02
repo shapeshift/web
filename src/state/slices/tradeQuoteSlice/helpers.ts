@@ -6,7 +6,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -122,7 +122,7 @@ const sortApiQuotes = (unorderedQuotes: ApiQuote[]): ApiQuote[] => {
 }
 
 export const sortTradeQuotes = (
-  tradeQuotes: Partial<Record<SwapperName, Record<string, ApiQuote>>>,
+  tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>>,
 ): ApiQuote[] => {
   const allQuotes = Object.values(tradeQuotes)
     .filter(isSome)

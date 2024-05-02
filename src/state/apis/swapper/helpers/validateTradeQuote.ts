@@ -4,7 +4,6 @@ import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapesh
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
-// import { isTradingActive } from 'components/MultiHopTrade/utils'
 import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -118,7 +117,8 @@ export const validateTradeQuote = async (
   // This should really never happen but in case it does:
   if (!sendAddress) throw new Error('sendAddress is required')
 
-  const firstHop = getHopByIndex(quote, 0)
+  // A quote always consists of at least one hop
+  const firstHop = getHopByIndex(quote, 0)!
   const secondHop = getHopByIndex(quote, 1)
 
   const isMultiHopTrade = isMultiHopTradeQuote(quote)

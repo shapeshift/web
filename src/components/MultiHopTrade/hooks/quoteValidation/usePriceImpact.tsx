@@ -25,7 +25,8 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
   const sellAmountBeforeFeesUsd = useMemo(() => {
     if (!tradeQuote || !sellAsset || !sellAssetUsdRate) return
 
-    const firstHop = getHopByIndex(tradeQuote, 0)
+    // A quote always has a first hop
+    const firstHop = getHopByIndex(tradeQuote, 0)!
     const sellAmountIncludingProtocolFeesCryptoBaseUnit =
       firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
@@ -43,10 +44,11 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
     // price impact calculation must use buyAmountBeforeFees because it relates to the liquidity in
     // the pool rather than a rate of input versus output
 
-    const index = (numSteps - 1) as SupportedTradeQuoteStepIndex
-    const hop = getHopByIndex(tradeQuote, index)
+    const lastHopIndex = (numSteps - 1) as SupportedTradeQuoteStepIndex
+    // A quote always has a last hop since it always has a first hop
+    const lastHop = getHopByIndex(tradeQuote, lastHopIndex)!
     const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-      hop.buyAmountBeforeFeesCryptoBaseUnit,
+      lastHop.buyAmountBeforeFeesCryptoBaseUnit,
       buyAsset.precision,
     )
 

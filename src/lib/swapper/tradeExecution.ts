@@ -48,6 +48,10 @@ export class TradeExecution {
       const swapper = maybeSwapper
 
       const hop = getHopByIndex(tradeQuote, stepIndex)
+
+      if (!hop) {
+        throw new Error(`No hop found for stepIndex ${stepIndex}`)
+      }
       const chainId = hop.sellAsset.chainId
 
       const sellTxHash = await buildSignBroadcast(swapper, {

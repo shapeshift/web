@@ -74,6 +74,9 @@ export const getHopTotalProtocolFeesFiatPrecision = (
 export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
   const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
   const lastStep = getHopByIndex(quote, lastStepIndex)
+
+  if (!lastStep) return '0'
+
   const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 
   const netReceiveAmountCryptoPrecision = fromBaseUnit(
@@ -148,17 +151,15 @@ export const getActiveQuoteMetaOrDefault = (
   return activeQuoteMeta ?? defaultQuoteMeta
 }
 
-export const getHopByIndex = <T extends TradeQuote | undefined>(
-  quote: T,
+export const getHopByIndex = (
+  quote: TradeQuote | undefined,
   index: SupportedTradeQuoteStepIndex,
-): T extends undefined ? undefined : TradeQuoteStep => {
-  if (quote === undefined) {
-    return undefined as T extends undefined ? undefined : TradeQuoteStep
-  }
+) => {
+  if (quote === undefined) return undefined
   if (index > 1) {
     throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
   }
   const hop = quote.steps[index]
 
-  return hop as T extends undefined ? undefined : TradeQuoteStep
+  return hop
 }

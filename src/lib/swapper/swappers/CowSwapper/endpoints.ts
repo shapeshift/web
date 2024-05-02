@@ -51,7 +51,8 @@ export const cowApi: SwapperApi = {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(tradeQuote => {
-      const firstStep = getHopByIndex(tradeQuote, 0)
+      // A quote always has a first step
+      const firstStep = getHopByIndex(tradeQuote, 0)!
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
@@ -65,6 +66,9 @@ export const cowApi: SwapperApi = {
     chainId,
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const hop = getHopByIndex(tradeQuote, stepIndex)
+
+    if (!hop) throw new Error(`No hop found for stepIndex ${stepIndex}`)
+
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = hop
     const {
       receiveAddress,

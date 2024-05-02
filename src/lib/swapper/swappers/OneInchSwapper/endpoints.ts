@@ -27,7 +27,7 @@ export const oneInchApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
-      const firstHop = getHopByIndex(tradeQuote, 0)
+      const firstHop = getHopByIndex(tradeQuote, 0)!
       tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
     })
@@ -42,6 +42,9 @@ export const oneInchApi: SwapperApi = {
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const step = getHopByIndex(tradeQuote, stepIndex)
+
+    if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
+
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
 
     const { receiveAddress, affiliateBps } = tradeQuote

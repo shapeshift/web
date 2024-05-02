@@ -113,7 +113,8 @@ export const getL1ToLongtailQuote = async (
 
   const promises = await Promise.allSettled(
     thorchainQuotes.map(async quote => {
-      const onlyStep = getHopByIndex(quote, 0)
+      // A quote always has a first step
+      const onlyStep = getHopByIndex(quote, 0)!
 
       const maybeBestAggregator = await getBestAggregator(
         buyAssetFeeAsset,

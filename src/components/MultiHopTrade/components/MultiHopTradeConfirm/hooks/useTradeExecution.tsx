@@ -74,6 +74,10 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
+    const hop = getHopByIndex(tradeQuote, hopIndex)
+
+    if (!hop) throw Error(`Current hop is undefined: ${hopIndex}`)
+
     return new Promise<void>(async resolve => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
 
@@ -160,7 +164,6 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber
-      const hop = getHopByIndex(tradeQuote, hopIndex)
       const stepSellAssetChainId = hop.sellAsset.chainId
       const stepSellAssetAssetId = hop.sellAsset.assetId
       const stepBuyAssetAssetId = hop.buyAsset.assetId

@@ -11,6 +11,9 @@
     "next": "Следующий",
     "error": "Ошибка",
     "show": "Показать",
+    "account": "Аккаунт",
+    "address": "Адрес",
+    "done": "Готово",
     "cancel": "Отмена",
     "close": "Закрыть",
     "loadMore": "Загрузить еще",
@@ -300,6 +303,9 @@
       "connecting": "Подключение..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Управление учетными записями"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -413,7 +419,8 @@
           "tooltip": "Расчетное время для покрытия комиссионных по вкладу и заработка."
         },
         "cannotDepositWhilePendingTx": "Невозможно пополнить счет, пока транзакция  находится на рассмотрении",
-        "cannotWithdrawWhilePendingTx": "Невозможно снять средства, пока транзакция находится на рассмотрении"
+        "cannotWithdrawWhilePendingTx": "Невозможно снять средства, пока транзакция находится на рассмотрении",
+        "dangerousWithdrawWarning": "Комиссия THORChain может привести к полной потере выводимых средств. Чтобы избежать этой проблемы, подумайте о снятии большей суммы."
       }
     },
     "memoNote": {
@@ -583,7 +590,29 @@
     "buyCryptoShort": "Купить/Продать",
     "arkeo": "Arkeo Airdrop",
     "lending": "Кредитование",
-    "pools": "Пулы"
+    "pools": "Пулы",
+    "actionMenu": {
+      "send": {
+        "title": "Отправить",
+        "body": "Отправить криптовалюту"
+      },
+      "receive": {
+        "title": "Получить",
+        "body": "Получить криптовалюту"
+      },
+      "trade": {
+        "title": "Торговля или Мост",
+        "body": "Торгуйте или Переведите через мост вашу криптовалюту "
+      },
+      "buy": {
+        "title": "Купить или продать",
+        "body": "Покупайте или продавайте криптовалюту с помощью кредитной карты"
+      },
+      "qrcode": {
+        "title": "Сканировать QR-код",
+        "body": "Простое сканирование для отправки или получения криптовалюты"
+      }
+    }
   },
   "transactionRow": {
     "send": "Отправлено",
@@ -1761,6 +1790,11 @@
     "viewAccount": "Просмотр аккаунта",
     "expandAccount": "Расширить счет"
   },
+  "accountManagementSidebar": {
+    "title": "Импортировать %{chainNamespaceDisplayName} Аккаунты",
+    "description": "Выберите счета, которые вы хотите импортировать, из списка ниже.",
+    "import": "Импорт"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "История транзакций",
@@ -2142,6 +2176,7 @@
   "lending": {
     "lending": "Кредитование",
     "repaymentAvailable": "Возможность погашения",
+    "repaymentUnavailable": "Погашение пока не доступно",
     "daysUntilRepayment": "%{numDays} дней до погашения",
     "repaymentDays": "%{numDays} дней",
     "lendingBody": "Перечень всех пулов, которые могут быть заимствованы под нулевые проценты и с нулевой ликвидацией.",
@@ -2211,7 +2246,8 @@
       "repaymentsHalted": "Выплаты по кредиту временно прекращаются",
       "borrowingHalted": "Заимствования временно прекращены.",
       "repaymentsDisabled": "Погашение временно отключено.",
-      "borrowingDisabled": "Займы временно отключены."
+      "borrowingDisabled": "Займы временно отключены.",
+      "amountTooLowToReturnCollateral": "Сумма слишком мала для возврата залога"
     },
     "quote": {
       "collateral": "Общая сумма активов, которые будут обеспечены вашим кредитом",
@@ -2224,8 +2260,7 @@
       "yourLoans": "Ваши кредиты",
       "emptyTitle": "Страна нулевых займов!",
       "emptyBody": "Похоже, что сейчас у вас нет ни одного кредита. Это финансовый дзен или просто передышка перед следующим большим кредитным приключением? В любом случае, наслаждайтесь спокойствием!"
-    },
-    "unsafeBorrow": "У этого займа большое проскальзывание (%{slippagePercentage}%). Действуйте с осторожностью."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Ваша сила FOX",
@@ -2329,6 +2364,14 @@
         "body": "Несмотря на то что пулы ликвидности предлагают возможности для заработка, важно осознавать связанные с ними риски, включая непостоянный убыток, уязвимость смарт-контрактов и волатильность рынка. Пользователям следует провести тщательное исследование, прежде чем принимать в нем участие."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "Я понимаю",
+    "attention": "Внимание!",
+    "highSlippageDeposit": "У этого депозита высокое проскальзывание (%{slippagePercentage}%). Будьте осторожны.",
+    "highSlippageBorrow": "У этого займа большое проскальзывание  (%{slippagePercentage}%). Будьте осторожны.",
+    "highSlippageTrade": "На эту сделку влияет движение цены (%{slippagePercentage}%). Будьте осторожны.",
+    "unsafeTrade": "Эта сделка может быть небезопасной или ниже рекомендуемого минимального размера, действуйте с осторожностью."
   },
   "watchlist": {
     "empty": {

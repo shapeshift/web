@@ -21,12 +21,12 @@ import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetOnLedger } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AssetOnLedger } from './AssetOnLedger'
 import { DrawerContentWrapper } from './DrawerContent'
 
 export type LedgerOpenAppProps = {

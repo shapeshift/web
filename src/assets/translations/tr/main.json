@@ -11,6 +11,9 @@
     "next": "Sonraki",
     "error": "Hata",
     "show": "Göster",
+    "account": "Hesap",
+    "address": "Adres",
+    "done": "Tamamlandı",
     "cancel": "İptal",
     "close": "Kapat",
     "loadMore": "Daha fazla",
@@ -300,6 +303,9 @@
       "connecting": "Bağlanıyor..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Hesapları Yönet"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -413,7 +419,8 @@
           "tooltip": "Para yatırma ücretlerini ve kazançları karşılamak için tahmini süre."
         },
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
-        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz"
+        "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
+        "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine neden olabilir. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün."
       }
     },
     "memoNote": {
@@ -583,7 +590,29 @@
     "buyCryptoShort": "Al/Sat",
     "arkeo": "Arkeo Airdrop",
     "lending": "Borç Verme",
-    "pools": "Havuzlar"
+    "pools": "Havuzlar",
+    "actionMenu": {
+      "send": {
+        "title": "Gönder",
+        "body": "Kriptonuzu gönderin"
+      },
+      "receive": {
+        "title": "Al",
+        "body": "Kripto al"
+      },
+      "trade": {
+        "title": "Takas veya Köprü",
+        "body": "Kriptonuzu köprüleme takası"
+      },
+      "buy": {
+        "title": "Al veya Sat",
+        "body": "Kredi kartıyla kripto satın alın veya satın"
+      },
+      "qrcode": {
+        "title": "QR Kodunu Tara",
+        "body": "Kripto göndermek veya almak için kolayca tarayın"
+      }
+    }
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -1761,6 +1790,11 @@
     "viewAccount": "Hesabı görüntüle",
     "expandAccount": "Hesabı genişlet"
   },
+  "accountManagementSidebar": {
+    "title": "%{chainNamespaceDisplayName} Hesaplarını İçe Aktarın",
+    "description": "Aşağıdaki listeden içe aktarmak istediğiniz hesapları seçin.",
+    "import": "İçe aktar"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "İşlem Geçmişi",
@@ -2142,6 +2176,7 @@
   "lending": {
     "lending": "Borç Verme",
     "repaymentAvailable": "Geri ödeme mevcut",
+    "repaymentUnavailable": "Geri ödeme henüz mümkün değil",
     "daysUntilRepayment": "Geri ödemeye %{numDays} gün kaldı",
     "repaymentDays": "%{numDays} gün",
     "lendingBody": "Sıfır faiz ve sıfır tasfiyeyle ödünç alınabilecek tüm havuzların listesi.",
@@ -2211,7 +2246,8 @@
       "repaymentsHalted": "Geri ödemeler geçici olarak durduruldu.",
       "borrowingHalted": "Borçlanma geçici olarak durduruldu.",
       "repaymentsDisabled": "Geri ödemeler geçici olarak devre dışı bırakıldı.",
-      "borrowingDisabled": "Ödünç alma geçici olarak devre dışı bırakıldı."
+      "borrowingDisabled": "Ödünç alma geçici olarak devre dışı bırakıldı.",
+      "amountTooLowToReturnCollateral": "Teminatın iadesi için tutar çok düşük"
     },
     "quote": {
       "collateral": "Kredinize karşılık teminat altına alınacak toplam varlık tutarı",
@@ -2224,8 +2260,7 @@
       "yourLoans": "Kredileriniz",
       "emptyTitle": "Sıfır Krediler Ülkesi!",
       "emptyBody": "Şu anda herhangi bir krediniz yok gibi görünüyor. Bu finansal zen mi, yoksa bir sonraki büyük borç verme maceranızdan önce sadece bir mola mı? Her iki durumda da sakinliğin tadını çıkarın!"
-    },
-    "unsafeBorrow": "Bu ödünç almanın kayma oranı yüksek (%{slippagePercentage}%). Dikkatle ilerle."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "FOX Power'ın",
@@ -2329,6 +2364,14 @@
         "body": "Likidite havuzları kazanç fırsatları sunarken, kalıcı kayıplar, akıllı sözleşme zayıflıkları ve piyasa dalgalanmaları dahil olmak üzere ilgili risklerin farkında olmak önemlidir. Kullanıcılar katılmadan önce kapsamlı bir araştırma yapmalıdır."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "Anladım",
+    "attention": "Dikkat!",
+    "highSlippageDeposit": "Bu depozitoda yüksek kayma (%{slippagePercentage}%) var. Dikkatle ilerle.",
+    "highSlippageBorrow": "Bu ödünç almanın kayma oranı yüksek (%{slippagePercentage}%). Dikkatle ilerle.",
+    "highSlippageTrade": "Bu takas fiyat hareketinden (%{slippagePercentage}%) etkileniyor. Dikkatle ilerle.",
+    "unsafeTrade": "Bu takas güvensiz olabilir veya önerilen minimum boyutun altında olabilir, dikkatli ilerleyin."
   },
   "watchlist": {
     "empty": {

@@ -48,6 +48,7 @@ export const Sweep = ({
     isSuccess: isEstimatedFeesDataSuccess,
   } = useGetEstimatedFeesQuery({
     amountCryptoPrecision: '0',
+    feeAssetId: assetId,
     assetId,
     to: fromAddress ?? '',
     sendMax: true,

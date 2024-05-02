@@ -9,7 +9,7 @@ import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeeded
 import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import { isUtxoChainId } from '../utxo'
@@ -95,7 +95,11 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     assetId: asset.assetId,
     accountId,
   })
-  const assetMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), asset.assetId)
+  const feeAsset = selectFeeAssetById(store.getState(), asset.assetId)
+  const feeAssetMarketData = selectMarketDataByAssetIdUserCurrency(
+    store.getState(),
+    feeAsset?.assetId ?? '',
+  )
   const quote = await (async () => {
     switch (type) {
       case 'withdraw': {
@@ -141,14 +145,15 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     estimateFeesInput: {
       amountCryptoPrecision,
       assetId: asset.assetId,
+      feeAssetId: feeAsset?.assetId ?? '',
       to: quote?.inbound_address ?? '',
       sendMax: false,
       accountId: accountId ?? '',
       contractAddress: undefined,
     },
-    asset,
-    assetMarketData,
-    enabled: estimateFeesQueryEnabled,
+    feeAsset,
+    feeAssetMarketData,
+    enabled: Boolean(feeAsset && estimateFeesQueryEnabled),
   }
 
   const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
@@ -190,11 +195,12 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   const isEstimateSweepFeesQueryEnabled = Boolean(_isSweepNeeded && accountId && isUtxoChain)
 
   const estimatedSweepFeesQueryArgs = {
-    asset,
-    assetMarketData,
+    feeAsset,
+    feeAssetMarketData,
     estimateFeesInput: {
       amountCryptoPrecision: '0',
       assetId: asset.assetId,
+      feeAssetId: feeAsset?.assetId ?? '',
       to: fromAddress ?? '',
       sendMax: true,
       accountId: accountId ?? '',

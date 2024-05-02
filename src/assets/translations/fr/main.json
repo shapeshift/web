@@ -11,6 +11,9 @@
     "next": "Suivant",
     "error": "Erreur",
     "show": "Afficher",
+    "account": "Compte",
+    "address": "Adresse",
+    "done": "Terminé",
     "cancel": "Annuler",
     "close": "Fermer",
     "loadMore": "Charger plus",
@@ -300,6 +303,9 @@
       "connecting": "Connexion..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Gérer les comptes"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -414,7 +420,7 @@
         },
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
-        "dangerousWithdrawWarning": "Retrait désactivé car les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème."
+        "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème."
       }
     },
     "memoNote": {
@@ -584,7 +590,29 @@
     "buyCryptoShort": "Achat/Vente",
     "arkeo": "Airdrop Arkeo",
     "lending": "Prêts",
-    "pools": "Pools"
+    "pools": "Pools",
+    "actionMenu": {
+      "send": {
+        "title": "Envoyer",
+        "body": "Envoyez vos cryptos"
+      },
+      "receive": {
+        "title": "Recevoir",
+        "body": "Recevoir des cryptos"
+      },
+      "trade": {
+        "title": "Échanger ou Bridger",
+        "body": "Échangez ou bridgez vos cryptos"
+      },
+      "buy": {
+        "title": "Acheter ou Vendre",
+        "body": "Achetez ou vendez des cryptos par carte de crédit"
+      },
+      "qrcode": {
+        "title": "Scanner un code QR",
+        "body": "Scannez facilement pour envoyer ou recevoir des cryptos"
+      }
+    }
   },
   "transactionRow": {
     "send": "Envoi",
@@ -643,9 +671,9 @@
         "loanOpen": "Ouverture de prêt",
         "loanOpenOut": "Prêt reçu",
         "loanOpenRefund": "Remboursement d'ouverture de prêt",
-        "loanRepayment": "Remboursement de prêt",
+        "loanRepayment": "Restitution de prêt",
         "loanRepaymentOut": "Collatéral de prêt reçu",
-        "loanRepaymentRefund": "Restitution de remboursement de prêt",
+        "loanRepaymentRefund": "Remboursement de restitution de prêt",
         "loanRepaymentRefundNative": "Restitution de prêt + Remboursement",
         "out": "Sortant reçu",
         "refund": "Remboursement",
@@ -1762,6 +1790,11 @@
     "viewAccount": "Voir le compte",
     "expandAccount": "Développer le compte"
   },
+  "accountManagementSidebar": {
+    "title": "Importer les comptes %{chainNamespaceDisplayName}",
+    "description": "Sélectionnez les comptes que vous souhaitez importer dans la liste ci-dessous.",
+    "import": "Importer"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "Historique des transactions",
@@ -2143,6 +2176,7 @@
   "lending": {
     "lending": "Prêts",
     "repaymentAvailable": "Remboursement possible",
+    "repaymentUnavailable": "Remboursement pas encore disponible",
     "daysUntilRepayment": "%{numDays} jours jusqu'au remboursement",
     "repaymentDays": "%{numDays} jours",
     "lendingBody": "Une liste de tous les pools pouvant être empruntés à taux zéro et sans liquidation.",
@@ -2212,7 +2246,8 @@
       "repaymentsHalted": "Les remboursements sont temporairement interrompus.",
       "borrowingHalted": "Les emprunts sont temporairement interrompus.",
       "repaymentsDisabled": "Les remboursements sont temporairement désactivés.",
-      "borrowingDisabled": "Les emprunts sont temporairement désactivés."
+      "borrowingDisabled": "Les emprunts sont temporairement désactivés.",
+      "amountTooLowToReturnCollateral": "Montant trop petit pour restituer le collatéral"
     },
     "quote": {
       "collateral": "Montant total des actifs qui seront utilisés comme garantie afin de couvrir votre prêt",
@@ -2225,8 +2260,7 @@
       "yourLoans": "Vos prêts",
       "emptyTitle": "Le pays d'Aucun Prêt !",
       "emptyBody": "Il semble que vous n'ayez aucun prêt pour le moment. Est-ce le zen financier ou juste une pause avant votre prochaine grande aventure d'emprunt ? Quoi qu’il en soit, profitez du calme !"
-    },
-    "unsafeBorrow": "Cet emprunt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Votre Puissance FOX",
@@ -2330,6 +2364,14 @@
         "body": "Bien que les pools de liquidités offrent des opportunités de gains, il est important d'être conscient des risques impliqués, notamment des pertes impermanentes, des vulnérabilités des contrats intelligents et de la volatilité du marché. Les utilisateurs doivent effectuer des recherches approfondies avant de participer."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "Je comprends",
+    "attention": "Attention !",
+    "highSlippageDeposit": "Ce dépôt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence.",
+    "highSlippageBorrow": "Cet emprunt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence.",
+    "highSlippageTrade": "Cet échange est influencé par les mouvements de cours (%{slippagePercentage}%). Procédez avec prudence.",
+    "unsafeTrade": "Cet échange peut être risqué ou inférieur à la taille minimale recommandée, procédez avec prudence."
   },
   "watchlist": {
     "empty": {

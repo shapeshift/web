@@ -11,6 +11,9 @@
     "next": "Avançar",
     "error": "Erro",
     "show": "Mostrar",
+    "account": "Conta",
+    "address": "Endereço",
+    "done": "Feito",
     "cancel": "Cancelar",
     "close": "Fechar",
     "loadMore": "Carregar mais",
@@ -300,6 +303,9 @@
       "connecting": "Conectando..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Gerenciar contas"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -414,7 +420,7 @@
         },
         "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
         "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
-        "dangerousWithdrawWarning": "Saque desativada porque a taxa THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema."
+        "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema."
       }
     },
     "memoNote": {
@@ -584,7 +590,29 @@
     "buyCryptoShort": "Compre/venda",
     "arkeo": "Airdrop da Arkeo",
     "lending": "Empréstimo",
-    "pools": "Pools"
+    "pools": "Pools",
+    "actionMenu": {
+      "send": {
+        "title": "Enviar",
+        "body": "Envie suas cripto"
+      },
+      "receive": {
+        "title": "Receber",
+        "body": "Receber criptos"
+      },
+      "trade": {
+        "title": "Negocie ou Faça uma bridge",
+        "body": "Negociação da bridge da sua cripto"
+      },
+      "buy": {
+        "title": "Comprar ou vender",
+        "body": "Compre ou venda criptos com cartão de crédito"
+      },
+      "qrcode": {
+        "title": "Scaneie o código QR",
+        "body": "Escaneie facilmente para enviar ou receber criptos"
+      }
+    }
   },
   "transactionRow": {
     "send": "Enviado",
@@ -1762,6 +1790,11 @@
     "viewAccount": "Veja a conta",
     "expandAccount": "Expandir conta"
   },
+  "accountManagementSidebar": {
+    "title": "Importar %{chainNamespaceDisplayName} contas",
+    "description": "Selecione as contas que você gostaria de importar na lista abaixo.",
+    "import": "Importar"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "Histórico de transações",
@@ -2143,6 +2176,7 @@
   "lending": {
     "lending": "Empréstimo",
     "repaymentAvailable": "Pagamento disponível",
+    "repaymentUnavailable": "Reembolso ainda não disponível",
     "daysUntilRepayment": "%{numDays} dias até o pagamento",
     "repaymentDays": "%{numDays} dias",
     "lendingBody": "Uma lista de todas os pools que podem ser emprestados sem custo e zero liquidações.",
@@ -2212,7 +2246,8 @@
       "repaymentsHalted": "Os reembolsos estão temporariamente suspensos.",
       "borrowingHalted": "Os empréstimos estão temporariamente suspensos.",
       "repaymentsDisabled": "Os reembolsos estão temporariamente desativados.",
-      "borrowingDisabled": "O empréstimo está temporariamente desativado."
+      "borrowingDisabled": "O empréstimo está temporariamente desativado.",
+      "amountTooLowToReturnCollateral": "Valor muito baixo para devolver o colateral"
     },
     "quote": {
       "collateral": "Valor total do ativo que será garantido pelo seu empréstimo",
@@ -2225,8 +2260,7 @@
       "yourLoans": "Seus Empréstimos",
       "emptyTitle": "A Terra dos Empréstimos Zero!",
       "emptyBody": "Parece que você não tem nenhum empréstimo no momento. Isso é momento zen das suas finanças ou apenas uma pausa antes de sua próxima grande aventura de empréstimo? De qualquer forma, aproveite a calma!"
-    },
-    "unsafeBorrow": "Este empréstimo tem alta slippage (%{slippagePercentage}%). Prossiga com cuidado."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Seu Poder FOX",
@@ -2330,6 +2364,14 @@
         "body": "Embora as pools de liquidez ofereçam oportunidades de ganhos, é importante estar ciente dos riscos envolvidos, incluindo perdas impermanentes, vulnerabilidades de contratos inteligentes e volatilidade do mercado. Os usuários devem realizar uma pesquisa completa antes de participar."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "Eu entendo",
+    "attention": "Atenção!",
+    "highSlippageDeposit": "Este depósito apresenta alta slippage (%{slippagePercentage}%). Prossiga com cuidado.",
+    "highSlippageBorrow": "Este empréstimo tem alta slippage (%{slippagePercentage}%). Prossiga com cuidado.",
+    "highSlippageTrade": "Esta negociação é impactada pelo movimento de preços (%{slippagePercentage}%). Prossiga com cuidado.",
+    "unsafeTrade": "Esta negociação pode ser insegura ou estar abaixo do tamanho mínimo recomendado, proceda com cautela."
   },
   "watchlist": {
     "empty": {

@@ -11,6 +11,9 @@
     "next": "Weiter",
     "error": "Fehler",
     "show": "Zeige",
+    "account": "Konto",
+    "address": "Adresse",
+    "done": "Erledigt",
     "cancel": "Abbrechen",
     "close": "Schließen",
     "loadMore": "Mehr laden",
@@ -300,6 +303,9 @@
       "connecting": "Verbinde..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "Konten verwalten"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -414,7 +420,7 @@
         },
         "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
         "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
-        "dangerousWithdrawWarning": "Die Auszahlung ist deaktiviert, da die THORChain-Gebühr zum Totalverlust der abgehobenen Gelder führen könnte. Erwägen Sie, einen höheren Betrag abzuheben, um dieses Problem zu vermeiden."
+        "dangerousWithdrawWarning": "Die THORChain-Gebühr kann zum Totalverlust der abgehobenen Mittel führen. Um dieses Problem zu vermeiden, sollten Sie einen höheren Betrag abheben."
       }
     },
     "memoNote": {
@@ -584,7 +590,29 @@
     "buyCryptoShort": "Kauf/Verkauf",
     "arkeo": "Arkeo Airdrop",
     "lending": "Verleihen",
-    "pools": "Pools"
+    "pools": "Pools",
+    "actionMenu": {
+      "send": {
+        "title": "Senden",
+        "body": "Senden Sie Ihre Kryptowährung"
+      },
+      "receive": {
+        "title": "Empfangen",
+        "body": "Krypto empfangen"
+      },
+      "trade": {
+        "title": "Handeln oder \"Bridgen\"",
+        "body": "Handel oder Bridge Kryptowährung"
+      },
+      "buy": {
+        "title": "Kaufen oder Verkaufen",
+        "body": "Krypto mit Kreditkarte kaufen oder verkaufen"
+      },
+      "qrcode": {
+        "title": "QR-Code scannen",
+        "body": "Einfaches Scannen zum Senden oder Empfangen von Kryptowährungen"
+      }
+    }
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -1762,6 +1790,11 @@
     "viewAccount": "Konto ansehen",
     "expandAccount": "Konto erweitern"
   },
+  "accountManagementSidebar": {
+    "title": "%{chainNamespaceDisplayName} Konten importieren",
+    "description": "Wählen Sie aus der Liste unten die Konten aus, die Sie importieren möchten.",
+    "import": "Importieren"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "bisherige Transaktionen",
@@ -2143,6 +2176,7 @@
   "lending": {
     "lending": "Verleihen",
     "repaymentAvailable": "Rückzahlung möglich",
+    "repaymentUnavailable": "Rückzahlung noch nicht möglich",
     "daysUntilRepayment": "%{numDays} Tage bis zur Rückzahlung",
     "repaymentDays": "%{numDays} Tage",
     "lendingBody": "Eine Auflistung aller Pools, die zinslos und ohne Liquidation ausgeliehen werden können.",
@@ -2212,7 +2246,8 @@
       "repaymentsHalted": "Rückzahlungen sind vorübergehend gestoppt.",
       "borrowingHalted": "Ausleihen ist vorübergehend gestoppt.",
       "repaymentsDisabled": "Rückzahlungen sind vorübergehend deaktiviert.",
-      "borrowingDisabled": "Ausleihen ist vorübergehend deaktiviert."
+      "borrowingDisabled": "Ausleihen ist vorübergehend deaktiviert.",
+      "amountTooLowToReturnCollateral": "Betrag zu niedrig, um Sicherheiten zurückzugeben"
     },
     "quote": {
       "collateral": "Gesamtvermögenswert, der gegen Ihr Darlehen besichert wird",
@@ -2225,8 +2260,7 @@
       "yourLoans": "Ihre Kredite",
       "emptyTitle": "Das Land der Nullkredite!",
       "emptyBody": "Offenbar haben Sie im Moment keine Kredite. Ist das ein finanzieller Zen-Zauber oder nur eine Pause vor Ihrem nächsten großen Kreditabenteuer? Wie auch immer, genießen Sie die Ruhe!"
-    },
-    "unsafeBorrow": "Dieser Kredit hat einen hohen Slippage (%{slippagePercentage}%). Mit Vorsicht fortfahren."
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "Deine FOX Power",
@@ -2330,6 +2364,14 @@
         "body": "Während Liquiditätspools Ertragsmöglichkeiten bieten, ist es wichtig, sich der damit verbundenen Risiken bewusst zu sein, einschließlich vorübergehender Verluste, Schwachstellen bei intelligenten Verträgen und Marktvolatilität. Benutzer sollten vor der Teilnahme gründliche Recherchen durchführen."
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "Ich verstehe",
+    "attention": "Achtung!",
+    "highSlippageDeposit": "Diese Einzahlung weist eine hohe Slippage auf (%{slippagePercentage}%). Gehen Sie mit Vorsicht vor.",
+    "highSlippageBorrow": "Dieses Ausleihen weist eine hohe Slippage auf (%{slippagePercentage}%). Gehen Sie mit Vorsicht vor.",
+    "highSlippageTrade": "Dieser Handel wird durch Preisschwankungen (%{slippagePercentage}%) beeinflusst. Gehen Sie mit Vorsicht vor.",
+    "unsafeTrade": "Dieser Handel kann unsicher sein oder unter der empfohlenen Mindestgröße liegen. Gehen Sie daher vorsichtig vor."
   },
   "watchlist": {
     "empty": {

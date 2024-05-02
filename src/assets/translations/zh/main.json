@@ -11,6 +11,9 @@
     "next": "下一个",
     "error": "错误",
     "show": "显示",
+    "account": "帐户",
+    "address": "地址",
+    "done": "完成",
     "cancel": "取消",
     "close": "关闭",
     "loadMore": "加载更多",
@@ -300,6 +303,9 @@
       "connecting": "正在连接..."
     }
   },
+  "manageAccounts": {
+    "menuTitle": "管理帐户"
+  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -413,7 +419,8 @@
           "tooltip": "预计收益能支付手续费的时间"
         },
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
-        "cannotWithdrawWhilePendingTx": "交易待处理时无法提现"
+        "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
+        "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。"
       }
     },
     "memoNote": {
@@ -583,7 +590,29 @@
     "buyCryptoShort": "买/卖",
     "arkeo": "Arkeo 空投",
     "lending": "贷款",
-    "pools": "池"
+    "pools": "池",
+    "actionMenu": {
+      "send": {
+        "title": "发送",
+        "body": "发送你的加密货币"
+      },
+      "receive": {
+        "title": "收到",
+        "body": "接收加密货币"
+      },
+      "trade": {
+        "title": "交易或桥接",
+        "body": "桥接你的加密货币的交易"
+      },
+      "buy": {
+        "title": "买入或卖出",
+        "body": "使用信用卡购买或出​​售加密货币"
+      },
+      "qrcode": {
+        "title": "扫描二维码",
+        "body": "轻松扫描以发送或接收加密货币"
+      }
+    }
   },
   "transactionRow": {
     "send": "已发送",
@@ -1761,6 +1790,11 @@
     "viewAccount": "查看账户",
     "expandAccount": "展开账户"
   },
+  "accountManagementSidebar": {
+    "title": "导入 %{chainNamespaceDisplayName} 账户",
+    "description": "从下面的列表中选择您想要导入的帐户。",
+    "import": "导入"
+  },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "交易记录",
@@ -2142,6 +2176,7 @@
   "lending": {
     "lending": "贷款",
     "repaymentAvailable": "可还款",
+    "repaymentUnavailable": "还款尚未到账",
     "daysUntilRepayment": "距离还款还有 %{numDays} 天",
     "repaymentDays": "%{numDays} 天",
     "lendingBody": "所有可以零利息和零清算借款的资金池的列表。",
@@ -2211,7 +2246,8 @@
       "repaymentsHalted": "还款暂时停止。",
       "borrowingHalted": "借款暂时停止。",
       "repaymentsDisabled": "还款功能暂时禁用。",
-      "borrowingDisabled": "暂时禁止借贷。"
+      "borrowingDisabled": "暂时禁止借贷。",
+      "amountTooLowToReturnCollateral": "金额太低，无法退还抵押品"
     },
     "quote": {
       "collateral": "将作为你的贷款担保的总资产金额",
@@ -2224,8 +2260,7 @@
       "yourLoans": "你的贷款",
       "emptyTitle": "零贷款之地！",
       "emptyBody": "你目前似乎没有任何贷款。这是金融禅宗还是只是您下一次大型贷款冒险之前的休息？不管怎样，享受平静吧！"
-    },
-    "unsafeBorrow": "该借款具有较高的滑点 (%{slippagePercentage}%)。谨慎行事。"
+    }
   },
   "foxDiscounts": {
     "currentFoxPower": "你的 FOX Power",
@@ -2329,6 +2364,14 @@
         "body": "虽然流动性池提供了盈利机会，但重要的是要意识到所涉及的风险，包括无常损失、智能合约漏洞和市场波动。用户在参与之前应进行彻底的研究。"
       }
     }
+  },
+  "warningAcknowledgement": {
+    "understand": "我理解",
+    "attention": "注意！",
+    "highSlippageDeposit": "此存款的滑点较高 (%{slippagePercentage}%)。请谨慎操作。",
+    "highSlippageBorrow": "此借款滑点较高 (%{slippagePercentage}%)。请谨慎操作。",
+    "highSlippageTrade": "此交易受价格变动影响 (%{slippagePercentage}%)。请谨慎操作。",
+    "unsafeTrade": "此交易可能不安全或低于建议的最小规模，请谨慎进行。"
   },
   "watchlist": {
     "empty": {

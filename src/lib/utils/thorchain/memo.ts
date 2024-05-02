@@ -18,29 +18,47 @@ const assertMemoHasPairedAddr = (pairedAddr: string, memo: string) => {
   if (!pairedAddr) throw new Error(`paired address is required in memo: ${memo}`)
 }
 
+const assertMemoHasLimit = (limit: string, memo: string) => {
+  if (!limit) throw new Error(`limit is required in memo: ${memo}`)
+}
+
+const assertMemoHasBasisPoints = (basisPoints: string, memo: string) => {
+  if (!basisPoints) throw new Error(`basis points is required in memo: ${memo}`)
+}
+
+const assertMemoHasMinOut = (minOut: string, memo: string) => {
+  if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
+}
+
 const assertIsValidLimit = (limit: string, memo: string) => {
+  assertMemoHasLimit(limit, memo)
+
   const maybeStreamingSwap = limit.match(/\//g)
   const [lim, interval, quantity] = limit.split('/')
 
   if (maybeStreamingSwap) {
     if (maybeStreamingSwap.length !== 3)
       throw new Error(`invalid streaming parameters in memo: ${memo}`)
-    if (!bn(lim).isInteger()) throw new Error(`limit is required in memo: ${memo}`)
+    if (!bn(lim).isInteger()) throw new Error(`limit must be an integer in memo: ${memo}`)
     if (!bn(interval).isInteger()) throw new Error(`interval is required in memo: ${memo}`)
     if (!bn(quantity).isInteger()) throw new Error(`quantity is required in memo: ${memo}`)
   }
 
-  if (!bn(limit).isInteger() || !bn(limit).gt(0))
-    throw new Error(`limit is required in memo: ${memo}`)
+  if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
 }
 
 const assertIsValidMinOut = (minOut: string, memo: string) => {
-  if (!bn(minOut).isInteger() || !bn(minOut).gt(0))
-    throw new Error(`minOut is required in memo: ${memo}`)
+  assertMemoHasMinOut(minOut, memo)
+
+  if (!bn(minOut).isInteger()) throw new Error(`minOut must be an integer in memo: ${memo}`)
+  if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
 }
 
 const assertIsValidBasisPoints = (basisPoints: string, memo: string) => {
-  if (!bn(basisPoints).isInteger()) throw new Error(`basis points is required in memo: ${memo}`)
+  assertMemoHasBasisPoints(basisPoints, memo)
+
+  if (!bn(basisPoints).isInteger())
+    throw new Error(`basis points must be an integer in memo: ${memo}`)
   if (bn(basisPoints).lt(0) || bn(basisPoints).gt(10000))
     throw new Error(`basis points must be between 0-10000 in memo: ${memo}`)
 }

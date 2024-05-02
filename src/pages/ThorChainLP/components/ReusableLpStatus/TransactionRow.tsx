@@ -167,9 +167,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const memo = useMemo(() => {
     if (thorchainNotationAssetId === undefined) return null
     if (opportunityType === 'sym' && !pairAssetAddress) return null
+    const maybePairAssetAddress = opportunityType === 'sym' ? pairAssetAddress! : ''
 
     return isDeposit
-      ? `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
+      ? `+:${thorchainNotationAssetId}:${maybePairAssetAddress}:ss:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
   }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
 

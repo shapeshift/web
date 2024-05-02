@@ -408,6 +408,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     dustAmountCryptoBaseUnit: poolAssetFeeAssetDustAmountCryptoBaseUnit,
     outboundFeeCryptoBaseUnit,
   } = useSendThorTx({
+    // Asym asset withdraws are the only ones occurring an asset Tx - both sym and asym RUNE side withdraws occur a RUNE Tx instead
+    enableEstimateFees: Boolean(opportunityType === AsymSide.Asset),
     assetId: poolAsset?.assetId,
     accountId,
     // withdraw liquidity will use dust amount

@@ -148,7 +148,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       getPosition: getThorchainLpPosition,
     }),
     // strip bech32 prefix for use in thorchain memo (bech32 not supported)
-    select: address => address?.replace('bitcoincash:', ''),
+    select: address => {
+      // Paranoia against previously cached calls, this should never happen but it could
+      if (opportunityType !== 'sym') return
+      return address.replace('bitcoincash:', '')
+    },
     enabled: Boolean(
       opportunityType === 'sym' && pairAssetAccountId && pairAssetAccountMetadata && wallet,
     ),

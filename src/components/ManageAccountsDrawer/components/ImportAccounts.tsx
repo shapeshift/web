@@ -23,6 +23,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { fromBaseUnit } from 'lib/math'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
@@ -30,7 +31,6 @@ import {
   selectFeeAssetByChainId,
   selectHighestAccountNumberForChainId,
   selectIsAnyAccountIdEnabled,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -62,15 +62,15 @@ const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' 
 const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
   const translate = useTranslate()
   const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-  const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
-
-  // TODO: Redux wont have this for new accounts and will be 0, so we'll need to fetch it
-  const assetBalancePrecision = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
-  )
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
-
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+
+  const { data: account, isLoading } = useQuery(accountManagement.getAccount(accountId))
+
+  const assetBalancePrecision = useMemo(() => {
+    if (!account) return '0'
+    return fromBaseUnit(account.balance, asset.precision)
+  }, [account, asset.precision])
 
   return (
     <Tr>
@@ -86,7 +86,11 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
         </Tooltip>
       </Td>
       <Td>
-        <Amount.Crypto value={assetBalancePrecision} symbol={asset?.symbol ?? ''} />
+        {isLoading ? (
+          <Skeleton height='24px' width='100%' />
+        ) : (
+          <Amount.Crypto value={assetBalancePrecision} symbol={asset.symbol} />
+        )}
       </Td>
     </Tr>
   )
@@ -155,7 +159,17 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[][]
   >([])
   const queryClient = useQueryClient()
-  const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
+  const isLoading =
+    useIsFetching({
+      predicate: query => {
+        return (
+          query.queryKey[0] === 'accountManagement' &&
+          ['accountIdWithActivityAndMetadata', 'allAccountIdsWithActivityAndMetadata'].some(
+            str => str === query.queryKey[1],
+          )
+        )
+      },
+    }) > 0
   const [accountIdActiveStateUpdate, setAccountIdActiveStateUpdate] = useState<
     Record<string, boolean>
   >({})

@@ -28,6 +28,15 @@ const getAccountIdsWithActivityAndMetadata = async (
 }
 
 export const accountManagement = createQueryKeys('accountManagement', {
+  getAccount: (accountId: AccountId) => ({
+    queryKey: ['getAccount', accountId],
+    queryFn: async () => {
+      const { chainId, account: pubkey } = fromAccountId(accountId)
+      const adapter = assertGetChainAdapter(chainId)
+      const account = await adapter.getAccount(pubkey)
+      return account
+    },
+  }),
   accountIdWithActivityAndMetadata: (
     accountNumber: number,
     chainId: ChainId,

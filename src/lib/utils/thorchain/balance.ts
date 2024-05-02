@@ -96,7 +96,10 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     accountId,
   })
   const feeAsset = selectFeeAssetById(store.getState(), asset.assetId)
-  const assetMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), asset.assetId)
+  const feeAssetMarketData = selectMarketDataByAssetIdUserCurrency(
+    store.getState(),
+    feeAsset?.assetId ?? '',
+  )
   const quote = await (async () => {
     switch (type) {
       case 'withdraw': {
@@ -142,13 +145,14 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
     estimateFeesInput: {
       amountCryptoPrecision,
       assetId: asset.assetId,
+      feeAssetId: feeAsset?.assetId ?? '',
       to: quote?.inbound_address ?? '',
       sendMax: false,
       accountId: accountId ?? '',
       contractAddress: undefined,
     },
     feeAsset,
-    assetMarketData,
+    feeAssetMarketData,
     enabled: Boolean(feeAsset && estimateFeesQueryEnabled),
   }
 
@@ -192,10 +196,11 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
   const estimatedSweepFeesQueryArgs = {
     feeAsset,
-    assetMarketData,
+    feeAssetMarketData,
     estimateFeesInput: {
       amountCryptoPrecision: '0',
       assetId: asset.assetId,
+      feeAssetId: feeAsset?.assetId ?? '',
       to: fromAddress ?? '',
       sendMax: true,
       accountId: accountId ?? '',

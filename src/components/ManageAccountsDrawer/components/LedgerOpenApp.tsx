@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react'
+import { Button, Center, Flex, useToast } from '@chakra-ui/react'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -10,6 +10,7 @@ import {
   type ChainId,
   cosmosChainId,
   dogeChainId,
+  ethAssetId,
   ethChainId,
   gnosisChainId,
   ltcChainId,
@@ -17,14 +18,17 @@ import {
   polygonChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { AssetOnLedger } from './AssetOnLedger'
 import { DrawerContentWrapper } from './DrawerContent'
 
 export type LedgerOpenAppProps = {
@@ -78,6 +82,7 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
   const translate = useTranslate()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const wallet = useWallet().state.wallet
+  const toast = useToast()
 
   const slip44Key = getSlip44KeyFromChainId(chainId)
   const isCorrectAppOpen = useCallback(async () => {
@@ -91,6 +96,16 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
       return false
     }
   }, [wallet, slip44Key])
+
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const appName = useMemo(() => {
+    if (isEvmChainId(chainId)) return ethAsset?.networkName
+    return asset?.networkName
+  }, [asset?.networkName, chainId, ethAsset?.networkName])
+  const renderedAsset = useMemo(() => {
+    if (isEvmChainId(chainId)) return ethAsset
+    return asset
+  }, [asset, chainId, ethAsset])
 
   useEffect(() => {
     // Poll the Ledger every second to see if the correct app is open
@@ -110,18 +125,42 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
     if (isValidApp) {
       onNext()
     } else {
-      console.error('Correct Ledger app is not open', slip44Key)
+      toast({
+        title: translate('walletProvider.ledger.errors.appNotOpen', { app: appName }),
+        description: translate('walletProvider.ledger.errors.appNotOpenDescription', {
+          app: appName,
+        }),
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
     }
-  }, [isCorrectAppOpen, onNext, slip44Key])
+  }, [appName, isCorrectAppOpen, onNext, toast, translate])
 
-  if (!asset) return null
+  const body = useMemo(() => {
+    if (!renderedAsset) return null
+    return (
+      <Center>
+        <Flex direction='column' justifyContent='center'>
+          <AssetOnLedger assetId={renderedAsset.assetId} size={'xl'} />
+          <RawText fontSize={'xl'} fontWeight={'bold'} mt={10} mb={3}>
+            {translate('accountManagement.ledgerOpenApp.title', {
+              appName,
+            })}
+          </RawText>
+          <Text
+            translation={'accountManagement.ledgerOpenApp.description'}
+            color={'whiteAlpha.600'}
+          />
+        </Flex>
+      </Center>
+    )
+  }, [appName, renderedAsset, translate])
 
   return (
     <DrawerContentWrapper
-      title={translate('accountManagement.ledgerOpenApp.title', {
-        chainNamespaceDisplayName: asset.networkName ?? '',
-      })}
-      description={translate('accountManagement.ledgerOpenApp.description')}
+      body={body}
       footer={
         <>
           <Button colorScheme='gray' mr={3} onClick={onClose}>

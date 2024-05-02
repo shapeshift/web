@@ -1,5 +1,9 @@
 import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
-import type { SwapperName, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type {
+  SupportedTradeQuoteStepIndex,
+  SwapperName,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -28,7 +32,7 @@ export type HopTransactionStepProps = {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
   isActive: boolean
-  hopIndex: number
+  hopIndex: SupportedTradeQuoteStepIndex
   isLastStep?: boolean
 }
 

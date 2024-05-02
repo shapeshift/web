@@ -1,8 +1,9 @@
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectUsdRateByAssetId } from 'state/slices/selectors'
+import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import { useAppSelector } from 'state/store'
 
 export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
@@ -24,8 +25,10 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
   const sellAmountBeforeFeesUsd = useMemo(() => {
     if (!tradeQuote || !sellAsset || !sellAssetUsdRate) return
 
+    // A quote always has a first hop
+    const firstHop = getHopByIndex(tradeQuote, 0)!
     const sellAmountIncludingProtocolFeesCryptoBaseUnit =
-      tradeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit
+      firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
     const sellAmountIncludingProtocolFeesCryptoPrecision = fromBaseUnit(
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -40,8 +43,12 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
 
     // price impact calculation must use buyAmountBeforeFees because it relates to the liquidity in
     // the pool rather than a rate of input versus output
+
+    const lastHopIndex = (numSteps - 1) as SupportedTradeQuoteStepIndex
+    // A quote always has a last hop since it always has a first hop
+    const lastHop = getHopByIndex(tradeQuote, lastHopIndex)!
     const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-      tradeQuote.steps[numSteps - 1].buyAmountBeforeFeesCryptoBaseUnit,
+      lastHop.buyAmountBeforeFeesCryptoBaseUnit,
       buyAsset.precision,
     )
 

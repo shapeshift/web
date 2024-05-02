@@ -5,7 +5,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { EvmTransactionRequest } from '@shapeshiftoss/swapper'
+import type { EvmTransactionRequest, SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import { SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -18,6 +18,7 @@ import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -29,7 +30,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useMixpanel } from './useMixpanel'
 
-export const useTradeExecution = (hopIndex: number) => {
+export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
@@ -63,7 +64,7 @@ export const useTradeExecution = (hopIndex: number) => {
   // The intermediary buy asset may not actually be supported. If it doesn't exist in the asset slice
   // then it must be unsupported.
   const supportedBuyAsset = useAppSelector(state =>
-    selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
+    selectAssetById(state, tradeQuote?.steps[hopIndex]?.buyAsset.assetId ?? ''),
   )
 
   const executeTrade = useCallback(() => {
@@ -72,6 +73,10 @@ export const useTradeExecution = (hopIndex: number) => {
     if (!tradeQuote) throw Error('missing tradeQuote')
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
+
+    const hop = getHopByIndex(tradeQuote, hopIndex)
+
+    if (!hop) throw Error(`Current hop is undefined: ${hopIndex}`)
 
     return new Promise<void>(async resolve => {
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
@@ -159,9 +164,9 @@ export const useTradeExecution = (hopIndex: number) => {
 
       const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber
-      const stepSellAssetChainId = tradeQuote.steps[hopIndex].sellAsset.chainId
-      const stepSellAssetAssetId = tradeQuote.steps[hopIndex].sellAsset.assetId
-      const stepBuyAssetAssetId = tradeQuote.steps[hopIndex].buyAsset.assetId
+      const stepSellAssetChainId = hop.sellAsset.chainId
+      const stepSellAssetAssetId = hop.sellAsset.assetId
+      const stepBuyAssetAssetId = hop.buyAsset.assetId
 
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)

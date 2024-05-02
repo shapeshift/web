@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper/src'
 import type { Asset } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -7,6 +8,7 @@ import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataUsd, selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
+import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
@@ -93,8 +95,12 @@ export const getInputOutputRatioFromQuote = ({
   swapperName: SwapperName
 }): number => {
   const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
-  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = quote.steps[0]
-  const lastStep = quote.steps[quote.steps.length - 1]
+  // A quote always has a first step
+  const firstStep = getHopByIndex(quote, 0)!
+  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = firstStep
+  const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
+  // A quote always has a last step since it always has a first
+  const lastStep = getHopByIndex(quote, lastStepIndex)!
   const { buyAsset, buyAmountAfterFeesCryptoBaseUnit: netReceiveAmountCryptoBaseUnit } = lastStep
   // TODO: implement this when we do multi-hop
   const buySideNetworkFeeCryptoBaseUnit = bn(0)

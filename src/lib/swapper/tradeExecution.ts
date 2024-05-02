@@ -16,6 +16,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import EventEmitter from 'events'
 import { TRADE_POLL_INTERVAL_MILLISECONDS } from 'components/MultiHopTrade/hooks/constants'
 import { poll } from 'lib/poll/poll'
+import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 
 import { swappers } from './constants'
 
@@ -46,7 +47,12 @@ export class TradeExecution {
 
       const swapper = maybeSwapper
 
-      const chainId = tradeQuote.steps[stepIndex].sellAsset.chainId
+      const hop = getHopByIndex(tradeQuote, stepIndex)
+
+      if (!hop) {
+        throw new Error(`No hop found for stepIndex ${stepIndex}`)
+      }
+      const chainId = hop.sellAsset.chainId
 
       const sellTxHash = await buildSignBroadcast(swapper, {
         tradeQuote,

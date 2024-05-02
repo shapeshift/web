@@ -1,6 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type {
+  ProtocolFee,
+  SupportedTradeQuoteStepIndex,
+  SwapperName,
+  TradeQuote,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
+import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -66,7 +72,11 @@ export const getHopTotalProtocolFeesFiatPrecision = (
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
 export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
-  const lastStep = quote.steps[quote.steps.length - 1]
+  const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
+  const lastStep = getHopByIndex(quote, lastStepIndex)
+
+  if (!lastStep) return '0'
+
   const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 
   const netReceiveAmountCryptoPrecision = fromBaseUnit(
@@ -114,7 +124,7 @@ const sortApiQuotes = (unorderedQuotes: ApiQuote[]): ApiQuote[] => {
 }
 
 export const sortTradeQuotes = (
-  tradeQuotes: Partial<Record<SwapperName, Record<string, ApiQuote>>>,
+  tradeQuotes: PartialRecord<SwapperName, Record<string, ApiQuote>>,
 ): ApiQuote[] => {
   const allQuotes = Object.values(tradeQuotes)
     .filter(isSome)
@@ -139,4 +149,17 @@ export const getActiveQuoteMetaOrDefault = (
   const isSelectable = bestQuote?.quote !== undefined
   const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
   return activeQuoteMeta ?? defaultQuoteMeta
+}
+
+export const getHopByIndex = (
+  quote: TradeQuote | undefined,
+  index: SupportedTradeQuoteStepIndex,
+) => {
+  if (quote === undefined) return undefined
+  if (index > 1) {
+    throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
+  }
+  const hop = quote.steps[index]
+
+  return hop
 }

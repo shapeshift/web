@@ -12,6 +12,7 @@ import type {
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus, getFees } from 'lib/utils/evm'
+import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchOneInchSwap } from './utils/fetchOneInchSwap'
@@ -26,7 +27,7 @@ export const oneInchApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
-      const firstHop = tradeQuote.steps[0]
+      const firstHop = getHopByIndex(tradeQuote, 0)!
       tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
     })
@@ -40,8 +41,11 @@ export const oneInchApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } =
-      tradeQuote.steps[stepIndex]
+    const step = getHopByIndex(tradeQuote, stepIndex)
+
+    if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
+
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
 
     const { receiveAddress, affiliateBps } = tradeQuote
 

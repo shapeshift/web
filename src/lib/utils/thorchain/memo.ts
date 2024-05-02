@@ -2,19 +2,19 @@ import { bn } from 'lib/bignumber/bignumber'
 
 import { THORCHAIN_AFFILIATE_NAME } from './constants'
 
-const assertIsValidPool = (pool: string, memo: string) => {
+const assertMemoHasPool = (pool: string, memo: string) => {
   if (!pool) throw new Error(`pool is required in memo: ${memo}`)
 }
 
-const assertIsValidAsset = (asset: string, memo: string) => {
+const assertMemoHasAsset = (asset: string, memo: string) => {
   if (!asset) throw new Error(`asset is required in memo: ${memo}`)
 }
 
-const assertIsValidDestAddr = (destAddr: string, memo: string) => {
+const assertMemoHasDestAddr = (destAddr: string, memo: string) => {
   if (!destAddr) throw new Error(`destination address is required in memo: ${memo}`)
 }
 
-const assertIsValidPairedAddr = (pairedAddr: string, memo: string) => {
+const assertMemoHasPairedAddr = (pairedAddr: string, memo: string) => {
   if (!pairedAddr) throw new Error(`paired address is required in memo: ${memo}`)
 }
 
@@ -58,8 +58,8 @@ export const assertAndProcessMemo = (memo: string): string => {
       // SWAP:ASSET:DESTADDR:LIM/INTERVAL/QUANTITY:AFFILIATE:FEE
       const [_action, asset, destAddr, limit, , fee] = memo.split(':')
 
-      assertIsValidAsset(asset, memo)
-      assertIsValidDestAddr(destAddr, memo)
+      assertMemoHasAsset(asset, memo)
+      assertMemoHasDestAddr(destAddr, memo)
       assertIsValidLimit(limit, memo)
 
       return `${_action}:${asset}:${destAddr}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
@@ -69,11 +69,11 @@ export const assertAndProcessMemo = (memo: string): string => {
     case 'a': {
       const [_action, pool, maybePairedAddr, , fee] = memo.split(':')
 
-      assertIsValidPool(pool, memo)
+      assertMemoHasPool(pool, memo)
 
       // Add Liquidity - ADD:POOL:PAIREDADDR:AFFILIATE:FEE
       if (pool.includes('.')) {
-        if (maybePairedAddr) assertIsValidPairedAddr(maybePairedAddr, memo)
+        if (maybePairedAddr) assertMemoHasPairedAddr(maybePairedAddr, memo)
         return `${_action}:${pool}:${maybePairedAddr ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
       }
 
@@ -90,11 +90,11 @@ export const assertAndProcessMemo = (memo: string): string => {
     case 'wd': {
       const [_action, pool, basisPoints, maybeAsset] = memo.split(':')
 
-      assertIsValidPool(pool, memo)
+      assertMemoHasPool(pool, memo)
 
       // Withdraw Liquidity - WITHDRAW:POOL:BASISPOINTS:ASSET
       if (pool.includes('.')) {
-        if (maybeAsset) assertIsValidAsset(maybeAsset, memo)
+        if (maybeAsset) assertMemoHasAsset(maybeAsset, memo)
         assertIsValidBasisPoints(basisPoints, memo)
         return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
       }
@@ -113,8 +113,8 @@ export const assertAndProcessMemo = (memo: string): string => {
     case 'loan+': {
       const [_action, asset, destAddr, minOut, , fee] = memo.split(':')
 
-      assertIsValidAsset(asset, memo)
-      assertIsValidDestAddr(destAddr, memo)
+      assertMemoHasAsset(asset, memo)
+      assertMemoHasDestAddr(destAddr, memo)
       assertIsValidMinOut(minOut, memo)
 
       return `${_action}:${asset}:${destAddr}:${minOut}:${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
@@ -124,8 +124,8 @@ export const assertAndProcessMemo = (memo: string): string => {
     case 'loan-': {
       const [_action, asset, destAddr, minOut] = memo.split(':')
 
-      assertIsValidAsset(asset, memo)
-      assertIsValidDestAddr(destAddr, memo)
+      assertMemoHasAsset(asset, memo)
+      assertMemoHasDestAddr(destAddr, memo)
       assertIsValidMinOut(minOut, memo)
 
       return `${_action}:${asset}:${destAddr}:${minOut}:${THORCHAIN_AFFILIATE_NAME}:0`

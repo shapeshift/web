@@ -64,7 +64,7 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
   // The intermediary buy asset may not actually be supported. If it doesn't exist in the asset slice
   // then it must be unsupported.
   const supportedBuyAsset = useAppSelector(state =>
-    selectAssetById(state, tradeQuote?.steps[hopIndex].buyAsset.assetId ?? ''),
+    selectAssetById(state, tradeQuote?.steps[hopIndex]?.buyAsset.assetId ?? ''),
   )
 
   const executeTrade = useCallback(() => {

@@ -8,7 +8,6 @@ import type {
 } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
-import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -159,14 +158,7 @@ export const getHopByIndex = <T extends TradeQuote | undefined>(
   if (index > 1) {
     throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
   }
-  if (index > 0 && !isMultiHopTradeQuote(quote)) {
-    throw new Error('Index out of bounds - This is a single-hop trade quote.')
-  }
   const hop = quote.steps[index]
 
-  // This should never happen according to our types, but TS is drunk
-  if (hop === undefined) {
-    throw new Error('Hop is undefined')
-  }
   return hop as T extends undefined ? undefined : TradeQuoteStep
 }

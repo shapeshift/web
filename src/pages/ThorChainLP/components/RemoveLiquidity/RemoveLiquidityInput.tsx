@@ -382,6 +382,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     memo,
     fromAddress: null,
     action: 'withdrawLiquidity',
+    enableEstimateFees: Boolean(opportunityType !== AsymSide.Asset),
   })
 
   const poolAssetAccountMetadataFilter = useMemo(() => ({ accountId }), [accountId])

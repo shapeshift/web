@@ -14,21 +14,21 @@ export type EstimatedFeesQueryKey = [
   {
     enabled: boolean
     feeAsset: Asset | undefined
-    assetMarketData: MarketData
+    feeAssetMarketData: MarketData
     estimateFeesInput: EstimateFeesInput | undefined
   },
 ]
 
 // For use outside of react with queryClient.fetchQuery()
 export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
-  const { estimateFeesInput, feeAsset, assetMarketData } = queryKey[1]
+  const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
 
   // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
   if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
 
   const estimatedFees = await estimateFees(estimateFeesInput)
   const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
-    .times(assetMarketData.price)
+    .times(feeAssetMarketData.price)
     .toString()
   return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
 }
@@ -38,8 +38,8 @@ export const useGetEstimatedFeesQuery = ({
   ...estimateFeesInput
 }: EstimateFeesInput & { enabled: boolean; disableRefetch?: boolean; feeAssetId: AssetId }) => {
   const feeAsset = useAppSelector(state => selectAssetById(state, estimateFeesInput.feeAssetId))
-  const assetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, estimateFeesInput.assetId),
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, estimateFeesInput.feeAssetId),
   )
 
   const estimatedFeesQueryKey: EstimatedFeesQueryKey = useMemo(
@@ -48,11 +48,11 @@ export const useGetEstimatedFeesQuery = ({
       {
         enabled,
         feeAsset,
-        assetMarketData,
+        feeAssetMarketData,
         estimateFeesInput,
       },
     ],
-    [feeAsset, assetMarketData, enabled, estimateFeesInput],
+    [feeAsset, feeAssetMarketData, enabled, estimateFeesInput],
   )
 
   const getEstimatedFeesQuery = useQuery({

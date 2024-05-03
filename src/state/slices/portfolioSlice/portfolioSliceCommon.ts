@@ -61,6 +61,11 @@ export type Portfolio = {
   accounts: PortfolioAccounts
   accountBalances: PortfolioAccountBalances
   /**
+   * The `AccountId[]` that are disabled. Rather than removing the accounts and adding complexity
+   * to the actions and state management, we disable them here and filter them out in the selectors.
+   */
+  hiddenAccountIds: AccountId[]
+  /**
    * 1:many mapping of a unique wallet id -> multiple account ids
    */
   wallet: PortfolioWallet
@@ -80,6 +85,7 @@ export const initialState: Portfolio = {
     byId: {},
     ids: [],
   },
+  hiddenAccountIds: [],
   wallet: {
     byId: {},
     ids: [],

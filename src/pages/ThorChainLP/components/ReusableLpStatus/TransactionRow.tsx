@@ -33,6 +33,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { sleep } from 'lib/poll/poll'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
+import { THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type {
   LpConfirmedDepositQuote,
@@ -164,8 +165,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (thorchainNotationAssetId === undefined) return null
     if (opportunityType === 'sym' && !pairAssetAddress) return null
 
+    const pairedAddress = pairAssetAddress ?? ''
+
     return isDeposit
-      ? `+:${thorchainNotationAssetId}:${pairAssetAddress ?? ''}:ss:${confirmedQuote.feeBps}`
+      ? `+:${thorchainNotationAssetId}:${pairedAddress}:${THORCHAIN_AFFILIATE_NAME}:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}`
   }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, opportunityType])
 

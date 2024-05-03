@@ -40,6 +40,7 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { fromThorBaseUnit, getThorchainTransactionType } from '..'
+import { assertAndProcessMemo } from '../memo'
 
 type Action =
   | 'swap'
@@ -69,7 +70,7 @@ export const useSendThorTx = ({
   enableEstimateFees = true,
   disableEstimateFeesRefetch,
   fromAddress,
-  memo,
+  memo: _memo,
 }: UseSendThorTxProps) => {
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
@@ -104,6 +105,8 @@ export const useSendThorTx = ({
   const transactionType = useMemo(() => {
     return asset ? getThorchainTransactionType(asset.chainId) : undefined
   }, [asset])
+
+  const memo = useMemo(() => _memo && assertAndProcessMemo(_memo), [_memo])
 
   const { data: inboundAddressData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),

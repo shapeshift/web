@@ -176,10 +176,7 @@ export const getMaybeThorchainSaversDepositQuote = async ({
   if (!quoteData || 'error' in quoteData)
     return Err(`Error fetching THORChain savers quote: ${quoteData?.error}`)
 
-  return Ok({
-    ...quoteData,
-    memo: `${quoteData.memo}::${THORCHAIN_AFFILIATE_NAME}:${AFFILIATE_BPS}`,
-  })
+  return Ok(quoteData)
 }
 
 export const getThorchainSaversWithdrawQuote = async ({

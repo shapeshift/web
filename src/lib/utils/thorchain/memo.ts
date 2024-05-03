@@ -95,7 +95,9 @@ const assertIsValidBasisPoints = (
 export const assertAndProcessMemo = (memo: string): string => {
   const [action] = memo.split(':')
 
-  if (!assertMemoHasAction(action, memo)) throw new Error(`action is required in memo: ${memo}`)
+  // Note, this is an assertion - we only do the checks for type-narrowing purposes, it *will* throw if we don't have a memo
+  // so we'll never actually return the empty string below
+  if (!assertMemoHasAction(action, memo)) return ''
 
   switch (action.toLowerCase()) {
     case 'swap':
@@ -115,9 +117,9 @@ export const assertAndProcessMemo = (memo: string): string => {
     case 'a': {
       const [_action, pool, maybePairedAddr, , fee] = memo.split(':')
 
-      if (!pool) throw new Error(`pool is required in memo: ${memo}`)
-
-      assertMemoHasPool(pool, memo)
+      // Note, this is an assertion - we only do the checks for type-narrowing purposes, it *will* throw if we don't have a memo
+      // so we'll never actually return the empty string below
+      if (!assertMemoHasPool(pool, memo)) return ''
 
       // Add Liquidity - ADD:POOL:PAIREDADDR:AFFILIATE:FEE
       if (pool.includes('.')) {

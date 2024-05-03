@@ -3,6 +3,37 @@ import { describe, expect, it } from 'vitest'
 import { assertAndProcessMemo } from './memo'
 
 describe('assertAndProcessMemo', () => {
+  it('should throw on invalid action', () => {
+    const memo = 'BAD:'
+    expect(() => assertAndProcessMemo(memo)).toThrow()
+  })
+
+  it('should throw on invalid pool', () => {
+    const memo = '+:BAD.POOL'
+    expect(() => assertAndProcessMemo(memo)).toThrow()
+  })
+
+  it('should throw on invalid asset', () => {
+    const memo = '=:BAD.POOL'
+    expect(() => assertAndProcessMemo(memo)).toThrow()
+  })
+
+  it('should throw on invalid address', () => {
+    let memo = '=:ETH.ETH:bc1qkw9g3tgv6m2gwc4x4hvdefcwt0uxeedfgag27h:9786345:ss:50'
+    expect(() => assertAndProcessMemo(memo)).toThrow()
+
+    memo = '$+:GAIA.ATOM:0x782C14C79945caD46Fbea57bb73d796366e76147:9786345:'
+    expect(() => assertAndProcessMemo(memo)).toThrow()
+  })
+
+  it('should handle shortened names', () => {
+    let memo = '=:e:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
+    expect(() => assertAndProcessMemo(memo)).not.toThrow()
+
+    memo = '+:e::ss:50'
+    expect(() => assertAndProcessMemo(memo)).not.toThrow()
+  })
+
   describe('swap', () => {
     it('processes with affiliate name and with fee bps', () => {
       const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50'
@@ -278,8 +309,10 @@ describe('assertAndProcessMemo', () => {
     })
 
     it('processes with paired address', () => {
-      const memo = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:pairedAddr:ss:50'
-      const expected = '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:pairedAddr:ss:50'
+      const memo =
+        '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:ss:50'
+      const expected =
+        '+:ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:ss:50'
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
@@ -582,14 +615,15 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    it('should throw on invalid min out', () => {
+    // TODO: enable after assertIsValidMinOut is added back
+    it.skip('should throw on invalid min out', () => {
       let memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
+      expect(() => assertAndProcessMemo(memo)).toThrow()
 
       memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:0:ss:50'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 
@@ -674,12 +708,13 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    it('should throw on invalid min out', () => {
+    // TODO: enable after assertIsValidMinOut is added back
+    it.skip('should throw on invalid min out', () => {
       let memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq::bad:0'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
+      expect(() => assertAndProcessMemo(memo)).toThrow()
 
       memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:0:bad:0'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 })

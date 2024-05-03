@@ -31,6 +31,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "jsx": "react-jsx",
+    "noUncheckedIndexedAccess": true,
   },
   "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "scripts/generateAssetData",
     "scripts/generateTradableThorAssetMap"

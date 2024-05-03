@@ -612,15 +612,17 @@ export const Deposit: React.FC<DepositProps> = ({
       const estimatedFeesQueryArgs = {
         estimateFeesInput: {
           amountCryptoPrecision: _percentageCryptoAmountPrecisionBeforeTxFees.toFixed(),
+          // The same as assetId since this only runs for UTXOs
+          feeAssetId: assetId,
           assetId,
           to: fromAddress ?? '',
           sendMax: false,
           accountId: accountId ?? '',
           contractAddress: undefined,
         },
-        asset,
-        assetMarketData,
-        enabled: Boolean(accountId && isUtxoChainId(asset.chainId)),
+        feeAsset,
+        feeAssetMarketData,
+        enabled: Boolean(accountId && feeAsset?.assetId && isUtxoChainId(asset.chainId)),
       }
       const estimatedFeesQueryKey: EstimatedFeesQueryKey = ['estimateFees', estimatedFeesQueryArgs]
 
@@ -659,11 +661,13 @@ export const Deposit: React.FC<DepositProps> = ({
         _isSweepNeeded && accountId && isUtxoChainId(asset.chainId),
       )
       const estimatedSweepFeesQueryArgs = {
-        asset,
-        assetMarketData,
+        feeAsset,
+        feeAssetMarketData,
         estimateFeesInput: {
           amountCryptoPrecision: '0',
           assetId,
+          // The same as assetId since this only runs for UTXOs
+          feeAssetId: assetId,
           to: fromAddress ?? '',
           sendMax: true,
           accountId: accountId ?? '',
@@ -697,15 +701,18 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      accountId,
-      asset,
-      assetId,
+      asset.chainId,
+      asset.precision,
       contextDispatch,
+      setIsSendMax,
       balanceCryptoPrecision,
       fromAddress,
-      assetMarketData,
+      accountId,
+      assetId,
+      feeAsset,
+      feeAssetMarketData,
       queryClient,
-      setIsSendMax,
+      assetMarketData.price,
     ],
   )
 

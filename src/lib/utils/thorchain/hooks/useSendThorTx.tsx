@@ -180,6 +180,7 @@ export const useSendThorTx = ({
         return {
           amountCryptoPrecision: fromBaseUnit(amountOrDustCryptoBaseUnit, asset.precision),
           assetId: asset.assetId,
+          feeAssetId: feeAsset.assetId,
           memo,
           to: THORCHAIN_POOL_MODULE_ADDRESS,
           sendMax: false,
@@ -197,6 +198,7 @@ export const useSendThorTx = ({
               ? fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision)
               : '0',
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
+          feeAssetId: feeAsset.assetId,
           to: inboundAddressData.router,
           from: account,
           sendMax: false,
@@ -214,6 +216,7 @@ export const useSendThorTx = ({
         return {
           amountCryptoPrecision: fromBaseUnit(amountOrDustCryptoBaseUnit, asset.precision),
           assetId,
+          feeAssetId: feeAsset.assetId,
           to: inboundAddressData.address,
           from: fromAddress,
           sendMax: false,
@@ -247,6 +250,7 @@ export const useSendThorTx = ({
   } = useGetEstimatedFeesQuery({
     amountCryptoPrecision: estimateFeesArgs?.amountCryptoPrecision ?? '0',
     assetId: estimateFeesArgs?.assetId ?? '',
+    feeAssetId: estimateFeesArgs?.feeAssetId ?? '',
     to: estimateFeesArgs?.to ?? '',
     sendMax: estimateFeesArgs?.sendMax ?? false,
     memo: estimateFeesArgs?.memo ?? '',

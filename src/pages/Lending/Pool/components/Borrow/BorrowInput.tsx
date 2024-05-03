@@ -276,11 +276,12 @@ export const BorrowInput = ({
   } = useGetEstimatedFeesQuery({
     amountCryptoPrecision: '0',
     assetId: collateralAssetId,
+    feeAssetId: collateralFeeAsset?.assetId!,
     to: fromAddress ?? '',
     sendMax: true,
     accountId: collateralAccountId,
     contractAddress: undefined,
-    enabled: isSweepNeededSuccess,
+    enabled: Boolean(collateralFeeAsset && isSweepNeededSuccess),
   })
 
   const hasEnoughBalanceForTxPlusSweep = useMemo(() => {

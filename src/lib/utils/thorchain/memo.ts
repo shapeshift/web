@@ -2,28 +2,45 @@ import { bn } from 'lib/bignumber/bignumber'
 
 import { THORCHAIN_AFFILIATE_NAME } from './constants'
 
-const assertMemoHasPool = (pool: string, memo: string) => {
+const assertMemoHasPool = (pool: string | undefined, memo: string): pool is string => {
   if (!pool) throw new Error(`pool is required in memo: ${memo}`)
+  return true
 }
 
-const assertMemoHasAsset = (asset: string, memo: string) => {
+const assertMemoHasAsset = (asset: string | undefined, memo: string): asset is string => {
   if (!asset) throw new Error(`asset is required in memo: ${memo}`)
+  return true
 }
 
-const assertMemoHasDestAddr = (destAddr: string, memo: string) => {
+const assertMemoHasDestAddr = (destAddr: string | undefined, memo: string): destAddr is string => {
   if (!destAddr) throw new Error(`destination address is required in memo: ${memo}`)
+  return true
 }
 
-const assertMemoHasPairedAddr = (pairedAddr: string, memo: string) => {
+const assertMemoHasPairedAddr = (
+  pairedAddr: string | undefined,
+  memo: string,
+): pairedAddr is string => {
   if (!pairedAddr) throw new Error(`paired address is required in memo: ${memo}`)
+  return true
 }
 
-const assertMemoHasLimit = (limit: string, memo: string) => {
+const assertMemoHasLimit = (limit: string | undefined, memo: string): limit is string => {
   if (!limit) throw new Error(`limit is required in memo: ${memo}`)
+  return true
 }
 
-const assertMemoHasBasisPoints = (basisPoints: string, memo: string) => {
+const assertMemoHasBasisPoints = (
+  basisPoints: string | undefined,
+  memo: string,
+): basisPoints is string => {
   if (!basisPoints) throw new Error(`basis points is required in memo: ${memo}`)
+  return true
+}
+
+const assertMemoHasAction = (action: string | undefined, memo: string): action is string => {
+  if (!action) throw new Error(`action is required in memo: ${memo}`)
+  return true
 }
 
 // Disabling until we validate further, as :MINOUT is optional in the quote response
@@ -31,14 +48,14 @@ const assertMemoHasBasisPoints = (basisPoints: string, memo: string) => {
 //   if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
 // }
 
-const assertIsValidLimit = (limit: string, memo: string) => {
-  assertMemoHasLimit(limit, memo)
+const assertIsValidLimit = (limit: string | undefined, memo: string) => {
+  if (!assertMemoHasLimit(limit, memo)) return
 
   const maybeStreamingSwap = limit.match(/\//g)
   const [lim, interval, quantity] = limit.split('/')
 
   if (maybeStreamingSwap) {
-    if (maybeStreamingSwap.length !== 3)
+    if (!(lim && interval && quantity && maybeStreamingSwap.length === 3))
       throw new Error(`invalid streaming parameters in memo: ${memo}`)
     if (!bn(lim).isInteger()) throw new Error(`limit must be an integer in memo: ${memo}`)
     if (!bn(interval).isInteger()) throw new Error(`interval is required in memo: ${memo}`)
@@ -56,13 +73,20 @@ const assertIsValidLimit = (limit: string, memo: string) => {
 //   if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
 // }
 
-const assertIsValidBasisPoints = (basisPoints: string, memo: string) => {
-  assertMemoHasBasisPoints(basisPoints, memo)
+const assertIsValidBasisPoints = (
+  basisPoints: string | undefined,
+  memo: string,
+): basisPoints is string => {
+  // Note, this is an assertion - we only do the checks for type-narrowing purposes, it *will* throw if we don't have a memo
+  // so we'll never actually return the empty string below
+  if (!assertMemoHasBasisPoints(basisPoints, memo)) return false
 
   if (!bn(basisPoints).isInteger())
     throw new Error(`basis points must be an integer in memo: ${memo}`)
   if (bn(basisPoints).lt(0) || bn(basisPoints).gt(10000))
     throw new Error(`basis points must be between 0-10000 in memo: ${memo}`)
+
+  return true
 }
 
 /**
@@ -70,6 +94,8 @@ const assertIsValidBasisPoints = (basisPoints: string, memo: string) => {
  */
 export const assertAndProcessMemo = (memo: string): string => {
   const [action] = memo.split(':')
+
+  if (!assertMemoHasAction(action, memo)) throw new Error(`action is required in memo: ${memo}`)
 
   switch (action.toLowerCase()) {
     case 'swap':
@@ -88,6 +114,8 @@ export const assertAndProcessMemo = (memo: string): string => {
     case '+':
     case 'a': {
       const [_action, pool, maybePairedAddr, , fee] = memo.split(':')
+
+      if (!pool) throw new Error(`pool is required in memo: ${memo}`)
 
       assertMemoHasPool(pool, memo)
 
@@ -110,7 +138,10 @@ export const assertAndProcessMemo = (memo: string): string => {
     case 'wd': {
       const [_action, pool, basisPoints, maybeAsset] = memo.split(':')
 
-      assertMemoHasPool(pool, memo)
+      // Note, these are assertions - we only do the checks for type-narrowing purposes, it *will* throw if we don't have a memo
+      // so we'll never actually return the empty strings below
+      if (!assertMemoHasPool(pool, memo)) return ''
+      if (!assertMemoHasBasisPoints(basisPoints, memo)) return ''
 
       // Withdraw Liquidity - WITHDRAW:POOL:BASISPOINTS:ASSET
       if (pool.includes('.')) {

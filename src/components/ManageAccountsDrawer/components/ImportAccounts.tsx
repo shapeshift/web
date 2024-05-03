@@ -52,7 +52,7 @@ type TableRowProps = {
   onAccountIdActiveChange: (accountId: AccountId, isActive: boolean) => void
 }
 
-const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const TableRow = forwardRef<TableRowProps, 'div'>(
   ({ asset, accountId, accountNumber, onAccountIdActiveChange }, ref) => {
@@ -243,7 +243,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             mr={3}
             onClick={onClose}
             isDisabled={isLoading}
-            _disabled={disabledProp}
+            _disabled={disabledProps}
           >
             {translate('common.cancel')}
           </Button>
@@ -251,7 +251,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             colorScheme='blue'
             onClick={handleDone}
             isDisabled={isLoading}
-            _disabled={disabledProp}
+            _disabled={disabledProps}
           >
             {translate('common.done')}
           </Button>
@@ -271,7 +271,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             colorScheme='gray'
             onClick={handleLoadMore}
             isDisabled={isLoading}
-            _disabled={disabledProp}
+            _disabled={disabledProps}
           >
             {translate('common.loadMore')}
           </Button>

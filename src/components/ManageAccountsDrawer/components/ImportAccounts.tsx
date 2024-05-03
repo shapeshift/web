@@ -145,7 +145,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   // initial fetch to detect the number of accounts based on the "first empty account" heuristic
   const { data: allAccountIdsWithActivity } = useQuery(
-    accountManagement.allAccountIdsWithActivityAndMetadata(
+    accountManagement.firstAccountIdsWithActivityAndMetadata(
       chainId,
       wallet,
       walletDeviceId,

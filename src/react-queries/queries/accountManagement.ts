@@ -36,13 +36,18 @@ export const accountManagement = createQueryKeys('accountManagement', {
       return getAccountIdsWithActivityAndMetadata(accountNumber, chainId, wallet)
     },
   }),
-  allAccountIdsWithActivityAndMetadata: (
+  firstAccountIdsWithActivityAndMetadata: (
     chainId: ChainId,
     wallet: HDWallet | null,
     walletDeviceId: string,
-    minResults: number,
+    accountNumberLimit: number,
   ) => ({
-    queryKey: ['allAccountIdsWithActivityAndMetadata', chainId, walletDeviceId, minResults],
+    queryKey: [
+      'firstAccountIdsWithActivityAndMetadata',
+      chainId,
+      walletDeviceId,
+      accountNumberLimit,
+    ],
     queryFn: async () => {
       let accountNumber = 0
 
@@ -66,7 +71,7 @@ export const accountManagement = createQueryKeys('accountManagement', {
 
           const { accountId, accountMetadata, hasActivity } = accountResult
 
-          if (accountNumber >= minResults) {
+          if (accountNumber >= accountNumberLimit) {
             break
           }
 

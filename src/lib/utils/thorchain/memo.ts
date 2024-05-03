@@ -26,9 +26,10 @@ const assertMemoHasBasisPoints = (basisPoints: string, memo: string) => {
   if (!basisPoints) throw new Error(`basis points is required in memo: ${memo}`)
 }
 
-const assertMemoHasMinOut = (minOut: string, memo: string) => {
-  if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
-}
+// Disabling until we validate further, as :MINOUT is optional in the quote response
+// const assertMemoHasMinOut = (minOut: string, memo: string) => {
+//   if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
+// }
 
 const assertIsValidLimit = (limit: string, memo: string) => {
   assertMemoHasLimit(limit, memo)
@@ -47,12 +48,13 @@ const assertIsValidLimit = (limit: string, memo: string) => {
   if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
 }
 
-const assertIsValidMinOut = (minOut: string, memo: string) => {
-  assertMemoHasMinOut(minOut, memo)
+// Disabling until we validate further, as :MINOUT is optional in the quote response
+// const assertIsValidMinOut = (minOut: string, memo: string) => {
+//   assertMemoHasMinOut(minOut, memo)
 
-  if (!bn(minOut).isInteger()) throw new Error(`minOut must be an integer in memo: ${memo}`)
-  if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
-}
+//   if (!bn(minOut).isInteger()) throw new Error(`minOut must be an integer in memo: ${memo}`)
+//   if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
+// }
 
 const assertIsValidBasisPoints = (basisPoints: string, memo: string) => {
   assertMemoHasBasisPoints(basisPoints, memo)

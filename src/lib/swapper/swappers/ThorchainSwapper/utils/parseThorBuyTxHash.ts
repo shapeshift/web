@@ -6,17 +6,19 @@ export const parseThorBuyTxHash = (
   sellTxId: string,
   thorActionsData: MidgardActionsResponse,
 ): string | undefined => {
-  const inCoinAsset: string | undefined = thorActionsData.actions[0]?.in[0]?.coins[0]?.asset
-  const outCoinAsset: string | undefined = thorActionsData.actions[0]?.out[0]?.coins[0]?.asset
-  const isDoubleSwap = outCoinAsset !== 'THOR.RUNE' && inCoinAsset !== 'THOR.RUNE'
+  const outTxs = thorActionsData.actions[0]?.out
 
-  // swaps into rune aren't double swaps so don't have a second tx (buy tx)
-  if (!isDoubleSwap) return sellTxId
+  if (!outTxs?.length) return
+
+  const latestOutTx = outTxs[outTxs.length - 1]
+  const latestTxId = latestOutTx.txID
+
+  // outbound rune transactions do not have a txid as they are processed internally
+  if (!latestTxId) return sellTxId
 
   const isEvmCoinAsset = THORCHAIN_EVM_CHAINS.some(
-    thorEvmChain => outCoinAsset?.startsWith(thorEvmChain),
+    thorEvmChain => latestOutTx.coins[0].asset?.startsWith(thorEvmChain),
   )
 
-  const buyTxId = thorActionsData.actions[0]?.out[0]?.txID
-  return isEvmCoinAsset && buyTxId ? `0x${buyTxId}` : buyTxId
+  return isEvmCoinAsset ? `0x${latestTxId}` : latestTxId
 }

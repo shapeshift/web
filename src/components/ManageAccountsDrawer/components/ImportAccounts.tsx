@@ -205,11 +205,11 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       }),
     )
 
-    const disabledAccountIds = Object.entries(accountIdActiveStateUpdate)
+    const hiddenAccountIds = Object.entries(accountIdActiveStateUpdate)
       .filter(([_, isActive]) => !isActive)
       .map(([accountId]) => accountId)
 
-    dispatch(portfolio.actions.setDisabledAccountIds(disabledAccountIds))
+    dispatch(portfolio.actions.setHiddenAccountIds(hiddenAccountIds))
 
     onClose()
   }, [accountIdActiveStateUpdate, accounts, dispatch, onClose, walletDeviceId])

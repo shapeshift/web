@@ -49,7 +49,7 @@ export const NativeTestPhrase = ({ history, location }: NativeSetupProps) => {
     try {
       const mnemonic = await vault.unwrap().get('#mnemonic')
       const words = mnemonic.split(' ')
-      let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
+      let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
 
       const targetWordIndex = shuffledNumbers[testCount]
       const targetWord = words[targetWordIndex]

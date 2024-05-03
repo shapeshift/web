@@ -56,7 +56,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
 
     try {
       return (
-        revocableWallet.getWords()?.map((word: string, index: number) =>
+        revocableWallet.getWords()?.map((word: string | undefined, index: number) =>
           revocable(
             <Tag
               p={2}

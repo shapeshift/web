@@ -133,7 +133,7 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
-      assertIsValidMinOut(minOut, memo)
+      // assertIsValidMinOut(minOut, memo) // Disabling until we validate further, as :MINOUT is optional in the quote response
 
       return `${_action}:${asset}:${destAddr}:${minOut}:${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
     }
@@ -144,7 +144,7 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
-      assertIsValidMinOut(minOut, memo)
+      // assertIsValidMinOut(minOut, memo) // Disabling until we validate further, as :MINOUT is optional in the quote response
 
       return `${_action}:${asset}:${destAddr}:${minOut}:${THORCHAIN_AFFILIATE_NAME}:0`
     }

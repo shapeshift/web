@@ -1,7 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import { type ChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { matchSorter } from 'match-sorter'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { isSome } from 'lib/utils'
+import { deriveAccountIdsAndMetadata } from 'lib/account/account'
+import { assertGetChainAdapter, isSome } from 'lib/utils'
+import { checkAccountHasActivity } from 'state/slices/portfolioSlice/utils'
 
 export const filterChainIdsBySearchTerm = (search: string, chainIds: ChainId[]) => {
   if (!chainIds.length) return []
@@ -24,4 +27,25 @@ export const filterChainIdsBySearchTerm = (search: string, chainIds: ChainId[]) 
     keys: ['displayName'],
     threshold: matchSorter.rankings.CONTAINS,
   }).map(({ chainId }) => chainId)
+}
+
+export const getAccountIdsWithActivityAndMetadata = async (
+  accountNumber: number,
+  chainId: ChainId,
+  wallet: HDWallet | null,
+) => {
+  if (!wallet) return []
+  const input = { accountNumber, chainIds: [chainId], wallet }
+  const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
+
+  return Promise.all(
+    Object.entries(accountIdsAndMetadata).map(async ([accountId, accountMetadata]) => {
+      const { account: pubkey } = fromAccountId(accountId)
+      const adapter = assertGetChainAdapter(chainId)
+      const account = await adapter.getAccount(pubkey)
+      const hasActivity = checkAccountHasActivity(account)
+
+      return { accountId, accountMetadata, hasActivity }
+    }),
+  )
 }

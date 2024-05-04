@@ -163,6 +163,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const [autoFetching, setAutoFetching] = useState(true)
   const [toggledActiveAccountIds, setToggledActiveAccountIds] = useState<Set<AccountId>>(new Set())
 
+  // reset component state when chainId changes
+  useEffect(() => {
+    setAutoFetching(true)
+    setToggledActiveAccountIds(new Set())
+  }, [chainId])
+
   // initial fetch to detect the number of accounts based on the "first empty account" heuristic
   const {
     data: accounts,
@@ -261,9 +267,10 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     if (!asset || !accounts) return null
     return accounts.pages.map(({ accountIdWithActivityAndMetadata }, accountNumber) => {
       const accountIds = accountIdWithActivityAndMetadata.map(({ accountId }) => accountId)
+      const key = accountIds.join('-')
       return (
         <TableRow
-          key={accountNumber}
+          key={key}
           accountNumber={accountNumber}
           accountIds={accountIds}
           asset={asset}

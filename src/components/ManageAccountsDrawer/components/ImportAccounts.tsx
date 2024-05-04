@@ -172,7 +172,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       predicate: query => {
         return (
           query.queryKey[0] === 'accountManagement' &&
-          ['accountIdWithActivityAndMetadata', 'allAccountIdsWithActivityAndMetadata'].some(
+          ['accountIdWithActivityAndMetadata', 'firstAccountIdsWithActivityAndMetadata'].some(
             str => str === query.queryKey[1],
           )
         )

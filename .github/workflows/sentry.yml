@@ -1,6 +1,7 @@
 name: New Sentry Release
 on:
-  # obviously revert me too
+  # obviously revert these two too
+  workflow_dispatch:
   pull_request:
   push:
     branches:

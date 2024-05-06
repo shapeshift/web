@@ -1,16 +1,17 @@
 name: New Sentry Release
 on:
   pull_request:
-    branches: [main]
+    # revert develop here
+    branches: [main, develop]
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.ref == 'feat_sentry_release_yml'
     steps:
-      - name: Checkout release
       - uses: actions/checkout@v3
         with: 
-          ref: release
+          ref: feat_sentry_release_yml
       - name: Sentry Release
         uses: getsentry/action-release@v1.7.0
         env:
@@ -18,9 +19,9 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
         with:
-          environment: production
-          # uses the release PR title as a version
+          # and revert me too
+          environment: localhost
           version: ${{ github.event.pull_request.title }}
-          # This can safely be removed after one succesful release - previous release hash won't be found in repo as we're squashing this
+          # and me too
           ignore_missing: true
 

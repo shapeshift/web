@@ -1,24 +1,19 @@
-import type { MidgardActionsResponse } from '../types'
+import type { ThorNodeStatusResponseSuccess } from '../types'
 
 const THORCHAIN_EVM_CHAINS = ['ETH', 'AVAX', 'BSC'] as const
 
 export const parseThorBuyTxHash = (
   sellTxId: string,
-  thorActionsData: MidgardActionsResponse,
+  response: ThorNodeStatusResponseSuccess,
 ): string | undefined => {
-  const outTxs = thorActionsData.actions[0]?.out
+  const latestOutTx = response.out_txs?.[response.out_txs.length - 1]
 
-  if (!outTxs?.length) return
+  if (!latestOutTx) return
 
-  const latestOutTx = outTxs[outTxs.length - 1]
-  const latestTxId = latestOutTx.txID
+  // outbound rune transactions do not have a txid as they are processed internally, use sell txid
+  if (latestOutTx.chain === 'THOR') return sellTxId
 
-  // outbound rune transactions do not have a txid as they are processed internally
-  if (!latestTxId) return sellTxId
+  const isEvmCoinAsset = THORCHAIN_EVM_CHAINS.some(chain => chain === latestOutTx.chain)
 
-  const isEvmCoinAsset = THORCHAIN_EVM_CHAINS.some(
-    thorEvmChain => latestOutTx.coins[0].asset?.startsWith(thorEvmChain),
-  )
-
-  return isEvmCoinAsset ? `0x${latestTxId}` : latestTxId
+  return isEvmCoinAsset ? `0x${latestOutTx.id}` : latestOutTx.id
 }

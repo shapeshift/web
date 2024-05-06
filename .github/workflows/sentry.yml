@@ -3,9 +3,8 @@ on:
   # obviously revert these two too
   workflow_dispatch:
   pull_request:
-  push:
-    branches:
-      - main
+    # revert develop here
+    branches: [main, develop]
 
 jobs:
   release:

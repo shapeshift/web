@@ -194,6 +194,8 @@ export const Deposit: React.FC<DepositProps> = ({
       const isApprovalRequired = await (async () => {
         // Router contract address is only set in case we're depositting a token, not a native asset
         if (!inboundAddress) return false
+        // Do not try to get allowance for native assets, including non-EVM ones.
+        if (!isTokenDeposit) return false
 
         const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
           address: fromAssetId(assetId).assetReference,
@@ -211,7 +213,15 @@ export const Deposit: React.FC<DepositProps> = ({
       })()
       setIsApprovalRequired(isApprovalRequired)
     })()
-  }, [accountId, asset.chainId, asset.precision, assetId, inputValues, inboundAddress])
+  }, [
+    accountId,
+    asset.chainId,
+    asset.precision,
+    assetId,
+    inputValues,
+    inboundAddress,
+    isTokenDeposit,
+  ])
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
   // the current workaround is to not do fee deduction for non-UTXO chains,

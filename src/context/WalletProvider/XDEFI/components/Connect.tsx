@@ -5,8 +5,8 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import type { LocationState } from '../../NativeWallet/types'
@@ -38,9 +38,7 @@ export const XDEFIConnect = ({ history }: XDEFISetupProps) => {
     if (adapter) {
       try {
         // Remove all provider event listeners from previously connected wallets
-        const ethersProvider = getEthersProvider()
-        ethersProvider.removeAllListeners('accountsChanged')
-        ethersProvider.removeAllListeners('chainChanged')
+        await removeAccountsAndChainListeners()
 
         const wallet = (await adapter.pairDevice()) as XDEFIHDWallet | undefined
         if (!wallet) {

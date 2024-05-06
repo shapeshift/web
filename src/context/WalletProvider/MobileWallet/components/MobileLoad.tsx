@@ -22,8 +22,8 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { MobileConfig } from '../config'
 import { deleteWallet, getWallet, listWallets } from '../mobileMessageHandlers'
@@ -149,10 +149,8 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
           if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
           if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
 
-          // remove all provider event listeners from previously connected wallets
-          const ethersProvider = getEthersProvider()
-          ethersProvider.removeAllListeners('accountsChanged')
-          ethersProvider.removeAllListeners('chainChanged')
+          // Remove all provider event listeners from previously connected wallets
+          await removeAccountsAndChainListeners()
 
           const wallet = await adapter.pairDevice(revoker.id)
           await wallet?.loadDevice({ mnemonic: revoker.mnemonic })

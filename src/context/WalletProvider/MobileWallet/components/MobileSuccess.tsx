@@ -5,9 +5,9 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch } from 'state/store'
 
@@ -28,10 +28,8 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       const adapter = await getAdapter(KeyManager.Mobile)
       if (!adapter) throw new Error('Native adapter not found')
       try {
-        // remove all provider event listeners from previously connected wallets
-        const ethersProvider = getEthersProvider()
-        ethersProvider.removeAllListeners('accountsChanged')
-        ethersProvider.removeAllListeners('chainChanged')
+        // Remove all provider event listeners from previously connected wallets
+        await removeAccountsAndChainListeners()
 
         const deviceId = vault.id ?? ''
         const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet

@@ -37,7 +37,6 @@ if (window.location.hostname !== 'localhost') {
     environment,
     dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
     attachStacktrace: true,
-    denyUrls: ['alchemy.com'],
     integrations: [
       // Sentry.browserTracingIntegration(),
       // Sentry.replayIntegration(),
@@ -47,13 +46,21 @@ if (window.location.hostname !== 'localhost') {
           // i.e no 429s
           [430, 599],
         ],
+
+        failedRequestTargets: [/^(?!.*\.?(alchemy|snapshot)\.(com|org)).*$/],
       }),
       Sentry.browserApiErrorsIntegration(),
       Sentry.breadcrumbsIntegration(),
       Sentry.globalHandlersIntegration(),
       Sentry.httpContextIntegration(),
     ],
-    beforeSend(event) {
+    beforeSend(event, hint) {
+      // Drop closed ws errors to avoid spew
+      if (
+        (hint.originalException as Error | undefined)?.message ===
+        'failed to reconnect, connection closed'
+      )
+        return null
       // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3
       event.fingerprint = [(Math.random() * 1000000).toString()]
       return event

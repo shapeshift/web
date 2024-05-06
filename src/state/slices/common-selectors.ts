@@ -26,7 +26,11 @@ export const selectWalletSupportedChainIds = (state: ReduxState) =>
 export const selectWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
-  (walletId, walletById): AccountId[] => (walletId && walletById[walletId]) ?? [],
+  (state: ReduxState) => state.portfolio.hiddenAccountIds,
+  (walletId, walletById, hiddenAccountIds): AccountId[] => {
+    const walletAccountIds = (walletId && walletById[walletId]) ?? []
+    return walletAccountIds.filter(accountId => !hiddenAccountIds.includes(accountId))
+  },
 )
 
 export const selectWalletChainIds = createDeepEqualOutputSelector(

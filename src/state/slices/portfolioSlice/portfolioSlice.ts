@@ -137,6 +137,9 @@ export const portfolio = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<Portfolio>(),
     },
+    setHiddenAccountIds: (draftState, { payload }: { payload: AccountId[] }) => {
+      draftState.hiddenAccountIds = payload
+    },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })

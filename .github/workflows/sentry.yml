@@ -23,4 +23,5 @@ jobs:
         with:
           # and revert me too
           environment: localhost
+          version: ${{ github.event.pull_request.title }}
 

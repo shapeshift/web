@@ -330,6 +330,8 @@ export const zapper = createApi({
 
         const accountIds = selectWalletAccountIds(state)
 
+        if (!accountIds.length) throw new Error('Not ready')
+
         const assets = selectAssets(state)
         const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 

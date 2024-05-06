@@ -141,6 +141,8 @@ export const portfolio = createSlice({
       const hiddenAccountIdsSet = new Set(draftState.hiddenAccountIds)
       const isHidden = hiddenAccountIdsSet.has(accountId)
 
+      console.log(`toggling ${accountId}, isHidden: ${isHidden}`)
+
       if (!isHidden) {
         hiddenAccountIdsSet.add(accountId)
       } else {

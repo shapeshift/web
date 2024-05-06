@@ -89,24 +89,6 @@ export const selectPortfolioAccounts = createDeepEqualOutputSelector(
   },
 )
 
-/**
- * Returns a boolean indicating if the account is exists in the store. Bypasses `hiddenAccountIds`.
- * This is used to determine whether or not to toggle the account during import, since we should
- * not toggle the account when it's first imported.
- */
-export const selectAccountIdExistsInStore = createCachedSelector(
-  selectWalletId,
-  (state: ReduxState) => state.portfolio.wallet.byId,
-  selectAccountIdParamFromFilter,
-  (walletId, unfilteredAccountsById, accountIdParam): boolean => {
-    return Boolean(
-      walletId !== undefined &&
-        accountIdParam !== undefined &&
-        unfilteredAccountsById[walletId]?.some(accountId => accountId === accountIdParam),
-    )
-  },
-)((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
-
 export const selectIsAccountIdEnabled = createCachedSelector(
   selectPortfolioAccounts,
   selectAccountIdParamFromFilter,

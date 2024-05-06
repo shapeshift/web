@@ -27,9 +27,9 @@ import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
-  selectAccountIdExistsInStore,
   selectFeeAssetByChainId,
   selectHighestAccountNumberForChainId,
+  selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -231,17 +231,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   // TODO: Loading state
   const handleDone = useCallback(async () => {
-    // Check whether the account is new here BEFORE fetching it and upserting it
-    const isNewAccountByAccountId: Record<AccountId, boolean> = Array.from(
-      toggledAccountIds,
-    ).reduce((accumulator: Record<AccountId, boolean>, accountId: AccountId) => {
-      const accountIdExistsInStore = selectAccountIdExistsInStore(store.getState(), { accountId })
-      return { ...accumulator, [accountId]: !accountIdExistsInStore }
-    }, {})
-
     // for every new account that is active, fetch the account and upsert it into the redux state
     for (const accountId of toggledAccountIds) {
-      const isEnabled = selectIsAnyAccountIdEnabled(store.getState(), [accountId])
+      const isEnabled = selectIsAccountIdEnabled(store.getState(), { accountId })
       if (isEnabled) {
         continue
       }
@@ -255,8 +247,8 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     const accountMetadataByAccountId = accounts.pages.reduce((accumulator, accounts) => {
       const obj = accounts.accountIdWithActivityAndMetadata.reduce(
         (innerAccumulator, { accountId, accountMetadata }) => {
-          // Don't include accounts that are not toggled - they are either not active (only
-          // displayed but not toggled on) or are already in the store
+          // Don't include accounts that are not toggled - they are either only
+          // displayed and not toggled on, or are already in the store
           if (!toggledAccountIds.has(accountId)) return innerAccumulator
 
           return { ...innerAccumulator, [accountId]: accountMetadata }
@@ -274,11 +266,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     )
 
     for (const accountId of toggledAccountIds) {
-      // Only toggle the account if it already exists in the store
-      const isNewAccountId = isNewAccountByAccountId[accountId]
-      if (!isNewAccountId) {
-        dispatch(portfolio.actions.toggleAccountIdHidden(accountId))
-      }
+      dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
     }
 
     onClose()

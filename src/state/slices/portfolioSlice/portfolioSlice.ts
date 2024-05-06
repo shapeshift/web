@@ -137,19 +137,17 @@ export const portfolio = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<Portfolio>(),
     },
-    toggleAccountIdHidden: (draftState, { payload: accountId }: { payload: AccountId }) => {
-      const hiddenAccountIdsSet = new Set(draftState.hiddenAccountIds)
-      const isHidden = hiddenAccountIdsSet.has(accountId)
+    toggleAccountIdEnabled: (draftState, { payload: accountId }: { payload: AccountId }) => {
+      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds)
+      const isEnabled = enabledAccountIdsSet.has(accountId)
 
-      console.log(`toggling ${accountId}, isHidden: ${isHidden}`)
-
-      if (!isHidden) {
-        hiddenAccountIdsSet.add(accountId)
+      if (isEnabled) {
+        enabledAccountIdsSet.delete(accountId)
       } else {
-        hiddenAccountIdsSet.delete(accountId)
+        enabledAccountIdsSet.add(accountId)
       }
 
-      draftState.hiddenAccountIds = Array.from(hiddenAccountIdsSet)
+      draftState.enabledAccountIds = Array.from(enabledAccountIdsSet)
     },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),

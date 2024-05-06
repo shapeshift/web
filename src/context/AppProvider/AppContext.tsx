@@ -143,6 +143,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
 
           dispatch(portfolio.actions.upsertPortfolio(account))
+          dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
         })
 
         chainIds = chainIdsWithActivity

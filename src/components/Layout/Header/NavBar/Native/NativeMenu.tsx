@@ -1,6 +1,6 @@
 import { ChevronRightIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, MenuDivider, MenuItem } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -8,23 +8,26 @@ import { useModal } from 'hooks/useModal/useModal'
 
 const chevronRightIcon = <ChevronRightIcon />
 const editIcon = <EditIcon />
+type NativeMenuProps = {
+  onClose?: () => void
+}
 
-export const NativeMenu = () => {
+export const NativeMenu: React.FC<NativeMenuProps> = ({ onClose }) => {
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
 
   const backupNativePassphrase = useModal('backupNativePassphrase')
   const accountManagementPopover = useModal('manageAccounts')
 
-  const handleBackupMenuItemClick = useCallback(
-    () => backupNativePassphrase.open({}),
-    [backupNativePassphrase],
-  )
+  const handleBackupMenuItemClick = useCallback(() => {
+    onClose && onClose()
+    backupNativePassphrase.open({})
+  }, [backupNativePassphrase, onClose])
 
-  const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({}),
-    [accountManagementPopover],
-  )
+  const handleManageAccountsMenuItemClick = useCallback(() => {
+    onClose && onClose()
+    accountManagementPopover.open({})
+  }, [accountManagementPopover, onClose])
 
   return (
     <>

@@ -27,6 +27,7 @@ const ConnectedMenu = memo(
     walletInfo,
     onDisconnect,
     onSwitchProvider,
+    onClose,
   }: WalletConnectedProps & {
     connectedWalletMenuRoutes: boolean
   }) => {
@@ -74,7 +75,7 @@ const ConnectedMenu = memo(
               {translate('connectWallet.menu.connecting')}
             </MenuItem>
           )}
-          {ConnectMenuComponent && <ConnectMenuComponent />}
+          {ConnectMenuComponent && <ConnectMenuComponent onClose={onClose} />}
           <MenuDivider />
           <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
             {translate('connectWallet.menu.switchWallet')}
@@ -94,6 +95,7 @@ export const WalletConnectedMenu = ({
   walletInfo,
   isConnected,
   connectedType,
+  onClose,
 }: WalletConnectedProps) => {
   const location = useLocation()
 
@@ -128,6 +130,7 @@ export const WalletConnectedMenu = ({
               walletInfo={walletInfo}
               onDisconnect={onDisconnect}
               onSwitchProvider={onSwitchProvider}
+              onClose={onClose}
             />
           </SubMenuContainer>
         </Route>

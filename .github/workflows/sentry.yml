@@ -21,6 +21,5 @@ jobs:
           environment: production
           # uses the release PR title as a version
           version: ${{ github.event.pull_request.title }}
-          # This can safely be removed after one succesful release - previous release hash won't be found in repo as we're squashing this
           ignore_missing: true
 

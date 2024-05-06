@@ -54,7 +54,13 @@ if (window.location.hostname !== 'localhost') {
       Sentry.globalHandlersIntegration(),
       Sentry.httpContextIntegration(),
     ],
-    beforeSend(event) {
+    beforeSend(event, hint) {
+      // Drop closed ws errors to avoid spew
+      if (
+        (hint.originalException as Error | undefined)?.message ===
+        'failed to reconnect, connection closed'
+      )
+        return null
       // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3
       event.fingerprint = [(Math.random() * 1000000).toString()]
       return event

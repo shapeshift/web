@@ -4,9 +4,9 @@ import { useEffect } from 'react'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch } from 'state/store'
 
@@ -26,10 +26,8 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
       const adapter = await getAdapter(KeyManager.Native)
       if (!adapter) throw new Error('Native adapter not found')
       try {
-        // remove all provider event listeners from previously connected wallets
-        const ethersProvider = getEthersProvider()
-        ethersProvider.removeAllListeners('accountsChanged')
-        ethersProvider.removeAllListeners('chainChanged')
+        // Remove all provider event listeners from previously connected wallets
+        await removeAccountsAndChainListeners()
 
         await new Promise(resolve => setTimeout(resolve, 250))
         await Promise.all([navigator.storage?.persist?.(), vault.save()])

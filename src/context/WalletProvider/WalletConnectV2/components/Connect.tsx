@@ -9,8 +9,8 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { WalletConnectV2Config } from 'context/WalletProvider/WalletConnectV2/config'
 import { WalletNotFoundError } from 'context/WalletProvider/WalletConnectV2/Error'
+import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { isWalletConnectWallet } from 'lib/utils'
 
 import type { LocationState } from '../../NativeWallet/types'
@@ -38,9 +38,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
       if (adapter) {
         if (!state.wallet || !isWalletConnectWallet(state.wallet)) {
           // Remove all provider event listeners from previously connected wallets
-          const ethersProvider = getEthersProvider()
-          ethersProvider.removeAllListeners('accountsChanged')
-          ethersProvider.removeAllListeners('chainChanged')
+          await removeAccountsAndChainListeners()
 
           setLoading(true)
 

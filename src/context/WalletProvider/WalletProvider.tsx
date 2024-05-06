@@ -866,7 +866,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         return handleAccountsOrChainChanged(localWalletType, e)
       })
       maybeProvider?.on?.('chainChanged', (e: string) => {
-        debugger
         return handleAccountsOrChainChanged(localWalletType, e)
       })
 

@@ -1,5 +1,7 @@
 name: New Sentry Release
 on:
+  # obviously revert me too
+  pull_request:
   push:
     branches:
       - master
@@ -7,6 +9,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.head.ref == 'feat_sentry_release_yml'
+    # obviously revert me once ready
+    ref: feat_sentry_release_yml
     steps:
     - uses: actions/checkout@v2
     - name: Sentry Release

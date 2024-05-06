@@ -2,43 +2,56 @@ import { bn } from 'lib/bignumber/bignumber'
 
 import { THORCHAIN_AFFILIATE_NAME } from './constants'
 
-const assertMemoHasPool = (pool: string, memo: string) => {
+function assertMemoHasPool(pool: string | undefined, memo: string): asserts pool is string {
   if (!pool) throw new Error(`pool is required in memo: ${memo}`)
 }
 
-const assertMemoHasAsset = (asset: string, memo: string) => {
+function assertMemoHasAsset(asset: string | undefined, memo: string): asserts asset is string {
   if (!asset) throw new Error(`asset is required in memo: ${memo}`)
 }
 
-const assertMemoHasDestAddr = (destAddr: string, memo: string) => {
+function assertMemoHasDestAddr(
+  destAddr: string | undefined,
+  memo: string,
+): asserts destAddr is string {
   if (!destAddr) throw new Error(`destination address is required in memo: ${memo}`)
 }
 
-const assertMemoHasPairedAddr = (pairedAddr: string, memo: string) => {
+function assertMemoHasPairedAddr(
+  pairedAddr: string | undefined,
+  memo: string,
+): asserts pairedAddr is string {
   if (!pairedAddr) throw new Error(`paired address is required in memo: ${memo}`)
 }
 
-const assertMemoHasLimit = (limit: string, memo: string) => {
+function assertMemoHasLimit(limit: string | undefined, memo: string): asserts limit is string {
   if (!limit) throw new Error(`limit is required in memo: ${memo}`)
 }
 
-const assertMemoHasBasisPoints = (basisPoints: string, memo: string) => {
+function assertMemoHasBasisPoints(
+  basisPoints: string | undefined,
+  memo: string,
+): asserts basisPoints is string {
   if (!basisPoints) throw new Error(`basis points is required in memo: ${memo}`)
 }
 
+function assertMemoHasAction(action: string | undefined, memo: string): asserts action is string {
+  if (!action) throw new Error(`action is required in memo: ${memo}`)
+}
+
 // Disabling until we validate further, as :MINOUT is optional in the quote response
-// const assertMemoHasMinOut = (minOut: string, memo: string) => {
-//   if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
+// function assertMemoHasMinOut(minOut: string | undefined, memo: string): asserts minOut is string {
+// if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
 // }
 
-const assertIsValidLimit = (limit: string, memo: string) => {
+const assertIsValidLimit = (limit: string | undefined, memo: string) => {
   assertMemoHasLimit(limit, memo)
 
   const maybeStreamingSwap = limit.match(/\//g)
   const [lim, interval, quantity] = limit.split('/')
 
   if (maybeStreamingSwap) {
-    if (maybeStreamingSwap.length !== 3)
+    if (!(lim && interval && quantity && maybeStreamingSwap.length === 3))
       throw new Error(`invalid streaming parameters in memo: ${memo}`)
     if (!bn(lim).isInteger()) throw new Error(`limit must be an integer in memo: ${memo}`)
     if (!bn(interval).isInteger()) throw new Error(`interval is required in memo: ${memo}`)
@@ -56,7 +69,10 @@ const assertIsValidLimit = (limit: string, memo: string) => {
 //   if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
 // }
 
-const assertIsValidBasisPoints = (basisPoints: string, memo: string) => {
+function assertIsValidBasisPoints(
+  basisPoints: string | undefined,
+  memo: string,
+): asserts basisPoints is string {
   assertMemoHasBasisPoints(basisPoints, memo)
 
   if (!bn(basisPoints).isInteger())
@@ -70,6 +86,8 @@ const assertIsValidBasisPoints = (basisPoints: string, memo: string) => {
  */
 export const assertAndProcessMemo = (memo: string): string => {
   const [action] = memo.split(':')
+
+  assertMemoHasAction(action, memo)
 
   switch (action.toLowerCase()) {
     case 'swap':
@@ -111,6 +129,7 @@ export const assertAndProcessMemo = (memo: string): string => {
       const [_action, pool, basisPoints, maybeAsset] = memo.split(':')
 
       assertMemoHasPool(pool, memo)
+      assertMemoHasBasisPoints(basisPoints, memo)
 
       // Withdraw Liquidity - WITHDRAW:POOL:BASISPOINTS:ASSET
       if (pool.includes('.')) {

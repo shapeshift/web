@@ -47,7 +47,7 @@ if (window.location.hostname !== 'localhost') {
           [430, 599],
         ],
 
-        failedRequestTargets: [/^(?!.*\.?alchemy\.com).*$/],
+        failedRequestTargets: [/^(?!.*\.?(alchemy|snapshot)\.(com|org)).*$/],
       }),
       Sentry.browserApiErrorsIntegration(),
       Sentry.breadcrumbsIntegration(),

@@ -137,6 +137,15 @@ export const portfolio = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<Portfolio>(),
     },
+    /**
+     * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice
+     * during initial load, leading to all auto-detected accounts being disabled.
+     */
+    enableAccountId: (draftState, { payload: accountId }: { payload: AccountId }) => {
+      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds)
+      enabledAccountIdsSet.add(accountId)
+      draftState.enabledAccountIds = Array.from(enabledAccountIdsSet)
+    },
     toggleAccountIdEnabled: (draftState, { payload: accountId }: { payload: AccountId }) => {
       const enabledAccountIdsSet = new Set(draftState.enabledAccountIds)
       const isEnabled = enabledAccountIdsSet.has(accountId)

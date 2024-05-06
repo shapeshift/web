@@ -143,7 +143,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
 
           dispatch(portfolio.actions.upsertPortfolio(account))
-          dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
         })
 
         chainIds = chainIdsWithActivity
@@ -155,6 +154,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           walletId: await wallet.getDeviceID(),
         }),
       )
+
+      for (const accountId of Object.keys(accountMetadataByAccountId)) {
+        dispatch(portfolio.actions.enableAccountId(accountId))
+      }
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 

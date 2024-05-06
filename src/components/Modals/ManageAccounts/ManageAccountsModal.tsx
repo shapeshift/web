@@ -137,7 +137,7 @@ export const ManageAccountsModal = ({
           />
           <ModalCloseButton position='absolute' top={3} right={3} />
           {walletConnectedChainIds.length > 0 && (
-            <ModalBody maxH='400px' overflow='scroll'>
+            <ModalBody maxH='400px' overflowY='auto'>
               <VStack spacing={2} width='full'>
                 {connectedChains}
               </VStack>

@@ -1,7 +1,5 @@
 name: New Sentry Release
 on:
-  # obviously revert these two too
-  workflow_dispatch:
   pull_request:
     # revert develop here
     branches: [main, develop]
@@ -24,4 +22,6 @@ jobs:
           # and revert me too
           environment: localhost
           version: ${{ github.event.pull_request.title }}
+          # and me too
+          ignore_missing: true
 

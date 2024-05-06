@@ -1794,7 +1794,9 @@
     "manageAccounts": {
       "title": "Manage Accounts",
       "description": "These are the chains you have connected and the number of accounts you have imported.",
-      "addChain": "Add another chain"
+      "emptyList": "You have no accounts connected yet. Add a chain to get started.",
+      "addChain": "Add a chain",
+      "addAnotherChain": "Add another chain"
     },
     "selectChain": {
       "title": "Select Chain",

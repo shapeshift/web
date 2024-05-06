@@ -23,7 +23,12 @@ export const useFetchOpportunities = () => {
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
 
-  const { isLoading: isZapperAppsBalancesOutputLoading } = useGetZapperAppsBalancesOutputQuery()
+  const { isLoading: isZapperAppsBalancesOutputLoading } = useGetZapperAppsBalancesOutputQuery(
+    undefined,
+    {
+      skip: !requestedAccountIds.length,
+    },
+  )
   const { isLoading: isZapperUniV2PoolAssetIdsLoading } = useGetZapperUniV2PoolAssetIdsQuery(
     undefined,
     { skip: !DynamicLpAssets },

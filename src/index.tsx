@@ -12,10 +12,30 @@ import { reportWebVitals } from 'lib/reportWebVitals'
 
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
+// Remove this condition to test sentry locally
+// if (window.location.hostname !== 'localhost') {
+const VALID_ENVS = [
+  'localhost',
+  'develop',
+  'release',
+  'app',
+  'private',
+  'yeet',
+  'beard',
+  'juice',
+  'wood',
+  'gome',
+] as const
+
+const environment = (() => {
+  if (window.location.hostname.includes('app')) return 'production'
+
+  if (VALID_ENVS.some(env => window.location.hostname.includes(env)))
+    return window.location.hostname.split('.')[0]
+})()
 Sentry.init({
-  ...(window.location.hostname === 'localhost'
-    ? {}
-    : { dsn: getConfig().REACT_APP_SENTRY_DSN_URL }),
+  environment,
+  dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
   attachStacktrace: true,
   denyUrls: ['alchemy.com'],
   integrations: [
@@ -42,6 +62,7 @@ Sentry.init({
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
   tracePropagationTargets: ['localhost'],
 })
+// }
 
 const rootElement = document.getElementById('root')!
 const root = createRoot(rootElement)

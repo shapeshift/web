@@ -20,6 +20,7 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
+import { isSome } from 'lib/utils'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
 import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -136,6 +137,18 @@ export const isKeyManagerWithProvider = (
         KeyManager.Coinbase,
       ].includes(keyManager),
   )
+
+export const removeAccountsAndChainListeners = async () => {
+  const providers = Object.values(KeyManager).filter(isKeyManagerWithProvider)
+  const maybeProviders = (
+    await Promise.all(providers.map(keyManager => getMaybeProvider(keyManager)))
+  ).filter(isSome) as BrowserProvider[]
+
+  maybeProviders.forEach(maybeProvider => {
+    maybeProvider.removeAllListeners('accountsChanged')
+    maybeProvider.removeAllListeners('chainChanged')
+  })
+}
 
 export const getMaybeProvider = async (
   localWalletType: KeyManager | null,
@@ -853,6 +866,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         return handleAccountsOrChainChanged(localWalletType, e)
       })
       maybeProvider?.on?.('chainChanged', (e: string) => {
+        debugger
         return handleAccountsOrChainChanged(localWalletType, e)
       })
 

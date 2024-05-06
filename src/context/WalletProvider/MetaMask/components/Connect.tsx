@@ -6,6 +6,7 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
   checkIsMetaMaskDesktop,
@@ -14,7 +15,6 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -52,10 +52,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (adapter) {
-      const ethersProvider = getEthersProvider()
-      ethersProvider.removeAllListeners('accountsChanged')
-      ethersProvider.removeAllListeners('chainChanged')
-
+      // Remove all provider event listeners from previously connected wallets
+      await removeAccountsAndChainListeners()
       const wallet = await adapter.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')

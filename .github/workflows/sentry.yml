@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout release
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
         with: 
           ref: release
       - name: Sentry Release

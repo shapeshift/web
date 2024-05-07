@@ -83,7 +83,10 @@ export const LedgerChains = () => {
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
-      if (!walletState?.wallet) return
+      if (!walletState?.wallet) {
+        console.error('No wallet found')
+        return
+      }
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
 
@@ -134,6 +137,7 @@ export const LedgerChains = () => {
 
           dispatch(portfolio.actions.upsertAccountMetadata(payload))
           dispatch(portfolio.actions.upsertPortfolio(account))
+          dispatch(portfolio.actions.enableAccountId(accountId))
           return acc
         }, {})
 

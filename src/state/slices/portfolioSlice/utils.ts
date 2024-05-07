@@ -66,7 +66,8 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case bscChainId:
     case arbitrumChainId:
     case arbitrumNovaChainId:
-      // this will be the 0x account
+    case thorchainChainId:
+    case cosmosChainId:
       return firstFourLastFour(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
@@ -76,10 +77,6 @@ export const accountIdToLabel = (accountId: AccountId): string => {
       return ''
     case bchChainId:
       return 'Bitcoin Cash'
-    case cosmosChainId:
-      return 'Cosmos'
-    case thorchainChainId:
-      return 'Thorchain'
     case dogeChainId:
       return 'Dogecoin'
     case ltcChainId:

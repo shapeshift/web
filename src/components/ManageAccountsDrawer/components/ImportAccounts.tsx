@@ -32,7 +32,7 @@ import {
   selectHighestAccountNumberForChainId,
   selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { DrawerContentWrapper } from './DrawerContent'
 
@@ -49,7 +49,7 @@ type TableRowProps = {
   accountIds: AccountId[]
   accountNumber: number
   asset: Asset
-  onActiveAccountIdsChange: (accountIds: AccountId[], isActive: boolean) => void
+  onToggleAccountIds: (accountIds: AccountId[]) => void
 }
 
 type TableRowAccountProps = {
@@ -92,24 +92,23 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
 })
 
 const TableRow = forwardRef<TableRowProps, 'div'>(
-  ({ asset, accountNumber, accountIds, onActiveAccountIdsChange }, ref) => {
-    const isAccountEnabledInRedux = useAppSelector(state =>
-      selectIsAnyAccountIdEnabled(state, accountIds),
-    )
+  ({ asset, accountNumber, accountIds, onToggleAccountIds }, ref) => {
+    const isAccountEnabled = useAppSelector(state => selectIsAnyAccountIdEnabled(state, accountIds))
 
-    const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabledInRedux)
+    const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabled)
 
-    useEffect(() => {
-      onActiveAccountIdsChange(accountIds, isAccountActive)
-    }, [accountIds, isAccountActive, isAccountEnabledInRedux, onActiveAccountIdsChange])
+    const handleToggleIsAccountActive = useCallback(() => {
+      toggleIsAccountActive()
+      onToggleAccountIds(accountIds)
+    }, [accountIds, onToggleAccountIds, toggleIsAccountActive])
 
     const firstAccount = useMemo(() => accountIds[0], [accountIds])
     const otherAccountIds = useMemo(() => accountIds.slice(1), [accountIds])
     const otherAccounts = useMemo(() => {
       return otherAccountIds.map(accountId => (
-        <Tr opacity={isAccountActive ? '1' : '0.5'}>
-          <Td colSpan={2} bg='background.surface.raised.base' />
-          <TableRowAccount key={accountId} ref={ref} asset={asset} accountId={accountId} />
+        <Tr key={accountId} opacity={isAccountActive ? '1' : '0.5'}>
+          <Td colSpan={2} bg='background.surface.raised.base'></Td>
+          <TableRowAccount ref={ref} asset={asset} accountId={accountId} />
         </Tr>
       ))
     }, [asset, isAccountActive, otherAccountIds, ref])
@@ -118,7 +117,7 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
       <>
         <Tr opacity={isAccountActive ? '1' : '0.5'}>
           <Td>
-            <Switch size='lg' isChecked={isAccountActive} onChange={toggleIsAccountActive} />
+            <Switch size='lg' isChecked={isAccountActive} onChange={handleToggleIsAccountActive} />
           </Td>
           <Td>
             <RawText color='text.subtle'>{accountNumber}</RawText>
@@ -176,9 +175,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         )
       },
     }) > 0
-  const [accountIdActiveStateUpdate, setAccountIdActiveStateUpdate] = useState<
-    Record<string, boolean>
-  >({})
+  const [toggledActiveAccountIds, setToggledActiveAccountIds] = useState<Set<AccountId>>(new Set())
 
   // initial fetch to detect the number of accounts based on the "first empty account" heuristic
   const { data: allAccountIdsWithActivity } = useQuery(
@@ -213,20 +210,27 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     })
   }, [accounts, chainId, queryClient, wallet, walletDeviceId])
 
-  const handleAccountIdsActiveChange = useCallback((accountIds: AccountId[], isActive: boolean) => {
-    setAccountIdActiveStateUpdate(previousState => {
-      const stateUpdate = accountIds.reduce((accumulator, accountId) => {
-        return { ...accumulator, [accountId]: isActive }
-      }, {})
-      return { ...previousState, ...stateUpdate }
+  const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
+    setToggledActiveAccountIds(previousState => {
+      const updatedState = new Set(previousState)
+      for (const accountId of accountIds) {
+        if (updatedState.has(accountId)) {
+          updatedState.delete(accountId)
+        } else {
+          updatedState.add(accountId)
+        }
+      }
+
+      return updatedState
     })
   }, [])
 
   // TODO: Loading state
   const handleDone = useCallback(async () => {
     // for every new account that is active, fetch the account and upsert it into the redux state
-    for (const [accountId, isActive] of Object.entries(accountIdActiveStateUpdate)) {
-      if (!isActive) continue
+    for (const accountId of toggledActiveAccountIds) {
+      const isEnabled = selectIsAnyAccountIdEnabled(store.getState(), [accountId])
+      if (isEnabled) continue
       await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     }
 
@@ -244,14 +248,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       }),
     )
 
-    const hiddenAccountIds = Object.entries(accountIdActiveStateUpdate)
-      .filter(([_, isActive]) => !isActive)
-      .map(([accountId]) => accountId)
-
-    dispatch(portfolio.actions.setHiddenAccountIds(hiddenAccountIds))
+    for (const accountId of toggledActiveAccountIds) {
+      dispatch(portfolio.actions.toggleAccountIdHidden(accountId))
+    }
 
     onClose()
-  }, [accountIdActiveStateUpdate, accounts, dispatch, onClose, walletDeviceId])
+  }, [toggledActiveAccountIds, accounts, dispatch, onClose, walletDeviceId])
 
   const accountRows = useMemo(() => {
     if (!asset) return null
@@ -263,11 +265,11 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           accountNumber={accountNumber}
           accountIds={accountIds}
           asset={asset}
-          onActiveAccountIdsChange={handleAccountIdsActiveChange}
+          onToggleAccountIds={handleToggleAccountIds}
         />
       )
     })
-  }, [accounts, asset, handleAccountIdsActiveChange])
+  }, [accounts, asset, handleToggleAccountIds])
 
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)

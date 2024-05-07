@@ -49,7 +49,7 @@ type TableRowProps = {
   accountIds: AccountId[]
   accountNumber: number
   asset: Asset
-  onAccountIdsActiveChange: (accountIds: AccountId[], isActive: boolean) => void
+  onActiveAccountIdsChange: (accountIds: AccountId[], isActive: boolean) => void
 }
 
 type TableRowAccountProps = {
@@ -60,7 +60,6 @@ type TableRowAccountProps = {
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
-  const translate = useTranslate()
   const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
   const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
@@ -77,11 +76,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
       <Td fontWeight='bold'>
         <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
           <div ref={ref}>
-            {isUtxoAccount ? (
-              <RawText>{`${accountLabel} ${translate('common.account')}`}</RawText>
-            ) : (
-              <MiddleEllipsis value={accountLabel} />
-            )}
+            <MiddleEllipsis value={accountLabel} />
           </div>
         </Tooltip>
       </Td>
@@ -97,7 +92,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
 })
 
 const TableRow = forwardRef<TableRowProps, 'div'>(
-  ({ asset, accountNumber, accountIds, onAccountIdsActiveChange }, ref) => {
+  ({ asset, accountNumber, accountIds, onActiveAccountIdsChange }, ref) => {
     const isAccountEnabledInRedux = useAppSelector(state =>
       selectIsAnyAccountIdEnabled(state, accountIds),
     )
@@ -105,11 +100,19 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
     const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabledInRedux)
 
     useEffect(() => {
-      onAccountIdsActiveChange(accountIds, isAccountActive)
-    }, [accountIds, isAccountActive, isAccountEnabledInRedux, onAccountIdsActiveChange])
+      onActiveAccountIdsChange(accountIds, isAccountActive)
+    }, [accountIds, isAccountActive, isAccountEnabledInRedux, onActiveAccountIdsChange])
 
     const firstAccount = useMemo(() => accountIds[0], [accountIds])
-    const otherAccounts = useMemo(() => accountIds.slice(1), [accountIds])
+    const otherAccountIds = useMemo(() => accountIds.slice(1), [accountIds])
+    const otherAccounts = useMemo(() => {
+      return otherAccountIds.map(accountId => (
+        <Tr opacity={isAccountActive ? '1' : '0.5'}>
+          <Td colSpan={2} bg='background.surface.raised.base' />
+          <TableRowAccount key={accountId} ref={ref} asset={asset} accountId={accountId} />
+        </Tr>
+      ))
+    }, [asset, isAccountActive, otherAccountIds, ref])
 
     return (
       <>
@@ -123,12 +126,7 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
 
           <TableRowAccount ref={ref} asset={asset} accountId={firstAccount} />
         </Tr>
-        {otherAccounts.map(accountId => (
-          <Tr opacity={isAccountActive ? '1' : '0.5'}>
-            <Td colSpan={2} bg='background.surface.raised.base'></Td>
-            <TableRowAccount key={accountId} ref={ref} asset={asset} accountId={accountId} />
-          </Tr>
-        ))}
+        {otherAccounts}
       </>
     )
   },
@@ -265,7 +263,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           accountNumber={accountNumber}
           accountIds={accountIds}
           asset={asset}
-          onAccountIdsActiveChange={handleAccountIdsActiveChange}
+          onActiveAccountIdsChange={handleAccountIdsActiveChange}
         />
       )
     })

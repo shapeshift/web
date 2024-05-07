@@ -101,7 +101,7 @@ export const selectIsAnyAccountIdEnabled = createCachedSelector(
   selectPortfolioAccounts,
   (_state: ReduxState, accountIds: AccountId[]) => accountIds,
   (accountsById, accountIds): boolean => {
-    if (accountIds === undefined) return false
+    if (accountIds.length === 0) return false
     return accountIds.some(accountId => accountsById[accountId] !== undefined)
   },
 )((_s: ReduxState, accountIds) => JSON.stringify(accountIds))

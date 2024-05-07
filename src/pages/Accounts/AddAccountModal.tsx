@@ -89,9 +89,10 @@ export const AddAccountModal = () => {
         }),
       )
       const accountIds = Object.keys(accountMetadataByAccountId)
-      accountIds.forEach(accountId =>
-        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts)),
-      )
+      accountIds.forEach(accountId => {
+        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts))
+        dispatch(portfolio.actions.enableAccountId(accountId))
+      })
       const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
       const { name } = assets[assetId] ?? {}
       toast({

@@ -29,6 +29,7 @@ import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
   selectHighestAccountNumberForChainId,
+  selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -161,12 +162,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [autoFetching, setAutoFetching] = useState(true)
-  const [toggledActiveAccountIds, setToggledActiveAccountIds] = useState<Set<AccountId>>(new Set())
+  const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
   // reset component state when chainId changes
   useEffect(() => {
     setAutoFetching(true)
-    setToggledActiveAccountIds(new Set())
+    setToggledAccountIds(new Set())
   }, [chainId])
 
   // initial fetch to detect the number of accounts based on the "first empty account" heuristic
@@ -214,7 +215,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [autoFetching, isLoading, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
-    setToggledActiveAccountIds(previousState => {
+    setToggledAccountIds(previousState => {
       const updatedState = new Set(previousState)
       for (const accountId of accountIds) {
         if (updatedState.has(accountId)) {
@@ -231,17 +232,25 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   // TODO: Loading state
   const handleDone = useCallback(async () => {
     // for every new account that is active, fetch the account and upsert it into the redux state
-    for (const accountId of toggledActiveAccountIds) {
-      const isEnabled = selectIsAnyAccountIdEnabled(store.getState(), [accountId])
-      if (isEnabled) continue
+    for (const accountId of toggledAccountIds) {
+      const isEnabled = selectIsAccountIdEnabled(store.getState(), { accountId })
+      if (isEnabled) {
+        continue
+      }
       await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     }
 
-    if (!accounts) return
+    if (!accounts) {
+      return
+    }
 
     const accountMetadataByAccountId = accounts.pages.reduce((accumulator, accounts) => {
       const obj = accounts.accountIdWithActivityAndMetadata.reduce(
         (innerAccumulator, { accountId, accountMetadata }) => {
+          // Don't include accounts that are not toggled - they are either only
+          // displayed and not toggled on, or are already in the store
+          if (!toggledAccountIds.has(accountId)) return innerAccumulator
+
           return { ...innerAccumulator, [accountId]: accountMetadata }
         },
         {},
@@ -256,12 +265,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       }),
     )
 
-    for (const accountId of toggledActiveAccountIds) {
-      dispatch(portfolio.actions.toggleAccountIdHidden(accountId))
+    for (const accountId of toggledAccountIds) {
+      dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
     }
 
     onClose()
-  }, [toggledActiveAccountIds, accounts, dispatch, onClose, walletDeviceId])
+  }, [toggledAccountIds, accounts, dispatch, onClose, walletDeviceId])
 
   const accountRows = useMemo(() => {
     if (!asset || !accounts) return null

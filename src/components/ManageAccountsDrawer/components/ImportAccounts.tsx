@@ -209,9 +209,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [accounts, highestAccountNumber, fetchNextPage, autoFetching])
 
   const handleLoadMore = useCallback(() => {
-    if (autoFetching) return
+    if (isLoading || autoFetching) return
     fetchNextPage()
-  }, [autoFetching, fetchNextPage])
+  }, [autoFetching, isLoading, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledActiveAccountIds(previousState => {
@@ -291,19 +291,13 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       description={translate('accountManagement.importAccounts.description')}
       footer={
         <>
-          <Button
-            colorScheme='gray'
-            mr={3}
-            onClick={onClose}
-            isDisabled={isLoading}
-            _disabled={disabledProps}
-          >
+          <Button colorScheme='gray' mr={3} onClick={onClose}>
             {translate('common.cancel')}
           </Button>
           <Button
             colorScheme='blue'
             onClick={handleDone}
-            isDisabled={isLoading}
+            isDisabled={isLoading || autoFetching}
             _disabled={disabledProps}
           >
             {translate('common.done')}
@@ -316,14 +310,14 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             <Table variant='simple'>
               <Tbody>
                 {accountRows}
-                {isLoading && <LoadingRow />}
+                {(isLoading || autoFetching) && <LoadingRow />}
               </Tbody>
             </Table>
           </TableContainer>
           <Button
             colorScheme='gray'
             onClick={handleLoadMore}
-            isDisabled={isLoading}
+            isDisabled={isLoading || autoFetching}
             _disabled={disabledProps}
           >
             {translate('common.loadMore')}

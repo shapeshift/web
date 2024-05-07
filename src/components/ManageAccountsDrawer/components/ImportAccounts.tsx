@@ -66,7 +66,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
 
   const { data: account, isLoading } = useQuery(accountManagement.getAccount(accountId))
 
-  const assetBalancePrecision = useMemo(() => {
+  const assetBalanceCryptoPrecision = useMemo(() => {
     if (!account) return '0'
     return fromBaseUnit(account.balance, asset.precision)
   }, [account, asset.precision])
@@ -84,7 +84,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
         {isLoading ? (
           <Skeleton height='24px' width='100%' />
         ) : (
-          <Amount.Crypto value={assetBalancePrecision} symbol={asset.symbol} />
+          <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
         )}
       </Td>
     </>

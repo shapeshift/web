@@ -53,20 +53,20 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
 
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
-  const searching = useMemo(() => searchQuery.length > 0, [searchQuery])
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   useEffect(() => {
-    if (!searching) return
+    if (!isSearching) return
 
     setSearchTermChainIds(filterChainIdsBySearchTerm(searchQuery, walletSupportedChainIds))
-  }, [searchQuery, searching, walletSupportedChainIds])
+  }, [searchQuery, isSearching, walletSupportedChainIds])
 
   const chainButtons = useMemo(() => {
-    const listChainIds = searching ? searchTermChainIds : walletSupportedChainIds
+    const listChainIds = isSearching ? searchTermChainIds : walletSupportedChainIds
     return listChainIds.map(chainId => {
       return <ChainButton key={chainId} chainId={chainId} onClick={onSelectChainId} />
     })
-  }, [onSelectChainId, searchTermChainIds, searching, walletSupportedChainIds])
+  }, [onSelectChainId, searchTermChainIds, isSearching, walletSupportedChainIds])
 
   const footer = useMemo(() => {
     return (

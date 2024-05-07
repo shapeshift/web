@@ -20,7 +20,7 @@ type NavBarProps = {
 const flex = { base: 'none', md: '1 1 0%' }
 
 export const NavBar = (props: NavBarProps) => {
-  const { isCompact, onClick, ...stackProps } = useMemo(() => {
+  const { isCompact, onClick, stackProps } = useMemo(() => {
     const { isCompact, onClick, ...stackProps } = props
     return { isCompact, onClick, stackProps }
     // eslint-disable-next-line react-hooks/exhaustive-deps

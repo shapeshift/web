@@ -14,17 +14,29 @@ const getAccountIdsWithActivityAndMetadata = async (
 ) => {
   const input = { accountNumber, chainIds: [chainId], wallet }
   const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
-  const [[accountId, accountMetadata]] = Object.entries(accountIdsAndMetadata)
 
-  const { account: pubkey } = fromAccountId(accountId)
-  const adapter = assertGetChainAdapter(chainId)
-  const account = await adapter.getAccount(pubkey)
-  const hasActivity = checkAccountHasActivity(account)
+  return Promise.all(
+    Object.entries(accountIdsAndMetadata).map(async ([accountId, accountMetadata]) => {
+      const { account: pubkey } = fromAccountId(accountId)
+      const adapter = assertGetChainAdapter(chainId)
+      const account = await adapter.getAccount(pubkey)
+      const hasActivity = checkAccountHasActivity(account)
 
-  return { accountId, accountMetadata, hasActivity }
+      return { accountId, accountMetadata, hasActivity }
+    }),
+  )
 }
 
 export const accountManagement = createQueryKeys('accountManagement', {
+  getAccount: (accountId: AccountId) => ({
+    queryKey: ['getAccount', accountId],
+    queryFn: async () => {
+      const { chainId, account: pubkey } = fromAccountId(accountId)
+      const adapter = assertGetChainAdapter(chainId)
+      const account = await adapter.getAccount(pubkey)
+      return account
+    },
+  }),
   accountIdWithActivityAndMetadata: (
     accountNumber: number,
     chainId: ChainId,
@@ -55,27 +67,23 @@ export const accountManagement = createQueryKeys('accountManagement', {
         accountId: AccountId
         accountMetadata: AccountMetadata
         hasActivity: boolean
-      }[] = []
+      }[][] = []
 
       if (!wallet) return []
 
       while (true) {
         try {
-          const accountResult = await getAccountIdsWithActivityAndMetadata(
+          if (accountNumber >= accountNumberLimit) {
+            break
+          }
+
+          const accountResults = await getAccountIdsWithActivityAndMetadata(
             accountNumber,
             chainId,
             wallet,
           )
 
-          if (!accountResult) break
-
-          const { accountId, accountMetadata, hasActivity } = accountResult
-
-          if (accountNumber >= accountNumberLimit) {
-            break
-          }
-
-          accounts.push({ accountId, accountMetadata, hasActivity })
+          accounts.push(accountResults)
         } catch (error) {
           console.error(error)
           break

@@ -97,6 +97,15 @@ export const selectIsAccountIdEnabled = createCachedSelector(
   },
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 
+export const selectIsAnyAccountIdEnabled = createCachedSelector(
+  selectPortfolioAccounts,
+  (_state: ReduxState, accountIds: AccountId[]) => accountIds,
+  (accountsById, accountIds): boolean => {
+    if (accountIds.length === 0) return false
+    return accountIds.some(accountId => accountsById[accountId] !== undefined)
+  },
+)((_s: ReduxState, accountIds) => JSON.stringify(accountIds))
+
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
   selectPortfolioAccountBalancesBaseUnit,
   (accountBalancesById): AssetId[] => {

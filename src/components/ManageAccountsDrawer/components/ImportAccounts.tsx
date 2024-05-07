@@ -23,14 +23,14 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { fromBaseUnit } from 'lib/math'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
   selectHighestAccountNumberForChainId,
-  selectIsAccountIdEnabled,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -46,61 +46,88 @@ export type ImportAccountsProps = {
 }
 
 type TableRowProps = {
-  accountId: AccountId
+  accountIds: AccountId[]
   accountNumber: number
   asset: Asset
-  onAccountIdActiveChange: (accountId: AccountId, isActive: boolean) => void
+  onActiveAccountIdsChange: (accountIds: AccountId[], isActive: boolean) => void
+}
+
+type TableRowAccountProps = {
+  accountId: AccountId
+  asset: Asset
 }
 
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
+const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
+  const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
+  const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
+  const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+
+  const { data: account, isLoading } = useQuery(accountManagement.getAccount(accountId))
+
+  const assetBalanceCryptoPrecision = useMemo(() => {
+    if (!account) return '0'
+    return fromBaseUnit(account.balance, asset.precision)
+  }, [account, asset.precision])
+
+  return (
+    <>
+      <Td fontWeight='bold'>
+        <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
+          <div ref={ref}>
+            <MiddleEllipsis value={accountLabel} />
+          </div>
+        </Tooltip>
+      </Td>
+      <Td textAlign='right'>
+        {isLoading ? (
+          <Skeleton height='24px' width='100%' />
+        ) : (
+          <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
+        )}
+      </Td>
+    </>
+  )
+})
+
 const TableRow = forwardRef<TableRowProps, 'div'>(
-  ({ asset, accountId, accountNumber, onAccountIdActiveChange }, ref) => {
-    const translate = useTranslate()
-    const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-    const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
-    const isAccountEnabledFilter = useMemo(() => ({ accountId }), [accountId])
+  ({ asset, accountNumber, accountIds, onActiveAccountIdsChange }, ref) => {
     const isAccountEnabledInRedux = useAppSelector(state =>
-      selectIsAccountIdEnabled(state, isAccountEnabledFilter),
+      selectIsAnyAccountIdEnabled(state, accountIds),
     )
 
     const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabledInRedux)
 
     useEffect(() => {
-      onAccountIdActiveChange(accountId, isAccountActive)
-    }, [accountId, isAccountActive, isAccountEnabledInRedux, onAccountIdActiveChange])
+      onActiveAccountIdsChange(accountIds, isAccountActive)
+    }, [accountIds, isAccountActive, isAccountEnabledInRedux, onActiveAccountIdsChange])
 
-    // TODO: Redux wont have this for new accounts and will be 0, so we'll need to fetch it
-    const assetBalancePrecision = useAppSelector(s =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
-    )
-    const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
-
-    const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+    const firstAccount = useMemo(() => accountIds[0], [accountIds])
+    const otherAccountIds = useMemo(() => accountIds.slice(1), [accountIds])
+    const otherAccounts = useMemo(() => {
+      return otherAccountIds.map(accountId => (
+        <Tr opacity={isAccountActive ? '1' : '0.5'}>
+          <Td colSpan={2} bg='background.surface.raised.base' />
+          <TableRowAccount key={accountId} ref={ref} asset={asset} accountId={accountId} />
+        </Tr>
+      ))
+    }, [asset, isAccountActive, otherAccountIds, ref])
 
     return (
-      <Tr>
-        <Td>
-          <RawText>{accountNumber}</RawText>
-        </Td>
-        <Td>
-          <Switch isChecked={isAccountActive} onChange={toggleIsAccountActive} />
-        </Td>
-        <Td>
-          <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
-            <div ref={ref}>
-              {isUtxoAccount ? (
-                <RawText>{`${accountLabel} ${translate('common.account')}`}</RawText>
-              ) : (
-                <MiddleEllipsis value={accountLabel} />
-              )}
-            </div>
-          </Tooltip>
-        </Td>
-        <Td>
-          <Amount.Crypto value={assetBalancePrecision} symbol={asset?.symbol ?? ''} />
-        </Td>
-      </Tr>
+      <>
+        <Tr opacity={isAccountActive ? '1' : '0.5'}>
+          <Td>
+            <Switch size='lg' isChecked={isAccountActive} onChange={toggleIsAccountActive} />
+          </Td>
+          <Td>
+            <RawText color='text.subtle'>{accountNumber}</RawText>
+          </Td>
+
+          <TableRowAccount ref={ref} asset={asset} accountId={firstAccount} />
+        </Tr>
+        {otherAccounts}
+      </>
     )
   },
 )
@@ -135,10 +162,20 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [accounts, setAccounts] = useState<
-    { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[]
+    { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[][]
   >([])
   const queryClient = useQueryClient()
-  const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
+  const isLoading =
+    useIsFetching({
+      predicate: query => {
+        return (
+          query.queryKey[0] === 'accountManagement' &&
+          ['accountIdWithActivityAndMetadata', 'firstAccountIdsWithActivityAndMetadata'].some(
+            str => str === query.queryKey[1],
+          )
+        )
+      },
+    }) > 0
   const [accountIdActiveStateUpdate, setAccountIdActiveStateUpdate] = useState<
     Record<string, boolean>
   >({})
@@ -162,7 +199,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const handleLoadMore = useCallback(async () => {
     if (!wallet) return
     const accountNumber = accounts.length
-    const accountResult = await queryClient.fetchQuery(
+    const accountResults = await queryClient.fetchQuery(
       reactQueries.accountManagement.accountIdWithActivityAndMetadata(
         accountNumber,
         chainId,
@@ -170,16 +207,18 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         walletDeviceId,
       ),
     )
-    if (!accountResult) return
+    if (!accountResults.length) return
     setAccounts(previousAccounts => {
-      const { accountId, accountMetadata, hasActivity } = accountResult
-      return [...previousAccounts, { accountId, accountMetadata, hasActivity }]
+      return [...previousAccounts, accountResults]
     })
   }, [accounts, chainId, queryClient, wallet, walletDeviceId])
 
-  const handleAccountIdActiveChange = useCallback((accountId: AccountId, isActive: boolean) => {
+  const handleAccountIdsActiveChange = useCallback((accountIds: AccountId[], isActive: boolean) => {
     setAccountIdActiveStateUpdate(previousState => {
-      return { ...previousState, [accountId]: isActive }
+      const stateUpdate = accountIds.reduce((accumulator, accountId) => {
+        return { ...accumulator, [accountId]: isActive }
+      }, {})
+      return { ...previousState, ...stateUpdate }
     })
   }, [])
 
@@ -191,12 +230,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     }
 
-    const accountMetadataByAccountId = accounts.reduce(
-      (accumulator, { accountId, accountMetadata }) => {
-        return { ...accumulator, [accountId]: accountMetadata }
-      },
-      {},
-    )
+    const accountMetadataByAccountId = accounts.reduce((accumulator, accounts) => {
+      const obj = accounts.reduce((innerAccumulator, { accountId, accountMetadata }) => {
+        return { ...innerAccumulator, [accountId]: accountMetadata }
+      }, {})
+      return { ...accumulator, ...obj }
+    }, {})
 
     dispatch(
       portfolio.actions.upsertAccountMetadata({
@@ -216,16 +255,19 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   const accountRows = useMemo(() => {
     if (!asset) return null
-    return accounts.map(({ accountId }, accountNumber) => (
-      <TableRow
-        key={accountId}
-        accountId={accountId}
-        accountNumber={accountNumber}
-        asset={asset}
-        onAccountIdActiveChange={handleAccountIdActiveChange}
-      />
-    ))
-  }, [accounts, asset, handleAccountIdActiveChange])
+    return accounts.map((accountsForAccountNumber, accountNumber) => {
+      const accountIds = accountsForAccountNumber.map(({ accountId }) => accountId)
+      return (
+        <TableRow
+          key={accountNumber}
+          accountNumber={accountNumber}
+          accountIds={accountIds}
+          asset={asset}
+          onActiveAccountIdsChange={handleAccountIdsActiveChange}
+        />
+      )
+    })
+  }, [accounts, asset, handleAccountIdsActiveChange])
 
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)

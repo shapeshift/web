@@ -61,8 +61,11 @@ if (window.location.hostname !== 'localhost') {
         'failed to reconnect, connection closed'
       )
         return null
+      // Turns off event grouping for XHR requests. Note this is currently commented out, since Sentry doesn't support capture
+      // request/response body for PII purposes. Once we have a solution in place (perhaps fork HttpClient?), then we should uncomment this,
+      // and have random fingerprinting for XHRs only, not for other errors
       // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3
-      event.fingerprint = [(Math.random() * 1000000).toString()]
+      // event.fingerprint = [(Math.random() * 1000000).toString()]
       return event
     },
     enableTracing: true,

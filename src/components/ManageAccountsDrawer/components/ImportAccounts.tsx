@@ -12,11 +12,10 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
-import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
-import { useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { Asset } from '@shapeshiftoss/types'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -34,6 +33,7 @@ import {
 } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
+import { getAccountIdsWithActivityAndMetadata } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
 
 // The number of additional empty accounts to include in the initial fetch
@@ -160,55 +160,58 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
-  const [accounts, setAccounts] = useState<
-    { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[][]
-  >([])
-  const queryClient = useQueryClient()
-  const isLoading =
-    useIsFetching({
-      predicate: query => {
-        return (
-          query.queryKey[0] === 'accountManagement' &&
-          ['accountIdWithActivityAndMetadata', 'firstAccountIdsWithActivityAndMetadata'].some(
-            str => str === query.queryKey[1],
-          )
-        )
-      },
-    }) > 0
+  const [autoFetching, setAutoFetching] = useState(true)
   const [toggledActiveAccountIds, setToggledActiveAccountIds] = useState<Set<AccountId>>(new Set())
 
-  // initial fetch to detect the number of accounts based on the "first empty account" heuristic
-  const { data: allAccountIdsWithActivity } = useQuery(
-    accountManagement.firstAccountIdsWithActivityAndMetadata(
-      chainId,
-      wallet,
-      walletDeviceId,
-      // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
-      // Add additional empty accounts to show more accounts without having to load more.
-      highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS,
-    ),
-  )
-
+  // reset component state when chainId changes
   useEffect(() => {
-    setAccounts(allAccountIdsWithActivity ?? [])
-  }, [allAccountIdsWithActivity])
+    setAutoFetching(true)
+    setToggledActiveAccountIds(new Set())
+  }, [chainId])
 
-  const handleLoadMore = useCallback(async () => {
-    if (!wallet) return
-    const accountNumber = accounts.length
-    const accountResults = await queryClient.fetchQuery(
-      reactQueries.accountManagement.accountIdWithActivityAndMetadata(
+  // initial fetch to detect the number of accounts based on the "first empty account" heuristic
+  const {
+    data: accounts,
+    fetchNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['accountIdWithActivityAndMetadata', chainId, walletDeviceId, wallet !== null],
+    queryFn: async ({ pageParam: accountNumber }) => {
+      return {
         accountNumber,
-        chainId,
-        wallet,
-        walletDeviceId,
-      ),
-    )
-    if (!accountResults.length) return
-    setAccounts(previousAccounts => {
-      return [...previousAccounts, accountResults]
-    })
-  }, [accounts, chainId, queryClient, wallet, walletDeviceId])
+        accountIdWithActivityAndMetadata: await getAccountIdsWithActivityAndMetadata(
+          accountNumber,
+          chainId,
+          wallet,
+        ),
+      }
+    },
+    initialPageParam: 0,
+    getNextPageParam: lastPage => {
+      return lastPage.accountNumber + 1
+    },
+  })
+
+  // Handle initial automatic loading
+  useEffect(() => {
+    if (!autoFetching || !accounts) return
+
+    // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
+    // Add additional empty accounts to show more accounts without having to load more.
+    const numAccountsToLoad = highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS
+
+    if (accounts.pages.length < numAccountsToLoad) {
+      fetchNextPage()
+    } else {
+      // Stop auto-fetching and switch to manual mode
+      setAutoFetching(false)
+    }
+  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching])
+
+  const handleLoadMore = useCallback(() => {
+    if (isLoading || autoFetching) return
+    fetchNextPage()
+  }, [autoFetching, isLoading, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledActiveAccountIds(previousState => {
@@ -234,10 +237,15 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     }
 
-    const accountMetadataByAccountId = accounts.reduce((accumulator, accounts) => {
-      const obj = accounts.reduce((innerAccumulator, { accountId, accountMetadata }) => {
-        return { ...innerAccumulator, [accountId]: accountMetadata }
-      }, {})
+    if (!accounts) return
+
+    const accountMetadataByAccountId = accounts.pages.reduce((accumulator, accounts) => {
+      const obj = accounts.accountIdWithActivityAndMetadata.reduce(
+        (innerAccumulator, { accountId, accountMetadata }) => {
+          return { ...innerAccumulator, [accountId]: accountMetadata }
+        },
+        {},
+      )
       return { ...accumulator, ...obj }
     }, {})
 
@@ -256,12 +264,13 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [toggledActiveAccountIds, accounts, dispatch, onClose, walletDeviceId])
 
   const accountRows = useMemo(() => {
-    if (!asset) return null
-    return accounts.map((accountsForAccountNumber, accountNumber) => {
-      const accountIds = accountsForAccountNumber.map(({ accountId }) => accountId)
+    if (!asset || !accounts) return null
+    return accounts.pages.map(({ accountIdWithActivityAndMetadata }, accountNumber) => {
+      const accountIds = accountIdWithActivityAndMetadata.map(({ accountId }) => accountId)
+      const key = accountIds.join('-')
       return (
         <TableRow
-          key={accountNumber}
+          key={key}
           accountNumber={accountNumber}
           accountIds={accountIds}
           asset={asset}
@@ -282,19 +291,13 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       description={translate('accountManagement.importAccounts.description')}
       footer={
         <>
-          <Button
-            colorScheme='gray'
-            mr={3}
-            onClick={onClose}
-            isDisabled={isLoading}
-            _disabled={disabledProps}
-          >
+          <Button colorScheme='gray' mr={3} onClick={onClose}>
             {translate('common.cancel')}
           </Button>
           <Button
             colorScheme='blue'
             onClick={handleDone}
-            isDisabled={isLoading}
+            isDisabled={isLoading || autoFetching}
             _disabled={disabledProps}
           >
             {translate('common.done')}
@@ -307,14 +310,14 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             <Table variant='simple'>
               <Tbody>
                 {accountRows}
-                {isLoading && <LoadingRow />}
+                {(isLoading || autoFetching) && <LoadingRow />}
               </Tbody>
             </Table>
           </TableContainer>
           <Button
             colorScheme='gray'
             onClick={handleLoadMore}
-            isDisabled={isLoading}
+            isDisabled={isLoading || autoFetching}
             _disabled={disabledProps}
           >
             {translate('common.loadMore')}

@@ -1,3 +1,4 @@
+// forked from https://github.com/getsentry/sentry-javascript/blob/55d41f7c20b8cfcafda9bbeef75d551c1e7e22d7/packages/browser/src/integrations/httpclient.ts#L40
 import { captureEvent, defineIntegration, getClient, isSentryRequestUrl } from '@sentry/core'
 import type {
   Client,
@@ -13,8 +14,6 @@ import {
   supportsNativeFetch,
 } from '@sentry/utils'
 import { addXhrInstrumentationHandler, SENTRY_XHR_DATA_KEY } from '@sentry-internal/browser-utils'
-
-import { DEBUG_BUILD } from '../debug-build'
 
 export type HttpStatusCodeRange = [number, number] | number
 export type HttpRequestTarget = string | RegExp
@@ -33,13 +32,22 @@ interface HttpClientOptions {
   failedRequestStatusCodes: HttpStatusCodeRange[]
 
   /**
-   * Targets to track for failed requests.
+   * An optional list of targets to allow tracking of failed requests.
    * This array can contain strings or regular expressions.
+   * If omitted, no filtering by requests whitelist will be applied.
    *
    * Example: ['http://localhost', /api\/.*\/]
    * Default: [/.*\/]
    */
-  failedRequestTargets: HttpRequestTarget[]
+  failedRequestTargets?: HttpRequestTarget[]
+  /**
+   * An optional list of URLs to deny tracking of failed requests.
+   * This array can contain strings, not regular expressions.
+   * If omitted, no filtering by requests blacklist will be applied.
+   *
+   * Example: ['snapshot.org', 'alchemy']
+   */
+  denyUrls?: string[]
 }
 
 const _httpClientIntegration = ((options: Partial<HttpClientOptions> = {}) => {
@@ -51,12 +59,13 @@ const _httpClientIntegration = ((options: Partial<HttpClientOptions> = {}) => {
 
   return {
     name: INTEGRATION_NAME,
+    setupOnce() {},
     setup(client): void {
       _wrapFetch(client, _options)
       _wrapXHR(client, _options)
     },
   }
-}) satisfies IntegrationFn
+}) as IntegrationFn
 
 /**
  * Create events for failed client side HTTP requests.
@@ -76,7 +85,8 @@ function _fetchResponseHandler(
   response: Response,
   requestInit?: RequestInit,
 ): void {
-  if (_shouldCaptureResponse(options, response.status, response.url)) {
+  const shouldCapture = _shouldCaptureResponse(options, response.status, response.url)
+  if (shouldCapture) {
     const request = _getRequest(requestInfo, requestInit)
 
     let requestHeaders, responseHeaders, requestCookies, responseCookies
@@ -100,7 +110,7 @@ function _fetchResponseHandler(
             cookies = _parseCookieString(cookieString)
           }
         } catch (e) {
-          DEBUG_BUILD && logger.log(`Could not extract cookies from header ${cookieHeader}`)
+          logger.log(`Could not extract cookies from header ${cookieHeader}`)
         }
 
         return {
@@ -111,13 +121,19 @@ function _fetchResponseHandler(
     }
 
     const event = _createEvent({
-      url: request.url,
-      method: request.method,
-      status: response.status,
-      requestHeaders,
-      responseHeaders,
-      requestCookies,
-      responseCookies,
+      request: {
+        url: request.url,
+        method: request.method,
+        requestHeaders,
+        requestCookies,
+        data: requestInit?.body,
+        query_string: request.url.includes('?') ? request.url.split('?')[1] : undefined,
+      },
+      response: {
+        status: response.status,
+        responseHeaders,
+        responseCookies,
+      },
     })
 
     captureEvent(event)
@@ -133,11 +149,13 @@ function _fetchResponseHandler(
  */
 function _xhrResponseHandler(
   options: HttpClientOptions,
-  xhr: XMLHttpRequest,
+  xhr: SentryWrappedXMLHttpRequest & XMLHttpRequest,
   method: string,
   headers: Record<string, string>,
 ): void {
-  if (_shouldCaptureResponse(options, xhr.status, xhr.responseURL)) {
+  const shouldCapture = _shouldCaptureResponse(options, xhr.status, xhr.responseURL)
+
+  if (shouldCapture) {
     let requestHeaders, responseCookies, responseHeaders
 
     if (_shouldSendDefaultPii()) {
@@ -149,26 +167,34 @@ function _xhrResponseHandler(
           responseCookies = _parseCookieString(cookieString)
         }
       } catch (e) {
-        DEBUG_BUILD && logger.log('Could not extract cookies from response headers')
+        logger.log('Could not extract cookies from response headers')
       }
 
       try {
         responseHeaders = _getXHRResponseHeaders(xhr)
       } catch (e) {
-        DEBUG_BUILD && logger.log('Could not extract headers from response')
+        logger.log('Could not extract headers from response')
       }
 
       requestHeaders = headers
     }
 
     const event = _createEvent({
-      url: xhr.responseURL,
-      method,
-      status: xhr.status,
-      requestHeaders,
-      // Can't access request cookies from XHR
-      responseHeaders,
-      responseCookies,
+      request: {
+        url: xhr.responseURL,
+        method,
+        requestHeaders,
+        query_string: xhr.__sentry_xhr_v3__?.url.includes('?')
+          ? xhr.__sentry_xhr_v3__.url.split('?')[1]
+          : undefined,
+        data: xhr.__sentry_xhr_v3__?.body,
+      },
+      response: {
+        // Can't access request cookies from XHR
+        responseHeaders,
+        responseCookies,
+        status: xhr.status,
+      },
     })
 
     captureEvent(event)
@@ -253,13 +279,33 @@ function _isInGivenRequestTargets(
   failedRequestTargets: HttpClientOptions['failedRequestTargets'],
   target: string,
 ): boolean {
-  return failedRequestTargets.some((givenRequestTarget: HttpRequestTarget) => {
+  // Capture all if targets not passed
+  if (!failedRequestTargets) return true
+
+  const isIn = failedRequestTargets.some((givenRequestTarget: HttpRequestTarget) => {
     if (typeof givenRequestTarget === 'string') {
       return target.includes(givenRequestTarget)
     }
 
     return givenRequestTarget.test(target)
   })
+
+  return isIn
+}
+
+/**
+ * Checks if the given URL is *not* in the deny list.
+ *
+ * @param denyUrls The list of URLs to deny.
+ * @param url The URL to check.
+ * @returns true if the URL is *not* in the deny list, false otherwise.
+ */
+function _isOutGivenDenyUrls(denyUrls: string[] | undefined, url: string): boolean {
+  // Deny none if denyUrls not passed
+  if (!denyUrls) return true
+
+  const isOut = !denyUrls.some(denyUrl => url.includes(denyUrl))
+  return isOut
 }
 
 /**
@@ -272,13 +318,19 @@ function _isInGivenStatusRanges(
   failedRequestStatusCodes: HttpClientOptions['failedRequestStatusCodes'],
   status: number,
 ): boolean {
-  return failedRequestStatusCodes.some((range: HttpStatusCodeRange) => {
+  // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/status
+  // The read-only XMLHttpRequest.status property returns the numerical HTTP status code of the XMLHttpRequest's response.
+  // Before the request completes, the value of status is 0. Browsers also report a status of 0 in case of XMLHttpRequest errors.
+  if (status === 0) return true
+  const isIn = failedRequestStatusCodes.some((range: HttpStatusCodeRange) => {
     if (typeof range === 'number') {
       return range === status
     }
 
     return status >= range[0] && status <= range[1]
   })
+
+  return isIn
 }
 
 /**
@@ -331,25 +383,27 @@ function _wrapXHR(client: Client, options: HttpClientOptions): void {
     try {
       _xhrResponseHandler(options, xhr, method, headers)
     } catch (e) {
-      DEBUG_BUILD && logger.warn('Error while extracting response event form XHR response', e)
+      logger.warn('Error while extracting response event form XHR response', e)
     }
   })
 }
 
 /**
- * Checks whether to capture given response as an event
+ * Checks whether to capture given response as an event.
  *
- * @param status response status code
- * @param url response url
+ * @param options HttpClientOptions containing status codes, targets, and deny URLs.
+ * @param status Response status code.
+ * @param url Response URL.
+ * @returns true if the response should be captured, false otherwise.
  */
 function _shouldCaptureResponse(options: HttpClientOptions, status: number, url: string): boolean {
   return (
-    _isInGivenStatusRanges(options.failedRequestStatusCodes, status) &&
     _isInGivenRequestTargets(options.failedRequestTargets, url) &&
+    _isOutGivenDenyUrls(options.denyUrls, url) &&
+    _isInGivenStatusRanges(options.failedRequestStatusCodes, status) &&
     !isSentryRequestUrl(url, getClient())
   )
 }
-
 /**
  * Creates a synthetic Sentry event from given response data
  *
@@ -357,15 +411,23 @@ function _shouldCaptureResponse(options: HttpClientOptions, status: number, url:
  * @returns event
  */
 function _createEvent(data: {
-  url: string
-  method: string
-  status: number
-  responseHeaders?: Record<string, string>
-  responseCookies?: Record<string, string>
-  requestHeaders?: Record<string, string>
-  requestCookies?: Record<string, string>
+  request: {
+    url: string
+    method: string
+    requestHeaders?: Record<string, string>
+    requestCookies?: Record<string, string>
+    data?: any
+    query_string?: string
+  }
+
+  response: {
+    status: number
+    responseHeaders?: Record<string, string>
+    responseCookies?: Record<string, string>
+  }
 }): SentryEvent {
-  const message = `HTTP Client Error with status code: ${data.status}`
+  const { request, response } = data
+  const message = `HTTP Client Error with status code: ${response.status}`
 
   const event: SentryEvent = {
     message,
@@ -378,17 +440,19 @@ function _createEvent(data: {
       ],
     },
     request: {
-      url: data.url,
-      method: data.method,
-      headers: data.requestHeaders,
-      cookies: data.requestCookies,
+      url: request.url,
+      method: request.method,
+      headers: request.requestHeaders,
+      cookies: request.requestCookies,
+      data: request.data,
+      query_string: request.query_string,
     },
     contexts: {
       response: {
-        status_code: data.status,
-        headers: data.responseHeaders,
-        cookies: data.responseCookies,
-        body_size: _getResponseSizeFromHeaders(data.responseHeaders),
+        status_code: response.status,
+        headers: response.responseHeaders,
+        cookies: response.responseCookies,
+        body_size: _getResponseSizeFromHeaders(response.responseHeaders),
       },
     },
   }

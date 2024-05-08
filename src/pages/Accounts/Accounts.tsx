@@ -1,4 +1,4 @@
-import { AddIcon } from '@chakra-ui/icons'
+import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import { Route, Switch, useRouteMatch } from 'react-router'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -19,10 +20,12 @@ import { Account } from './Account'
 import { ChainRow } from './components/ChainRow'
 
 const addIcon = <AddIcon />
+const editIcon = <EditIcon />
 const pxProps = { base: 4, xl: 0 }
 
 const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const translate = useTranslate()
+  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const {
     state: { wallet },
   } = useWallet()
@@ -33,7 +36,8 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
     setIsMultiAccountWallet(wallet.supportsBip44Accounts())
   }, [wallet])
 
-  const { open } = useModal('addAccount')
+  const { open: openAddAccountModal } = useModal('addAccount')
+  const { open: openManageAccountsModal } = useModal('manageAccounts')
 
   return (
     <Stack px={pxProps} direction='row' justifyContent='space-between' alignItems='center' pb={6}>
@@ -43,17 +47,31 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
           <Text translation='accounts.accounts' />
         </Heading>
       </Skeleton>
-      {isMultiAccountWallet && (
+      {!isAccountManagementEnabled && isMultiAccountWallet && (
         <Skeleton isLoaded={!isLoading}>
           <Button
             loadingText={translate('accounts.addAccount')}
             leftIcon={addIcon}
             colorScheme='blue'
-            onClick={open}
+            onClick={openAddAccountModal}
             size='sm'
             data-test='add-account-button'
           >
             <Text translation='accounts.addAccount' />
+          </Button>
+        </Skeleton>
+      )}
+      {isAccountManagementEnabled && isMultiAccountWallet && (
+        <Skeleton isLoaded={!isLoading}>
+          <Button
+            loadingText={translate('accountManagement.menuTitle')}
+            leftIcon={editIcon}
+            colorScheme='blue'
+            onClick={openManageAccountsModal}
+            size='sm'
+            data-test='manage-accounts-button'
+          >
+            <Text translation='accountManagement.menuTitle' />
           </Button>
         </Skeleton>
       )}

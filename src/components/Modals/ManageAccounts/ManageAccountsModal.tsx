@@ -27,10 +27,6 @@ import { selectWalletChainIds } from 'state/slices/common-selectors'
 import { selectAccountIdsByChainId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export type ManageAccountsModalProps = {
-  title?: string
-}
-
 const infoIcon = <InfoIcon />
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
@@ -66,9 +62,7 @@ const ConnectedChain = ({
   )
 }
 
-export const ManageAccountsModal = ({
-  title = 'accountManagement.manageAccounts.title',
-}: ManageAccountsModalProps) => {
+export const ManageAccountsModal = () => {
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
   const { close, isOpen } = useModal('manageAccounts')
@@ -117,7 +111,7 @@ export const ManageAccountsModal = ({
         <ModalContent>
           <ModalHeader textAlign='left' pt={14}>
             <RawText as='h3' fontWeight='semibold'>
-              {translate(title)}
+              {translate('accountManagement.manageAccounts.title')}
             </RawText>
             <RawText color='text.subtle' fontSize='md' fontWeight='normal'>
               {walletConnectedChainIds.length === 0

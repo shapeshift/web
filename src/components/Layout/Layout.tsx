@@ -1,6 +1,7 @@
 import type { ContainerProps } from '@chakra-ui/react'
 import { Container, Flex } from '@chakra-ui/react'
-import React from 'react'
+import React, { useMemo } from 'react'
+import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 import { Header } from './Header/Header'
 import { MobileNavBar } from './Header/NavBar/MobileNavBar'
@@ -10,11 +11,14 @@ const widthProp = { base: 'full', md: 'calc(100% - 93px)', '2xl': 'calc(100% - 3
 const paddingBottomProp = { base: 'calc(0 + env(safe-area-inset-bottom))', md: 0 }
 
 export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
+  const { currentRoute } = useBrowserRouter()
+  const hideNav = useMemo(() => currentRoute && currentRoute.hideMobileMenu, [currentRoute])
   return (
     <Flex margin='0 auto'>
       <SideNav />
       <Container
         as='main'
+        display='flex'
         maxWidth='full'
         flexDir='column'
         width={widthProp}
@@ -27,7 +31,7 @@ export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
       >
         <Header />
         {children}
-        <MobileNavBar />
+        {!hideNav && <MobileNavBar />}
       </Container>
     </Flex>
   )

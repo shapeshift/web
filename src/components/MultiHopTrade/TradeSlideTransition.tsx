@@ -6,6 +6,8 @@ export const transitionStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  minHeight: '100vh',
+  zIndex: 1400,
 }
 
 export const TradeSlideTransition = (props: SlideTransitionProps) => (

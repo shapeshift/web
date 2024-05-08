@@ -80,9 +80,6 @@ function _fetchResponseHandler(
   requestInit?: RequestInit,
 ): void {
   const shouldCapture = _shouldCaptureResponse(options, response.status, response.url)
-  if (response.status === 0) {
-    console.log({ shouldCapture, status: response.status, url: response.url })
-  }
   if (shouldCapture) {
     const request = _getRequest(requestInfo, requestInit)
 
@@ -118,13 +115,19 @@ function _fetchResponseHandler(
     }
 
     const event = _createEvent({
-      url: request.url,
-      method: request.method,
-      status: response.status,
-      requestHeaders,
-      responseHeaders,
-      requestCookies,
-      responseCookies,
+      request: {
+        url: request.url,
+        method: request.method,
+        requestHeaders,
+        requestCookies,
+        data: requestInit?.body,
+        query_string: request.url.includes('?') ? request.url.split('?')[1] : undefined,
+      },
+      response: {
+        status: response.status,
+        responseHeaders,
+        responseCookies,
+      },
     })
 
     captureEvent(event)
@@ -145,7 +148,7 @@ function _xhrResponseHandler(
   headers: Record<string, string>,
 ): void {
   const shouldCapture = _shouldCaptureResponse(options, xhr.status, xhr.responseURL)
-  console.log({ shouldCapture, status: xhr.status, xhr })
+
   if (shouldCapture) {
     let requestHeaders, responseCookies, responseHeaders
 
@@ -171,13 +174,17 @@ function _xhrResponseHandler(
     }
 
     const event = _createEvent({
-      url: xhr.responseURL,
-      method,
-      status: xhr.status,
-      requestHeaders,
-      // Can't access request cookies from XHR
-      responseHeaders,
-      responseCookies,
+      request: {
+        url: xhr.responseURL,
+        method,
+        requestHeaders,
+      },
+      response: {
+        // Can't access request cookies from XHR
+        responseHeaders,
+        responseCookies,
+        status: xhr.status,
+      },
     })
 
     captureEvent(event)
@@ -392,15 +399,23 @@ function _shouldCaptureResponse(options: HttpClientOptions, status: number, url:
  * @returns event
  */
 function _createEvent(data: {
-  url: string
-  method: string
-  status: number
-  responseHeaders?: Record<string, string>
-  responseCookies?: Record<string, string>
-  requestHeaders?: Record<string, string>
-  requestCookies?: Record<string, string>
+  request: {
+    url: string
+    method: string
+    requestHeaders?: Record<string, string>
+    requestCookies?: Record<string, string>
+    data?: any
+    query_string?: string
+  }
+
+  response: {
+    status: number
+    responseHeaders?: Record<string, string>
+    responseCookies?: Record<string, string>
+  }
 }): SentryEvent {
-  const message = `HTTP Client Error with status code: ${data.status}`
+  const { request, response } = data
+  const message = `HTTP Client Error with status code: ${response.status}`
 
   const event: SentryEvent = {
     message,
@@ -413,17 +428,19 @@ function _createEvent(data: {
       ],
     },
     request: {
-      url: data.url,
-      method: data.method,
-      headers: data.requestHeaders,
-      cookies: data.requestCookies,
+      url: request.url,
+      method: request.method,
+      headers: request.requestHeaders,
+      cookies: request.requestCookies,
+      data: request.data,
+      query_string: request.query_string,
     },
     contexts: {
       response: {
-        status_code: data.status,
-        headers: data.responseHeaders,
-        cookies: data.responseCookies,
-        body_size: _getResponseSizeFromHeaders(data.responseHeaders),
+        status_code: response.status,
+        headers: response.responseHeaders,
+        cookies: response.responseCookies,
+        body_size: _getResponseSizeFromHeaders(response.responseHeaders),
       },
     },
   }

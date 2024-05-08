@@ -58,15 +58,16 @@ if (window.location.hostname !== 'localhost') {
     beforeSend(event, hint) {
       // Drop closed ws errors to avoid spew
       if (
-        (hint.originalException as Error | undefined)?.message ===
-        'failed to reconnect, connection closed'
+        ['failed to reconnect, connection closed' || 'timeout while trying to connect'].includes(
+          (hint.originalException as Error | undefined)?.message ?? '',
+        )
       )
         return null
-      // Turns off event grouping for XHR requests.
-      // We may want to turn this back on since we can now implement request/response body reporting
-      // and have random fingerprinting for XHRs only, not for other errors
-      // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3
-      // event.fingerprint = [(Math.random() * 1000000).toString()]
+      // Group all XHR errors together
+      if (event.message?.includes('HTTP Client Error') && event.request?.url) {
+        event.fingerprint = [event.request.url]
+      }
+      // Leave other errors untouched to leverage Sentry's default grouping
       return event
     },
     enableTracing: true,

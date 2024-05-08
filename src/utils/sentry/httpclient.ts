@@ -143,7 +143,7 @@ function _fetchResponseHandler(
  */
 function _xhrResponseHandler(
   options: HttpClientOptions,
-  xhr: XMLHttpRequest,
+  xhr: SentryWrappedXMLHttpRequest & XMLHttpRequest,
   method: string,
   headers: Record<string, string>,
 ): void {
@@ -178,6 +178,10 @@ function _xhrResponseHandler(
         url: xhr.responseURL,
         method,
         requestHeaders,
+        query_string: xhr.__sentry_xhr_v3__?.url.includes('?')
+          ? xhr.__sentry_xhr_v3__.url.split('?')[1]
+          : undefined,
+        data: xhr.__sentry_xhr_v3__?.body,
       },
       response: {
         // Can't access request cookies from XHR

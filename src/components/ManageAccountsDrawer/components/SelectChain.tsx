@@ -1,10 +1,13 @@
 import { Button, SimpleGrid, Stack, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText } from 'components/Text'
+import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
 import { selectAssetById, selectWalletSupportedChainIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -50,23 +53,27 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   const translate = useTranslate()
   const [searchTermChainIds, setSearchTermChainIds] = useState<ChainId[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const wallet = useWallet().state.wallet
 
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const availableChainIds =
+    // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
+    wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   useEffect(() => {
     if (!isSearching) return
 
-    setSearchTermChainIds(filterChainIdsBySearchTerm(searchQuery, walletSupportedChainIds))
-  }, [searchQuery, isSearching, walletSupportedChainIds])
+    setSearchTermChainIds(filterChainIdsBySearchTerm(searchQuery, availableChainIds))
+  }, [searchQuery, isSearching, availableChainIds])
 
   const chainButtons = useMemo(() => {
-    const listChainIds = isSearching ? searchTermChainIds : walletSupportedChainIds
+    const listChainIds = isSearching ? searchTermChainIds : availableChainIds
     return listChainIds.map(chainId => {
       return <ChainButton key={chainId} chainId={chainId} onClick={onSelectChainId} />
     })
-  }, [onSelectChainId, searchTermChainIds, isSearching, walletSupportedChainIds])
+  }, [onSelectChainId, searchTermChainIds, isSearching, availableChainIds])
 
   const footer = useMemo(() => {
     return (

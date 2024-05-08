@@ -101,6 +101,8 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         )
       } else if (shouldRefetchSaversOpportunities) {
         ;(async () => {
+          if (data?.parser !== 'thorchain' || data.liquidity?.type !== 'Savers') return
+
           // All we care about here is to have refreshed THOR positions - we don't want to wait for the outbound to be signed/broadcasted
           await waitForThorchainUpdate({ txId: txid, skipOutbound: true }).promise
 

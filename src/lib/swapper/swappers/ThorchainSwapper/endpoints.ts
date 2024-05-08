@@ -349,11 +349,11 @@ export const thorchainApi: SwapperApi = {
       const latestOutTx = data.out_txs?.[data.out_txs.length - 1]
       const hasOutboundTx = latestOutTx?.chain !== 'THOR'
 
-      const buyTxHash = parseThorBuyTxHash(txHash, data)
+      const buyTxHash = parseThorBuyTxHash(txHash, latestOutTx)
 
       // if we have an outbound transaction (non rune) and associated buyTxHash, check if it's been confirmed on-chain
       if (hasOutboundTx && buyTxHash) {
-        const outboundTxConfirmations = await checkOutboundTxConfirmations(data, buyTxHash)
+        const outboundTxConfirmations = await checkOutboundTxConfirmations(buyTxHash, latestOutTx)
 
         if (outboundTxConfirmations !== undefined && outboundTxConfirmations > 0) {
           return {

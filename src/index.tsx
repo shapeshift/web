@@ -63,11 +63,16 @@ if (window.location.hostname !== 'localhost') {
         )
       )
         return null
-      // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint
-      // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade
-      // which is not ideal, as having XMLHttpRequest errors while in different parts of the app will result in different groups
-      if (event.message?.includes('HTTP Client Error with status code: 0')) {
-        event.fingerprint = ['XMLHttpRequest Error']
+      // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint.
+      // and the ones with a status (i.e with a URL) by their URL.
+      // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade for status 0 errors.
+      // This is not ideal, as having XMLHttpRequest errors while in different parts of the app will result in different groups
+      if (event.message?.includes('HTTP Client Error')) {
+        if (event.message.includes('status: 0')) {
+          event.fingerprint = ['XMLHttpRequest Error']
+        } else {
+          event.fingerprint = [event.request?.url!]
+        }
       }
       // Leave other errors untouched to leverage Sentry's default grouping
       return event

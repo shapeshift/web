@@ -48,7 +48,7 @@ if (window.location.hostname !== 'localhost') {
           [430, 599],
         ],
 
-        denyUrls: ['alchemy.com', 'snapshot.org'],
+        // denyUrls: ['alchemy.com', 'snapshot.org'],
       }),
       Sentry.browserApiErrorsIntegration(),
       Sentry.breadcrumbsIntegration(),
@@ -63,9 +63,11 @@ if (window.location.hostname !== 'localhost') {
         )
       )
         return null
-      // Group all XHR errors together
-      if (event.message?.includes('HTTP Client Error') && event.request?.url) {
-        event.fingerprint = [event.request.url]
+      // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint
+      // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade
+      // which is not ideal, as having XMLHttpRequest errors while in different parts of the app will result in different groups
+      if (event.message?.includes('HTTP Client Error with status code: 0')) {
+        event.fingerprint = ['XMLHttpRequest Error']
       }
       // Leave other errors untouched to leverage Sentry's default grouping
       return event

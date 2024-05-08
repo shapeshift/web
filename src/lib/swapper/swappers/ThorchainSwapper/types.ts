@@ -145,7 +145,7 @@ type ThorNodeCoinSchema = {
   decimals?: number
 }
 
-type ThorNodeTxSchema = {
+export type ThorNodeTxSchema = {
   id: string
   chain: ThorchainChain
   from_address: string

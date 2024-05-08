@@ -15,7 +15,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, cosmosChainId, fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
@@ -156,15 +156,18 @@ const LoadingRow = () => {
 export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const toast = useToast()
   const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
   const highestAccountNumber = useAppSelector(state =>
     selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [autoFetching, setAutoFetching] = useState(true)
+  const [queryEnabled, setQueryEnabled] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
   // reset component state when chainId changes
@@ -233,7 +236,19 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       return lastPage.accountNumber + 1
     },
     retry: false,
+    enabled: queryEnabled,
   })
+
+  // Reset paging on mount for ledger wallet since the state and cache are not aware of what app is
+  // open on the device. This is to prevent the cache from creating invalid state where the app on
+  // the device is not open but the cache thinks it is.
+  useEffect(() => {
+    if (!isLedgerWallet || queryEnabled) return
+    queryClient.resetQueries({ queryKey: ['accountIdWithActivityAndMetadata'] }).then(() => {
+      setAutoFetching(true)
+      setQueryEnabled(true)
+    })
+  }, [queryEnabled, isLedgerWallet, queryClient])
 
   // Handle initial automatic loading
   useEffect(() => {
@@ -310,6 +325,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     for (const accountId of toggledAccountIds) {
       dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
     }
+
+    // Reset toggled state
+    setToggledAccountIds(new Set())
 
     onClose()
   }, [toggledAccountIds, accounts, dispatch, onClose, walletDeviceId])

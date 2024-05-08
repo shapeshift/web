@@ -3,19 +3,17 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { assertUnreachable } from 'lib/utils'
 
-import type { ThorNodeStatusResponseSuccess } from '../types'
+import type { ThorNodeTxSchema } from '../types'
 import { ThorchainChain } from '../types'
 
 export const checkOutboundTxConfirmations = async (
-  thorTxData: ThorNodeStatusResponseSuccess,
   buyTxHash: string,
+  latestOutTx: ThorNodeTxSchema | undefined,
 ) => {
-  const outCoinChain: ThorchainChain | undefined = thorTxData.out_txs?.[0]?.chain
-
-  if (!outCoinChain) return
+  if (!latestOutTx) return
 
   const apiUrl = (() => {
-    switch (outCoinChain) {
+    switch (latestOutTx.chain) {
       case ThorchainChain.BTC: {
         return getConfig().REACT_APP_UNCHAINED_BITCOIN_HTTP_URL
       }
@@ -44,9 +42,9 @@ export const checkOutboundTxConfirmations = async (
         return getConfig().REACT_APP_UNCHAINED_COSMOS_HTTP_URL
       }
       case ThorchainChain.BSC:
-        throw Error(`${outCoinChain} not supported`)
+        throw Error(`${latestOutTx.chain} not supported`)
       default:
-        assertUnreachable(outCoinChain)
+        assertUnreachable(latestOutTx.chain)
     }
   })()
 

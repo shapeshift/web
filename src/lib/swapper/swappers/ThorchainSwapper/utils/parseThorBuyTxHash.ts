@@ -1,13 +1,11 @@
-import type { ThorNodeStatusResponseSuccess } from '../types'
+import type { ThorNodeTxSchema } from '../types'
 
 const THORCHAIN_EVM_CHAINS = ['ETH', 'AVAX', 'BSC'] as const
 
 export const parseThorBuyTxHash = (
   sellTxId: string,
-  response: ThorNodeStatusResponseSuccess,
+  latestOutTx: ThorNodeTxSchema | undefined,
 ): string | undefined => {
-  const latestOutTx = response.out_txs?.[response.out_txs.length - 1]
-
   if (!latestOutTx) return
 
   // outbound rune transactions do not have a txid as they are processed internally, use sell txid

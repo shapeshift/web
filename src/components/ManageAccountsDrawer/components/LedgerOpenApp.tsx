@@ -108,6 +108,10 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
   }, [asset, chainId, ethAsset])
 
   useEffect(() => {
+    // TEMP: Support for app checks one THORChain and Cosmos are currently missing in hdwallet,
+    // so skip the check and make the user confirm the app is open themselves.
+    if (chainId === thorchainChainId || chainId === cosmosChainId) return
+
     // Poll the Ledger every second to see if the correct app is open
     const intervalId = setInterval(async () => {
       const isValidApp = await isCorrectAppOpen()
@@ -118,9 +122,16 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
     }, 1000)
 
     return () => clearInterval(intervalId) // Clean up on component unmount
-  }, [isCorrectAppOpen, onNext])
+  }, [chainId, isCorrectAppOpen, onNext])
 
   const maybeNext = useCallback(async () => {
+    // TEMP: Support for app checks one THORChain and Cosmos are currently missing in hdwallet,
+    // so skip the check and make the user confirm the app is open themselves.
+    if (chainId === thorchainChainId || chainId === cosmosChainId) {
+      onNext()
+      return
+    }
+
     const isValidApp = await isCorrectAppOpen()
     if (isValidApp) {
       onNext()
@@ -136,7 +147,7 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
         position: 'top-right',
       })
     }
-  }, [appName, isCorrectAppOpen, onNext, toast, translate])
+  }, [appName, chainId, isCorrectAppOpen, onNext, toast, translate])
 
   const body = useMemo(() => {
     if (!renderedAsset) return null

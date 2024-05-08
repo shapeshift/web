@@ -9,9 +9,11 @@ import {
   Td,
   Tooltip,
   Tr,
+  useToast,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId, cosmosChainId, fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -154,6 +156,7 @@ const LoadingRow = () => {
 export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const toast = useToast()
   const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
@@ -178,13 +181,50 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   } = useInfiniteQuery({
     queryKey: ['accountIdWithActivityAndMetadata', chainId, walletDeviceId, wallet !== null],
     queryFn: async ({ pageParam: accountNumber }) => {
-      return {
-        accountNumber,
-        accountIdWithActivityAndMetadata: await getAccountIdsWithActivityAndMetadata(
+      try {
+        return {
           accountNumber,
-          chainId,
-          wallet,
-        ),
+          accountIdWithActivityAndMetadata: await getAccountIdsWithActivityAndMetadata(
+            accountNumber,
+            chainId,
+            wallet,
+          ),
+        }
+      } catch (error) {
+        if (
+          wallet &&
+          isLedger(wallet) &&
+          (chainId === thorchainChainId || chainId === cosmosChainId)
+        ) {
+          // TEMP: Support for app checks one THORChain and Cosmos are currently missing in
+          // hdwallet, so this is a temporary hack to prompt users to open the ledger app since
+          // we cannot automatically check.
+          toast({
+            title: translate('walletProvider.ledger.errors.appNotOpen', {
+              app: asset?.networkName,
+            }),
+            description: translate('walletProvider.ledger.errors.appNotOpenDescription', {
+              app: asset?.networkName,
+            }),
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+            position: 'top-left',
+          })
+        } else {
+          toast({
+            title: translate('accountManagement.errors.accountMetadataFailedToFetch.title'),
+            description: translate(
+              'accountManagement.errors.accountMetadataFailedToFetch.description',
+            ),
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+            position: 'top-left',
+          })
+        }
+
+        return { accountNumber, accountIdWithActivityAndMetadata: [] }
       }
     },
     initialPageParam: 0,
@@ -277,6 +317,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     return accounts.pages.map(({ accountIdWithActivityAndMetadata }, accountNumber) => {
       const accountIds = accountIdWithActivityAndMetadata.map(({ accountId }) => accountId)
       const key = accountIds.join('-')
+      if (accountIds.length === 0) return null
       return (
         <TableRow
           key={key}

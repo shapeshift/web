@@ -35,7 +35,7 @@ export const getAccountIdsWithActivityAndMetadata = async (
   wallet: HDWallet | null,
 ) => {
   if (!wallet) return []
-  const input = { accountNumber, chainIds: [chainId], wallet }
+  const input = { accountNumber, chainIds: [chainId], wallet, throwOnReject: true }
   const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
 
   return Promise.all(

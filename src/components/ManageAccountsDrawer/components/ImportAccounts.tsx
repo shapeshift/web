@@ -209,7 +209,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             status: 'error',
             duration: 9000,
             isClosable: true,
-            position: 'top-left',
+            position: 'top-right',
           })
         } else {
           toast({
@@ -220,22 +220,24 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             status: 'error',
             duration: 9000,
             isClosable: true,
-            position: 'top-left',
+            position: 'top-right',
           })
         }
 
-        return { accountNumber, accountIdWithActivityAndMetadata: [] }
+        // rethrow error to prevent paging thru error state
+        throw error
       }
     },
     initialPageParam: 0,
     getNextPageParam: lastPage => {
       return lastPage.accountNumber + 1
     },
+    retry: false,
   })
 
   // Handle initial automatic loading
   useEffect(() => {
-    if (!autoFetching || !accounts) return
+    if (isLoading || !autoFetching || !accounts) return
 
     // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
     // Add additional empty accounts to show more accounts without having to load more.
@@ -247,7 +249,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       // Stop auto-fetching and switch to manual mode
       setAutoFetching(false)
     }
-  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching])
+  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching, isLoading])
 
   const handleLoadMore = useCallback(() => {
     if (isLoading || autoFetching) return

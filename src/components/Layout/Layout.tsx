@@ -12,7 +12,12 @@ const paddingBottomProp = { base: 'calc(0 + env(safe-area-inset-bottom))', md: 0
 
 export const Layout: React.FC<ContainerProps> = ({ children, ...rest }) => {
   const { currentRoute } = useBrowserRouter()
-  const hideNav = useMemo(() => currentRoute && currentRoute.hideMobileMenu, [currentRoute])
+  const hideNav = useMemo(
+    () =>
+      (currentRoute && currentRoute.hideMobileMenu) ??
+      (currentRoute && currentRoute.parent?.hideMobileMenu),
+    [currentRoute],
+  )
   return (
     <Flex margin='0 auto'>
       <SideNav />

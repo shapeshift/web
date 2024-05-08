@@ -5,7 +5,6 @@ import { SEO } from 'components/Layout/Seo'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 
 const pageProps = {
-  minHeight: '100%',
   pb: 0,
 }
 

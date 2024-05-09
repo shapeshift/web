@@ -4,6 +4,7 @@ import 'lib/polyfills'
 import * as Sentry from '@sentry/react'
 import { App } from 'App'
 import { AppProviders } from 'AppProviders'
+import { isAxiosError } from 'axios'
 import { getConfig } from 'config'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
@@ -56,6 +57,18 @@ if (window.location.hostname !== 'localhost') {
       Sentry.httpContextIntegration(),
     ],
     beforeSend(event, hint) {
+      // Enriches Axios errors with context
+      if (isAxiosError(hint?.originalException)) {
+        const error = hint.originalException
+        if (error.response) {
+          const contexts = { ...event.contexts }
+          contexts.Axios = {
+            Request: error.request,
+            Response: error.response,
+          }
+          event.contexts = contexts
+        }
+      }
       // Drop closed ws errors to avoid spew
       if (
         ['failed to reconnect, connection closed' || 'timeout while trying to connect'].includes(

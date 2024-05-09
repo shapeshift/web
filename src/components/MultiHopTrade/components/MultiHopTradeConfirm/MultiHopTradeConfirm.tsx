@@ -1,11 +1,12 @@
-import { Card, CardBody, useDisclosure, usePrevious } from '@chakra-ui/react'
+import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
+import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { Text } from 'components/Text'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
@@ -19,7 +20,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { TradeSuccessTemp } from '../TradeSuccess/TradeSuccessTemp'
 import { Footer } from './components/Footer'
 import { Hops } from './components/Hops'
-import { FooterWrapper } from './FooterWrapper'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
 
 const cardBorderRadius = { base: 'xl' }
@@ -95,7 +95,6 @@ export const MultiHopTradeConfirm = memo(() => {
         flex={1}
         borderRadius={cardBorderRadius}
         width='full'
-        height='100%'
         variant='dashboard'
         maxWidth='500px'
       >
@@ -107,22 +106,21 @@ export const MultiHopTradeConfirm = memo(() => {
           shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
           setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
         >
-          <PageHeader>
-            <PageHeader.Left>
-              <PageBackButton onBack={handleBack} />
-            </PageHeader.Left>
-            <PageHeader.Middle>
-              <PageHeader.Title>
-                {translate(
-                  [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-                    tradeExecutionState,
-                  )
-                    ? 'trade.confirmDetails'
-                    : 'trade.trade',
-                )}
-              </PageHeader.Title>
-            </PageHeader.Middle>
-          </PageHeader>
+          <CardHeader px={6} pt={4}>
+            <WithBackButton onBack={handleBack}>
+              <Heading textAlign='center' fontSize='md'>
+                <Text
+                  translation={
+                    [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+                      tradeExecutionState,
+                    )
+                      ? 'trade.confirmDetails'
+                      : 'trade.trade'
+                  }
+                />
+              </Heading>
+            </WithBackButton>
+          </CardHeader>
           {isTradeComplete ? (
             <TradeSuccessTemp handleBack={handleBack}>
               <Hops isFirstHopOpen isSecondHopOpen />
@@ -137,9 +135,7 @@ export const MultiHopTradeConfirm = memo(() => {
                   onToggleSecondHop={onToggleSecondHop}
                 />
               </CardBody>
-              <FooterWrapper>
-                <Footer handleSubmit={handleSubmit} />
-              </FooterWrapper>
+              <Footer handleSubmit={handleSubmit} />
             </>
           )}
         </WarningAcknowledgement>

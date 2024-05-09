@@ -1,7 +1,6 @@
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import type { Location } from 'history'
 import { lazy, memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { useDispatch } from 'react-redux'
 import { matchPath, Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
@@ -166,7 +165,7 @@ export const Routes = memo(() => {
         <Layout>
           <Switch>
             {privateRoutesList}
-            <Redirect from='/' to={isMobile ? '/home' : '/trade'} />
+            <Redirect from='/' to='/trade' />
             <Route>
               <NotFound />
             </Route>

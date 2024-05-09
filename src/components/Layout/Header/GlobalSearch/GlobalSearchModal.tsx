@@ -8,6 +8,7 @@ import {
   useEventListener,
   useUpdateEffect,
 } from '@chakra-ui/react'
+import * as Sentry from '@sentry/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -137,7 +138,14 @@ export const GlobalSearchModal = memo(
             break
           }
           case 'Enter': {
-            handleClick(flatResults[activeIndex])
+            const item = flatResults[activeIndex]
+            if (!item) {
+              Sentry.setContext('flatResults', { flatResults })
+              Sentry.setContext('activeIndex', { activeIndex })
+              Sentry.captureException(new Error(`No item found for index ${activeIndex}`))
+              return
+            }
+            handleClick(item)
             break
           }
           default:

@@ -1,13 +1,4 @@
-import {
-  avalancheChainId,
-  bchChainId,
-  bscChainId,
-  btcChainId,
-  cosmosChainId,
-  dogeChainId,
-  ethChainId,
-  ltcChainId,
-} from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import pipe from 'lodash/flow'
 
 import {
@@ -107,38 +98,44 @@ export const DefiProviderToUserDataResolverByDeFiType: DefiProviderToOpportunity
   },
 }
 
-export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
-  [avalancheChainId]: [
+export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
+  KnownChainIds,
+  {
+    defiProvider: DefiProvider
+    defiType: DefiType
+  }[]
+> = {
+  [KnownChainIds.AvalancheMainnet]: [
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
     },
   ],
-  [ltcChainId]: [
+  [KnownChainIds.LitecoinMainnet]: [
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
     },
   ],
-  [bchChainId]: [
+  [KnownChainIds.BitcoinCashMainnet]: [
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
     },
   ],
-  [dogeChainId]: [
+  [KnownChainIds.DogecoinMainnet]: [
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
     },
   ],
-  [btcChainId]: [
+  [KnownChainIds.BitcoinMainnet]: [
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
     },
   ],
-  [ethChainId]: [
+  [KnownChainIds.EthereumMainnet]: [
     {
       defiProvider: DefiProvider.UniV2,
       defiType: DefiType.LiquidityPool,
@@ -156,14 +153,14 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
       defiType: DefiType.Staking,
     },
   ],
-  [bscChainId]: [
+  [KnownChainIds.BnbSmartChainMainnet]: [
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,
     },
   ],
 
-  [cosmosChainId]: [
+  [KnownChainIds.CosmosMainnet]: [
     {
       defiProvider: DefiProvider.CosmosSdk,
       defiType: DefiType.Staking,
@@ -173,6 +170,12 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES = {
       defiType: DefiType.Staking,
     },
   ],
+  [KnownChainIds.OptimismMainnet]: [],
+  [KnownChainIds.PolygonMainnet]: [],
+  [KnownChainIds.GnosisMainnet]: [],
+  [KnownChainIds.ThorchainMainnet]: [],
+  [KnownChainIds.ArbitrumMainnet]: [],
+  [KnownChainIds.ArbitrumNovaMainnet]: [],
 }
 
 // Single opportunity metadata resolvers

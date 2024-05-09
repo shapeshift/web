@@ -64,7 +64,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { getUnstakeFees, allowance, getApproveFees } = useFoxFarming(contractAddress)
+  const { getUnstakeFees } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
   const { setValue } = methods
@@ -116,55 +116,32 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           fiatAmount: formValues.fiatAmount,
         },
       })
-      const lpAllowance = await allowance()
-      const allowanceAmount = bn(fromBaseUnit(bnOrZero(lpAllowance), underlyingAsset.precision))
-
-      // Skip approval step if user allowance is greater than or equal requested deposit amount
-      if (allowanceAmount.gte(bnOrZero(formValues.cryptoAmount))) {
-        const estimatedGasCryptoPrecision = await getWithdrawGasEstimateCryptoPrecision(formValues)
-        if (!estimatedGasCryptoPrecision) {
-          dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-          return
-        }
-        dispatch({
-          type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCryptoPrecision },
-        })
-        onNext(DefiStep.Confirm)
+      const estimatedGasCryptoPrecision = await getWithdrawGasEstimateCryptoPrecision(formValues)
+      if (!estimatedGasCryptoPrecision) {
         dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-        trackOpportunityEvent(
-          MixPanelEvent.WithdrawContinue,
-          {
-            opportunity,
-            fiatAmounts: [formValues.fiatAmount],
-            cryptoAmounts: [
-              { assetId: underlyingAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
-            ],
-          },
-          assets,
-        )
-      } else {
-        const fees = await getApproveFees()
-        if (!fees) return
-        dispatch({
-          type: FoxFarmingWithdrawActionType.SET_APPROVE,
-          payload: {
-            estimatedGasCryptoPrecision: fromBaseUnit(
-              fees.networkFeeCryptoBaseUnit,
-              feeAsset.precision,
-            ),
-          },
-        })
-        onNext(DefiStep.Approve)
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+        return
       }
+      dispatch({
+        type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
+        payload: { estimatedGasCryptoPrecision },
+      })
+      onNext(DefiStep.Confirm)
+      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+      trackOpportunityEvent(
+        MixPanelEvent.WithdrawContinue,
+        {
+          opportunity,
+          fiatAmounts: [formValues.fiatAmount],
+          cryptoAmounts: [
+            { assetId: underlyingAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+          ],
+        },
+        assets,
+      )
     },
     [
-      allowance,
       assets,
       dispatch,
-      feeAsset.precision,
-      getApproveFees,
       getWithdrawGasEstimateCryptoPrecision,
       isExiting,
       onNext,

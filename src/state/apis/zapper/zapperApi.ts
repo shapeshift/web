@@ -324,26 +324,30 @@ export const zapper = createApi({
             },
           }
 
-        const maybeZapperV2AppsData = await dispatch(
-          zapperApi.endpoints.getZapperAppsOutput.initiate(),
-        )
-
-        const accountIds = selectWalletAccountIds(state)
-
-        if (!accountIds.length) throw new Error('Not ready')
-
-        const assets = selectAssets(state)
-        const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
-
-        const addresses = accountIdsToEvmAddresses(accountIds)
-        const url = `/v2/balances/apps`
-        const params = {
-          'addresses[]': addresses,
-          'networks[]': evmNetworks,
-        }
-        const payload = { ...options, params, headers, url }
-        const { data: res } = await axios.request({ ...payload })
         try {
+          const accountIds = selectWalletAccountIds(state)
+
+          if (!accountIds.length) throw new Error('Not ready')
+
+          const assets = selectAssets(state)
+          const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
+
+          const addresses = accountIdsToEvmAddresses(accountIds)
+
+          // We may have some AccountIds, where none of them are EVM AccountIds
+          if (!addresses.length) throw new Error('No EVM addresses found')
+
+          const maybeZapperV2AppsData = await dispatch(
+            zapperApi.endpoints.getZapperAppsOutput.initiate(),
+          )
+
+          const url = `/v2/balances/apps`
+          const params = {
+            'addresses[]': addresses,
+            'networks[]': evmNetworks,
+          }
+          const payload = { ...options, params, headers, url }
+          const { data: res } = await axios.request({ ...payload })
           const zapperV2AppsBalancessData = V2AppsBalancesResponse.parse(res)
 
           const parsedOpportunities = zapperV2AppsBalancessData.reduce<GetZapperAppsBalancesOutput>(

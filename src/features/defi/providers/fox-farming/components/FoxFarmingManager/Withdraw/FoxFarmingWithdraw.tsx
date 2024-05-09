@@ -23,7 +23,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { ExpiredWithdraw } from './components/ExpiredWithdraw'
 import { Status } from './components/Status'
@@ -100,10 +99,6 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
               />
             ),
           },
-      [DefiStep.Approve]: {
-        label: translate('defi.steps.approve.title'),
-        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
-      },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,

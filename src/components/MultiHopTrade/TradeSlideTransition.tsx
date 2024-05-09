@@ -13,7 +13,7 @@ export const TradeSlideTransition = (props: SlideTransitionProps) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1400,
+      zIndex: isLargerThanMd ? 'auto' : 1400,
       minHeight: isLargerThanMd ? 'auto' : '100vh',
     }
   }, [isLargerThanMd])

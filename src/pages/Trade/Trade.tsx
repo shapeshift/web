@@ -1,31 +1,27 @@
+import { Flex } from '@chakra-ui/react'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 
-const pageProps = {
-  pb: 0,
-}
+const padding = { base: 0, md: 8 }
 
 export const Trade = memo(() => {
   const translate = useTranslate()
   return (
-    <>
-      <Main
-        px={0}
-        pb={0}
-        pt={0}
-        display='flex'
-        flex={1}
+    <Main pt='4.5rem' mt='-4.5rem' px={0} display='flex' flex={1} width='full' hideBreadcrumbs>
+      <SEO title={translate('navBar.trade')} />
+      <Flex
+        pt={12}
+        px={padding}
+        alignItems='flex-start'
         width='full'
-        hideBreadcrumbs
-        isSubPage
-        pageProps={pageProps}
+        justifyContent='center'
+        gap={4}
       >
-        <SEO title={translate('navBar.trade')} />
         <MultiHopTrade />
-      </Main>
-    </>
+      </Flex>
+    </Main>
   )
 })

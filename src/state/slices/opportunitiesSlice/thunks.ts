@@ -1,6 +1,7 @@
 import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/dist/query/core/buildInitiate'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { assertIsKnownChainId } from 'lib/utils'
 import type { AppDispatch } from 'state/store'
 
 import { foxEthStakingIds } from '../opportunitiesSlice/constants'
@@ -15,6 +16,7 @@ export const fetchAllLpOpportunitiesMetadataByChainId = async (
 ) => {
   const { getOpportunitiesMetadata } = opportunitiesApi.endpoints
 
+  assertIsKnownChainId(chainId)
   const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
 
   const lpQueries = queries.filter(query => query.defiType === DefiType.LiquidityPool)
@@ -35,6 +37,7 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
 ) => {
   const { getOpportunitiesMetadata, getOpportunityMetadata } = opportunitiesApi.endpoints
 
+  assertIsKnownChainId(chainId)
   const stakingQueries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId].filter(
     query => query.defiType === DefiType.Staking,
   )
@@ -67,6 +70,7 @@ export const fetchAllOpportunitiesIdsByChainId = async (
 ) => {
   const { getOpportunityIds } = opportunitiesApi.endpoints
 
+  assertIsKnownChainId(chainId)
   const queries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
 
   for (const query of queries) {
@@ -95,6 +99,8 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
   const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
   const chainId = fromAccountId(accountId).chainId
+  assertIsKnownChainId(chainId)
+
   const stakingQueries = CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES[chainId]
     .filter(query => query.defiType === DefiType.Staking)
     .map(query => {

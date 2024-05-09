@@ -12,8 +12,9 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
@@ -154,14 +155,17 @@ const LoadingRow = () => {
 export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
   const highestAccountNumber = useAppSelector(state =>
     selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [autoFetching, setAutoFetching] = useState(true)
+  const [queryEnabled, setQueryEnabled] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
   // reset component state when chainId changes
@@ -191,11 +195,24 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     getNextPageParam: lastPage => {
       return lastPage.accountNumber + 1
     },
+    retry: false,
+    enabled: queryEnabled,
   })
+
+  // Reset paging on mount for ledger wallet since the state and cache are not aware of what app is
+  // open on the device. This is to prevent the cache from creating invalid state where the app on
+  // the device is not open but the cache thinks it is.
+  useEffect(() => {
+    if (!isLedgerWallet || queryEnabled) return
+    queryClient.resetQueries({ queryKey: ['accountIdWithActivityAndMetadata'] }).then(() => {
+      setAutoFetching(true)
+      setQueryEnabled(true)
+    })
+  }, [queryEnabled, isLedgerWallet, queryClient])
 
   // Handle initial automatic loading
   useEffect(() => {
-    if (!autoFetching || !accounts) return
+    if (isLoading || !autoFetching || !accounts) return
 
     // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
     // Add additional empty accounts to show more accounts without having to load more.
@@ -207,7 +224,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       // Stop auto-fetching and switch to manual mode
       setAutoFetching(false)
     }
-  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching])
+  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching, isLoading])
 
   const handleLoadMore = useCallback(() => {
     if (isLoading || autoFetching) return
@@ -269,6 +286,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
     }
 
+    // Reset toggled state
+    setToggledAccountIds(new Set())
+
     onClose()
   }, [toggledAccountIds, accounts, dispatch, onClose, walletDeviceId])
 
@@ -277,6 +297,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     return accounts.pages.map(({ accountIdWithActivityAndMetadata }, accountNumber) => {
       const accountIds = accountIdWithActivityAndMetadata.map(({ accountId }) => accountId)
       const key = accountIds.join('-')
+      if (accountIds.length === 0) return null
       return (
         <TableRow
           key={key}

@@ -126,7 +126,6 @@ export const WarningAcknowledgement = ({
       borderRadius={boxBorderRadius}
       overflow={isShowing ? 'hidden' : 'visible'}
       width={'100%'}
-      height='100%'
     >
       <AnimatePresence mode='wait' initial={false}>
         {shouldShowWarningAcknowledgement && (

@@ -1,4 +1,4 @@
-import { Button, Center, Flex, useToast } from '@chakra-ui/react'
+import { Button, Center, Flex, Spinner, useToast } from '@chakra-ui/react'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -153,6 +153,9 @@ export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) 
             translation={'accountManagement.ledgerOpenApp.description'}
             color={'whiteAlpha.600'}
           />
+          <Center>
+            <Spinner mt={10} speed='0.65s' size={'xxl'} thickness='8px' />
+          </Center>
         </Flex>
       </Center>
     )

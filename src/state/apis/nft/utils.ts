@@ -12,8 +12,6 @@ import {
   polygonChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import { NftFilters } from 'alchemy-sdk'
 import cloneDeep from 'lodash/cloneDeep'
 import invert from 'lodash/invert'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
@@ -140,14 +138,18 @@ export const getAlchemyNftsUserData = async (
         const { account: address, chainId } = fromAccountId(accountId)
 
         const alchemy = getAlchemyInstanceByChainId(chainId)
-        const { ownedNfts } = await alchemy.nft.getNftsForOwner(address, {
+        const { ownedNfts } = await alchemy.nft.getNftsForOwner(
+          address,
+          // {
           // spam filter only supported for Ethereum and Polygon
-          excludeFilters: [KnownChainIds.EthereumMainnet, KnownChainIds.PolygonMainnet].includes(
-            chainId as KnownChainIds,
-          )
-            ? [NftFilters.SPAM]
-            : [],
-        })
+          // We can't use this unless we upgrade to a higher plan.
+          // excludeFilters: [KnownChainIds.EthereumMainnet, KnownChainIds.PolygonMainnet].includes(
+          // chainId as KnownChainIds,
+          // )
+          // ? [NftFilters.SPAM]
+          // : [],
+          // }
+        )
         return Promise.all(
           ownedNfts.map(ownedNft =>
             parseAlchemyNftToNftItem(Object.assign(ownedNft, { ownerAddress: address }), chainId),

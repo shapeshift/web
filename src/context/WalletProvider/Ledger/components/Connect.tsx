@@ -5,6 +5,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -23,6 +24,8 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
+  const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -56,7 +59,14 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
         })
         walletDispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
-        history.push('/ledger/chains')
+
+        // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
+        // The Account drawer will be opened in the further down the tree
+        if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
+          walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        } else {
+          history.push('/ledger/chains')
+        }
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
@@ -64,7 +74,15 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       }
     }
     setLoading(false)
-  }, [getAdapter, history, localWallet, setErrorLoading, walletDispatch])
+  }, [
+    getAdapter,
+    history,
+    isAccountManagementEnabled,
+    isLedgerAccountManagementEnabled,
+    localWallet,
+    setErrorLoading,
+    walletDispatch,
+  ])
 
   return (
     <ConnectModal

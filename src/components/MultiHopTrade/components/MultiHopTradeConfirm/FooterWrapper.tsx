@@ -10,7 +10,7 @@ export const FooterWrapper: React.FC<PropsWithChildren> = ({ children }) => {
       position={footerContainerPosition}
       bottom='env(safe-area-inset-bottom)'
       width='full'
-      zIndex='sticky'
+      zIndex='banner'
       bg={footerBg}
     >
       {children}

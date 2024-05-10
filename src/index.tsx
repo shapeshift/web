@@ -49,7 +49,7 @@ if (window.location.hostname !== 'localhost') {
           [430, 599],
         ],
 
-        // denyUrls: ['alchemy.com', 'snapshot.org'],
+        denyUrls: ['alchemy.com', 'snapshot.org'],
       }),
       Sentry.browserApiErrorsIntegration(),
       Sentry.breadcrumbsIntegration(),

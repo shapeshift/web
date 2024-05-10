@@ -16,7 +16,7 @@ import {
 import { chainIdToChainLabel } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
 import WAValidator from 'multicoin-address-validator'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   LIMIT_PART_DELIMITER,
   MEMO_PART_DELIMITER,
@@ -69,7 +69,14 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId, affiliateBps: 
   const [, pool, address, limitComponent, affiliate, memoAffiliateBps] =
     memo.split(MEMO_PART_DELIMITER)
 
-  const buyAssetChainId = thorChainAssetToChainId.get(pool.split(POOL_PART_DELIMITER)[0])
+  if (!pool) throw new Error(`pools is required in memo: ${memo}`)
+  const thorchainAsset = pool.split(POOL_PART_DELIMITER)[0]
+  if (!thorchainAsset) throw new Error(`thorchainAsset is required in memo: ${memo}`)
+
+  const buyAssetChainId = thorChainAssetToChainId.get(thorchainAsset)
+
+  if (!address) throw new Error(`address is required in memo: ${memo}`)
+
   const isAddressValid = buyAssetChainId
     ? isValidMemoAddress(buyAssetChainId, pool, address)
     : undefined
@@ -78,20 +85,22 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId, affiliateBps: 
     throw Error(`memo ${memo} invalid`)
   }
 
-  const [limit, streamingNumSwaps, streamingNumBlocks] = limitComponent.split(LIMIT_PART_DELIMITER)
+  const [limit, streamingNumSwaps, streamingNumBlocks] = (limitComponent ?? '').split(
+    LIMIT_PART_DELIMITER,
+  )
 
   const isStreamingSwap = streamingNumSwaps || streamingNumBlocks
 
-  if (isStreamingSwap && !/^\d+$/.test(streamingNumSwaps)) {
+  if (isStreamingSwap && (!streamingNumSwaps || !/^\d+$/.test(streamingNumSwaps))) {
     throw Error(`streamingNumSwaps '${streamingNumSwaps}' is not a valid number`)
   }
 
-  if (isStreamingSwap && !/^\d+$/.test(streamingNumBlocks)) {
+  if (isStreamingSwap && (!streamingNumBlocks || !/^\d+$/.test(streamingNumBlocks))) {
     throw Error(`streamingNumBlocks '${streamingNumBlocks}' is not a valid number`)
   }
 
   // Check if limit is a valid number
-  if (!bn(limit).isInteger()) {
+  if (!bnOrZero(limit).isInteger()) {
     throw Error(`limit ${limit} is not a valid number`)
   }
 
@@ -101,8 +110,8 @@ export const assertIsValidMemo = (memo: string, chainId: ChainId, affiliateBps: 
   }
 
   // Check if affiliateBps is a number between and including 0 and 1000 (the valid range for THORSwap)
-  const affiliateBpsNum = bn(memoAffiliateBps)
-  if (!bn(limit).isInteger() || affiliateBpsNum.lt(0) || affiliateBpsNum.gt(1000)) {
+  const affiliateBpsNum = bnOrZero(memoAffiliateBps)
+  if (!bnOrZero(limit).isInteger() || affiliateBpsNum.lt(0) || affiliateBpsNum.gt(1000)) {
     throw Error(`affiliateBps ${memoAffiliateBps} is not a number between 0 and 1000`)
   }
 

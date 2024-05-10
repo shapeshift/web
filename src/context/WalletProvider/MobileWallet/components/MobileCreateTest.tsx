@@ -65,10 +65,10 @@ export const MobileCreateTest = ({ history, location }: MobileSetupProps) => {
     if (testCount >= TEST_COUNT_REQUIRED || !vault) return
     try {
       const words = vault.getWords() ?? []
-      let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
+      let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
 
       const targetWordIndex = shuffledNumbers[testCount]
-      const targetWord = words[targetWordIndex]
+      const targetWord = words[targetWordIndex] ?? ''
       randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
       randomWords.push(targetWord)
       randomWords = shuffle(randomWords)

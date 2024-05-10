@@ -11,6 +11,9 @@ export type Opportunity = {
 
 export const fromOpportunityId = (opportunityId: string): Opportunity => {
   const [assetId, type] = opportunityId.split('*')
+
+  if (!assetId || !type) throw new Error(`Invalid opportunityId: ${opportunityId}`)
+
   try {
     fromAssetId(assetId)
   } catch (e) {

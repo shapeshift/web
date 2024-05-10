@@ -1,5 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, Flex, Heading } from '@chakra-ui/react'
+import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
@@ -37,10 +38,28 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const filteredEligibleOpportunities = useMemo(() => {
     // opportunities with 1% APY or more
-    return eligibleOpportunities
+    const filteredEligibleOpportunities = eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
       .sort((a, b) => bn(b.apy).minus(a.apy).toNumber())
       .slice(0, 5)
+
+    const foxFarmingV9 = eligibleOpportunities.find(
+      eligibleOpportunity =>
+        eligibleOpportunity.contractAddress === ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
+    )
+
+    if (!foxFarmingV9) {
+      console.error('Fox Farming V9 opportunity not found in eligible opportunities')
+      return filteredEligibleOpportunities
+    }
+
+    // TEMP: Hardcode the Fox Farming V9 opportunity to be the first card until enough TVL is in the pool
+    const filteredEligibleOpportunitiesWithFoxFarmingV9 = [
+      foxFarmingV9,
+      ...filteredEligibleOpportunities,
+    ].slice(0, 5)
+
+    return filteredEligibleOpportunitiesWithFoxFarmingV9
   }, [eligibleOpportunities])
   const renderEligibleCards = useMemo(() => {
     return filteredEligibleOpportunities.map(opportunity => (

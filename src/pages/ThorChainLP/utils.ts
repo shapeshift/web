@@ -1,3 +1,4 @@
+import { captureException, setContext } from '@sentry/react'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AsymSide } from 'lib/utils/thorchain/lp/types'
 
@@ -10,7 +11,14 @@ export type Opportunity = {
 
 export const fromOpportunityId = (opportunityId: string): Opportunity => {
   const [assetId, type] = opportunityId.split('*')
-  fromAssetId(assetId)
+  try {
+    fromAssetId(assetId)
+  } catch (e) {
+    console.error('Invalid assetId', assetId)
+    setContext('fromAssetIdArgs', { assetId })
+    captureException(e)
+    throw e
+  }
 
   return {
     assetId: assetId as AssetId,

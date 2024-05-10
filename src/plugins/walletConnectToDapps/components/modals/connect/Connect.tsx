@@ -1,5 +1,5 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
-import * as Sentry from '@sentry/react'
+import { captureException } from '@sentry/react'
 import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback } from 'react'
@@ -26,7 +26,7 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         if (connectionResult) onClose()
       } catch (error: unknown) {
         console.debug(error)
-        Sentry.captureException(error)
+        captureException(error)
         getMixPanel()?.track(MixPanelEvent.Error, { error })
       }
     },

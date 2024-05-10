@@ -8,7 +8,7 @@ import type {
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { estimateFees } from 'components/Modals/Send/utils'
@@ -236,7 +236,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     1000,
   ) as unknown as [string, { amountCryptoPrecision: string }]
 
-  const { isLoading, data, error } = useQuery({
+  const {
+    isLoading: _isLoading,
+    data,
+    error,
+  } = useQuery({
     queryKey,
     queryFn: setEstimatedFormFeesQueryFn,
     enabled: true,
@@ -245,6 +249,15 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // Consider failed queries as fresh, not stale, and don't do the default retry of 3 for them, as failures *are* expected here with insufficient funds
     retry: false,
   })
+
+  const isTransitioning = useMemo(
+    () => queryKey[1].amountCryptoPrecision !== amountCryptoPrecision,
+    [amountCryptoPrecision, queryKey],
+  )
+
+  // Since we are debouncing the query, the query fire is delayed by however long the debounce is
+  // This would lead to delayed loading states visually, which look odd and would make users able to continue with a wrong state
+  const isLoading = isTransitioning || _isLoading
 
   useEffect(() => {
     setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')

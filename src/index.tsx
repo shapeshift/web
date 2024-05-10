@@ -76,6 +76,11 @@ if (window.location.hostname !== 'localhost') {
         )
       )
         return null
+
+      if (/\/api\/v1\/(send|gas\/estimate)/.test(event.request?.url ?? '')) {
+        event.fingerprint = [(Math.random() * 1000000).toString()]
+        return event
+      }
       // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint.
       // and the ones with a status (i.e with a URL) by their URL.
       // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade for status 0 errors.

@@ -9,6 +9,7 @@ import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V8,
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
 } from 'contracts/constants'
 import { getTypeGuardAssertion } from 'lib/utils'
 
@@ -24,6 +25,7 @@ export const foxEthLpAssetId: LpId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e
 export const foxEthLpAssetIds = [foxEthLpAssetId] as const
 
 export const foxEthStakingContractAddresses = [
+  ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V8,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
@@ -64,6 +66,8 @@ export const foxEthStakingAssetIdV7: AssetId =
   'eip155:1/erc20:0x5939783dbf3e9f453a69bc9ddc1e492efac1fbcb'
 export const foxEthStakingAssetIdV8: AssetId =
   'eip155:1/erc20:0x662da6c777a258382f08b979d9489c3fbbbd8ac3'
+export const foxEthStakingAssetIdV9: AssetId =
+  'eip155:1/erc20:0x721720784b76265aa3e34c1c7ba02a6027bcd3e5'
 
 // Tuple of all staking contracts as AssetIds, to iterate over and dispatch RTK queries for
 export const foxEthAssetIds = [
@@ -75,6 +79,7 @@ export const foxEthAssetIds = [
   foxEthStakingAssetIdV6,
   foxEthStakingAssetIdV7,
   foxEthStakingAssetIdV8,
+  foxEthStakingAssetIdV9,
 ] as const
 export const foxEthStakingIds = foxEthAssetIds as readonly StakingId[]
 
@@ -87,6 +92,7 @@ export const STAKING_ID_TO_VERSION = {
   [foxEthStakingAssetIdV6]: 'V6',
   [foxEthStakingAssetIdV7]: 'V7',
   [foxEthStakingAssetIdV8]: 'V8',
+  [foxEthStakingAssetIdV9]: 'V9',
 }
 
 export const STAKING_ID_DELIMITER = '*'

@@ -4,9 +4,11 @@ import 'lib/polyfills'
 import * as Sentry from '@sentry/react'
 import { App } from 'App'
 import { AppProviders } from 'AppProviders'
+import { isAxiosError } from 'axios'
 import { getConfig } from 'config'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { httpClientIntegration } from 'utils/sentry/httpclient'
 import { renderConsoleArt } from 'lib/consoleArt'
 import { reportWebVitals } from 'lib/reportWebVitals'
 
@@ -40,14 +42,14 @@ if (window.location.hostname !== 'localhost') {
     integrations: [
       // Sentry.browserTracingIntegration(),
       // Sentry.replayIntegration(),
-      Sentry.httpClientIntegration({
+      httpClientIntegration({
         failedRequestStatusCodes: [
           [400, 428],
           // i.e no 429s
           [430, 599],
         ],
 
-        failedRequestTargets: [/^(?!.*\.?(alchemy|snapshot)\.(com|org)).*$/],
+        denyUrls: ['alchemy.com', 'snapshot.org'],
       }),
       Sentry.browserApiErrorsIntegration(),
       Sentry.breadcrumbsIntegration(),
@@ -55,17 +57,37 @@ if (window.location.hostname !== 'localhost') {
       Sentry.httpContextIntegration(),
     ],
     beforeSend(event, hint) {
+      // Enriches Axios errors with context
+      if (isAxiosError(hint?.originalException)) {
+        const error = hint.originalException
+        if (error.response) {
+          const contexts = { ...event.contexts }
+          contexts.Axios = {
+            Request: error.request,
+            Response: error.response,
+          }
+          event.contexts = contexts
+        }
+      }
       // Drop closed ws errors to avoid spew
       if (
-        (hint.originalException as Error | undefined)?.message ===
-        'failed to reconnect, connection closed'
+        ['failed to reconnect, connection closed' || 'timeout while trying to connect'].includes(
+          (hint.originalException as Error | undefined)?.message ?? '',
+        )
       )
         return null
-      // Turns off event grouping for XHR requests. Note this is currently commented out, since Sentry doesn't support capture
-      // request/response body for PII purposes. Once we have a solution in place (perhaps fork HttpClient?), then we should uncomment this,
-      // and have random fingerprinting for XHRs only, not for other errors
-      // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3
-      // event.fingerprint = [(Math.random() * 1000000).toString()]
+      // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint.
+      // and the ones with a status (i.e with a URL) by their URL.
+      // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade for status 0 errors.
+      // This is not ideal, as having XMLHttpRequest errors while in different parts of the app will result in different groups
+      if (event.message?.includes('HTTP Client Error')) {
+        if (event.message.includes('status: 0')) {
+          event.fingerprint = ['XMLHttpRequest Error']
+        } else {
+          event.fingerprint = [event.request?.url!]
+        }
+      }
+      // Leave other errors untouched to leverage Sentry's default grouping
       return event
     },
     enableTracing: true,

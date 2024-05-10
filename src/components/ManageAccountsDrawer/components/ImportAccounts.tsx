@@ -166,6 +166,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [autoFetching, setAutoFetching] = useState(true)
   const [queryEnabled, setQueryEnabled] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
 
   // reset component state when chainId changes
@@ -246,18 +247,25 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     })
   }, [])
 
-  // TODO: Loading state
   const handleDone = useCallback(async () => {
-    // for every new account that is active, fetch the account and upsert it into the redux state
-    for (const accountId of toggledAccountIds) {
-      const isEnabled = selectIsAccountIdEnabled(store.getState(), { accountId })
-      if (isEnabled) {
-        continue
-      }
-      await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
-    }
+    setIsSubmitting(true)
+
+    // For every new account that is active, fetch the account and upsert it into the redux state
+    await Promise.all(
+      Array.from(toggledAccountIds).map(async accountId => {
+        const isEnabled = selectIsAccountIdEnabled(store.getState(), { accountId })
+        if (isEnabled) {
+          return
+        }
+        await dispatch(
+          portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }),
+        )
+      }),
+    )
 
     if (!accounts) {
+      console.error('Missing accounts data')
+      setIsSubmitting(false)
       return
     }
 
@@ -288,6 +296,8 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
     // Reset toggled state
     setToggledAccountIds(new Set())
+
+    setIsSubmitting(false)
 
     onClose()
   }, [toggledAccountIds, accounts, dispatch, onClose, walletDeviceId])
@@ -321,13 +331,19 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       description={translate('accountManagement.importAccounts.description')}
       footer={
         <>
-          <Button colorScheme='gray' mr={3} onClick={onClose}>
+          <Button
+            colorScheme='gray'
+            mr={3}
+            onClick={onClose}
+            isDisabled={isSubmitting}
+            _disabled={disabledProps}
+          >
             {translate('common.cancel')}
           </Button>
           <Button
             colorScheme='blue'
             onClick={handleDone}
-            isDisabled={isLoading || autoFetching}
+            isDisabled={isLoading || autoFetching || isSubmitting}
             _disabled={disabledProps}
           >
             {translate('common.done')}
@@ -347,7 +363,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           <Button
             colorScheme='gray'
             onClick={handleLoadMore}
-            isDisabled={isLoading || autoFetching}
+            isDisabled={isLoading || autoFetching || isSubmitting}
             _disabled={disabledProps}
           >
             {translate('common.loadMore')}

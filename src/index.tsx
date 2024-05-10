@@ -1,7 +1,13 @@
 import './wdyr'
 import 'lib/polyfills'
 
-import * as Sentry from '@sentry/react'
+import {
+  breadcrumbsIntegration,
+  browserApiErrorsIntegration,
+  globalHandlersIntegration,
+  httpContextIntegration,
+  init as initSentry,
+} from '@sentry/react'
 import { App } from 'App'
 import { AppProviders } from 'AppProviders'
 import { isAxiosError } from 'axios'
@@ -35,7 +41,7 @@ if (window.location.hostname !== 'localhost') {
     if (VALID_ENVS.some(env => window.location.hostname.includes(env)))
       return window.location.hostname.split('.')[0]
   })()
-  Sentry.init({
+  initSentry({
     environment,
     dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
     attachStacktrace: true,
@@ -51,10 +57,10 @@ if (window.location.hostname !== 'localhost') {
 
         denyUrls: ['alchemy.com', 'snapshot.org'],
       }),
-      Sentry.browserApiErrorsIntegration(),
-      Sentry.breadcrumbsIntegration(),
-      Sentry.globalHandlersIntegration(),
-      Sentry.httpContextIntegration(),
+      browserApiErrorsIntegration(),
+      breadcrumbsIntegration(),
+      globalHandlersIntegration(),
+      httpContextIntegration(),
     ],
     beforeSend(event, hint) {
       // Enriches Axios errors with context
@@ -71,8 +77,9 @@ if (window.location.hostname !== 'localhost') {
       }
       // Drop closed ws errors to avoid spew
       if (
-        ['failed to reconnect, connection closed' || 'timeout while trying to connect'].includes(
-          (hint.originalException as Error | undefined)?.message ?? '',
+        ['failed to reconnect, connection closed', 'timeout while trying to connect'].some(
+          errorPredicate =>
+            ((hint.originalException as Error | undefined)?.message ?? '').includes(errorPredicate),
         )
       )
         return null

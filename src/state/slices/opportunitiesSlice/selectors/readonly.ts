@@ -26,7 +26,7 @@ export const selectGetReadOnlyOpportunities = createSelector(
           (queryInfo.originalArgs as GetZapperAppsBalancesInput).evmAccountIds === evmAccountIds
         )
       },
-    )?.[1]?.data as GetZapperAppsBalancesOutput
+    )?.[1]?.data as GetZapperAppsBalancesOutput | undefined
 
     if (!getZapperAppsBalancesOutput)
       return {

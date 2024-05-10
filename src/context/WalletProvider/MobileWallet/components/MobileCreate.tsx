@@ -79,7 +79,7 @@ export const MobileCreate: React.FC<MobileCreateProps> = props => {
 
     try {
       setWords(
-        vault.getWords()?.map((word: string, index: number) =>
+        vault.getWords()?.map((word: string | undefined, index: number) =>
           revocable(
             <Tag
               p={2}

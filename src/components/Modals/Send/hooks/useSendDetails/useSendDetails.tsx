@@ -1,13 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type {
-  CosmosSdkChainId,
-  EvmChainId,
-  FeeDataEstimate,
-  GetFeeDataInput,
-  UtxoChainId,
-} from '@shapeshiftoss/chain-adapters'
-import { useQuery } from '@tanstack/react-query'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
@@ -18,9 +12,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { tokenOrUndefined } from 'lib/utils'
-import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -61,9 +52,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const amountCryptoPrecision = useWatch<SendInput, SendFormFields.AmountCryptoPrecision>({
     name: SendFormFields.AmountCryptoPrecision,
   })
-  const address = useWatch<SendInput, SendFormFields.To>({
-    name: SendFormFields.To,
-  })
   const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
@@ -80,6 +68,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId)).price,
   )
 
+  const queryClient = useQueryClient()
   const chainAdapterManager = getChainAdapterManager()
   const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, feeAssetId ?? ''))
@@ -130,6 +119,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }: {
       amountCryptoPrecision: string
     }): Promise<FeeDataEstimate<ChainId>> => {
+      console.log({ sendMax })
       if (!asset) throw new Error('No asset found')
 
       if (!wallet) throw new Error('No wallet connected')
@@ -180,7 +170,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         // If sending native fee asset, ensure amount entered plus fees is less than balance.
         if (feeAsset.assetId === assetId) {
           const canCoverFees = nativeAssetBalance
-            .minus(bnOrZero(amountCryptoPrecision).times(`1e+${asset.precision}`).decimalPlaces(0))
+            .minus(
+              bnOrZero(sendMax ? 0 : amountCryptoPrecision)
+                .times(`1e+${asset.precision}`)
+                .decimalPlaces(0),
+            )
             .minus(estimatedFees.fast.txFee)
             .isPositive()
           if (!canCoverFees) {
@@ -239,8 +233,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   ) as unknown as [string, { amountCryptoPrecision: string }]
 
   const {
-    isLoading: _isLoading,
-    data,
+    isLoading: _isEstimatedFormFeesLoading,
+    data: estimatedFees,
     error,
   } = useQuery({
     queryKey,
@@ -249,8 +243,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // a very arbitrary 15 seconds, which is enough to cache things in case the user is having fun with the input,
     // but also safe to invalidate in case there's a new Tx changing their balance
     staleTime: 15 * 1000,
-    // for debugging purposes only
-    refetchOnWindowFocus: false,
     // Consider failed queries as fresh, not stale, and don't do the default retry of 3 for them, as failures *are* expected here with insufficient funds
     retry: false,
   })
@@ -262,19 +254,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   // Since we are debouncing the query, the query fire is delayed by however long the debounce is
   // This would lead to delayed loading states visually, which look odd and would make users able to continue with a wrong state
-  const isLoading = isTransitioning || _isLoading
+  const isEstimatedFormFeesLoading = isTransitioning || _isEstimatedFormFeesLoading
 
   useEffect(() => {
     setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')
   }, [error, setValue])
 
   useEffect(() => {
-    if (!data) return
+    if (!estimatedFees) return
     // sendMax sets its own fees
     if (sendMax) return
 
-    setValue(SendFormFields.EstimatedFees, data)
-  }, [data, sendMax, setValue])
+    setValue(SendFormFields.EstimatedFees, estimatedFees)
+  }, [estimatedFees, sendMax, setValue])
 
   const handleNextClick = () => history.push(SendRoutes.Confirm)
 
@@ -293,7 +285,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     if (assetBalance && wallet) {
       setValue(SendFormFields.SendMax, true)
-      const to = address
 
       try {
         // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
@@ -306,48 +297,22 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           return
         }
 
-        const { chainId, chainNamespace, account } = fromAccountId(accountId)
+        // Assume this is defined - this will throw if there's an error
+        const feeDataEstimate = (await queryClient.fetchQuery({
+          queryKey: [
+            'setEstimatedFormFees',
+            { amountCryptoPrecision: cryptoHumanBalance.toPrecision() },
+          ] as [string, { amountCryptoPrecision: string }],
+          queryFn: setEstimatedFormFeesQueryFn,
+          // a very arbitrary 15 seconds, which is enough to cache things in case the user is having fun with the input,
+          // but also safe to invalidate in case there's a new Tx changing their balance
+          staleTime: 15 * 1000,
+          // Consider failed queries as fresh, not stale, and don't do the default retry of 3 for them, as failures *are* expected here with insufficient funds
+          retry: false,
+        }))!
 
-        const { fastFee, adapterFees } = await (async () => {
-          switch (chainNamespace) {
-            case CHAIN_NAMESPACE.CosmosSdk: {
-              const adapter = assertGetCosmosSdkChainAdapter(chainId)
-              const getFeeDataInput: Partial<GetFeeDataInput<CosmosSdkChainId>> = {}
-              const adapterFees = await adapter.getFeeData(getFeeDataInput)
-              const fastFee = adapterFees.fast.txFee
-              return { adapterFees, fastFee }
-            }
-            case CHAIN_NAMESPACE.Evm: {
-              const evmAdapter = assertGetEvmChainAdapter(chainId)
-              const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-                to,
-                value: assetBalance,
-                chainSpecific: { contractAddress, from: account },
-                sendMax: true,
-              }
-              const adapterFees = await evmAdapter.getFeeData(getFeeDataInput)
-              const fastFee = adapterFees.fast.txFee
-              return { adapterFees, fastFee }
-            }
-            case CHAIN_NAMESPACE.Utxo: {
-              const utxoAdapter = assertGetUtxoChainAdapter(chainId)
-              const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
-                to,
-                value: assetBalance,
-                chainSpecific: { pubkey: account },
-                sendMax: true,
-              }
-              const adapterFees = await utxoAdapter.getFeeData(getFeeDataInput)
-              const fastFee = adapterFees.fast.txFee
-              return { adapterFees, fastFee }
-            }
-            default: {
-              throw new Error(
-                `useSendDetails(handleSendMax): no adapter available for chainId ${chainId}`,
-              )
-            }
-          }
-        })()
+        const adapterFees = feeDataEstimate
+        const fastFee = adapterFees.fast.txFee
 
         setValue(SendFormFields.EstimatedFees, adapterFees)
 
@@ -417,7 +382,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleNextClick,
     handleSendMax,
     handleInputChange,
-    isLoading: isFormLoading || isLoading,
+    isLoading: isFormLoading || isEstimatedFormFeesLoading,
     toggleCurrency,
   }
 }

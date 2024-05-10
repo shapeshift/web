@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/react'
+import { captureException, setContext } from '@sentry/react'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { AsymSide } from 'lib/utils/thorchain/lp/types'
 
@@ -15,8 +15,8 @@ export const fromOpportunityId = (opportunityId: string): Opportunity => {
     fromAssetId(assetId)
   } catch (e) {
     console.error('Invalid assetId', assetId)
-    Sentry.setContext('fromAssetIdArgs', { assetId })
-    Sentry.captureException(e)
+    setContext('fromAssetIdArgs', { assetId })
+    captureException(e)
     throw e
   }
 

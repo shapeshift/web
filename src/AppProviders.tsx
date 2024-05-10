@@ -4,7 +4,7 @@ import {
   createLocalStorageManager,
   createStandaloneToast,
 } from '@chakra-ui/react'
-import * as Sentry from '@sentry/react'
+import { captureException } from '@sentry/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import React, { useCallback } from 'react'
@@ -49,7 +49,7 @@ export function AppProviders({ children }: ProvidersProps) {
         componentStack: string
       },
     ) => {
-      Sentry.captureException(error)
+      captureException(error)
       getMixPanel()?.track(MixPanelEvent.Error, { error, info })
     },
     [],

@@ -213,8 +213,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         throw new Error('common.insufficientFunds')
       }
     },
-    // setValue is unstable and will cause re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       accountId,
       asset,
@@ -224,6 +222,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       feeAsset.assetId,
       feeAsset.symbol,
       nativeAssetBalance,
+      sendMax,
+      setValue,
     ],
   )
 

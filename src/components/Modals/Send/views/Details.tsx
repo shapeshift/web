@@ -95,7 +95,7 @@ export const Details = () => {
     handleNextClick,
     handleSendMax,
     handleInputChange,
-    loading,
+    isLoading,
     toggleCurrency,
   } = useSendDetails()
 
@@ -311,13 +311,13 @@ export const Details = () => {
             isDisabled={
               !(amountCryptoPrecision ?? fiatAmount) ||
               !!amountFieldError ||
-              loading ||
+              isLoading ||
               Boolean(memoFieldError)
             }
             colorScheme={amountFieldError ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
-            isLoading={loading}
+            isLoading={isLoading}
             data-test='send-modal-next-button'
           >
             <Text translation={amountFieldError || 'common.next'} />

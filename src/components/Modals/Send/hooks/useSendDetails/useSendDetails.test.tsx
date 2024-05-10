@@ -190,7 +190,7 @@ describe('useSendDetails', () => {
     })
     expect(result.current.balancesLoading).toBe(false)
     expect(result.current.fieldName).toBe('amountCryptoPrecision')
-    expect(result.current.loading).toBe(false)
+    expect(result.current.isLoading).toBe(false)
   })
 
   it('toggles the input field', async () => {

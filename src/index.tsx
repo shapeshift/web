@@ -71,8 +71,9 @@ if (window.location.hostname !== 'localhost') {
       }
       // Drop closed ws errors to avoid spew
       if (
-        ['failed to reconnect, connection closed' || 'timeout while trying to connect'].includes(
-          (hint.originalException as Error | undefined)?.message ?? '',
+        ['failed to reconnect, connection closed', 'timeout while trying to connect'].some(
+          errorPredicate =>
+            ((hint.originalException as Error | undefined)?.message ?? '').includes(errorPredicate),
         )
       )
         return null

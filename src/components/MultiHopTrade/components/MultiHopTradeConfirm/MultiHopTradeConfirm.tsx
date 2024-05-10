@@ -95,7 +95,6 @@ export const MultiHopTradeConfirm = memo(() => {
         flex={1}
         borderRadius={cardBorderRadius}
         width='full'
-        height='100%'
         variant='dashboard'
         maxWidth='500px'
       >

@@ -18,7 +18,7 @@ const motionStyle: MotionStyle = {
   bottom: 0,
   left: 0,
   right: 0,
-  zIndex: 4,
+  zIndex: 'var(--chakra-zIndices-modal)',
 }
 
 const WarningOverlay: React.FC<PropsWithChildren> = ({ children }) => {
@@ -65,7 +65,7 @@ const popoverStyle: MotionStyle = {
   bottom: 0,
   left: 0,
   right: 0,
-  zIndex: 5,
+  zIndex: 'var(--chakra-zIndices-banner)',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',

@@ -30,7 +30,6 @@ export type Route = {
   hide?: boolean
   hideDesktop?: boolean
   breadcrumb?: string | React.ReactNode
-  hideMobileMenu?: boolean
   isNew?: boolean
   category?: RouteCategory
 } & (

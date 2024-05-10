@@ -1,5 +1,6 @@
 import type { BoxProps } from '@chakra-ui/react'
 import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from 'contracts/constants'
+import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
@@ -34,10 +35,10 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
     }
 
     // TEMP: Hardcode the Fox Farming V9 opportunity to be the first card until enough TVL is in the pool
-    const filteredEligibleOpportunitiesWithFoxFarmingV9 = [
-      foxFarmingV9,
-      ...filteredEligibleOpportunities,
-    ].slice(0, 5)
+    const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
+      [foxFarmingV9, ...filteredEligibleOpportunities],
+      'contractAddress',
+    ).slice(0, 5)
 
     return filteredEligibleOpportunitiesWithFoxFarmingV9.map(opportunity => (
       <FeaturedCard key={`${opportunity.id}`} {...opportunity} />

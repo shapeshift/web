@@ -244,6 +244,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     queryKey,
     queryFn: setEstimatedFormFeesQueryFn,
     enabled: true,
+    // a very arbitrary 15 seconds, which is enough to cache things in case the user is having fun with the input,
+    // but also safe to invalidate in case there's a new Tx changing their balance
+    staleTime: 15 * 1000,
     // for debugging purposes only
     refetchOnWindowFocus: false,
     // Consider failed queries as fresh, not stale, and don't do the default retry of 3 for them, as failures *are* expected here with insufficient funds
@@ -382,7 +385,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         setValue(SendFormFields.AmountFieldError, '')
         // Set value of the other input to an empty string as well
         setValue(otherField, '') // TODO: this shouldn't be a thing, using a single amount field
-        return
       }
 
       const cryptoAmount =

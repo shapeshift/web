@@ -41,8 +41,8 @@ export const SparkLine: React.FC<SparkLineProps> = ({
 
   const accessors = useMemo(() => {
     return {
-      xAccessor: (d: HistoryData) => d.date,
-      yAccessor: (d: HistoryData) => d.price,
+      xAccessor: (d: HistoryData | undefined) => d?.date,
+      yAccessor: (d: HistoryData | undefined) => d?.price,
     }
   }, [])
 

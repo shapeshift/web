@@ -10175,14 +10175,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry-internal/browser-utils@npm:^8.0.0-alpha.8":
-  version: 8.0.0-rc.1
-  resolution: "@sentry-internal/browser-utils@npm:8.0.0-rc.1"
+"@sentry-internal/browser-utils@npm:^8.0.0-rc.2":
+  version: 8.0.0-rc.2
+  resolution: "@sentry-internal/browser-utils@npm:8.0.0-rc.2"
   dependencies:
-    "@sentry/core": 8.0.0-rc.1
-    "@sentry/types": 8.0.0-rc.1
-    "@sentry/utils": 8.0.0-rc.1
-  checksum: 0250edc5e1e0c10c3f561119fbf804804f635f3b5df90490dd920f18ab833cb5880c97e990c665c6ea3116f7c4d1d29ccf642d0350f7e8e40cf7c27ce86a646e
+    "@sentry/core": 8.0.0-rc.2
+    "@sentry/types": 8.0.0-rc.2
+    "@sentry/utils": 8.0.0-rc.2
+  checksum: 4d1439bc7c60952152d42d2c7407bb63fd05f7a49aa1ed6f87b279aaaf48ccd65aca81c65e299ef160e563e4a1a29ce9ad7ab2d4aaad644fe5f7cc9be5c47901
   languageName: node
   linkType: hard
 
@@ -10246,13 +10246,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:8.0.0-rc.1":
-  version: 8.0.0-rc.1
-  resolution: "@sentry/core@npm:8.0.0-rc.1"
+"@sentry/core@npm:8.0.0-rc.2":
+  version: 8.0.0-rc.2
+  resolution: "@sentry/core@npm:8.0.0-rc.2"
   dependencies:
-    "@sentry/types": 8.0.0-rc.1
-    "@sentry/utils": 8.0.0-rc.1
-  checksum: d825e00fb2d22cb431f9e83a20c86cf87e74a08fa81c9f8e746bac6c0669f012fca31bae6f28bf53dce0800ecbd780f7c5f1fccebe5fadff13985551db1d4151
+    "@sentry/types": 8.0.0-rc.2
+    "@sentry/utils": 8.0.0-rc.2
+  checksum: c45bd1d5df8128df2af740272a4a7a5c73405502af0fef42169792bcdfb33e4a30c98830d5da51d45fb904fcaeb25cf8283ffb79a3394e36841ffc5bb1c2a7d1
   languageName: node
   linkType: hard
 
@@ -10302,10 +10302,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:8.0.0-rc.1":
-  version: 8.0.0-rc.1
-  resolution: "@sentry/types@npm:8.0.0-rc.1"
-  checksum: f90281bbbea01a58dcdf3e9d2351e14af99d021c8fedc2d37c36dedb69202b7279d0ebee22b26a5d2de5b3e98a94c61ab5dc1848611fcd71399d4e4bf48ab263
+"@sentry/types@npm:8.0.0-rc.2":
+  version: 8.0.0-rc.2
+  resolution: "@sentry/types@npm:8.0.0-rc.2"
+  checksum: 130c9f7e1ef92bd7f9c19a17877718a589666aa4358b34f316cc46cf66f79674f8b56c4806eb96fa18b749ff1edc1e7161655e3c09bc7079da265b04faf91b43
   languageName: node
   linkType: hard
 
@@ -10318,12 +10318,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/utils@npm:8.0.0-rc.1":
-  version: 8.0.0-rc.1
-  resolution: "@sentry/utils@npm:8.0.0-rc.1"
+"@sentry/utils@npm:8.0.0-rc.2":
+  version: 8.0.0-rc.2
+  resolution: "@sentry/utils@npm:8.0.0-rc.2"
   dependencies:
-    "@sentry/types": 8.0.0-rc.1
-  checksum: 17352227d492e6a050aaf1e0f9fa7c785c5e39cebcc4967b674b7ccec23febbc40ab3a49376e676e81618d33b4eda0eee611de08d7574fd92f45ce3b7571a563
+    "@sentry/types": 8.0.0-rc.2
+  checksum: 0fcd72ddcbab4bfd5e4601cca8eae15efb31e0380d622b8470eb332fa23a3eb046ec8312bf756ec0809aa8cbf189b5a2d1beac709a90568645e87087b1badb01
   languageName: node
   linkType: hard
 
@@ -10879,7 +10879,7 @@ __metadata:
     "@peculiar/webcrypto": ^1.3.3
     "@react-spring/web": ^9.5.2
     "@reduxjs/toolkit": ^1.9.3
-    "@sentry-internal/browser-utils": ^8.0.0-alpha.8
+    "@sentry-internal/browser-utils": ^8.0.0-rc.2
     "@sentry/react": ^7.112.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"

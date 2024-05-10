@@ -271,9 +271,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const handleNextClick = () => history.push(SendRoutes.Confirm)
 
   const handleSendMax = async () => {
-    // send max does a bit more than the good ol' estimateFees, and has its own inner fees estimation logic
-    // so we need a separate state var to track loading state
-    // we should probably be able to reuse the query here too with a refetch, which would remove the need for this
+    // Since we fetch the query internally here with different args, we can't leverage the loading state from the useQuery() above and need a separate state
+    // field to track loading state
+    setValue(SendFormFields.SendMax, true)
     setIsFormLoading(true)
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
@@ -284,8 +284,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }
 
     if (assetBalance && wallet) {
-      setValue(SendFormFields.SendMax, true)
-
       try {
         // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
         if (feeAsset.assetId !== assetId) {
@@ -339,7 +337,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const handleInputChange = useCallback(
     (inputValue: string) => {
-      setIsFormLoading(true)
       setValue(SendFormFields.SendMax, false)
 
       const otherField =
@@ -361,7 +358,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         fieldName === SendFormFields.FiatAmount ? cryptoAmount.toString() : fiatAmount.toString()
 
       setValue(otherField, otherAmount)
-      setIsFormLoading(false)
     },
     [fieldName, price, setValue],
   )

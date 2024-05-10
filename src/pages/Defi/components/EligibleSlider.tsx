@@ -28,7 +28,6 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
     )
 
     if (!foxFarmingV9) {
-      console.error('Fox Farming V9 opportunity not found in eligible opportunities')
       return filteredEligibleOpportunities.map(opportunity => (
         <FeaturedCard key={`${opportunity.id}`} {...opportunity} />
       ))
@@ -36,7 +35,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
 
     // TEMP: Hardcode the Fox Farming V9 opportunity to be the first card until enough TVL is in the pool
     const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
-      [foxFarmingV9, ...filteredEligibleOpportunities],
+      [filteredEligibleOpportunities[0], foxFarmingV9, ...filteredEligibleOpportunities.slice(1)],
       'contractAddress',
     ).slice(0, 5)
 

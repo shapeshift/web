@@ -50,13 +50,12 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
     )
 
     if (!foxFarmingV9) {
-      console.error('Fox Farming V9 opportunity not found in eligible opportunities')
       return filteredEligibleOpportunities
     }
 
     // TEMP: Hardcode the Fox Farming V9 opportunity to be the first card until enough TVL is in the pool
     const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
-      [foxFarmingV9, ...filteredEligibleOpportunities],
+      [filteredEligibleOpportunities[0], foxFarmingV9, ...filteredEligibleOpportunities.slice(1)],
       'contractAddress',
     ).slice(0, 5)
 

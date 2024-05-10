@@ -186,11 +186,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           if (!canCoverFees) {
             throw new Error('common.insufficientFunds')
           }
-        } else if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
-          setValue(SendFormFields.AmountFieldError, [
-            'modals.send.errors.notEnoughNativeToken',
-            { asset: feeAsset.symbol },
-          ])
+        } else {
+          if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
+            setValue(SendFormFields.AmountFieldError, [
+              'modals.send.errors.notEnoughNativeToken',
+              { asset: feeAsset.symbol },
+            ])
+          }
         }
 
         const hasEnoughNativeTokenForGas = nativeAssetBalance
@@ -294,6 +296,16 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const to = address
 
       try {
+        // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
+        if (feeAsset.assetId !== assetId) {
+          const maxCrypto = cryptoHumanBalance
+          const maxFiat = maxCrypto.times(price)
+
+          setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
+          setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
+          return
+        }
+
         const { chainId, chainNamespace, account } = fromAccountId(accountId)
 
         const { fastFee, adapterFees } = await (async () => {
@@ -343,17 +355,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         const maxCrypto = cryptoHumanBalance.minus(networkFee)
         const maxFiat = maxCrypto.times(price)
-
-        const hasEnoughNativeTokenForGas = nativeAssetBalance
-          .minus(adapterFees.fast.txFee)
-          .isPositive()
-
-        if (!hasEnoughNativeTokenForGas) {
-          setValue(SendFormFields.AmountFieldError, [
-            'modals.send.errors.notEnoughNativeToken',
-            { asset: feeAsset.symbol },
-          ])
-        }
 
         setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
         setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))

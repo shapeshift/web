@@ -39,6 +39,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
+import { addLimitToMemo } from 'lib/utils/thorchain/memo/addLimitToMemo'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
@@ -172,6 +173,14 @@ export const BorrowInput = ({
     enabled: Boolean(collateralAccountId && collateralAccountMetadata && wallet),
   })
 
+  const memo = useMemo(() => {
+    if (!confirmedQuote) return null
+
+    // No need for slippage deduction here - quoteWithdrawnAmountAfterFeesThorBaseUnit (expected_debt_issued) already is quote.fees.slippage_bps deducted
+    const minDebtAmount = confirmedQuote.quoteDebtAmountThorBaseUnit
+    return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: minDebtAmount })
+  }, [confirmedQuote])
+
   const { estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
@@ -179,7 +188,7 @@ export const BorrowInput = ({
       depositAmountCryptoPrecision ?? '0',
       collateralAsset?.precision ?? 0,
     ),
-    memo: confirmedQuote?.quoteMemo ?? null,
+    memo,
     fromAddress: fromAddress ?? null,
     action: 'openLoan',
   })

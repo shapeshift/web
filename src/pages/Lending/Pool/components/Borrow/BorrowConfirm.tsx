@@ -45,6 +45,7 @@ import { getThorchainFromAddress, waitForThorchainUpdate } from 'lib/utils/thorc
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
+import { addLimitToMemo } from 'lib/utils/thorchain/memo/addLimitToMemo'
 import { useLendingQuoteOpenQuery } from 'pages/Lending/hooks/useLendingQuoteQuery'
 import {
   selectAssetById,
@@ -242,6 +243,14 @@ export const BorrowConfirm = ({
 
   const isLendingQuoteSuccess = Boolean(confirmedQuote)
 
+  const memo = useMemo(() => {
+    if (!confirmedQuote) return null
+
+    // No need for slippage deduction here - quoteWithdrawnAmountAfterFeesThorBaseUnit (expected_debt_issued) already is quote.fees.slippage_bps deducted
+    const minDebtAmount = confirmedQuote.quoteDebtAmountThorBaseUnit
+    return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: minDebtAmount })
+  }, [confirmedQuote])
+
   const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
     assetId: collateralAssetId,
     accountId: collateralAccountId,
@@ -249,10 +258,10 @@ export const BorrowConfirm = ({
       depositAmountCryptoPrecision ?? '0',
       collateralAsset?.precision ?? 0,
     ),
-    memo: confirmedQuote?.quoteMemo,
+    memo,
     fromAddress,
     action: 'openLoan',
-    disableRefetch: isLoanPending,
+    disableEstimateFeesRefetch: isLoanPending,
   })
 
   const handleConfirm = useCallback(async () => {

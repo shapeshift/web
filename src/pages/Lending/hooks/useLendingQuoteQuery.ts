@@ -20,7 +20,6 @@ import type {
   LendingDepositQuoteResponseSuccess,
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
-import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -64,6 +63,7 @@ const selectLendingQuoteQuery = memoize(
     const quoteCollateralAmountFiatUsd = bn(quoteCollateralAmountFiatUserCurrency)
       .div(userCurrencyToUsdRate)
       .toString()
+    const quoteDebtAmountThorBaseUnit = quote.expected_debt_issued
     const quoteDebtAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_issued)
       .times(userCurrencyToUsdRate)
       .toString()
@@ -126,6 +126,7 @@ const selectLendingQuoteQuery = memoize(
       quoteCollateralAmountFiatUserCurrency,
       quoteCollateralAmountFiatUsd,
       quoteDebtAmountUserCurrency,
+      quoteDebtAmountThorBaseUnit,
       quoteDebtAmountUsd,
       quoteBorrowedAmountCryptoPrecision,
       quoteBorrowedAmountUserCurrency,

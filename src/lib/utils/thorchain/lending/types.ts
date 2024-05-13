@@ -87,6 +87,7 @@ export type LendingQuoteOpen = {
   quoteCollateralAmountFiatUserCurrency: string
   quoteCollateralAmountFiatUsd: string
   quoteDebtAmountUserCurrency: string
+  quoteDebtAmountThorBaseUnit: string
   quoteDebtAmountUsd: string
   quoteBorrowedAmountCryptoPrecision: string
   quoteBorrowedAmountUserCurrency: string

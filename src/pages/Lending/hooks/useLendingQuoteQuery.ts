@@ -8,10 +8,12 @@ import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { DEFAULT_SWAPPER_DONATION_BPS } from 'components/MultiHopTrade/constants'
 import { getReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
+import { calculateFees } from 'lib/fees/model'
 import { toBaseUnit } from 'lib/math'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
@@ -20,9 +22,11 @@ import type {
   LendingDepositQuoteResponseSuccess,
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
+import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
+  selectUsdRateByAssetId,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -228,6 +232,20 @@ export const useLendingQuoteOpenQuery = ({
     })
   }, [borrowAsset, _borrowAccountId, destinationAccountMetadata, wallet])
 
+  const votingPowerParams = useMemo(() => ({ feeModel: 'LENDING' as const }), [])
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  const collateralUsdRate = useAppSelector(s => selectUsdRateByAssetId(s, collateralAssetId))
+  const affiliateBps = useMemo(() => {
+    const tradeAmountUsd = bnOrZero(depositAmountCryptoPrecision).times(collateralUsdRate ?? 0)
+    const affiliateBps = calculateFees({
+      tradeAmountUsd,
+      foxHeld: bnOrZero(votingPower),
+      feeModel: 'LENDING',
+    }).feeBps.toFixed(0)
+
+    return affiliateBps
+  }, [votingPower, collateralUsdRate, depositAmountCryptoPrecision])
+
   useEffect(() => {
     ;(async () => {
       const address = await getBorrowAssetReceiveAddress()
@@ -256,6 +274,7 @@ export const useLendingQuoteOpenQuery = ({
           collateralAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
         ),
         receiveAssetAddress: borrowAssetReceiveAddress ?? '', // actually always defined at runtime, see "enabled" option
+        affiliateBps,
       })
 
       if (position.isErr()) throw new Error(position.unwrapErr())

@@ -64,10 +64,10 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
       if (!words || words.length < 12) {
         return setError('walletProvider.shapeShift.create.error')
       }
-      let randomWords = uniq(bip39.generateMnemonic(256).split(' '))
+      let randomWords = uniq(bip39.generateMnemonic(256).split(' ')) as string[]
 
       const targetWordIndex = shuffledNumbers[testCount]
-      const targetWord = words[targetWordIndex]
+      const targetWord = words[targetWordIndex]!
       randomWords = randomWords.filter(x => x !== targetWord).slice(0, 14)
       randomWords.push(targetWord)
       randomWords = shuffle(randomWords)

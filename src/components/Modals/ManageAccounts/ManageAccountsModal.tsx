@@ -16,14 +16,17 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { ManageAccountsDrawer } from 'components/ManageAccountsDrawer/ManageAccountsDrawer'
 import { RawText } from 'components/Text'
+import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants'
 import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
-import { selectWalletChainIds } from 'state/slices/common-selectors'
+import { selectWalletChainIds, selectWalletSupportedChainIds } from 'state/slices/common-selectors'
 import { selectAccountIdsByChainId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -71,12 +74,18 @@ export const ManageAccountsModal = () => {
     onOpen: handleDrawerOpen,
     onClose: handleDrawerClose,
   } = useDisclosure()
+  const wallet = useWallet().state.wallet
 
   const handleInfoClick = useCallback(() => {
     console.log('info clicked')
   }, [])
 
   const walletConnectedChainIds = useAppSelector(selectWalletChainIds)
+  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const availableChainIds = useMemo(() => {
+    // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
+    return wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
+  }, [wallet, walletSupportedChainIds])
 
   const handleClickChain = useCallback(
     (chainId: ChainId) => {
@@ -97,7 +106,7 @@ export const ManageAccountsModal = () => {
     })
   }, [handleClickChain, walletConnectedChainIds])
 
-  const disableAddChain = false // FIXME: walletSupportedChainIds.length === connectedChains.length - blocked on Redux PR
+  const disableAddChain = walletConnectedChainIds.length >= availableChainIds.length
 
   return (
     <>

@@ -58,17 +58,30 @@ export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
   // Split the serialized index back into its components
   const parts = txIndex.split(UNIQUE_TX_ID_DELIMITER)
 
+  const accountId = parts[0]
+  const txid = parts[1]
+  const pubkey = parts[2]
+
+  if (!(accountId && txid && pubkey)) {
+    throw new Error(`Invalid tx index: ${txIndex}`)
+  }
+
   const result: TxDescriptor = {
-    accountId: parts[0],
-    txid: parts[1],
-    pubkey: parts[2],
+    accountId,
+    txid,
+    pubkey,
   }
 
   // If there are four parts, the fourth is the data, and we know it's a thorchain transaction with a memo
   if (parts.length === 4) {
+    const memo = parts[3]
+
+    if (!memo) {
+      throw new Error(`Invalid tx index: ${txIndex}`)
+    }
     result.data = {
       parser: 'thorchain',
-      memo: parts[3],
+      memo,
     }
   }
 

@@ -157,12 +157,10 @@ export const validateTradeQuote = async (
       })
     : undefined
 
-  // const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
-  // Keeping the above commented for historical reference
-  // CowSwap fees used to be paid directly at execution-time, but they now need to be included in the order in *addition* to the amount being traded
-  const networkFeeRequiresBalance = true
+  // Technically does, but we deduct it off the sell amount
+  const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
   const firstHopPayableProtocolFeeCryptoPrecision =
-    swapperName === SwapperName.CowSwap
+    swapperName === SwapperName.CowSwap && networkFeeRequiresBalance
       ? fromBaseUnit(
           bnOrZero(firstHop.feeData.protocolFees[firstHop.sellAsset.assetId]?.amountCryptoBaseUnit),
           firstHop.sellAsset.precision,

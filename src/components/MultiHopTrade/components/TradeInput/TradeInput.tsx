@@ -1,15 +1,14 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
+import type { SimpleGridProps } from '@chakra-ui/react'
 import {
   Button,
   Card,
   CardFooter,
-  CardHeader,
   Center,
   CircularProgress,
   CircularProgressLabel,
   Divider,
   Flex,
-  Heading,
   IconButton,
   Stack,
   useMediaQuery,
@@ -23,6 +22,8 @@ import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
+import { Display } from 'components/Display'
+import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
@@ -87,6 +88,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
+import { FooterWrapper } from '../MultiHopTradeConfirm/FooterWrapper'
 import { QuoteList } from '../QuoteList/QuoteList'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
@@ -103,6 +105,9 @@ const formControlProps = {
   background: 'transparent',
   borderWidth: 0,
 }
+const cardHeight = { base: '100%', md: 'auto' }
+const cardBackground = { base: 'transparent', md: 'background.surface.raised.base' }
+const pageHeaderProps: SimpleGridProps = { px: 4, borderTopRadius: '2xl' }
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
@@ -440,9 +445,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
-      <>
+      <FooterWrapper>
         <CardFooter
           borderTopWidth={1}
+          mt='auto'
           borderColor='border.subtle'
           flexDir='column'
           gap={4}
@@ -482,7 +488,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
           flexDir='column'
           gap={4}
           px={6}
-          bg='background.surface.raised.accent'
+          bg={cardBackground}
           borderBottomRadius='xl'
         >
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
@@ -499,7 +505,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
             <Text translation={quoteStatusTranslation} />
           </Button>
         </CardFooter>
-      </>
+      </FooterWrapper>
     ),
     [
       hasUserEnteredAmount,
@@ -580,6 +586,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex
           width='full'
+          height='100%'
           justifyContent='center'
           maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
         >
@@ -593,11 +600,13 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
               />
             </Center>
           )}
-          <Center width='inherit'>
+          <Center width='inherit' height='100%'>
             <Card
               flex={1}
               width='full'
               maxWidth='500px'
+              bg={cardBackground}
+              height={cardHeight}
               ref={tradeInputRef}
               visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
               position={isCompactQuoteListOpen ? 'absolute' : undefined}
@@ -608,20 +617,25 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                 shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
                 setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
               >
-                <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
-                  <CardHeader px={6}>
-                    <Flex alignItems='center' justifyContent='space-between'>
-                      <Heading as='h5' fontSize='md'>
-                        {translate('navBar.trade')}
-                      </Heading>
+                <Stack spacing={0} as='form' height='100%' onSubmit={handleTradeQuoteConfirm}>
+                  <PageHeader containerProps={pageHeaderProps}>
+                    <Display.Mobile>
+                      <PageHeader.Left>
+                        <PageBackButton />
+                      </PageHeader.Left>
+                    </Display.Mobile>
+                    <PageHeader.Middle>
+                      <PageHeader.Title>{translate('navBar.trade')}</PageHeader.Title>
+                    </PageHeader.Middle>
+                    <PageHeader.Right>
                       <Flex gap={2} alignItems='center'>
                         {activeQuote && (isCompact || isSmallerThanXl) && (
                           <CountdownSpinner isLoading={isLoading || isRefetching} />
                         )}
                         <SlippagePopover />
                       </Flex>
-                    </Flex>
-                  </CardHeader>
+                    </PageHeader.Right>
+                  </PageHeader>
                   <Stack spacing={0}>
                     <SellAssetInput
                       accountId={initialSellAssetAccountId}

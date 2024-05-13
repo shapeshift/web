@@ -59,6 +59,7 @@ export type FeatureFlags = {
   ShapeShiftMobileWallet: boolean
   AccountManagement: boolean
   AccountManagementLedger: boolean
+  RFOX: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -141,6 +142,7 @@ const initialState: Preferences = {
     ShapeShiftMobileWallet: getConfig().REACT_APP_FEATURE_SHAPESHIFT_MOBILE_WALLET,
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
+    RFOX: getConfig().REACT_APP_FEATURE_RFOX,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

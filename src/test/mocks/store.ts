@@ -111,6 +111,7 @@ export const mockStore: ReduxState = {
       ShapeShiftMobileWallet: false,
       AccountManagement: false,
       AccountManagementLedger: false,
+      RFOX: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

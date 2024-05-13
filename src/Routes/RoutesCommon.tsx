@@ -6,12 +6,14 @@ import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { ExploreIcon } from 'components/Icons/Explore'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { HomeIcon } from 'components/Icons/Home'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
+import { rFOX } from 'pages/rFOX/rFOX'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
@@ -132,11 +134,22 @@ export const routes: NestedRoute[] = [
     priority: 1,
   },
   {
+    path: '/rfox',
+    label: 'navBar.rFOX',
+    icon: <FoxIcon />,
+    mobileNav: false,
+    priority: 3,
+    main: rFOX,
+    category: RouteCategory.Featured,
+    disable: !getConfig().REACT_APP_FEATURE_RFOX,
+  },
+  {
     path: '/trade',
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
     mobileNav: false,
+    hideMobileMenu: true,
     priority: 2,
     main: Trade,
     category: RouteCategory.Featured,

@@ -177,7 +177,7 @@ export function assertIsDefined<T>(x: T | undefined | null): asserts x is T {
 export const hashCode = (str: string): string =>
   str
     .split('')
-    .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
+    .reduce((s, c = '') => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
     .toString()
 
 export const sha256 = (input: string): string =>

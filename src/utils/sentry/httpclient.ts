@@ -226,11 +226,17 @@ function _getResponseSizeFromHeaders(headers?: Record<string, string>): number |
  * @returns The parsed cookies
  */
 function _parseCookieString(cookieString: string): Record<string, string> {
-  return cookieString.split('; ').reduce((acc: Record<string, string>, cookie: string) => {
-    const [key, value] = cookie.split('=')
-    acc[key] = value
-    return acc
-  }, {})
+  return cookieString.split('; ').reduce(
+    (acc, cookie: string | undefined) => {
+      const [key, value] = (cookie ?? '').split('=')
+
+      if (!key || !value) return acc
+
+      acc[key] = value
+      return acc
+    },
+    {} as Record<string, string>,
+  )
 }
 
 /**
@@ -262,11 +268,17 @@ function _getXHRResponseHeaders(xhr: XMLHttpRequest): Record<string, string> {
     return {}
   }
 
-  return headers.split('\r\n').reduce((acc: Record<string, string>, line: string) => {
-    const [key, value] = line.split(': ')
-    acc[key] = value
-    return acc
-  }, {})
+  return headers.split('\r\n').reduce(
+    (acc, line: string | undefined) => {
+      const [key, value] = (line ?? '').split(': ')
+
+      if (!key || !value) return acc
+
+      acc[key] = value
+      return acc
+    },
+    {} as Record<string, string>,
+  )
 }
 
 /**

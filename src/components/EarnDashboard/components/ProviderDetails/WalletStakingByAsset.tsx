@@ -51,7 +51,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ o
     return Array.from(groups.entries())
   }, [opportunities])
 
-  const flatItems = useMemo(
+  const flatItems: (string | StakingEarnOpportunityType)[] = useMemo(
     () => groupedItems.flatMap(item => (Array.isArray(item) ? item.flat() : [item])),
     [groupedItems],
   )
@@ -108,11 +108,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ o
       <Flex flexDir='column' gap={2}>
         {data.map((item, index) => {
           return typeof item === 'object' ? (
-            <Flex
-              px={flexPx}
-              flexDirection='column'
-              key={`${item.provider}-${item.assetId}-${item.apy}`}
-            >
+            <Flex px={flexPx} flexDirection='column' key={item.id}>
               <OpportunityRow
                 // There may be multiple opportunities with the same provider and assetId - apy gives us some sort of unique keys safety
                 onClick={handleClick}

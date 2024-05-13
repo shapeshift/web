@@ -1464,7 +1464,8 @@
       "andMore": "...and more",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled",
-      "dontAskAgain": "Don't ask again"
+      "dontAskAgain": "Don't ask again",
+      "multiAccountUnsupported": "Multi-account is unsupported for this chain using the Multichain Snap on MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",

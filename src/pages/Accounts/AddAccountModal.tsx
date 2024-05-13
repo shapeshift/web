@@ -14,7 +14,9 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, type ChainId, fromChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -48,12 +50,32 @@ export const AddAccountModal = () => {
   const chainIds = useSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
-  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
   const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
 
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
     selectMaybeNextAccountNumberByChainId(s, filter),
+  )
+
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+  const unsupportedChainIds = useMemo(
+    () =>
+      !isMetaMaskMultichainWallet
+        ? chainIds
+        : chainIds.filter(chainId => {
+            // Snaps do not support EVM account numbers > 0
+            if (isEvmChainId(chainId)) return true
+            if (fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) return true
+
+            return false
+          }),
+    [chainIds, isMetaMaskMultichainWallet],
+  )
+
+  const isUnsupportedChain = useMemo(
+    () => unsupportedChainIds.includes(selectedChainId ?? ''),
+    [selectedChainId, unsupportedChainIds],
   )
 
   const { close, isOpen } = useModal('addAccount')
@@ -146,6 +168,14 @@ export const AddAccountModal = () => {
               <Alert size='sm'>
                 <AlertIcon as={FaInfoCircle} />
                 <AlertDescription>{translate('accounts.requiresPriorTxHistory')}</AlertDescription>
+              </Alert>
+            )}
+            {isUnsupportedChain && (
+              <Alert size='sm'>
+                <AlertIcon as={FaInfoCircle} />
+                <AlertDescription>
+                  {translate('walletProvider.metaMaskSnap.multiAccountUnsupported')}
+                </AlertDescription>
               </Alert>
             )}
           </Stack>

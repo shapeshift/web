@@ -18,6 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -71,6 +72,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   const { getUnstakeFees, allowance, getApproveFees } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
+  const { showErrorToast } = useErrorHandler()
 
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
@@ -130,7 +132,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
     if (allowanceAmount.gte(amountAvailableCryptoPrecision)) {
       const estimatedGasCrypto = await getWithdrawGasEstimate()
       if (!estimatedGasCrypto) {
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+        showErrorToast('Unable to estimate gas for withdraw. Please try again.')
         return
       }
       dispatch({
@@ -179,6 +181,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
     getWithdrawGasEstimate,
     onNext,
     opportunity,
+    showErrorToast,
     totalFiatBalance,
   ])
 

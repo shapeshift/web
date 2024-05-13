@@ -18,7 +18,8 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -68,9 +69,10 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
 
-  const { getUnstakeFees, allowance, getApproveFees } = useFoxFarming(contractAddress)
+  const { getUnstakeFees } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
+  const { showErrorToast } = useErrorHandler()
 
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
@@ -123,62 +125,42 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
       type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
       payload: { lpAmount: amountAvailableCryptoPrecision, isExiting: true },
     })
-    const lpAllowance = await allowance()
-    const allowanceAmount = bn(fromBaseUnit(bnOrZero(lpAllowance), asset?.precision ?? 18))
 
     // Skip approval step if user allowance is greater than or equal requested deposit amount
-    if (allowanceAmount.gte(amountAvailableCryptoPrecision)) {
-      const estimatedGasCrypto = await getWithdrawGasEstimate()
-      if (!estimatedGasCrypto) {
-        dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-        return
-      }
-      dispatch({
-        type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
-        payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
-      })
-      onNext(DefiStep.Confirm)
-      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
-      trackOpportunityEvent(
-        MixPanelEvent.WithdrawContinue,
-        {
-          opportunity,
-          fiatAmounts: [totalFiatBalance],
-          cryptoAmounts: [
-            {
-              assetId: asset?.assetId,
-              amountCryptoHuman: amountAvailableCryptoPrecision,
-            },
-          ],
-        },
-        assets,
-      )
-    } else {
-      const fees = await getApproveFees()
-      if (!fees) return
-      dispatch({
-        type: FoxFarmingWithdrawActionType.SET_APPROVE,
-        payload: {
-          estimatedGasCryptoPrecision: fromBaseUnit(
-            fees.networkFeeCryptoBaseUnit,
-            feeAsset.precision,
-          ),
-        },
-      })
-      onNext(DefiStep.Approve)
-      dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+    const estimatedGasCrypto = await getWithdrawGasEstimate()
+    if (!estimatedGasCrypto) {
+      showErrorToast('Unable to estimate gas for withdraw. Please try again.')
+      return
     }
+    dispatch({
+      type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
+      payload: { estimatedGasCryptoPrecision: estimatedGasCrypto },
+    })
+    onNext(DefiStep.Confirm)
+    dispatch({ type: FoxFarmingWithdrawActionType.SET_LOADING, payload: false })
+    trackOpportunityEvent(
+      MixPanelEvent.WithdrawContinue,
+      {
+        opportunity,
+        fiatAmounts: [totalFiatBalance],
+        cryptoAmounts: [
+          {
+            assetId: asset?.assetId,
+            amountCryptoHuman: amountAvailableCryptoPrecision,
+          },
+        ],
+      },
+      assets,
+    )
   }, [
-    allowance,
     amountAvailableCryptoPrecision,
     asset,
     assets,
     dispatch,
-    feeAsset.precision,
-    getApproveFees,
     getWithdrawGasEstimate,
     onNext,
     opportunity,
+    showErrorToast,
     totalFiatBalance,
   ])
 

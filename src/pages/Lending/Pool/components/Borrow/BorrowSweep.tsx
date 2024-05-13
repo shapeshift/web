@@ -17,7 +17,7 @@ import { BorrowRoutePaths } from './types'
 
 type BorrowSweepProps = {
   collateralAssetId: AssetId
-  collateralAccountId: AccountId
+  collateralAccountId: AccountId | null
 }
 
 export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSweepProps) => {
@@ -32,7 +32,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
   }, [history])
 
   const collateralAccountFilter = useMemo(
-    () => ({ accountId: collateralAccountId }),
+    () => ({ accountId: collateralAccountId ?? '' }),
     [collateralAccountId],
   )
   const collateralAccountMetadata = useAppSelector(state =>
@@ -41,13 +41,13 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
 
   const { data: fromAddress } = useQuery({
     ...reactQueries.common.thorchainFromAddress({
-      accountId: collateralAccountId,
+      accountId: collateralAccountId!,
       assetId: collateralAssetId,
       getPosition: getThorchainLendingPosition,
       accountMetadata: collateralAccountMetadata!,
       wallet: wallet!,
     }),
-    enabled: Boolean(collateralAccountMetadata && wallet),
+    enabled: Boolean(collateralAccountId && collateralAccountMetadata && wallet),
   })
 
   const handleSwepSeen = useCallback(() => {
@@ -65,7 +65,7 @@ export const BorrowSweep = ({ collateralAssetId, collateralAccountId }: BorrowSw
           </WithBackButton>
         </CardHeader>
         <Sweep
-          accountId={collateralAccountId}
+          accountId={collateralAccountId ?? ''}
           assetId={collateralAssetId}
           fromAddress={fromAddress ?? null}
           onBack={handleBack}

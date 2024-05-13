@@ -108,8 +108,7 @@ const selectLendingQuoteQuery = memoize(
       .toString()
 
     const quoteInboundAddress = quote.inbound_address
-    // TODO: return quote as is once borrow is using useSendThorTx
-    const quoteMemo = assertAndProcessMemo(quote.memo)
+    const quoteMemo = quote.memo
     const quoteExpiry = quote.expiry
     const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
     const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)

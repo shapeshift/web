@@ -12,6 +12,7 @@ import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSl
 import { store } from 'state/store'
 
 import { isUtxoChainId } from '../utxo'
+import { THORCHAIN_AFFILIATE_NAME } from './constants'
 import type {
   Borrower,
   BorrowersResponse,
@@ -66,7 +67,11 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   if (!data) return Err('Could not get quote data')
   if ('error' in data) return Err(data.error)
 
-  return Ok(data)
+  return Ok({
+    ...data,
+    // Note, THORCHain is very unlikely to ever return a quote with a memo containing the affiliate name, since you can't have affiliate bps for withdraws
+    memo: `${data.memo}::${THORCHAIN_AFFILIATE_NAME}:0`,
+  })
 }
 
 // Note, this isn't exhaustive. These are the minimum viable fields for this to work

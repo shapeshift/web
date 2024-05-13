@@ -56,9 +56,10 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   const wallet = useWallet().state.wallet
 
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
-  const availableChainIds =
+  const availableChainIds = useMemo(() => {
     // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
-    wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
+    return wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
+  }, [wallet, walletSupportedChainIds])
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 

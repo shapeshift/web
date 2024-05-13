@@ -110,9 +110,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const accountMetadataByAccountId: AccountMetadataById = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
+      const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
-        // only some wallets support multi account
-        if (accountNumber > 0 && !isMultiAccountWallet) break
+        if (
+          accountNumber > 0 &&
+          // only some wallets support multi account
+          (!isMultiAccountWallet ||
+            // MM without snaps does not support non-EVM chains, hence no multi-account
+            (isMetaMaskMultichainWallet && !isSnapInstalled))
+        )
+          break
 
         const input = { accountNumber, chainIds, wallet }
         const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
@@ -122,7 +129,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         const { getAccount } = portfolioApi.endpoints
 
-        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
         const accountPromises = accountIds.map(accountId => {
           const accountChainId = fromAccountId(accountId).chainId
           // Do not try and fetch "multi-accounts" for MetaMask snaps

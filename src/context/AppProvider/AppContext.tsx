@@ -1,6 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId, isChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
@@ -123,7 +123,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         const { getAccount } = portfolioApi.endpoints
 
         const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-        debugger
         const accountPromises = accountIds.map(accountId => {
           const accountChainId = fromAccountId(accountId).chainId
           // Do not try and fetch "multi-accounts" for MetaMask snaps
@@ -140,7 +139,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             return Promise.reject('EVM multi-account not supported for MetaMask snaps')
           return dispatch(getAccount.initiate({ accountId }, { forceRefetch: true }))
         })
-        debugger
 
         const accountResults = await Promise.allSettled(accountPromises)
 

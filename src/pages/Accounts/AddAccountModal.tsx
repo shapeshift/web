@@ -62,7 +62,7 @@ export const AddAccountModal = () => {
   const unsupportedChainIds = useMemo(
     () =>
       !isMetaMaskMultichainWallet
-        ? chainIds
+        ? []
         : chainIds.filter(chainId => {
             // Snaps do not support EVM account numbers > 0
             if (isEvmChainId(chainId)) return true

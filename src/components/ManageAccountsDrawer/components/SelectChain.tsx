@@ -9,7 +9,11 @@ import { RawText } from 'components/Text'
 import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
-import { selectAssetById, selectWalletSupportedChainIds } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectWalletChainIds,
+  selectWalletSupportedChainIds,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterChainIdsBySearchTerm } from '../helpers'
@@ -55,10 +59,16 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const wallet = useWallet().state.wallet
 
+  const walletConnectedChainIds = useAppSelector(selectWalletChainIds)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
-  const availableChainIds =
+
+  const availableChainIds = useMemo(() => {
     // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
-    wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
+    const allAvailableChainIds =
+      wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
+
+    return allAvailableChainIds.filter(chainId => !walletConnectedChainIds.includes(chainId))
+  }, [wallet, walletConnectedChainIds, walletSupportedChainIds])
 
   const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 

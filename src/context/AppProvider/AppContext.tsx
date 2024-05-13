@@ -1,6 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId, isChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { knownChainIds } from 'constants/chains'
@@ -119,9 +121,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
         const { getAccount } = portfolioApi.endpoints
-        const accountPromises = accountIds.map(accountId =>
-          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
-        )
+
+        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+        debugger
+        const accountPromises = accountIds.map(accountId => {
+          const accountChainId = fromAccountId(accountId).chainId
+          // Do not try and fetch "multi-accounts" for MetaMask snaps
+          // Snaps do not support using the wallet entropy for EVM chains and the native MM functionality is used instead
+          // This means we would get the same address for all account numbers and end in an infinite loop here
+          if (
+            accountNumber > 0 &&
+            // Cosmos SDK chains account derivation > 0 seem rugged for smaps, wut?
+            (isEvmChainId(accountChainId) ||
+              fromChainId(accountChainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) &&
+            isMetaMaskMultichainWallet
+          )
+            // Return immediately rejected promise, to be caught in res.status below for early return
+            return Promise.reject('EVM multi-account not supported for MetaMask snaps')
+          return dispatch(getAccount.initiate({ accountId }, { forceRefetch: true }))
+        })
+        debugger
 
         const accountResults = await Promise.allSettled(accountPromises)
 

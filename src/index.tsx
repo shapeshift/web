@@ -63,6 +63,14 @@ if (window.location.hostname !== 'localhost') {
       httpContextIntegration(),
     ],
     beforeSend(event, hint) {
+      // Exclude spewy error from WalletConnect logger
+      // Exclude the specific error
+      if (
+        (hint.originalException as Error | undefined)?.message?.includes(
+          'globalThis._console[property] is not a function',
+        )
+      )
+        return null
       // Enriches Axios errors with context
       if (isAxiosError(hint?.originalException)) {
         const error = hint.originalException

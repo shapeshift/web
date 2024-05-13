@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { assertAndProcessMemo } from './memo'
+import { assertAndProcessMemo } from './index'
 
 describe('assertAndProcessMemo', () => {
   describe('swap', () => {

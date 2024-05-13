@@ -1,6 +1,7 @@
+// General-purpose utils for THORChain memos
 import { bn } from 'lib/bignumber/bignumber'
 
-import { THORCHAIN_AFFILIATE_NAME } from './constants'
+import { THORCHAIN_AFFILIATE_NAME } from '../constants'
 
 function assertMemoHasPool(pool: string | undefined, memo: string): asserts pool is string {
   if (!pool) throw new Error(`pool is required in memo: ${memo}`)
@@ -39,10 +40,9 @@ function assertMemoHasAction(action: string | undefined, memo: string): asserts 
   if (!action) throw new Error(`action is required in memo: ${memo}`)
 }
 
-// Disabling until we validate further, as :MINOUT is optional in the quote response
-// function assertMemoHasMinOut(minOut: string | undefined, memo: string): asserts minOut is string {
-// if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
-// }
+function assertMemoHasMinOut(minOut: string | undefined, memo: string): asserts minOut is string {
+  if (!minOut) throw new Error(`minOut is required in memo: ${memo}`)
+}
 
 const assertIsValidLimit = (limit: string | undefined, memo: string) => {
   assertMemoHasLimit(limit, memo)
@@ -61,13 +61,12 @@ const assertIsValidLimit = (limit: string | undefined, memo: string) => {
   if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
 }
 
-// Disabling until we validate further, as :MINOUT is optional in the quote response
-// const assertIsValidMinOut = (minOut: string, memo: string) => {
-//   assertMemoHasMinOut(minOut, memo)
-
-//   if (!bn(minOut).isInteger()) throw new Error(`minOut must be an integer in memo: ${memo}`)
-//   if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
-// }
+const assertIsValidMinOut = (minOut: string | undefined, memo: string) => {
+  assertMemoHasMinOut(minOut, memo)
+  //
+  if (!bn(minOut).isInteger()) throw new Error(`minOut must be an integer in memo: ${memo}`)
+  if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
+}
 
 function assertIsValidBasisPoints(
   basisPoints: string | undefined,
@@ -154,7 +153,7 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
-      // assertIsValidMinOut(minOut, memo) // Disabling until we validate further, as :MINOUT is optional in the quote response
+      assertIsValidMinOut(minOut, memo)
 
       return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${
         fee || 0
@@ -167,7 +166,7 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
-      // assertIsValidMinOut(minOut, memo) // Disabling until we validate further, as :MINOUT is optional in the quote response
+      assertIsValidMinOut(minOut, memo) // Disabling until we validate further, as :MINOUT is optional in the quote response
 
       return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
     }

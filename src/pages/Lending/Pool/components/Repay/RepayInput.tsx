@@ -46,6 +46,7 @@ import { isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
+import { addLimitToMemo } from 'lib/utils/thorchain/memo/addLimitToMemo'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useLendingSupportedAssets } from 'pages/Lending/hooks/useLendingSupportedAssets'
@@ -372,6 +373,14 @@ export const RepayInput = ({
     accountId: collateralAccountId,
   })
 
+  const memo = useMemo(() => {
+    if (!confirmedQuote) return null
+
+    // No need for slippage deduction here - quoteWithdrawnAmountAfterFeesThorBaseUnit (expected_amount_out) already is quote.fees.slippage_bps deducted
+    const minCollateralOut = confirmedQuote.quoteWithdrawnAmountAfterFeesThorBaseUnit
+    return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: minCollateralOut })
+  }, [confirmedQuote])
+
   const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
     {
       assetId: repaymentAsset?.assetId ?? '',
@@ -380,7 +389,7 @@ export const RepayInput = ({
         confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
         repaymentAsset?.precision ?? 0,
       ),
-      memo: confirmedQuote?.quoteMemo ?? null,
+      memo,
       // no explicit from address required for repayments
       fromAddress: '',
       action: 'repayLoan',
@@ -661,7 +670,7 @@ export const RepayInput = ({
               <Skeleton isLoaded={isLendingQuoteCloseSuccess && !isLendingQuoteCloseRefetching}>
                 <Amount.Crypto
                   // Actually defined at display time, see isLoaded above
-                  value={lendingQuoteCloseData?.quoteSlippageWithdrawndAssetCryptoPrecision ?? '0'}
+                  value={lendingQuoteCloseData?.quoteSlippageWithdrawnAssetCryptoPrecision ?? '0'}
                   symbol={collateralAsset?.symbol ?? ''}
                 />
               </Skeleton>

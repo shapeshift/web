@@ -11,7 +11,7 @@ export const TradeSlideTransition = (props: SlideTransitionProps) => {
     return {
       width: '100%',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: isLargerThanMd ? 'center' : 'flex-start',
       justifyContent: 'center',
       zIndex: isLargerThanMd ? 'auto' : 1400,
       minHeight: isLargerThanMd ? 'auto' : '100vh',

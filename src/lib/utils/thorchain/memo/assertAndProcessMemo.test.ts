@@ -585,11 +585,11 @@ describe('assertAndProcessMemo', () => {
     it('should throw on invalid min out', () => {
       let memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
+      expect(() => assertAndProcessMemo(memo)).toThrow()
 
       memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:0:ss:50'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
+      expect(() => assertAndProcessMemo(memo)).toThrow()
     })
   })
 
@@ -676,7 +676,7 @@ describe('assertAndProcessMemo', () => {
 
     it('should throw on invalid min out', () => {
       let memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq::bad:0'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
+      expect(() => assertAndProcessMemo(memo)).toThrow()
 
       memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:0:bad:0'
       expect(() => assertAndProcessMemo(memo)).not.toThrow()

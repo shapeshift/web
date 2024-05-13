@@ -107,7 +107,7 @@ export const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | 
  */
 export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair | undefined => {
   const thorchainAsset = pool.asset
-  const [chain, symbol] = thorchainAsset.split('.')
+  const [chain, symbol = ''] = thorchainAsset.split('.')
   const [, id] = symbol.split('-')
   const chainId = ChainToChainIdMap.get(chain as ThorchainChain)
   const isFeeAsset =

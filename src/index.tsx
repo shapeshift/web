@@ -1,47 +1,107 @@
 import './wdyr'
 import 'lib/polyfills'
 
-import * as Sentry from '@sentry/react'
+import {
+  breadcrumbsIntegration,
+  browserApiErrorsIntegration,
+  globalHandlersIntegration,
+  httpContextIntegration,
+  init as initSentry,
+} from '@sentry/react'
 import { App } from 'App'
 import { AppProviders } from 'AppProviders'
+import { isAxiosError } from 'axios'
 import { getConfig } from 'config'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { httpClientIntegration } from 'utils/sentry/httpclient'
 import { renderConsoleArt } from 'lib/consoleArt'
 import { reportWebVitals } from 'lib/reportWebVitals'
 
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
-Sentry.init({
-  ...(window.location.hostname === 'localhost'
-    ? {}
-    : { dsn: getConfig().REACT_APP_SENTRY_DSN_URL }),
-  attachStacktrace: true,
-  denyUrls: ['alchemy.com'],
-  integrations: [
-    // Sentry.browserTracingIntegration(),
-    // Sentry.replayIntegration(),
-    Sentry.httpClientIntegration({
-      failedRequestStatusCodes: [
-        [400, 428],
-        // i.e no 429s
-        [430, 599],
-      ],
-    }),
-    Sentry.browserApiErrorsIntegration(),
-    Sentry.breadcrumbsIntegration(),
-    Sentry.globalHandlersIntegration(),
-    Sentry.httpContextIntegration(),
-  ],
-  beforeSend(event) {
-    // https://github.com/getsentry/sentry-javascript/issues/8353 / https://forum.sentry.io/t/turn-off-event-grouping/10916/3
-    event.fingerprint = [(Math.random() * 1000000).toString()]
-    return event
-  },
-  enableTracing: true,
-  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-  tracePropagationTargets: ['localhost'],
-})
+// Remove this condition to test sentry locally
+if (window.location.hostname !== 'localhost') {
+  const VALID_ENVS = [
+    'localhost',
+    'develop',
+    'release',
+    'app',
+    'private',
+    'yeet',
+    'beard',
+    'juice',
+    'wood',
+    'gome',
+  ] as const
+
+  const environment = (() => {
+    if (window.location.hostname.includes('app')) return 'production'
+
+    if (VALID_ENVS.some(env => window.location.hostname.includes(env)))
+      return window.location.hostname.split('.')[0]
+  })()
+  initSentry({
+    environment,
+    dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
+    attachStacktrace: true,
+    integrations: [
+      // Sentry.browserTracingIntegration(),
+      // Sentry.replayIntegration(),
+      httpClientIntegration({
+        failedRequestStatusCodes: [
+          [400, 428],
+          // i.e no 429s
+          [430, 599],
+        ],
+
+        denyUrls: ['alchemy.com', 'snapshot.org'],
+      }),
+      browserApiErrorsIntegration(),
+      breadcrumbsIntegration(),
+      globalHandlersIntegration(),
+      httpContextIntegration(),
+    ],
+    beforeSend(event, hint) {
+      // Enriches Axios errors with context
+      if (isAxiosError(hint?.originalException)) {
+        const error = hint.originalException
+        if (error.response) {
+          const contexts = { ...event.contexts }
+          contexts.Axios = {
+            Request: error.request,
+            Response: error.response,
+          }
+          event.contexts = contexts
+        }
+      }
+      // Drop closed ws errors to avoid spew
+      if (
+        ['failed to reconnect, connection closed', 'timeout while trying to connect'].some(
+          errorPredicate =>
+            ((hint.originalException as Error | undefined)?.message ?? '').includes(errorPredicate),
+        )
+      )
+        return null
+      // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint.
+      // and the ones with a status (i.e with a URL) by their URL.
+      // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade for status 0 errors.
+      // This is not ideal, as having XMLHttpRequest errors while in different parts of the app will result in different groups
+      if (event.message?.includes('HTTP Client Error')) {
+        if (event.message.includes('status: 0')) {
+          event.fingerprint = ['XMLHttpRequest Error']
+        } else {
+          event.fingerprint = [event.request?.url!]
+        }
+      }
+      // Leave other errors untouched to leverage Sentry's default grouping
+      return event
+    },
+    enableTracing: true,
+    // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+    tracePropagationTargets: ['localhost'],
+  })
+}
 
 const rootElement = document.getElementById('root')!
 const root = createRoot(rootElement)

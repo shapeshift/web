@@ -65,8 +65,8 @@ const verticalCrosshairStyle = {
 const tooltipStyle = { zIndex: 10 } // render over swapper TokenButton component
 
 const accessors = {
-  xAccessor: (d: HistoryData) => d.date,
-  yAccessor: (d: HistoryData) => d.price,
+  xAccessor: (d: HistoryData | undefined) => d?.date,
+  yAccessor: (d: HistoryData | undefined) => d?.price,
 }
 
 export const PrimaryChart = ({

@@ -172,6 +172,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           walletId: await wallet.getDeviceID(),
         }),
       )
+
+      for (const accountId of Object.keys(accountMetadataByAccountId)) {
+        dispatch(portfolio.actions.enableAccountId(accountId))
+      }
     })()
   }, [dispatch, wallet, supportedChains, isSnapInstalled])
 

@@ -14,8 +14,8 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 import { KeepKeyConfig } from '../config'
 import { FailureType, MessageType } from '../KeepKeyTypes'
@@ -60,9 +60,7 @@ export const KeepKeyConnect = () => {
     const wallet = await (async () => {
       try {
         // Remove all provider event listeners from previously connected wallets
-        const ethersProvider = getEthersProvider()
-        ethersProvider.removeAllListeners('accountsChanged')
-        ethersProvider.removeAllListeners('chainChanged')
+        await removeAccountsAndChainListeners()
 
         const sdk = await setupKeepKeySDK()
 

@@ -7,8 +7,8 @@ import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { KnownChainIds, NestedArray } from '@shapeshiftoss/types'
-import { HistoryTimeframe } from '@shapeshiftoss/types'
+import type { NestedArray } from '@shapeshiftoss/types'
+import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
@@ -177,7 +177,7 @@ export function assertIsDefined<T>(x: T | undefined | null): asserts x is T {
 export const hashCode = (str: string): string =>
   str
     .split('')
-    .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
+    .reduce((s, c = '') => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
     .toString()
 
 export const sha256 = (input: string): string =>
@@ -314,3 +314,12 @@ export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
 
 export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
   chainIdToFeeAssetId(fromAssetId(assetId).chainId)
+
+export const isKnownChainId = (chainId: ChainId): chainId is KnownChainIds =>
+  Object.values(KnownChainIds).includes(chainId as KnownChainIds)
+
+export function assertIsKnownChainId(chainId: ChainId): asserts chainId is KnownChainIds {
+  if (!isKnownChainId(chainId)) {
+    throw Error(`Unknown ChainId${chainId}`)
+  }
+}

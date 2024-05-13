@@ -1,0 +1,25 @@
+name: New Sentry Release
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release
+        uses: actions/checkout@v3
+        with: 
+          ref: release
+      - name: Sentry Release
+        uses: getsentry/action-release@v1.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
+          # uses the release PR title as a version
+          version: ${{ github.event.pull_request.title }}
+          ignore_missing: true
+

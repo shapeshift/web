@@ -38,12 +38,13 @@ export const RainbowChart: React.FC<RainbowChartProps> = ({
   const assetIds = useMemo(() => Object.keys(omit(data[0], ['date', 'total'])), [data])
   const assets = useSelector(selectAssets)
 
-  type Accessor = (d: RainbowData) => number
+  type Accessor = (d: RainbowData | undefined) => number | undefined
+
   const accessors = useMemo(() => {
     const initial: Record<'x' | 'y', Record<string, Accessor>> = { x: {}, y: {} }
     return assetIds.reduce((acc, cur) => {
-      acc.x[cur] = (d: RainbowData) => d.date
-      acc.y[cur] = (d: RainbowData) => d[cur]
+      acc.x[cur] = (d: RainbowData | undefined) => d?.date
+      acc.y[cur] = (d: RainbowData | undefined) => d?.[cur]
       return acc
     }, initial)
   }, [assetIds])

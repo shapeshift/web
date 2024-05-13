@@ -1,6 +1,5 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import {
-  Box,
   Button,
   Flex,
   HStack,
@@ -12,6 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Tag,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -23,13 +23,9 @@ import { ManageAccountsDrawer } from 'components/ManageAccountsDrawer/ManageAcco
 import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
-import { selectWalletSupportedChainIds } from 'state/slices/common-selectors'
+import { selectWalletChainIds } from 'state/slices/common-selectors'
 import { selectAccountIdsByChainId, selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-export type ManageAccountsModalProps = {
-  title?: string
-}
 
 const infoIcon = <InfoIcon />
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
@@ -54,23 +50,19 @@ const ConnectedChain = ({
 
   if (numAccounts === 0 || !feeAsset) return null
   return (
-    <Button width='full' onClick={handleClick} p={2}>
+    <Button width='full' height='auto' onClick={handleClick} p={2} pr={3}>
       <Flex justifyContent='space-between' width='full' alignItems='center'>
         <HStack>
           <LazyLoadAvatar src={feeAsset.networkIcon ?? feeAsset.icon} size='sm' />
           <RawText>{chainAdapter.getDisplayName()}</RawText>
         </HStack>
-        <Box bgColor='gray.600' width='22px' p={1} borderRadius='8px' fontSize='xs'>
-          {numAccounts}
-        </Box>
+        <Tag>{numAccounts}</Tag>
       </Flex>
     </Button>
   )
 }
 
-export const ManageAccountsModal = ({
-  title = 'accountManagement.manageAccounts.title',
-}: ManageAccountsModalProps) => {
+export const ManageAccountsModal = () => {
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
   const { close, isOpen } = useModal('manageAccounts')
@@ -84,8 +76,7 @@ export const ManageAccountsModal = ({
     console.log('info clicked')
   }, [])
 
-  // TODO: redux will have to be updated to use the selected chains from this flow
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const walletConnectedChainIds = useAppSelector(selectWalletChainIds)
 
   const handleClickChain = useCallback(
     (chainId: ChainId) => {
@@ -101,10 +92,10 @@ export const ManageAccountsModal = ({
   }, [handleDrawerOpen])
 
   const connectedChains = useMemo(() => {
-    return walletSupportedChainIds.map(chainId => {
+    return walletConnectedChainIds.map(chainId => {
       return <ConnectedChain key={chainId} chainId={chainId} onClick={handleClickChain} />
     })
-  }, [handleClickChain, walletSupportedChainIds])
+  }, [handleClickChain, walletConnectedChainIds])
 
   const disableAddChain = false // FIXME: walletSupportedChainIds.length === connectedChains.length - blocked on Redux PR
 
@@ -115,13 +106,17 @@ export const ManageAccountsModal = ({
         onClose={handleDrawerClose}
         chainId={selectedChainId}
       />
-      <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
+      <Modal isOpen={isOpen} onClose={close} isCentered size='md'>
         <ModalOverlay />
-        <ModalContent borderRadius='xl' mx={3} maxW='400px'>
-          <ModalHeader textAlign='left' py={12}>
-            <RawText as='h3'>{translate(title)}</RawText>
-            <RawText color='text.subtle' fontSize='md'>
-              {translate('accountManagement.manageAccounts.description')}
+        <ModalContent>
+          <ModalHeader textAlign='left' pt={14}>
+            <RawText as='h3' fontWeight='semibold'>
+              {translate('accountManagement.manageAccounts.title')}
+            </RawText>
+            <RawText color='text.subtle' fontSize='md' fontWeight='normal'>
+              {walletConnectedChainIds.length === 0
+                ? translate('accountManagement.manageAccounts.emptyList')
+                : translate('accountManagement.manageAccounts.description')}
             </RawText>
           </ModalHeader>
           <IconButton
@@ -135,23 +130,28 @@ export const ManageAccountsModal = ({
             onClick={handleInfoClick}
           />
           <ModalCloseButton position='absolute' top={3} right={3} />
-          <ModalBody maxH='400px' overflow='scroll'>
-            <VStack spacing={2} width='full'>
-              {connectedChains}
-            </VStack>
-          </ModalBody>
+          {walletConnectedChainIds.length > 0 && (
+            <ModalBody maxH='400px' overflowY='auto'>
+              <VStack spacing={2} width='full'>
+                {connectedChains}
+              </VStack>
+            </ModalBody>
+          )}
           <ModalFooter justifyContent='center' pb={6}>
             <VStack spacing={2} width='full'>
               <Button
                 colorScheme='blue'
                 onClick={handleClickAddChain}
                 width='full'
+                size='lg'
                 isDisabled={disableAddChain}
                 _disabled={disabledProp}
               >
-                {translate('accountManagement.manageAccounts.addChain')}
+                {walletConnectedChainIds.length === 0
+                  ? translate('accountManagement.manageAccounts.addChain')
+                  : translate('accountManagement.manageAccounts.addAnotherChain')}
               </Button>
-              <Button colorScheme='gray' onClick={close} width='full'>
+              <Button size='lg' colorScheme='gray' onClick={close} width='full'>
                 {translate('common.done')}
               </Button>
             </VStack>

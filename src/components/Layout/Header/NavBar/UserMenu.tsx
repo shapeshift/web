@@ -49,6 +49,7 @@ const NoWallet = ({ onClick }: { onClick: () => void }) => {
 export type WalletConnectedProps = {
   onDisconnect: () => void
   onSwitchProvider: () => void
+  onClose?: () => void
 } & Pick<InitialState, 'walletInfo' | 'isConnected' | 'connectedType'>
 
 export const WalletConnected = (props: WalletConnectedProps) => {
@@ -60,6 +61,7 @@ export const WalletConnected = (props: WalletConnectedProps) => {
         onDisconnect={props.onDisconnect}
         onSwitchProvider={props.onSwitchProvider}
         connectedType={props.connectedType}
+        onClose={props.onClose}
       />
     </MemoryRouter>
   )
@@ -191,6 +193,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
                 onDisconnect={disconnect}
                 onSwitchProvider={handleConnect}
                 connectedType={connectedType}
+                onClose={onClick}
               />
             ) : (
               <NoWallet onClick={handleConnect} />

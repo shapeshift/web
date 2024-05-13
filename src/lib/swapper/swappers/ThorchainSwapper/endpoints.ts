@@ -35,7 +35,7 @@ import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { type MidgardActionsResponse, type ThornodeStatusResponse } from './types'
+import type { ThornodeStatusResponse } from './types'
 import { checkOutboundTxConfirmations } from './utils/checkOutputTxConfirmations'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
@@ -334,16 +334,11 @@ export const thorchainApi: SwapperApi = {
       const thorTxHash = txHash.replace(/^0x/, '')
 
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
-      const [{ data: thorTxData }, { data: thorActionsData }] = await Promise.all([
-        axios.get<ThornodeStatusResponse>(
-          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
-        ),
-        axios.get<MidgardActionsResponse>(
-          `${getConfig().REACT_APP_MIDGARD_URL}/actions?txid=${thorTxHash}`,
-        ),
-      ])
+      const { data } = await axios.get<ThornodeStatusResponse>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+      )
 
-      if ('error' in thorTxData) {
+      if ('error' in data) {
         return {
           buyTxHash: undefined,
           status: TxStatus.Unknown,
@@ -351,14 +346,14 @@ export const thorchainApi: SwapperApi = {
         }
       }
 
-      const outCoinAsset: string | undefined = thorActionsData.actions[0]?.out[0]?.coins[0]?.asset
-      const hasOutboundTx = outCoinAsset !== 'THOR.RUNE'
+      const latestOutTx = data.out_txs?.[data.out_txs.length - 1]
+      const hasOutboundTx = latestOutTx?.chain !== 'THOR'
 
-      const buyTxHash = parseThorBuyTxHash(txHash, thorActionsData)
+      const buyTxHash = parseThorBuyTxHash(txHash, latestOutTx)
 
-      // if we have a buyTxHash, check if it's been confirmed on-chain
+      // if we have an outbound transaction (non rune) and associated buyTxHash, check if it's been confirmed on-chain
       if (hasOutboundTx && buyTxHash) {
-        const outboundTxConfirmations = await checkOutboundTxConfirmations(thorTxData, buyTxHash)
+        const outboundTxConfirmations = await checkOutboundTxConfirmations(buyTxHash, latestOutTx)
 
         if (outboundTxConfirmations !== undefined && outboundTxConfirmations > 0) {
           return {
@@ -369,7 +364,7 @@ export const thorchainApi: SwapperApi = {
         }
       }
 
-      const { message, status } = getLatestThorTxStatusMessage(thorTxData, hasOutboundTx)
+      const { message, status } = getLatestThorTxStatusMessage(data, hasOutboundTx)
 
       return {
         buyTxHash,

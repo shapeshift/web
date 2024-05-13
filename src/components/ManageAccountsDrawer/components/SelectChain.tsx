@@ -1,26 +1,21 @@
-import { SearchIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  SimpleGrid,
-  VStack,
-} from '@chakra-ui/react'
+import { Button, SimpleGrid, Stack, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { FormEvent } from 'react'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText } from 'components/Text'
+import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
 import { selectAssetById, selectWalletSupportedChainIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterChainIdsBySearchTerm } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
+
+const inputGroupProps = { size: 'lg' }
 
 export type SelectChainProps = {
   onSelectChainId: (chainId: ChainId) => void
@@ -57,33 +52,28 @@ const ChainButton = ({
 export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   const translate = useTranslate()
   const [searchTermChainIds, setSearchTermChainIds] = useState<ChainId[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const wallet = useWallet().state.wallet
 
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const availableChainIds =
+    // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
+    wallet && isLedger(wallet) ? availableLedgerChainIds : walletSupportedChainIds
 
-  const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
-
-  const { register, watch } = useForm<{ search: string }>({
-    mode: 'onChange',
-    defaultValues: {
-      search: '',
-    },
-  })
-  const searchString = watch('search')
-
-  const searching = useMemo(() => searchString.length > 0, [searchString])
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
   useEffect(() => {
-    if (!searching) return
+    if (!isSearching) return
 
-    setSearchTermChainIds(filterChainIdsBySearchTerm(searchString, walletSupportedChainIds))
-  }, [searchString, searching, walletSupportedChainIds])
+    setSearchTermChainIds(filterChainIdsBySearchTerm(searchQuery, availableChainIds))
+  }, [searchQuery, isSearching, availableChainIds])
 
   const chainButtons = useMemo(() => {
-    const listChainIds = searching ? searchTermChainIds : walletSupportedChainIds
+    const listChainIds = isSearching ? searchTermChainIds : availableChainIds
     return listChainIds.map(chainId => {
       return <ChainButton key={chainId} chainId={chainId} onClick={onSelectChainId} />
     })
-  }, [onSelectChainId, searchTermChainIds, searching, walletSupportedChainIds])
+  }, [onSelectChainId, searchTermChainIds, isSearching, availableChainIds])
 
   const footer = useMemo(() => {
     return (
@@ -97,31 +87,19 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
 
   const body = useMemo(() => {
     return (
-      <>
-        <Box as='form' mb={3} px={4} visibility='visible' onSubmit={handleSubmit}>
-          <InputGroup size='lg'>
-            {/* Override zIndex to prevent element displaying on overlay components */}
-            <InputLeftElement pointerEvents='none' zIndex={1}>
-              <SearchIcon color='gray.300' />
-            </InputLeftElement>
-            <Input
-              {...register('search')}
-              type={'text'}
-              placeholder={translate('accountManagement.selectChain.searchChains')}
-              pl={10}
-              variant={'filled'}
-              autoComplete={'off'}
-              autoFocus={false}
-              transitionProperty={'none'}
-            />
-          </InputGroup>
-        </Box>
-        <SimpleGrid columns={3} spacing={6}>
+      <Stack spacing={4}>
+        <GlobalFilter
+          setSearchQuery={setSearchQuery}
+          searchQuery={searchQuery}
+          placeholder={translate('accountManagement.selectChain.searchChains')}
+          inputGroupProps={inputGroupProps}
+        />
+        <SimpleGrid columns={3} spacing={4}>
           {chainButtons}
         </SimpleGrid>
-      </>
+      </Stack>
     )
-  }, [chainButtons, handleSubmit, register, translate])
+  }, [chainButtons, searchQuery, translate])
 
   return (
     <DrawerContentWrapper

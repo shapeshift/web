@@ -63,9 +63,11 @@ describe('portfolioSlice', () => {
             },
           })
 
-          store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount], assetIds)),
-          )
+          const portfolio = mockUpsertPortfolio([ethAccount], assetIds)
+          store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+          for (const accountId of portfolio.accounts.ids) {
+            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -88,11 +90,11 @@ describe('portfolioSlice', () => {
             },
           })
 
-          store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(
-              mockUpsertPortfolio([ethAccount, ethAccount2], assetIds),
-            ),
-          )
+          const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+          store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+          for (const accountId of portfolio.accounts.ids) {
+            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -107,9 +109,11 @@ describe('portfolioSlice', () => {
             },
           })
 
-          store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([btcAccount], assetIds)),
-          )
+          const portfolio = mockUpsertPortfolio([btcAccount], assetIds)
+          store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+          for (const accountId of portfolio.accounts.ids) {
+            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -129,11 +133,11 @@ describe('portfolioSlice', () => {
             },
           })
 
-          store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(
-              mockUpsertPortfolio([btcAccount, btcAccount2], assetIds),
-            ),
-          )
+          const portfolio = mockUpsertPortfolio([btcAccount, btcAccount2], assetIds)
+          store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+          for (const accountId of portfolio.accounts.ids) {
+            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -180,11 +184,11 @@ describe('portfolioSlice', () => {
             },
           })
 
-          store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(
-              mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds),
-            ),
-          )
+          const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds)
+          store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+          for (const accountId of portfolio.accounts.ids) {
+            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -221,11 +225,11 @@ describe('portfolioSlice', () => {
             },
           })
 
-          store.dispatch(
-            portfolioSlice.actions.upsertPortfolio(
-              mockUpsertPortfolio([ethAccount, btcAccount], assetIds),
-            ),
-          )
+          const portfolio = mockUpsertPortfolio([ethAccount, btcAccount], assetIds)
+          store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+          for (const accountId of portfolio.accounts.ids) {
+            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -258,11 +262,11 @@ describe('portfolioSlice', () => {
         )
 
         // dispatch portfolio data
-        store.dispatch(
-          portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds),
-          ),
-        )
+        const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds)
+        store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+        for (const accountId of portfolio.accounts.ids) {
+          store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+        }
 
         const ethMarketData = mockMarketData()
         const foxMarketData = mockMarketData({ price: '1' })
@@ -311,11 +315,12 @@ describe('portfolioSlice', () => {
         )
 
         // dispatch portfolio data
-        store.dispatch(
-          portfolioSlice.actions.upsertPortfolio(
-            mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds),
-          ),
-        )
+        const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds)
+        store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+        for (const accountId of portfolio.accounts.ids) {
+          store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+        }
+
         const ethMarketData = mockMarketData({ price: null })
         const foxMarketData = mockMarketData({ price: null })
 
@@ -365,11 +370,11 @@ describe('portfolioSlice', () => {
       )
 
       // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds),
-        ),
-      )
+      const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+      for (const accountId of portfolio.accounts.ids) {
+        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+      }
 
       it('can select crypto fiat account balance', () => {
         // dispatch market data
@@ -450,11 +455,11 @@ describe('portfolioSlice', () => {
       )
 
       // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([btcAccount, btcAccount2, btcAccount3], assetIds),
-        ),
-      )
+      const portfolio = mockUpsertPortfolio([btcAccount, btcAccount2, btcAccount3], assetIds)
+      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+      for (const accountId of portfolio.accounts.ids) {
+        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+      }
 
       // dispatch market data
       const btcMarketData = mockMarketData({ price: '10000' })
@@ -495,11 +500,11 @@ describe('portfolioSlice', () => {
         }),
       )
       // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds),
-        ),
-      )
+      const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+      for (const accountId of portfolio.accounts.ids) {
+        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+      }
 
       store.dispatch(
         portfolioSlice.actions.upsertAccountMetadata({
@@ -574,11 +579,11 @@ describe('portfolioSlice', () => {
       )
 
       // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds),
-        ),
-      )
+      const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+      for (const accountId of portfolio.accounts.ids) {
+        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+      }
 
       // dispatch market data
       const ethMarketData = mockMarketData({ price: '1000' })
@@ -646,11 +651,11 @@ describe('portfolioSlice', () => {
       )
 
       // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(
-          mockUpsertPortfolio([ethAccount, ethAccount2], assetIds),
-        ),
-      )
+      const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+      for (const accountId of portfolio.accounts.ids) {
+        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+      }
 
       // dispatch market data
       const ethMarketData = mockMarketData({ price: '1000' })
@@ -697,9 +702,11 @@ describe('portfolioSlice', () => {
       })
 
       // dispatch portfolio data
-      store.dispatch(
-        portfolioSlice.actions.upsertPortfolio(mockUpsertPortfolio([ethAccount], assetIds)),
-      )
+      const portfolio = mockUpsertPortfolio([ethAccount], assetIds)
+      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+      for (const accountId of portfolio.accounts.ids) {
+        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+      }
 
       // dispatch market data
       const ethMarketData = mockMarketData({ price: '1000' })

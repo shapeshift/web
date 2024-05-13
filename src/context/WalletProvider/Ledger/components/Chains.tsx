@@ -16,22 +16,7 @@ import {
   PopoverTrigger,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  bchAssetId,
-  bchChainId,
-  btcAssetId,
-  btcChainId,
-  cosmosAssetId,
-  dogeAssetId,
-  dogeChainId,
-  ethAssetId,
-  ethChainId,
-  fromAccountId,
-  fromChainId,
-  ltcAssetId,
-  ltcChainId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -48,6 +33,8 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { availableLedgerAppAssetIds, availableLedgerAppChainIds } from '../constants'
+
 export const LedgerChains = () => {
   const translate = useTranslate()
   const { state: walletState, dispatch: walletDispatch } = useWallet()
@@ -56,34 +43,19 @@ export const LedgerChains = () => {
 
   const walletChainIds = useAppSelector(selectWalletChainIds)
 
-  const availableAssetIds = useMemo(
-    () => [
-      btcAssetId,
-      dogeAssetId,
-      bchAssetId,
-      ltcAssetId,
-      ethAssetId,
-      thorchainAssetId,
-      cosmosAssetId,
-    ],
-    [],
-  )
-
   const availableAssets = useMemo(
-    () => availableAssetIds.map(id => assets[id]).filter(isSome),
-    [assets, availableAssetIds],
-  )
-
-  const availableChainIds = useMemo(
-    () => [btcChainId, dogeChainId, bchChainId, ltcChainId, ethChainId],
-    [],
+    () => availableLedgerAppAssetIds.map(id => assets[id]).filter(isSome),
+    [assets],
   )
 
   const [loadingChains, setLoadingChains] = useState<Record<ChainId, boolean>>({})
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
-      if (!walletState?.wallet) return
+      if (!walletState?.wallet) {
+        console.error('No wallet found')
+        return
+      }
 
       setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: true }))
 
@@ -134,11 +106,12 @@ export const LedgerChains = () => {
 
           dispatch(portfolio.actions.upsertAccountMetadata(payload))
           dispatch(portfolio.actions.upsertPortfolio(account))
+          dispatch(portfolio.actions.enableAccountId(accountId))
           return acc
         }, {})
 
         Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
-          if (balance.eq(0)) pull(availableChainIds, chainId)
+          if (balance.eq(0)) pull(availableLedgerAppChainIds, chainId)
         })
       } catch (e) {
         console.error(e)
@@ -146,7 +119,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [availableChainIds, dispatch, walletState.deviceId, walletState.wallet],
+    [dispatch, walletState.deviceId, walletState.wallet],
   )
 
   const chainsRows = useMemo(

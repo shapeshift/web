@@ -12,17 +12,18 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
-import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
-import { useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import type { Asset } from '@shapeshiftoss/types'
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { fromBaseUnit } from 'lib/math'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
@@ -30,10 +31,11 @@ import {
   selectFeeAssetByChainId,
   selectHighestAccountNumberForChainId,
   selectIsAccountIdEnabled,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
+import { getAccountIdsWithActivityAndMetadata } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
 
 // The number of additional empty accounts to include in the initial fetch
@@ -46,61 +48,87 @@ export type ImportAccountsProps = {
 }
 
 type TableRowProps = {
-  accountId: AccountId
+  accountIds: AccountId[]
   accountNumber: number
   asset: Asset
-  onAccountIdActiveChange: (accountId: AccountId, isActive: boolean) => void
+  onToggleAccountIds: (accountIds: AccountId[]) => void
+}
+
+type TableRowAccountProps = {
+  accountId: AccountId
+  asset: Asset
 }
 
 const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
+const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accountId }, ref) => {
+  const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
+  const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
+  const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+
+  const { data: account, isLoading } = useQuery(accountManagement.getAccount(accountId))
+
+  const assetBalanceCryptoPrecision = useMemo(() => {
+    if (!account) return '0'
+    return fromBaseUnit(account.balance, asset.precision)
+  }, [account, asset.precision])
+
+  return (
+    <>
+      <Td fontWeight='bold'>
+        <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
+          <div ref={ref}>
+            <MiddleEllipsis value={accountLabel} />
+          </div>
+        </Tooltip>
+      </Td>
+      <Td textAlign='right'>
+        {isLoading ? (
+          <Skeleton height='24px' width='100%' />
+        ) : (
+          <Amount.Crypto value={assetBalanceCryptoPrecision} symbol={asset.symbol} />
+        )}
+      </Td>
+    </>
+  )
+})
+
 const TableRow = forwardRef<TableRowProps, 'div'>(
-  ({ asset, accountId, accountNumber, onAccountIdActiveChange }, ref) => {
-    const translate = useTranslate()
-    const accountLabel = useMemo(() => accountIdToLabel(accountId), [accountId])
-    const balanceFilter = useMemo(() => ({ assetId: asset.assetId, accountId }), [asset, accountId])
-    const isAccountEnabledFilter = useMemo(() => ({ accountId }), [accountId])
-    const isAccountEnabledInRedux = useAppSelector(state =>
-      selectIsAccountIdEnabled(state, isAccountEnabledFilter),
-    )
+  ({ asset, accountNumber, accountIds, onToggleAccountIds }, ref) => {
+    const isAccountEnabled = useAppSelector(state => selectIsAnyAccountIdEnabled(state, accountIds))
 
-    const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabledInRedux)
+    const [isAccountActive, toggleIsAccountActive] = useToggle(isAccountEnabled)
 
-    useEffect(() => {
-      onAccountIdActiveChange(accountId, isAccountActive)
-    }, [accountId, isAccountActive, isAccountEnabledInRedux, onAccountIdActiveChange])
+    const handleToggleIsAccountActive = useCallback(() => {
+      toggleIsAccountActive()
+      onToggleAccountIds(accountIds)
+    }, [accountIds, onToggleAccountIds, toggleIsAccountActive])
 
-    // TODO: Redux wont have this for new accounts and will be 0, so we'll need to fetch it
-    const assetBalancePrecision = useAppSelector(s =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(s, balanceFilter),
-    )
-    const pubkey = useMemo(() => fromAccountId(accountId).account, [accountId])
-
-    const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
+    const firstAccount = useMemo(() => accountIds[0], [accountIds])
+    const otherAccountIds = useMemo(() => accountIds.slice(1), [accountIds])
+    const otherAccounts = useMemo(() => {
+      return otherAccountIds.map(accountId => (
+        <Tr key={accountId} opacity={isAccountActive ? '1' : '0.5'}>
+          <Td colSpan={2} bg='background.surface.raised.base'></Td>
+          <TableRowAccount ref={ref} asset={asset} accountId={accountId} />
+        </Tr>
+      ))
+    }, [asset, isAccountActive, otherAccountIds, ref])
 
     return (
-      <Tr>
-        <Td>
-          <RawText>{accountNumber}</RawText>
-        </Td>
-        <Td>
-          <Switch isChecked={isAccountActive} onChange={toggleIsAccountActive} />
-        </Td>
-        <Td>
-          <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
-            <div ref={ref}>
-              {isUtxoAccount ? (
-                <RawText>{`${accountLabel} ${translate('common.account')}`}</RawText>
-              ) : (
-                <MiddleEllipsis value={accountLabel} />
-              )}
-            </div>
-          </Tooltip>
-        </Td>
-        <Td>
-          <Amount.Crypto value={assetBalancePrecision} symbol={asset?.symbol ?? ''} />
-        </Td>
-      </Tr>
+      <>
+        <Tr opacity={isAccountActive ? '1' : '0.5'}>
+          <Td>
+            <Switch size='lg' isChecked={isAccountActive} onChange={handleToggleIsAccountActive} />
+          </Td>
+          <Td>
+            <RawText color='text.subtle'>{accountNumber}</RawText>
+          </Td>
+
+          <TableRowAccount ref={ref} asset={asset} accountId={firstAccount} />
+        </Tr>
+        {otherAccounts}
+      </>
     )
   },
 )
@@ -127,76 +155,125 @@ const LoadingRow = () => {
 export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
   const highestAccountNumber = useAppSelector(state =>
     selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
-  const [accounts, setAccounts] = useState<
-    { accountId: AccountId; accountMetadata: AccountMetadata; hasActivity: boolean }[]
-  >([])
-  const queryClient = useQueryClient()
-  const isLoading = useIsFetching({ queryKey: ['accountManagement'] }) > 0
-  const [accountIdActiveStateUpdate, setAccountIdActiveStateUpdate] = useState<
-    Record<string, boolean>
-  >({})
+  const [autoFetching, setAutoFetching] = useState(true)
+  const [queryEnabled, setQueryEnabled] = useState(false)
+  const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
+
+  // reset component state when chainId changes
+  useEffect(() => {
+    setAutoFetching(true)
+    setToggledAccountIds(new Set())
+  }, [chainId])
 
   // initial fetch to detect the number of accounts based on the "first empty account" heuristic
-  const { data: allAccountIdsWithActivity } = useQuery(
-    accountManagement.firstAccountIdsWithActivityAndMetadata(
-      chainId,
-      wallet,
-      walletDeviceId,
-      // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
-      // Add additional empty accounts to show more accounts without having to load more.
-      highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS,
-    ),
-  )
-
-  useEffect(() => {
-    setAccounts(allAccountIdsWithActivity ?? [])
-  }, [allAccountIdsWithActivity])
-
-  const handleLoadMore = useCallback(async () => {
-    if (!wallet) return
-    const accountNumber = accounts.length
-    const accountResult = await queryClient.fetchQuery(
-      reactQueries.accountManagement.accountIdWithActivityAndMetadata(
+  const {
+    data: accounts,
+    fetchNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['accountIdWithActivityAndMetadata', chainId, walletDeviceId, wallet !== null],
+    queryFn: async ({ pageParam: accountNumber }) => {
+      return {
         accountNumber,
-        chainId,
-        wallet,
-        walletDeviceId,
-      ),
-    )
-    if (!accountResult) return
-    setAccounts(previousAccounts => {
-      const { accountId, accountMetadata, hasActivity } = accountResult
-      return [...previousAccounts, { accountId, accountMetadata, hasActivity }]
-    })
-  }, [accounts, chainId, queryClient, wallet, walletDeviceId])
+        accountIdWithActivityAndMetadata: await getAccountIdsWithActivityAndMetadata(
+          accountNumber,
+          chainId,
+          wallet,
+        ),
+      }
+    },
+    initialPageParam: 0,
+    getNextPageParam: lastPage => {
+      return lastPage.accountNumber + 1
+    },
+    retry: false,
+    enabled: queryEnabled,
+  })
 
-  const handleAccountIdActiveChange = useCallback((accountId: AccountId, isActive: boolean) => {
-    setAccountIdActiveStateUpdate(previousState => {
-      return { ...previousState, [accountId]: isActive }
+  // Reset paging on mount for ledger wallet since the state and cache are not aware of what app is
+  // open on the device. This is to prevent the cache from creating invalid state where the app on
+  // the device is not open but the cache thinks it is.
+  useEffect(() => {
+    if (!isLedgerWallet || queryEnabled) return
+    queryClient.resetQueries({ queryKey: ['accountIdWithActivityAndMetadata'] }).then(() => {
+      setAutoFetching(true)
+      setQueryEnabled(true)
+    })
+  }, [queryEnabled, isLedgerWallet, queryClient])
+
+  // Handle initial automatic loading
+  useEffect(() => {
+    if (isLoading || !autoFetching || !accounts) return
+
+    // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
+    // Add additional empty accounts to show more accounts without having to load more.
+    const numAccountsToLoad = highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS
+
+    if (accounts.pages.length < numAccountsToLoad) {
+      fetchNextPage()
+    } else {
+      // Stop auto-fetching and switch to manual mode
+      setAutoFetching(false)
+    }
+  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching, isLoading])
+
+  const handleLoadMore = useCallback(() => {
+    if (isLoading || autoFetching) return
+    fetchNextPage()
+  }, [autoFetching, isLoading, fetchNextPage])
+
+  const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
+    setToggledAccountIds(previousState => {
+      const updatedState = new Set(previousState)
+      for (const accountId of accountIds) {
+        if (updatedState.has(accountId)) {
+          updatedState.delete(accountId)
+        } else {
+          updatedState.add(accountId)
+        }
+      }
+
+      return updatedState
     })
   }, [])
 
   // TODO: Loading state
   const handleDone = useCallback(async () => {
     // for every new account that is active, fetch the account and upsert it into the redux state
-    for (const [accountId, isActive] of Object.entries(accountIdActiveStateUpdate)) {
-      if (!isActive) continue
+    for (const accountId of toggledAccountIds) {
+      const isEnabled = selectIsAccountIdEnabled(store.getState(), { accountId })
+      if (isEnabled) {
+        continue
+      }
       await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     }
 
-    const accountMetadataByAccountId = accounts.reduce(
-      (accumulator, { accountId, accountMetadata }) => {
-        return { ...accumulator, [accountId]: accountMetadata }
-      },
-      {},
-    )
+    if (!accounts) {
+      return
+    }
+
+    const accountMetadataByAccountId = accounts.pages.reduce((accumulator, accounts) => {
+      const obj = accounts.accountIdWithActivityAndMetadata.reduce(
+        (innerAccumulator, { accountId, accountMetadata }) => {
+          // Don't include accounts that are not toggled - they are either only
+          // displayed and not toggled on, or are already in the store
+          if (!toggledAccountIds.has(accountId)) return innerAccumulator
+
+          return { ...innerAccumulator, [accountId]: accountMetadata }
+        },
+        {},
+      )
+      return { ...accumulator, ...obj }
+    }, {})
 
     dispatch(
       portfolio.actions.upsertAccountMetadata({
@@ -205,27 +282,33 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       }),
     )
 
-    const hiddenAccountIds = Object.entries(accountIdActiveStateUpdate)
-      .filter(([_, isActive]) => !isActive)
-      .map(([accountId]) => accountId)
+    for (const accountId of toggledAccountIds) {
+      dispatch(portfolio.actions.toggleAccountIdEnabled(accountId))
+    }
 
-    dispatch(portfolio.actions.setHiddenAccountIds(hiddenAccountIds))
+    // Reset toggled state
+    setToggledAccountIds(new Set())
 
     onClose()
-  }, [accountIdActiveStateUpdate, accounts, dispatch, onClose, walletDeviceId])
+  }, [toggledAccountIds, accounts, dispatch, onClose, walletDeviceId])
 
   const accountRows = useMemo(() => {
-    if (!asset) return null
-    return accounts.map(({ accountId }, accountNumber) => (
-      <TableRow
-        key={accountId}
-        accountId={accountId}
-        accountNumber={accountNumber}
-        asset={asset}
-        onAccountIdActiveChange={handleAccountIdActiveChange}
-      />
-    ))
-  }, [accounts, asset, handleAccountIdActiveChange])
+    if (!asset || !accounts) return null
+    return accounts.pages.map(({ accountIdWithActivityAndMetadata }, accountNumber) => {
+      const accountIds = accountIdWithActivityAndMetadata.map(({ accountId }) => accountId)
+      const key = accountIds.join('-')
+      if (accountIds.length === 0) return null
+      return (
+        <TableRow
+          key={key}
+          accountNumber={accountNumber}
+          accountIds={accountIds}
+          asset={asset}
+          onToggleAccountIds={handleToggleAccountIds}
+        />
+      )
+    })
+  }, [accounts, asset, handleToggleAccountIds])
 
   if (!asset) {
     console.error(`No fee asset found for chainId: ${chainId}`)
@@ -238,19 +321,13 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       description={translate('accountManagement.importAccounts.description')}
       footer={
         <>
-          <Button
-            colorScheme='gray'
-            mr={3}
-            onClick={onClose}
-            isDisabled={isLoading}
-            _disabled={disabledProps}
-          >
+          <Button colorScheme='gray' mr={3} onClick={onClose}>
             {translate('common.cancel')}
           </Button>
           <Button
             colorScheme='blue'
             onClick={handleDone}
-            isDisabled={isLoading}
+            isDisabled={isLoading || autoFetching}
             _disabled={disabledProps}
           >
             {translate('common.done')}
@@ -263,14 +340,14 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             <Table variant='simple'>
               <Tbody>
                 {accountRows}
-                {isLoading && <LoadingRow />}
+                {(isLoading || autoFetching) && <LoadingRow />}
               </Tbody>
             </Table>
           </TableContainer>
           <Button
             colorScheme='gray'
             onClick={handleLoadMore}
-            isDisabled={isLoading}
+            isDisabled={isLoading || autoFetching}
             _disabled={disabledProps}
           >
             {translate('common.loadMore')}

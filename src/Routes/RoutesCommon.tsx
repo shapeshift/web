@@ -137,6 +137,7 @@ export const routes: NestedRoute[] = [
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
     mobileNav: false,
+    hideMobileMenu: true,
     priority: 2,
     main: Trade,
     category: RouteCategory.Featured,

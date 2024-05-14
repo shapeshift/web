@@ -18,7 +18,7 @@ import {
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectLpIdParamFromFilter,
-} from 'state/selectors/selector-utils'
+} from 'state/selectors/utils'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'

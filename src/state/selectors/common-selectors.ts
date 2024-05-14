@@ -12,7 +12,7 @@ import {
   createDeepEqualOutputSelector,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-} from 'state/selectors/selector-utils'
+} from 'state/selectors/utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataUsd,

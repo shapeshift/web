@@ -22,7 +22,7 @@ import {
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
-} from 'state/selectors/selector-utils'
+} from 'state/selectors/utils'
 
 import { selectAssets } from '../assetsSlice/selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'

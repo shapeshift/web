@@ -4,7 +4,7 @@ import {
   selectDefiProviderParamFromFilter,
   selectDefiTypeParamFromFilter,
   selectQueryStatusParamFromFilter,
-} from 'state/selectors/selector-utils'
+} from 'state/selectors/utils'
 
 import type { GetOpportunityUserDataInput } from '../types'
 

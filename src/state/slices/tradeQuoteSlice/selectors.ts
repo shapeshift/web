@@ -23,7 +23,7 @@ import {
   selectIsWalletConnected,
   selectWalletSupportedChainIds,
 } from 'state/selectors/common-selectors'
-import { createDeepEqualOutputSelector } from 'state/selectors/selector-utils'
+import { createDeepEqualOutputSelector } from 'state/selectors/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,

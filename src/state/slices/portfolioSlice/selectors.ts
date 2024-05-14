@@ -40,7 +40,7 @@ import {
   selectAccountNumberParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
-} from 'state/selectors/selector-utils'
+} from 'state/selectors/utils'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
 import {

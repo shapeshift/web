@@ -9,7 +9,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectWalletAccountIds,
 } from 'state/selectors/common-selectors'
-import { createDeepEqualOutputSelector } from 'state/selectors/selector-utils'
+import { createDeepEqualOutputSelector } from 'state/selectors/utils'
 
 import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import {

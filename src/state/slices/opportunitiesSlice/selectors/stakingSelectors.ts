@@ -24,7 +24,7 @@ import {
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
   selectValidatorIdParamFromFilter,
-} from 'state/selectors/selector-utils'
+} from 'state/selectors/utils'
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {

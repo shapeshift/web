@@ -200,11 +200,16 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     enabled: queryEnabled,
   })
 
-  // Reset paging on mount for ledger wallet since the state and cache are not aware of what app is
-  // open on the device. This is to prevent the cache from creating invalid state where the app on
-  // the device is not open but the cache thinks it is.
   useEffect(() => {
-    if (!isLedgerWallet || queryEnabled) return
+    if (!isLedgerWallet || queryEnabled) {
+      setAutoFetching(true)
+      setQueryEnabled(true)
+      return
+    }
+
+    // Reset paging on mount for ledger wallet since the state and cache are not aware of what app
+    // is open on the device. This is to prevent the cache from creating invalid state where the app
+    // on the device is not open but the cache thinks it is.
     queryClient.resetQueries({ queryKey: ['accountIdWithActivityAndMetadata'] }).then(() => {
       setAutoFetching(true)
       setQueryEnabled(true)

@@ -248,6 +248,11 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [])
 
   const handleDone = useCallback(async () => {
+    if (!accounts) {
+      console.error('Missing accounts data')
+      return
+    }
+
     setIsSubmitting(true)
 
     // For every new account that is active, fetch the account and upsert it into the redux state
@@ -262,12 +267,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         )
       }),
     )
-
-    if (!accounts) {
-      console.error('Missing accounts data')
-      setIsSubmitting(false)
-      return
-    }
 
     const accountMetadataByAccountId = accounts.pages.reduce((accumulator, accounts) => {
       const obj = accounts.accountIdWithActivityAndMetadata.reduce(
@@ -343,7 +342,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           <Button
             colorScheme='blue'
             onClick={handleDone}
-            isDisabled={isLoading || autoFetching || isSubmitting}
+            isDisabled={isLoading || autoFetching || isSubmitting || !accounts}
             _disabled={disabledProps}
           >
             {translate('common.done')}

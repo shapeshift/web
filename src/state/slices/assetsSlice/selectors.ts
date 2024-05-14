@@ -9,7 +9,7 @@ import {
   createDeepEqualOutputSelector,
   selectAssetIdParamFromFilter,
   selectSearchQueryFromFilter,
-} from 'state/selector-utils'
+} from 'state/selectors/selector-utils'
 
 import { selectMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/selectors'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'

@@ -14,7 +14,7 @@ import {
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
   selectSearchQueryFromFilter,
-} from 'state/selector-utils'
+} from 'state/selectors/selector-utils'
 import { getFeeAssetByChainId } from 'state/slices/assetsSlice/utils'
 
 import type {

@@ -9,8 +9,6 @@ import createCachedSelector from 're-reselect'
 import { createSelectorCreator, defaultMemoize } from 'reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-
-import type { ReduxState } from './reducer'
 import type {
   DefiProvider,
   DefiType,
@@ -18,7 +16,9 @@ import type {
   StakingId,
   UserStakingId,
   ValidatorId,
-} from './slices/opportunitiesSlice/types'
+} from 'state/slices/opportunitiesSlice/types'
+
+import type { ReduxState } from '../reducer'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter

@@ -3,7 +3,10 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { uniq } from 'lodash'
 import { createSelector } from 'reselect'
-import { createDeepEqualOutputSelector, selectAssetIdParamFromFilter } from 'state/selector-utils'
+import {
+  createDeepEqualOutputSelector,
+  selectAssetIdParamFromFilter,
+} from 'state/selectors/selector-utils'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'

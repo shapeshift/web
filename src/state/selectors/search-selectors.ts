@@ -1,6 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { createDeepEqualOutputSelector, selectSearchQueryFromFilter } from 'state/selector-utils'
+import {
+  createDeepEqualOutputSelector,
+  selectSearchQueryFromFilter,
+} from 'state/selectors/selector-utils'
 import { selectAssetsBySearchQuery } from 'state/slices/assetsSlice/selectors'
 import { selectTxsByQuery } from 'state/slices/txHistorySlice/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'

@@ -2,7 +2,7 @@ import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import { ethChainId } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
-import { selectFeeModelParamFromFilter } from 'state/selector-utils'
+import { selectFeeModelParamFromFilter } from 'state/selectors/selector-utils'
 import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
 
 const selectSnapshotApiQueries = (state: ReduxState) => state.snapshotApi.queries

@@ -8,17 +8,17 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import {
-  createDeepEqualOutputSelector,
-  selectAccountIdParamFromFilter,
-  selectAssetIdParamFromFilter,
-  selectLpIdParamFromFilter,
-} from 'state/selector-utils'
-import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/selectors/common-selectors'
+import {
+  createDeepEqualOutputSelector,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectLpIdParamFromFilter,
+} from 'state/selectors/selector-utils'
 
 import { selectAssets } from '../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'

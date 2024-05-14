@@ -11,6 +11,11 @@ import { fromBaseUnit } from 'lib/math'
 import { isSome, isToken } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import {
+  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioUserCurrencyBalances,
+  selectWalletAccountIds,
+} from 'state/selectors/common-selectors'
+import {
   createDeepEqualOutputSelector,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
@@ -19,12 +24,7 @@ import {
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
   selectValidatorIdParamFromFilter,
-} from 'state/selector-utils'
-import {
-  selectPortfolioAssetBalancesBaseUnit,
-  selectPortfolioUserCurrencyBalances,
-  selectWalletAccountIds,
-} from 'state/selectors/common-selectors'
+} from 'state/selectors/selector-utils'
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {

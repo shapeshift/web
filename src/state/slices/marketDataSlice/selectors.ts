@@ -6,7 +6,10 @@ import createCachedSelector from 're-reselect'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector, selectAssetIdParamFromFilter } from 'state/selector-utils'
+import {
+  createDeepEqualOutputSelector,
+  selectAssetIdParamFromFilter,
+} from 'state/selectors/selector-utils'
 import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
 import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 

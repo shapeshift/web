@@ -26,13 +26,6 @@ import { hashCode } from 'lib/utils'
 import { isValidAccountNumber } from 'lib/utils/accounts'
 import type { ReduxState } from 'state/reducer'
 import {
-  createDeepEqualOutputSelector,
-  selectAccountIdParamFromFilter,
-  selectAccountNumberParamFromFilter,
-  selectAssetIdParamFromFilter,
-  selectChainIdParamFromFilter,
-} from 'state/selector-utils'
-import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
@@ -41,6 +34,13 @@ import {
   selectWalletId,
   selectWalletName,
 } from 'state/selectors/common-selectors'
+import {
+  createDeepEqualOutputSelector,
+  selectAccountIdParamFromFilter,
+  selectAccountNumberParamFromFilter,
+  selectAssetIdParamFromFilter,
+  selectChainIdParamFromFilter,
+} from 'state/selectors/selector-utils'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
 import {

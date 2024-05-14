@@ -1,8 +1,9 @@
-import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
+import { Modal, ModalCloseButton, ModalContent, ModalOverlay, useToast } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
 import { ConnectContent } from 'plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 
@@ -18,6 +19,8 @@ const maxWidthProp = { base: 'full', md: '500px' }
 
 const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const { pair } = useWalletConnectV2()
+  const translate = useTranslate()
+  const toast = useToast()
 
   const handleConnectV2 = useCallback(
     async (uri: string) => {
@@ -26,11 +29,26 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         if (connectionResult) onClose()
       } catch (error: unknown) {
         console.debug(error)
+
+        // This should *not* be an exception, we handle this as part of our flow.
+        if ((error as Error)?.message.includes('Pairing already exists')) {
+          toast({
+            position: 'top-right',
+            title: translate('plugins.walletConnectToDapps.header.errorConnectingToDapp'),
+            description: translate('plugins.walletConnectToDapps.header.pairingAlreadyExists'),
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+
+          return
+        }
+
         captureException(error)
         getMixPanel()?.track(MixPanelEvent.Error, { error })
       }
     },
-    [onClose, pair],
+    [onClose, pair, toast, translate],
   )
 
   return (

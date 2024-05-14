@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import {
   selectAssetsSortedByName,
   selectWalletSupportedChainIds,
-} from 'state/slices/common-selectors'
+} from 'state/selectors/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'

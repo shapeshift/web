@@ -13,18 +13,18 @@ import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 import { getTimeFrameBounds, isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
+  createDeepEqualOutputSelector,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
-} from 'state/selectors'
+} from 'state/selector-utils'
+import { selectWalletAccountIds } from 'state/selectors/common-selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
-import { selectWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
 

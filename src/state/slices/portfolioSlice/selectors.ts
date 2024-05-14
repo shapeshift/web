@@ -25,13 +25,22 @@ import type { AnonymizedPortfolio } from 'lib/mixpanel/types'
 import { hashCode } from 'lib/utils'
 import { isValidAccountNumber } from 'lib/utils/accounts'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
+  createDeepEqualOutputSelector,
   selectAccountIdParamFromFilter,
   selectAccountNumberParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
-} from 'state/selectors'
+} from 'state/selector-utils'
+import {
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioUserCurrencyBalances,
+  selectPortfolioUserCurrencyBalancesByAccountId,
+  selectWalletAccountIds,
+  selectWalletId,
+  selectWalletName,
+} from 'state/selectors/common-selectors'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
 import {
@@ -48,15 +57,6 @@ import {
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
-import {
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioAssetBalancesBaseUnit,
-  selectPortfolioUserCurrencyBalances,
-  selectPortfolioUserCurrencyBalancesByAccountId,
-  selectWalletAccountIds,
-  selectWalletId,
-  selectWalletName,
-} from '../common-selectors'
 import {
   DEFI_PROVIDER_TO_METADATA,
   foxEthLpAssetId,

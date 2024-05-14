@@ -7,20 +7,20 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
+  createDeepEqualOutputSelector,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectLpIdParamFromFilter,
-} from 'state/selectors'
-
-import { selectAssets } from '../../assetsSlice/selectors'
+} from 'state/selector-utils'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from '../../common-selectors'
+} from 'state/selectors/common-selectors'
+
+import { selectAssets } from '../../assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType } from './../types'

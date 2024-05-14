@@ -6,8 +6,8 @@ import type { Column, Row } from 'react-table'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
-import { selectRelatedAssetIds } from 'state/slices/related-assets-selectors'
 import { selectAssets } from 'state/selectors'
+import { selectRelatedAssetIds } from 'state/selectors/related-assets-selectors'
 import { useAppSelector } from 'state/store'
 
 type RelatedAssetsProps = {

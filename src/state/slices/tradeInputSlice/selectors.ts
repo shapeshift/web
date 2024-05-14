@@ -6,11 +6,11 @@ import { toBaseUnit } from 'lib/math'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
-
 import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectWalletAccountIds,
-} from '../common-selectors'
+} from 'state/selectors/common-selectors'
+
 import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,

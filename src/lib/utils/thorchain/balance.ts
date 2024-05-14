@@ -7,9 +7,12 @@ import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedF
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
+import {
+  selectFeeAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { store } from 'state/store'
 
 import { isUtxoChainId } from '../utxo'

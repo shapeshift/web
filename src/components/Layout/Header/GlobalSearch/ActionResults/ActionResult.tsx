@@ -5,8 +5,8 @@ import { useCallback } from 'react'
 import { IconCircle } from 'components/IconCircle'
 import { RawText } from 'components/Text'
 import { firstFourLastFour } from 'lib/utils'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
-import { GlobalSearchResultType } from 'state/slices/search-selectors'
+import type { GlobalSearchResult } from 'state/selectors/search-selectors'
+import { GlobalSearchResultType } from 'state/selectors/search-selectors'
 
 import { ResultButton } from '../ResultButton'
 

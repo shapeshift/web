@@ -21,13 +21,13 @@ import { mockAssetState } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockChainAdapters, mockUpsertPortfolio } from 'test/mocks/portfolio'
 import { afterAll, describe, expect, it, vi } from 'vitest'
-import { createStore } from 'state/store'
-
-import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
-} from '../common-selectors'
+} from 'state/selectors/common-selectors'
+import { createStore } from 'state/store'
+
+import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
 import { portfolio as portfolioSlice } from './portfolioSlice'
 import {

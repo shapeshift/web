@@ -10,8 +10,8 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome, isToken } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
+  createDeepEqualOutputSelector,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectDefiProviderParamFromFilter,
@@ -19,14 +19,14 @@ import {
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
   selectValidatorIdParamFromFilter,
-} from 'state/selectors'
-
-import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
+} from 'state/selector-utils'
 import {
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
   selectWalletAccountIds,
-} from '../../common-selectors'
+} from 'state/selectors/common-selectors'
+
+import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {
   selectMarketDataByFilter,
   selectMarketDataUserCurrency,

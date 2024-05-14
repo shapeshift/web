@@ -19,8 +19,11 @@ import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInput } from 'lib/address/address'
-import type { GlobalSearchResult, SendResult } from 'state/slices/search-selectors'
-import { GlobalSearchResultType, selectGlobalItemsFromFilter } from 'state/slices/search-selectors'
+import type { GlobalSearchResult, SendResult } from 'state/selectors/search-selectors'
+import {
+  GlobalSearchResultType,
+  selectGlobalItemsFromFilter,
+} from 'state/selectors/search-selectors'
 import { useAppSelector } from 'state/store'
 
 import { SearchResults } from './SearchResults'

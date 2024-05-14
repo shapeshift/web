@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
-import { selectWalletId } from 'state/slices/common-selectors'
-import { selectIsMarketDataLoaded } from 'state/slices/marketDataSlice/selectors'
 import {
   selectCurrencyFormat,
   selectPortfolioAnonymized,
   selectSelectedCurrency,
   selectSelectedLocale,
 } from 'state/selectors'
+import { selectWalletId } from 'state/selectors/common-selectors'
+import { selectIsMarketDataLoaded } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useMixpanelPortfolioTracking = () => {

@@ -5,8 +5,11 @@ import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter, selectSearchQueryFromFilter } from 'state/selectors'
+import {
+  createDeepEqualOutputSelector,
+  selectAssetIdParamFromFilter,
+  selectSearchQueryFromFilter,
+} from 'state/selector-utils'
 
 import { selectMarketDataIdsSortedByMarketCapUsd } from '../marketDataSlice/selectors'
 import { getFeeAssetByAssetId, getFeeAssetByChainId } from './utils'

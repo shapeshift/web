@@ -3,10 +3,10 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { uniq } from 'lodash'
 import { createSelector } from 'reselect'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAssetIdParamFromFilter } from 'state/selectors'
+import { createDeepEqualOutputSelector, selectAssetIdParamFromFilter } from 'state/selector-utils'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssets, selectMarketDataUserCurrency } from 'state/selectors'
+import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 
 import { fiatRampApi } from './fiatRamps'
 

@@ -20,6 +20,10 @@ import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRe
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectIsWalletConnected,
+  selectWalletSupportedChainIds,
+} from 'state/selectors/common-selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
@@ -45,7 +49,6 @@ import {
   sortTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
 
-import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
   selectMarketDataUsd,
   selectMarketDataUserCurrency,

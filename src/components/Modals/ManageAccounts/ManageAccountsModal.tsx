@@ -26,8 +26,11 @@ import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
-import { selectWalletChainIds, selectWalletSupportedChainIds } from 'state/slices/common-selectors'
 import { selectAccountIdsByChainId, selectAssetById } from 'state/selectors'
+import {
+  selectWalletChainIds,
+  selectWalletSupportedChainIds,
+} from 'state/selectors/common-selectors'
 import { useAppSelector } from 'state/store'
 
 const infoIcon = <InfoIcon />

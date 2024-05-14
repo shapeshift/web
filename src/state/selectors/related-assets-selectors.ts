@@ -4,9 +4,9 @@ import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from 'state/reducer'
-import { selectOnlyConnectedChainsParamFromFilter } from 'state/selectors'
+import { selectOnlyConnectedChainsParamFromFilter } from 'state/selector-utils'
 
-import { selectAssetByFilter } from './assetsSlice/selectors'
+import { selectAssetByFilter } from '../slices/assetsSlice/selectors'
 import { selectPortfolioUserCurrencyBalances, selectWalletChainIds } from './common-selectors'
 
 /**

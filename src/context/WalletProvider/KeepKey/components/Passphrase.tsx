@@ -11,7 +11,7 @@ import { useCallback, useRef, useState } from 'react'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectWalletId } from 'state/slices/common-selectors'
+import { selectWalletId } from 'state/selectors/common-selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

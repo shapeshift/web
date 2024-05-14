@@ -8,13 +8,18 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
-import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
-
-import { selectAssets } from './assetsSlice/selectors'
-import { selectMarketDataUsd, selectMarketDataUserCurrency } from './marketDataSlice/selectors'
-import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
-import { selectBalanceThreshold } from './preferencesSlice/selectors'
+import {
+  createDeepEqualOutputSelector,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+} from 'state/selector-utils'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
+import {
+  selectMarketDataUsd,
+  selectMarketDataUserCurrency,
+} from 'state/slices/marketDataSlice/selectors'
+import type { PortfolioAccountBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
+import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 export const selectWalletId = (state: ReduxState) => state.portfolio.connectedWallet?.id
 export const selectWalletName = (state: ReduxState) => state.portfolio.connectedWallet?.name

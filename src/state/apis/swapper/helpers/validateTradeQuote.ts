@@ -26,7 +26,7 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectWalletSupportedChainIds,
-} from 'state/slices/common-selectors'
+} from 'state/selectors/common-selectors'
 import {
   getHopByIndex,
   getTotalProtocolFeeByAssetForStep,

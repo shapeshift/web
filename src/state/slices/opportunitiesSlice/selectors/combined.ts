@@ -8,13 +8,13 @@ import { matchSorter } from 'match-sorter'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
+  createDeepEqualOutputSelector,
   selectChainIdParamFromFilter,
   selectIncludeEarnBalancesParamFromFilter,
   selectIncludeRewardsBalancesParamFromFilter,
   selectSearchQueryFromFilter,
-} from 'state/selectors'
+} from 'state/selector-utils'
 import { getFeeAssetByChainId } from 'state/slices/assetsSlice/utils'
 
 import type {

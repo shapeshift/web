@@ -22,4 +22,4 @@ export * from '../slices/tradeInputSlice/selectors'
  * to avoid both circular dependencies and duplication of logic,
  * we define them higher up the tree at a common place
  */
-export * from '../slices/common-selectors'
+export * from './common-selectors'

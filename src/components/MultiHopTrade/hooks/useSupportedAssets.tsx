@@ -5,8 +5,8 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isSome } from 'lib/utils'
 import { useGetSupportedAssetsQuery } from 'state/apis/swapper/swapperApi'
-import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/slices/common-selectors'
 import { selectAccountIdsByChainId, selectAssets } from 'state/selectors'
+import { selectAssetsSortedByMarketCapUserCurrencyBalanceAndName } from 'state/selectors/common-selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSupportedAssets = () => {

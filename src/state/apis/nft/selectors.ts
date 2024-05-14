@@ -3,7 +3,7 @@ import { isNft } from '@shapeshiftoss/caip'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 import { selectPortfolioAssetIds } from 'state/selectors'
-import { selectWalletId } from 'state/slices/common-selectors'
+import { selectWalletId } from 'state/selectors/common-selectors'
 
 import type { NftCollectionType, NftItem, NftItemWithCollection } from './types'
 

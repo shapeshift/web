@@ -53,7 +53,7 @@ import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors
 import { chainIdToOpenseaNetwork } from 'state/apis/nft/utils'
 import { getMediaType } from 'state/apis/zapper/validators'
 import { selectAssetById } from 'state/selectors'
-import { selectWalletAccountIds, selectWalletId } from 'state/slices/common-selectors'
+import { selectWalletAccountIds, selectWalletId } from 'state/selectors/common-selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

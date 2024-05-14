@@ -201,7 +201,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   })
 
   useEffect(() => {
-    if (!isLedgerWallet || queryEnabled) {
+    if (queryEnabled) return
+
+    if (!isLedgerWallet) {
       setAutoFetching(true)
       setQueryEnabled(true)
       return

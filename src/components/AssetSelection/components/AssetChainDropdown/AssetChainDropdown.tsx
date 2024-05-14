@@ -28,10 +28,20 @@ type AssetChainDropdownProps = {
   isLoading?: boolean
   isError?: boolean
   onlyConnectedChains: boolean
+  isDisabled?: boolean
 }
 
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
-  ({ assetId, assetIds, onChangeAsset, buttonProps, isLoading, isError, onlyConnectedChains }) => {
+  ({
+    assetId,
+    assetIds,
+    buttonProps,
+    isDisabled,
+    isError,
+    isLoading,
+    onChangeAsset,
+    onlyConnectedChains,
+  }) => {
     const {
       state: { wallet },
     } = useWallet()
@@ -77,15 +87,9 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       [onChangeAsset],
     )
 
-    const isDisabled = useMemo(() => {
-      return filteredRelatedAssetIds.length <= 1 || isLoading || isError
-    }, [filteredRelatedAssetIds, isError, isLoading])
-
     const isTooltipDisabled = useMemo(() => {
-      // only render the tooltip when there are no other related assets and we're not loading and not
-      // errored
-      return filteredRelatedAssetIds.length > 1 || isLoading || isError
-    }, [filteredRelatedAssetIds, isError, isLoading])
+      return isDisabled || filteredRelatedAssetIds.length <= 1 || isLoading || isError
+    }, [isDisabled, filteredRelatedAssetIds.length, isError, isLoading])
 
     const buttonTooltipText = useMemo(() => {
       return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })
@@ -96,7 +100,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     return (
       <Menu isLazy>
         <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
-          <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
+          <MenuButton as={Button} isDisabled={isTooltipDisabled} {...buttonProps}>
             <AssetChainRow
               assetId={assetId}
               mainImplementationAssetId={assetId}

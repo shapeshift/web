@@ -87,9 +87,15 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       [onChangeAsset],
     )
 
-    const isTooltipDisabled = useMemo(() => {
+    const isButtonDisabled = useMemo(() => {
       return isDisabled || filteredRelatedAssetIds.length <= 1 || isLoading || isError
-    }, [isDisabled, filteredRelatedAssetIds.length, isError, isLoading])
+    }, [filteredRelatedAssetIds.length, isDisabled, isError, isLoading])
+
+    const isTooltipExplainerDisabled = useMemo(() => {
+      // only render the tooltip when there are no other related assets and we're not loading and not
+      // errored
+      return filteredRelatedAssetIds.length > 1 || isLoading || isError
+    }, [filteredRelatedAssetIds, isError, isLoading])
 
     const buttonTooltipText = useMemo(() => {
       return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })
@@ -99,8 +105,11 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
 
     return (
       <Menu isLazy>
-        <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
-          <MenuButton as={Button} isDisabled={isTooltipDisabled} {...buttonProps}>
+        {/* If we do have related assets (or we're loading/errored), assume everything is happy. 
+            Else if there's no related assets for that asset, display a tooltip explaining "This asset is only available on <currentChain>  
+        */}
+        <Tooltip isDisabled={isTooltipExplainerDisabled} label={buttonTooltipText}>
+          <MenuButton as={Button} isDisabled={isButtonDisabled} {...buttonProps}>
             <AssetChainRow
               assetId={assetId}
               mainImplementationAssetId={assetId}

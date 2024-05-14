@@ -102,7 +102,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
             />
           </MenuButton>
         </Tooltip>
-        <MenuList zIndex='banner'>
+        <MenuList zIndex='modal'>
           <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
             {renderChains}
           </MenuOptionGroup>

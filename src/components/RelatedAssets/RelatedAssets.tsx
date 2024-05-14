@@ -15,7 +15,10 @@ type RelatedAssetsProps = {
 }
 
 export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
-  const relatedAssetIds = useAppSelector(state => selectRelatedAssetIds(state, assetId))
+  const relatedAssetIdsFilter = useMemo(() => ({ assetId }), [assetId])
+  const relatedAssetIds = useAppSelector(state =>
+    selectRelatedAssetIds(state, relatedAssetIdsFilter),
+  )
   const assets = useAppSelector(selectAssets)
   const history = useHistory()
 

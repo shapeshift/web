@@ -4,8 +4,9 @@ import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from 'state/reducer'
+import { selectOnlyConnectedChainsParamFromFilter } from 'state/selectors'
 
-import { selectAssetById } from './assetsSlice/selectors'
+import { selectAssetByFilter } from './assetsSlice/selectors'
 import { selectPortfolioUserCurrencyBalances, selectWalletChainIds } from './common-selectors'
 
 /**
@@ -15,18 +16,28 @@ import { selectPortfolioUserCurrencyBalances, selectWalletChainIds } from './com
  */
 export const selectRelatedAssetIdsInclusive = createCachedSelector(
   (state: ReduxState) => state.assets.relatedAssetIndex,
-  selectAssetById,
+  selectAssetByFilter,
   selectWalletChainIds,
-  (relatedAssetIndex, asset, walletConnectedChainIds): AssetId[] => {
+  selectOnlyConnectedChainsParamFromFilter,
+  (relatedAssetIndex, asset, walletConnectedChainIds, onlyConnectedChains): AssetId[] => {
     if (!asset) return []
     const relatedAssetKey = asset.relatedAssetKey
     if (!relatedAssetKey) return [asset.assetId]
-    return [relatedAssetKey].concat(relatedAssetIndex[relatedAssetKey] ?? []).filter(assetId => {
+    const relatedAssetIdsInclusive = [relatedAssetKey].concat(
+      relatedAssetIndex[relatedAssetKey] ?? [],
+    )
+
+    if (!onlyConnectedChains) return relatedAssetIdsInclusive
+
+    return relatedAssetIdsInclusive.filter(assetId => {
       const { chainId } = fromAssetId(assetId)
       return walletConnectedChainIds.includes(chainId)
     })
   },
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
+)(
+  (_s: ReduxState, filter) =>
+    `${filter?.assetId ?? 'assetId'}-${filter?.onlyConnectedChains ?? false}`,
+)
 
 /**
  * Selects all related assetIds, exclusive of the asset being queried.
@@ -35,11 +46,14 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
  */
 export const selectRelatedAssetIds = createCachedSelector(
   selectRelatedAssetIdsInclusive,
-  selectAssetById,
+  selectAssetByFilter,
   (relatedAssetIdsInclusive, asset): AssetId[] => {
     return relatedAssetIdsInclusive.filter(assetId => assetId !== asset?.assetId) ?? []
   },
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
+)(
+  (_s: ReduxState, filter) =>
+    `${filter?.assetId ?? 'assetId'}-${filter?.onlyConnectedChains ?? false}`,
+)
 
 export const selectRelatedAssetIdsInclusiveSorted = createCachedSelector(
   selectRelatedAssetIdsInclusive,
@@ -59,4 +73,7 @@ export const selectRelatedAssetIdsInclusiveSorted = createCachedSelector(
       ['desc', 'asc'],
     ).map(({ assetId }) => assetId)
   },
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
+)(
+  (_s: ReduxState, filter) =>
+    `${filter?.assetId ?? 'assetId'}-${filter?.onlyConnectedChains ?? false}`,
+)

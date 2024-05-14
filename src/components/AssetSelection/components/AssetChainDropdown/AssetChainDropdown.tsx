@@ -27,10 +27,11 @@ type AssetChainDropdownProps = {
   buttonProps?: ButtonProps
   isLoading?: boolean
   isError?: boolean
+  onlyConnectedChains: boolean
 }
 
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
-  ({ assetId, assetIds, onChangeAsset, buttonProps, isLoading, isError }) => {
+  ({ assetId, assetIds, onChangeAsset, buttonProps, isLoading, isError, onlyConnectedChains }) => {
     const {
       state: { wallet },
     } = useWallet()
@@ -38,8 +39,12 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const chainDisplayName = useAppSelector(state =>
       selectChainDisplayNameByAssetId(state, assetId ?? ''),
     )
+    const relatedAssetIdsFilter = useMemo(
+      () => ({ assetId, onlyConnectedChains }),
+      [assetId, onlyConnectedChains],
+    )
     const relatedAssetIds = useAppSelector(state =>
-      selectRelatedAssetIdsInclusiveSorted(state, assetId ?? ''),
+      selectRelatedAssetIdsInclusiveSorted(state, relatedAssetIdsFilter),
     )
 
     const filteredRelatedAssetIds = useMemo(() => {

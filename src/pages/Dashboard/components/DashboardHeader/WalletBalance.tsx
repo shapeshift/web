@@ -12,7 +12,7 @@ import {
   selectEarnBalancesUserCurrencyAmountFull,
   selectPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const balanceFontSize = { base: '2xl', md: '4xl' }

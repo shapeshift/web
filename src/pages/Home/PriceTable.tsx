@@ -2,7 +2,7 @@ import { Flex, Heading, Select, Stack } from '@chakra-ui/react'
 import React, { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
 import { HomeMarketView, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedHomeView } from 'state/slices/selectors'
+import { selectSelectedHomeView } from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { TopAssetsTable } from './TopAssetsTable'

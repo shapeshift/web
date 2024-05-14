@@ -10,7 +10,7 @@ import {
   supportsUndelegations,
   toOpportunityId,
 } from 'state/slices/opportunitiesSlice/utils'
-import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
+import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from './ClaimConfirm'

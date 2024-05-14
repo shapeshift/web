@@ -7,7 +7,7 @@ import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {

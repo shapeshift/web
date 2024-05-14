@@ -17,7 +17,7 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/selectors'
 import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuote,

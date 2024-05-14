@@ -3,7 +3,7 @@ import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from 'contracts/constants'
 import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
+import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FeaturedCard } from './FeaturedCards/FeaturedCard'

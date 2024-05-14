@@ -18,7 +18,7 @@ import {
 } from 'lib/utils/evm'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
+import { selectAccountNumberByAccountId, selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseFoxFarmingOptions = {

@@ -15,7 +15,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { GridIcon } from 'components/Icons/GridIcon'
-import { selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes } from 'state/slices/selectors'
+import { selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainRow } from './ChainRow'

@@ -14,7 +14,7 @@ import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { SparkLine } from 'pages/Buy/components/Sparkline'
-import { selectIsMarketDataLoaded, selectMarketDataUserCurrency } from 'state/slices/selectors'
+import { selectIsMarketDataLoaded, selectMarketDataUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

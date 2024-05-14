@@ -38,7 +38,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectStakingOpportunityByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosWithdrawActionType } from '../WithdrawCommon'

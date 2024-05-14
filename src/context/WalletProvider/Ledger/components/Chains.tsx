@@ -30,7 +30,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
+import { selectAssets, selectWalletChainIds } from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { availableLedgerAppAssetIds, availableLedgerAppChainIds } from '../constants'

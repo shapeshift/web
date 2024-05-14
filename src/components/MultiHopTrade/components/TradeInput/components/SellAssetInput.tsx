@@ -11,7 +11,7 @@ import {
   selectInputSellAmountUserCurrency,
   selectIsInputtingFiatSellAmount,
   selectMarketDataByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

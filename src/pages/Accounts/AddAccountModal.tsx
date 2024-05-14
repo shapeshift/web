@@ -30,7 +30,7 @@ import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
   selectPortfolioChainIdsSortedUserCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const chainDropdownButtonProps = { width: 'full' }

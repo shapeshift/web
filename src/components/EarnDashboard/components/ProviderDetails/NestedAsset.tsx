@@ -7,7 +7,7 @@ import { NestedListItem } from 'components/List/NestedListItem'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import type { UnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { opportunityRowGrid } from './OpportunityTableHeader'

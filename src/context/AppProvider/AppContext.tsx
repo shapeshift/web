@@ -38,7 +38,7 @@ import {
   selectSelectedCurrency,
   selectSelectedLocale,
   selectWalletAccountIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 

@@ -15,7 +15,7 @@ import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type ThorchainSaversEmptyProps = {

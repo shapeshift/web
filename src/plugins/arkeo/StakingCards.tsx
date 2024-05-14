@@ -12,7 +12,7 @@ import {
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssets,
   selectFirstAccountIdByChainId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakingCard } from './StakingCard'

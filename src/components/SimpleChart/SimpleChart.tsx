@@ -12,7 +12,7 @@ import {
   type Time,
 } from 'lightweight-charts'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { selectSelectedCurrency } from 'state/slices/selectors'
+import { selectSelectedCurrency } from 'state/selectors'
 import { store } from 'state/store'
 import { semanticTokens } from 'theme/semanticTokens'
 import { opacify } from 'theme/utils'

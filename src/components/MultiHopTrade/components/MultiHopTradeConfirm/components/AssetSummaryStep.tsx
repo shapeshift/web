@@ -6,7 +6,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectMarketDataUserCurrency } from 'state/slices/selectors'
+import { selectMarketDataUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StepperStep } from './StepperStep'

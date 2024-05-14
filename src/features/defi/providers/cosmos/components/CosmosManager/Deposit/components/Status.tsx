@@ -25,7 +25,7 @@ import {
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'

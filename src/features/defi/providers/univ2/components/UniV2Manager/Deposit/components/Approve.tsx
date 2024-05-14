@@ -32,7 +32,7 @@ import {
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { UniV2DepositActionType } from '../DepositCommon'

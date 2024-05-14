@@ -14,7 +14,7 @@ import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
   selectPortfolioAccountMetadata,
   selectWalletAccountIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'

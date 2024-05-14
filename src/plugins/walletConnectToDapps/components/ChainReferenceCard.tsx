@@ -18,7 +18,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { Row } from 'components/Row/Row'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectFeeAssetByChainId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type ChainReferenceCardProps = {

@@ -20,7 +20,7 @@ import {
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectUserStakingOpportunityByUserStakingId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from '../Claim/ClaimConfirm'

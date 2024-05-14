@@ -16,7 +16,7 @@ import {
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
 } from 'state/slices/portfolioSlice/selectors'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
+import { selectAccountNumberByAccountId, selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type AccountEntryRowProps = {

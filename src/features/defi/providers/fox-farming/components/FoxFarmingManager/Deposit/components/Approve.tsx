@@ -28,7 +28,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'

@@ -2,7 +2,7 @@ import { getStateWith, registerSelectors, selectorGraph } from 'reselect-tools'
 import { describe, expect, it } from 'vitest'
 import { store } from 'state/store'
 
-import * as selectors from './slices/selectors'
+import * as selectors from './selectors'
 
 describe('reselect-tools', () => {
   it('can load reselect tools', () => {

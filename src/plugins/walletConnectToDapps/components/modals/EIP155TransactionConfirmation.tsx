@@ -39,7 +39,7 @@ import { Text } from 'components/Text'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectFeeAssetByChainId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }

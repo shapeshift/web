@@ -25,14 +25,14 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { isUtxoAccountId } from 'lib/utils/utxo'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
   selectHighestAccountNumberForChainId,
   selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { getAccountIdsWithActivityAndMetadata } from '../helpers'

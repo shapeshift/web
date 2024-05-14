@@ -20,7 +20,7 @@ import {
   selectShowSnapsModal,
   selectWalletAccountIds,
   selectWalletId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppDispatch } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

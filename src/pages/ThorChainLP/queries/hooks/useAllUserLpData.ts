@@ -14,7 +14,7 @@ import {
   selectMarketDataUserCurrency,
   selectPortfolioAccounts,
   selectWalletId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { getUserLpDataPosition } from './useUserLpData'

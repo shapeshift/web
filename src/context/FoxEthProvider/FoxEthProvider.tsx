@@ -6,7 +6,7 @@ import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesA
 import { fetchAllStakingOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectStakingAccountIds, selectTxById } from 'state/slices/selectors'
+import { selectAssetById, selectStakingAccountIds, selectTxById } from 'state/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { Route, Switch, useParams, useRouteMatch } from 'react-router-dom'
 import { AccountDetails } from 'components/AccountDetails'
 import { accountIdToFeeAssetId } from 'lib/utils/accounts'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountToken } from './AccountToken/AccountToken'

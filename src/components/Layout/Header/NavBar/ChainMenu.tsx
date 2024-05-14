@@ -11,7 +11,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useEvm } from 'hooks/useEvm/useEvm'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectAssetById, selectAssets } from 'state/slices/selectors'
+import { selectAssetById, selectAssets } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const buttonProps: ButtonProps = {

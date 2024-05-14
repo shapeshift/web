@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { store } from 'state/store'
 
 import type { SendInput } from '../../Form'

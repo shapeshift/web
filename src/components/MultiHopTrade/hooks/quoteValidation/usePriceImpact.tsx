@@ -2,7 +2,7 @@ import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/sw
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectUsdRateByAssetId } from 'state/slices/selectors'
+import { selectUsdRateByAssetId } from 'state/selectors'
 import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import { useAppSelector } from 'state/store'
 

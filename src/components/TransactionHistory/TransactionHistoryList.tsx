@@ -5,7 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
-import { selectIsAnyTxHistoryApiQueryPending } from 'state/slices/selectors'
+import { selectIsAnyTxHistoryApiQueryPending } from 'state/selectors'
 import { type TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 

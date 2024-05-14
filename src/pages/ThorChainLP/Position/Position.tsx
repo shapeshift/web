@@ -37,7 +37,7 @@ import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/util
 import { calculateEarnings } from 'lib/utils/thorchain/lp'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AddLiquidity } from '../components/AddLiquidity/AddLiquidity'

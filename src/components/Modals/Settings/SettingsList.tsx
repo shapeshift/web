@@ -30,7 +30,7 @@ import {
   selectCurrencyFormat,
   selectSelectedCurrency,
   selectSelectedLocale,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'

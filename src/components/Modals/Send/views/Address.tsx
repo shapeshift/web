@@ -15,7 +15,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AddressInput } from '../AddressInput/AddressInput'

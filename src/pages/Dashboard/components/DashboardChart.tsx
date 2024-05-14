@@ -25,7 +25,7 @@ import {
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ErroredTxHistoryAccounts } from './ErroredTxHistoryAccounts'

@@ -7,13 +7,13 @@
  * for the rest of the files, they CAN be imported from `state/slices/selectors`.
  */
 
-export * from './assetsSlice/selectors'
-export * from './marketDataSlice/selectors'
-export * from './portfolioSlice/selectors'
-export * from './preferencesSlice/selectors'
-export * from './txHistorySlice/selectors'
-export * from './opportunitiesSlice/selectors'
-export * from './tradeInputSlice/selectors'
+export * from '../slices/assetsSlice/selectors'
+export * from '../slices/marketDataSlice/selectors'
+export * from '../slices/portfolioSlice/selectors'
+export * from '../slices/preferencesSlice/selectors'
+export * from '../slices/txHistorySlice/selectors'
+export * from '../slices/opportunitiesSlice/selectors'
+export * from '../slices/tradeInputSlice/selectors'
 
 /**
  * some selectors span multiple business logic domains, e.g. portfolio and opportunities
@@ -22,4 +22,4 @@ export * from './tradeInputSlice/selectors'
  * to avoid both circular dependencies and duplication of logic,
  * we define them higher up the tree at a common place
  */
-export * from './common-selectors'
+export * from '../slices/common-selectors'

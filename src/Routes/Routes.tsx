@@ -10,7 +10,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectSelectedLocale } from 'state/slices/selectors'
+import { selectSelectedLocale } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PrivateRoute } from './PrivateRoute'

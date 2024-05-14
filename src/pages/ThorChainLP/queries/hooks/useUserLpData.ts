@@ -12,7 +12,7 @@ import { getPoolShare } from 'lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
-import { selectAccountIdsByAssetId, selectAssets, selectWalletId } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectAssets, selectWalletId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type GetPositionArgs = {

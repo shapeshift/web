@@ -13,7 +13,7 @@ import {
   selectAssetById,
   selectWalletChainIds,
   selectWalletSupportedChainIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterChainIdsBySearchTerm } from '../helpers'

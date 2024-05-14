@@ -2,7 +2,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
+import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/selectors'
 import { store } from 'state/store'
 
 export const chainIdToLabel = (chainId: ChainId): string => {

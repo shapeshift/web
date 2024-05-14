@@ -22,7 +22,7 @@ import {
   selectAccountNumberByAccountId,
   selectAssets,
   selectErroredTxHistoryAccounts,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const warningIcon = <WarningIcon />

@@ -7,7 +7,7 @@ import { useController, useFormContext, useWatch } from 'react-hook-form'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectFeeAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from './Form'

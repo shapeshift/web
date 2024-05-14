@@ -30,7 +30,7 @@ import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

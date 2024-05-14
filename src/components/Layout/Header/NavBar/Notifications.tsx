@@ -11,7 +11,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints, theme } from 'theme/theme'
 

@@ -13,7 +13,7 @@ import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RainbowData } from 'hooks/useBalanceChartData/useBalanceChartData'
-import { selectAssets, selectSelectedLocale } from 'state/slices/selectors'
+import { selectAssets, selectSelectedLocale } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 

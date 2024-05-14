@@ -13,7 +13,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { OpportunityRow } from './OpportunityRow'

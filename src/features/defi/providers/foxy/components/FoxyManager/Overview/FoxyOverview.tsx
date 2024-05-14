@@ -32,7 +32,7 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectSelectedLocale,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithdrawCard } from './WithdrawCard'

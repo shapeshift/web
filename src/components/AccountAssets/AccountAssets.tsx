@@ -2,7 +2,7 @@ import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainNamespace } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
-import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/slices/selectors'
+import { selectPortfolioAssetIdsByAccountIdExcludeFeeAsset } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssetsList } from './AccountAssetsList'

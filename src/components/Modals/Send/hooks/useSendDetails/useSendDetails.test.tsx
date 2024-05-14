@@ -29,7 +29,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 
 import { useSendDetails } from './useSendDetails'
 

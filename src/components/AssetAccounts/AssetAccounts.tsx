@@ -2,7 +2,7 @@ import { Card, CardBody, CardHeader, Grid, Heading, Stack } from '@chakra-ui/rea
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
-import { selectAccountIdsByAssetIdAboveBalanceThreshold } from 'state/slices/selectors'
+import { selectAccountIdsByAssetIdAboveBalanceThreshold } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetAccountRow } from './AssetAccountRow'

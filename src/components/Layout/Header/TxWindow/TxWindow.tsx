@@ -25,7 +25,7 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { RawText } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { selectIsAnyTxHistoryApiQueryPending, selectTxIdsByFilter } from 'state/slices/selectors'
+import { selectIsAnyTxHistoryApiQueryPending, selectTxIdsByFilter } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const paddingProp = { base: 4, md: 6 }

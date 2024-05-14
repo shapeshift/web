@@ -23,7 +23,7 @@ import { useKeepKey } from 'context/WalletProvider/KeepKeyProvider'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectWalletId } from 'state/slices/selectors'
+import { selectWalletId } from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SubMenuBody } from '../SubMenuBody'

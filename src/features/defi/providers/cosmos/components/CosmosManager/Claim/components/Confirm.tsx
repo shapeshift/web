@@ -28,7 +28,7 @@ import {
   selectAssets,
   selectBIP44ParamsByAccountId,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosClaimActionType } from '../ClaimCommon'

@@ -23,7 +23,7 @@ import {
   selectAggregatedEarnUserLpOpportunities,
   selectAssets,
   selectMarketDataUserCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type LpPositionsByProviderProps = {

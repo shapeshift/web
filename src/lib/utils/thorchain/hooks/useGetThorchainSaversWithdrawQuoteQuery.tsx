@@ -8,7 +8,7 @@ import {
   getWithdrawBps,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
+import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import { store } from 'state/store'
 
 export type GetThorchainSaversWithdrawQuoteQueryKey = [

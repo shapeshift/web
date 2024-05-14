@@ -18,7 +18,7 @@ import { CarouselDots } from 'components/CarouselDots/CarouselDots'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { selectAssetNameById } from 'state/slices/selectors'
+import { selectAssetNameById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const STEP_TO_ELEMENTS_MAPPING = [

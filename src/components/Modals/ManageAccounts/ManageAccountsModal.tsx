@@ -27,7 +27,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
 import { selectWalletChainIds, selectWalletSupportedChainIds } from 'state/slices/common-selectors'
-import { selectAccountIdsByChainId, selectAssetById } from 'state/slices/selectors'
+import { selectAccountIdsByChainId, selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const infoIcon = <InfoIcon />

@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { useFindPriceHistoryByAssetIdsQuery } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { FindPriceHistoryByAssetIdArgs } from 'state/slices/marketDataSlice/types'
-import { selectCryptoPriceHistoryTimeframe } from 'state/slices/selectors'
+import { selectCryptoPriceHistoryTimeframe } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { TradeFees } from './utils'

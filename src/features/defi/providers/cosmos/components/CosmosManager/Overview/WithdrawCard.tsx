@@ -18,7 +18,7 @@ import {
   supportsUndelegations,
   toValidatorId,
 } from 'state/slices/opportunitiesSlice/utils'
-import { selectUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
+import { selectUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type WithdrawCardProps = {

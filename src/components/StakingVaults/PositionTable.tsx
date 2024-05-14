@@ -25,7 +25,7 @@ import {
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
   selectOpportunityApiPending,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SearchEmpty } from './SearchEmpty'

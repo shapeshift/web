@@ -3,7 +3,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
 import { chainIdToFeeAssetId } from 'lib/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

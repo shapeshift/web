@@ -5,7 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import type { Row } from 'react-table'
 import { MarketsTable } from 'components/MarketsTable'
-import { selectAssetsSortedByMarketCap } from 'state/slices/selectors'
+import { selectAssetsSortedByMarketCap } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const TopAssetsTable = () => {

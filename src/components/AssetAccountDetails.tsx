@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import type { Route } from 'Routes/helpers'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'

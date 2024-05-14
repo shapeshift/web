@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import { selectAssetById, selectSelectedLocale } from 'state/slices/selectors'
+import { selectAssetById, selectSelectedLocale } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetDescriptionProps = {

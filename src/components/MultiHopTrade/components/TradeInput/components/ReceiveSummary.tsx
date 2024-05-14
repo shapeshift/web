@@ -20,7 +20,7 @@ import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
-import { selectInputSellAmountUsd } from 'state/slices/selectors'
+import { selectInputSellAmountUsd } from 'state/selectors'
 import {
   selectActiveQuoteAffiliateBps,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,

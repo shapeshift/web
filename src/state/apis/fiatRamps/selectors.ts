@@ -6,7 +6,7 @@ import { createSelector } from 'reselect'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAssetIdParamFromFilter } from 'state/selectors'
 import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssets, selectMarketDataUserCurrency } from 'state/slices/selectors'
+import { selectAssets, selectMarketDataUserCurrency } from 'state/selectors'
 
 import { fiatRampApi } from './fiatRamps'
 

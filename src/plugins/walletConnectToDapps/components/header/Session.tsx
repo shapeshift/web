@@ -17,7 +17,7 @@ import { extractConnectedAccounts } from 'plugins/walletConnectToDapps/utils'
 import { useWalletConnectV2 } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { useCallback, useMemo } from 'react'
 import { RawText, Text } from 'components/Text'
-import { selectSelectedLocale } from 'state/slices/selectors'
+import { selectSelectedLocale } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AddressLinks } from './AddressLinks'

@@ -20,7 +20,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from './useLendingPositionData'

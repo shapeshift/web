@@ -34,7 +34,7 @@ import {
   selectInputSellAsset,
   selectManualReceiveAddress,
   selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithBackButton } from '../WithBackButton'

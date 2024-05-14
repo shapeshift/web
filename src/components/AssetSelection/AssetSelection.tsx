@@ -5,7 +5,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetChainDropdown } from './components/AssetChainDropdown/AssetChainDropdown'

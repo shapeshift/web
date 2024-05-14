@@ -35,7 +35,7 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectSelectedCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 

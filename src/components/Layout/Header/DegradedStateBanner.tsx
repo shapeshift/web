@@ -23,7 +23,7 @@ import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText, Text } from 'components/Text'
 import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets, selectPortfolioErroredAccountIds } from 'state/slices/selectors'
+import { selectAssets, selectPortfolioErroredAccountIds } from 'state/selectors'
 import { useAppDispatch } from 'state/store'
 
 const warningIcon = <WarningIcon />

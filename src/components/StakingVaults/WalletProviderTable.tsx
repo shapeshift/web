@@ -5,7 +5,7 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import {
   selectAggregatedEarnOpportunitiesByProvider,
   selectOpportunityApiPending,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ProviderCard, ProviderCardLoading } from './ProviderCard'

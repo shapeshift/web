@@ -12,7 +12,7 @@ import {
   selectFeeAssetByChainId,
   selectMarketDataUserCurrency,
   selectTxById,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 

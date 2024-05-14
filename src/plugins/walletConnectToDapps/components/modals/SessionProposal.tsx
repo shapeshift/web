@@ -19,7 +19,7 @@ import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { assertIsDefined } from 'lib/utils'
-import { selectAccountIdsByChainId } from 'state/slices/selectors'
+import { selectAccountIdsByChainId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }

@@ -15,18 +15,18 @@ import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getTh
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import {
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectWalletSupportedChainIds,
-} from 'state/slices/common-selectors'
-import {
   selectAssets,
   selectFeeAssetById,
   selectFirstHopSellAccountId,
   selectInputSellAmountCryptoPrecision,
   selectPortfolioAccountIdByNumberByChainId,
   selectSecondHopSellAccountId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import {
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectWalletSupportedChainIds,
+} from 'state/slices/common-selectors'
 import {
   getHopByIndex,
   getTotalProtocolFeeByAssetForStep,

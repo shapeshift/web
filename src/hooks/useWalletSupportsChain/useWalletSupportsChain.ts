@@ -34,8 +34,8 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { selectFeatureFlag } from 'state/selectors'
 import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
-import { selectFeatureFlag } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
 type WalletSupportsChainArgs = {

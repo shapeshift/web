@@ -13,7 +13,7 @@ import { useHistory } from 'react-router'
 import { ChainList } from 'components/TradeAssetSearch/Chains/ChainList'
 import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { sortChainIdsByDisplayName } from 'lib/utils'
-import { selectWalletSupportedChainIds } from 'state/slices/selectors'
+import { selectWalletSupportedChainIds } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetList } from './components/AssetList'

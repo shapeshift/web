@@ -7,7 +7,7 @@ import { chainIdToFeeAssetId } from 'lib/utils'
 import {
   selectAssetById,
   selectPortfolioTotalBalanceByChainIdIncludeStaking,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type ChainRowProps = {

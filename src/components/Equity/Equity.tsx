@@ -23,7 +23,7 @@ import {
   selectOpportunityApiPending,
   selectPortfolioLoading,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EquityAccountRow } from './EquityAccountRow'

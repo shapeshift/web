@@ -4,7 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { defaultClipPath } from 'components/AssetIcon'
 import { LedgerIcon } from 'components/Icons/LedgerIcon'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetOnLedgerProps = {

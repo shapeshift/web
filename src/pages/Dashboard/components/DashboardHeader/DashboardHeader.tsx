@@ -9,7 +9,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
   selectClaimableRewards,
   selectTotalPortfolioBalanceIncludeStakingUserCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DashboardTab } from '../DashboardTab'

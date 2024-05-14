@@ -9,7 +9,7 @@ import { Equity } from 'components/Equity/Equity'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
 import { EarnOpportunities } from 'components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from 'components/TransactionHistory/AssetTransactionHistory'
-import { selectWalletAccountIds } from 'state/slices/selectors'
+import { selectWalletAccountIds } from 'state/selectors'
 
 import { AccountBalance } from './AccountBalance'
 

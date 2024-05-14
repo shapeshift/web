@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom'
 import { AccountLabel } from 'components/AssetHeader/AccountLabel'
 import { Text } from 'components/Text/Text'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const GetTranslatedPathPart = ({ match }: { match: RouteComponentProps['match'] }) => {

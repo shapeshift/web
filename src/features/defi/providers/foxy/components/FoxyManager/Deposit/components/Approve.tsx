@@ -18,7 +18,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { selectBIP44ParamsByAccountId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'

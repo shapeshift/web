@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { useQuery } from 'hooks/useQuery/useQuery'
-import { selectPortfolioChainIdsSortedUserCurrency } from 'state/slices/selectors'
+import { selectPortfolioChainIdsSortedUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { GlobalFilter } from './GlobalFilter'

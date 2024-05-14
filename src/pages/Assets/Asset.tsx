@@ -1,7 +1,7 @@
 import type { Route } from 'Routes/helpers'
 import { AssetAccountDetails } from 'components/AssetAccountDetails'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const Asset = ({ route }: { route?: Route }) => {

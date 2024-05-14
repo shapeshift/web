@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { FaRegStar, FaStar } from 'react-icons/fa'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectIsAssetIdWatched } from 'state/slices/selectors'
+import { selectIsAssetIdWatched } from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const starEmpty = <FaRegStar />

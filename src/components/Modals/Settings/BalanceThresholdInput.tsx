@@ -6,7 +6,7 @@ import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectBalanceThreshold } from 'state/slices/selectors'
+import { selectBalanceThreshold } from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const InputComponent = (props: InputProps) => (

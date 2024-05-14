@@ -24,7 +24,7 @@ import {
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectPortfolioAllocationPercentByFilter,
   selectUserCurrencyBalanceIncludingStakingByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

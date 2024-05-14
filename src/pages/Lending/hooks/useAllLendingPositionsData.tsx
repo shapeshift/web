@@ -10,7 +10,7 @@ import {
   selectUserCurrencyRateByAssetId,
   selectUserCurrencyToUsdRate,
   selectWalletAccountIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 import { useLendingSupportedAssets } from './useLendingSupportedAssets'

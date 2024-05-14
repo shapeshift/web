@@ -18,7 +18,7 @@ import { isValidElement, useCallback, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetTeaser } from './AssetTeaser'

@@ -26,7 +26,7 @@ import {
   selectPortfolioLoadingStatus,
   selectStakingOpportunitiesById,
   selectWalletAccountIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from 'state/store'
 

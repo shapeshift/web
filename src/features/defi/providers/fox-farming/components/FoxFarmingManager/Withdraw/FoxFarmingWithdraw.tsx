@@ -20,7 +20,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectPortfolioLoading,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Confirm } from './components/Confirm'

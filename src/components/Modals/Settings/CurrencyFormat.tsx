@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { CurrencyFormats, preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
+import { selectCurrencyFormat, selectSelectedCurrency } from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { currencyFormatsRepresenter } from './SettingsCommon'

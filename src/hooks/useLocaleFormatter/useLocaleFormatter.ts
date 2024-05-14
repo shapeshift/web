@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
-import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
+import { selectCurrencyFormat, selectSelectedCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const CRYPTO_PRECISION = 8

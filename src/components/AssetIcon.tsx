@@ -4,7 +4,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { memo, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxIcon } from './Icons/FoxIcon'

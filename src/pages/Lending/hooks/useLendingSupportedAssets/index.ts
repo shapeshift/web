@@ -17,7 +17,7 @@ import {
   selectAccountIdsByChainId,
   selectAssetById,
   selectWalletChainIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 const queryKey = ['lendingSupportedAssets']

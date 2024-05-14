@@ -29,7 +29,7 @@ import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import {
   selectActiveQuoteMetaOrDefault,
   selectIsAnyTradeQuoteLoading,

@@ -30,7 +30,7 @@ import {
   selectAccountIdsByChainId,
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type ProviderCardProps = {

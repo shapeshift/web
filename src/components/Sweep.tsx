@@ -9,7 +9,7 @@ import { fromBaseUnit } from 'lib/math'
 import { sleep } from 'lib/poll/poll'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Amount } from './Amount/Amount'

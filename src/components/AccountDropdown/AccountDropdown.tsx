@@ -33,14 +33,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
 import { type ReduxState } from 'state/reducer'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectHighestUserCurrencyBalanceAccountByAssetId,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioAccountMetadata,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { RawText } from '../Text'

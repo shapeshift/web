@@ -5,7 +5,7 @@ import { Route, Switch, useRouteMatch } from 'react-router'
 import { SEO } from 'components/Layout/Seo'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { isSome } from 'lib/utils'
-import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/slices/selectors'
+import { selectTxIdsBasedOnSearchTermAndFilters } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DownloadButton } from './DownloadButton'

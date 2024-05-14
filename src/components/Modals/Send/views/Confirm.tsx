@@ -30,7 +30,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Form'

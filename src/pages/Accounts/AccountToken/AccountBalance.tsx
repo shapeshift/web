@@ -14,7 +14,7 @@ import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectUserCurrencyBalanceIncludingStakingByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type AccountBalanceProps = {

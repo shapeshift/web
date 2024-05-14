@@ -11,7 +11,7 @@ import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertIsDefined } from 'lib/utils'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectFeeAssetByChainId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }

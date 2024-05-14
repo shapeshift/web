@@ -7,11 +7,11 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 const focus = {

@@ -10,7 +10,7 @@ import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
 } from 'lib/utils/thorchain/lp/types'
-import { selectUserCurrencyToUsdRate } from 'state/slices/selectors'
+import { selectUserCurrencyToUsdRate } from 'state/selectors'
 import { store } from 'state/store'
 
 type ChartIntervalKey = 'day' | 'week' | 'month' | 'all'

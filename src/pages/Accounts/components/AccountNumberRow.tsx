@@ -31,7 +31,7 @@ import {
   selectFeeAssetByChainId,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountEntryRow } from './AccountEntryRow'

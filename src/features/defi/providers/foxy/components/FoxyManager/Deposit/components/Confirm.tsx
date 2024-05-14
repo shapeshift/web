@@ -23,7 +23,7 @@ import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyDepositActionType } from '../DepositCommon'

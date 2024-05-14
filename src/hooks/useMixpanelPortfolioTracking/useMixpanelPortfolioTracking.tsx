@@ -8,7 +8,7 @@ import {
   selectPortfolioAnonymized,
   selectSelectedCurrency,
   selectSelectedLocale,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useMixpanelPortfolioTracking = () => {

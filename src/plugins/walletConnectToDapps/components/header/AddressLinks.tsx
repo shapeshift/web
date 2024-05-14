@@ -6,7 +6,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
 import { isSome } from 'lib/utils'
 import { accountIdToFeeAssetId } from 'lib/utils/accounts'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type AddressAndChainProps = {

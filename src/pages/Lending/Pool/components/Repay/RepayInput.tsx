@@ -56,7 +56,7 @@ import {
   selectFeeAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { store, useAppSelector } from 'state/store'
 

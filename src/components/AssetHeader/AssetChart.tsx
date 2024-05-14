@@ -17,7 +17,7 @@ import {
   selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectMarketDataByAssetIdUserCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

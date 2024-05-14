@@ -13,10 +13,8 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
-import {
-  selectChainDisplayNameByAssetId,
-  selectRelatedAssetIdsInclusiveSorted,
-} from 'state/slices/selectors'
+import { selectRelatedAssetIdsInclusiveSorted } from 'state/slices/related-assets-selectors'
+import { selectChainDisplayNameByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetRowLoading } from '../AssetRowLoading'
@@ -49,7 +47,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       return relatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
     }, [assetIds, relatedAssetIds])
 
-    const renderChains = useMemo(() => {
+    const renderedChains = useMemo(() => {
       if (!assetId) return null
       return filteredRelatedAssetIds.map(relatedAssetId => {
         const isSupported = wallet && isAssetSupportedByWallet(relatedAssetId, wallet)
@@ -104,7 +102,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
         </Tooltip>
         <MenuList zIndex='modal'>
           <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
-            {renderChains}
+            {renderedChains}
           </MenuOptionGroup>
         </MenuList>
       </Menu>

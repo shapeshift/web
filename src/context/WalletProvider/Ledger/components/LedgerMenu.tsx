@@ -64,12 +64,11 @@ export const LedgerMenu = () => {
         </MenuItem>
       )}
       {/* TODO: Remove the below menu item once the new flow is added, and before the feature flag is enabled */}
-      {!isAccountManagementEnabled ||
-        (!isLedgerAccountManagementEnabled && (
-          <MenuItem justifyContent='space-between' onClick={handleChainsClick}>
-            {translate('walletProvider.ledger.chains.header')}
-          </MenuItem>
-        ))}
+      {(!isAccountManagementEnabled || !isLedgerAccountManagementEnabled) && (
+        <MenuItem justifyContent='space-between' onClick={handleChainsClick}>
+          {translate('walletProvider.ledger.chains.header')}
+        </MenuItem>
+      )}
     </>
   )
 }

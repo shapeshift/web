@@ -19,7 +19,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -78,7 +77,7 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
       <Td fontWeight='bold'>
         <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
           <div ref={ref}>
-            <MiddleEllipsis value={accountLabel} />
+            <RawText>{accountLabel}</RawText>
           </div>
         </Tooltip>
       </Td>

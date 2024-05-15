@@ -34,8 +34,8 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         if ((error as Error)?.message.includes('Pairing already exists')) {
           toast({
             position: 'top-right',
-            title: translate('plugins.walletConnectToDapps.header.errorConnectingToDapp'),
-            description: translate('plugins.walletConnectToDapps.header.pairingAlreadyExists'),
+            title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+            description: translate('plugins.walletConnectToDapps.errors.pairingAlreadyExists'),
             status: 'error',
             duration: 5000,
             isClosable: true,

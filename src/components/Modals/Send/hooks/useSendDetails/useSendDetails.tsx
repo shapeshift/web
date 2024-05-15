@@ -119,7 +119,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }: {
       amountCryptoPrecision: string
     }): Promise<FeeDataEstimate<ChainId>> => {
-      console.log({ sendMax })
       if (!asset) throw new Error('No asset found')
 
       if (!wallet) throw new Error('No wallet connected')

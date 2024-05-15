@@ -1,6 +1,6 @@
 import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { arbitrumAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { useCallback, useMemo, useState } from 'react'
@@ -128,7 +128,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     assetId: asset?.assetId,
     // TODO(gomes): const somewhere
     spender: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
-    from: stakingAssetAccountId,
+    from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
   })
 
   const allowanceCryptoPrecision = useMemo(() => {

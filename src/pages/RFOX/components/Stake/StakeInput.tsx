@@ -65,7 +65,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
-  // TODO(gomes): also programmaticp ls
+
+  // TODO(gomes): make this programmatic when we implement multi-account
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, asset?.chainId ?? ''),
   )
@@ -137,6 +138,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return fromBaseUnit(allowanceDataCryptoBaseUnit, asset?.precision)
   }, [allowanceDataCryptoBaseUnit, asset])
 
+  // TODO(gomes): balance checks too
   const isApprovalRequired = useMemo(
     () => bnOrZero(allowanceCryptoPrecision).lt(cryptoAmount),
     [allowanceCryptoPrecision, cryptoAmount],

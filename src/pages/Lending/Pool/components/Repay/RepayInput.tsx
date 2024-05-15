@@ -346,6 +346,7 @@ export const RepayInput = ({
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
+        onlyConnectedChains={true}
       />
     )
   }, [setRepaymentAsset, handleRepaymentAssetClick, repaymentAsset?.assetId])
@@ -356,6 +357,7 @@ export const RepayInput = ({
         assetId={collateralAssetId}
         isReadOnly
         isLoading={isLendingSupportedAssetsLoading}
+        onlyConnectedChains={true}
       />
     )
   }, [collateralAssetId, isLendingSupportedAssetsLoading])

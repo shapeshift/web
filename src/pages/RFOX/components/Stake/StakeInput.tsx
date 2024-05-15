@@ -137,6 +137,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return fromBaseUnit(allowanceDataCryptoBaseUnit, asset?.precision)
   }, [allowanceDataCryptoBaseUnit, asset])
 
+  const isApprovalRequired = useMemo(
+    () => bnOrZero(allowanceCryptoPrecision).lt(cryptoAmount),
+    [allowanceCryptoPrecision, cryptoAmount],
+  )
+
   const isEstimatedFeesEnabled = useMemo(
     () =>
       Boolean(
@@ -144,16 +149,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           asset &&
           runeAddress &&
           isAllowanceDataSuccess &&
-          bnOrZero(allowanceCryptoPrecision).gte(cryptoAmount),
+          !isApprovalRequired,
       ),
-    [
-      allowanceCryptoPrecision,
-      asset,
-      cryptoAmount,
-      isAllowanceDataSuccess,
-      isValidStakingAmount,
-      runeAddress,
-    ],
+    [asset, isAllowanceDataSuccess, isApprovalRequired, isValidStakingAmount, runeAddress],
   )
 
   // TODO(gomes): move this queryFn out of lending
@@ -282,24 +280,25 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               py={4}
               bg='background.surface.raised.accent'
             >
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('common.gasFee')}</Row.Label>
-                <Row.Value>
-                  <Skeleton
-                    isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
-                    height='14px'
-                    width='50px'
-                  >
-                    <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('common.fees')}</Row.Label>
-                <Row.Value>
-                  <Amount.Fiat value='0.0' />
-                </Row.Value>
-              </Row>
+              {
+                /* Only display gas fee if allowance has been granted - else we can't estimate them
+                 * Or maybe we just remove the fees row altogether because they're so cheap on L2?
+                 * */
+                !isApprovalRequired && (
+                  <Row fontSize='sm' fontWeight='medium'>
+                    <Row.Label>{translate('common.gasFee')}</Row.Label>
+                    <Row.Value>
+                      <Skeleton
+                        isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
+                        height='14px'
+                        width='50px'
+                      >
+                        <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
+                      </Skeleton>
+                    </Row.Value>
+                  </Row>
+                )
+              }
             </CardFooter>
           </Collapse>
         </Stack>

@@ -15,11 +15,11 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { middleEllipsis } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -120,9 +120,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
       >
         <CustomRow>
           <Row.Label>{translate('RFOX.thorchainRewardAddress')}</Row.Label>
-          <Row.Value>
-            <MiddleEllipsis value='123458696958383' />
-          </Row.Value>
+          <Row.Value>{middleEllipsis('123455667765')}</Row.Value>
         </CustomRow>
       </CardFooter>
       <CardFooter

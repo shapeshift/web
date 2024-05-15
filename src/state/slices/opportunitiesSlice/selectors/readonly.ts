@@ -13,20 +13,17 @@ export const selectGetReadOnlyOpportunities = createSelector(
   selectEvmAccountIds,
   selectZapperQueries,
   (evmAccountIds, queries) => {
-    const getZapperAppsBalancesQueries = Object.entries(queries).filter(([queryKey]) =>
-      queryKey.startsWith('getZapperAppsBalancesOutput'),
-    )
+    const getZapperAppsBalancesQueries = Object.entries(queries)
+      .filter(([queryKey]) => queryKey.startsWith('getZapperAppsBalancesOutput'))
+      .map(([_queryKey, queryInfo]) => queryInfo)
 
-    const getZapperAppsBalancesOutput = getZapperAppsBalancesQueries.find(
-      ([queryKey, queryInfo]) => {
-        return (
-          queryKey.startsWith('getZapperAppsBalancesOutput') &&
-          queryInfo?.status === 'fulfilled' &&
-          // Yes, arrays are references but that's absolutely fine because selector outputs *are* stable references
-          (queryInfo.originalArgs as GetZapperAppsBalancesInput).evmAccountIds === evmAccountIds
-        )
-      },
-    )?.[1]?.data as GetZapperAppsBalancesOutput | undefined
+    const getZapperAppsBalancesOutput = getZapperAppsBalancesQueries.find(queryInfo => {
+      return (
+        queryInfo?.status === 'fulfilled' &&
+        // Yes, arrays are references but that's absolutely fine because selector outputs *are* stable references
+        (queryInfo.originalArgs as GetZapperAppsBalancesInput).evmAccountIds === evmAccountIds
+      )
+    })?.data as GetZapperAppsBalancesOutput | undefined
 
     if (!getZapperAppsBalancesOutput)
       return {

@@ -36,6 +36,7 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
+  // @TODO: Need to add a fiat toggle for the input field
   const hasEnteredValue = useMemo(() => !!fiatAmount || !!cryptoAmount, [cryptoAmount, fiatAmount])
 
   const handleChange = useCallback((value: string, isFiat?: boolean) => {

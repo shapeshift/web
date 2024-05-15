@@ -180,13 +180,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           if (!canCoverFees) {
             throw new Error('common.insufficientFunds')
           }
-        } else {
-          if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
-            setValue(SendFormFields.AmountFieldError, [
-              'modals.send.errors.notEnoughNativeToken',
-              { asset: feeAsset.symbol },
-            ])
-          }
+        } else if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
+          setValue(SendFormFields.AmountFieldError, [
+            'modals.send.errors.notEnoughNativeToken',
+            { asset: feeAsset.symbol },
+          ])
         }
 
         const hasEnoughNativeTokenForGas = nativeAssetBalance

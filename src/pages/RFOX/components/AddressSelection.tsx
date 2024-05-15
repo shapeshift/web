@@ -49,6 +49,7 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
       />
     )
   }, [handleAccountIdChange, isManualAddress])
+
   return (
     <FormControl>
       <Stack px={6} py={4}>

@@ -1,6 +1,6 @@
 import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback, useState } from 'react'
+import React, { lazy, lazy, Suspense, Suspense, useCallback, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
@@ -46,7 +46,6 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
-  // For future use
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
 
   const renderStakeInput = useCallback(() => {

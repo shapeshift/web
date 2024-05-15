@@ -20,7 +20,7 @@ export const ConsentBanner: React.FC = () => {
   return (
     <Portal>
       <Flex
-        zIndex='modal'
+        zIndex='banner'
         bg={useColorModeValue('white', 'blue.900')}
         position='fixed'
         bottom={0}

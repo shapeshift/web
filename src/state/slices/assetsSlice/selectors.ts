@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { type AssetId, type ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
@@ -15,27 +15,6 @@ export const selectAssetById = createCachedSelector(
   (state: ReduxState) => state.assets.byId,
   (_state: ReduxState, assetId: AssetId) => assetId,
   (byId, assetId) => byId[assetId] || undefined,
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
-
-// selects all related assetIds, inclusive of the asset being queried
-export const selectRelatedAssetIdsInclusive = createCachedSelector(
-  (state: ReduxState) => state.assets.relatedAssetIndex,
-  selectAssetById,
-  (relatedAssetIndex, asset): AssetId[] => {
-    if (!asset) return []
-    const relatedAssetKey = asset.relatedAssetKey
-    if (!relatedAssetKey) return [asset.assetId]
-    return [relatedAssetKey].concat(relatedAssetIndex[relatedAssetKey] ?? [])
-  },
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
-
-// selects all related assetIds, exclusive of the asset being queried
-export const selectRelatedAssetIds = createCachedSelector(
-  selectRelatedAssetIdsInclusive,
-  selectAssetById,
-  (relatedAssetIdsInclusive, asset): AssetId[] => {
-    return relatedAssetIdsInclusive.filter(assetId => assetId !== asset?.assetId) ?? []
-  },
 )((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')
 
 export const selectAssetByFilter = createCachedSelector(

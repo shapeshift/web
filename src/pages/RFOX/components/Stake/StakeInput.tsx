@@ -55,7 +55,7 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   }, [history])
 
   const assetSelectComponent = useMemo(() => {
-    return <TradeAssetSelect assetId={asset?.assetId} isReadOnly />
+    return <TradeAssetSelect assetId={asset?.assetId} isReadOnly onlyConnectedChains={true} />
   }, [asset?.assetId])
 
   if (!asset) return null

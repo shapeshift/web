@@ -19,9 +19,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 interface ClaimStatusState {

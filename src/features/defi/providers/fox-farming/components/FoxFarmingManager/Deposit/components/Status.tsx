@@ -22,7 +22,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
@@ -30,6 +29,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/selectors'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 

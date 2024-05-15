@@ -18,13 +18,13 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/selectors'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { Confirm } from './components/Confirm'

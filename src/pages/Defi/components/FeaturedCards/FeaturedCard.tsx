@@ -19,9 +19,9 @@ import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { selectAssetById, selectAssets } from 'state/selectors'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { selectAssetById, selectAssets } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const scrollSnapAlign = { base: 'center', md: 'start' }

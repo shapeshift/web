@@ -4,7 +4,7 @@
  *  to avoid circular imports, those selectors must be imported from
  *  `state/slices/[sliceName]/selectors` instead of this file.
  *
- * for the rest of the files, they CAN be imported from `state/slices/selectors`.
+ * for the rest of the files, they CAN be imported from `state/selectors`.
  */
 
 export * from '../slices/assetsSlice/selectors'

@@ -1,8 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectSelectedCurrency } from 'state/selectors'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const { findPriceHistoryByAssetIds, findPriceHistoryByFiatSymbol } = marketApi.endpoints

@@ -36,8 +36,6 @@ import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -45,6 +43,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/selectors'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {

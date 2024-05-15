@@ -11,13 +11,13 @@ import { TimeControls } from 'components/Graph/TimeControls'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectChartTimeframe,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/selectors'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

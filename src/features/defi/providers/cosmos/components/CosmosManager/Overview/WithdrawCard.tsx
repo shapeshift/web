@@ -13,12 +13,12 @@ import { IconCircle } from 'components/IconCircle'
 import { Text } from 'components/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import {
   serializeUserStakingId,
   supportsUndelegations,
   toValidatorId,
 } from 'state/slices/opportunitiesSlice/utils'
-import { selectUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type WithdrawCardProps = {

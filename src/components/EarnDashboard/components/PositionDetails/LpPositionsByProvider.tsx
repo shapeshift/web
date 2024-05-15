@@ -16,14 +16,14 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAssets,
   selectMarketDataUserCurrency,
 } from 'state/selectors'
+import type { LpEarnOpportunityType, OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import { useAppSelector } from 'state/store'
 
 type LpPositionsByProviderProps = {

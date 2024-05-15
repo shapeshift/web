@@ -20,8 +20,6 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { Sweep } from 'components/Sweep'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
@@ -29,6 +27,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/selectors'
+import { getThorchainSaversPosition } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { Confirm } from './components/Confirm'

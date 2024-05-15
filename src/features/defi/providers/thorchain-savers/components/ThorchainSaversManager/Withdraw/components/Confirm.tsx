@@ -44,13 +44,6 @@ import { isToken } from 'lib/utils'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import {
-  getThorchainSaversPosition,
-  getThorchainSaversWithdrawQuote,
-  getWithdrawBps,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -61,6 +54,13 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/selectors'
+import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+import {
+  getThorchainSaversPosition,
+  getThorchainSaversWithdrawQuote,
+  getWithdrawBps,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'

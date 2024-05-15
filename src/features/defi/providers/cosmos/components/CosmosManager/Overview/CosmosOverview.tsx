@@ -17,6 +17,16 @@ import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDro
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectAssetById,
+  selectAssets,
+  selectHasClaimByUserStakingId,
+  selectHighestBalanceAccountIdByStakingId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectSelectedLocale,
+  selectStakingOpportunityByFilter,
+  selectUserStakingOpportunityByUserStakingId,
+} from 'state/selectors'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
   getDefaultValidatorAddressFromChainId,
@@ -29,16 +39,6 @@ import {
   serializeUserStakingId,
   toValidatorId,
 } from 'state/slices/opportunitiesSlice/utils'
-import {
-  selectAssetById,
-  selectAssets,
-  selectHasClaimByUserStakingId,
-  selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedLocale,
-  selectStakingOpportunityByFilter,
-  selectUserStakingOpportunityByUserStakingId,
-} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CosmosEmpty } from './CosmosEmpty'

@@ -29,13 +29,13 @@ import {
 import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
 import { depositWithExpiry } from 'lib/utils/thorchain/routerCalldata'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
-import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectSelectedCurrency,
 } from 'state/selectors'
+import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 

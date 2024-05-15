@@ -4,10 +4,7 @@ import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
-import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectUserCurrencyToUsdRate,
-} from 'state/selectors'
+import { selectMarketDataByAssetIdUserCurrency, selectUserCurrencyToUsdRate } from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {

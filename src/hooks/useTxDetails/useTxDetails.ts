@@ -5,14 +5,14 @@ import type * as unchained from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { getTxLink } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
-import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataUserCurrency,
   selectTxById,
 } from 'state/selectors'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 

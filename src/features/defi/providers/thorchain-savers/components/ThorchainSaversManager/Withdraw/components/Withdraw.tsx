@@ -35,8 +35,6 @@ import {
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -46,6 +44,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/selectors'
+import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'

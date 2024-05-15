@@ -36,8 +36,6 @@ import {
 } from 'lib/utils/evm'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -46,6 +44,8 @@ import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/selectors'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'

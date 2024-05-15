@@ -25,8 +25,6 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
@@ -34,6 +32,8 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/selectors'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingDepositActionType } from '../DepositCommon'

@@ -16,8 +16,6 @@ import { useFetchPriceHistories } from 'hooks/useFetchPriceHistories/useFetchPri
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { priceAtDate } from 'lib/charts'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
-import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
-import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssets,
   selectBalanceChartCryptoBalancesByAccountIdAboveThreshold,
@@ -28,6 +26,8 @@ import {
   selectTxsByFilter,
   selectWalletId,
 } from 'state/selectors'
+import type { PriceHistoryData } from 'state/slices/marketDataSlice/types'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 

@@ -23,7 +23,6 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import {
   selectAssetById,
   selectAssets,
@@ -31,6 +30,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/selectors'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

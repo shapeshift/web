@@ -17,15 +17,15 @@ import { FormField } from 'components/DeFi/components/FormField'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  LpEarnOpportunityType,
-  StakingEarnOpportunityType,
-} from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/selectors'
+import type {
+  LpEarnOpportunityType,
+  StakingEarnOpportunityType,
+} from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { PairIcons } from '../PairIcons/PairIcons'

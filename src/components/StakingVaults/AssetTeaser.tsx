@@ -16,8 +16,8 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText, Text } from 'components/Text'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById, selectSelectedLocale } from 'state/selectors'
+import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import { useAppSelector } from 'state/store'
 
 export const AssetTeaser = ({ assetId }: { assetId: AssetId }) => {

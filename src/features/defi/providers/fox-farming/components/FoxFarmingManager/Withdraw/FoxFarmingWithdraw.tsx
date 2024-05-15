@@ -16,11 +16,11 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectPortfolioLoading,
 } from 'state/selectors'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { Confirm } from './components/Confirm'

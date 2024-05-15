@@ -9,8 +9,8 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 import { SupportedFiatCurrenciesList } from 'lib/market-service'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedCurrency } from 'state/selectors'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const arrowBackIcon = <ArrowBackIcon />

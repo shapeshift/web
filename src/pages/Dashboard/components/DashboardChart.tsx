@@ -19,13 +19,13 @@ import { BalanceChart } from 'components/BalanceChart/BalanceChart'
 import { TimeControls } from 'components/Graph/TimeControls'
 import { MaybeChartUnavailable } from 'components/MaybeChartUnavailable'
 import { Text } from 'components/Text'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectChartTimeframe,
   selectPortfolioAssetIds,
   selectPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/selectors'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ErroredTxHistoryAccounts } from './ErroredTxHistoryAccounts'

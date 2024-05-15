@@ -19,13 +19,13 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectStakingOpportunityByFilter,
 } from 'state/selectors'
+import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { DepositContext } from '../DepositContext'

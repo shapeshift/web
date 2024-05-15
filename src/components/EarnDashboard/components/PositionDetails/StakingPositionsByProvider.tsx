@@ -19,17 +19,17 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import {
+  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
+  selectAssets,
+  selectMarketDataUserCurrency,
+} from 'state/selectors'
 import type {
   OpportunityId,
   StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
 import { getUnderlyingAssetIdsBalances } from 'state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
-import {
-  selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
-  selectAssets,
-  selectMarketDataUserCurrency,
-} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakingPositionsByProviderProps = {

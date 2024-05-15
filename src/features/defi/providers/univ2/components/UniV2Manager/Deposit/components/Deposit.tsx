@@ -21,7 +21,6 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
@@ -29,6 +28,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/selectors'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { UniV2DepositActionType } from '../DepositCommon'

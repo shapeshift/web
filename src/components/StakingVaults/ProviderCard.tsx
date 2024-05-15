@@ -21,16 +21,16 @@ import { RawText } from 'components/Text'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import type {
-  AggregatedOpportunitiesByProviderReturn,
-  OpportunityId,
-} from 'state/slices/opportunitiesSlice/types'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAccountIdsByChainId,
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
 } from 'state/selectors'
+import type {
+  AggregatedOpportunitiesByProviderReturn,
+  OpportunityId,
+} from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import { useAppSelector } from 'state/store'
 
 type ProviderCardProps = {

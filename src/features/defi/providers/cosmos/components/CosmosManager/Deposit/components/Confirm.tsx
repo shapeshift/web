@@ -27,7 +27,6 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { walletCanEditMemo } from 'lib/utils'
-import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -36,6 +35,7 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectStakingOpportunityByFilter,
 } from 'state/selectors'
+import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { CosmosDepositActionType } from '../DepositCommon'

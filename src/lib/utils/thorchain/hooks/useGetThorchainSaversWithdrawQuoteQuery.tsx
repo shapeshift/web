@@ -3,12 +3,12 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { type BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import {
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import { store } from 'state/store'
 
 export type GetThorchainSaversWithdrawQuoteQueryKey = [

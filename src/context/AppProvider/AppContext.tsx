@@ -19,16 +19,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
-import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  marketApi,
-  marketData,
-  useFindAllQuery,
-} from 'state/slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
   selectAccountIdsByChainIdFilter,
@@ -39,6 +29,16 @@ import {
   selectSelectedLocale,
   selectWalletAccountIds,
 } from 'state/selectors'
+import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  marketApi,
+  marketData,
+  useFindAllQuery,
+} from 'state/slices/marketDataSlice/marketDataSlice'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 

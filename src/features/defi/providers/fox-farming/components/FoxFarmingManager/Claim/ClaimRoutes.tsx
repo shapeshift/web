@@ -13,14 +13,14 @@ import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { UserStakingId } from 'state/slices/opportunitiesSlice/types'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssets,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/selectors'
+import type { UserStakingId } from 'state/slices/opportunitiesSlice/types'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from '../Claim/ClaimConfirm'

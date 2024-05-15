@@ -11,12 +11,12 @@ import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { middleEllipsis } from 'lib/utils'
 import { isUtxoAccountId } from 'lib/utils/utxo'
+import { selectAccountNumberByAccountId, selectAssetById } from 'state/selectors'
 import {
   selectPortfolioAccountsCryptoHumanBalancesIncludingStaking,
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
 } from 'state/slices/portfolioSlice/selectors'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type AccountEntryRowProps = {

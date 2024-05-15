@@ -7,7 +7,6 @@ import { reactQueries } from 'react-queries'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
-import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
@@ -15,6 +14,7 @@ import {
   selectPortfolioAccounts,
   selectWalletId,
 } from 'state/selectors'
+import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { getUserLpDataPosition } from './useUserLpData'

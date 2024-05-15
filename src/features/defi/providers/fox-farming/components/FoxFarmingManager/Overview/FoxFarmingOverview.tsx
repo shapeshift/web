@@ -19,12 +19,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
-import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import {
-  makeDefiProviderDisplayName,
-  serializeUserStakingId,
-  toOpportunityId,
-} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -34,6 +28,12 @@ import {
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/selectors'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import {
+  makeDefiProviderDisplayName,
+  serializeUserStakingId,
+  toOpportunityId,
+} from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingEmpty } from './FoxFarmingEmpty'

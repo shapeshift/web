@@ -21,12 +21,12 @@ import {
   createBuildCustomTxInput,
   getFeesWithWallet,
 } from 'lib/utils/evm'
-import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/selectors'
+import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 import { useAppSelector } from 'state/store'
 
 import { calculateSlippageMargin } from '../utils'

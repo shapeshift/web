@@ -18,12 +18,12 @@ import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioLoading,
 } from 'state/selectors'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'

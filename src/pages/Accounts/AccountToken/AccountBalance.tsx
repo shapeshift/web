@@ -9,12 +9,12 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetActions } from 'components/AssetHeader/AssetActions'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { RawText } from 'components/Text'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectUserCurrencyBalanceIncludingStakingByFilter,
 } from 'state/selectors'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type AccountBalanceProps = {

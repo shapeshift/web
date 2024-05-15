@@ -12,9 +12,6 @@ import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useEffect, useMemo } from 'react'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
-import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectEarnUserLpOpportunity,
   selectFirstAccountIdByChainId,
@@ -23,6 +20,9 @@ import {
   selectUnderlyingLpAssetsWithBalancesAndIcons,
   selectUserCurrencyBalanceIncludingStakingByFilter,
 } from 'state/selectors'
+import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type UniV2OverviewProps = {

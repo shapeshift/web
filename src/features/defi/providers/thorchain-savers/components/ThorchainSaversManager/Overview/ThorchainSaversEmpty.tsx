@@ -12,10 +12,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
-import {
-  selectAssetById,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/selectors'
+import { selectAssetById, selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type ThorchainSaversEmptyProps = {

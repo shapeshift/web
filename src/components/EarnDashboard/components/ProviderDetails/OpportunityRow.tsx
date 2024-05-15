@@ -7,6 +7,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectAssetById, selectAssets, selectMarketDataUserCurrency } from 'state/selectors'
 import type {
   LpEarnOpportunityType,
   StakingEarnOpportunityType,
@@ -16,7 +17,6 @@ import {
   getUnderlyingAssetIdsBalances,
 } from 'state/slices/opportunitiesSlice/utils'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
-import { selectAssetById, selectAssets, selectMarketDataUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { NestedAsset } from './NestedAsset'

@@ -18,13 +18,13 @@ import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { middleEllipsis } from 'lib/utils'
 import { accountIdToFeeAssetId } from 'lib/utils/accounts'
-import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectCryptoHumanBalanceIncludingStakingByFilter,
   selectPortfolioAllocationPercentByFilter,
   selectUserCurrencyBalanceIncludingStakingByFilter,
 } from 'state/selectors'
+import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

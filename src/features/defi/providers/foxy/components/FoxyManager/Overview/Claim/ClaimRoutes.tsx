@@ -4,13 +4,13 @@ import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { Route, Switch, useLocation } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
+import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import {
   makeTotalUndelegationsCryptoBaseUnit,
   serializeUserStakingId,
   supportsUndelegations,
   toOpportunityId,
 } from 'state/slices/opportunitiesSlice/utils'
-import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimConfirm } from './ClaimConfirm'

@@ -23,7 +23,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFoxyAprQuery } from 'state/apis/foxy/foxyApi'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
@@ -31,6 +30,7 @@ import {
   selectPortfolioLoading,
   selectStakingOpportunityByFilter,
 } from 'state/selectors'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'

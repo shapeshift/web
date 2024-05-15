@@ -17,13 +17,13 @@ import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
-import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestBalanceAccountIdByStakingId,
 } from 'state/selectors'
+import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { CosmosClaimActionType } from './ClaimCommon'

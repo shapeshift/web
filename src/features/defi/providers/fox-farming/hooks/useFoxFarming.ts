@@ -16,9 +16,9 @@ import {
   getFees,
   getFeesWithWallet,
 } from 'lib/utils/evm'
+import { selectAccountNumberByAccountId, selectAssetById } from 'state/selectors'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type UseFoxFarmingOptions = {

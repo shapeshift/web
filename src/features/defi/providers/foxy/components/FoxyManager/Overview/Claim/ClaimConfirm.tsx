@@ -26,17 +26,17 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
-import type { StakingId } from 'state/slices/opportunitiesSlice/types'
-import {
-  serializeUserStakingId,
-  supportsUndelegations,
-} from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/selectors'
+import type { StakingId } from 'state/slices/opportunitiesSlice/types'
+import {
+  serializeUserStakingId,
+  supportsUndelegations,
+} from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type ClaimConfirmProps = {

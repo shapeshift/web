@@ -25,12 +25,12 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
-import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectAssets,
   selectMaybeNextAccountNumberByChainId,
   selectPortfolioChainIdsSortedUserCurrency,
 } from 'state/selectors'
+import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const chainDropdownButtonProps = { width: 'full' }

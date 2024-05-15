@@ -10,6 +10,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { nftApi } from 'state/apis/nft/nftApi'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
+import {
+  selectPortfolioAccountMetadata,
+  selectPortfolioLoadingStatus,
+  selectStakingOpportunitiesById,
+  selectWalletAccountIds,
+} from 'state/selectors'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from 'state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
@@ -21,12 +27,6 @@ import {
 import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import {
-  selectPortfolioAccountMetadata,
-  selectPortfolioLoadingStatus,
-  selectStakingOpportunitiesById,
-  selectWalletAccountIds,
-} from 'state/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from 'state/store'
 

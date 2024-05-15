@@ -13,11 +13,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
-import {
-  selectAccountIdsByChainId,
-  selectAssetById,
-  selectWalletChainIds,
-} from 'state/selectors'
+import { selectAccountIdsByChainId, selectAssetById, selectWalletChainIds } from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 const queryKey = ['lendingSupportedAssets']

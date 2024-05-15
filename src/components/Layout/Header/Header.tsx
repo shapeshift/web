@@ -14,13 +14,13 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isUtxoAccountId } from 'lib/utils/utxo'
-import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioDegradedState,
   selectShowSnapsModal,
   selectWalletAccountIds,
   selectWalletId,
 } from 'state/selectors'
+import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch } from 'state/store'
 import { breakpoints } from 'theme/theme'
 

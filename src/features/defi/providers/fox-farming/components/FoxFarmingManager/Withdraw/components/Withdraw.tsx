@@ -17,14 +17,14 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/selectors'
+import { assertIsFoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { FoxFarmingWithdrawActionType } from '../WithdrawCommon'

@@ -7,8 +7,8 @@ import { locales } from 'assets/translations/constants'
 import { getLocaleLabel } from 'assets/translations/utils'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/selectors'
+import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 const arrowBackIcon = <ArrowBackIcon />

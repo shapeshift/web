@@ -26,11 +26,7 @@ import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageH
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import {
-  selectCurrencyFormat,
-  selectSelectedCurrency,
-  selectSelectedLocale,
-} from 'state/selectors'
+import { selectCurrencyFormat, selectSelectedCurrency, selectSelectedLocale } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { BalanceThresholdInput } from './BalanceThresholdInput'

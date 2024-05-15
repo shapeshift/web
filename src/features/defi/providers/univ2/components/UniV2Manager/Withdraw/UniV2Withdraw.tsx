@@ -17,12 +17,12 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { DefiStepProps } from 'components/DeFi/components/Steps'
 import { Steps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
   selectPortfolioLoading,
 } from 'state/selectors'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { Approve } from './components/Approve'

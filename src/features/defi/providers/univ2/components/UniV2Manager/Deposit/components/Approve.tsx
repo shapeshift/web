@@ -25,14 +25,14 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/selectors'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import { useAppSelector } from 'state/store'
 
 import { UniV2DepositActionType } from '../DepositCommon'

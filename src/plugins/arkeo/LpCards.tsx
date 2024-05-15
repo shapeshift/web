@@ -6,12 +6,12 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAggregatedEarnUserLpOpportunities,
   selectAssets,
   selectFirstAccountIdByChainId,
 } from 'state/selectors'
+import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { LpCard } from './LpCard'

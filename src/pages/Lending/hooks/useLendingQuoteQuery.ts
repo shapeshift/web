@@ -21,12 +21,12 @@ import type {
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
 import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/selectors'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/marketDataSlice/selectors'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 type UseLendingQuoteQueryProps = {

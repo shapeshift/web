@@ -12,14 +12,14 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
   selectOpportunityApiPending,
 } from 'state/selectors'
+import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import { useAppSelector } from 'state/store'
 
 import { EquityRow } from './EquityRow'

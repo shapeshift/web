@@ -63,7 +63,7 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   return (
     <SlideTransition>
       <WarningAcknowledgement
-        message={translate('RFOX.stakeWarning')}
+        message={translate(['RFOX.stakeWarning', { cooldownPeriod: '28-days' }])}
         onAcknowledge={handleSubmit}
         shouldShowWarningAcknowledgement={showWarning}
         setShouldShowWarningAcknowledgement={setShowWarning}

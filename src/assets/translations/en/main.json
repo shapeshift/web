@@ -2427,17 +2427,21 @@
     "changeAddress": "Change address",
     "stakingDetails": "Staking Details",
     "stakeAmount": "Stake Amount",
+    "confirmAndStake": "Confirm & Stake",
+    "shapeShiftFee": "ShapeShift Fee",
+    "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
     "shareOfPool": "Share of Pool",
+    "networkFee": "Network Fee",
     "thorchainRewardAddress": "THORChain Reward Address",
     "rewardAddressHelper": "This is where rewards will be sent",
     "useWalletAddress": "Use wallet address",
     "useCustomAddress": "Use custom address",
-    "stakeWarning": "When you stake your FOX tokens, please be aware that there is a 28-day lock-up period. This means that if you decide to unstake your tokens, you will need to wait 28 days before you can claim your funds.",
+    "stakeWarning": "When you stake your FOX tokens, please be aware that there is a %{cooldownPeriod} lock-up period. This means that if you decide to unstake your tokens, you will need to wait 28 days before you can claim your funds.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
-      "shareOfPool": "This is your share of the fees"
+      "shareOfPool": "This is your percentage of the fees, you'll earn."
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}..."

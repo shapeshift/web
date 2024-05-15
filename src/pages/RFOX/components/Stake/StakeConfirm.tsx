@@ -78,13 +78,13 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
           <Timeline>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>ShapeShift Fee</Row.Label>
+                <Row.Label>{translate('RFOX.shapeShiftFee')}</Row.Label>
                 <Row.Value>Free</Row.Value>
               </CustomRow>
             </TimelineItem>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>Approval Fee</Row.Label>
+                <Row.Label>{translate('RFOX.approvalFee')}</Row.Label>
                 <Row.Value>
                   <Amount.Fiat value='0.0' />
                 </Row.Value>
@@ -92,7 +92,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
             </TimelineItem>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>Network Fee</Row.Label>
+                <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
                   <Amount.Fiat value='0.0' />
                 </Row.Value>
@@ -100,7 +100,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
             </TimelineItem>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>Share of Pool</Row.Label>
+                <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
                 <Row.Value>
                   <Amount.Percent value='0.0' />
                 </Row.Value>
@@ -119,7 +119,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
         bg='background.surface.raised.accent'
       >
         <CustomRow>
-          <Row.Label>THORChain Reward Address</Row.Label>
+          <Row.Label>{translate('RFOX.thorchainRewardAddress')}</Row.Label>
           <Row.Value>
             <MiddleEllipsis value='123458696958383' />
           </Row.Value>
@@ -135,7 +135,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
         borderBottomRadius='xl'
       >
         <Button size='lg' mx={-2} colorScheme='blue' onClick={handleSubmit}>
-          Confirm & Stake
+          {translate('RFOX.confirmAndStake')}
         </Button>
       </CardFooter>
     </SlideTransition>

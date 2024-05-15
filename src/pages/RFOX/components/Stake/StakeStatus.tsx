@@ -38,7 +38,7 @@ export const StakeStatus: React.FC<StakeRouteProps> = () => {
       case TxStatus.Pending:
         return {
           key: TxStatus.Pending,
-          title: 'common.waitingForConfirmation',
+          title: 'pools.waitingForConfirmation',
           body: ['RFOX.stakePending', { amount: '1,500', symbol: 'FOX' }],
           element: <CircularProgress size='75px' />,
         }
@@ -80,7 +80,7 @@ export const StakeStatus: React.FC<StakeRouteProps> = () => {
       )}
       <CardFooter flexDir='column' gap={2}>
         <Button size='lg' variant='ghost'>
-          {translate('common.viewTransaction')}
+          {translate('trade.viewTransaction')}
         </Button>
         <Button size='lg' colorScheme='blue' onClick={handleGoBack}>
           {translate('common.goBack')}

@@ -157,9 +157,7 @@
       "sortedDesc": "Sorted descending",
       "expandRow": "Expand Row"
     },
-    "featureDisabled": "This feature is temporarily disabled.",
-    "viewTransaction": "View Transaction",
-    "waitingForConfirmation": "Waiting for Confirmation"
+    "featureDisabled": "This feature is temporarily disabled."
   },
   "consentBanner": {
     "body": {

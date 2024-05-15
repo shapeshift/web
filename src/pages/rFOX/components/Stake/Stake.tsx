@@ -1,8 +1,9 @@
 import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense, useCallback } from 'react'
+import React, { lazy, Suspense, useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
+import type { StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
@@ -33,28 +34,28 @@ const StakeStatus = makeSuspenseful(
 
 const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm, StakeRoutePaths.Status]
 
-export const Stake = () => {
+export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   return (
     <MemoryRouter initialEntries={StakeEntries} initialIndex={0}>
-      <StakeRoutes />
+      <StakeRoutes headerComponent={headerComponent} />
     </MemoryRouter>
   )
 }
 
-export const StakeRoutes = () => {
+export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
   const renderStakeInput = useCallback(() => {
-    return <StakeInput />
-  }, [])
+    return <StakeInput headerComponent={headerComponent} />
+  }, [headerComponent])
 
   const renderStakeConfirm = useCallback(() => {
-    return <StakeConfirm />
-  }, [])
+    return <StakeConfirm headerComponent={headerComponent} />
+  }, [headerComponent])
 
   const renderStakeStatus = useCallback(() => {
-    return <StakeStatus />
-  }, [])
+    return <StakeStatus headerComponent={headerComponent} />
+  }, [headerComponent])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

@@ -6,7 +6,8 @@ import type { Column, Row } from 'react-table'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
-import { selectAssets, selectRelatedAssetIds } from 'state/slices/selectors'
+import { selectRelatedAssetIds } from 'state/slices/related-assets-selectors'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type RelatedAssetsProps = {
@@ -14,7 +15,10 @@ type RelatedAssetsProps = {
 }
 
 export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
-  const relatedAssetIds = useAppSelector(state => selectRelatedAssetIds(state, assetId))
+  const relatedAssetIdsFilter = useMemo(() => ({ assetId }), [assetId])
+  const relatedAssetIds = useAppSelector(state =>
+    selectRelatedAssetIds(state, relatedAssetIdsFilter),
+  )
   const assets = useAppSelector(selectAssets)
   const history = useHistory()
 

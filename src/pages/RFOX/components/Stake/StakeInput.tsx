@@ -36,7 +36,7 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
-  const hasEnterValue = useMemo(() => !!fiatAmount || !!cryptoAmount, [cryptoAmount, fiatAmount])
+  const hasEnteredValue = useMemo(() => !!fiatAmount || !!cryptoAmount, [cryptoAmount, fiatAmount])
 
   const handleChange = useCallback((value: string, isFiat?: boolean) => {
     if (isFiat) {
@@ -63,7 +63,9 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   return (
     <SlideTransition>
       <WarningAcknowledgement
-        message={translate(['RFOX.stakeWarning', { cooldownPeriod: '28-days' }])}
+        message={translate('RFOX.stakeWarning', {
+          cooldownPeriod: '28-days',
+        })}
         onAcknowledge={handleSubmit}
         shouldShowWarningAcknowledgement={showWarning}
         setShouldShowWarningAcknowledgement={setShowWarning}
@@ -87,7 +89,7 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
           />
           <FormDivider />
           <AddressSelection />
-          <Collapse in={hasEnterValue}>
+          <Collapse in={hasEnteredValue}>
             <StakeSummary assetId={asset.assetId} />
             <CardFooter
               borderTopWidth={1}
@@ -127,7 +129,7 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
             mx={-2}
             onClick={handleWarning}
             colorScheme='blue'
-            isDisabled={!hasEnterValue}
+            isDisabled={!hasEnteredValue}
           >
             {translate('RFOX.stake')}
           </Button>

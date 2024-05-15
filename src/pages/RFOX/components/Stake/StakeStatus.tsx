@@ -13,7 +13,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
-type RenderBody = {
+type BodyContent = {
   key: TxStatus
   title: string
   body: TextPropTypes['translation']
@@ -33,7 +33,7 @@ export const StakeStatus: React.FC<StakeRouteProps> = () => {
     setStatus(TxStatus.Confirmed)
   }, [])
 
-  const renderBody: RenderBody | null = useMemo(() => {
+  const bodyContent: BodyContent | null = useMemo(() => {
     switch (status) {
       case TxStatus.Pending:
         return {
@@ -63,15 +63,15 @@ export const StakeStatus: React.FC<StakeRouteProps> = () => {
 
   return (
     <SlideTransition>
-      {renderBody && (
+      {bodyContent && (
         <AnimatePresence mode='wait'>
-          <SlideTransitionY key={renderBody.key}>
+          <SlideTransitionY key={bodyContent.key}>
             <CardBody py={12} onClick={handleFakeStatus}>
               <Center flexDir='column' gap={4}>
-                {renderBody.element}
+                {bodyContent.element}
                 <Stack spacing={0} alignItems='center'>
-                  <Heading as='h4'>{translate(renderBody.title)}</Heading>
-                  <Text translation={renderBody.body} />
+                  <Heading as='h4'>{translate(bodyContent.title)}</Heading>
+                  <Text translation={bodyContent.body} />
                 </Stack>
               </Center>
             </CardBody>

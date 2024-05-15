@@ -86,7 +86,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
               <CustomRow>
                 <Row.Label>{translate('RFOX.approvalFee')}</Row.Label>
                 <Row.Value>
-                  <Amount.Fiat value='0.0' />
+                  <Amount.Fiat value='0.0001' />
                 </Row.Value>
               </CustomRow>
             </TimelineItem>
@@ -94,7 +94,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
-                  <Amount.Fiat value='0.0' />
+                  <Amount.Fiat value='0.0001' />
                 </Row.Value>
               </CustomRow>
             </TimelineItem>

@@ -68,6 +68,11 @@ export const InputStyle = {
         },
       },
     }),
+    outline: {
+      field: {
+        borderColor: 'border.base',
+      },
+    },
   },
   // The default `size` or `variant` values
   defaultProps: {},

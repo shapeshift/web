@@ -7,7 +7,6 @@ import type {
   BIP44Params,
   PartialRecord,
 } from '@shapeshiftoss/types'
-import { orderBy } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
@@ -33,7 +32,6 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
 } from 'state/selectors'
-import { selectAssets, selectRelatedAssetIdsInclusive } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
 import {
@@ -49,6 +47,7 @@ import {
 } from 'state/slices/portfolioSlice/utils'
 import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
+import { selectAssets } from '../assetsSlice/selectors'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
@@ -1078,23 +1077,3 @@ export const selectEquityTotalBalance = createDeepEqualOutputSelector(
     )
   },
 )
-
-export const selectRelatedAssetIdsInclusiveSorted = createCachedSelector(
-  selectRelatedAssetIdsInclusive,
-  selectPortfolioUserCurrencyBalances,
-  (relatedAssetIds, portfolioUserCurrencyBalances) => {
-    const chainAdapterManager = getChainAdapterManager()
-    return orderBy(
-      relatedAssetIds.map(assetId => {
-        const { chainId } = fromAssetId(assetId)
-        return {
-          assetId,
-          balance: Number(portfolioUserCurrencyBalances[assetId] ?? '0'),
-          chainName: chainAdapterManager.get(chainId)?.getDisplayName() ?? '',
-        }
-      }),
-      ['balance', 'chainName'],
-      ['desc', 'asc'],
-    ).map(({ assetId }) => assetId)
-  },
-)((_state: ReduxState, assetId: AssetId | undefined): AssetId => assetId ?? 'undefined')

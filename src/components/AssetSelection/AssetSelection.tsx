@@ -18,6 +18,7 @@ type TradeAssetSelectBaseProps = {
   assetIds?: AssetId[]
   isLoading?: boolean
   buttonProps?: ButtonProps
+  onlyConnectedChains: boolean
 } & FlexProps
 
 type TradeAssetSelectReadonlyProps = {
@@ -42,6 +43,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
     assetIds,
     isReadOnly,
     isLoading,
+    onlyConnectedChains,
     buttonProps,
     flexProps,
   } = useMemo(() => {
@@ -52,6 +54,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       assetIds,
       isReadOnly,
       isLoading,
+      onlyConnectedChains,
       buttonProps,
       ...flexProps
     } = props
@@ -62,6 +65,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       assetIds,
       isReadOnly,
       isLoading,
+      onlyConnectedChains,
       buttonProps,
       flexProps,
     }
@@ -115,6 +119,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
         onChangeAsset={handleAssetChange}
         isLoading={isLoading}
         buttonProps={combinedButtonProps}
+        onlyConnectedChains={onlyConnectedChains}
       />
     </Flex>
   )

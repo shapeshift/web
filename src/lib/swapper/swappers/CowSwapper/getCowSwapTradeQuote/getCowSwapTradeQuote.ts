@@ -133,7 +133,8 @@ export async function getCowSwapTradeQuote(
           protocolFees: {
             [sellAsset.assetId]: {
               amountCryptoBaseUnit: feeAmountInSellTokenCryptoBaseUnit,
-              requiresBalance: true,
+              // Technically does, but we deduct it off the sell amount
+              requiresBalance: false,
               asset: sellAsset,
             },
           },

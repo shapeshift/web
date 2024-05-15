@@ -1266,6 +1266,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           isLoading={false}
           mb={0}
           buttonProps={buttonProps}
+          onlyConnectedChains={false}
         />
         <TradeAssetSelect
           assetId={thorchainAssetId}
@@ -1273,6 +1274,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           isLoading={false}
           mb={0}
           buttonProps={buttonProps}
+          onlyConnectedChains={false}
         />
       </Stack>
     )

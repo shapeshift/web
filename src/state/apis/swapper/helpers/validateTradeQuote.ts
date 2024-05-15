@@ -153,7 +153,7 @@ export const validateTradeQuote = async (
       })
     : undefined
 
-  // Technically does, but we deduct it off the sell amount
+  // Technically does for cow swap too, but we deduct it off the sell amount in that case
   const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
 
   const firstHopNetworkFeeCryptoPrecision =

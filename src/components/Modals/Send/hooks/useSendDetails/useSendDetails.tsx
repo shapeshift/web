@@ -210,6 +210,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         return estimatedFees
       } catch (e) {
+        console.debug(e)
         throw new Error('common.insufficientFunds')
       }
     },

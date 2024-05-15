@@ -203,13 +203,13 @@ export const getValuesFromQuoteResponse = ({
   } = response.quote
 
   // Remove affiliate fees off the buyAmount to get the amount after affiliate fees, but before slippage bips
-  const buyAmountAfterFeesCryptoBaseUnit = deductAffiliateFeesFromAmount({
+  const buyAmountAfterAffiliateFeesCryptoBaseUnit = deductAffiliateFeesFromAmount({
     amount: buyAmount,
     affiliateBps,
   })
 
-  const buyAmountAfterFeesCryptoPrecision = fromBaseUnit(
-    buyAmountAfterFeesCryptoBaseUnit,
+  const buyAmountAfterAffiliateFeesCryptoPrecision = fromBaseUnit(
+    buyAmountAfterAffiliateFeesCryptoBaseUnit,
     buyAsset.precision,
   )
 
@@ -218,12 +218,15 @@ export const getValuesFromQuoteResponse = ({
     sellAsset.precision,
   )
 
-  const rate = bnOrZero(buyAmountAfterFeesCryptoPrecision).div(sellAmountCryptoPrecision).toString()
+  const rate = bnOrZero(buyAmountAfterAffiliateFeesCryptoPrecision)
+    .div(sellAmountCryptoPrecision)
+    .toString()
+
   const sellAmountBeforeFeesCryptoBaseUnit = bnOrZero(sellAmountAfterFeesCryptoBaseUnit)
     .plus(feeAmountInSellTokenCryptoBaseUnit)
     .toFixed()
 
-  const buyAmountBeforeFeesCryptoBaseUnit = convertPrecision({
+  const buyAmountBeforeAffiliateAndProtocolFeesCryptoBaseUnit = convertPrecision({
     value: sellAmountBeforeFeesCryptoBaseUnit,
     inputExponent: sellAsset.precision,
     outputExponent: buyAsset.precision,
@@ -231,7 +234,11 @@ export const getValuesFromQuoteResponse = ({
     .times(rate)
     .toFixed(0)
 
-  return { rate, buyAmountBeforeFeesCryptoBaseUnit, buyAmountAfterFeesCryptoBaseUnit }
+  return {
+    rate,
+    buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeAffiliateAndProtocolFeesCryptoBaseUnit,
+    buyAmountAfterFeesCryptoBaseUnit: buyAmountAfterAffiliateFeesCryptoBaseUnit,
+  }
 }
 
 type AppDataInfo = {

@@ -151,11 +151,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const hasValidBalance = cryptoHumanBalance.gte(amountCryptoPrecision)
 
-      try {
-        if (!hasValidBalance) {
-          throw new Error('common.insufficientFunds')
-        }
+      if (!hasValidBalance) {
+        throw new Error('common.insufficientFunds')
+      }
 
+      try {
         // No point to estimate fees if it is guaranteed to fail due to insufficient balance
         const estimatedFees = await estimateFormFees({ amountCryptoPrecision })
 

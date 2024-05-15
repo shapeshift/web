@@ -1,35 +1,54 @@
 import {
+  Box,
   Button,
   Flex,
   FormControl,
   FormHelperText,
   FormLabel,
   Input,
-  Select,
   Stack,
 } from '@chakra-ui/react'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 
-export const AddressSelection = () => {
+type AddressSelectionProps = {
+  onRuneAddressChange: (address: string) => void
+}
+
+const boxProps = {
+  width: 'full',
+}
+
+export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps) => {
   const translate = useTranslate()
   const [isManualAddress, setIsManualAddress] = useState(false)
+
+  const handleAccountIdChange = useCallback(
+    (accountId: string) => {
+      onRuneAddressChange(fromAccountId(accountId).account)
+    },
+    [onRuneAddressChange],
+  )
 
   const handleToggleInputMethod = useCallback(() => {
     setIsManualAddress(!isManualAddress)
   }, [isManualAddress])
 
-  const renderSelection = useMemo(() => {
+  const accountSelection = useMemo(() => {
     if (isManualAddress) {
       return <Input autoFocus />
     }
+
     return (
-      <Select borderRadius='xl' borderColor='border.base'>
-        <option value='1234'>1234</option>
-        <option value='2365'>2365</option>
-      </Select>
+      <AccountDropdown
+        assetId={thorchainAssetId}
+        onChange={handleAccountIdChange}
+        boxProps={boxProps}
+      />
     )
-  }, [isManualAddress])
+  }, [handleAccountIdChange, isManualAddress])
   return (
     <FormControl>
       <Stack px={6} py={4}>
@@ -43,7 +62,7 @@ export const AddressSelection = () => {
               : translate('RFOX.useCustomAddress')}
           </Button>
         </Flex>
-        {renderSelection}
+        <Box width='full'>{accountSelection}</Box>
         <FormHelperText>{translate('RFOX.rewardAddressHelper')}</FormHelperText>
       </Stack>
     </FormControl>

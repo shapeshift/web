@@ -17,6 +17,8 @@ export const arbitrumNovaAssetId: AssetId = 'eip155:42170/slip44:60'
 
 export const foxOnGnosisAssetId: AssetId =
   'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d'
+export const foxOnArbitrumOneAssetId: AssetId =
+  'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73'
 export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
 export const foxatarAssetId: AssetId =
   'eip155:137/erc721:0x2e727c425a11ce6b8819b3004db332c12d2af2a2'

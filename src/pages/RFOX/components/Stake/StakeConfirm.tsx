@@ -25,9 +25,14 @@ import { useAppSelector } from 'state/store'
 
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
-const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
-export const StakeConfirm: React.FC<StakeRouteProps> = () => {
+
+const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
+
+type StakeConfirmProps = {
+  runeAddress: string
+}
+export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ runeAddress }) => {
   const history = useHistory()
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -78,12 +83,6 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
           <Timeline>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>{translate('RFOX.shapeShiftFee')}</Row.Label>
-                <Row.Value>Free</Row.Value>
-              </CustomRow>
-            </TimelineItem>
-            <TimelineItem>
-              <CustomRow>
                 <Row.Label>{translate('RFOX.approvalFee')}</Row.Label>
                 <Row.Value>
                   <Amount.Fiat value='0.0001' />
@@ -121,7 +120,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
         <CustomRow>
           <Row.Label>{translate('RFOX.thorchainRewardAddress')}</Row.Label>
           <Row.Value>
-            <MiddleEllipsis value='123458696958383' />
+            <MiddleEllipsis value={runeAddress} />
           </Row.Value>
         </CustomRow>
       </CardFooter>

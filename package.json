@@ -207,6 +207,7 @@
     "uuid": "^9.0.0",
     "vaul": "^0.9.0",
     "viem": "^1.16.6",
+    "wagmi": "1.4.13",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {

@@ -1,16 +1,33 @@
-import { Button, CardFooter, Collapse, Stack } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
+import { encodeFunctionData } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useContractRead } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FormDivider } from 'components/FormDivider'
+import { estimateFees } from 'components/Modals/Send/utils'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
-import { selectAssetById } from 'state/slices/selectors'
+import { useToggle } from 'hooks/useToggle/useToggle'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
+import { formatDuration } from 'lib/utils/time'
+import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
@@ -25,26 +42,187 @@ const formControlProps = {
   paddingTop: 0,
 }
 
-export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
+type StakeInputProps = {
+  stakingAssetId?: AssetId
+  onRuneAddressChange: (address: string) => void
+  runeAddress: string | undefined
+}
+
+export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
+  // FOX on Arbitrum: eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73
+  // In the meantime, just added it manually there
+  // Now here's the fun one, this isn't part of our generatedAssetData.json yet, durr
+
+  stakingAssetId = foxOnArbitrumOneAssetId,
+  headerComponent,
+  onRuneAddressChange,
+  runeAddress,
+}) => {
+  // TODO(gomes): programmatic pls
+  const feeAssetId = arbitrumAssetId
+
   const translate = useTranslate()
   const history = useHistory()
-  const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const asset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  // TODO(gomes): also programmaticp ls
+  const stakingAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, asset?.chainId ?? ''),
+  )
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
+  const assetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
+  )
+
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [1], [])
   const [cryptoAmount, setCryptoAmount] = useState('')
   const [fiatAmount, setFiatAmount] = useState('')
+  const [isFiat, handleToggleIsFiat] = useToggle(false)
+
+  const isValidStakingAmount = useMemo(
+    () => bnOrZero(fiatAmount).plus(cryptoAmount).gt(0),
+    [cryptoAmount, fiatAmount],
+  )
+
+  const { data: cooldownPeriod, isLoading: isCooldownPeriodLoading } = useContractRead({
+    abi: foxStakingV1Abi,
+    // TODO(gomes): const somewhere
+    address: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+    functionName: 'cooldownPeriod',
+    chainId: arbitrum.id,
+    staleTime: Infinity,
+    select: data => formatDuration(Number(data as BigInt)),
+  })
+
+  const callData = useMemo(() => {
+    if (!(isValidStakingAmount && runeAddress)) return
+
+    return encodeFunctionData({
+      abi: foxStakingV1Abi,
+      functionName: 'stake',
+      args: [BigInt(cryptoAmount), runeAddress],
+    })
+  }, [cryptoAmount, isValidStakingAmount, runeAddress])
+
+  const estimateFeesInput = useMemo(
+    () => ({
+      // This is a contract call i.e 0 value
+      amountCryptoPrecision: '0',
+      assetId: asset?.assetId ?? '',
+      feeAssetId: feeAsset?.assetId ?? '',
+      // TODO(gomes): const somewhere
+      to: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+      sendMax: false,
+      memo: callData,
+      accountId: stakingAssetAccountId ?? '',
+      contractAddress: undefined,
+    }),
+    [asset?.assetId, callData, feeAsset?.assetId, stakingAssetAccountId],
+  )
+
+  const { data: allowanceDataCryptoBaseUnit, isSuccess: isAllowanceDataSuccess } = useAllowance({
+    assetId: asset?.assetId,
+    // TODO(gomes): const somewhere
+    spender: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+    from: stakingAssetAccountId,
+  })
+
+  const allowanceCryptoPrecision = useMemo(() => {
+    if (!allowanceDataCryptoBaseUnit) return
+    if (!asset) return
+
+    return fromBaseUnit(allowanceDataCryptoBaseUnit, asset?.precision)
+  }, [allowanceDataCryptoBaseUnit, asset])
+
+  const isEstimatedFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        isValidStakingAmount &&
+          asset &&
+          runeAddress &&
+          isAllowanceDataSuccess &&
+          bnOrZero(allowanceCryptoPrecision).gte(cryptoAmount),
+      ),
+    [
+      allowanceCryptoPrecision,
+      asset,
+      cryptoAmount,
+      isAllowanceDataSuccess,
+      isValidStakingAmount,
+      runeAddress,
+    ],
+  )
+
+  // TODO(gomes): move this queryFn out of lending
+  const estimatedFeesQueryKey: EstimatedFeesQueryKey = useMemo(
+    () => [
+      'estimateFees',
+      {
+        enabled: isEstimatedFeesEnabled,
+        asset,
+        assetMarketData: assetMarketDataUserCurrency,
+        feeAsset,
+        feeAssetMarketData,
+        estimateFeesInput,
+      },
+    ],
+    [
+      asset,
+      assetMarketDataUserCurrency,
+      estimateFeesInput,
+      feeAsset,
+      feeAssetMarketData,
+      isEstimatedFeesEnabled,
+    ],
+  )
+
+  const { data: estimatedFees, isLoading: isEstimatedFeesLoading } = useQuery({
+    queryKey: estimatedFeesQueryKey,
+    staleTime: 30_000,
+    queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
+      const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
+
+      // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
+      if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
+
+      const estimatedFees = await estimateFees(estimateFeesInput)
+      const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
+        .times(feeAssetMarketData.price)
+        .toString()
+      return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
+    },
+
+    enabled: isEstimatedFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: 15_000,
+  })
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
-  const hasEnteredValue = useMemo(() => !!fiatAmount || !!cryptoAmount, [cryptoAmount, fiatAmount])
+  const handleChange = useCallback(
+    (value: string, isFiat?: boolean) => {
+      if (isFiat) {
+        setFiatAmount(value)
+        setCryptoAmount(bnOrZero(value).div(assetMarketDataUserCurrency.price).toFixed())
+      } else {
+        setCryptoAmount(value)
+        setFiatAmount(bnOrZero(value).times(assetMarketDataUserCurrency.price).toFixed())
+      }
+    },
+    [assetMarketDataUserCurrency.price],
+  )
 
-  const handleChange = useCallback((value: string, isFiat?: boolean) => {
-    if (isFiat) {
-      setFiatAmount(value)
-    } else {
-      setCryptoAmount(value)
-    }
-  }, [])
+  const handleRuneAddressChange = useCallback(
+    (address: string) => {
+      onRuneAddressChange(address)
+    },
+    [onRuneAddressChange],
+  )
 
   const handleWarning = useCallback(() => {
     setShowWarning(true)
@@ -64,7 +242,7 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
     <SlideTransition>
       <WarningAcknowledgement
         message={translate('RFOX.stakeWarning', {
-          cooldownPeriod: '28-days',
+          cooldownPeriod,
         })}
         onAcknowledge={handleSubmit}
         shouldShowWarningAcknowledgement={showWarning}
@@ -78,6 +256,10 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
             assetIcon={asset?.icon ?? ''}
             percentOptions={percentOptions}
             onAccountIdChange={handleAccountIdChange}
+            // TODO: remove me when implementing multi-account
+            isAccountSelectionDisabled={true}
+            onToggleIsFiat={handleToggleIsFiat}
+            isFiat={isFiat}
             formControlProps={formControlProps}
             layout='inline'
             label={translate('transactionRow.amount')}
@@ -88,9 +270,9 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
             fiatAmount={fiatAmount}
           />
           <FormDivider />
-          <AddressSelection />
-          <Collapse in={hasEnteredValue}>
-            <StakeSummary assetId={asset.assetId} />
+          <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
+          <Collapse in={isValidStakingAmount}>
+            <StakeSummary assetId={asset.assetId} stakingAmountCryptoPrecision={cryptoAmount} />
             <CardFooter
               borderTopWidth={1}
               borderColor='border.subtle'
@@ -103,7 +285,13 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('common.gasFee')}</Row.Label>
                 <Row.Value>
-                  <Amount.Fiat value='10' />
+                  <Skeleton
+                    isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
+                    height='14px'
+                    width='50px'
+                  >
+                    <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
+                  </Skeleton>
                 </Row.Value>
               </Row>
               <Row fontSize='sm' fontWeight='medium'>
@@ -129,7 +317,8 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
             mx={-2}
             onClick={handleWarning}
             colorScheme='blue'
-            isDisabled={!hasEnteredValue}
+            isDisabled={!isValidStakingAmount || isCooldownPeriodLoading}
+            isLoading={isCooldownPeriodLoading}
           >
             {translate('RFOX.stake')}
           </Button>

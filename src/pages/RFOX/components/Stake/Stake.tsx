@@ -1,5 +1,6 @@
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
@@ -45,13 +46,25 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
+  // For future use
+  const [runeAddress, setRuneAddress] = useState<string | undefined>()
+
   const renderStakeInput = useCallback(() => {
-    return <StakeInput headerComponent={headerComponent} />
-  }, [headerComponent])
+    return (
+      <StakeInput
+        stakingAssetId={foxOnArbitrumOneAssetId}
+        runeAddress={runeAddress}
+        headerComponent={headerComponent}
+        onRuneAddressChange={setRuneAddress}
+      />
+    )
+  }, [headerComponent, runeAddress])
 
   const renderStakeConfirm = useCallback(() => {
-    return <StakeConfirm headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!runeAddress) return null
+
+    return <StakeConfirm runeAddress={runeAddress} headerComponent={headerComponent} />
+  }, [headerComponent, runeAddress])
 
   const renderStakeStatus = useCallback(() => {
     return <StakeStatus headerComponent={headerComponent} />

@@ -1,6 +1,6 @@
 import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, lazy, Suspense, Suspense, useCallback, useCallback, useState } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
@@ -93,3 +93,4 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
     </AnimatePresence>
   )
 }
+

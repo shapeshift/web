@@ -95,7 +95,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
     staleTime: Infinity,
-    select: data => formatDuration(Number(data as BigInt)),
+    select: data => formatDuration(Number(data)),
   })
 
   const callData = useMemo(() => {

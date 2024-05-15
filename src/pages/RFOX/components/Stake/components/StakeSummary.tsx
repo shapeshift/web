@@ -32,7 +32,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
     staleTime: Infinity,
-    select: data => formatDuration(Number(data as BigInt)),
+    select: data => formatDuration(Number(data)),
   })
 
   const stakeAmountToolTip = useCallback(() => {

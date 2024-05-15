@@ -122,7 +122,13 @@ export const StakeInput: React.FC<StakeRouteProps> = ({ headerComponent }) => {
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
-          <Button size='lg' mx={-2} onClick={handleWarning} colorScheme='blue'>
+          <Button
+            size='lg'
+            mx={-2}
+            onClick={handleWarning}
+            colorScheme='blue'
+            isDisabled={!hasEnterValue}
+          >
             {translate('RFOX.stake')}
           </Button>
         </CardFooter>

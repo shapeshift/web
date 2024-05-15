@@ -13,14 +13,14 @@ import { useTranslate } from 'react-polyglot'
 
 export const AddressSelection = () => {
   const translate = useTranslate()
-  const [isManulAddress, setIsManualAddress] = useState(false)
+  const [isManualAddress, setIsManualAddress] = useState(false)
 
   const handleToggleInputMethod = useCallback(() => {
-    setIsManualAddress(!isManulAddress)
-  }, [isManulAddress])
+    setIsManualAddress(!isManualAddress)
+  }, [isManualAddress])
 
   const renderSelection = useMemo(() => {
-    if (isManulAddress) {
+    if (isManualAddress) {
       return <Input autoFocus />
     }
     return (
@@ -29,7 +29,7 @@ export const AddressSelection = () => {
         <option value='2365'>2365</option>
       </Select>
     )
-  }, [isManulAddress])
+  }, [isManualAddress])
   return (
     <FormControl>
       <Stack px={6} py={4}>
@@ -38,7 +38,7 @@ export const AddressSelection = () => {
             {translate('RFOX.thorchainRewardAddress')}
           </FormLabel>
           <Button variant='link' colorScheme='blue' size='sm' onClick={handleToggleInputMethod}>
-            {isManulAddress
+            {isManualAddress
               ? translate('RFOX.useWalletAddress')
               : translate('RFOX.useCustomAddress')}
           </Button>

@@ -142,8 +142,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   // * - Empty amount - input = ''
   // * - Not enough native token - gas > have
   const setEstimatedFormFeesQueryFn = useCallback(
-    async ({ queryKey }: { queryKey: [string, { amountCryptoPrecision: string }] }) => {
-      const [, { amountCryptoPrecision }] = queryKey
+    async ({
+      queryKey,
+    }: {
+      queryKey: [string, { amountCryptoPrecision: string; sendMax: boolean }]
+    }) => {
+      const [, { sendMax, amountCryptoPrecision }] = queryKey
 
       if (amountCryptoPrecision === '') return null
       if (!asset || !accountId) return null
@@ -220,15 +224,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       feeAsset.assetId,
       feeAsset.symbol,
       nativeAssetBalance,
-      sendMax,
       setValue,
     ],
   )
 
   const queryKey = useDebounce(
-    () => ['setEstimatedFormFees', { amountCryptoPrecision }],
+    () => ['setEstimatedFormFees', { amountCryptoPrecision, sendMax }],
     1000,
-  ) as unknown as [string, { amountCryptoPrecision: string }]
+  ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
 
   const {
     isLoading: _isEstimatedFormFeesLoading,
@@ -297,8 +300,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         const feeDataEstimate = (await queryClient.fetchQuery({
           queryKey: [
             'setEstimatedFormFees',
-            { amountCryptoPrecision: cryptoHumanBalance.toPrecision() },
-          ] as [string, { amountCryptoPrecision: string }],
+            { amountCryptoPrecision: cryptoHumanBalance.toPrecision(), sendMax: true },
+          ] as [string, { amountCryptoPrecision: string; sendMax: boolean }],
           queryFn: setEstimatedFormFeesQueryFn,
           // a very arbitrary 15 seconds, which is enough to cache things in case the user is having fun with the input,
           // but also safe to invalidate in case there's a new Tx changing their balance

@@ -1940,9 +1940,9 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "Unsupported Chain",
-        "description": "ShapeShift currently only supports %{supportedChainNames} with WalletConnect."
+      "errors": {
+        "errorConnectingToDapp": "Error connecting to dApp",
+        "pairingAlreadyExists": "A pairing has already been done for this URL. Please try a different WalletConnect URL."
       },
       "header": {
         "connectDapp": "Connect dApp",

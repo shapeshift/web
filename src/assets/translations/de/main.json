@@ -2268,6 +2268,7 @@
       "amountTooLowToReturnCollateral": "Betrag zu niedrig, um Sicherheiten zurückzugeben",
       "amountTooLowToReturnCollateralTooltip": "Die Rückzahlung ist zu niedrig, um Ihre Sicherheiten zurückzuerhalten. Bitte versuchen Sie es erneut mit einem höheren Betrag oder zahlen Sie einen Teilbetrag zurück (wodurch Sie Ihre Sicherheiten nicht zurückerhalten, Ihre Schulden jedoch verringern).",
       "amountTooSmallUnknownMinimumTooltip": "Der von Ihnen eingegebene Rückzahlungsbetrag ist zu gering. Bitte versuchen Sie es erneut mit einem höheren Betrag.",
+      "repaymentUnavailableTooltip": "Eine Rückzahlung Ihres Kredites ist derzeit nicht möglich. Bitte warten Sie, bis die Rückzahlungssperre abgelaufen ist.",
       "repaymentsHaltedTooltip": "Die Rückzahlungen sind vorübergehend ausgesetzt. Bitte versuchen Sie es später noch einmal.",
       "errorGettingQuote": "Beim Abrufen des Angebots ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
     },

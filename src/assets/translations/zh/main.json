@@ -1921,10 +1921,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "不支持的区块链",
-        "description": "ShapeShift 目前仅支持 WalletConnect 的 %{supportedChainNames} 。"
-      },
       "header": {
         "connectDapp": "连接 dApp",
         "connectAnotherDapp": "连接另一个 dApp",

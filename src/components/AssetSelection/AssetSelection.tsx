@@ -11,7 +11,7 @@ import { useAppSelector } from 'state/store'
 import { AssetChainDropdown } from './components/AssetChainDropdown/AssetChainDropdown'
 import { AssetMenuButton } from './components/AssetMenuButton'
 
-const disabledStyle = { opacity: 0.5 }
+const disabledStyle = { cursor: 'not-allowed' }
 
 type TradeAssetSelectBaseProps = {
   assetId?: AssetId
@@ -90,7 +90,8 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       {
         height: '40px',
         justifyContent: 'flex-end',
-        px: 2,
+        pl: 2,
+        pr: isReadOnly ? 4 : 2,
         py: 2,
         gap: 2,
         size: 'sm',
@@ -100,7 +101,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       },
       buttonProps,
     )
-  }, [rightIcon, buttonProps])
+  }, [isReadOnly, rightIcon, buttonProps])
 
   return (
     <Flex px={4} mb={4} alignItems='center' gap={2} {...flexProps}>

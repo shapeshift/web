@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
@@ -11,6 +11,7 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
 import { tokenOrUndefined } from 'lib/utils'
 import {
   selectAssetById,
@@ -35,7 +36,7 @@ type UseSendDetailsReturnType = {
   handleSendMax(): Promise<void>
   isLoading: boolean
   toggleIsFiat(): void
-  cryptoHumanBalance: BigNumber
+  cryptoHumanBalance: string
   fiatBalance: BigNumber
 }
 
@@ -43,7 +44,6 @@ type UseSendDetailsReturnType = {
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.AmountCryptoPrecision)
-  const [isFormLoading, setIsFormLoading] = useState<boolean>(false)
   const history = useHistory()
   const { setValue } = useFormContext<SendInput>()
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({
@@ -68,11 +68,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     name: SendFormFields.SendMax,
   })
 
-  const price = bnOrZero(
-    useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId)).price,
-  )
+  const price = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId)).price
 
-  const queryClient = useQueryClient()
   const chainAdapterManager = getChainAdapterManager()
   const feeAssetId = chainAdapterManager.get(fromAssetId(assetId).chainId)?.getFeeAssetId()
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, feeAssetId ?? ''))
@@ -82,13 +79,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const balancesLoading = false
 
-  const cryptoHumanBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-        assetId,
-        accountId,
-      }),
-    ),
+  const cryptoHumanBalance = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+      assetId,
+      accountId,
+    }),
   )
 
   const userCurrencyBalance = bnOrZero(
@@ -120,8 +115,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const estimateFormFees = useCallback(
     ({
       amountCryptoPrecision,
+      sendMax,
     }: {
       amountCryptoPrecision: string
+      sendMax: boolean
     }): Promise<FeeDataEstimate<ChainId>> => {
       if (!asset) throw new Error('No asset found')
 
@@ -135,7 +132,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         contractAddress,
       })
     },
-    [accountId, asset, assetId, contractAddress, sendMax, to, wallet],
+    [accountId, asset, assetId, contractAddress, to, wallet],
   )
 
   // * Determines the form's state from debounced input
@@ -156,7 +153,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       if (bnOrZero(amountCryptoPrecision).isNegative()) return null
       if (!asset || !accountId) return null
 
-      const hasValidBalance = cryptoHumanBalance.gte(amountCryptoPrecision)
+      const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(amountCryptoPrecision)
 
       if (!hasValidBalance) {
         throw new Error('common.insufficientFunds')
@@ -164,7 +161,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       try {
         // No point to estimate fees if it is guaranteed to fail due to insufficient balance
-        const estimatedFees = await estimateFormFees({ amountCryptoPrecision })
+        const estimatedFees = await estimateFormFees({ amountCryptoPrecision, sendMax })
 
         if (estimatedFees === undefined) {
           throw new Error('common.generalError')
@@ -174,37 +171,31 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           throw estimatedFees.message
         }
 
-        // If sending native fee asset, ensure amount entered plus fees is less than balance.
-        if (feeAsset.assetId === assetId) {
-          const canCoverFees = nativeAssetBalance
-            .minus(
-              bnOrZero(sendMax ? 0 : amountCryptoPrecision)
-                .times(`1e+${asset.precision}`)
-                .decimalPlaces(0),
-            )
-            .minus(estimatedFees.fast.txFee)
-            .isPositive()
-          if (!canCoverFees) {
-            throw new Error('common.insufficientFunds')
-          }
-        } else if (nativeAssetBalance.minus(estimatedFees.fast.txFee).isNegative()) {
+        const hasEnoughNativeTokenForGas = nativeAssetBalance.minus(estimatedFees.fast.txFee).gt(0)
+
+        // The worst case scenario - user cannot ever cover the gas fees - regardless of whether this is a token send or not
+        if (!hasEnoughNativeTokenForGas) {
           setValue(SendFormFields.AmountFieldError, [
             'modals.send.errors.notEnoughNativeToken',
             { asset: feeAsset.symbol },
           ])
+          // Don't throw here - this is *not* an exception and we do want to consume the fees
+          return estimatedFees
         }
 
-        const hasEnoughNativeTokenForGas = nativeAssetBalance
-          .minus(estimatedFees.fast.txFee)
-          .isPositive()
-
-        if (!hasEnoughNativeTokenForGas) {
-          // We can't throw in an error here because an array is an invalid error message
-          setValue(SendFormFields.AmountFieldError, [
-            'modals.send.errors.notEnoughNativeToken',
-            { asset: feeAsset.symbol },
-          ])
-          return null
+        if (feeAsset.assetId === assetId) {
+          // A slightly better, but still sad scenario - user has enough balance, but may not have enough fee asset balance to cover fees
+          const canCoverFees = nativeAssetBalance
+            .minus(
+              bn(toBaseUnit(sendMax ? 0 : amountCryptoPrecision, asset.precision)).decimalPlaces(0),
+            )
+            .minus(estimatedFees.fast.txFee)
+            .gt(0)
+          if (!canCoverFees) {
+            setValue(SendFormFields.AmountFieldError, 'common.insufficientFunds')
+            // Don't throw here - this is *not* an exception and we do want to consume the fees
+            return estimatedFees
+          }
         }
 
         // Remove existing error messages because the send amount is valid
@@ -214,9 +205,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         }
 
         return estimatedFees
-      } catch (e) {
+      } catch (e: unknown) {
         console.debug(e)
-        throw new Error('common.insufficientFunds')
+        throw new Error((e as Error).message)
       }
     },
     [
@@ -237,6 +228,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     1000,
   ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
 
+  // No debouncing here, since there is no user input
+  const estimateSendMaxFormFeesQueryKey = useMemo(
+    () => ['setEstimatedFormFees', { amountCryptoPrecision: cryptoHumanBalance, sendMax: true }],
+    [cryptoHumanBalance],
+  ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
+
   const hasEnteredPositiveAmount = bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).gt(0)
 
   const {
@@ -254,14 +251,54 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     retry: false,
   })
 
+  const {
+    isRefetching: isEstimatedSendMaxFeesRefetching,
+    refetch: refetchSendMaxFees,
+    data: sendMaxFees,
+    error: sendMaxFeesError,
+  } = useQuery({
+    queryKey: estimateSendMaxFormFeesQueryKey,
+    queryFn: setEstimatedFormFeesQueryFn,
+    staleTime: 15 * 1000,
+    enabled: false,
+    retry: false,
+  })
+
+  useEffect(() => {
+    if (!(sendMaxFees && sendMax)) return
+
+    const fastFee = sendMaxFees!.fast.txFee
+
+    const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
+
+    const maxCrypto = bnOrZero(cryptoHumanBalance).minus(networkFee)
+    const maxFiat = maxCrypto.times(price)
+
+    const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)
+    const maxFiatOrZero = maxFiat.isPositive() ? maxFiat : bn(0)
+    setValue(SendFormFields.AmountCryptoPrecision, maxCryptoOrZero.toPrecision())
+    setValue(SendFormFields.FiatAmount, maxFiatOrZero.toFixed(2))
+  }, [
+    assetId,
+    feeAsset.assetId,
+    feeAsset.precision,
+    cryptoHumanBalance,
+    price,
+    sendMax,
+    sendMaxFees,
+    setValue,
+    sendMaxFeesError,
+  ])
+
   const isTransitioning = useMemo(
-    () => queryKey[1].amountCryptoPrecision !== amountCryptoPrecision,
-    [amountCryptoPrecision, queryKey],
+    () => !sendMax && queryKey[1].amountCryptoPrecision !== amountCryptoPrecision,
+    [amountCryptoPrecision, queryKey, sendMax],
   )
 
   // Since we are debouncing the query, the query fire is delayed by however long the debounce is
   // This would lead to delayed loading states visually, which look odd and would make users able to continue with a wrong state
-  const isEstimatedFormFeesLoading = isTransitioning || _isEstimatedFormFeesLoading
+  const isEstimatedFormFeesLoading =
+    isTransitioning || isEstimatedSendMaxFeesRefetching || _isEstimatedFormFeesLoading
 
   useEffect(() => {
     setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')
@@ -277,64 +314,40 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const handleNextClick = () => history.push(SendRoutes.Confirm)
 
-  const handleSendMax = async () => {
-    // Since we fetch the query internally here with different args, we can't leverage the loading state from the useQuery() above and need a separate state
-    // field to track loading state
+  const handleSendMax = useCallback(async () => {
     setValue(SendFormFields.SendMax, true)
-    setIsFormLoading(true)
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
 
+    if (!(assetBalance && wallet)) return
+
+    // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
     if (feeAsset.assetId !== assetId) {
-      setValue(SendFormFields.AmountCryptoPrecision, cryptoHumanBalance.toPrecision())
-      setValue(SendFormFields.FiatAmount, userCurrencyBalance.toFixed(2))
+      const maxCrypto = bnOrZero(cryptoHumanBalance)
+      const maxFiat = maxCrypto.times(price)
+
+      setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
+      setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
+    }
+    // There is no balance, hence we don't need to estimate fees, but still need to set to zero out the form values
+    else if (bnOrZero(cryptoHumanBalance).isZero()) {
+      setValue(SendFormFields.AmountCryptoPrecision, '0')
+      setValue(SendFormFields.FiatAmount, '0')
+      return
     }
 
-    if (assetBalance && wallet) {
-      try {
-        // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
-        if (feeAsset.assetId !== assetId) {
-          const maxCrypto = cryptoHumanBalance
-          const maxFiat = maxCrypto.times(price)
-
-          setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
-          setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
-          return
-        }
-
-        // Assume this is defined - this will throw if there's an error
-        const feeDataEstimate = (await queryClient.fetchQuery({
-          queryKey: [
-            'setEstimatedFormFees',
-            { amountCryptoPrecision: cryptoHumanBalance.toPrecision(), sendMax: true },
-          ] as [string, { amountCryptoPrecision: string; sendMax: boolean }],
-          queryFn: setEstimatedFormFeesQueryFn,
-          // a very arbitrary 15 seconds, which is enough to cache things in case the user is having fun with the input,
-          // but also safe to invalidate in case there's a new Tx changing their balance
-          staleTime: 15 * 1000,
-          // Consider failed queries as fresh, not stale, and don't do the default retry of 3 for them, as failures *are* expected here with insufficient funds
-          retry: false,
-        }))!
-
-        const adapterFees = feeDataEstimate
-        const fastFee = adapterFees.fast.txFee
-
-        setValue(SendFormFields.EstimatedFees, adapterFees)
-
-        const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
-
-        const maxCrypto = cryptoHumanBalance.minus(networkFee)
-        const maxFiat = maxCrypto.times(price)
-
-        setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
-        setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setIsFormLoading(false)
-      }
-    }
-  }
+    // Whether this is a token send or not, refetch the sendMax fees
+    await refetchSendMaxFees()
+  }, [
+    assetBalance,
+    assetId,
+    cryptoHumanBalance,
+    feeAsset.assetId,
+    price,
+    refetchSendMaxFees,
+    setValue,
+    wallet,
+  ])
 
   /**
    * handleInputChange
@@ -386,7 +399,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleNextClick,
     handleSendMax,
     handleInputChange,
-    isLoading: isFormLoading || isEstimatedFormFeesLoading,
+    isLoading: isEstimatedFormFeesLoading,
     toggleIsFiat,
   }
 }

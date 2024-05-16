@@ -538,6 +538,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={sellAsset.assetId}
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
+        onlyConnectedChains={true}
       />
     ),
     [handleSellAssetClick, sellAsset.assetId, setSellAsset],
@@ -549,6 +550,7 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
         assetId={buyAsset.assetId}
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
+        onlyConnectedChains={false}
       />
     ),
     [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],

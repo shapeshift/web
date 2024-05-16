@@ -111,8 +111,9 @@ export type LendingQuoteClose = {
   quoteDebtRepaidAmountUserCurrency: string
   quoteDebtRepaidAmountUsd: string
   quoteWithdrawnAmountAfterFeesCryptoPrecision: string
+  quoteWithdrawnAmountAfterFeesThorBaseUnit: string
   quoteWithdrawnAmountAfterFeesUserCurrency: string
-  quoteSlippageWithdrawndAssetCryptoPrecision: string
+  quoteSlippageWithdrawnAssetCryptoPrecision: string
   quoteTotalFeesFiatUserCurrency: string
   quoteTotalFeesFiatUsd: string
   quoteInboundAddress: string

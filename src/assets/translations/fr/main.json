@@ -1939,10 +1939,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "Chaîne non prise en charge",
-        "description": "ShapeShift ne prend actuellement en charge que %{supportedChainNames} avec WalletConnect."
-      },
       "header": {
         "connectDapp": "Connecter la dApp",
         "connectAnotherDapp": "Connecter une autre dApp",

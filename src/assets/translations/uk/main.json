@@ -1939,10 +1939,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "Непідтримувана мережа",
-        "description": "Наразі ShapeShift підтримує лише %{supportedChainNames} з WalletConnect."
-      },
       "header": {
         "connectDapp": "Підключити dApp",
         "connectAnotherDapp": "Підключити іншу dApp",

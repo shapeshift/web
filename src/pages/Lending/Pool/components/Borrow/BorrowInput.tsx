@@ -419,6 +419,7 @@ export const BorrowInput = ({
         assetId={collateralAssetId}
         isReadOnly
         isLoading={isLendingSupportedAssetsLoading}
+        onlyConnectedChains={true}
       />
     )
   }, [collateralAssetId, isLendingSupportedAssetsLoading])
@@ -431,6 +432,7 @@ export const BorrowInput = ({
         onAssetClick={handleBorrowAssetClick}
         onAssetChange={setBorrowAsset}
         isLoading={isLendingSupportedAssetsLoading}
+        onlyConnectedChains={true}
       />
     )
   }, [

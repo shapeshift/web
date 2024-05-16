@@ -96,7 +96,7 @@ export const Details = () => {
     handleSendMax,
     handleInputChange,
     isLoading,
-    toggleCurrency,
+    toggleIsFiat,
   } = useSendDetails()
 
   const {
@@ -135,13 +135,13 @@ export const Details = () => {
         size='sm'
         variant='ghost'
         textTransform='uppercase'
-        onClick={toggleCurrency}
+        onClick={toggleIsFiat}
         width='full'
       >
         {asset?.symbol}
       </Button>
     ),
-    [asset?.symbol, toggleCurrency],
+    [asset?.symbol, toggleIsFiat],
   )
 
   const fiatTokenRowInputLeftElement = useMemo(
@@ -151,14 +151,14 @@ export const Details = () => {
         size='sm'
         variant='ghost'
         textTransform='uppercase'
-        onClick={toggleCurrency}
+        onClick={toggleIsFiat}
         width='full'
         data-test='toggle-currency-button'
       >
         {fiatSymbol}
       </Button>
     ),
-    [fiatSymbol, toggleCurrency],
+    [fiatSymbol, toggleIsFiat],
   )
 
   const tokenRowInputRightElement = useMemo(
@@ -233,7 +233,7 @@ export const Details = () => {
               as='button'
               type='button'
               color='text.subtle'
-              onClick={toggleCurrency}
+              onClick={toggleIsFiat}
               textTransform='uppercase'
               _hover={formHelperTextHoverStyle}
             >

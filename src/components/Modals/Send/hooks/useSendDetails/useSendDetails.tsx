@@ -34,7 +34,7 @@ type UseSendDetailsReturnType = {
   handleNextClick(): void
   handleSendMax(): Promise<void>
   isLoading: boolean
-  toggleCurrency(): void
+  toggleIsFiat(): void
   cryptoHumanBalance: BigNumber
   fiatBalance: BigNumber
 }
@@ -363,7 +363,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     [fieldName, price, setValue],
   )
 
-  const toggleCurrency = () => {
+  const toggleIsFiat = () => {
     setFieldName(
       fieldName === SendFormFields.FiatAmount
         ? SendFormFields.AmountCryptoPrecision
@@ -380,6 +380,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     handleSendMax,
     handleInputChange,
     isLoading: isFormLoading || isEstimatedFormFeesLoading,
-    toggleCurrency,
+    toggleIsFiat,
   }
 }

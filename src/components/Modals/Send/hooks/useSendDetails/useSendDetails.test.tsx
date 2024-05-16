@@ -199,7 +199,7 @@ describe('useSendDetails', () => {
     })
     expect(result.current.fieldName).toBe('amountCryptoPrecision')
     act(() => {
-      result.current.toggleCurrency()
+      result.current.toggleIsFiat()
     })
     await waitFor(() => expect(result.current.fieldName).toBe('fiatAmount'))
   })
@@ -215,7 +215,7 @@ describe('useSendDetails', () => {
     })
 
     act(() => {
-      result.current.toggleCurrency()
+      result.current.toggleIsFiat()
     })
 
     await waitFor(() => expect(result.current.fieldName).toBe('fiatAmount'))
@@ -259,7 +259,7 @@ describe('useSendDetails', () => {
 
     // toggle field to amountCryptoPrecision
     act(() => {
-      result.current.toggleCurrency()
+      result.current.toggleIsFiat()
     })
     await waitFor(() => result.current.fieldName)
     expect(result.current.fieldName).toBe('fiatAmount')

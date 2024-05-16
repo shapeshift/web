@@ -2,21 +2,22 @@ import type { Tx } from '../../../index'
 import { mempoolMock } from './mempoolMock'
 
 const erc20Approve: Tx = {
-  txid: '0x51e5634c49bbf2a027c3c7400f275a05943c26e8cbd0876a71e6161855284f27',
-  blockHash: '0x43dac7243b817cb10057a1dfd0253c9aea29c51f28d0c9e2ca4bda136af91a85',
-  blockHeight: 61385250,
-  timestamp: 1673040389,
+  txid: '0xc54e8884c77318b0d4d3ae6f5f8dbc33fff71e9a69e06ee2f9b2ca827de447ed',
+  blockHash: '0xf60ffaf246c9c9ce021ce30aed06c6f2a84112661a79d7e95001d03af1d59bd1',
+  blockHeight: 14549101,
+  timestamp: 1715887549,
   status: 1,
-  from: '0x0a9f0cad6277A3e7be2C5Fc8912b93A0F6Ac034b',
-  to: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-  confirmations: 2560,
+  from: '0xaC9a7d5AeDaCccF110315fB6354cACa910774687',
+  to: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  confirmations: 4857,
   value: '0',
-  fee: '53403000000',
-  gasLimit: '213612',
-  gasUsed: '53403',
-  gasPrice: '1000000',
+  fee: '3020282099965',
+  gasLimit: '84378',
+  gasUsed: '55449',
+  gasPrice: '54202390',
   inputData:
-    '0x095ea7b3000000000000000000000000e0e112e8f33d3f437d1f895cbb1a456836125952ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+    '0x095ea7b30000000000000000000000001231deb6f5749ef6ce6943a275a1d3e7486f4eae000000000000000000000000000000000000000000000000000000000cfde636',
+  internalTxs: [],
 }
 
 export default {

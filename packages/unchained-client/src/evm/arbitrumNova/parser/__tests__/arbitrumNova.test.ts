@@ -15,6 +15,10 @@ import { usdcToken } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
 
+vi.hoisted(() => {
+  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+})
+
 const mockedApi = vi.mocked(new V1Api())
 
 const tokenMetadata: evm.TokenMetadata = {

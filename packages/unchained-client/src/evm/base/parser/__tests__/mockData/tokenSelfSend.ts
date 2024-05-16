@@ -2,33 +2,34 @@ import type { Tx } from '../../../index'
 import { mempoolMock } from './mempoolMock'
 
 export const tokenStandard: Tx = {
-  txid: '0xf8f377cc404b2662ba7538e20948725230edc96646d66172a9837c367bbec1e8',
-  blockHash: '0x32529396971608df5c0d3644d53a3064368bbcfe40e57291e7a3aeb0163b3edc',
-  blockHeight: 61387586,
-  timestamp: 1673040990,
+  txid: '0xa7642a3da15a5e8b9198f2be6c1ff8b2ad027496cee167e051440476affc731a',
+  blockHash: '0x34f5dad8cc88c6e2180e836fca5c1d227664b20a5a22e5662fc86b70f0dc3e57',
+  blockHeight: 14553049,
+  timestamp: 1715895445,
   status: 1,
-  from: '0xBcDdd1333982B26956Bf83D6fb704bC28Dfe4aBA',
-  to: '0x4200000000000000000000000000000000000042',
-  confirmations: 477,
+  from: '0x8a474fdab0f58d3FA92A9D2E56125262B2f9d6Ed',
+  to: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  confirmations: 9,
   value: '0',
-  fee: '57124000000',
-  gasLimit: '9000000',
-  gasUsed: '57124',
-  gasPrice: '1000000',
+  fee: '7413089345108',
+  gasLimit: '72398',
+  gasUsed: '57371',
+  gasPrice: '129027025',
   inputData:
-    '0xa9059cbb000000000000000000000000a1f55ac63e174fabaf93e6b2854da6d85c9fdc50000000000000000000000000000000000000000000000001144925a0b9314fc6',
+    '0xa9059cbb000000000000000000000000cb131840f8843984ed6c5c0e3280ec8514f0f8270000000000000000000000000000000000000000000000000000000002ce8864',
   tokenTransfers: [
     {
-      contract: '0x4200000000000000000000000000000000000042',
-      decimals: 18,
-      name: 'Optimism',
-      symbol: 'OP',
+      contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
       type: 'ERC20',
-      from: '0xBcDdd1333982B26956Bf83D6fb704bC28Dfe4aBA',
-      to: '0xBcDdd1333982B26956Bf83D6fb704bC28Dfe4aBA',
-      value: '19908484999999999942',
+      from: '0x8a474fdab0f58d3FA92A9D2E56125262B2f9d6Ed',
+      to: '0x8a474fdab0f58d3FA92A9D2E56125262B2f9d6Ed',
+      value: '47089764',
     },
   ],
+  internalTxs: [],
 }
 
 export default {

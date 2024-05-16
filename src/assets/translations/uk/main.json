@@ -303,9 +303,6 @@
       "connecting": "З'єднуємо..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Керувати акаунтами"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -601,7 +598,8 @@
         "body": "Отримати криптовалюту"
       },
       "trade": {
-        "title": "Торгівля або міст"
+        "title": "Торгівля або міст",
+        "body": "Торгуйте або переводьте свої криптовалюти"
       },
       "buy": {
         "title": "Купити або продати",
@@ -1412,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "Не вдається підключити гаманець Ledger",
-        "unknown": "Виникла несподівана помилка при взаємодії з гаманцем Ledger"
+        "unknown": "Виникла несподівана помилка при взаємодії з гаманцем Ledger",
+        "appNotOpen": "%{app} не відкрито в Ledger",
+        "appNotOpenDescription": "Будь ласка, відкрийте  %{app} на вашому пристрої та спробуйте ще раз."
       },
       "connect": {
         "header": "Спарити Ledger",
@@ -1789,10 +1789,29 @@
     "viewAccount": "Переглянути акаунти",
     "expandAccount": "Розширити рахунок"
   },
-  "accountManagementSidebar": {
-    "title": "Імпорт %{chainNamespaceDisplayName} Облікових записів",
-    "description": "Виберіть облікові записи, які ви хочете імпортувати, зі списку нижче.",
-    "import": "Імпорт"
+  "accountManagement": {
+    "menuTitle": "Керування акаунтами",
+    "manageAccounts": {
+      "title": "Керування акаунтами",
+      "description": "Це мережі, які ви підключили, і кількість акаунтів, які ви імпортували.",
+      "emptyList": "У вас ще немає підключених акаунтів. Додайте ланцюжок, щоб почати.",
+      "addChain": "Додати мережу",
+      "addAnotherChain": "Додати іншу мережу"
+    },
+    "selectChain": {
+      "title": "Вибрати мережу",
+      "description": "Щоб побачити залишки на кожній мережі, вам потрібно підключити кожну мережу і вибрати рахунки для імпорту.",
+      "searchChains": "Шукати за назвою"
+    },
+    "importAccounts": {
+      "title": "Імпорт %{chainNamespaceDisplayName} Облікових записів",
+      "description": "Виберіть облікові записи, які ви хочете імпортувати, зі списку нижче.",
+      "import": "Імпортувати"
+    },
+    "ledgerOpenApp": {
+      "title": "Відкрити %{appName} додаток",
+      "description": "Щоб підключити цю мережу, вам потрібно відкрити додаток Ledger на вашому пристрої."
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2246,7 +2265,12 @@
       "borrowingHalted": "Запозичення тимчасово призупинено.",
       "repaymentsDisabled": "Погашення тимчасово відключено.",
       "borrowingDisabled": "Кредитування тимчасово відключено.",
-      "amountTooLowToReturnCollateral": "Занадто мала сума для повернення застави"
+      "amountTooLowToReturnCollateral": "Занадто мала сума для повернення застави",
+      "amountTooLowToReturnCollateralTooltip": "Сума погашення занадто мала, щоб повернути заставу. Будь ласка, спробуйте ще раз з більшою сумою або погасіть частково (це не поверне вам заставу, але зменшить ваш борг).",
+      "amountTooSmallUnknownMinimumTooltip": "Введена сума погашення занадто мала. Будь ласка, спробуйте ще раз з більшою сумою.",
+      "repaymentUnavailableTooltip": "Погасити кредит поки що неможливо. Будь ласка, зачекайте, поки закінчиться блокування погашення.",
+      "repaymentsHaltedTooltip": "Погашення тимчасово призупинено. Будь ласка, спробуйте пізніше.",
+      "errorGettingQuote": "Виникла помилка при отриманні котирування. Будь ласка, спробуйте ще раз."
     },
     "quote": {
       "collateral": "Загальна сума активів, які будуть забезпечені під заставу вашого кредиту",
@@ -2377,6 +2401,20 @@
       "title": "Почніть формувати список спостереження",
       "body": "Скрізь, де ви бачите іконку зірочки, ви можете використовувати її для додавання ресурсів.",
       "cta": "Дослідіть більше активів"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Заробляйте більше зі стейкінгом",
+      "body": "Заробляйте пасивний дохід, зберігаючи свої активи в THORChain Savers Vault."
+    },
+    "pools": {
+      "title": "Пули",
+      "body": "Заробляйте комісійні на торгівлі в пулах."
+    },
+    "lending": {
+      "title": "Кредитування",
+      "body": "Позичайте під заставу своїх активів."
     }
   }
 }

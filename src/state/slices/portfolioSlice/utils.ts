@@ -3,6 +3,7 @@ import {
   arbitrumChainId,
   arbitrumNovaChainId,
   avalancheChainId,
+  baseChainId,
   bchChainId,
   bscChainId,
   btcChainId,
@@ -29,6 +30,7 @@ import {
   supportsArbitrum,
   supportsArbitrumNova,
   supportsAvalanche,
+  //supportsBase,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -66,6 +68,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case bscChainId:
     case arbitrumChainId:
     case arbitrumNovaChainId:
+    case baseChainId:
     case thorchainChainId:
     case cosmosChainId:
       return firstFourLastFour(pubkey)
@@ -289,6 +292,9 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
       return supportsArbitrumNova(wallet)
+    case baseChainId:
+      //return supportsBase(wallet)
+      return true
     case btcChainId:
     case ltcChainId:
     case dogeChainId:

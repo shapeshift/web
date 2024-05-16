@@ -253,6 +253,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const {
     isRefetching: isEstimatedSendMaxFeesRefetching,
+    isLoading: isEstimatedSendMaxFeesLoading,
     refetch: refetchSendMaxFees,
     data: sendMaxFees,
     error: sendMaxFeesError,
@@ -298,7 +299,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   // Since we are debouncing the query, the query fire is delayed by however long the debounce is
   // This would lead to delayed loading states visually, which look odd and would make users able to continue with a wrong state
   const isEstimatedFormFeesLoading =
-    isTransitioning || isEstimatedSendMaxFeesRefetching || _isEstimatedFormFeesLoading
+    isTransitioning ||
+    isEstimatedSendMaxFeesLoading ||
+    isEstimatedSendMaxFeesRefetching ||
+    _isEstimatedFormFeesLoading
 
   useEffect(() => {
     setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')

@@ -318,7 +318,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             mx={-2}
             onClick={handleWarning}
             colorScheme='blue'
-            isDisabled={!isValidStakingAmount || isCooldownPeriodLoading}
+            isDisabled={!runeAddress || !isValidStakingAmount || isCooldownPeriodLoading}
             isLoading={isCooldownPeriodLoading}
           >
             {translate('RFOX.stake')}

@@ -150,17 +150,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }) => {
       const [, { sendMax, amountCryptoPrecision }] = queryKey
 
-      if (bnOrZero(amountCryptoPrecision).isNegative()) return null
+      if (bnOrZero(amountCryptoPrecision).lte(0)) return null
       if (!asset || !accountId) return null
 
       const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(amountCryptoPrecision)
 
+      // No point to estimate fees if it is guaranteed to fail due to insufficient balance
       if (!hasValidBalance) {
         throw new Error('common.insufficientFunds')
       }
 
       try {
-        // No point to estimate fees if it is guaranteed to fail due to insufficient balance
         const estimatedFees = await estimateFormFees({ amountCryptoPrecision, sendMax })
 
         if (estimatedFees === undefined) {

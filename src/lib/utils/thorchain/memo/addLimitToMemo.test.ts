@@ -45,6 +45,27 @@ describe('addLimitToMemo', () => {
       })
       expect(modifiedMemo2).toBe(memo2)
     })
+    it('should add zerod out affiliate parts to memo with empty affiliate/fee', () => {
+      // Memo with no limit and empty affiliate parts
+      const memo1 = '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:::'
+      const modifiedMemo1 = addLimitToMemo({
+        memo: memo1,
+        limit: '1000000000',
+      })
+      expect(modifiedMemo1).toBe(
+        '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
+      )
+
+      // Memo with a limit and empty affiliate parts
+      const memo2 = '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000::'
+      const modifiedMemo2 = addLimitToMemo({
+        memo: memo2,
+        limit: '1000000000',
+      })
+      expect(modifiedMemo2).toBe(
+        '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
+      )
+    })
   })
 
   describe('loan open', () => {
@@ -93,6 +114,30 @@ describe('addLimitToMemo', () => {
       })
       expect(modifiedMemo2).toBe(memo2)
     })
+
+    it('should add zerod out affiliate parts to memo with empty affiliate/fee', () => {
+      // Memo with no limit and empty affiliate parts
+      const memo1 =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:::'
+      const modifiedMemo1 = addLimitToMemo({
+        memo: memo1,
+        limit: '42',
+      })
+      expect(modifiedMemo1).toBe(
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42:ss:0',
+      )
+
+      // Memo with a limit and empty affiliate parts
+      const memo2 =
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42::'
+      const modifiedMemo2 = addLimitToMemo({
+        memo: memo2,
+        limit: '42',
+      })
+      expect(modifiedMemo2).toBe(
+        '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147:42:ss:0',
+      )
+    })
   })
 
   describe('loan repay', () => {
@@ -136,6 +181,28 @@ describe('addLimitToMemo', () => {
         limit: '2000000000',
       })
       expect(modifiedMemo2).toBe(memo2)
+    })
+
+    it('should add zerod out affiliate parts to memo with empty affiliate/fee', () => {
+      // Memo with no limit and empty affiliate parts
+      const memo1 = '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:::'
+      const modifiedMemo1 = addLimitToMemo({
+        memo: memo1,
+        limit: '1000000000',
+      })
+      expect(modifiedMemo1).toBe(
+        '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
+      )
+
+      // Memo with a limit and empty affiliate parts
+      const memo2 = '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000::'
+      const modifiedMemo2 = addLimitToMemo({
+        memo: memo2,
+        limit: '1000000000',
+      })
+      expect(modifiedMemo2).toBe(
+        '$-:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0',
+      )
     })
   })
 

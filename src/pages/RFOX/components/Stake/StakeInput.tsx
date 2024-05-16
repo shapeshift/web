@@ -20,7 +20,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { formatDuration } from 'lib/utils/time'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
@@ -232,9 +232,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      stakingAmountCryptoBaseUnit: bn(cryptoAmount)
-        .times(stakingAsset?.precision ?? 0)
-        .toFixed(),
+      stakingAmountCryptoBaseUnit: toBaseUnit(cryptoAmount, stakingAsset?.precision ?? 0),
+
       runeAddress,
     })
     history.push(StakeRoutePaths.Confirm)

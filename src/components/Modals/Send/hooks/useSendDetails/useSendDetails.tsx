@@ -267,7 +267,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   useEffect(() => {
     if (!(sendMaxFees && sendMax)) return
 
-    const fastFee = sendMaxFees!.fast.txFee
+    const fastFee = sendMaxFees.fast.txFee
 
     const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
 

@@ -48,6 +48,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
+  const [stakeTxid, setStakeTxid] = useState<string | undefined>()
 
   const renderStakeInput = useCallback(() => {
     return (
@@ -64,12 +65,28 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const renderStakeConfirm = useCallback(() => {
     if (!confirmedQuote) return null
 
-    return <StakeConfirm confirmedQuote={confirmedQuote} headerComponent={headerComponent} />
-  }, [confirmedQuote, headerComponent])
+    return (
+      <StakeConfirm
+        stakeTxid={stakeTxid}
+        setStakeTxid={setStakeTxid}
+        confirmedQuote={confirmedQuote}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [confirmedQuote, headerComponent, stakeTxid])
 
   const renderStakeStatus = useCallback(() => {
-    return <StakeStatus headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!confirmedQuote) return null
+    if (!stakeTxid) return null
+
+    return (
+      <StakeStatus
+        txId={stakeTxid}
+        confirmedQuote={confirmedQuote}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [confirmedQuote, headerComponent, stakeTxid])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

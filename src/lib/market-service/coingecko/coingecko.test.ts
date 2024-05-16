@@ -1,4 +1,5 @@
 import { adapters } from '@shapeshiftoss/caip'
+import { coingeckoBaseUrl } from '@shapeshiftoss/caip/src/adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
@@ -35,9 +36,6 @@ vi.mock('axios-cache-interceptor', () => ({
 }))
 
 const coinGeckoMarketService = new CoinGeckoMarketService()
-
-const coinGeckoMarketApiUrl = 'https://markets.shapeshift.com/api/v3/coins/markets'
-const coinGeckoMarketProApiUrl = 'https://markets.shapeshift.com/api/v3/coins/markets'
 
 describe('CoinGecko market service', () => {
   beforeEach(() => {
@@ -169,22 +167,6 @@ describe('CoinGecko market service', () => {
       total_volume: 5745233196,
     }
 
-    it('can use free tier with no api key', async () => {
-      const spy = mocks.get
-      const freeCoinGeckoMarketService = new CoinGeckoMarketService()
-      await freeCoinGeckoMarketService.findAll({ count: 10 })
-      const url = `${coinGeckoMarketApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
-      expect(spy).toBeCalledWith(url)
-    })
-
-    it('can use pro tier with api key', async () => {
-      const spy = mocks.get
-      const proCoinGeckoMarketService = new CoinGeckoMarketService()
-      await proCoinGeckoMarketService.findAll({ count: 10 })
-      const url = `${coinGeckoMarketProApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
-      expect(spy).toBeCalledWith(url)
-    })
-
     it('can flatten multiple responses', async () => {
       mocks.get.mockResolvedValueOnce({ data: [eth] }).mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
@@ -225,7 +207,7 @@ describe('CoinGecko market service', () => {
       const spy = mocks.get.mockResolvedValue({ data: [btc] })
       await coinGeckoMarketService.findAll({ count: 10 })
       expect(spy).toHaveBeenCalledTimes(1)
-      const url = `${coinGeckoMarketApiUrl}?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
+      const url = `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
       expect(spy).toBeCalledWith(url)
     })
 

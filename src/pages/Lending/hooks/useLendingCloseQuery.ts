@@ -68,6 +68,7 @@ const selectLendingCloseQueryData = memoize(
     const quoteWithdrawnAmountAfterFeesCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
     ).toString()
+    const quoteWithdrawnAmountAfterFeesThorBaseUnit = bnOrZero(quote.expected_amount_out).toString()
     const quoteWithdrawnAmountAfterFeesUserCurrency = bnOrZero(
       quoteWithdrawnAmountAfterFeesCryptoPrecision,
     )
@@ -87,7 +88,7 @@ const selectLendingCloseQueryData = memoize(
     const withdrawnAmountBeforeFeesCryptoPrecision = fromThorBaseUnit(
       bnOrZero(quote.expected_amount_out).plus(quote.fees.total),
     )
-    const quoteSlippageWithdrawndAssetCryptoPrecision = withdrawnAmountBeforeFeesCryptoPrecision
+    const quoteSlippageWithdrawnAssetCryptoPrecision = withdrawnAmountBeforeFeesCryptoPrecision
       .times(quoteSlippagePercentageDecimal)
       .toString()
 
@@ -126,8 +127,9 @@ const selectLendingCloseQueryData = memoize(
       quoteDebtRepaidAmountUserCurrency,
       quoteDebtRepaidAmountUsd,
       quoteWithdrawnAmountAfterFeesCryptoPrecision,
+      quoteWithdrawnAmountAfterFeesThorBaseUnit,
       quoteWithdrawnAmountAfterFeesUserCurrency,
-      quoteSlippageWithdrawndAssetCryptoPrecision,
+      quoteSlippageWithdrawnAssetCryptoPrecision,
       quoteTotalFeesFiatUserCurrency,
       quoteTotalFeesFiatUsd,
       quoteInboundAddress,

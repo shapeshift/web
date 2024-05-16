@@ -1921,10 +1921,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "Nicht unterstütztes Netzwerk",
-        "description": "ShapeShift unterstützt derzeit nur %{supportedChainNames} mit WalletConnect."
-      },
       "header": {
         "connectDapp": "dApp verbinden",
         "connectAnotherDapp": "Verbinden Sie eine andere dApp",

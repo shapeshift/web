@@ -95,7 +95,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
       default:
         return null
     }
-  }, [approvalTx.status, stakingAmountCryptoPrecision, stakingAsset])
+  }, [approvalTx?.status, stakingAmountCryptoPrecision, stakingAsset])
 
   const txLink = useMemo(
     () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),

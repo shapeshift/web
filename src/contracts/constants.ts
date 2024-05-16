@@ -31,3 +31,6 @@ export const UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS =
 // Checksummed addresses - used to check against unchained Txs
 
 export const THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM = '0xd37bbe5744d730a1d98d8dc97c42f0ca46ad7146'
+
+// RFOX on Arbitrum ERC1967Proxy contract address
+export const RFOX_PROXY_CONTRACT_ADDRESS = '0x0c66f315542fdec1d312c415b14eef614b0910ef'

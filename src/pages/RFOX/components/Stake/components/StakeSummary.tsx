@@ -1,6 +1,7 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { arbitrum } from 'viem/chains'
@@ -28,7 +29,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
 
   const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useContractRead({
     abi: foxStakingV1Abi,
-    address: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
     staleTime: Infinity,

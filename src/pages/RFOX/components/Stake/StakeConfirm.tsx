@@ -16,6 +16,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -116,8 +117,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const { data: allowanceDataCryptoBaseUnit, isLoading: isAllowanceDataLoading } = useAllowance({
     assetId: stakingAsset?.assetId,
-    // TODO(gomes): const somewhere
-    spender: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+    spender: RFOX_PROXY_CONTRACT_ADDRESS,
     from: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
   })
 
@@ -130,10 +130,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     return encodeFunctionData({
       abi: erc20ABI,
       functionName: 'approve',
-      args: [
-        '0x0c66f315542fdec1d312c415b14eef614b0910ef',
-        BigInt(confirmedQuote.stakingAmountCryptoBaseUnit),
-      ],
+      args: [RFOX_PROXY_CONTRACT_ADDRESS, BigInt(confirmedQuote.stakingAmountCryptoBaseUnit)],
     })
   }, [confirmedQuote.stakingAmountCryptoBaseUnit])
 
@@ -219,8 +216,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   } = useMutation({
     ...reactQueries.mutations.approve({
       assetId: confirmedQuote.stakingAssetId,
-      // TODO(gomes): const somewhere
-      spender: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+      spender: RFOX_PROXY_CONTRACT_ADDRESS,
       from: stakingAssetAccountAddress,
       amount: confirmedQuote.stakingAmountCryptoBaseUnit,
       wallet,
@@ -247,8 +243,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
           stakingAsset?.assetId,
-          // TODO(gomes): const somewhere
-          '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+          RFOX_PROXY_CONTRACT_ADDRESS,
           stakingAssetAccountAddress,
         ),
       )
@@ -271,8 +266,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       amountCryptoPrecision: '0',
       assetId: confirmedQuote.stakingAssetId,
       feeAssetId: feeAsset?.assetId ?? '',
-      // TODO(gomes): const somewhere
-      to: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
       sendMax: false,
       memo: stakeCallData,
       accountId: confirmedQuote.stakingAssetAccountId,
@@ -353,8 +347,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
         adapter,
         data: stakeCallData,
         value: '0',
-        // TODO(gomes): const somewhere
-        to: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+        to: RFOX_PROXY_CONTRACT_ADDRESS,
         wallet,
       })
 

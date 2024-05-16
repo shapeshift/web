@@ -3,6 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumAssetId, foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
@@ -93,8 +94,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const { data: cooldownPeriod, isLoading: isCooldownPeriodLoading } = useContractRead({
     abi: foxStakingV1Abi,
-    // TODO(gomes): const somewhere
-    address: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
     staleTime: Infinity,
@@ -117,8 +117,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       amountCryptoPrecision: '0',
       assetId: stakingAsset?.assetId ?? '',
       feeAssetId: feeAsset?.assetId ?? '',
-      // TODO(gomes): const somewhere
-      to: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
       sendMax: false,
       memo: callData,
       accountId: stakingAssetAccountId ?? '',
@@ -132,8 +131,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const { data: allowanceDataCryptoBaseUnit, isSuccess: isAllowanceDataSuccess } = useAllowance({
     assetId: stakingAsset?.assetId,
-    // TODO(gomes): const somewhere
-    spender: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+    spender: RFOX_PROXY_CONTRACT_ADDRESS,
     from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
   })
 

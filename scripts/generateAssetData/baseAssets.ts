@@ -220,7 +220,7 @@ export const base: AssetWithNetworkName = {
   networkColor: '#0052FF',
   icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
   networkIcon:
-    'https://rawcdn.githack.com/base-org/brand-kit/blob/8984fe6e08be3058fd7cf5cd0b201f8b92b5a70e/logo/symbol/Base_Symbol_Blue.png',
+    'https://rawcdn.githack.com/base-org/brand-kit/8984fe6e08be3058fd7cf5cd0b201f8b92b5a70e/logo/symbol/Base_Symbol_Blue.png',
   explorer: 'https://basescan.org',
   explorerAddressLink: 'https://basescan.org/address/',
   explorerTxLink: 'https://basescan.org/tx/',

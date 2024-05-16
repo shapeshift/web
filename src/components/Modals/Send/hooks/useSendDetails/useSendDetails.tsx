@@ -52,6 +52,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const amountCryptoPrecision = useWatch<SendInput, SendFormFields.AmountCryptoPrecision>({
     name: SendFormFields.AmountCryptoPrecision,
   })
+
+  const fiatAmount = useWatch<SendInput, SendFormFields.FiatAmount>({
+    name: SendFormFields.FiatAmount,
+  })
   const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
@@ -149,7 +153,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }) => {
       const [, { sendMax, amountCryptoPrecision }] = queryKey
 
-      if (amountCryptoPrecision === '') return null
+      if (bnOrZero(amountCryptoPrecision).isNegative()) return null
       if (!asset || !accountId) return null
 
       const hasValidBalance = cryptoHumanBalance.gte(amountCryptoPrecision)
@@ -233,6 +237,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     1000,
   ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
 
+  const hasEnteredPositiveAmount = bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).gt(0)
+
   const {
     isLoading: _isEstimatedFormFeesLoading,
     data: estimatedFees,
@@ -240,7 +246,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   } = useQuery({
     queryKey,
     queryFn: setEstimatedFormFeesQueryFn,
-    enabled: true,
+    enabled: hasEnteredPositiveAmount,
     // a very arbitrary 15 seconds, which is enough to cache things in case the user is having fun with the input,
     // but also safe to invalidate in case there's a new Tx changing their balance
     staleTime: 15 * 1000,

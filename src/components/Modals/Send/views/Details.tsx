@@ -74,6 +74,8 @@ export const Details = () => {
     control,
   }) as Partial<SendInput>
 
+  const hasEnteredPositiveAmount = bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).gt(0)
+
   const previousAccountId = usePrevious(accountId)
 
   const handleAccountChange = useCallback(
@@ -309,7 +311,7 @@ export const Details = () => {
           <Button
             width='full'
             isDisabled={
-              !(amountCryptoPrecision ?? fiatAmount) ||
+              !hasEnteredPositiveAmount ||
               !!amountFieldError ||
               isLoading ||
               Boolean(memoFieldError)

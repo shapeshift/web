@@ -7,29 +7,36 @@ import {
   CardHeader,
   Flex,
   IconButton,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
+import { encodeFunctionData } from 'viem/utils'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { estimateFees } from 'components/Modals/Send/utils'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
+import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -46,13 +53,21 @@ type StakeConfirmProps = {
   confirmedQuote: RfoxStakingQuote
 }
 export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ confirmedQuote }) => {
+  // TODO(gomes): programmatic pls
+  const feeAssetId = arbitrumAssetId
   const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
 
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
 
-  const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+  )
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote.stakingAssetId),
+  )
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
 
   const poolAssetAccountNumberFilter = useMemo(() => {
     return {
@@ -68,12 +83,14 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ co
     [confirmedQuote.stakingAssetAccountId],
   )
 
+  // Approval/Allowance bits
+
   const {
     data: allowanceDataCryptoBaseUnit,
     isSuccess: isAllowanceDataSuccess,
     isLoading: isAllowanceDataLoading,
   } = useAllowance({
-    assetId: asset?.assetId,
+    assetId: stakingAsset?.assetId,
     // TODO(gomes): const somewhere
     spender: '0x0c66f315542fdec1d312c415b14eef614b0910ef',
     from: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
@@ -84,9 +101,79 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ co
     [allowanceDataCryptoBaseUnit, confirmedQuote.stakingAmountCryptoBaseUnit],
   )
 
-  const handleGoBack = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
-  }, [history])
+  const approvalCallData = useMemo(() => {
+    return encodeFunctionData({
+      abi: erc20ABI,
+      functionName: 'approve',
+      args: [
+        '0x0c66f315542fdec1d312c415b14eef614b0910ef',
+        BigInt(confirmedQuote.stakingAmountCryptoBaseUnit),
+      ],
+    })
+  }, [confirmedQuote.stakingAmountCryptoBaseUnit])
+
+  const estimateApprovalFeesInput = useMemo(
+    () => ({
+      // This is a contract call i.e 0 value
+      amountCryptoPrecision: '0',
+      assetId: confirmedQuote.stakingAssetId,
+      feeAssetId: feeAsset?.assetId ?? '',
+      // TODO(gomes): const somewhere
+      to: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+      sendMax: false,
+      memo: approvalCallData,
+      accountId: confirmedQuote.stakingAssetAccountId ?? '',
+      contractAddress: undefined,
+      // TODO(gomes): dev only, revert me
+      staleTime: Infinity,
+      gcTime: Infinity,
+    }),
+    [
+      confirmedQuote.stakingAssetId,
+      confirmedQuote.stakingAssetAccountId,
+      feeAsset?.assetId,
+      approvalCallData,
+    ],
+  )
+
+  // TODO(gomes): move this queryFn out of lending
+  // and actually make one specific for approval estimations for QoL
+  const estimatedApprovalFeesQueryKey: EstimatedFeesQueryKey = useMemo(
+    () => [
+      'estimateFees',
+      {
+        enabled: isApprovalRequired,
+        asset: stakingAsset,
+        feeAsset,
+        feeAssetMarketData,
+        estimateFeesInput: estimateApprovalFeesInput,
+      },
+    ],
+    [isApprovalRequired, stakingAsset, feeAsset, feeAssetMarketData, estimateApprovalFeesInput],
+  )
+
+  const { data: estimatedApprovalFees, isLoading: isEstimatedApprovalFeesLoading } = useQuery({
+    queryKey: estimatedApprovalFeesQueryKey,
+    staleTime: 30_000,
+    queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
+      const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
+
+      // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
+      if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
+
+      const estimatedFees = await estimateFees(estimateFeesInput)
+      const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
+        .times(feeAssetMarketData.price)
+        .toString()
+      return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
+    },
+
+    enabled: isApprovalRequired,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: 15_000,
+  })
 
   const serializedApprovalTxIndex = useMemo(() => {
     if (!(approvalTxId && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
@@ -133,14 +220,18 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ co
     ;(async () => {
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
-          asset?.assetId,
+          stakingAsset?.assetId,
           // TODO(gomes): const somewhere
           '0x0c66f315542fdec1d312c415b14eef614b0910ef',
           stakingAssetAccountAddress,
         ),
       )
     })()
-  }, [approvalTx, asset?.assetId, isApprovalTxPending, stakingAssetAccountAddress])
+  }, [approvalTx, stakingAsset?.assetId, isApprovalTxPending, stakingAssetAccountAddress])
+
+  const handleGoBack = useCallback(() => {
+    history.push(StakeRoutePaths.Input)
+  }, [history])
 
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) return handleApprove()
@@ -149,7 +240,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ co
   }, [handleApprove, history, isApprovalRequired])
 
   const stakeCards = useMemo(() => {
-    if (!asset) return null
+    if (!stakingAsset) return null
     return (
       <Card
         display='flex'
@@ -162,14 +253,14 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ co
         flex={1}
         mx={-2}
       >
-        <AssetIcon size='sm' assetId={asset?.assetId} />
+        <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value='0.0' symbol={asset?.symbol} />
+          <Amount.Crypto value='0.0' symbol={stakingAsset?.symbol} />
           <Amount.Fiat fontSize='sm' color='text.subtle' value='0.0' />
         </Stack>
       </Card>
     )
-  }, [asset])
+  }, [stakingAsset])
 
   return (
     <SlideTransition>
@@ -188,7 +279,9 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({ co
               <CustomRow>
                 <Row.Label>{translate('RFOX.approvalFee')}</Row.Label>
                 <Row.Value>
-                  <Amount.Fiat value='0.0001' />
+                  <Skeleton isLoaded={!isEstimatedApprovalFeesLoading}>
+                    <Amount.Fiat value={estimatedApprovalFees?.txFeeFiat ?? 0} />
+                  </Skeleton>
                 </Row.Value>
               </CustomRow>
             </TimelineItem>

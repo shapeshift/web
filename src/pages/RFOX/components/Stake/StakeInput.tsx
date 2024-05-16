@@ -123,7 +123,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       memo: callData,
       accountId: stakingAssetAccountId ?? '',
       contractAddress: undefined,
-      // During dev, revert me
+      // TODO(gomes): dev only, revert me
       staleTime: Infinity,
       gcTime: Infinity,
     }),
@@ -169,20 +169,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       {
         enabled: isEstimatedFeesEnabled,
         asset: stakingAsset,
-        assetMarketData: assetMarketDataUserCurrency,
         feeAsset,
         feeAssetMarketData,
         estimateFeesInput,
       },
     ],
-    [
-      stakingAsset,
-      assetMarketDataUserCurrency,
-      estimateFeesInput,
-      feeAsset,
-      feeAssetMarketData,
-      isEstimatedFeesEnabled,
-    ],
+    [stakingAsset, estimateFeesInput, feeAsset, feeAssetMarketData, isEstimatedFeesEnabled],
   )
 
   const { data: estimatedFees, isLoading: isEstimatedFeesLoading } = useQuery({

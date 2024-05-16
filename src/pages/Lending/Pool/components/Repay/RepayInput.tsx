@@ -614,7 +614,7 @@ export const RepayInput = ({
         assetIcon={collateralAsset?.icon ?? ''}
         // Both cryptoAmount and fiatAmount actually defined at display time, see showFiatSkeleton below
         cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
-        fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUserCurrency}
+        fiatAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesUserCurrency}
         isAccountSelectionDisabled={isAccountSelectionDisabled}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}

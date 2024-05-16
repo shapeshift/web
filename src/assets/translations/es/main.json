@@ -303,9 +303,6 @@
       "connecting": "Conectando..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Administrar Cuentas"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -601,7 +598,8 @@
         "body": "Recibir cripto"
       },
       "trade": {
-        "title": "Intercambie o Bridge"
+        "title": "Intercambie o Bridge",
+        "body": "Intercambia o Bridge tu cripto"
       },
       "buy": {
         "title": "Comprar o Vender",
@@ -1412,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "No se puede conectar la billetera Ledger",
-        "unknown": "Error inesperado al comunicarse con la billetera Ledger"
+        "unknown": "Error inesperado al comunicarse con la billetera Ledger",
+        "appNotOpen": "%{app} no abierta en Ledger",
+        "appNotOpenDescription": "Abra la app %{app} en su dispositivo e intente de nuevo."
       },
       "connect": {
         "header": "Emparejar Ledger",
@@ -1789,10 +1789,29 @@
     "viewAccount": "Ver cuenta",
     "expandAccount": "Expandir cuenta"
   },
-  "accountManagementSidebar": {
-    "title": "Importar cuentas %{chainNamespaceDisplayName}",
-    "description": "Seleccione las cuentas que desea importar de la lista a continuación.",
-    "import": "Importar"
+  "accountManagement": {
+    "menuTitle": "Administrar Cuentas",
+    "manageAccounts": {
+      "title": "Administrar Cuentas",
+      "description": "Estas son las cadenas que has conectado y la cantidad de cuentas que has importado.",
+      "emptyList": "Aún no tienes cuentas conectadas. Agrega una cadena para comenzar.",
+      "addChain": "Añadir una cadena",
+      "addAnotherChain": "Añadir otra cadena"
+    },
+    "selectChain": {
+      "title": "Seleccionar Cadena",
+      "description": "Para ver sus saldos en cada cadena, deberá conectar cada cadena y seleccionar las cuentas a importar.",
+      "searchChains": "Buscar por nombre"
+    },
+    "importAccounts": {
+      "title": "Importar cuentas %{chainNamespaceDisplayName}",
+      "description": "Seleccione las cuentas que desea importar de la lista a continuación.",
+      "import": "Importar"
+    },
+    "ledgerOpenApp": {
+      "title": "Abra la app %{appName}",
+      "description": "Para conectar esta cadena, deberá abrir la aplicación Ledger en su dispositivo."
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2246,7 +2265,12 @@
       "borrowingHalted": "Préstamos suspendidos temporalmente.",
       "repaymentsDisabled": "Pagos temporalmente inhabilitados.",
       "borrowingDisabled": "Préstamo temporalmente deshabilitado.",
-      "amountTooLowToReturnCollateral": "Monto demasiado bajo para devolver la garantía"
+      "amountTooLowToReturnCollateral": "Monto demasiado bajo para devolver la garantía",
+      "amountTooLowToReturnCollateralTooltip": "El pago es demasiado bajo para que se devuelva la garantía. Inténtelo nuevamente con un monto mayor o pague un monto parcial (lo que no devolverá su garantía, pero disminuirá su deuda).",
+      "amountTooSmallUnknownMinimumTooltip": "El importe de pago que ha introducido es demasiado pequeño. Inténtelo de nuevo con una cantidad mayor.",
+      "repaymentUnavailableTooltip": "Aún no es posible pagar su préstamo. Espere hasta que haya transcurrido el bloqueo de pago.",
+      "repaymentsHaltedTooltip": "Pagos suspendidos temporalmente. Por favor, inténte más tarde.",
+      "errorGettingQuote": "Hubo un error al obtener la cotización. Inténtalo de nuevo."
     },
     "quote": {
       "collateral": "Monto total del activo garantizado contra su préstamo",
@@ -2377,6 +2401,20 @@
       "title": "Comience a crear su lista de seguimiento",
       "body": "El ícono de estrella puede usarse para agregar recursos aquí.",
       "cta": "Explora más activos"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Gana más con Staking",
+      "body": "Obtenga ingresos pasivos Staking sus activos con THORChain Savers Vault."
+    },
+    "pools": {
+      "title": "Pools",
+      "body": "Gana comisiones por operaciones en pools."
+    },
+    "lending": {
+      "title": "Préstamo",
+      "body": "Préstamo contra sus activos."
     }
   }
 }

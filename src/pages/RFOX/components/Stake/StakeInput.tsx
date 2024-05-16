@@ -122,9 +122,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       memo: callData,
       accountId: stakingAssetAccountId ?? '',
       contractAddress: undefined,
-      // TODO(gomes): dev only, revert me
-      staleTime: Infinity,
-      gcTime: Infinity,
     }),
     [stakingAsset?.assetId, callData, feeAsset?.assetId, stakingAssetAccountId],
   )

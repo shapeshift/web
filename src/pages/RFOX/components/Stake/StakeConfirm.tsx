@@ -142,15 +142,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       amountCryptoPrecision: '0',
       assetId: confirmedQuote.stakingAssetId,
       feeAssetId: feeAsset?.assetId ?? '',
-      // TODO(gomes): const somewhere
       to: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
       sendMax: false,
       memo: approvalCallData,
       accountId: confirmedQuote.stakingAssetAccountId ?? '',
       contractAddress: undefined,
-      // TODO(gomes): dev only, revert me
-      staleTime: Infinity,
-      gcTime: Infinity,
     }),
     [
       confirmedQuote.stakingAssetId,

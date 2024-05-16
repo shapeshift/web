@@ -44,7 +44,7 @@ const formControlProps = {
 
 type StakeInputProps = {
   stakingAssetId?: AssetId
-  onRuneAddressChange: (address: string) => void
+  onRuneAddressChange: (address: string | undefined) => void
   runeAddress: string | undefined
 }
 
@@ -120,6 +120,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       memo: callData,
       accountId: stakingAssetAccountId ?? '',
       contractAddress: undefined,
+      // During dev, revert me
+      staleTime: Infinity,
+      gcTime: Infinity,
     }),
     [asset?.assetId, callData, feeAsset?.assetId, stakingAssetAccountId],
   )
@@ -218,7 +221,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   const handleRuneAddressChange = useCallback(
-    (address: string) => {
+    (address: string | undefined) => {
       onRuneAddressChange(address)
     },
     [onRuneAddressChange],

@@ -93,4 +93,3 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
     </AnimatePresence>
   )
 }
-

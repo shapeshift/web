@@ -8,21 +8,33 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
+import { validateAddress } from 'lib/address/address'
 
 type AddressSelectionProps = {
-  onRuneAddressChange: (address: string) => void
+  onRuneAddressChange: (address: string | undefined) => void
 }
 
 const boxProps = {
   width: 'full',
 }
 
+export type StakeValues = {
+  runeAddress: string | undefined
+}
+
 export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps) => {
   const translate = useTranslate()
+
+  const {
+    register,
+    formState: { errors },
+  } = useForm<StakeValues>({ mode: 'onChange', shouldUnregister: true })
+
   const [isManualAddress, setIsManualAddress] = useState(false)
 
   const handleAccountIdChange = useCallback(
@@ -33,12 +45,37 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
   )
 
   const handleToggleInputMethod = useCallback(() => {
+    onRuneAddressChange(undefined)
     setIsManualAddress(!isManualAddress)
-  }, [isManualAddress])
+  }, [isManualAddress, onRuneAddressChange])
 
   const accountSelection = useMemo(() => {
     if (isManualAddress) {
-      return <Input autoFocus />
+      return (
+        <Input
+          {...register('runeAddress', {
+            required: translate('A RUNE address is required'),
+            minLength: 1,
+            validate: async address => {
+              const isValid = await validateAddress({
+                maybeAddress: address ?? '',
+                chainId: thorchainChainId,
+              })
+
+              if (!isValid) {
+                onRuneAddressChange(undefined)
+                return translate('common.invalidAddress')
+              }
+
+              onRuneAddressChange(address)
+            },
+          })}
+          placeholder={translate('common.enterAddress')}
+          errorBorderColor='red.500'
+          autoFocus
+          defaultValue=''
+        />
+      )
     }
 
     return (
@@ -48,10 +85,10 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
         boxProps={boxProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress])
+  }, [handleAccountIdChange, isManualAddress, onRuneAddressChange, register, translate])
 
   return (
-    <FormControl>
+    <FormControl isInvalid={Boolean(isManualAddress && errors.runeAddress)}>
       <Stack px={6} py={4}>
         <Flex alignItems='center' justifyContent='space-between' mb={2}>
           <FormLabel fontSize='sm' mb={0}>

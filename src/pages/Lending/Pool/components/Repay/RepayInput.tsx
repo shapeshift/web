@@ -347,6 +347,7 @@ export const RepayInput = ({
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
+        onlyConnectedChains={true}
       />
     )
   }, [setRepaymentAsset, handleRepaymentAssetClick, repaymentAsset?.assetId])
@@ -357,6 +358,7 @@ export const RepayInput = ({
         assetId={collateralAssetId}
         isReadOnly
         isLoading={isLendingSupportedAssetsLoading}
+        onlyConnectedChains={true}
       />
     )
   }, [collateralAssetId, isLendingSupportedAssetsLoading])
@@ -621,7 +623,7 @@ export const RepayInput = ({
         assetIcon={collateralAsset?.icon ?? ''}
         // Both cryptoAmount and fiatAmount actually defined at display time, see showFiatSkeleton below
         cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
-        fiatAmount={lendingQuoteCloseData?.quoteDebtRepaidAmountUserCurrency}
+        fiatAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesUserCurrency}
         isAccountSelectionDisabled={isAccountSelectionDisabled}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}

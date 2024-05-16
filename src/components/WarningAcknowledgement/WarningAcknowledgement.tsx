@@ -18,7 +18,7 @@ const motionStyle: MotionStyle = {
   bottom: 0,
   left: 0,
   right: 0,
-  zIndex: 'var(--chakra-zIndices-modal)',
+  zIndex: 4,
 }
 
 const WarningOverlay: React.FC<PropsWithChildren> = ({ children }) => {
@@ -65,7 +65,7 @@ const popoverStyle: MotionStyle = {
   bottom: 0,
   left: 0,
   right: 0,
-  zIndex: 'var(--chakra-zIndices-banner)',
+  zIndex: 5,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -126,7 +126,6 @@ export const WarningAcknowledgement = ({
       borderRadius={boxBorderRadius}
       overflow={isShowing ? 'hidden' : 'visible'}
       width={'100%'}
-      height='100%'
     >
       <AnimatePresence mode='wait' initial={false}>
         {shouldShowWarningAcknowledgement && (

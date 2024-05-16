@@ -13,7 +13,7 @@ import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
-import { rFOX } from 'pages/rFOX/rFOX'
+import { RFOX } from 'pages/RFOX/RFOX'
 
 import type { Route as NestedRoute } from './helpers'
 import { RouteCategory } from './helpers'
@@ -139,7 +139,7 @@ export const routes: NestedRoute[] = [
     icon: <FoxIcon />,
     mobileNav: false,
     priority: 3,
-    main: rFOX,
+    main: RFOX,
     category: RouteCategory.Featured,
     disable: !getConfig().REACT_APP_FEATURE_RFOX,
   },
@@ -149,7 +149,6 @@ export const routes: NestedRoute[] = [
     shortLabel: 'navBar.tradeShort',
     icon: <SwapIcon />,
     mobileNav: false,
-    hideMobileMenu: true,
     priority: 2,
     main: Trade,
     category: RouteCategory.Featured,

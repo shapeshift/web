@@ -1,27 +1,19 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
-import type {
-  FlexProps,
-  IconButtonProps,
-  ResponsiveValue,
-  SimpleGridProps,
-  TextProps,
-} from '@chakra-ui/react'
+import type { FlexProps, IconButtonProps, ResponsiveValue, TextProps } from '@chakra-ui/react'
 import { Flex, IconButton, SimpleGrid } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import type { PropsWithChildren } from 'react'
 import React from 'react'
+import { useHistory } from 'react-router'
 import { RawText } from 'components/Text'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 
 const arrowBack = <ArrowBackIcon />
 const paddingX = { base: 4, xl: 8 }
-const paddingTop = { base: 'env(safe-area-inset-top)', md: 4 }
+const paddingTop = { base: 'env(safe-area-inset-top)', md: 6 }
 const position: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
-const pageHeaderBg = { base: 'background.surface.alpha', md: 'transparent' }
 
 export const PageBackButton: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
-  const { history } = useBrowserRouter()
-  const { goBack } = history
+  const { goBack } = useHistory()
   return (
     <IconButton
       fontSize='2xl'
@@ -45,14 +37,7 @@ type PageHeaderCompoundProps = {
   Title: React.FC<{ children: React.ReactNode }>
 }
 
-type PageHeaderProps = {
-  containerProps?: SimpleGridProps
-} & PropsWithChildren
-
-export const PageHeader: React.FC<PageHeaderProps> & PageHeaderCompoundProps = ({
-  children,
-  containerProps,
-}) => {
+export const PageHeader: React.FC<PropsWithChildren> & PageHeaderCompoundProps = ({ children }) => {
   return (
     <SimpleGrid
       gridTemplateColumns='1fr auto 1fr'
@@ -61,7 +46,7 @@ export const PageHeader: React.FC<PageHeaderProps> & PageHeaderCompoundProps = (
       top={0}
       left={0}
       right={0}
-      bg={pageHeaderBg}
+      bg='background.surface.alpha'
       backdropFilter='blur(30px)'
       pt={paddingTop}
       zIndex='sticky'
@@ -70,7 +55,6 @@ export const PageHeader: React.FC<PageHeaderProps> & PageHeaderCompoundProps = (
       maxWidth='container.4xl'
       px={paddingX}
       marginInline='auto'
-      {...containerProps}
     >
       {children}
     </SimpleGrid>
@@ -100,7 +84,7 @@ const Right: React.FC<FlexProps> = props => (
     {...props}
   />
 )
-const fontSizeMd2xl = { base: 'xl', md: 'lg' }
+const fontSizeMd2xl = { base: 'xl', md: '2xl' }
 const Title: React.FC<TextProps> = props => (
   <RawText fontSize={fontSizeMd2xl} textAlign='center' {...props} />
 )

@@ -349,6 +349,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         setValue(SendFormFields.AmountFieldError, '')
         // Set value of the other input to an empty string as well
         setValue(otherField, '') // TODO: this shouldn't be a thing, using a single amount field
+        return
       }
 
       const cryptoAmount =

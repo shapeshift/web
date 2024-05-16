@@ -12,6 +12,7 @@ export const evmTreasuryChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.BaseMainnet,
 ] as const
 
 export type EvmTreasuryChainId = (typeof evmTreasuryChainIds)[number]

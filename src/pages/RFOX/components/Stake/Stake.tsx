@@ -4,7 +4,7 @@ import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
-import type { StakeRouteProps } from './types'
+import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
@@ -47,6 +47,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
+  const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
 
   const renderStakeInput = useCallback(() => {
     return (
@@ -55,15 +56,16 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
         runeAddress={runeAddress}
         headerComponent={headerComponent}
         onRuneAddressChange={setRuneAddress}
+        setConfirmedQuote={setConfirmedQuote}
       />
     )
   }, [headerComponent, runeAddress])
 
   const renderStakeConfirm = useCallback(() => {
-    if (!runeAddress) return null
+    if (!confirmedQuote) return null
 
-    return <StakeConfirm runeAddress={runeAddress} headerComponent={headerComponent} />
-  }, [headerComponent, runeAddress])
+    return <StakeConfirm confirmedQuote={confirmedQuote} headerComponent={headerComponent} />
+  }, [confirmedQuote, headerComponent])
 
   const renderStakeStatus = useCallback(() => {
     return <StakeStatus headerComponent={headerComponent} />

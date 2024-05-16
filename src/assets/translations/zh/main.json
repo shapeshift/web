@@ -303,9 +303,6 @@
       "connecting": "正在连接..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "管理帐户"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -601,7 +598,8 @@
         "body": "接收加密货币"
       },
       "trade": {
-        "title": "交易或桥接"
+        "title": "交易或桥接",
+        "body": "交易或桥接你的加密货币"
       },
       "buy": {
         "title": "买入或卖出",
@@ -1412,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "无法连接Ledger钱包",
-        "unknown": "与 Ledger 钱包通信时发生意外错误"
+        "unknown": "与 Ledger 钱包通信时发生意外错误",
+        "appNotOpen": "%{app} 未在 Ledger 上打开",
+        "appNotOpenDescription": "请在你的设备上打开 %{app} 应用程序并重试。"
       },
       "connect": {
         "header": "匹配 Ledger",
@@ -1789,10 +1789,29 @@
     "viewAccount": "查看账户",
     "expandAccount": "展开账户"
   },
-  "accountManagementSidebar": {
-    "title": "导入 %{chainNamespaceDisplayName} 账户",
-    "description": "从下面的列表中选择您想要导入的帐户。",
-    "import": "导入"
+  "accountManagement": {
+    "menuTitle": "管理帐户",
+    "manageAccounts": {
+      "title": "管理帐户",
+      "description": "这些是你已经连接的链和你导入的账户数量。",
+      "emptyList": "你尚未连接任何帐户。添加链即可开始。",
+      "addChain": "添加一个链",
+      "addAnotherChain": "添加另一条链"
+    },
+    "selectChain": {
+      "title": "选择一个链",
+      "description": "要查看每个链的余额，你需要连接每个链并选择要导入的账户。",
+      "searchChains": "按名称搜索"
+    },
+    "importAccounts": {
+      "title": "导入 %{chainNamespaceDisplayName} 账户",
+      "description": "从下面的列表中选择你想要导入的帐户。",
+      "import": "导入"
+    },
+    "ledgerOpenApp": {
+      "title": "打开 %{appName} 应用",
+      "description": "要连接此链，你需要在设备上打开 Ledger 应用程序。"
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2246,7 +2265,12 @@
       "borrowingHalted": "借款暂时停止。",
       "repaymentsDisabled": "还款功能暂时禁用。",
       "borrowingDisabled": "暂时禁止借贷。",
-      "amountTooLowToReturnCollateral": "金额太低，无法退还抵押品"
+      "amountTooLowToReturnCollateral": "金额太低，无法退还抵押品",
+      "amountTooLowToReturnCollateralTooltip": "还款金额太低，无法退还你的抵押品。请尝试以更高的金额再试一次，或偿还部分金额（这不会退还你的抵押品，但会减少你的债务）。",
+      "amountTooSmallUnknownMinimumTooltip": "你输入的还款金额太小。请输入更高的金额重试。",
+      "repaymentUnavailableTooltip": "你目前无法偿还贷款。请等到还款锁定期结束。",
+      "repaymentsHaltedTooltip": "还款暂时停止。请稍后重试。",
+      "errorGettingQuote": "获取报价时出错。请重试。"
     },
     "quote": {
       "collateral": "将作为你的贷款担保的总资产金额",
@@ -2377,6 +2401,20 @@
       "title": "开始建立您的关注列表",
       "body": "无论您在何处看到星形图标，您都可以使用它在这里添加资产。",
       "cta": "探索更多资产"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "通过质押获得更多收益",
+      "body": "通过 THORChain Savers Vault 质押你的资产来赚取被动收入。"
+    },
+    "pools": {
+      "title": "池",
+      "body": "通过资金池交易赚取费用。"
+    },
+    "lending": {
+      "title": "借贷",
+      "body": "用你的资产作为抵押进行借贷。"
     }
   }
 }

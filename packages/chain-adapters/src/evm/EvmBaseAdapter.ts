@@ -11,7 +11,7 @@ import {
   supportsArbitrum,
   supportsArbitrumNova,
   supportsAvalanche,
-  //supportsBase,
+  supportsBase,
   supportsBSC,
   supportsETH,
   supportsGnosis,
@@ -186,8 +186,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
         return supportsArbitrumNova(wallet)
       case Number(fromChainId(KnownChainIds.BaseMainnet).chainReference):
-        //return supportsBase(wallet)
-        return true
+        return supportsBase(wallet)
       default:
         return false
     }

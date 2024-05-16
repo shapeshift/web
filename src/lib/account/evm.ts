@@ -14,7 +14,7 @@ import {
   supportsArbitrum,
   supportsArbitrumNova,
   supportsAvalanche,
-  //supportsBase,
+  supportsBase,
   supportsBSC,
   supportsETH,
   supportsGnosis,
@@ -40,7 +40,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
     if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
-    if (chainId === baseChainId && !true /**supportsBase(wallet)**/) continue
+    if (chainId === baseChainId && !supportsBase(wallet)) continue
 
     const adapter = assertGetEvmChainAdapter(chainId)
     const bip44Params = adapter.getBIP44Params({ accountNumber })

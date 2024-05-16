@@ -22,7 +22,7 @@ import {
   supportsArbitrum,
   supportsArbitrumNova,
   supportsAvalanche,
-  //supportsBase,
+  supportsBase,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -96,8 +96,7 @@ export const walletSupportsChain = ({
     case arbitrumNovaChainId:
       return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
-      //return supportsBase(wallet)
-      return true
+      return supportsBase(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

@@ -1,6 +1,6 @@
 import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { arbitrumAssetId, foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -26,6 +26,7 @@ import { formatDuration } from 'lib/utils/time'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
   selectAssetById,
+  selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
@@ -62,20 +63,19 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   runeAddress,
   setConfirmedQuote,
 }) => {
-  // TODO(gomes): programmatic pls
-  const feeAssetId = arbitrumAssetId
-
   const translate = useTranslate()
   const history = useHistory()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
+  )
 
   // TODO(gomes): make this programmatic when we implement multi-account
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
   const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
   const assetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),

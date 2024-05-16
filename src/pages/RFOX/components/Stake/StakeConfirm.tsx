@@ -10,7 +10,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { arbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -44,6 +44,7 @@ import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedF
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
@@ -67,24 +68,25 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   setStakeTxid,
   confirmedQuote,
 }) => {
-  // TODO(gomes): programmatic pls
-  const feeAssetId = arbitrumAssetId
   const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
 
   const [approvalTxId, setApprovalTxId] = useState<string | undefined>()
 
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote.stakingAssetId),
+  )
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
+  )
+
   const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
   const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
   )
-  const stakingAsset = useAppSelector(state =>
-    selectAssetById(state, confirmedQuote.stakingAssetId),
-  )
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId))
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
     return {

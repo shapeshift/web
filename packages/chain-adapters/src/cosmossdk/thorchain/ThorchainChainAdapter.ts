@@ -5,6 +5,7 @@ import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { bech32 } from 'bech32'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -16,8 +17,9 @@ import type {
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTxInput,
+  ValidAddressResult,
 } from '../../types'
-import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
+import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
@@ -107,6 +109,26 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       }
     } catch (error) {
       return ErrorHandler(error)
+    }
+  }
+
+  // eslint-disable-next-line require-await
+  async validateAddress(address: string): Promise<ValidAddressResult> {
+    const THORCHAIN_PREFIX = 'thor'
+
+    try {
+      const decoded = bech32.decode(address)
+      if (decoded.prefix !== THORCHAIN_PREFIX) {
+        return { valid: false, result: ValidAddressResultType.Invalid }
+      }
+
+      const wordsLength = decoded.words.length
+      if (wordsLength !== 32) {
+        return { valid: false, result: ValidAddressResultType.Invalid }
+      }
+      return { valid: true, result: ValidAddressResultType.Valid }
+    } catch (e) {
+      return { valid: false, result: ValidAddressResultType.Invalid }
     }
   }
 

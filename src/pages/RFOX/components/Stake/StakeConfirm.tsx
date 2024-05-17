@@ -330,31 +330,47 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     )
   }, [confirmedQuote.stakingAssetAccountId, stakeTxid, stakingAssetAccountAddress])
 
-  const handleStake = useCallback(async () => {
-    if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset) return
+  const {
+    mutateAsync: sendStakeTx,
+    isPending: isStakeMutationPending,
+    isSuccess: isStakeMutationSuccess,
+  } = useMutation({
+    mutationFn: async () => {
+      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset) return
 
-    const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
 
-    const buildCustomTxInput = await createBuildCustomTxInput({
-      accountNumber: stakingAssetAccountNumber,
-      adapter,
-      data: stakeCallData,
-      value: '0',
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      wallet,
-    })
+      const buildCustomTxInput = await createBuildCustomTxInput({
+        accountNumber: stakingAssetAccountNumber,
+        adapter,
+        data: stakeCallData,
+        value: '0',
+        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        wallet,
+      })
 
-    const txId = await buildAndBroadcast({
-      adapter,
-      buildCustomTxInput,
-      receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-    })
+      const txId = await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+      })
 
-    setStakeTxid(txId)
-  }, [setStakeTxid, stakeCallData, stakingAsset, stakingAssetAccountNumber, wallet])
+      return txId
+    },
+    onSuccess: (txId: string | undefined) => {
+      if (!txId) return
+
+      setStakeTxid(txId)
+    },
+  })
+
+  const handleStake = useCallback(() => sendStakeTx(undefined), [sendStakeTx])
 
   const stakeTx = useAppSelector(gs => selectTxById(gs, serializedStakeTxIndex))
-  const isStakeTxPending = useMemo(() => Boolean(stakeTxid && !stakeTx), [stakeTx, stakeTxid])
+  const isStakeTxPending = useMemo(
+    () => isStakeMutationPending || (isStakeMutationSuccess && !stakeTx),
+    [isStakeMutationPending, isStakeMutationSuccess, stakeTx],
+  )
 
   const handleGoBack = useCallback(() => {
     history.push(StakeRoutePaths.Input)

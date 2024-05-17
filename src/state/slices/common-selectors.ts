@@ -81,7 +81,7 @@ export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector
     if (accountId && assetId) return accountBalances?.[accountId]?.[assetId] ?? '0'
     return assetId ? assetBalances[assetId] : '0'
   },
-)((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
+)((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelector(
   selectAssets,
@@ -98,7 +98,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
     if (accountId) return fromBaseUnit(bnOrZero(accountBalances?.[accountId]?.[assetId]), precision)
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },
-)((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
+)((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,

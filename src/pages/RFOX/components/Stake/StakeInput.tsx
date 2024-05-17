@@ -407,10 +407,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             <FormDivider />
             <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
             <Collapse in={isValidStakingAmount}>
-              <StakeSummary
-                assetId={stakingAsset.assetId}
-                stakingAmountCryptoPrecision={amountCryptoPrecision}
-              />
+              {stakingAssetAccountId && (
+                <StakeSummary
+                  assetId={stakingAsset.assetId}
+                  stakingAmountCryptoPrecision={amountCryptoPrecision}
+                  stakingAssetAccountId={stakingAssetAccountId}
+                />
+              )}
               <CardFooter
                 borderTopWidth={1}
                 borderColor='border.subtle'

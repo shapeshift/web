@@ -1,14 +1,23 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import {
+  type AccountId,
+  type AssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
+import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { useContractRead } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { formatDuration } from 'lib/utils/time'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -17,15 +26,22 @@ type StakeSummaryProps = {
   isLoading?: boolean
   assetId: AssetId
   stakingAmountCryptoPrecision: string
+  stakingAssetAccountId: AccountId
 }
 
 export const StakeSummary: React.FC<StakeSummaryProps> = ({
   isLoading,
   stakingAmountCryptoPrecision,
+  stakingAssetAccountId,
   assetId,
 }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const translate = useTranslate()
+
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(stakingAssetAccountId).account,
+    [stakingAssetAccountId],
+  )
 
   const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useContractRead({
     abi: foxStakingV1Abi,
@@ -35,6 +51,32 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     staleTime: Infinity,
     select: data => formatDuration(Number(data)),
   })
+
+  const { data: userBalanceOf, isSuccess: isUserBalanceOfSuccess } = useContractRead({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'balanceOf',
+    args: [getAddress(stakingAssetAccountAddress)],
+    chainId: arbitrum.id,
+    select: data => data.toString(),
+  })
+
+  const { data: contractBalanceOf, isSuccess: isContractBalanceOfSuccess } = useContractRead({
+    abi: erc20ABI,
+    address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
+    functionName: 'balanceOf',
+    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
+    chainId: arbitrum.id,
+    select: data => data.toString(),
+  })
+
+  const shareOfPoolPercentage = useMemo(
+    () =>
+      bnOrZero(userBalanceOf)
+        .div(contractBalanceOf ?? 0)
+        .toFixed(4),
+    [contractBalanceOf, userBalanceOf],
+  )
 
   const stakeAmountToolTip = useCallback(() => {
     return <Text color='text.subtle' translation='RFOX.tooltips.stakeAmount' />
@@ -78,8 +120,8 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
       <Row Tooltipbody={shareOfPoolToolTip}>
         <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Percent value='TODO' />
+          <Skeleton isLoaded={isUserBalanceOfSuccess && isContractBalanceOfSuccess}>
+            <Amount.Percent value={shareOfPoolPercentage} />
           </Skeleton>
         </Row.Value>
       </Row>

@@ -119,7 +119,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [amountCryptoPrecision, fiatAmount],
   )
 
-  const { data: cooldownPeriod, isLoading: isCooldownPeriodLoading } = useContractRead({
+  const { data: cooldownPeriod } = useContractRead({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
     functionName: 'cooldownPeriod',
@@ -166,10 +166,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return fromBaseUnit(allowanceDataCryptoBaseUnit, stakingAsset?.precision)
   }, [allowanceDataCryptoBaseUnit, stakingAsset])
 
-  // TODO(gomes): balance checks too
   const isApprovalRequired = useMemo(
-    () => bnOrZero(allowanceCryptoPrecision).lt(amountCryptoPrecision),
-    [allowanceCryptoPrecision, amountCryptoPrecision],
+    () => isAllowanceDataSuccess && bnOrZero(allowanceCryptoPrecision).lt(amountCryptoPrecision),
+    [allowanceCryptoPrecision, amountCryptoPrecision, isAllowanceDataSuccess],
   )
 
   const isEstimatedFeesEnabled = useMemo(
@@ -199,7 +198,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [stakingAsset, estimateFeesInput, feeAsset, feeAssetMarketData, isEstimatedFeesEnabled],
   )
 
-  const { data: estimatedFees, isLoading: isEstimatedFeesLoading } = useQuery({
+  const {
+    data: estimatedFees,
+    isLoading: isEstimatedFeesLoading,
+    isSuccess: isEstimatedFeesSuccess,
+  } = useQuery({
     queryKey: estimatedFeesQueryKey,
     staleTime: 30_000,
     queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
@@ -271,7 +274,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     ],
   )
 
-  const { data: estimatedApprovalFees, isLoading: isEstimatedApprovalFeesLoading } = useQuery({
+  const {
+    data: estimatedApprovalFees,
+    isLoading: isEstimatedApprovalFeesLoading,
+    isSuccess: isEstimatedApprovalFeesSuccess,
+  } = useQuery({
     queryKey: estimatedApprovalFeesQueryKey,
     staleTime: 30_000,
     queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
@@ -397,40 +404,34 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 py={4}
                 bg='background.surface.raised.accent'
               >
-                {
-                  /* Only display gas fee if allowance has been granted - else we can't estimate them
-                   * Or maybe we just remove the fees row altogether because they're so cheap on L2?
-                   * */
-                  !isApprovalRequired ? (
-                    <Row fontSize='sm' fontWeight='medium'>
-                      <Row.Label>{translate('common.gasFee')}</Row.Label>
-                      <Row.Value>
-                        <Skeleton
-                          isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
-                          height='14px'
-                          width='50px'
-                        >
-                          <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
-                        </Skeleton>
-                      </Row.Value>
-                    </Row>
-                  ) : (
-                    <Row fontSize='sm' fontWeight='medium'>
-                      <Row.Label>{translate('common.approvalFee')}</Row.Label>
-                      <Row.Value>
-                        <Skeleton
-                          isLoaded={Boolean(
-                            !isEstimatedApprovalFeesLoading && estimatedApprovalFees,
-                          )}
-                          height='14px'
-                          width='50px'
-                        >
-                          <Amount.Fiat value={estimatedApprovalFees?.txFeeFiat ?? 0} />
-                        </Skeleton>
-                      </Row.Value>
-                    </Row>
-                  )
-                }
+                {isAllowanceDataSuccess && isApprovalRequired && (
+                  <Row fontSize='sm' fontWeight='medium'>
+                    <Row.Label>{translate('common.approvalFee')}</Row.Label>
+                    <Row.Value>
+                      <Skeleton
+                        isLoaded={Boolean(!isEstimatedApprovalFeesLoading && estimatedApprovalFees)}
+                        height='14px'
+                        width='50px'
+                      >
+                        <Amount.Fiat value={estimatedApprovalFees?.txFeeFiat ?? 0} />
+                      </Skeleton>
+                    </Row.Value>
+                  </Row>
+                )}
+                {isAllowanceDataSuccess && !isApprovalRequired && (
+                  <Row fontSize='sm' fontWeight='medium'>
+                    <Row.Label>{translate('common.gasFee')}</Row.Label>
+                    <Row.Value>
+                      <Skeleton
+                        isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
+                        height='14px'
+                        width='50px'
+                      >
+                        <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
+                      </Skeleton>
+                    </Row.Value>
+                  </Row>
+                )}
               </CardFooter>
             </Collapse>
           </Stack>
@@ -448,9 +449,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               mx={-2}
               onClick={handleWarning}
               isDisabled={
-                Boolean(errors.amountCryptoPrecision) || !runeAddress || !isValidStakingAmount
+                Boolean(errors.amountCryptoPrecision) ||
+                !runeAddress ||
+                !isValidStakingAmount ||
+                !(isEstimatedFeesSuccess || isEstimatedApprovalFeesSuccess) ||
+                !cooldownPeriod
               }
-              isLoading={isCooldownPeriodLoading}
+              isLoading={isEstimatedApprovalFeesLoading || isEstimatedFeesLoading}
               colorScheme={Boolean(errors.amountCryptoPrecision) ? 'red' : 'blue'}
             >
               {errors.amountCryptoPrecision?.message || translate('RFOX.stake')}

@@ -15,7 +15,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
 import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
-import type { ControllerRenderProps } from 'react-hook-form'
+import type { ControllerRenderProps, RegisterOptions } from 'react-hook-form'
 import { Controller, type FieldError, useForm, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
@@ -72,6 +72,10 @@ const AmountInput = (props: InputProps) => {
 }
 
 export type TradeAmountInputProps = {
+  amountFieldInputRules?: Omit<
+    RegisterOptions,
+    'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
+  >
   autoSelectHighestBalance?: boolean
   assetId?: AssetId
   accountId?: AccountId
@@ -117,6 +121,7 @@ const defaultFormValues = {
 // Scrutinize this and rename all Trade references here, or at the very least in the parent to something more generic for sanity
 export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
   ({
+    amountFieldInputRules,
     assetId,
     accountId,
     assetSymbol,
@@ -214,20 +219,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
       )
     }, [assetSymbol, cryptoAmount, fiatAmount, isFiat])
-
-    const amountInputRules = useMemo(() => {
-      return {
-        defaultValue: '',
-        validate: {
-          hasEnoughBalance: (input: string) => {
-            // TODO(gomes): this should check for crypto only, using the inverted fiat rate if isFiat, to honor the amountCryptoPrecision field vernacular
-            const hasEnoughBalance = bnOrZero(input).lte(bnOrZero(isFiat ? fiatBalance : balance))
-
-            return hasEnoughBalance || translate('common.insufficientFunds')
-          },
-        },
-      }
-    }, [balance, fiatBalance, isFiat, translate])
 
     const renderController: RenderController = useCallback(
       ({ field: { onChange } }) => {
@@ -349,7 +340,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 name={'amountFieldInput'}
                 render={renderController}
                 control={control}
-                rules={amountInputRules}
+                rules={amountFieldInputRules}
               />
             </Skeleton>
             {RightComponent && <RightComponent assetId={assetId ?? ''} />}

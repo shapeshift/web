@@ -32,6 +32,7 @@ import {
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -111,6 +112,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
+  const stakingAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
   )
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [1], [])
@@ -326,6 +330,35 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     )
   }, [stakingAsset?.assetId])
 
+  const filter = useMemo(
+    () => ({
+      accountId: stakingAssetAccountId ?? '',
+      assetId: stakingAssetId,
+    }),
+    [stakingAssetAccountId, stakingAssetId],
+  )
+  const stakingAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
+  )
+  const fiatBalance = bnOrZero(stakingAssetBalanceCryptoPrecision)
+    .times(stakingAssetMarketData.price)
+    .toString()
+
+  const amountFieldInputRules = useMemo(() => {
+    return {
+      defaultValue: '',
+      validate: {
+        hasEnoughBalance: (input: string) => {
+          const hasEnoughBalance = bnOrZero(input).lte(
+            bnOrZero(isFiat ? fiatBalance : stakingAssetBalanceCryptoPrecision),
+          )
+
+          return hasEnoughBalance || translate('common.insufficientFunds')
+        },
+      },
+    }
+  }, [fiatBalance, isFiat, stakingAssetBalanceCryptoPrecision, translate])
+
   if (!stakingAsset) return null
 
   return (
@@ -342,6 +375,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           <Stack>
             {headerComponent}
             <TradeAssetInput
+              amountFieldInputRules={amountFieldInputRules}
               assetId={stakingAsset?.assetId}
               assetSymbol={stakingAsset?.symbol ?? ''}
               assetIcon={stakingAsset?.icon ?? ''}

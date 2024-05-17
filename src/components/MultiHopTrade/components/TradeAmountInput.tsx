@@ -151,7 +151,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const focusBg = useColorModeValue('gray.50', 'gray.900')
     const focusBorder = useColorModeValue('blue.500', 'blue.400')
 
-    const { control } = useFormContext<TradeAmountInputFormValues>()
+    const control = useFormContext<TradeAmountInputFormValues>()?.control
 
     // Lower the decimal places when the integer is greater than 8 significant digits for better UI
     const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)

@@ -638,16 +638,6 @@ export const selectCryptoHumanBalanceIncludingStakingByFilter = createCachedSele
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
-export const selectPortfolioChainIdsSortedUserCurrency = createDeepEqualOutputSelector(
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-  (userCurrencyAccountBalances): ChainId[] =>
-    Array.from(
-      new Set(
-        Object.keys(userCurrencyAccountBalances).map(accountId => fromAccountId(accountId).chainId),
-      ),
-    ),
-)
-
 export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   selectChainIdParamFromFilter,

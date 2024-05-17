@@ -2,17 +2,19 @@ import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, CardHeader, Heading } from '@chakra-ui/react'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
-import { selectTxIds } from 'state/slices/selectors'
+import { selectTxIdsByFilter } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 type RecentTransactionProps = { limit?: number; viewMoreLink?: boolean } & CardProps
 
+const filter = {}
+
 export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
   ({ limit = 10, viewMoreLink, ...rest }) => {
-    const txIds = useSelector(selectTxIds)
+    const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
     const translate = useTranslate()
     return (
       <Card variant='dashboard' {...rest}>

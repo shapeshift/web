@@ -284,6 +284,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     ],
   )
 
+  const isEstimatedApprovalFeesEnabled = useMemo(
+    () =>
+      !Boolean(errors.amountCryptoPrecision) &&
+      Boolean(isApprovalRequired && stakingAssetAccountId),
+    [errors.amountCryptoPrecision, isApprovalRequired, stakingAssetAccountId],
+  )
+
   const {
     data: estimatedApprovalFees,
     isLoading: isEstimatedApprovalFeesLoading,
@@ -303,10 +310,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         .toString()
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
-
-    enabled:
-      !Boolean(errors.amountCryptoPrecision) &&
-      Boolean(isApprovalRequired && stakingAssetAccountId),
+    enabled: isEstimatedApprovalFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -416,7 +420,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 py={4}
                 bg='background.surface.raised.accent'
               >
-                {isAllowanceDataSuccess && isApprovalRequired && (
+                {isEstimatedApprovalFeesEnabled && (
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.approvalFee')}</Row.Label>
                     <Row.Value>
@@ -430,7 +434,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                     </Row.Value>
                   </Row>
                 )}
-                {isAllowanceDataSuccess && !isApprovalRequired && (
+                {isEstimatedFeesEnabled && (
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.gasFee')}</Row.Label>
                     <Row.Value>

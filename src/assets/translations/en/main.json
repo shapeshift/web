@@ -117,6 +117,7 @@
     "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
     "gasFee": "Gas Fee",
+    "approvalFee" : "Approval Fee",
     "consolidationFee": "Consolidation Fee",
     "fees": "Fees",
     "alternative": "Alternative",

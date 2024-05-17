@@ -423,7 +423,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
             {isApprovalRequired ? (
               <TimelineItem>
                 <CustomRow>
-                  <Row.Label>{translate('RFOX.approvalFee')}</Row.Label>
+                  <Row.Label>{translate('common.approvalFee')}</Row.Label>
                   <Row.Value>
                     <Skeleton isLoaded={!isEstimatedApprovalFeesLoading}>
                       <Amount.Fiat value={estimatedApprovalFees?.txFeeFiat ?? 0} />

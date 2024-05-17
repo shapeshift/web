@@ -2,6 +2,7 @@ import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
+import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo, useState } from 'react'
@@ -221,6 +222,78 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     refetchInterval: 15_000,
   })
 
+  const approvalCallData = useMemo(() => {
+    return encodeFunctionData({
+      abi: erc20ABI,
+      functionName: 'approve',
+      args: [
+        RFOX_PROXY_CONTRACT_ADDRESS,
+        BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0)),
+      ],
+    })
+  }, [amountCryptoPrecision, stakingAsset?.precision])
+
+  const estimateApprovalFeesInput = useMemo(
+    () => ({
+      // This is a contract call i.e 0 value
+      amountCryptoPrecision: '0',
+      assetId: stakingAssetId,
+      feeAssetId: feeAsset?.assetId ?? '',
+      to: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
+      sendMax: false,
+      memo: approvalCallData,
+      accountId: stakingAssetAccountId ?? '',
+      contractAddress: undefined,
+    }),
+    [stakingAssetId, feeAsset?.assetId, stakingAssetAccountId, approvalCallData],
+  )
+
+  // TODO(gomes): move this queryFn out of lending
+  // and actually make one specific for approval estimations for QoL
+  const estimatedApprovalFeesQueryKey: EstimatedFeesQueryKey = useMemo(
+    () => [
+      'estimateFees',
+      {
+        enabled: Boolean(isApprovalRequired && stakingAssetAccountId),
+        asset: stakingAsset,
+        feeAsset,
+        feeAssetMarketData,
+        estimateFeesInput: estimateApprovalFeesInput,
+      },
+    ],
+    [
+      isApprovalRequired,
+      stakingAssetAccountId,
+      stakingAsset,
+      feeAsset,
+      feeAssetMarketData,
+      estimateApprovalFeesInput,
+    ],
+  )
+
+  const { data: estimatedApprovalFees, isLoading: isEstimatedApprovalFeesLoading } = useQuery({
+    queryKey: estimatedApprovalFeesQueryKey,
+    staleTime: 30_000,
+    queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
+      const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
+
+      // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
+      if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
+
+      const estimatedFees = await estimateFees(estimateFeesInput)
+      const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
+        .times(feeAssetMarketData.price)
+        .toString()
+      return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
+    },
+
+    enabled: Boolean(isApprovalRequired && stakingAssetAccountId),
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: 15_000,
+  })
+
   const handleAccountIdChange = useCallback(() => {}, [])
 
   const handleChange = useCallback(
@@ -328,7 +401,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                   /* Only display gas fee if allowance has been granted - else we can't estimate them
                    * Or maybe we just remove the fees row altogether because they're so cheap on L2?
                    * */
-                  !isApprovalRequired && (
+                  !isApprovalRequired ? (
                     <Row fontSize='sm' fontWeight='medium'>
                       <Row.Label>{translate('common.gasFee')}</Row.Label>
                       <Row.Value>
@@ -338,6 +411,21 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                           width='50px'
                         >
                           <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
+                        </Skeleton>
+                      </Row.Value>
+                    </Row>
+                  ) : (
+                    <Row fontSize='sm' fontWeight='medium'>
+                      <Row.Label>{translate('common.approvalFee')}</Row.Label>
+                      <Row.Value>
+                        <Skeleton
+                          isLoaded={Boolean(
+                            !isEstimatedApprovalFeesLoading && estimatedApprovalFees,
+                          )}
+                          height='14px'
+                          width='50px'
+                        >
+                          <Amount.Fiat value={estimatedApprovalFees?.txFeeFiat ?? 0} />
                         </Skeleton>
                       </Row.Value>
                     </Row>
@@ -360,10 +448,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               mx={-2}
               onClick={handleWarning}
               isDisabled={
-                Boolean(errors.amountCryptoPrecision) ||
-                !runeAddress ||
-                !isValidStakingAmount ||
-                isCooldownPeriodLoading
+                Boolean(errors.amountCryptoPrecision) || !runeAddress || !isValidStakingAmount
               }
               isLoading={isCooldownPeriodLoading}
               colorScheme={Boolean(errors.amountCryptoPrecision) ? 'red' : 'blue'}

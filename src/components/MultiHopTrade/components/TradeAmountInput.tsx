@@ -169,7 +169,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
     )
 
-    // Local controller in case consumers don't have a form context, which is the case for all current consumers currentlyexcept RFOX
+    // Local controller in case consumers don't have a form context, which is the case for all current consumers currently except RFOX
     const _methods = useForm<TradeAmountInputFormValues>({
       defaultValues: defaultFormValues,
       mode: 'onChange',

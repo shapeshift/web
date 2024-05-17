@@ -58,7 +58,6 @@ type StakeInputProps = {
 }
 
 const defaultFormValues = {
-  // TODO(gomes): add amountUserCurrency and setValue on em
   amountFieldInput: '',
   amountCryptoPrecision: '',
   amountUserCurrency: '',

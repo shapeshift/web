@@ -1,7 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, Asset, MarketData } from '@shapeshiftoss/types'

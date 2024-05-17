@@ -27,18 +27,22 @@ import { Balance } from 'components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOptionsButtonGroup'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
 
 export type TradeAmountInputFormValues = {
+  amountFieldInput: string
   amountCryptoPrecision: string
+  amountUserCurrency: string
 }
 
 type RenderController = ({
   field,
 }: {
-  field: ControllerRenderProps<TradeAmountInputFormValues, 'amountCryptoPrecision'>
+  field: ControllerRenderProps<TradeAmountInputFormValues, 'amountFieldInput'>
 }) => React.ReactElement
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
@@ -104,8 +108,9 @@ export type TradeAmountInputProps = {
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
 const defaultFormValues = {
-  // TODO(gomes): add amountUserCurrency and setValue on em
+  amountFieldInput: '',
   amountCryptoPrecision: '',
+  amountUserCurrency: '',
 }
 
 // TODO: While this is called "TradeAmountInput", its parent TradeAssetInput is consumed by everything under the sun but swapper
@@ -155,13 +160,19 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const focusBg = useColorModeValue('gray.50', 'gray.900')
     const focusBorder = useColorModeValue('blue.500', 'blue.400')
 
-    // Local controller in case consumers don't have a form context, which is the case for all current consumers except RFOX
-    const { control: _control } = useForm<TradeAmountInputFormValues>({
+    const assetMarketDataUserCurrency = useAppSelector(state =>
+      selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+    )
+
+    // Local controller in case consumers don't have a form context, which is the case for all current consumers currentlyexcept RFOX
+    const _methods = useForm<TradeAmountInputFormValues>({
       defaultValues: defaultFormValues,
       mode: 'onChange',
       shouldUnregister: true,
     })
-    const control = useFormContext<TradeAmountInputFormValues>()?.control ?? _control
+    const methods = useFormContext<TradeAmountInputFormValues>()
+    const control = methods?.control ?? _methods.control
+    const setValue = methods?.setValue ?? _methods.setValue
 
     // Lower the decimal places when the integer is greater than 8 significant digits for better UI
     const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
@@ -208,11 +219,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
       return {
         defaultValue: '',
         validate: {
-          hasEnoughBalance: (rawInput: string) => {
+          hasEnoughBalance: (input: string) => {
             // TODO(gomes): this should check for crypto only, using the inverted fiat rate if isFiat, to honor the amountCryptoPrecision field vernacular
-            const hasEnoughBalance = bnOrZero(rawInput).lte(
-              bnOrZero(isFiat ? fiatBalance : balance),
-            )
+            const hasEnoughBalance = bnOrZero(input).lte(bnOrZero(isFiat ? fiatBalance : balance))
 
             return hasEnoughBalance || translate('common.insufficientFunds')
           },
@@ -237,8 +246,25 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             // this is already within a useCallback, we don't need to memo this
             // eslint-disable-next-line react-memo/require-usememo
             onValueChange={(values: NumberFormatValues) => {
+              // Controller onChange
               onChange(values.value)
+              // TODO(gomes): I'm not even sure what this does but it's there in prod and we probably need it
               handleValueChange(values)
+
+              const value = values.value
+              if (isFiat) {
+                setValue('amountUserCurrency', value)
+                const _cryptoAmount = bnOrZero(value)
+                  .div(assetMarketDataUserCurrency.price)
+                  .toFixed()
+                setValue('amountCryptoPrecision', _cryptoAmount)
+              } else {
+                setValue('amountCryptoPrecision', value)
+                setValue(
+                  'amountUserCurrency',
+                  bnOrZero(value).times(assetMarketDataUserCurrency.price).toFixed(),
+                )
+              }
             }}
             onChange={handleOnChange}
             onBlur={handleOnBlur}
@@ -247,6 +273,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         )
       },
       [
+        assetMarketDataUserCurrency.price,
         fiatAmount,
         formattedCryptoAmount,
         handleOnBlur,
@@ -259,6 +286,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         localeParts.group,
         localeParts.postfix,
         localeParts.prefix,
+        setValue,
       ],
     )
 
@@ -318,7 +346,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
             <Skeleton isLoaded={!showInputSkeleton} width='full'>
               <Controller
-                name={'amountCryptoPrecision'}
+                name={'amountFieldInput'}
                 render={renderController}
                 control={control}
                 rules={amountInputRules}

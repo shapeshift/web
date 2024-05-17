@@ -57,7 +57,9 @@ type StakeInputProps = {
 
 const defaultFormValues = {
   // TODO(gomes): add amountUserCurrency and setValue on em
+  amountFieldInput: '',
   amountCryptoPrecision: '',
+  amountUserCurrency: '',
   manualRuneAddress: '',
 }
 
@@ -84,7 +86,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const {
     formState: { errors },
     control,
-    setValue,
   } = methods
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -99,23 +100,25 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
-  const assetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
-  )
-
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [1], [])
+
+  // TODO(gomes): wrong. This can be crypto or fiat.
+
   const amountCryptoPrecision = useWatch<StakeValues, 'amountCryptoPrecision'>({
     control,
     name: 'amountCryptoPrecision',
   })
+  const amountUserCurrency = useWatch<StakeValues, 'amountUserCurrency'>({
+    control,
+    name: 'amountUserCurrency',
+  })
 
-  const [fiatAmount, setFiatAmount] = useState('')
   const [isFiat, handleToggleIsFiat] = useToggle(false)
 
   const isValidStakingAmount = useMemo(
-    () => bnOrZero(fiatAmount).plus(amountCryptoPrecision).gt(0),
-    [amountCryptoPrecision, fiatAmount],
+    () => bnOrZero(amountUserCurrency).plus(amountCryptoPrecision).gt(0),
+    [amountCryptoPrecision, amountUserCurrency],
   )
 
   const { data: cooldownPeriod } = useContractRead({
@@ -178,7 +181,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           runeAddress &&
           isAllowanceDataSuccess &&
           !isApprovalRequired &&
-          !Boolean(errors.amountCryptoPrecision),
+          !Boolean(errors.amountFieldInput),
       ),
     [
       isValidStakingAmount,
@@ -186,7 +189,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       runeAddress,
       isAllowanceDataSuccess,
       isApprovalRequired,
-      errors.amountCryptoPrecision,
+      errors.amountFieldInput,
     ],
   )
 
@@ -265,7 +268,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       'estimateFees',
       {
         enabled: Boolean(
-          isApprovalRequired && stakingAssetAccountId && !Boolean(errors.amountCryptoPrecision),
+          isApprovalRequired && stakingAssetAccountId && !Boolean(errors.amountFieldInput),
         ),
         asset: stakingAsset,
         feeAsset,
@@ -274,7 +277,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       },
     ],
     [
-      errors.amountCryptoPrecision,
+      errors.amountFieldInput,
       isApprovalRequired,
       stakingAssetAccountId,
       stakingAsset,
@@ -285,10 +288,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   const isEstimatedApprovalFeesEnabled = useMemo(
-    () =>
-      !Boolean(errors.amountCryptoPrecision) &&
-      Boolean(isApprovalRequired && stakingAssetAccountId),
-    [errors.amountCryptoPrecision, isApprovalRequired, stakingAssetAccountId],
+    () => !Boolean(errors.amountFieldInput) && Boolean(isApprovalRequired && stakingAssetAccountId),
+    [errors.amountFieldInput, isApprovalRequired, stakingAssetAccountId],
   )
 
   const {
@@ -319,18 +320,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
-  const handleChange = useCallback(
-    (value: string, isFiat?: boolean) => {
-      if (isFiat) {
-        setFiatAmount(value)
-        const _cryptoAmount = bnOrZero(value).div(assetMarketDataUserCurrency.price).toFixed()
-        setValue('amountCryptoPrecision', _cryptoAmount)
-      } else {
-        setFiatAmount(bnOrZero(value).times(assetMarketDataUserCurrency.price).toFixed())
-      }
-    },
-    [assetMarketDataUserCurrency.price, setValue],
-  )
+  const handleChange = useCallback((value: string, isFiat?: boolean) => {
+    // TODO(gomes): probably remove me
+    console.log({ value, isFiat })
+  }, [])
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -402,7 +395,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               labelPostFix={assetSelectComponent}
               isSendMaxDisabled={false}
               onChange={handleChange}
-              fiatAmount={fiatAmount}
+              fiatAmount={amountUserCurrency}
             />
             <FormDivider />
             <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
@@ -468,16 +461,16 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               mx={-2}
               onClick={handleWarning}
               isDisabled={
-                Boolean(errors.amountCryptoPrecision) ||
+                Boolean(errors.amountFieldInput) ||
                 !runeAddress ||
                 !isValidStakingAmount ||
                 !(isEstimatedFeesSuccess || isEstimatedApprovalFeesSuccess) ||
                 !cooldownPeriod
               }
               isLoading={isEstimatedApprovalFeesLoading || isEstimatedFeesLoading}
-              colorScheme={Boolean(errors.amountCryptoPrecision) ? 'red' : 'blue'}
+              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
             >
-              {errors.amountCryptoPrecision?.message || translate('RFOX.stake')}
+              {errors.amountFieldInput?.message || translate('RFOX.stake')}
             </Button>
           </CardFooter>
         </FormProvider>

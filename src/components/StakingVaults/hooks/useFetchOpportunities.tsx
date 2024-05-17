@@ -12,7 +12,7 @@ import {
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectWalletAccountIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppDispatch } from 'state/store'
 
 export const useFetchOpportunities = () => {

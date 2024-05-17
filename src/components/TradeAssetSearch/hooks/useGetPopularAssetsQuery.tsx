@@ -1,8 +1,8 @@
 import { type ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
+import { selectAssets } from 'state/selectors'
 import { getMarketServiceManager } from 'state/slices/marketDataSlice/marketServiceManagerSingleton'
-import { selectAssets } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 const queryKey = ['getPopularAssetsQuery']

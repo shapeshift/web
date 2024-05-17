@@ -8,7 +8,7 @@ import type { FeePrice } from 'components/Modals/Send/views/Confirm'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
-import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectAssets, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export function useCallRequestEvmFees(state: WalletConnectState) {

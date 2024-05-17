@@ -19,7 +19,11 @@ import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import type { ReduxState } from 'state/reducer'
-import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectIsWalletConnected,
+  selectWalletSupportedChainIds,
+} from 'state/selectors/common-selectors'
+import { createDeepEqualOutputSelector } from 'state/selectors/utils'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
@@ -45,7 +49,6 @@ import {
   sortTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
 
-import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
 import {
   selectMarketDataUsd,
   selectMarketDataUserCurrency,

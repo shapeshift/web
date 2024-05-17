@@ -22,7 +22,7 @@ import { useTranslate } from 'react-polyglot'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectFeeAssetByChainId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }

@@ -7,7 +7,7 @@ import { useHistory } from 'react-router'
 import type { Row } from 'react-table'
 import { MarketsTable } from 'components/MarketsTable'
 import { ResultsEmpty } from 'components/ResultsEmpty'
-import { selectAssetsSortedByMarketCap, selectWatchedAssetIds } from 'state/slices/selectors'
+import { selectAssetsSortedByMarketCap, selectWatchedAssetIds } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const starFilled = <FaStar />

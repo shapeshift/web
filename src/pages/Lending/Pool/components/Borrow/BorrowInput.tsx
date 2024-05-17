@@ -50,7 +50,7 @@ import {
   selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'

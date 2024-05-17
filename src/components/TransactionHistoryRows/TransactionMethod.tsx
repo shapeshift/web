@@ -2,7 +2,7 @@ import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TransactionDate } from './TransactionDate'

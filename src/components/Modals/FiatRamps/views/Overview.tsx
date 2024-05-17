@@ -36,7 +36,6 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeepKeyHDWallet } from 'lib/utils'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -44,7 +43,8 @@ import {
   selectPortfolioUserCurrencyBalanceByFilter,
   selectSelectedCurrency,
   selectSelectedLocale,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { FiatRampActionButtons } from '../components/FiatRampActionButtons'

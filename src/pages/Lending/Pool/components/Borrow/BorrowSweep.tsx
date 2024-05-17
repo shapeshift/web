@@ -10,7 +10,7 @@ import { Sweep } from 'components/Sweep'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { BorrowRoutePaths } from './types'

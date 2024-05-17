@@ -23,8 +23,8 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
+import { selectAssetById } from 'state/selectors'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {

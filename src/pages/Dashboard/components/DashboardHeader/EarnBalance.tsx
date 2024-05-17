@@ -1,7 +1,7 @@
 import { Skeleton } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { useFetchOpportunities } from 'components/StakingVaults/hooks/useFetchOpportunities'
-import { selectEarnBalancesUserCurrencyAmountFull } from 'state/slices/selectors'
+import { selectEarnBalancesUserCurrencyAmountFull } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const EarnBalance = () => {

@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData } from '@shapeshiftoss/types'
 import intersection from 'lodash/intersection'
 import { useSelector } from 'react-redux'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/selectors'
 
 import type { BalanceChartData } from './useBalanceChartData'
 

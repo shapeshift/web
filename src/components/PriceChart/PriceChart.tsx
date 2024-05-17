@@ -13,7 +13,7 @@ import { calculateFiatChange, calculatePercentChange } from 'lib/charts'
 import {
   selectPriceHistoriesLoadingByAssetTimeframe,
   selectPriceHistoryByAssetTimeframe,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type PriceChartArgs = {

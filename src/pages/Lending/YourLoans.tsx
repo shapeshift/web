@@ -15,7 +15,7 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
-import { selectAccountNumberByAccountId } from 'state/slices/selectors'
+import { selectAccountNumberByAccountId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { LendingHeader } from './components/LendingHeader'

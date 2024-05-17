@@ -25,14 +25,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { UniV2WithdrawActionType } from '../WithdrawCommon'

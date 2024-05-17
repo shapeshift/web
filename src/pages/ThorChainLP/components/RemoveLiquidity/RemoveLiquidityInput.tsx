@@ -68,7 +68,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { convertPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 import { useAppSelector } from 'state/store'
 

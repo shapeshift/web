@@ -22,7 +22,7 @@ import {
   selectBIP44ParamsByAccountId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'

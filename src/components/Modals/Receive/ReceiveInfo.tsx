@@ -38,7 +38,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { viemEthMainnetClient } from 'lib/viem-client'
-import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ReceiveRoutes } from './ReceiveCommon'

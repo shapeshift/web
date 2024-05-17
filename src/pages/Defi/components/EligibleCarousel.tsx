@@ -8,7 +8,7 @@ import { NavLink } from 'react-router-dom'
 import { Carousel } from 'components/Carousel/Carousel'
 import type { CarouselHeaderProps } from 'components/Carousel/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
+import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FeaturedCard } from './FeaturedCards/FeaturedCard'

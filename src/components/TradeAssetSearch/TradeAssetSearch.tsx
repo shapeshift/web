@@ -15,7 +15,7 @@ import { sortChainIdsByDisplayName } from 'lib/utils'
 import {
   selectPortfolioFungibleAssetsSortedByBalance,
   selectWalletSupportedChainIds,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { DefaultAssetList } from './components/DefaultAssetList'

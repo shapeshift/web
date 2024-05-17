@@ -25,7 +25,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetByChainId } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetOnLedger } from './AssetOnLedger'

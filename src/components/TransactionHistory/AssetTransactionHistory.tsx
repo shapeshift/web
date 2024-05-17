@@ -5,7 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectAssetById, selectTxIdsByFilter } from 'state/slices/selectors'
+import { selectAssetById, selectTxIdsByFilter } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetTransactionHistoryProps = {

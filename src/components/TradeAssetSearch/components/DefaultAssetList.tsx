@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
-import { selectPortfolioLoading } from 'state/slices/selectors'
+import { selectPortfolioLoading } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useGetPopularAssetsQuery } from '../hooks/useGetPopularAssetsQuery'

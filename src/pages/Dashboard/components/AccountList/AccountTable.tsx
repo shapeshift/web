@@ -20,8 +20,8 @@ import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AccountRowData } from 'state/slices/selectors'
-import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/slices/selectors'
+import type { AccountRowData } from 'state/selectors'
+import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/selectors'
 import { breakpoints } from 'theme/theme'
 
 type RowProps = Row<AccountRowData>

@@ -15,7 +15,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectSelectedCurrency,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { store, useAppSelector } from 'state/store'
 
 import type { SendInput } from '../Send/Form'

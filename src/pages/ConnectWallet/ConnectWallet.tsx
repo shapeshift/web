@@ -33,7 +33,7 @@ import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile } from 'lib/globals'
 import { isSome } from 'lib/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { store } from 'state/store'
 
 import { MobileConnect } from './MobileConnect'

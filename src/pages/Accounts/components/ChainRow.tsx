@@ -11,7 +11,7 @@ import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
   selectPortfolioTotalBalanceByChainIdIncludeStaking,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AccountNumberRow } from './AccountNumberRow'

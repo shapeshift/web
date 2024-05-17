@@ -10,7 +10,7 @@ import { ConsentBanner } from 'components/ConsentBanner'
 import { IconCircle } from 'components/IconCircle'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
-import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
+import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/selectors'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }

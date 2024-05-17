@@ -13,7 +13,7 @@ import { lazy, useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectSelectedLocale } from 'state/slices/selectors'
+import { selectSelectedLocale } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 

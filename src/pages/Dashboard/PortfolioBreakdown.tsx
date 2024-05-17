@@ -12,7 +12,7 @@ import {
   selectClaimableRewards,
   selectEarnBalancesUserCurrencyAmountFull,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type StatCardProps = {

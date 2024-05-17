@@ -1,5 +1,5 @@
 import type MultiRef from 'react-multi-ref'
-import type { GlobalSearchResult } from 'state/slices/search-selectors'
+import type { GlobalSearchResult } from 'state/selectors/search-selectors'
 
 export type GlobalSearchResultsProps<T extends GlobalSearchResult = GlobalSearchResult> = {
   results: T[]

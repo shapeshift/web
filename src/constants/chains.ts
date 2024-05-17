@@ -1,5 +1,5 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { selectFeatureFlags } from 'state/slices/selectors'
+import { selectFeatureFlags } from 'state/selectors'
 import { store } from 'state/store'
 
 const enabledFlags = selectFeatureFlags(store.getState())

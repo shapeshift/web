@@ -44,12 +44,6 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
-import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import {
-  getMaybeThorchainSaversDepositQuote,
-  getThorchainSaversPosition,
-  makeDaysToBreakEven,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
   selectAssetById,
   selectAssets,
@@ -57,7 +51,13 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
+import {
+  getMaybeThorchainSaversDepositQuote,
+  getThorchainSaversPosition,
+  makeDaysToBreakEven,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'

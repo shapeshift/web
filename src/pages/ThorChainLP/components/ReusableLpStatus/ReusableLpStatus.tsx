@@ -34,7 +34,7 @@ import type {
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 import { fromOpportunityId } from 'pages/ThorChainLP/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { TransactionRow } from './TransactionRow'

@@ -4,11 +4,11 @@ import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import { isEqual } from 'lodash'
 import createCachedSelector from 're-reselect'
+import { createSelectorCreator, defaultMemoize } from 'reselect'
 import type { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import type { ParameterModel } from 'lib/fees/parameters/types'
-
-import type { ReduxState } from './reducer'
 import type {
   DefiProvider,
   DefiType,
@@ -16,7 +16,9 @@ import type {
   StakingId,
   UserStakingId,
   ValidatorId,
-} from './slices/opportunitiesSlice/types'
+} from 'state/slices/opportunitiesSlice/types'
+
+import type { ReduxState } from '../reducer'
 
 /**
  * List of all the params filter consumed with selectParamFromFilter
@@ -83,4 +85,8 @@ export const selectSearchQueryFromFilter = selectParamFromFilter('searchQuery')
 export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
-export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
+export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains') // memoize selector output with lodash isEqual
+
+export const createDeepEqualOutputSelector = createSelectorCreator(defaultMemoize, {
+  resultEqualityCheck: isEqual,
+})

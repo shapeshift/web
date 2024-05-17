@@ -25,7 +25,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { middleEllipsis } from 'lib/utils'
-import { selectInputBuyAsset } from 'state/slices/selectors'
+import { selectInputBuyAsset } from 'state/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

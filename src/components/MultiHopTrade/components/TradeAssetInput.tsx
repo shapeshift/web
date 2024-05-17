@@ -7,7 +7,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 const AssetInputAwaitingAsset = () => {

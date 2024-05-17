@@ -38,6 +38,18 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import {
+  selectAssetById,
+  selectAssets,
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectFirstAccountIdByChainId,
+  selectHighestBalanceAccountIdByStakingId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectOpportunitiesApiQueriesByFilter,
+  selectStakingOpportunityByFilter,
+  selectTxsByFilter,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
+} from 'state/selectors'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
   getMaybeThorchainSaversDepositQuote,
@@ -50,18 +62,6 @@ import {
   serializeUserStakingId,
   toOpportunityId,
 } from 'state/slices/opportunitiesSlice/utils'
-import {
-  selectAssetById,
-  selectAssets,
-  selectEarnUserStakingOpportunityByUserStakingId,
-  selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectOpportunitiesApiQueriesByFilter,
-  selectStakingOpportunityByFilter,
-  selectTxsByFilter,
-  selectUnderlyingStakingAssetsWithBalancesAndIcons,
-} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversEmpty } from './ThorchainSaversEmpty'

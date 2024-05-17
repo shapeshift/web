@@ -21,7 +21,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { selectNftById, selectNftCollectionById } from 'state/apis/nft/selectors'
 import { getMediaType } from 'state/apis/zapper/validators'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 type NftCardProps = {

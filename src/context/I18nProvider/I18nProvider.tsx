@@ -4,7 +4,7 @@ import { transformPhrase } from 'node-polyglot'
 import { useCallback } from 'react'
 import { I18n } from 'react-polyglot'
 import { translations } from 'assets/translations'
-import { selectSelectedLocale } from 'state/slices/selectors'
+import { selectSelectedLocale } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const I18nProvider = ({ children }: { children: React.ReactNode }) => {

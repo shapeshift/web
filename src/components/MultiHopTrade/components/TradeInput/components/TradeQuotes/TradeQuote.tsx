@@ -22,7 +22,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,

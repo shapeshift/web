@@ -18,7 +18,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { reloadWebview } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { selectWalletAccountIds } from 'state/slices/selectors'
+import { selectWalletAccountIds } from 'state/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { persistor, useAppDispatch, useAppSelector } from 'state/store'
 

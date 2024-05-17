@@ -10,7 +10,7 @@ import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { EquityRow } from './EquityRow'

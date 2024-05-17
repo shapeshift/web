@@ -22,7 +22,7 @@ import { assertGetChainAdapter, tokenOrUndefined } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/selectors'
 import { store } from 'state/store'
 
 import type { SendInput } from './Form'

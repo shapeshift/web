@@ -21,7 +21,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetActions } from './AssetActions'

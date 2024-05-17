@@ -3,7 +3,7 @@ import debounce from 'lodash/debounce'
 import { useCallback, useMemo, useState } from 'react'
 import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { isSome } from 'lib/utils'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useSearch = () => {

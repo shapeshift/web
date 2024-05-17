@@ -13,7 +13,7 @@ import {
   selectPortfolioChainIdsSortedUserCurrency,
   selectPortfolioLoading,
   selectWalletId,
-} from 'state/slices/selectors'
+} from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { Account } from './Account'

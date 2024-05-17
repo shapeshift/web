@@ -5,7 +5,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { useCallback, useMemo } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetRowLoading } from './AssetRowLoading'

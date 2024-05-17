@@ -1,7 +1,7 @@
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { isThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { ReduxState } from 'state/reducer'
-import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
+import { selectAssets, selectFeeAssetById } from 'state/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,

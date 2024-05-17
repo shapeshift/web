@@ -7,7 +7,7 @@ import type {
   GlobalSearchResult,
   SendResult,
   TxSearchResult,
-} from 'state/slices/search-selectors'
+} from 'state/selectors/search-selectors'
 
 import { ActionResults } from './ActionResults/ActionResults'
 import { AssetResults } from './AssetResults/AssetResults'

@@ -4,7 +4,7 @@ import type { AssetWithBalance } from 'features/defi/components/Overview/Overvie
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const UnderlyingAsset: React.FC<AssetWithBalance> = ({

@@ -14,8 +14,6 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
-import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
-import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAssetEquityItemsByFilter,
   selectAssets,
@@ -23,7 +21,9 @@ import {
   selectOpportunityApiPending,
   selectPortfolioLoading,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import type { LpId, OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { AssetEquityType } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { useAppSelector } from 'state/store'
 
 import { EquityAccountRow } from './EquityAccountRow'

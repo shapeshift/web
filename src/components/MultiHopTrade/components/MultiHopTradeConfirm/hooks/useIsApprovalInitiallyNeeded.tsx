@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
-import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
+import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/selectors'
 import {
   selectFirstHop,
   selectIsActiveQuoteMultiHop,

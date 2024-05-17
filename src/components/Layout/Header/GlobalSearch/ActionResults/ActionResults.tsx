@@ -1,7 +1,7 @@
 import { List } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { SendResult } from 'state/slices/search-selectors'
+import type { SendResult } from 'state/selectors/search-selectors'
 
 import { ListItemSection } from '../ListItemSection'
 import type { GlobalSearchResultsProps } from '../types'

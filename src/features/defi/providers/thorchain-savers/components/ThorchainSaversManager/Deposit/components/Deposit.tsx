@@ -45,12 +45,6 @@ import {
   useIsSweepNeededQuery,
 } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import {
-  isAboveDepositDustThreshold,
-  makeDaysToBreakEven,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
-import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
-import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectAssets,
@@ -59,7 +53,13 @@ import {
   selectHighestBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import {
+  isAboveDepositDustThreshold,
+  makeDaysToBreakEven,
+  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
+} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'

@@ -15,7 +15,7 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectShowSnapsModal } from 'state/slices/selectors'
+import { selectShowSnapsModal } from 'state/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { RedirectModal } from '../../components/RedirectModal'

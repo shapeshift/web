@@ -7,7 +7,7 @@ import { FeeModal } from 'components/FeeModal/FeeModal'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectInputSellAmountUsd } from 'state/slices/selectors'
+import { selectInputSellAmountUsd } from 'state/selectors'
 import {
   selectActiveQuoteAffiliateBps,
   selectCalculatedFees,

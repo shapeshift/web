@@ -37,7 +37,7 @@ import {
   type LendingQuoteClose,
   type LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useLendingPositionData } from '../hooks/useLendingPositionData'

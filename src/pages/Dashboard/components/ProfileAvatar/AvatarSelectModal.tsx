@@ -32,7 +32,7 @@ import {
   selectSelectedNftAvatar,
 } from 'state/apis/nft/selectors'
 import type { NftItemWithCollection } from 'state/apis/nft/types'
-import { selectWalletId } from 'state/slices/common-selectors'
+import { selectWalletId } from 'state/selectors/common-selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { NftRow } from './NftRow'

@@ -6,7 +6,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../../Form'

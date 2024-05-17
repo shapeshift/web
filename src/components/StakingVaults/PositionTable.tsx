@@ -17,7 +17,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isEthAddress } from 'lib/address/utils'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAccountIdsByChainId,
   selectAggregatedEarnOpportunitiesByAssetId,
@@ -25,7 +24,8 @@ import {
   selectAssetsSortedByMarketCap,
   selectFeeAssetByChainId,
   selectOpportunityApiPending,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import type { AggregatedOpportunitiesByAssetIdReturn } from 'state/slices/opportunitiesSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { SearchEmpty } from './SearchEmpty'

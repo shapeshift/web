@@ -19,7 +19,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { calculateEarnings } from 'lib/utils/thorchain/lp'
 import type { UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { PoolIcon } from './components/PoolIcon'

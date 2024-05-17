@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
-import { selectTxIds } from 'state/slices/selectors'
+import { selectTxIds } from 'state/selectors'
 
 type RecentTransactionProps = { limit?: number; viewMoreLink?: boolean } & CardProps
 

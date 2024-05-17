@@ -8,7 +8,7 @@ import { useQuery } from 'hooks/useQuery/useQuery'
 import { mapMixpanelPathname } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { selectAssets } from 'state/slices/selectors'
+import { selectAssets } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 import { BrowserRouterContext } from './BrowserRouterContext'

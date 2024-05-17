@@ -22,14 +22,14 @@ import { fromBaseUnit } from 'lib/math'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
-} from 'state/slices/selectors'
+} from 'state/selectors'
+import type { AssetBalancesById } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 
 import { useSendDetails } from './useSendDetails'
 

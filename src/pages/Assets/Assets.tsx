@@ -12,7 +12,7 @@ import { SEO } from 'components/Layout/Seo'
 import { MarketsTable } from 'components/MarketsTable'
 import { GlobalFilter } from 'components/StakingVaults/GlobalFilter'
 import { RawText } from 'components/Text'
-import { selectAssetsSortedByMarketCap } from 'state/slices/selectors'
+import { selectAssetsSortedByMarketCap } from 'state/selectors'
 import { useAppSelector } from 'state/store'
 
 export const Assets = () => {

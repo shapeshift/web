@@ -19,6 +19,13 @@ import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
+import {
+  selectEarnUserStakingOpportunityByUserStakingId,
+  selectFirstAccountIdByChainId,
+  selectHighestBalanceAccountIdByStakingId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectSelectedLocale,
+} from 'state/selectors'
 import { useGetAssetDescriptionQuery } from 'state/slices/assetsSlice/assetsSlice'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -26,13 +33,6 @@ import {
   serializeUserStakingId,
   supportsUndelegations,
 } from 'state/slices/opportunitiesSlice/utils'
-import {
-  selectEarnUserStakingOpportunityByUserStakingId,
-  selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectSelectedLocale,
-} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithdrawCard } from './WithdrawCard'

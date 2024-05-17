@@ -1,4 +1,4 @@
-import { Button, Spinner } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 import React, { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -24,8 +24,6 @@ export interface LedgerSetupProps
   dispatch: React.Dispatch<ActionTypes>
 }
 
-const spinner = <Spinner color='white' />
-
 export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   const { dispatch: walletDispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
@@ -44,51 +42,57 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   // TEMP: This is a temporary solution to check if a Ledger device is cached. We can hardcode the
   // device ID as it's the same for all Ledger devices.
   // See https://github.com/shapeshift/web/issues/6814
-  const isLedgerDeviceCached = useAppSelector(state => selectWalletIdInStore(state, '0001'))
+  const isPreviousLedgerDeviceDetected = useAppSelector(state =>
+    selectWalletIdInStore(state, '0001'),
+  )
 
-  const handlePair = useCallback(async () => {
+  const handlePair = useCallback(() => {
     setError(null)
     setIsLoading(true)
+    ;(async () => {
+      const adapter = await getAdapter(KeyManager.Ledger)
+      if (adapter) {
+        try {
+          // Remove all provider event listeners from previously connected wallets
+          await removeAccountsAndChainListeners()
 
-    const adapter = await getAdapter(KeyManager.Ledger)
-    if (adapter) {
-      try {
-        // Remove all provider event listeners from previously connected wallets
-        await removeAccountsAndChainListeners()
+          const wallet = await adapter.pairDevice()
 
-        const wallet = await adapter.pairDevice()
+          if (!wallet) {
+            setErrorLoading('walletProvider.errors.walletNotFound')
+            throw new Error('Call to hdwallet-ledger::pairDevice returned null or undefined')
+          }
 
-        if (!wallet) {
-          setErrorLoading('walletProvider.errors.walletNotFound')
-          throw new Error('Call to hdwallet-ledger::pairDevice returned null or undefined')
+          const { name, icon } = LedgerConfig
+          // NOTE: All Ledger devices get the same device ID, i.e '0001', but we fetch it from the
+          // device anyway
+          const deviceId = await wallet.getDeviceID()
+
+          walletDispatch({
+            type: WalletActions.SET_WALLET,
+            payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
+          })
+          walletDispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
+
+          // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
+          // The Account drawer will be opened further down the tree
+          if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
+            walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          } else {
+            history.push('/ledger/chains')
+          }
+        } catch (e: any) {
+          console.error(e)
+          setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
+          history.push('/ledger/failure')
         }
-
-        const { name, icon } = LedgerConfig
-        // NOTE: All Ledger devices get the same device ID, i.e '0001', but we fetch it from the
-        // device anyway
-        const deviceId = await wallet.getDeviceID()
-
-        walletDispatch({
-          type: WalletActions.SET_WALLET,
-          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
-        })
-        walletDispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
-
-        // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
-        // The Account drawer will be opened further down the tree
-        if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
-          walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        } else {
-          history.push('/ledger/chains')
-        }
-      } catch (e: any) {
-        console.error(e)
-        setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
-        history.push('/ledger/failure')
       }
-    }
-    setIsLoading(false)
+
+      // Don't set isLoading to false to prevent UI glitching during pairing.
+      // Loading state will be reset when the component is remounted
+      // setIsLoading(false)
+    })()
   }, [
     getAdapter,
     history,
@@ -104,21 +108,21 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     dispatch(portfolioApi.util.resetApiState())
   }, [dispatch])
 
-  const handleClearCacheAndPair = useCallback(async () => {
+  const handleClearCacheAndPair = useCallback(() => {
     handleClearPortfolio()
-    await handlePair()
+    handlePair()
   }, [handleClearPortfolio, handlePair])
 
   return (
     <ConnectModal
       headerText={'walletProvider.ledger.connect.header'}
       bodyText={
-        isLedgerDeviceCached
+        isPreviousLedgerDeviceDetected
           ? 'walletProvider.ledger.connect.pairExistingDeviceBody'
           : 'walletProvider.ledger.connect.pairNewDeviceBody'
       }
       buttonText={
-        isLedgerDeviceCached
+        isPreviousLedgerDeviceDetected
           ? 'walletProvider.ledger.connect.pairExistingDeviceButton'
           : 'walletProvider.ledger.connect.pairNewDeviceButton'
       }
@@ -126,16 +130,14 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       loading={isLoading}
       error={error}
     >
-      {isLedgerDeviceCached && (
+      {/* Hide the whole button while loading to prevent UI glitching during pairing */}
+      {!isLoading && isPreviousLedgerDeviceDetected && (
         <Button
           onClick={handleClearCacheAndPair}
           mt={2}
           width='full'
           colorScheme='blue'
           variant='outline'
-          isLoading={isLoading}
-          loadingText='Pairing Wallet'
-          spinner={spinner}
           isDisabled={isLoading}
         >
           {translate('walletProvider.ledger.connect.pairNewDeviceButton')}

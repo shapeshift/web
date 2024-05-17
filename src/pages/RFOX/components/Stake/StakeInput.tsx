@@ -281,15 +281,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     refetchInterval: 15_000,
   })
 
+  // TODO(gomes): implement me when we have multi-account here
   const handleAccountIdChange = useCallback(() => {}, [])
-
-  const handleChange = useCallback((value: string, isFiat?: boolean) => {
-    // TODO(gomes): probably remove me
-    // But before we do, make sure we implement gas fees estimation, perhaps as a separate validation method in TradeAmountInput
-    // or maybe just here
-    // But either way, validation methods will need to be passed as this won't work for unstaking - staking balance isn't in EOA, it is delegated, hence doing basic balance checks
-    // there wouldn't work, which is why we want to always pass validation methods in
-  }, [])
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -330,7 +323,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     )
   }, [stakingAsset?.assetId])
 
-  const filter = useMemo(
+  const stakingAssetBalanceFilter = useMemo(
     () => ({
       accountId: stakingAssetAccountId ?? '',
       assetId: stakingAssetId,
@@ -338,11 +331,44 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [stakingAssetAccountId, stakingAssetId],
   )
   const stakingAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetBalanceFilter),
   )
-  const fiatBalance = bnOrZero(stakingAssetBalanceCryptoPrecision)
+
+  const feeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: stakingAssetAccountId ?? '',
+      assetId: feeAsset?.assetId,
+    }),
+    [feeAsset?.assetId, stakingAssetAccountId],
+  )
+  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, feeAssetBalanceFilter),
+  )
+  const stakingAssetFiatBalance = bnOrZero(stakingAssetBalanceCryptoPrecision)
     .times(stakingAssetMarketData.price)
     .toString()
+
+  // Simple memoized value vs. react-hook-form error because of the chicken and egg situation of this being dependant of fees being loaded,
+  // and having to be reset when going from not enough fee balance to not enough balance.
+  const hasEnoughFeeBalanceError = useMemo(() => {
+    const fees = approvalFees || stakeFees
+
+    const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
+      toBaseUnit(feeAssetBalanceCryptoPrecision, feeAsset?.precision ?? 0),
+    )
+
+    if (!hasEnoughFeeBalance)
+      return translate('modals.send.errors.notEnoughNativeToken', { asset: feeAsset?.symbol })
+
+    return
+  }, [
+    approvalFees,
+    feeAsset?.precision,
+    feeAsset?.symbol,
+    feeAssetBalanceCryptoPrecision,
+    stakeFees,
+    translate,
+  ])
 
   const amountFieldInputRules = useMemo(() => {
     return {
@@ -350,14 +376,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       validate: {
         hasEnoughBalance: (input: string) => {
           const hasEnoughBalance = bnOrZero(input).lte(
-            bnOrZero(isFiat ? fiatBalance : stakingAssetBalanceCryptoPrecision),
+            bnOrZero(isFiat ? stakingAssetFiatBalance : stakingAssetBalanceCryptoPrecision),
           )
 
           return hasEnoughBalance || translate('common.insufficientFunds')
         },
       },
     }
-  }, [fiatBalance, isFiat, stakingAssetBalanceCryptoPrecision, translate])
+  }, [isFiat, stakingAssetFiatBalance, stakingAssetBalanceCryptoPrecision, translate])
 
   if (!stakingAsset) return null
 
@@ -390,7 +416,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               label={translate('transactionRow.amount')}
               labelPostFix={assetSelectComponent}
               isSendMaxDisabled={false}
-              onChange={handleChange}
               fiatAmount={amountUserCurrency}
             />
             <FormDivider />
@@ -458,15 +483,20 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               onClick={handleWarning}
               isDisabled={
                 Boolean(errors.amountFieldInput) ||
+                hasEnoughFeeBalanceError ||
                 !runeAddress ||
                 !isValidStakingAmount ||
                 !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
                 !cooldownPeriod
               }
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
-              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
+              colorScheme={
+                Boolean(errors.amountFieldInput || hasEnoughFeeBalanceError) ? 'red' : 'blue'
+              }
             >
-              {errors.amountFieldInput?.message || translate('RFOX.stake')}
+              {errors.amountFieldInput?.message ||
+                hasEnoughFeeBalanceError ||
+                translate('RFOX.stake')}
             </Button>
           </CardFooter>
         </FormProvider>

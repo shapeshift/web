@@ -239,7 +239,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             onValueChange={(values: NumberFormatValues) => {
               // Controller onChange
               onChange(values.value)
-              // TODO(gomes): I'm not even sure what this does but it's there in prod and we probably need it
               handleValueChange(values)
 
               const value = values.value

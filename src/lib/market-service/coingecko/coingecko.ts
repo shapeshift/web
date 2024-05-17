@@ -1,4 +1,4 @@
-import { adapters } from '@shapeshiftoss/caip'
+import { adapters, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -88,7 +88,10 @@ export class CoinGeckoMarketService implements MarketService {
     }
   }
 
-  async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
+  async findByAssetId({ assetId: _assetId }: MarketDataArgs): Promise<MarketData | null> {
+    // Monkey patch Arb FOX to mainnet FOX until we have market-data for it, similar to
+    // what FOXy did in https://github.com/shapeshift/lib/pull/830/files#diff-8d0028d46769c562695ae0eadad8c284637d6a3e45a71a01398c923ae912cf62
+    const assetId = _assetId === foxOnArbitrumOneAssetId ? foxAssetId : _assetId
     if (!adapters.assetIdToCoingecko(assetId)) return null
 
     const url = adapters.makeCoingeckoAssetUrl(assetId)

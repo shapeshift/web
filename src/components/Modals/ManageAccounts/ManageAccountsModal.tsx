@@ -26,8 +26,12 @@ import { availableLedgerChainIds } from 'context/WalletProvider/Ledger/constants
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
-import { selectWalletChainIds, selectWalletSupportedChainIds } from 'state/slices/common-selectors'
-import { selectAccountIdsByChainId, selectAssetById } from 'state/slices/selectors'
+import { selectWalletSupportedChainIds } from 'state/slices/common-selectors'
+import {
+  selectAccountIdsByChainId,
+  selectAssetById,
+  selectWalletConnectedChainIdsSorted,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 const infoIcon = <InfoIcon />
@@ -80,7 +84,7 @@ export const ManageAccountsModal = () => {
     console.log('info clicked')
   }, [])
 
-  const walletConnectedChainIds = useAppSelector(selectWalletChainIds)
+  const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
   const availableChainIds = useMemo(() => {
     // If a Ledger is connected, we have the option to add additional chains that are not currently "supported" by the HDWallet
@@ -101,12 +105,12 @@ export const ManageAccountsModal = () => {
   }, [handleDrawerOpen])
 
   const connectedChains = useMemo(() => {
-    return walletConnectedChainIds.map(chainId => {
+    return walletConnectedChainIdsSorted.map(chainId => {
       return <ConnectedChain key={chainId} chainId={chainId} onClick={handleClickChain} />
     })
-  }, [handleClickChain, walletConnectedChainIds])
+  }, [handleClickChain, walletConnectedChainIdsSorted])
 
-  const disableAddChain = walletConnectedChainIds.length >= availableChainIds.length
+  const disableAddChain = walletConnectedChainIdsSorted.length >= availableChainIds.length
 
   return (
     <>
@@ -123,7 +127,7 @@ export const ManageAccountsModal = () => {
               {translate('accountManagement.manageAccounts.title')}
             </RawText>
             <RawText color='text.subtle' fontSize='md' fontWeight='normal'>
-              {walletConnectedChainIds.length === 0
+              {walletConnectedChainIdsSorted.length === 0
                 ? translate('accountManagement.manageAccounts.emptyList')
                 : translate('accountManagement.manageAccounts.description')}
             </RawText>
@@ -139,7 +143,7 @@ export const ManageAccountsModal = () => {
             onClick={handleInfoClick}
           />
           <ModalCloseButton position='absolute' top={3} right={3} />
-          {walletConnectedChainIds.length > 0 && (
+          {walletConnectedChainIdsSorted.length > 0 && (
             <ModalBody maxH='400px' overflowY='auto'>
               <VStack spacing={2} width='full'>
                 {connectedChains}
@@ -156,7 +160,7 @@ export const ManageAccountsModal = () => {
                 isDisabled={disableAddChain}
                 _disabled={disabledProp}
               >
-                {walletConnectedChainIds.length === 0
+                {walletConnectedChainIdsSorted.length === 0
                   ? translate('accountManagement.manageAccounts.addChain')
                   : translate('accountManagement.manageAccounts.addAnotherChain')}
               </Button>

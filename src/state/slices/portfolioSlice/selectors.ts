@@ -10,6 +10,7 @@ import type {
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
+import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
@@ -1095,4 +1096,44 @@ export const selectPortfolioHasWalletId = createSelector(
   (state: ReduxState) => state.portfolio.wallet.ids,
   (_state: ReduxState, walletId: WalletId) => walletId,
   (storeWalletIds, walletId): boolean => storeWalletIds.includes(walletId),
+)
+
+export const selectPortfolioTotalBalanceUserCurrencyByChainId = createDeepEqualOutputSelector(
+  selectPortfolioUserCurrencyBalancesByAccountId,
+  portfolioUserCurrencyBalancesByAccountId => {
+    return Object.entries(portfolioUserCurrencyBalancesByAccountId).reduce(
+      (acc, [accountId, accountBalancesUserCurrencyByAssetId]) => {
+        const { chainId } = fromAccountId(accountId)
+        const totalBalanceUserCurrency = Object.values(accountBalancesUserCurrencyByAssetId).reduce(
+          (accountTotal, assetBalanceUserCurrency) =>
+            accountTotal.plus(bnOrZero(assetBalanceUserCurrency)),
+          bn(0),
+        )
+
+        acc[chainId] = bnOrZero(acc[chainId]).plus(totalBalanceUserCurrency).toString()
+        return acc
+      },
+      {} as Record<ChainId, string>,
+    )
+  },
+)
+
+export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector(
+  selectPortfolioTotalBalanceUserCurrencyByChainId,
+  portfolioTotalBalanceUserCurrencyByChainId => {
+    const chainAdapterManager = getChainAdapterManager()
+    return orderBy(
+      Object.entries(portfolioTotalBalanceUserCurrencyByChainId).map(
+        ([chainId, totalBalanceUserCurrency]) => {
+          return {
+            chainId,
+            totalBalanceUserCurrency,
+            chainName: chainAdapterManager.get(chainId)?.getDisplayName() ?? '',
+          }
+        },
+      ),
+      ['balance', 'chainName'],
+      ['desc', 'asc'],
+    ).map(({ chainId }) => chainId)
+  },
 )

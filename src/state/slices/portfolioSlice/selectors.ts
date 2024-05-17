@@ -1121,18 +1121,19 @@ export const selectPortfolioTotalBalanceUserCurrencyByChainId = createDeepEqualO
 export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector(
   selectPortfolioTotalBalanceUserCurrencyByChainId,
   portfolioTotalBalanceUserCurrencyByChainId => {
+    console.log(portfolioTotalBalanceUserCurrencyByChainId)
     const chainAdapterManager = getChainAdapterManager()
     return orderBy(
       Object.entries(portfolioTotalBalanceUserCurrencyByChainId).map(
         ([chainId, totalBalanceUserCurrency]) => {
           return {
             chainId,
-            totalBalanceUserCurrency,
+            totalBalanceUserCurrency: Number(totalBalanceUserCurrency),
             chainName: chainAdapterManager.get(chainId)?.getDisplayName() ?? '',
           }
         },
       ),
-      ['balance', 'chainName'],
+      ['totalBalanceUserCurrency', 'chainName'],
       ['desc', 'asc'],
     ).map(({ chainId }) => chainId)
   },

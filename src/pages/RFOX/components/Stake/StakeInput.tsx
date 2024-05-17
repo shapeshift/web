@@ -65,10 +65,6 @@ const defaultFormValues = {
 }
 
 export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
-  // FOX on Arbitrum: eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73
-  // In the meantime, just added it manually there
-  // Now here's the fun one, this isn't part of our generatedAssetData.json yet, durr
-
   stakingAssetId = foxOnArbitrumOneAssetId,
   headerComponent,
   onRuneAddressChange,

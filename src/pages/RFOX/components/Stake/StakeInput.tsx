@@ -1,6 +1,8 @@
 import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
@@ -22,8 +24,10 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 import { formatDuration } from 'lib/utils/time'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
@@ -55,6 +59,17 @@ type StakeInputProps = {
   setConfirmedQuote: (quote: RfoxStakingQuote | undefined) => void
 }
 
+type GetFeesQueryKey = [
+  'getFees',
+  {
+    to: string
+    from: string
+    data: string
+    value: string
+    adapter: EvmChainAdapter
+  },
+]
+
 const defaultFormValues = {
   // TODO(gomes): add amountUserCurrency and setValue on em
   amountFieldInput: '',
@@ -74,6 +89,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   runeAddress,
   setConfirmedQuote,
 }) => {
+  const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
 
@@ -132,6 +148,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     },
   })
 
+  const adapter = useMemo(
+    () => assertGetEvmChainAdapter(fromAssetId(stakingAssetId).chainId),
+    [stakingAssetId],
+  )
+
   const callData = useMemo(() => {
     if (!(isValidStakingAmount && runeAddress)) return
 
@@ -141,21 +162,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0)), runeAddress],
     })
   }, [amountCryptoPrecision, isValidStakingAmount, runeAddress, stakingAsset?.precision])
-
-  const estimateFeesInput = useMemo(
-    () => ({
-      // This is a contract call i.e 0 value
-      amountCryptoPrecision: '0',
-      assetId: stakingAsset?.assetId ?? '',
-      feeAssetId: feeAsset?.assetId ?? '',
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      sendMax: false,
-      memo: callData,
-      accountId: stakingAssetAccountId ?? '',
-      contractAddress: undefined,
-    }),
-    [stakingAsset?.assetId, callData, feeAsset?.assetId, stakingAssetAccountId],
-  )
 
   const { data: allowanceDataCryptoBaseUnit, isSuccess: isAllowanceDataSuccess } = useAllowance({
     assetId: stakingAsset?.assetId,
@@ -175,20 +181,26 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [allowanceCryptoPrecision, amountCryptoPrecision, isAllowanceDataSuccess],
   )
 
-  const isEstimatedFeesEnabled = useMemo(
+  const isGetFeesEnabled = useMemo(
     () =>
       Boolean(
         isValidStakingAmount &&
+          adapter &&
+          wallet &&
           stakingAsset &&
           runeAddress &&
+          callData &&
           isAllowanceDataSuccess &&
           !isApprovalRequired &&
           !Boolean(errors.amountFieldInput),
       ),
     [
       isValidStakingAmount,
+      adapter,
+      wallet,
       stakingAsset,
       runeAddress,
+      callData,
       isAllowanceDataSuccess,
       isApprovalRequired,
       errors.amountFieldInput,
@@ -196,41 +208,48 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
 
   // TODO(gomes): move this queryFn out of lending
-  const estimatedFeesQueryKey: EstimatedFeesQueryKey = useMemo(
+  const getFeesQueryKey: GetFeesQueryKey = useMemo(
     () => [
-      'estimateFees',
+      'getFees',
       {
-        enabled: isEstimatedFeesEnabled,
-        asset: stakingAsset,
-        feeAsset,
-        feeAssetMarketData,
-        estimateFeesInput,
+        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
+        data: callData ?? '',
+        value: '0', // contract call
+        adapter,
       },
     ],
-    [stakingAsset, estimateFeesInput, feeAsset, feeAssetMarketData, isEstimatedFeesEnabled],
+    [stakingAssetAccountId, callData, adapter],
   )
 
   const {
-    data: estimatedFees,
-    isLoading: isEstimatedFeesLoading,
-    isSuccess: isEstimatedFeesSuccess,
+    data: stakeFees,
+    isLoading: isStakeFeesLoading,
+    isSuccess: isStakeFeesSuccess,
   } = useQuery({
-    queryKey: estimatedFeesQueryKey,
+    queryKey: getFeesQueryKey,
     staleTime: 30_000,
-    queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
-      const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
+    queryFn: async ({ queryKey }: { queryKey: GetFeesQueryKey }) => {
+      const { adapter, data, from, to, value } = queryKey[1]
 
-      // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-      if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
+      const fees = await getFees({
+        adapter,
+        data,
+        from,
+        to,
+        value,
+        supportsEIP1559: supportsETH(wallet!) && (await wallet.ethSupportsEIP1559()),
+      })
 
-      const estimatedFees = await estimateFees(estimateFeesInput)
-      const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
+      const txFeeFiat = bn(fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0))
         .times(feeAssetMarketData.price)
         .toString()
-      return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
+
+      const { networkFeeCryptoBaseUnit } = fees
+      return { fees, txFeeFiat, networkFeeCryptoBaseUnit }
     },
 
-    enabled: isEstimatedFeesEnabled,
+    enabled: isGetFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -432,16 +451,16 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                     </Row.Value>
                   </Row>
                 )}
-                {isEstimatedFeesEnabled && (
+                {isGetFeesEnabled && (
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.gasFee')}</Row.Label>
                     <Row.Value>
                       <Skeleton
-                        isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
+                        isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}
                         height='14px'
                         width='50px'
                       >
-                        <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
+                        <Amount.Fiat value={stakeFees?.txFeeFiat ?? 0} />
                       </Skeleton>
                     </Row.Value>
                   </Row>
@@ -466,10 +485,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 Boolean(errors.amountFieldInput) ||
                 !runeAddress ||
                 !isValidStakingAmount ||
-                !(isEstimatedFeesSuccess || isEstimatedApprovalFeesSuccess) ||
+                !(isStakeFeesSuccess || isEstimatedApprovalFeesSuccess) ||
                 !cooldownPeriod
               }
-              isLoading={isEstimatedApprovalFeesLoading || isEstimatedFeesLoading}
+              isLoading={isEstimatedApprovalFeesLoading || isStakeFeesLoading}
               colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
             >
               {errors.amountFieldInput?.message || translate('RFOX.stake')}

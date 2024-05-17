@@ -16,7 +16,7 @@ import noop from 'lodash/noop'
 import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { ControllerRenderProps } from 'react-hook-form'
-import { Controller, type FieldError, useFormContext } from 'react-hook-form'
+import { Controller, type FieldError, useForm, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -103,6 +103,10 @@ export type TradeAmountInputProps = {
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
+const defaultFormValues = {
+  // TODO(gomes): add amountUserCurrency and setValue on em
+  amountCryptoPrecision: '',
+}
 
 // TODO: While this is called "TradeAmountInput", its parent TradeAssetInput is consumed by everything under the sun but swapper
 // Scrutinize this and rename all Trade references here, or at the very least in the parent to something more generic for sanity
@@ -151,7 +155,13 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const focusBg = useColorModeValue('gray.50', 'gray.900')
     const focusBorder = useColorModeValue('blue.500', 'blue.400')
 
-    const control = useFormContext<TradeAmountInputFormValues>()?.control
+    // Local controller in case consumers don't have a form context, which is the case for all current consumers except RFOX
+    const { control: _control } = useForm<TradeAmountInputFormValues>({
+      defaultValues: defaultFormValues,
+      mode: 'onChange',
+      shouldUnregister: true,
+    })
+    const control = useFormContext<TradeAmountInputFormValues>()?.control ?? _control
 
     // Lower the decimal places when the integer is greater than 8 significant digits for better UI
     const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)

@@ -22,7 +22,9 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
-import { encodeFunctionData } from 'viem/utils'
+import { arbitrum } from 'viem/chains'
+import { encodeFunctionData, getAddress } from 'viem/utils'
+import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
@@ -111,6 +113,36 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
         .times(stakingAssetMarketDataUserCurrency.price)
         .toFixed(),
     [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency.price],
+  )
+
+  const { data: userBalanceOf, isSuccess: isUserBalanceOfSuccess } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'balanceOf',
+    args: [getAddress(stakingAssetAccountAddress)],
+    chainId: arbitrum.id,
+    query: {
+      select: data => data.toString(),
+    },
+  })
+
+  const { data: contractBalanceOf, isSuccess: isContractBalanceOfSuccess } = useReadContract({
+    abi: erc20ABI,
+    address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
+    functionName: 'balanceOf',
+    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
+    chainId: arbitrum.id,
+    query: {
+      select: data => data.toString(),
+    },
+  })
+
+  const shareOfPoolPercentage = useMemo(
+    () =>
+      bnOrZero(userBalanceOf)
+        .div(contractBalanceOf ?? 0)
+        .toFixed(4),
+    [contractBalanceOf, userBalanceOf],
   )
 
   // Approval/Allowance bits
@@ -398,10 +430,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
             )}
             <TimelineItem>
               <CustomRow>
-                <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
-                <Row.Value>
-                  <Amount.Percent value='0.0' />
-                </Row.Value>
+                <Skeleton isLoaded={isUserBalanceOfSuccess && isContractBalanceOfSuccess}>
+                  <Row.Value>
+                    <Amount.Percent value={shareOfPoolPercentage} />
+                  </Row.Value>
+                </Skeleton>
               </CustomRow>
             </TimelineItem>
           </Timeline>

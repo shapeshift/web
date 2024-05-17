@@ -100,7 +100,7 @@ export const common = createQueryKeys('common', {
     feeAsset: Asset
     feeAssetMarketData: MarketData
   }) => ({
-    queryKey: ['evmFees', to, accountNumber, wallet, data, value],
+    queryKey: ['evmFees', to, accountNumber, data, value],
     queryFn: async () => {
       const adapter = assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId)
 

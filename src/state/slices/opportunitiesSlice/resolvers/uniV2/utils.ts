@@ -6,7 +6,7 @@ import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import memoize from 'lodash/memoize'
-import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, parseAbiItem } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -19,7 +19,7 @@ export const getToken0Volume24Hr = async ({
   uniswapLPContract,
 }: {
   blockNumber: number
-  uniswapLPContract: GetContractReturnType<typeof IUniswapV2Pair, PublicClient, WalletClient>
+  uniswapLPContract: GetContractReturnType<typeof IUniswapV2Pair, PublicClient, Address>
 }) => {
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day

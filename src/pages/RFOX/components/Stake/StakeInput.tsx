@@ -12,7 +12,7 @@ import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { useContractRead } from 'wagmi'
+import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FormDivider } from 'components/FormDivider'
@@ -121,13 +121,15 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [amountCryptoPrecision, amountUserCurrency],
   )
 
-  const { data: cooldownPeriod } = useContractRead({
+  const { data: cooldownPeriod } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
-    staleTime: Infinity,
-    select: data => formatDuration(Number(data)),
+    query: {
+      staleTime: Infinity,
+      select: data => formatDuration(Number(data)),
+    },
   })
 
   const callData = useMemo(() => {

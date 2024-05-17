@@ -69,6 +69,19 @@ export const viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Cha
   [KnownChainIds.OptimismMainnet]: viemOptimismClient as PublicClient<Transport, Chain>,
 }
 
+export const viemClientByNetworkId: Record<number, PublicClient<Transport, Chain>> = {
+  [mainnet.id]: viemEthMainnetClient,
+  [bsc.id]: viemBscClient,
+  [avalanche.id]: viemAvalancheClient,
+  [arbitrum.id]: viemArbitrumClient,
+  // cast required due to typescript shenanigans
+  // https://github.com/wagmi-dev/viem/issues/1018
+  [optimism.id]: viemOptimismClient as PublicClient<Transport, Chain>,
+  [arbitrumNova.id]: viemArbitrumNovaClient,
+  [gnosis.id]: viemGnosisClient,
+  [polygon.id]: viemPolygonClient,
+}
+
 export const assertGetViemClient = (chainId: ChainId): PublicClient<Transport, Chain> => {
   const publicClient = viemClientByChainId[chainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)

@@ -13,7 +13,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { useContractRead } from 'wagmi'
+import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
@@ -43,31 +43,37 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     [stakingAssetAccountId],
   )
 
-  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useContractRead({
+  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
     functionName: 'cooldownPeriod',
     chainId: arbitrum.id,
-    staleTime: Infinity,
-    select: data => formatDuration(Number(data)),
+    query: {
+      staleTime: Infinity,
+      select: data => formatDuration(Number(data)),
+    },
   })
 
-  const { data: userBalanceOf, isSuccess: isUserBalanceOfSuccess } = useContractRead({
+  const { data: userBalanceOf, isSuccess: isUserBalanceOfSuccess } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
     functionName: 'balanceOf',
     args: [getAddress(stakingAssetAccountAddress)],
     chainId: arbitrum.id,
-    select: data => data.toString(),
+    query: {
+      select: data => data.toString(),
+    },
   })
 
-  const { data: contractBalanceOf, isSuccess: isContractBalanceOfSuccess } = useContractRead({
+  const { data: contractBalanceOf, isSuccess: isContractBalanceOfSuccess } = useReadContract({
     abi: erc20ABI,
     address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
     functionName: 'balanceOf',
     args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
     chainId: arbitrum.id,
-    select: data => data.toString(),
+    query: {
+      select: data => data.toString(),
+    },
   })
 
   const shareOfPoolPercentage = useMemo(

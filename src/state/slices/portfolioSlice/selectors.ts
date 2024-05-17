@@ -1111,7 +1111,6 @@ export const selectPortfolioTotalBalanceUserCurrencyByChainId = createDeepEqualO
 export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector(
   selectPortfolioTotalBalanceUserCurrencyByChainId,
   portfolioTotalBalanceUserCurrencyByChainId => {
-    console.log(portfolioTotalBalanceUserCurrencyByChainId)
     const chainAdapterManager = getChainAdapterManager()
     return orderBy(
       Object.entries(portfolioTotalBalanceUserCurrencyByChainId).map(

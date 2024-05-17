@@ -10,9 +10,10 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
+import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { validateAddress } from 'lib/address/address'
 
 type AddressSelectionProps = {
@@ -24,8 +25,8 @@ const boxProps = {
 }
 
 export type StakeValues = {
-  runeAddress: string | undefined
-}
+  manualRuneAddress: string | undefined
+} & TradeAmountInputFormValues
 
 export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps) => {
   const translate = useTranslate()
@@ -33,7 +34,7 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
   const {
     register,
     formState: { errors },
-  } = useForm<StakeValues>({ mode: 'onChange', shouldUnregister: true })
+  } = useFormContext<StakeValues>()
 
   const [isManualAddress, setIsManualAddress] = useState(false)
 
@@ -53,7 +54,7 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
     if (isManualAddress) {
       return (
         <Input
-          {...register('runeAddress', {
+          {...register('manualRuneAddress', {
             required: translate('A RUNE address is required'),
             minLength: 1,
             validate: async address => {
@@ -71,7 +72,6 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
             },
           })}
           placeholder={translate('common.enterAddress')}
-          errorBorderColor='red.500'
           autoFocus
           defaultValue=''
         />
@@ -88,7 +88,7 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
   }, [handleAccountIdChange, isManualAddress, onRuneAddressChange, register, translate])
 
   return (
-    <FormControl isInvalid={Boolean(isManualAddress && errors.runeAddress)}>
+    <FormControl isInvalid={Boolean(isManualAddress && errors.manualRuneAddress)}>
       <Stack px={6} py={4}>
         <Flex alignItems='center' justifyContent='space-between' mb={2}>
           <FormLabel fontSize='sm' mb={0}>

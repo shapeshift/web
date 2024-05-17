@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo, useState } from 'react'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
@@ -32,6 +33,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import type { StakeValues } from '../AddressSelection'
 import { AddressSelection } from '../AddressSelection'
 import { StakeSummary } from './components/StakeSummary'
 import type { RfoxStakingQuote } from './types'
@@ -52,6 +54,12 @@ type StakeInputProps = {
   setConfirmedQuote: (quote: RfoxStakingQuote | undefined) => void
 }
 
+const defaultFormValues = {
+  // TODO(gomes): add amountUserCurrency and setValue on em
+  amountCryptoPrecision: '',
+  manualRuneAddress: '',
+}
+
 export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   // FOX on Arbitrum: eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73
   // In the meantime, just added it manually there
@@ -65,6 +73,19 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+
+  const methods = useForm<StakeValues>({
+    defaultValues: defaultFormValues,
+    mode: 'onChange',
+    shouldUnregister: true,
+  })
+
+  const {
+    formState: { errors },
+    control,
+    setValue,
+  } = methods
+
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
@@ -83,13 +104,18 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [1], [])
-  const [cryptoAmount, setCryptoAmount] = useState('')
+  const amountCryptoPrecision = useWatch<StakeValues, 'amountCryptoPrecision'>({
+    control,
+    name: 'amountCryptoPrecision',
+  })
+
   const [fiatAmount, setFiatAmount] = useState('')
   const [isFiat, handleToggleIsFiat] = useToggle(false)
 
+  // TODO(gomes): validate in form
   const isValidStakingAmount = useMemo(
-    () => bnOrZero(fiatAmount).plus(cryptoAmount).gt(0),
-    [cryptoAmount, fiatAmount],
+    () => bnOrZero(fiatAmount).plus(amountCryptoPrecision).gt(0),
+    [amountCryptoPrecision, fiatAmount],
   )
 
   const { data: cooldownPeriod, isLoading: isCooldownPeriodLoading } = useContractRead({
@@ -107,9 +133,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return encodeFunctionData({
       abi: foxStakingV1Abi,
       functionName: 'stake',
-      args: [BigInt(cryptoAmount), runeAddress],
+      args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0)), runeAddress],
     })
-  }, [cryptoAmount, isValidStakingAmount, runeAddress])
+  }, [amountCryptoPrecision, isValidStakingAmount, runeAddress, stakingAsset?.precision])
 
   const estimateFeesInput = useMemo(
     () => ({
@@ -141,8 +167,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   // TODO(gomes): balance checks too
   const isApprovalRequired = useMemo(
-    () => bnOrZero(allowanceCryptoPrecision).lt(cryptoAmount),
-    [allowanceCryptoPrecision, cryptoAmount],
+    () => bnOrZero(allowanceCryptoPrecision).lt(amountCryptoPrecision),
+    [allowanceCryptoPrecision, amountCryptoPrecision],
   )
 
   const isEstimatedFeesEnabled = useMemo(
@@ -201,13 +227,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     (value: string, isFiat?: boolean) => {
       if (isFiat) {
         setFiatAmount(value)
-        setCryptoAmount(bnOrZero(value).div(assetMarketDataUserCurrency.price).toFixed())
+        const _cryptoAmount = bnOrZero(value).div(assetMarketDataUserCurrency.price).toFixed()
+        setValue('amountCryptoPrecision', _cryptoAmount)
       } else {
-        setCryptoAmount(value)
         setFiatAmount(bnOrZero(value).times(assetMarketDataUserCurrency.price).toFixed())
       }
     },
-    [assetMarketDataUserCurrency.price],
+    [assetMarketDataUserCurrency.price, setValue],
   )
 
   const handleRuneAddressChange = useCallback(
@@ -227,14 +253,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      stakingAmountCryptoBaseUnit: toBaseUnit(cryptoAmount, stakingAsset?.precision ?? 0),
+      stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
 
       runeAddress,
     })
     history.push(StakeRoutePaths.Confirm)
   }, [
     stakingAsset?.precision,
-    cryptoAmount,
+    amountCryptoPrecision,
     history,
     isValidStakingAmount,
     runeAddress,
@@ -261,85 +287,91 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         shouldShowWarningAcknowledgement={showWarning}
         setShouldShowWarningAcknowledgement={setShowWarning}
       >
-        <Stack>
-          {headerComponent}
-          <TradeAssetInput
-            assetId={stakingAsset?.assetId}
-            assetSymbol={stakingAsset?.symbol ?? ''}
-            assetIcon={stakingAsset?.icon ?? ''}
-            percentOptions={percentOptions}
-            onAccountIdChange={handleAccountIdChange}
-            // TODO: remove me when implementing multi-account
-            isAccountSelectionDisabled={true}
-            onToggleIsFiat={handleToggleIsFiat}
-            isFiat={isFiat}
-            formControlProps={formControlProps}
-            layout='inline'
-            label={translate('transactionRow.amount')}
-            labelPostFix={assetSelectComponent}
-            isSendMaxDisabled={false}
-            onChange={handleChange}
-            cryptoAmount={cryptoAmount}
-            fiatAmount={fiatAmount}
-          />
-          <FormDivider />
-          <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
-          <Collapse in={isValidStakingAmount}>
-            <StakeSummary
-              assetId={stakingAsset.assetId}
-              stakingAmountCryptoPrecision={cryptoAmount}
+        <FormProvider {...methods}>
+          <Stack>
+            {headerComponent}
+            <TradeAssetInput
+              assetId={stakingAsset?.assetId}
+              assetSymbol={stakingAsset?.symbol ?? ''}
+              assetIcon={stakingAsset?.icon ?? ''}
+              percentOptions={percentOptions}
+              onAccountIdChange={handleAccountIdChange}
+              // TODO: remove me when implementing multi-account
+              isAccountSelectionDisabled={true}
+              onToggleIsFiat={handleToggleIsFiat}
+              isFiat={isFiat}
+              formControlProps={formControlProps}
+              layout='inline'
+              label={translate('transactionRow.amount')}
+              labelPostFix={assetSelectComponent}
+              isSendMaxDisabled={false}
+              onChange={handleChange}
+              fiatAmount={fiatAmount}
             />
-            <CardFooter
-              borderTopWidth={1}
-              borderColor='border.subtle'
-              flexDir='column'
-              gap={4}
-              px={6}
-              py={4}
-              bg='background.surface.raised.accent'
-            >
-              {
-                /* Only display gas fee if allowance has been granted - else we can't estimate them
-                 * Or maybe we just remove the fees row altogether because they're so cheap on L2?
-                 * */
-                !isApprovalRequired && (
-                  <Row fontSize='sm' fontWeight='medium'>
-                    <Row.Label>{translate('common.gasFee')}</Row.Label>
-                    <Row.Value>
-                      <Skeleton
-                        isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
-                        height='14px'
-                        width='50px'
-                      >
-                        <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
-                      </Skeleton>
-                    </Row.Value>
-                  </Row>
-                )
-              }
-            </CardFooter>
-          </Collapse>
-        </Stack>
-        <CardFooter
-          borderTopWidth={1}
-          borderColor='border.subtle'
-          flexDir='column'
-          gap={4}
-          px={6}
-          bg='background.surface.raised.accent'
-          borderBottomRadius='xl'
-        >
-          <Button
-            size='lg'
-            mx={-2}
-            onClick={handleWarning}
-            colorScheme='blue'
-            isDisabled={!runeAddress || !isValidStakingAmount || isCooldownPeriodLoading}
-            isLoading={isCooldownPeriodLoading}
+            <FormDivider />
+            <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
+            <Collapse in={isValidStakingAmount}>
+              <StakeSummary
+                assetId={stakingAsset.assetId}
+                stakingAmountCryptoPrecision={amountCryptoPrecision}
+              />
+              <CardFooter
+                borderTopWidth={1}
+                borderColor='border.subtle'
+                flexDir='column'
+                gap={4}
+                px={6}
+                py={4}
+                bg='background.surface.raised.accent'
+              >
+                {
+                  /* Only display gas fee if allowance has been granted - else we can't estimate them
+                   * Or maybe we just remove the fees row altogether because they're so cheap on L2?
+                   * */
+                  !isApprovalRequired && (
+                    <Row fontSize='sm' fontWeight='medium'>
+                      <Row.Label>{translate('common.gasFee')}</Row.Label>
+                      <Row.Value>
+                        <Skeleton
+                          isLoaded={Boolean(!isEstimatedFeesLoading && estimatedFees)}
+                          height='14px'
+                          width='50px'
+                        >
+                          <Amount.Fiat value={estimatedFees?.txFeeFiat ?? 0} />
+                        </Skeleton>
+                      </Row.Value>
+                    </Row>
+                  )
+                }
+              </CardFooter>
+            </Collapse>
+          </Stack>
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            bg='background.surface.raised.accent'
+            borderBottomRadius='xl'
           >
-            {translate('RFOX.stake')}
-          </Button>
-        </CardFooter>
+            <Button
+              size='lg'
+              mx={-2}
+              onClick={handleWarning}
+              isDisabled={
+                Boolean(errors.amountCryptoPrecision) ||
+                !runeAddress ||
+                !isValidStakingAmount ||
+                isCooldownPeriodLoading
+              }
+              isLoading={isCooldownPeriodLoading}
+              colorScheme={Boolean(errors.amountCryptoPrecision) ? 'red' : 'blue'}
+            >
+              {errors.amountCryptoPrecision?.message || translate('RFOX.stake')}
+            </Button>
+          </CardFooter>
+        </FormProvider>
       </WarningAcknowledgement>
     </SlideTransition>
   )

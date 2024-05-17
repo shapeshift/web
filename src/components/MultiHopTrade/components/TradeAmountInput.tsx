@@ -15,7 +15,8 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
 import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
-import type { FieldError } from 'react-hook-form'
+import type { ControllerRenderProps } from 'react-hook-form'
+import { Controller, type FieldError, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -30,12 +31,22 @@ import { colors } from 'theme/colors'
 
 import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
 
+export type TradeAmountInputFormValues = {
+  amountCryptoPrecision: string
+}
+
+type RenderController = ({
+  field,
+}: {
+  field: ControllerRenderProps<TradeAmountInputFormValues, 'amountCryptoPrecision'>
+}) => React.ReactElement
+
 const cryptoInputStyle = { caretColor: colors.blue[200] }
 const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: '1' }
 const boxProps = { px: 0, m: 0 }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 
-const CryptoInput = (props: InputProps) => {
+const AmountInput = (props: InputProps) => {
   const translate = useTranslate()
   return (
     <Input
@@ -50,6 +61,7 @@ const CryptoInput = (props: InputProps) => {
       placeholder={translate('common.enterAmount')}
       style={cryptoInputStyle}
       autoComplete='off'
+      errorBorderColor='red.500'
       {...props}
     />
   )
@@ -92,6 +104,8 @@ export type TradeAmountInputProps = {
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
 
+// TODO: While this is called "TradeAmountInput", its parent TradeAssetInput is consumed by everything under the sun but swapper
+// Scrutinize this and rename all Trade references here, or at the very least in the parent to something more generic for sanity
 export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
   ({
     assetId,
@@ -137,6 +151,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const focusBg = useColorModeValue('gray.50', 'gray.900')
     const focusBorder = useColorModeValue('blue.500', 'blue.400')
 
+    const { control } = useFormContext<TradeAmountInputFormValues>()
+
     // Lower the decimal places when the integer is greater than 8 significant digits for better UI
     const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
     const formattedCryptoAmount = useMemo(
@@ -177,6 +193,60 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
       )
     }, [assetSymbol, cryptoAmount, fiatAmount, isFiat])
+
+    const amountInputRules = useMemo(() => {
+      return {
+        defaultValue: '',
+        validate: (rawInput: string) => {
+          // TODO(gomes): this should check for crypto only, using the inverted fiat rate if isFiat, to honor the amountCryptoPrecision field vernacular
+          const hasEnoughBalance = bnOrZero(rawInput).lte(bnOrZero(isFiat ? fiatBalance : balance))
+
+          return hasEnoughBalance || translate('common.insufficientFunds')
+        },
+      }
+    }, [balance, fiatBalance, isFiat, translate])
+
+    const renderController: RenderController = useCallback(
+      ({ field: { onChange } }) => {
+        return (
+          <NumberFormat
+            customInput={AmountInput}
+            isNumericString={true}
+            disabled={isReadOnly}
+            _disabled={numberFormatDisabled}
+            suffix={isFiat ? localeParts.postfix : ''}
+            prefix={isFiat ? localeParts.prefix : ''}
+            decimalSeparator={localeParts.decimal}
+            inputMode='decimal'
+            thousandSeparator={localeParts.group}
+            value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
+            // this is already within a useCallback, we don't need to memo this
+            // eslint-disable-next-line react-memo/require-usememo
+            onValueChange={(values: NumberFormatValues) => {
+              onChange(values.value)
+              handleValueChange(values)
+            }}
+            onChange={handleOnChange}
+            onBlur={handleOnBlur}
+            onFocus={handleOnFocus}
+          />
+        )
+      },
+      [
+        fiatAmount,
+        formattedCryptoAmount,
+        handleOnBlur,
+        handleOnChange,
+        handleOnFocus,
+        handleValueChange,
+        isFiat,
+        isReadOnly,
+        localeParts.decimal,
+        localeParts.group,
+        localeParts.postfix,
+        localeParts.prefix,
+      ],
+    )
 
     const accountDropdownLabel = useMemo(
       () => (
@@ -233,21 +303,11 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         <Stack direction='row' alignItems='center' px={6} display={hideAmounts ? 'none' : 'flex'}>
           <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
             <Skeleton isLoaded={!showInputSkeleton} width='full'>
-              <NumberFormat
-                customInput={CryptoInput}
-                isNumericString={true}
-                disabled={isReadOnly}
-                _disabled={numberFormatDisabled}
-                suffix={isFiat ? localeParts.postfix : ''}
-                prefix={isFiat ? localeParts.prefix : ''}
-                decimalSeparator={localeParts.decimal}
-                inputMode='decimal'
-                thousandSeparator={localeParts.group}
-                value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
-                onValueChange={handleValueChange}
-                onChange={handleOnChange}
-                onBlur={handleOnBlur}
-                onFocus={handleOnFocus}
+              <Controller
+                name={'amountCryptoPrecision'}
+                render={renderController}
+                control={control}
+                rules={amountInputRules}
               />
             </Skeleton>
             {RightComponent && <RightComponent assetId={assetId ?? ''} />}

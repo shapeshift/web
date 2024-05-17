@@ -1921,10 +1921,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "Desteklenmeyen Zincir",
-        "description": "ShapeShift şu anda WalletConnect ile yalnızca %{supportedChainNames}'i desteklemektedir."
-      },
       "header": {
         "connectDapp": "dApp'e Bağlanın",
         "connectAnotherDapp": "Başka bir dApp bağlayın",

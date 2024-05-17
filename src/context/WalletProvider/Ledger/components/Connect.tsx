@@ -46,53 +46,52 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     selectWalletIdInStore(state, '0001'),
   )
 
-  const handlePair = useCallback(() => {
+  const handlePair = useCallback(async () => {
     setError(null)
     setIsLoading(true)
-    ;(async () => {
-      const adapter = await getAdapter(KeyManager.Ledger)
-      if (adapter) {
-        try {
-          // Remove all provider event listeners from previously connected wallets
-          await removeAccountsAndChainListeners()
 
-          const wallet = await adapter.pairDevice()
+    const adapter = await getAdapter(KeyManager.Ledger)
+    if (adapter) {
+      try {
+        // Remove all provider event listeners from previously connected wallets
+        await removeAccountsAndChainListeners()
 
-          if (!wallet) {
-            setErrorLoading('walletProvider.errors.walletNotFound')
-            throw new Error('Call to hdwallet-ledger::pairDevice returned null or undefined')
-          }
+        const wallet = await adapter.pairDevice()
 
-          const { name, icon } = LedgerConfig
-          // NOTE: All Ledger devices get the same device ID, i.e '0001', but we fetch it from the
-          // device anyway
-          const deviceId = await wallet.getDeviceID()
-
-          walletDispatch({
-            type: WalletActions.SET_WALLET,
-            payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
-          })
-          walletDispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
-
-          // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
-          // The Account drawer will be opened further down the tree
-          if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
-            walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          } else {
-            history.push('/ledger/chains')
-          }
-        } catch (e: any) {
-          console.error(e)
-          setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
-          history.push('/ledger/failure')
+        if (!wallet) {
+          setErrorLoading('walletProvider.errors.walletNotFound')
+          throw new Error('Call to hdwallet-ledger::pairDevice returned null or undefined')
         }
-      }
 
-      // Don't set isLoading to false to prevent UI glitching during pairing.
-      // Loading state will be reset when the component is remounted
-      // setIsLoading(false)
-    })()
+        const { name, icon } = LedgerConfig
+        // NOTE: All Ledger devices get the same device ID, i.e '0001', but we fetch it from the
+        // device anyway
+        const deviceId = await wallet.getDeviceID()
+
+        walletDispatch({
+          type: WalletActions.SET_WALLET,
+          payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
+        })
+        walletDispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
+
+        // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
+        // The Account drawer will be opened further down the tree
+        if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
+          walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        } else {
+          history.push('/ledger/chains')
+        }
+      } catch (e: any) {
+        console.error(e)
+        setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
+        history.push('/ledger/failure')
+      }
+    }
+
+    // Don't set isLoading to false to prevent UI glitching during pairing.
+    // Loading state will be reset when the component is remounted
+    // setIsLoading(false)
   }, [
     getAdapter,
     history,
@@ -108,9 +107,9 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     dispatch(portfolioApi.util.resetApiState())
   }, [dispatch])
 
-  const handleClearCacheAndPair = useCallback(() => {
+  const handleClearCacheAndPair = useCallback(async () => {
     handleClearPortfolio()
-    handlePair()
+    await handlePair()
   }, [handleClearPortfolio, handlePair])
 
   return (

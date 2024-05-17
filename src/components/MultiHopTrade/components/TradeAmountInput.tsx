@@ -207,11 +207,15 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const amountInputRules = useMemo(() => {
       return {
         defaultValue: '',
-        validate: (rawInput: string) => {
-          // TODO(gomes): this should check for crypto only, using the inverted fiat rate if isFiat, to honor the amountCryptoPrecision field vernacular
-          const hasEnoughBalance = bnOrZero(rawInput).lte(bnOrZero(isFiat ? fiatBalance : balance))
+        validate: {
+          hasEnoughBalance: (rawInput: string) => {
+            // TODO(gomes): this should check for crypto only, using the inverted fiat rate if isFiat, to honor the amountCryptoPrecision field vernacular
+            const hasEnoughBalance = bnOrZero(rawInput).lte(
+              bnOrZero(isFiat ? fiatBalance : balance),
+            )
 
-          return hasEnoughBalance || translate('common.insufficientFunds')
+            return hasEnoughBalance || translate('common.insufficientFunds')
+          },
         },
       }
     }, [balance, fiatBalance, isFiat, translate])

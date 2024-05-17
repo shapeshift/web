@@ -113,7 +113,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const [fiatAmount, setFiatAmount] = useState('')
   const [isFiat, handleToggleIsFiat] = useToggle(false)
 
-  // TODO(gomes): validate in form
   const isValidStakingAmount = useMemo(
     () => bnOrZero(fiatAmount).plus(amountCryptoPrecision).gt(0),
     [amountCryptoPrecision, fiatAmount],
@@ -178,9 +177,17 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           stakingAsset &&
           runeAddress &&
           isAllowanceDataSuccess &&
-          !isApprovalRequired,
+          !isApprovalRequired &&
+          !Boolean(errors.amountCryptoPrecision),
       ),
-    [stakingAsset, isAllowanceDataSuccess, isApprovalRequired, isValidStakingAmount, runeAddress],
+    [
+      isValidStakingAmount,
+      stakingAsset,
+      runeAddress,
+      isAllowanceDataSuccess,
+      isApprovalRequired,
+      errors.amountCryptoPrecision,
+    ],
   )
 
   // TODO(gomes): move this queryFn out of lending
@@ -257,7 +264,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     () => [
       'estimateFees',
       {
-        enabled: Boolean(isApprovalRequired && stakingAssetAccountId),
+        enabled: Boolean(
+          isApprovalRequired && stakingAssetAccountId && !Boolean(errors.amountCryptoPrecision),
+        ),
         asset: stakingAsset,
         feeAsset,
         feeAssetMarketData,
@@ -265,6 +274,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       },
     ],
     [
+      errors.amountCryptoPrecision,
       isApprovalRequired,
       stakingAssetAccountId,
       stakingAsset,
@@ -294,7 +304,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
     },
 
-    enabled: Boolean(isApprovalRequired && stakingAssetAccountId),
+    enabled:
+      !Boolean(errors.amountCryptoPrecision) &&
+      Boolean(isApprovalRequired && stakingAssetAccountId),
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap

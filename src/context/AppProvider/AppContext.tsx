@@ -20,6 +20,7 @@ import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
+import { isUtxoChainId } from 'lib/utils/utxo'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { useGetAssetsQuery } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -157,10 +158,27 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
           const accountId = accountIds[idx]
           const { chainId } = fromAccountId(accountId)
+
           const { hasActivity } = account.accounts.byId[accountId]
 
+          const accountNumberHasChainActivity = !isUtxoChainId(chainId)
+            ? hasActivity
+            : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
+              // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
+              // being upserted for BTC and LTC
+              accountResults.some((res, _idx) => {
+                if (res.status === 'rejected') return false
+                const { data: account } = res.value
+                if (!account) return false
+                const accountId = accountIds[_idx]
+                const { chainId: _chainId } = fromAccountId(accountId)
+                if (chainId !== _chainId) return false
+                return account.accounts.byId[accountId].hasActivity
+              })
+
           // don't add accounts with no activity past account 0
-          if (accountNumber > 0 && !hasActivity) return delete accountMetadataByAccountId[accountId]
+          if (accountNumber > 0 && !accountNumberHasChainActivity)
+            return delete accountMetadataByAccountId[accountId]
 
           // unique set to handle utxo chains with multiple account types per account
           chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))

@@ -1,14 +1,16 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata } from '@shapeshiftoss/types'
+import type { AccountMetadata, Asset, MarketData } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { bn } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { assertGetChainAdapter } from 'lib/utils'
-import { getErc20Allowance } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getErc20Allowance, getFeesWithWallet } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import type { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
@@ -80,5 +82,43 @@ export const common = createQueryKeys('common', {
         accountMetadata,
         wallet,
       }),
+  }),
+  evmFees: ({
+    data,
+    wallet,
+    accountNumber,
+    to,
+    value,
+    feeAsset,
+    feeAssetMarketData,
+  }: {
+    to: string
+    accountNumber: number
+    wallet: HDWallet
+    data: string
+    value: string
+    feeAsset: Asset
+    feeAssetMarketData: MarketData
+  }) => ({
+    queryKey: ['evmFees', to, accountNumber, wallet, data, value],
+    queryFn: async () => {
+      const adapter = assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId)
+
+      const fees = await getFeesWithWallet({
+        adapter,
+        data,
+        wallet,
+        to,
+        value,
+        accountNumber,
+      })
+
+      const txFeeFiat = bn(fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision))
+        .times(feeAssetMarketData.price)
+        .toString()
+
+      const { networkFeeCryptoBaseUnit } = fees
+      return { fees, txFeeFiat, networkFeeCryptoBaseUnit }
+    },
   }),
 })

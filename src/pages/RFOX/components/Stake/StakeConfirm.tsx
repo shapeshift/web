@@ -10,7 +10,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -25,14 +25,13 @@ import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem/utils'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { estimateFees } from 'components/Modals/Send/utils'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 import {
@@ -40,7 +39,6 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -136,59 +134,34 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     })
   }, [confirmedQuote.stakingAmountCryptoBaseUnit])
 
-  const estimateApprovalFeesInput = useMemo(
-    () => ({
-      // This is a contract call i.e 0 value
-      amountCryptoPrecision: '0',
-      assetId: confirmedQuote.stakingAssetId,
-      feeAssetId: feeAsset?.assetId ?? '',
-      to: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
-      sendMax: false,
-      memo: approvalCallData,
-      accountId: confirmedQuote.stakingAssetAccountId ?? '',
-      contractAddress: undefined,
+  const isGetApprovalFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        isApprovalRequired &&
+          stakingAssetAccountNumber !== undefined &&
+          feeAsset &&
+          feeAssetMarketData &&
+          wallet,
+      ),
+    [feeAsset, feeAssetMarketData, isApprovalRequired, stakingAssetAccountNumber, wallet],
+  )
+
+  const {
+    data: approvalFees,
+    isLoading: isGetApprovalFeesLoading,
+    isSuccess: isGetApprovalFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      value: '0',
+      accountNumber: stakingAssetAccountNumber!, // see isGetApprovalFeesEnabled
+      feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
+      to: fromAssetId(foxOnArbitrumOneAssetId).assetReference,
+      data: approvalCallData,
+      wallet: wallet!, // see isGetApprovalFeesEnabled
     }),
-    [
-      confirmedQuote.stakingAssetId,
-      confirmedQuote.stakingAssetAccountId,
-      feeAsset?.assetId,
-      approvalCallData,
-    ],
-  )
-
-  // TODO(gomes): move this queryFn out of lending
-  // and actually make one specific for approval estimations for QoL
-  const estimatedApprovalFeesQueryKey: EstimatedFeesQueryKey = useMemo(
-    () => [
-      'estimateFees',
-      {
-        enabled: isApprovalRequired,
-        asset: stakingAsset,
-        feeAsset,
-        feeAssetMarketData,
-        estimateFeesInput: estimateApprovalFeesInput,
-      },
-    ],
-    [isApprovalRequired, stakingAsset, feeAsset, feeAssetMarketData, estimateApprovalFeesInput],
-  )
-
-  const { data: estimatedApprovalFees, isLoading: isEstimatedApprovalFeesLoading } = useQuery({
-    queryKey: estimatedApprovalFeesQueryKey,
     staleTime: 30_000,
-    queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
-      const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
-
-      // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-      if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
-
-      const estimatedFees = await estimateFees(estimateFeesInput)
-      const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
-        .times(feeAssetMarketData.price)
-        .toString()
-      return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
-    },
-
-    enabled: isApprovalRequired,
+    enabled: isGetApprovalFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -258,62 +231,42 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     })
   }, [confirmedQuote.runeAddress, confirmedQuote.stakingAmountCryptoBaseUnit])
 
-  const estimateStakeFeesInput = useMemo(
-    () => ({
-      // This is a contract call i.e 0 value
-      amountCryptoPrecision: '0',
-      assetId: confirmedQuote.stakingAssetId,
-      feeAssetId: feeAsset?.assetId ?? '',
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      sendMax: false,
-      memo: stakeCallData,
-      accountId: confirmedQuote.stakingAssetAccountId,
-      contractAddress: undefined,
-      // TODO(gomes): dev only, revert me
-      staleTime: Infinity,
-      gcTime: Infinity,
-    }),
+  const isGetStakeFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        stakingAssetAccountNumber !== undefined &&
+          wallet &&
+          stakingAsset &&
+          !isApprovalRequired &&
+          feeAsset &&
+          feeAssetMarketData,
+      ),
     [
-      confirmedQuote.stakingAssetId,
-      confirmedQuote.stakingAssetAccountId,
-      feeAsset?.assetId,
-      stakeCallData,
+      stakingAssetAccountNumber,
+      wallet,
+      stakingAsset,
+      isApprovalRequired,
+      feeAsset,
+      feeAssetMarketData,
     ],
   )
 
-  // TODO(gomes): move this queryFn out of lending
-  // and actually make one specific for approval estimations for QoL
-  const estimatedStakeFeesQueryKey: EstimatedFeesQueryKey = useMemo(
-    () => [
-      'estimateFees',
-      {
-        enabled: !isApprovalRequired,
-        asset: stakingAsset,
-        feeAsset,
-        feeAssetMarketData,
-        estimateFeesInput: estimateStakeFeesInput,
-      },
-    ],
-    [isApprovalRequired, stakingAsset, feeAsset, feeAssetMarketData, estimateStakeFeesInput],
-  )
-
-  const { data: estimatedStakeFees, isLoading: isEstimatedStakeFeesLoading } = useQuery({
-    queryKey: estimatedStakeFeesQueryKey,
+  const {
+    data: stakeFees,
+    isLoading: isStakeFeesLoading,
+    isSuccess: isStakeFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
+      data: stakeCallData!, // see isGetStakeFeesEnabled
+      value: '0', // contract call
+      wallet: wallet!, // see isGetStakeFeesEnabled
+      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+    }),
     staleTime: 30_000,
-    queryFn: async ({ queryKey }: { queryKey: EstimatedFeesQueryKey }) => {
-      const { estimateFeesInput, feeAsset, feeAssetMarketData } = queryKey[1]
-
-      // These should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-      if (!feeAsset || !estimateFeesInput?.to || !estimateFeesInput.accountId) return
-
-      const estimatedFees = await estimateFees(estimateFeesInput)
-      const txFeeFiat = bn(fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision))
-        .times(feeAssetMarketData.price)
-        .toString()
-      return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }
-    },
-
-    enabled: !isApprovalRequired,
+    enabled: isGetStakeFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -425,8 +378,8 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
                 <CustomRow>
                   <Row.Label>{translate('common.approvalFee')}</Row.Label>
                   <Row.Value>
-                    <Skeleton isLoaded={!isEstimatedApprovalFeesLoading}>
-                      <Amount.Fiat value={estimatedApprovalFees?.txFeeFiat ?? 0} />
+                    <Skeleton isLoaded={!isGetApprovalFeesLoading}>
+                      <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
                     </Skeleton>
                   </Row.Value>
                 </CustomRow>
@@ -435,9 +388,9 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
               <TimelineItem>
                 <CustomRow>
                   <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
-                  <Skeleton isLoaded={!isEstimatedStakeFeesLoading}>
+                  <Skeleton isLoaded={!isStakeFeesLoading}>
                     <Row.Value>
-                      <Amount.Fiat value={estimatedStakeFees?.txFeeFiat ?? '0.0'} />
+                      <Amount.Fiat value={stakeFees?.txFeeFiat ?? '0.0'} />
                     </Row.Value>
                   </Skeleton>
                 </CustomRow>
@@ -481,9 +434,13 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
           size='lg'
           mx={-2}
           disabled={Boolean(
-            isAllowanceDataLoading || isEstimatedStakeFeesLoading || isStakeTxPending,
+            !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+              isStakeTxPending ||
+              isAllowanceDataLoading,
           )}
-          isLoading={isApprovalTxPending || isEstimatedStakeFeesLoading || isStakeTxPending}
+          isLoading={
+            isAllowanceDataLoading || isApprovalTxPending || isStakeFeesLoading || isStakeTxPending
+          }
           colorScheme='blue'
           onClick={handleSubmit}
         >

@@ -74,6 +74,8 @@ export const Details = () => {
     control,
   }) as Partial<SendInput>
 
+  const hasEnteredPositiveAmount = bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).gt(0)
+
   const previousAccountId = usePrevious(accountId)
 
   const handleAccountChange = useCallback(
@@ -95,8 +97,8 @@ export const Details = () => {
     handleNextClick,
     handleSendMax,
     handleInputChange,
-    loading,
-    toggleCurrency,
+    isLoading,
+    toggleIsFiat,
   } = useSendDetails()
 
   const {
@@ -135,13 +137,13 @@ export const Details = () => {
         size='sm'
         variant='ghost'
         textTransform='uppercase'
-        onClick={toggleCurrency}
+        onClick={toggleIsFiat}
         width='full'
       >
         {asset?.symbol}
       </Button>
     ),
-    [asset?.symbol, toggleCurrency],
+    [asset?.symbol, toggleIsFiat],
   )
 
   const fiatTokenRowInputLeftElement = useMemo(
@@ -151,14 +153,14 @@ export const Details = () => {
         size='sm'
         variant='ghost'
         textTransform='uppercase'
-        onClick={toggleCurrency}
+        onClick={toggleIsFiat}
         width='full'
         data-test='toggle-currency-button'
       >
         {fiatSymbol}
       </Button>
     ),
-    [fiatSymbol, toggleCurrency],
+    [fiatSymbol, toggleIsFiat],
   )
 
   const tokenRowInputRightElement = useMemo(
@@ -233,7 +235,7 @@ export const Details = () => {
               as='button'
               type='button'
               color='text.subtle'
-              onClick={toggleCurrency}
+              onClick={toggleIsFiat}
               textTransform='uppercase'
               _hover={formHelperTextHoverStyle}
             >
@@ -309,15 +311,15 @@ export const Details = () => {
           <Button
             width='full'
             isDisabled={
-              !(amountCryptoPrecision ?? fiatAmount) ||
+              !hasEnteredPositiveAmount ||
               !!amountFieldError ||
-              loading ||
+              isLoading ||
               Boolean(memoFieldError)
             }
             colorScheme={amountFieldError ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
-            isLoading={loading}
+            isLoading={isLoading}
             data-test='send-modal-next-button'
           >
             <Text translation={amountFieldError || 'common.next'} />

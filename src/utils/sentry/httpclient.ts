@@ -79,12 +79,12 @@ export const httpClientIntegration = defineIntegration(_httpClientIntegration)
  * @param response The Fetch API response
  * @param requestInit The request init object
  */
-function _fetchResponseHandler(
+async function _fetchResponseHandler(
   options: HttpClientOptions,
   requestInfo: RequestInfo,
   response: Response,
   requestInit?: RequestInit,
-): void {
+): Promise<void> {
   const shouldCapture = _shouldCaptureResponse(options, response.status, response.url)
   if (shouldCapture) {
     const request = _getRequest(requestInfo, requestInit)
@@ -131,6 +131,7 @@ function _fetchResponseHandler(
       },
       response: {
         status: response.status,
+        body: await response.text(),
         responseHeaders,
         responseCookies,
       },
@@ -434,6 +435,7 @@ function _createEvent(data: {
 
   response: {
     status: number
+    body?: string
     responseHeaders?: Record<string, string>
     responseCookies?: Record<string, string>
   }
@@ -462,6 +464,7 @@ function _createEvent(data: {
     contexts: {
       response: {
         status_code: response.status,
+        body: response.body,
         headers: response.responseHeaders,
         cookies: response.responseCookies,
         body_size: _getResponseSizeFromHeaders(response.responseHeaders),

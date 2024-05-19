@@ -102,12 +102,12 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
           ? bnOrZero(fromBaseUnit(send.value, send.asset?.precision ?? 18)).toFixed()
           : '-',
         inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
-        inputAddresses: `"${send?.from.join('\n')}"` ?? '-',
+        inputAddresses: send ? `"${send?.from.join('\n')}"` : '-',
         outputAmount: receive
           ? bnOrZero(fromBaseUnit(receive.value, receive.asset?.precision ?? 18)).toFixed()
           : '-',
         outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',
-        outputAddresses: `"${receive?.from.join('\n')}"` ?? '-',
+        outputAddresses: receive ? `"${receive?.from.join('\n')}"` : '-',
       })
     }
 

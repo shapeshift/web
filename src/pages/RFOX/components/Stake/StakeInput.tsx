@@ -113,6 +113,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
   )
   const [showWarning, setShowWarning] = useState(false)
+  const [collapseIn, setCollapseIn] = useState(false)
   const percentOptions = useMemo(() => [1], [])
 
   // TODO(gomes): wrong. This can be crypto or fiat.
@@ -132,6 +133,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     () => bnOrZero(amountUserCurrency).plus(amountCryptoPrecision).gt(0),
     [amountCryptoPrecision, amountUserCurrency],
   )
+
+  useEffect(() => {
+    // Only set this once, never collapse out
+    if (collapseIn) return
+    if (isValidStakingAmount) setCollapseIn(true)
+  }, [collapseIn, isValidStakingAmount])
 
   const stakingAssetBalanceFilter = useMemo(
     () => ({
@@ -451,12 +458,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             />
             <FormDivider />
             <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
-            <Collapse in={isValidStakingAmount}>
+            <Collapse in={collapseIn}>
               {stakingAssetAccountId && (
                 <StakeSummary
                   assetId={stakingAsset.assetId}
                   stakingAmountCryptoPrecision={amountCryptoPrecision}
-                  stakingAssetAccountId={stakingAssetAccountId}
                 />
               )}
               <CardFooter

@@ -115,34 +115,23 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency.price],
   )
 
-  const { data: userBalanceOf, isSuccess: isUserBalanceOfSuccess } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'balanceOf',
-    args: [getAddress(stakingAssetAccountAddress)],
-    chainId: arbitrum.id,
-    query: {
-      select: data => data.toString(),
-    },
-  })
-
-  const { data: contractBalanceOf, isSuccess: isContractBalanceOfSuccess } = useReadContract({
+  const { data: newContractBalanceOf, isSuccess: isNewContractBalanceOfSuccess } = useReadContract({
     abi: erc20ABI,
     address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
     functionName: 'balanceOf',
     args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
     chainId: arbitrum.id,
     query: {
-      select: data => data.toString(),
+      select: data => bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit),
     },
   })
 
   const shareOfPoolPercentage = useMemo(
     () =>
-      bnOrZero(userBalanceOf)
-        .div(contractBalanceOf ?? 0)
+      bnOrZero(confirmedQuote.stakingAmountCryptoBaseUnit)
+        .div(newContractBalanceOf ?? 0)
         .toFixed(4),
-    [contractBalanceOf, userBalanceOf],
+    [confirmedQuote.stakingAmountCryptoBaseUnit, newContractBalanceOf],
   )
 
   // Approval/Allowance bits
@@ -432,7 +421,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
             )}
             <TimelineItem>
               <CustomRow>
-                <Skeleton isLoaded={isUserBalanceOfSuccess && isContractBalanceOfSuccess}>
+                <Skeleton isLoaded={isNewContractBalanceOfSuccess}>
                   <Row.Value>
                     <Amount.Percent value={shareOfPoolPercentage} />
                   </Row.Value>

@@ -64,7 +64,7 @@ export const AddAccountModal = () => {
   const isSnapInstalled = Boolean(useIsSnapInstalled())
 
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-  const unsupportedChainIds = useMemo(() => {
+  const unsupportedSnapChainIds = useMemo(() => {
     if (!isMetaMaskMultichainWallet) return []
     if (nextAccountNumber === null) return []
 
@@ -80,8 +80,8 @@ export const AddAccountModal = () => {
   }, [chainIds, isMetaMaskMultichainWallet, isSnapInstalled, nextAccountNumber, wallet])
 
   const isUnsupportedSnapChain = useMemo(
-    () => unsupportedChainIds.includes(selectedChainId ?? ''),
-    [selectedChainId, unsupportedChainIds],
+    () => unsupportedSnapChainIds.includes(selectedChainId ?? ''),
+    [selectedChainId, unsupportedSnapChainIds],
   )
 
   const { close, isOpen } = useModal('addAccount')

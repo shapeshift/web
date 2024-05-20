@@ -171,13 +171,18 @@ export const canAddMetaMaskAccount = ({
   wallet: HDWallet
   isSnapInstalled: boolean
 }) => {
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+
+  if (!isMetaMaskMultichainWallet)
+    throw new Error(
+      'canAddMetaMaskAccount should only be called in the context of a MetaMask adapter',
+    )
+
   // Can always add 0th account regardless of chain/snap installation
   if (accountNumber === 0) return true
 
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-
   // MM without snaps never support multi-account, regardless of chain
-  if (!(isMetaMaskMultichainWallet && isSnapInstalled)) return false
+  if (!isSnapInstalled) return false
 
   // MM doesn't support multi-account for EVM chains, regardless of snap installation
   // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account

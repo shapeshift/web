@@ -14,7 +14,8 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import { type ChainId } from '@shapeshiftoss/caip'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -22,6 +23,10 @@ import { useSelector } from 'react-redux'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import {
+  canAddMetaMaskAccount,
+  useIsSnapInstalled,
+} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
@@ -48,12 +53,35 @@ export const AddAccountModal = () => {
   const chainIds = useSelector(selectPortfolioChainIdsSortedUserCurrency)
 
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
-  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
   const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
 
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
   const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
   const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
     selectMaybeNextAccountNumberByChainId(s, filter),
+  )
+
+  const isSnapInstalled = Boolean(useIsSnapInstalled())
+
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+  const unsupportedSnapChainIds = useMemo(() => {
+    if (!isMetaMaskMultichainWallet) return []
+    if (nextAccountNumber === null) return []
+
+    return chainIds.filter(
+      chainId =>
+        !canAddMetaMaskAccount({
+          accountNumber: nextAccountNumber,
+          chainId,
+          wallet,
+          isSnapInstalled,
+        }),
+    )
+  }, [chainIds, isMetaMaskMultichainWallet, isSnapInstalled, nextAccountNumber, wallet])
+
+  const isUnsupportedSnapChain = useMemo(
+    () => unsupportedSnapChainIds.includes(selectedChainId ?? ''),
+    [selectedChainId, unsupportedSnapChainIds],
   )
 
   const { close, isOpen } = useModal('addAccount')
@@ -78,6 +106,7 @@ export const AddAccountModal = () => {
         accountNumber,
         chainIds,
         wallet,
+        isSnapInstalled,
       })
 
       const { getAccount } = portfolioApi.endpoints
@@ -109,6 +138,7 @@ export const AddAccountModal = () => {
     assets,
     close,
     dispatch,
+    isSnapInstalled,
     nextAccountNumber,
     selectedChainId,
     toast,
@@ -148,13 +178,21 @@ export const AddAccountModal = () => {
                 <AlertDescription>{translate('accounts.requiresPriorTxHistory')}</AlertDescription>
               </Alert>
             )}
+            {isUnsupportedSnapChain && (
+              <Alert size='sm'>
+                <AlertIcon as={FaInfoCircle} />
+                <AlertDescription>
+                  {translate('walletProvider.metaMaskSnap.multiAccountUnsupported')}
+                </AlertDescription>
+              </Alert>
+            )}
           </Stack>
         </ModalBody>
         <ModalFooter>
           <Button
             colorScheme='blue'
             width='full'
-            isDisabled={!isAbleToAddAccount}
+            isDisabled={!isAbleToAddAccount || isUnsupportedSnapChain}
             onClick={handleAddAccount}
           >
             {translate('accounts.addAccount')}

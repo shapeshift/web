@@ -68,6 +68,7 @@ export const LedgerChains = () => {
           accountNumber: 0,
           chainIds,
           wallet: walletState.wallet,
+          isSnapInstalled: false,
         })
 
         const accountIds = Object.keys(accountMetadataByAccountId)

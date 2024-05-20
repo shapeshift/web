@@ -313,17 +313,15 @@ export const zapper = createApi({
         const state = getState() as ReduxState
         const ReadOnlyAssets = selectFeatureFlag(state, 'ReadOnlyAssets')
 
-        if (!ReadOnlyAssets)
-          return {
-            data: {
-              userData: [],
-              opportunities: {},
-              metadataByProvider: {},
-            },
-          }
-
         try {
-          if (!evmAccountIds.length) throw new Error('Not ready')
+          if (!ReadOnlyAssets || !evmAccountIds.length)
+            return {
+              data: {
+                userData: [],
+                opportunities: {},
+                metadataByProvider: {},
+              },
+            }
 
           const assets = selectAssets(state)
           const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)

@@ -118,6 +118,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           // only some wallets support multi account
           (!isMultiAccountWallet ||
             // MM without snaps does not support non-EVM chains, hence no multi-account
+            // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
             (isMetaMaskMultichainWallet && !isSnapInstalled))
         )
           break

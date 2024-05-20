@@ -421,6 +421,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
             )}
             <TimelineItem>
               <CustomRow>
+                <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
                 <Skeleton isLoaded={isNewContractBalanceOfSuccess}>
                   <Row.Value>
                     <Amount.Percent value={shareOfPoolPercentage} />

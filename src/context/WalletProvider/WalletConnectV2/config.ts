@@ -6,6 +6,7 @@ import {
   arbitrum,
   arbitrumNova,
   avalanche,
+  base,
   bsc,
   gnosis,
   mainnet,
@@ -56,6 +57,7 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     avalanche,
     arbitrum,
     arbitrumNova,
+    base,
   ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain
@@ -77,6 +79,7 @@ const {
   REACT_APP_ETHEREUM_NODE_URL,
   REACT_APP_ARBITRUM_NODE_URL,
   REACT_APP_ARBITRUM_NOVA_NODE_URL,
+  REACT_APP_BASE_NODE_URL,
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
@@ -102,5 +105,6 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.EthereumMainnet]: REACT_APP_ETHEREUM_NODE_URL,
     [CHAIN_REFERENCE.ArbitrumMainnet]: REACT_APP_ARBITRUM_NODE_URL,
     [CHAIN_REFERENCE.ArbitrumNovaMainnet]: REACT_APP_ARBITRUM_NOVA_NODE_URL,
+    [CHAIN_REFERENCE.BaseMainnet]: REACT_APP_BASE_NODE_URL,
   },
 }

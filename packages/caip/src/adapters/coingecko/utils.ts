@@ -11,6 +11,8 @@ import {
   arbitrumNovaChainId,
   avalancheAssetId,
   avalancheChainId,
+  baseAssetId,
+  baseChainId,
   bchChainId,
   bscAssetId,
   bscChainId,
@@ -164,6 +166,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Base)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BaseMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Base],
+          })
+          prev[baseChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -175,6 +191,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [gnosisChainId]: { [gnosisAssetId]: 'xdai' },
       [arbitrumChainId]: { [arbitrumAssetId]: 'ethereum' },
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
+      [baseChainId]: { [baseAssetId]: 'ethereum' },
     },
   )
 

@@ -2,6 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
   avalancheAssetId,
+  baseAssetId,
   bscAssetId,
   ethAssetId,
   fromAssetId,
@@ -39,6 +40,8 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === gnosisAssetId
     case KnownChainIds.ArbitrumMainnet:
       return assetId === arbitrumAssetId
+    case KnownChainIds.BaseMainnet:
+      return assetId === baseAssetId
     default:
       return false
   }

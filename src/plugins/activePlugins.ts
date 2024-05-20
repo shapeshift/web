@@ -2,6 +2,7 @@ import arbitrum from 'plugins/arbitrum'
 import arbitrumNova from 'plugins/arbitrumNova'
 import arkeoAirdrop from 'plugins/arkeo'
 import avalanche from 'plugins/avalanche'
+import base from 'plugins/base'
 import bitcoin from 'plugins/bitcoin'
 import bitcoincash from 'plugins/bitcoincash'
 import bnbsmartchain from 'plugins/bnbsmartchain'
@@ -34,4 +35,5 @@ export const activePlugins = [
   bnbsmartchain,
   arbitrum,
   arbitrumNova,
+  base,
 ]

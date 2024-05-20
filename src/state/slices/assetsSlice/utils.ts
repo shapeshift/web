@@ -57,6 +57,8 @@ export const chainIdFeeAssetReferenceMap = (
             return ASSET_REFERENCE.Arbitrum
           case CHAIN_REFERENCE.ArbitrumNovaMainnet:
             return ASSET_REFERENCE.ArbitrumNova
+          case CHAIN_REFERENCE.BaseMainnet:
+            return ASSET_REFERENCE.Base
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

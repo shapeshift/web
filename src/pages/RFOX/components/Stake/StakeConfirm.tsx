@@ -189,6 +189,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
       feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
       to: fromAssetId(foxOnArbitrumOneAssetId).assetReference,
+      from: stakingAssetAccountAddress,
       data: approvalCallData,
       wallet: wallet!, // see isGetApprovalFeesEnabled
     }),
@@ -290,6 +291,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   } = useQuery({
     ...reactQueries.common.evmFees({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
       data: stakeCallData!, // see isGetStakeFeesEnabled
       value: '0', // contract call

@@ -88,11 +88,14 @@ export const common = createQueryKeys('common', {
     wallet,
     accountNumber,
     to,
+    from,
     value,
     feeAsset,
     feeAssetMarketData,
   }: {
     to: string
+    // Only used to make the queryKey unique by from address, since wallet doesn't serialize and is excluded from the queryKey
+    from: string
     accountNumber: number
     wallet: HDWallet
     data: string
@@ -100,7 +103,7 @@ export const common = createQueryKeys('common', {
     feeAsset: Asset
     feeAssetMarketData: MarketData
   }) => ({
-    queryKey: ['evmFees', to, accountNumber, data, value],
+    queryKey: ['evmFees', to, from, accountNumber, data, value],
     queryFn: async () => {
       const adapter = assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId)
 

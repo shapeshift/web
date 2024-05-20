@@ -209,6 +209,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     () =>
       Boolean(
         hasEnoughBalance &&
+          stakingAssetAccountId &&
           stakingAssetAccountNumber !== undefined &&
           isValidStakingAmount &&
           wallet &&
@@ -223,6 +224,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       ),
     [
       hasEnoughBalance,
+      stakingAssetAccountId,
       stakingAssetAccountNumber,
       isValidStakingAmount,
       wallet,
@@ -244,6 +246,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   } = useQuery({
     ...reactQueries.common.evmFees({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetStakeFeesEnabled
       accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
       data: callData!, // see isGetStakeFeesEnabled
       value: '0', // contract call
@@ -274,6 +277,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     () =>
       Boolean(
         hasEnoughBalance &&
+          stakingAssetAccountId &&
           isApprovalRequired &&
           stakingAssetAccountId &&
           wallet &&
@@ -303,6 +307,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
       feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
       to: fromAssetId(foxOnArbitrumOneAssetId).assetReference,
+      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetApprovalFeesEnabled
       data: approvalCallData,
       wallet: wallet!, // see isGetApprovalFeesEnabled
     }),

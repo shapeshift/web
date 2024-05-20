@@ -303,9 +303,6 @@
       "connecting": "Bağlanıyor..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Hesapları Yönet"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -602,7 +599,7 @@
       },
       "trade": {
         "title": "Takas veya Köprü",
-        "body": "Kriptonuzu köprüleme takası"
+        "body": "Kriptonuzu takas edin veya köprüleyin"
       },
       "buy": {
         "title": "Al veya Sat",
@@ -1413,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "Ledger cüzdanına bağlanılamıyor",
-        "unknown": "Ledger cüzdanıyla iletişimde beklenmeyen bir hata oluştu"
+        "unknown": "Ledger cüzdanıyla iletişimde beklenmeyen bir hata oluştu",
+        "appNotOpen": "%{app} Ledger'da açık değil",
+        "appNotOpenDescription": "Lütfen cihazınızda %{app} uygulamasını açın ve tekrar deneyin."
       },
       "connect": {
         "header": "Ledger'i Eşleştir",
@@ -1790,10 +1789,29 @@
     "viewAccount": "Hesabı görüntüle",
     "expandAccount": "Hesabı genişlet"
   },
-  "accountManagementSidebar": {
-    "title": "%{chainNamespaceDisplayName} Hesaplarını İçe Aktarın",
-    "description": "Aşağıdaki listeden içe aktarmak istediğiniz hesapları seçin.",
-    "import": "İçe aktar"
+  "accountManagement": {
+    "menuTitle": "Hesapları Yönet",
+    "manageAccounts": {
+      "title": "Hesapları Yönet",
+      "description": "Bunlar bağladığınız zincirler ve içe aktardığınız hesapların sayısıdır.",
+      "emptyList": "Henüz bağlı hesabınız yok. Başlamak için bir zincir ekleyin.",
+      "addChain": "Zincir ekle",
+      "addAnotherChain": "Başka bir zincir ekle"
+    },
+    "selectChain": {
+      "title": "Zincir Seç",
+      "description": "Her zincire ait bakiyenizi görmek için her zinciri bağlamanız ve içe aktarılacak hesapları seçmeniz gerekir.",
+      "searchChains": "İsme göre ara"
+    },
+    "importAccounts": {
+      "title": "%{chainNamespaceDisplayName} Hesaplarını İçe Aktarın",
+      "description": "Aşağıdaki listeden içe aktarmak istediğiniz hesapları seçin.",
+      "import": "İçe Aktar"
+    },
+    "ledgerOpenApp": {
+      "title": "%{appName} Uygulamasını açın",
+      "description": "Bu zinciri bağlamak için cihazınızda Ledger uygulamasını açmanız gerekecek."
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2243,7 +2261,12 @@
       "borrowingHalted": "Borçlanma geçici olarak durduruldu.",
       "repaymentsDisabled": "Geri ödemeler geçici olarak devre dışı bırakıldı.",
       "borrowingDisabled": "Ödünç alma geçici olarak devre dışı bırakıldı.",
-      "amountTooLowToReturnCollateral": "Teminatın iadesi için tutar çok düşük"
+      "amountTooLowToReturnCollateral": "Teminatın iadesi için tutar çok düşük",
+      "amountTooLowToReturnCollateralTooltip": "Geri ödeme teminatınız iade edilemeyecek kadar düşük. Lütfen daha yüksek bir tutarla tekrar deneyin veya kısmi bir tutar ödeyin (bu, teminatınızı iade etmeyecek ancak borcunuzu azaltacaktır).",
+      "amountTooSmallUnknownMinimumTooltip": "Girdiğiniz geri ödeme tutarı çok küçük. Lütfen daha yüksek bir tutarla tekrar deneyin.",
+      "repaymentUnavailableTooltip": "Kredinizi geri ödemeniz henüz mümkün değil. Lütfen geri ödeme kilidi bitene kadar bekleyin.",
+      "repaymentsHaltedTooltip": "Geri ödemeler geçici olarak durduruldu. Lütfen daha sonra tekrar deneyiniz.",
+      "errorGettingQuote": "Fiyat teklifi alınırken bir hata oluştu. Lütfen tekrar deneyin."
     },
     "quote": {
       "collateral": "Kredinize karşılık teminat altına alınacak toplam varlık tutarı",
@@ -2374,6 +2397,20 @@
       "title": "İzleme listenizi oluşturmaya başlayın",
       "body": "Yıldız simgesini gördüğünüz her yerde, onu buraya öğe eklemek için onu kullanabilirsiniz.",
       "cta": "Daha fazla varlığı keşfedin"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Staking ile daha fazla kazanın",
+      "body": "Varlıklarınızı THORChain Savers Vault ile stake ederek pasif gelir elde edin."
+    },
+    "pools": {
+      "title": "Havuzlar",
+      "body": "Havuzlardaki işlemlerden Ücret kazanın."
+    },
+    "lending": {
+      "title": "Borç Verme",
+      "body": "Varlıklarınıza karşılık borç alın."
     }
   }
 }

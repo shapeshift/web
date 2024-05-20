@@ -266,7 +266,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       Array.from(toggledAccountIds).map(async accountId => {
         const isEnabled = selectIsAccountIdEnabled(store.getState(), { accountId })
         if (isEnabled) {
-          console.log(`Account ${accountId} is already enabled`)
           return
         }
         await dispatch(

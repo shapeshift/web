@@ -309,8 +309,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     _isEstimatedFormFeesLoading
 
   useEffect(() => {
+    // Since we are debouncing the query, ensure reverting back to an empty input doesn't end up in the previous error being displayed
+    if (!hasEnteredPositiveAmount) return setValue(SendFormFields.AmountFieldError, '')
+
     setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')
-  }, [error, setValue])
+  }, [error, hasEnteredPositiveAmount, setValue])
 
   useEffect(() => {
     if (!estimatedFees) return

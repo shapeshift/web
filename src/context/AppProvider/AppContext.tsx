@@ -137,7 +137,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           // This means we would get the same address for all account numbers and end in an infinite loop here
           if (
             accountNumber > 0 &&
-            // Cosmos SDK chains account derivation > 0 seem rugged for smaps, wut?
+            // Cosmos SDK chains account derivation > 0 is rugged for snaps, wut?
             (isEvmChainId(accountChainId) ||
               fromChainId(accountChainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) &&
             isMetaMaskMultichainWallet

@@ -65,9 +65,6 @@ describe('portfolioSlice', () => {
 
           const portfolio = mockUpsertPortfolio([ethAccount], assetIds)
           store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-          for (const accountId of portfolio.accounts.ids) {
-            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
-          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -92,9 +89,6 @@ describe('portfolioSlice', () => {
 
           const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
           store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-          for (const accountId of portfolio.accounts.ids) {
-            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
-          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -111,9 +105,6 @@ describe('portfolioSlice', () => {
 
           const portfolio = mockUpsertPortfolio([btcAccount], assetIds)
           store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-          for (const accountId of portfolio.accounts.ids) {
-            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
-          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -135,9 +126,6 @@ describe('portfolioSlice', () => {
 
           const portfolio = mockUpsertPortfolio([btcAccount, btcAccount2], assetIds)
           store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-          for (const accountId of portfolio.accounts.ids) {
-            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
-          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -186,9 +174,6 @@ describe('portfolioSlice', () => {
 
           const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2, btcAccount], assetIds)
           store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-          for (const accountId of portfolio.accounts.ids) {
-            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
-          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })
@@ -227,9 +212,6 @@ describe('portfolioSlice', () => {
 
           const portfolio = mockUpsertPortfolio([ethAccount, btcAccount], assetIds)
           store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-          for (const accountId of portfolio.accounts.ids) {
-            store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
-          }
 
           expect(store.getState().portfolio).toMatchSnapshot()
         })

@@ -51,6 +51,8 @@ const selectLendingQuoteQuery = memoize(
     const quote = data
     const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
+    const isStreaming = bnOrZero(quote.streaming_swap_blocks).gt(0)
+
     const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_collateral_deposited,
     ).toString()
@@ -142,6 +144,7 @@ const selectLendingQuoteQuery = memoize(
       quoteInboundConfirmationMs,
       quoteTotalTimeMs,
       quoteExpiry,
+      isStreaming,
     }
   },
 )

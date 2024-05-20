@@ -87,6 +87,7 @@ const selectLendingQuoteQuery = memoize(
     const quoteCollateralizationRatioPercentDecimal = bnOrZero(quoteCollateralizationRatioPercent)
       .div(100)
       .toString()
+    const quoteSlippageBps = quote.fees.slippage_bps
     const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
       .div(BASE_BPS_POINTS)
       .toString()
@@ -136,6 +137,7 @@ const selectLendingQuoteQuery = memoize(
       quoteCollateralizationRatioPercentDecimal,
       quoteSlippageBorrowedAssetCryptoPrecision,
       quoteSlippageBorrowedAssetUsd,
+      quoteSlippageBps,
       quoteTotalFeesFiatUserCurrency,
       quoteTotalFeesFiatUsd,
       quoteInboundAddress,

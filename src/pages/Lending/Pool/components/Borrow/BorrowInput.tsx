@@ -328,7 +328,7 @@ export const BorrowInput = ({
     ],
   )
   const {
-    data,
+    data: _lendingQuoteData,
     isLoading: isLendingQuoteLoading,
     isRefetching: isLendingQuoteRefetching,
     isSuccess: isLendingQuoteSuccess,
@@ -336,7 +336,7 @@ export const BorrowInput = ({
     error: lendingQuoteError,
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
-  const lendingQuoteData = isLendingQuoteError ? null : data
+  const lendingQuoteData = isLendingQuoteError ? null : _lendingQuoteData
 
   const quoteSlippageDecimalPercentage = useMemo(() => {
     return lendingQuoteData

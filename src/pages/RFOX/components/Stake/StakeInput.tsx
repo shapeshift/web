@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -84,6 +84,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const {
     formState: { errors },
     control,
+    trigger,
   } = methods
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -132,6 +133,39 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [amountCryptoPrecision, amountUserCurrency],
   )
 
+  const stakingAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: stakingAssetAccountId ?? '',
+      assetId: stakingAssetId,
+    }),
+    [stakingAssetAccountId, stakingAssetId],
+  )
+  const stakingAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetBalanceFilter),
+  )
+
+  const stakingAssetFiatBalance = bnOrZero(stakingAssetBalanceCryptoPrecision)
+    .times(stakingAssetMarketData.price)
+    .toString()
+
+  const validateHasEnoughBalance = useCallback(
+    (input: string) => {
+      if (bnOrZero(input).lte(0)) return true
+
+      const hasEnoughBalance = bnOrZero(input).lte(
+        bnOrZero(isFiat ? stakingAssetFiatBalance : stakingAssetBalanceCryptoPrecision),
+      )
+
+      return hasEnoughBalance
+    },
+    [isFiat, stakingAssetBalanceCryptoPrecision, stakingAssetFiatBalance],
+  )
+
+  const hasEnoughBalance = useMemo(
+    () => validateHasEnoughBalance(isFiat ? amountUserCurrency : amountCryptoPrecision),
+    [amountCryptoPrecision, amountUserCurrency, isFiat, validateHasEnoughBalance],
+  )
+
   const { data: cooldownPeriod } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
@@ -174,7 +208,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const isGetStakeFeesEnabled = useMemo(
     () =>
       Boolean(
-        stakingAssetAccountNumber !== undefined &&
+        hasEnoughBalance &&
+          stakingAssetAccountNumber !== undefined &&
           isValidStakingAmount &&
           wallet &&
           stakingAsset &&
@@ -187,6 +222,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           !Boolean(errors.amountFieldInput),
       ),
     [
+      hasEnoughBalance,
       stakingAssetAccountNumber,
       isValidStakingAmount,
       wallet,
@@ -237,7 +273,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const isGetApprovalFeesEnabled = useMemo(
     () =>
       Boolean(
-        isApprovalRequired &&
+        hasEnoughBalance &&
+          isApprovalRequired &&
           stakingAssetAccountId &&
           wallet &&
           feeAsset &&
@@ -248,6 +285,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       errors.amountFieldInput,
       feeAsset,
       feeAssetMarketData,
+      hasEnoughBalance,
       isApprovalRequired,
       stakingAssetAccountId,
       wallet,
@@ -318,17 +356,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     )
   }, [stakingAsset?.assetId])
 
-  const stakingAssetBalanceFilter = useMemo(
-    () => ({
-      accountId: stakingAssetAccountId ?? '',
-      assetId: stakingAssetId,
-    }),
-    [stakingAssetAccountId, stakingAssetId],
-  )
-  const stakingAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetBalanceFilter),
-  )
-
   const feeAssetBalanceFilter = useMemo(
     () => ({
       accountId: stakingAssetAccountId ?? '',
@@ -339,46 +366,50 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, feeAssetBalanceFilter),
   )
-  const stakingAssetFiatBalance = bnOrZero(stakingAssetBalanceCryptoPrecision)
-    .times(stakingAssetMarketData.price)
-    .toString()
 
-  // Simple memoized value vs. react-hook-form error because of the chicken and egg situation of this being dependant of fees being loaded,
-  // and having to be reset when going from not enough fee balance to not enough balance.
-  const hasEnoughFeeBalanceError = useMemo(() => {
-    const fees = approvalFees || stakeFees
+  const validateHasEnoughFeeBalance = useCallback(
+    (input: string) => {
+      if (bnOrZero(input).isZero()) return true
+      if (bnOrZero(feeAssetBalanceCryptoPrecision).isZero()) return false
 
-    const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-      toBaseUnit(feeAssetBalanceCryptoPrecision, feeAsset?.precision ?? 0),
-    )
+      const fees = approvalFees || stakeFees
 
-    if (!hasEnoughFeeBalance)
-      return translate('modals.send.errors.notEnoughNativeToken', { asset: feeAsset?.symbol })
+      const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
+        toBaseUnit(feeAssetBalanceCryptoPrecision, feeAsset?.precision ?? 0),
+      )
 
-    return
+      if (!hasEnoughFeeBalance) return false
+
+      return true
+    },
+    [approvalFees, feeAsset?.precision, feeAssetBalanceCryptoPrecision, stakeFees],
+  )
+  // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
+  useEffect(() => {
+    trigger('amountFieldInput')
   }, [
     approvalFees,
     feeAsset?.precision,
     feeAsset?.symbol,
     feeAssetBalanceCryptoPrecision,
+    amountCryptoPrecision,
+    amountUserCurrency,
     stakeFees,
-    translate,
+    trigger,
   ])
 
   const amountFieldInputRules = useMemo(() => {
     return {
       defaultValue: '',
       validate: {
-        hasEnoughBalance: (input: string) => {
-          const hasEnoughBalance = bnOrZero(input).lte(
-            bnOrZero(isFiat ? stakingAssetFiatBalance : stakingAssetBalanceCryptoPrecision),
-          )
-
-          return hasEnoughBalance || translate('common.insufficientFunds')
-        },
+        hasEnoughBalance: (input: string) =>
+          validateHasEnoughBalance(input) || translate('common.insufficientFunds'),
+        hasEnoughFeeBalance: (input: string) =>
+          validateHasEnoughFeeBalance(input) ||
+          translate('modals.send.errors.notEnoughNativeToken', { asset: feeAsset?.symbol }),
       },
     }
-  }, [isFiat, stakingAssetFiatBalance, stakingAssetBalanceCryptoPrecision, translate])
+  }, [feeAsset?.symbol, translate, validateHasEnoughBalance, validateHasEnoughFeeBalance])
 
   if (!stakingAsset) return null
 
@@ -478,20 +509,15 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               onClick={handleWarning}
               isDisabled={
                 Boolean(errors.amountFieldInput) ||
-                hasEnoughFeeBalanceError ||
                 !runeAddress ||
                 !isValidStakingAmount ||
                 !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
                 !cooldownPeriod
               }
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
-              colorScheme={
-                Boolean(errors.amountFieldInput || hasEnoughFeeBalanceError) ? 'red' : 'blue'
-              }
+              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
             >
-              {errors.amountFieldInput?.message ||
-                hasEnoughFeeBalanceError ||
-                translate('RFOX.stake')}
+              {errors.amountFieldInput?.message || translate('RFOX.stake')}
             </Button>
           </CardFooter>
         </FormProvider>

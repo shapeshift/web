@@ -880,6 +880,7 @@
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
     "enableMetaMaskSnap": "use the multichain snap",
+    "connectChain": "connect %{chainName}",
     "approvalGasFee": "Approval gas fee %{fee}",
     "approvalFailed": "A problem occurred during allowance approval",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
@@ -1467,7 +1468,8 @@
       "andMore": "...and more",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled",
-      "dontAskAgain": "Don't ask again"
+      "dontAskAgain": "Don't ask again",
+      "multiAccountUnsupported": "Multi-account is unsupported for this chain using the Multichain Snap on MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",

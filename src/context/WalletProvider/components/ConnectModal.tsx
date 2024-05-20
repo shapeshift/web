@@ -29,6 +29,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
   headerText,
   loading,
   onPairDeviceClick: handlePairDeviceClick,
+  children,
 }) => {
   return (
     <>
@@ -37,6 +38,14 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
       </ModalHeader>
       <ModalBody>
         <Text mb={4} color='text.subtle' translation={bodyText} />
+        {error && (
+          <Alert status='info' mt={4}>
+            <AlertIcon />
+            <AlertDescription>
+              <Text translation={error} />
+            </AlertDescription>
+          </Alert>
+        )}
         {loading ? (
           <Button
             width='full'
@@ -59,14 +68,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />
           </Button>
         )}
-        {error && (
-          <Alert status='info' mt={4}>
-            <AlertIcon />
-            <AlertDescription>
-              <Text translation={error} />
-            </AlertDescription>
-          </Alert>
-        )}
+        {children}
       </ModalBody>
     </>
   )

@@ -494,6 +494,19 @@ export const BorrowInput = ({
 
   if (!(collateralAsset && borrowAsset && collateralFeeAsset)) return null
 
+  console.log({
+    isHardCapReached,
+    isThorchainLendingBorrowEnabled,
+    depositAmountCryptoPrecision,
+    isLendingQuoteError,
+    isLendingQuoteLoading,
+    isLendingQuoteRefetching,
+    quoteErrorTranslation,
+    isEstimatedFeesDataError,
+    isEstimatedFeesDataLoading,
+    disableSmartContractDeposit,
+  })
+
   return (
     <SlideTransition>
       <WarningAcknowledgement

@@ -92,7 +92,7 @@ export const CHAIN_REFERENCE = {
   GnosisMainnet: '100', // https://docs.gnosischain.com/tools/wallets/metamask/
   ArbitrumMainnet: '42161', // https://chainlist.org/chain/42161
   ArbitrumNovaMainnet: '42170', // https://chainlist.org/chain/42170
-  BaseMainnet: '8453', // https://chainlist.org/chain/42170
+  BaseMainnet: '8453', // https://chainlist.org/chain/8453
 } as const
 
 export const ASSET_NAMESPACE = {

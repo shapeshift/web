@@ -11,6 +11,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.GnosisMainnet && !enabledFlags.Gnosis) return false
   if (chainId === KnownChainIds.PolygonMainnet && !enabledFlags.Polygon) return false
   if (chainId === KnownChainIds.OptimismMainnet && !enabledFlags.Optimism) return false
+  if (chainId === KnownChainIds.BaseMainnet && !enabledFlags.Base) return false
 
   return true
 })

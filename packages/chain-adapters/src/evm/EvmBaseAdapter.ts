@@ -11,6 +11,7 @@ import {
   supportsArbitrum,
   supportsArbitrumNova,
   supportsAvalanche,
+  supportsBase,
   supportsBSC,
   supportsETH,
   supportsGnosis,
@@ -55,6 +56,7 @@ import type {
   arbitrum,
   arbitrumNova,
   avalanche,
+  base,
   bnbsmartchain,
   ethereum,
   gnosis,
@@ -79,6 +81,7 @@ export const evmChainIds = [
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.ArbitrumNovaMainnet,
+  KnownChainIds.BaseMainnet,
 ] as const
 
 export type EvmChainId = (typeof evmChainIds)[number]
@@ -92,6 +95,7 @@ export type EvmChainAdapter =
   | gnosis.ChainAdapter
   | arbitrum.ChainAdapter
   | arbitrumNova.ChainAdapter
+  | base.ChainAdapter
 
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
@@ -181,6 +185,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         return supportsArbitrum(wallet)
       case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
         return supportsArbitrumNova(wallet)
+      case Number(fromChainId(KnownChainIds.BaseMainnet).chainReference):
+        return supportsBase(wallet)
       default:
         return false
     }
@@ -243,6 +249,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://nova.arbiscan.io',
+      },
+      [KnownChainIds.BaseMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://basescan.org',
       },
     }[this.chainId]
 

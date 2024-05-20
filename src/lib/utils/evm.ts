@@ -136,7 +136,7 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
     maxPriorityFeePerGas,
   } = args
 
-  // optimism l1 fee if exists or 0
+  // l1 fee if exists or 0
   const l1Fee = bnOrZero(l1GasPrice).times(bnOrZero(l1GasLimit))
 
   // eip1559 fees

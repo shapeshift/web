@@ -10,7 +10,8 @@ import polygon from './eip155_137/adapter.json'
 import gnosis from './eip155_100/adapter.json'
 import arbitrum from './eip155_42161/adapter.json'
 import arbitrumNova from './eip155_42170/adapter.json'
+import base from './eip155_8453/adapter.json'
 import cosmos from './cosmos_cosmoshub-4/adapter.json'
 import thorchain from './cosmos_thorchain-mainnet-v1/adapter.json'
 
-export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, avalanche, thorchain, optimism, bnbsmartchain, polygon, gnosis, arbitrum, arbitrumNova }
+export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, avalanche, thorchain, optimism, bnbsmartchain, polygon, gnosis, arbitrum, arbitrumNova, base }

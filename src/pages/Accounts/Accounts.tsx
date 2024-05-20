@@ -1,5 +1,6 @@
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -7,6 +8,7 @@ import { Route, Switch, useRouteMatch } from 'react-router'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -31,10 +33,14 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   } = useWallet()
   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
 
+  const isSnapInstalled = useIsSnapInstalled()
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   useEffect(() => {
     if (!wallet) return
+    if (isMetaMaskMultichainWallet && !isSnapInstalled) return setIsMultiAccountWallet(false)
+
     setIsMultiAccountWallet(wallet.supportsBip44Accounts())
-  }, [wallet])
+  }, [isMetaMaskMultichainWallet, isSnapInstalled, wallet])
 
   const { open: openAddAccountModal } = useModal('addAccount')
   const { open: openManageAccountsModal } = useModal('manageAccounts')

@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { knownChainIds } from 'constants/chains'
@@ -64,7 +65,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()
-  const isSnapInstalled = useIsSnapInstalled()
+  const isSnapInstalled = Boolean(useIsSnapInstalled())
   useNfts()
 
   // track anonymous portfolio
@@ -109,11 +110,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       const accountMetadataByAccountId: AccountMetadataById = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
+      const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
-        // only some wallets support multi account
-        if (accountNumber > 0 && !isMultiAccountWallet) break
+        if (
+          accountNumber > 0 &&
+          // only some wallets support multi account
+          (!isMultiAccountWallet ||
+            // MM without snaps does not support non-EVM chains, hence no multi-account
+            // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
+            (isMetaMaskMultichainWallet && !isSnapInstalled))
+        )
+          break
 
-        const input = { accountNumber, chainIds, wallet }
+        const input = { accountNumber, chainIds, wallet, isSnapInstalled }
         const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
         const accountIds = Object.keys(accountIdsAndMetadata)
 

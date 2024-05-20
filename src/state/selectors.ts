@@ -61,7 +61,7 @@ export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
     param => param,
   )(
     (_state: ReduxState, filter: Pick<ParamFilter, T> | null) =>
-      `${param}-${filter?.[param]}` ?? param,
+      `${param}-${filter?.[param] ?? param}`,
   )
 
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')

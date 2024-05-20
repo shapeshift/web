@@ -55,7 +55,7 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
-    enabledAccountIds: [],
+    enabledAccountIds: {},
     wallet: {
       byId: {},
       ids: [],

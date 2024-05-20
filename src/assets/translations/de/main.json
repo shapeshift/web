@@ -303,9 +303,6 @@
       "connecting": "Verbinde..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Konten verwalten"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -602,7 +599,7 @@
       },
       "trade": {
         "title": "Handeln oder \"Bridgen\"",
-        "body": "Handel oder Bridge Kryptowährung"
+        "body": "Kryptowährungen Handeln oder Wechseln"
       },
       "buy": {
         "title": "Kaufen oder Verkaufen",
@@ -1413,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "Ledger Wallet kann nicht verbunden werden",
-        "unknown": "Bei der Kommunikation mit der Ledger Wallet ist ein unerwarteter Fehler aufgetreten"
+        "unknown": "Bei der Kommunikation mit der Ledger Wallet ist ein unerwarteter Fehler aufgetreten",
+        "appNotOpen": "%{app} ist auf Ledger nicht geöffnet",
+        "appNotOpenDescription": "Bitte öffnen Sie die %{app} App auf Ihrem Gerät und versuchen Sie es erneut."
       },
       "connect": {
         "header": "Ledger koppeln",
@@ -1790,10 +1789,29 @@
     "viewAccount": "Konto ansehen",
     "expandAccount": "Konto erweitern"
   },
-  "accountManagementSidebar": {
-    "title": "%{chainNamespaceDisplayName} Konten importieren",
-    "description": "Wählen Sie aus der Liste unten die Konten aus, die Sie importieren möchten.",
-    "import": "Importieren"
+  "accountManagement": {
+    "menuTitle": "Konten verwalten",
+    "manageAccounts": {
+      "title": "Konten verwalten",
+      "description": "Dies sind die Ketten, die Sie verbunden haben, und die Anzahl der Konten, die Sie importiert haben.",
+      "emptyList": "Sie haben noch keine Konten verknüpft. Fügen Sie zunächst eine Kette hinzu.",
+      "addChain": "Kette hinzufügen",
+      "addAnotherChain": "Eine weitere Kette hinzufügen"
+    },
+    "selectChain": {
+      "title": "Kette auswählen",
+      "description": "Um Ihre Salden für jede Kette anzuzeigen, müssen Sie jede Kette verbinden und zu importierende Konten auswählen.",
+      "searchChains": "Suche mittels Namen"
+    },
+    "importAccounts": {
+      "title": "%{chainNamespaceDisplayName} Konten importieren",
+      "description": "Wählen Sie aus der Liste unten die Konten aus, die Sie importieren möchten.",
+      "import": "Importieren"
+    },
+    "ledgerOpenApp": {
+      "title": "Öffnen Sie die %{appName} App",
+      "description": "Um diese Kette zu verbinden, müssen Sie die Ledger-App auf Ihrem Gerät öffnen."
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1921,10 +1939,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "Nicht unterstütztes Netzwerk",
-        "description": "ShapeShift unterstützt derzeit nur %{supportedChainNames} mit WalletConnect."
-      },
       "header": {
         "connectDapp": "dApp verbinden",
         "connectAnotherDapp": "Verbinden Sie eine andere dApp",
@@ -2247,7 +2261,12 @@
       "borrowingHalted": "Ausleihen ist vorübergehend gestoppt.",
       "repaymentsDisabled": "Rückzahlungen sind vorübergehend deaktiviert.",
       "borrowingDisabled": "Ausleihen ist vorübergehend deaktiviert.",
-      "amountTooLowToReturnCollateral": "Betrag zu niedrig, um Sicherheiten zurückzugeben"
+      "amountTooLowToReturnCollateral": "Betrag zu niedrig, um Sicherheiten zurückzugeben",
+      "amountTooLowToReturnCollateralTooltip": "Die Rückzahlung ist zu niedrig, um Ihre Sicherheiten zurückzuerhalten. Bitte versuchen Sie es erneut mit einem höheren Betrag oder zahlen Sie einen Teilbetrag zurück (wodurch Sie Ihre Sicherheiten nicht zurückerhalten, Ihre Schulden jedoch verringern).",
+      "amountTooSmallUnknownMinimumTooltip": "Der von Ihnen eingegebene Rückzahlungsbetrag ist zu gering. Bitte versuchen Sie es erneut mit einem höheren Betrag.",
+      "repaymentUnavailableTooltip": "Eine Rückzahlung Ihres Kredites ist derzeit nicht möglich. Bitte warten Sie, bis die Rückzahlungssperre abgelaufen ist.",
+      "repaymentsHaltedTooltip": "Die Rückzahlungen sind vorübergehend ausgesetzt. Bitte versuchen Sie es später noch einmal.",
+      "errorGettingQuote": "Beim Abrufen des Angebots ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
     },
     "quote": {
       "collateral": "Gesamtvermögenswert, der gegen Ihr Darlehen besichert wird",
@@ -2378,6 +2397,20 @@
       "title": "Beginnen Sie mit dem Aufbau Ihrer Beobachtungsliste",
       "body": "Überall, wo Sie das Sternsymbol sehen, können Sie es verwenden, um Assets hinzuzufügen.",
       "cta": "Weitere Assets entdecken"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Verdienen Sie mehr mit Staking",
+      "body": "Verdienen Sie passives Einkommen, indem Sie Ihr Vermögen bei THORChain Savers Vault einsetzen."
+    },
+    "pools": {
+      "title": "Pools",
+      "body": "Verdienen Sie Gebühren für Trades in Pools."
+    },
+    "lending": {
+      "title": "Ausleihen",
+      "body": "Nehmen Sie einen Kredit auf Ihr Vermögen auf."
     }
   }
 }

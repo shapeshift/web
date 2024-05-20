@@ -44,7 +44,7 @@ export class CoinGeckoMarketService implements MarketService {
   baseUrl: string
 
   constructor() {
-    this.baseUrl = adapters.coingeckoProBaseUrl
+    this.baseUrl = adapters.coingeckoBaseUrl
   }
 
   async findAll(args?: FindAllMarketArgs, orderBy: CoinGeckoSortKey = 'market_cap_desc') {

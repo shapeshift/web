@@ -303,9 +303,6 @@
       "connecting": "Connexion..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Gérer les comptes"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -1413,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "Impossible de connecter le porte-monnaie Ledger",
-        "unknown": "Une erreur inattendue s'est produite lors de la communication avec le porte-monnaie Ledger"
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec le porte-monnaie Ledger",
+        "appNotOpen": "%{app} n'est pas ouvert sur le Ledger",
+        "appNotOpenDescription": "Veuillez ouvrir l'app %{app} sur votre appareil et réessayer."
       },
       "connect": {
         "header": "Appairer Ledger",
@@ -1790,10 +1789,29 @@
     "viewAccount": "Voir le compte",
     "expandAccount": "Développer le compte"
   },
-  "accountManagementSidebar": {
-    "title": "Importer les comptes %{chainNamespaceDisplayName}",
-    "description": "Sélectionnez les comptes que vous souhaitez importer dans la liste ci-dessous.",
-    "import": "Importer"
+  "accountManagement": {
+    "menuTitle": "Gérer les comptes",
+    "manageAccounts": {
+      "title": "Gérer les comptes",
+      "description": "Ce sont les chaînes que vous avez connectées et le nombre de comptes que vous avez importés.",
+      "emptyList": "Vous n'avez pas encore de compte connecté. Ajoutez une chaîne pour commencer.",
+      "addChain": "Ajouter une chaîne",
+      "addAnotherChain": "Ajouter une autre chaîne"
+    },
+    "selectChain": {
+      "title": "Sélectionner la chaîne",
+      "description": "Pour voir vos soldes pour chaque chaîne, vous devrez connecter chaque chaîne et sélectionner les comptes à importer.",
+      "searchChains": "Rechercher par nom"
+    },
+    "importAccounts": {
+      "title": "Importer les comptes %{chainNamespaceDisplayName}",
+      "description": "Sélectionnez les comptes que vous souhaitez importer dans la liste ci-dessous.",
+      "import": "Importer"
+    },
+    "ledgerOpenApp": {
+      "title": "Ouvrir l'app %{appName}",
+      "description": "Pour connecter cette chaîne, vous devrez ouvrir l'app Ledger sur votre appareil."
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1921,10 +1939,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "Chaîne non prise en charge",
-        "description": "ShapeShift ne prend actuellement en charge que %{supportedChainNames} avec WalletConnect."
-      },
       "header": {
         "connectDapp": "Connecter la dApp",
         "connectAnotherDapp": "Connecter une autre dApp",
@@ -2247,7 +2261,12 @@
       "borrowingHalted": "Les emprunts sont temporairement interrompus.",
       "repaymentsDisabled": "Les remboursements sont temporairement désactivés.",
       "borrowingDisabled": "Les emprunts sont temporairement désactivés.",
-      "amountTooLowToReturnCollateral": "Montant trop petit pour restituer le collatéral"
+      "amountTooLowToReturnCollateral": "Montant trop petit pour restituer le collatéral",
+      "amountTooLowToReturnCollateralTooltip": "Le remboursement est trop petit pour que votre collatéral soit restitué. Veuillez réessayer avec un montant plus élevé ou remboursez un montant partiel (ce qui ne vous rendra pas votre collatéral, mais diminuera votre dette).",
+      "amountTooSmallUnknownMinimumTooltip": "Le montant du remboursement que vous avez saisi est trop petit. Veuillez réessayer avec un montant plus grand.",
+      "repaymentUnavailableTooltip": "Il n'est pas encore possible de rembourser votre prêt. Veuillez attendre que le délai de remboursement soit écoulé.",
+      "repaymentsHaltedTooltip": "Les remboursements sont temporairement interrompus. Veuillez réessayer plus tard.",
+      "errorGettingQuote": "Une erreur s'est produite lors de l'obtention du devis. Veuillez réessayer."
     },
     "quote": {
       "collateral": "Montant total des actifs qui seront utilisés comme garantie afin de couvrir votre prêt",
@@ -2378,6 +2397,20 @@
       "title": "Commencez à créer votre liste de suivi",
       "body": "Vous pouvez utiliser l'icône étoile partout où vous la voyez afin d'ajouter des actifs ici.",
       "cta": "Explorez plus d'actifs"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Gagnez davantage avec les mises",
+      "body": "Gagnez un revenu passif en misant vos actifs avec THORChain Savers Vault."
+    },
+    "pools": {
+      "title": "Pools",
+      "body": "Gagnez des frais sur les transactions dans les pools."
+    },
+    "lending": {
+      "title": "Prêts",
+      "body": "Empruntez grâce à vos actifs."
     }
   }
 }

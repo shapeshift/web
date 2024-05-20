@@ -1,5 +1,6 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -31,6 +32,7 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   const translate = useTranslate()
   const isSnapEnabled = useFeatureFlag('Snaps')
   const { open: openSnapsModal } = useModal('snaps')
+  const { open: openManageAccountsModal } = useModal('manageAccounts')
 
   const wallet = useWallet().state.wallet
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = useAppSelector(selectInputBuyAsset)
@@ -110,15 +112,21 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
   )
 
   const handleEnableShapeShiftSnap = useCallback(() => openSnapsModal({}), [openSnapsModal])
+  const handleAddAccount = useCallback(() => openManageAccountsModal({}), [openManageAccountsModal])
 
   const ManualReceiveAddressEntry: JSX.Element = useMemo(() => {
     return (
       <FormControl>
         <FormLabel color='yellow.400'>
           {translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
-          {!isSnapInstalled && isSnapEnabled && (
+          {!isSnapInstalled && isSnapEnabled && wallet && isMetaMask(wallet) && (
             <Link textDecor='underline' ml={1} onClick={handleEnableShapeShiftSnap}>
               {translate('trade.enableMetaMaskSnap')}
+            </Link>
+          )}
+          {wallet && isLedger(wallet) && (
+            <Link textDecor='underline' ml={1} onClick={handleAddAccount}>
+              {translate('trade.connectChain', { chainName: buyAssetChainName })}
             </Link>
           )}
           &nbsp;{translate('trade.toContinue')}
@@ -134,11 +142,13 @@ export const ManualAddressEntry: FC = memo((): JSX.Element | null => {
     )
   }, [
     buyAssetChainName,
+    handleAddAccount,
     handleEnableShapeShiftSnap,
     isSnapEnabled,
     isSnapInstalled,
     rules,
     translate,
+    wallet,
   ])
 
   return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null

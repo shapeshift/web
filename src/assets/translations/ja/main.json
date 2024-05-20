@@ -303,9 +303,6 @@
       "connecting": "接続中..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "アカウントの管理"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -602,7 +599,7 @@
       },
       "trade": {
         "title": "取引またはブリッジ",
-        "body": "暗号資産のブリッジまたは取引"
+        "body": "暗号通貨を取引またはブリッジする"
       },
       "buy": {
         "title": "買うか売るか",
@@ -1413,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "Ledgerウォレットに接続できません",
-        "unknown": "Ledgerウォレットとの通信で予期せぬエラーが発生しました"
+        "unknown": "Ledgerウォレットとの通信で予期せぬエラーが発生しました",
+        "appNotOpen": "%{app} はチェーン上で開かれていません",
+        "appNotOpenDescription": "デバイスで %{app} アプリを開いて、もう一度お試しください。"
       },
       "connect": {
         "header": "Ledgerのペアリング",
@@ -1790,10 +1789,29 @@
     "viewAccount": "アカウントをみる",
     "expandAccount": "アカウントを広げる"
   },
-  "accountManagementSidebar": {
-    "title": "%{chainNamespaceDisplayName} アカウントをインポートする",
-    "description": "以下のリストからインポートしたいアカウントを選択してください。",
-    "import": "インポート"
+  "accountManagement": {
+    "menuTitle": "アカウントの管理",
+    "manageAccounts": {
+      "title": "アカウントの管理",
+      "description": "これらは、接続したチェーンとインポートしたアカウントの数です。",
+      "emptyList": "まだアカウントが接続されていません。開始するにはチェーンを追加してください。",
+      "addChain": "チェーンを追加する",
+      "addAnotherChain": "別のチェーンを追加する"
+    },
+    "selectChain": {
+      "title": "チェーンを選択",
+      "description": "各チェーンの残高を確認するには、各チェーンを接続し、インポートするアカウントを選択する必要があります。",
+      "searchChains": "名前で検索"
+    },
+    "importAccounts": {
+      "title": "%{chainNamespaceDisplayName} アカウントをインポートする",
+      "description": "以下のリストからインポートするアカウントを選択してください。",
+      "import": "インポート"
+    },
+    "ledgerOpenApp": {
+      "title": "%{appName} アプリを開く",
+      "description": "このチェーンを接続するには、デバイスで台帳アプリを開く必要があります。"
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1921,10 +1939,6 @@
       }
     },
     "walletConnectToDapps": {
-      "unsupportedToast": {
-        "title": "サポートされていないチェーン",
-        "description": "ShapeShiftは現在、WalletConnectでの %{supportedChainNames} のみをサポートしています。"
-      },
       "header": {
         "connectDapp": "dAppを接続する",
         "connectAnotherDapp": "別のdAppに接続する",
@@ -2247,7 +2261,12 @@
       "borrowingHalted": "貸出は一時停止となります。",
       "repaymentsDisabled": "返済は一時的に無効になります。",
       "borrowingDisabled": "借用は一時的に無効になっています。",
-      "amountTooLowToReturnCollateral": "担保を返還するには金額が低すぎます"
+      "amountTooLowToReturnCollateral": "担保を返還するには金額が低すぎます",
+      "amountTooLowToReturnCollateralTooltip": "返済額が低すぎるため、担保を返却できません。金額を増やして再度お試しいただくか、一部を返済してください (担保は返却されませんが、負債額は減ります)。",
+      "amountTooSmallUnknownMinimumTooltip": "入力した返済額が少なすぎます。金額を増やして再度お試しください。",
+      "repaymentUnavailableTooltip": "まだローンの返済はできません。返済ロックが経過するまでお待ちください。",
+      "repaymentsHaltedTooltip": "返済は一時停止されています。しばらくしてからもう一度お試しください。",
+      "errorGettingQuote": "見積もりの​​取得中にエラーが発生しました。もう一度お試しください。"
     },
     "quote": {
       "collateral": "ローンに対して担保される資産総額",
@@ -2378,6 +2397,20 @@
       "title": "ウォッチリストの作成を開始する",
       "body": "星のアイコンが表示されていれば、それを使用してこちらにアセットを追加できます。",
       "cta": "資産をさらに探索する"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "ステーキングでもっと稼ぐ",
+      "body": "THORChain Savers Vault で資産をステーキングすることで受動的な収入を得る"
+    },
+    "pools": {
+      "title": "プール",
+      "body": "プールでの取引で手数料を獲得する"
+    },
+    "lending": {
+      "title": "貸出",
+      "body": "資産を担保に借り入れる"
     }
   }
 }

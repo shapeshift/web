@@ -152,11 +152,11 @@ export const semanticTokens = {
       },
       success: {
         default: 'green.500',
-        _dark: 'green.200',
+        _dark: 'green.400',
       },
       error: {
         default: 'red.500',
-        _dark: 'red.300',
+        _dark: 'red.400',
       },
       warning: {
         default: 'orange.500',

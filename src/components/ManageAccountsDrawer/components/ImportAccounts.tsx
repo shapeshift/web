@@ -13,6 +13,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { Asset } from '@shapeshiftoss/types'
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -20,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -157,7 +159,12 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const queryClient = useQueryClient()
   const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const isSnapInstalled = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
+  const isMetaMaskMultichainWallet = useMemo(
+    () => wallet instanceof MetaMaskShapeShiftMultiChainHDWallet,
+    [wallet],
+  )
   const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
   const highestAccountNumber = useAppSelector(state =>
     selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
@@ -188,6 +195,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           accountNumber,
           chainId,
           wallet,
+          Boolean(isSnapInstalled),
         ),
       }
     },
@@ -201,6 +209,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   useEffect(() => {
     if (queryEnabled) return
+    if (isMetaMaskMultichainWallet && isSnapInstalled === null) return
 
     if (!isLedgerWallet) {
       setAutoFetching(true)
@@ -215,7 +224,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       setAutoFetching(true)
       setQueryEnabled(true)
     })
-  }, [queryEnabled, isLedgerWallet, queryClient])
+  }, [queryEnabled, isLedgerWallet, isMetaMaskMultichainWallet, isSnapInstalled, queryClient])
 
   // Handle initial automatic loading
   useEffect(() => {

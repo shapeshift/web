@@ -106,6 +106,7 @@ export const AddAccountModal = () => {
         accountNumber,
         chainIds,
         wallet,
+        isSnapInstalled,
       })
 
       const { getAccount } = portfolioApi.endpoints
@@ -137,6 +138,7 @@ export const AddAccountModal = () => {
     assets,
     close,
     dispatch,
+    isSnapInstalled,
     nextAccountNumber,
     selectedChainId,
     toast,

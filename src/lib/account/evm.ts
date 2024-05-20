@@ -19,13 +19,15 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
+import { canAddMetaMaskAccount } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
-  const { accountNumber, chainIds, wallet } = args
+  const { accountNumber, chainIds, wallet, isSnapInstalled } = args
 
   let address = ''
   const result: AccountMetadataById = {}
@@ -38,6 +40,12 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
     if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
+    if (
+      wallet instanceof MetaMaskShapeShiftMultiChainHDWallet &&
+      !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })
+    ) {
+      continue
+    }
 
     const adapter = assertGetEvmChainAdapter(chainId)
     const bip44Params = adapter.getBIP44Params({ accountNumber })

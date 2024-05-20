@@ -13,10 +13,7 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import {
-  canAddMetaMaskAccount,
-  useIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -125,34 +122,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         )
           break
 
-        const input = { accountNumber, chainIds, wallet }
+        const input = { accountNumber, chainIds, wallet, isSnapInstalled }
         const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
         const accountIds = Object.keys(accountIdsAndMetadata)
 
         Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
         const { getAccount } = portfolioApi.endpoints
-
-        const accountPromises = accountIds.map(accountId => {
-          const accountChainId = fromAccountId(accountId).chainId
-          // Do not try and fetch "multi-accounts" for MetaMask snaps
-          // Snaps do not support using the wallet entropy for EVM chains and the native MM functionality is used instead
-          // This means we would get the same address for all account numbers and end in an infinite loop here
-          if (
-            isMetaMaskMultichainWallet &&
-            !canAddMetaMaskAccount({
-              accountNumber,
-              chainId: accountChainId,
-              wallet,
-              isSnapInstalled,
-            })
-          )
-            // Return immediately rejected promise, to be caught in res.status below for early return
-            return Promise.reject(
-              `Multi-account for chain ${accountChainId} is not supported by MetaMask snaps`,
-            )
-          return dispatch(getAccount.initiate({ accountId }, { forceRefetch: true }))
-        })
+        const accountPromises = accountIds.map(accountId =>
+          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
+        )
 
         const accountResults = await Promise.allSettled(accountPromises)
 

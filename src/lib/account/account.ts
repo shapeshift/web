@@ -19,6 +19,7 @@ export type DeriveAccountIdsAndMetadataArgs = {
   accountNumber: number
   chainIds: ChainId[]
   wallet: HDWallet
+  isSnapInstalled: boolean
 }
 export type DeriveAccountIdsAndMetadataReturn = Promise<AccountMetadataById>
 export type DeriveAccountIdsAndMetadata = (
@@ -26,7 +27,7 @@ export type DeriveAccountIdsAndMetadata = (
 ) => DeriveAccountIdsAndMetadataReturn
 
 export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
-  const { accountNumber, chainIds, wallet } = args
+  const { accountNumber, chainIds, wallet, isSnapInstalled } = args
   if (!Number.isInteger(accountNumber) || accountNumber < 0)
     throw new Error('invalid accountNumber')
   type ChainNamespaceKey = (typeof CHAIN_NAMESPACE)[keyof typeof CHAIN_NAMESPACE]
@@ -51,6 +52,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
         accountNumber,
         chainIds,
         wallet,
+        isSnapInstalled,
       }),
     ),
   )

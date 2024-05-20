@@ -208,3 +208,20 @@ export const arbitrumNova: AssetWithNetworkName = {
   explorerAddressLink: 'https://nova.arbiscan.io/address/',
   explorerTxLink: 'https://nova.arbiscan.io/tx/',
 }
+
+export const base: AssetWithNetworkName = {
+  assetId: caip.baseAssetId,
+  chainId: caip.baseChainId,
+  name: 'Ethereum',
+  networkName: 'Base',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#0052FF',
+  icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
+  networkIcon:
+    'https://rawcdn.githack.com/base-org/brand-kit/8984fe6e08be3058fd7cf5cd0b201f8b92b5a70e/logo/symbol/Base_Symbol_Blue.png',
+  explorer: 'https://basescan.org',
+  explorerAddressLink: 'https://basescan.org/address/',
+  explorerTxLink: 'https://basescan.org/tx/',
+}

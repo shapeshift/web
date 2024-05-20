@@ -9,6 +9,7 @@ import {
   arbitrum,
   arbitrumNova,
   avalanche,
+  base,
   bsc,
   gnosis,
   mainnet,
@@ -56,6 +57,11 @@ export const viemPolygonClient = createPublicClient({
   transport: http(getConfig().REACT_APP_POLYGON_NODE_URL),
 })
 
+export const viemBaseClient = createPublicClient({
+  chain: base,
+  transport: http(getConfig().REACT_APP_BASE_NODE_URL),
+})
+
 export const viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -67,6 +73,7 @@ export const viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Cha
   // cast required due to typescript shenanigans
   // https://github.com/wagmi-dev/viem/issues/1018
   [KnownChainIds.OptimismMainnet]: viemOptimismClient as PublicClient<Transport, Chain>,
+  [KnownChainIds.BaseMainnet]: viemBaseClient as PublicClient<Transport, Chain>,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient<Transport, Chain>> = {

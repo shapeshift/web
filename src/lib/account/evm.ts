@@ -2,6 +2,7 @@ import {
   arbitrumChainId,
   arbitrumNovaChainId,
   avalancheChainId,
+  baseChainId,
   bscChainId,
   ethChainId,
   gnosisChainId,
@@ -13,6 +14,7 @@ import {
   supportsArbitrum,
   supportsArbitrumNova,
   supportsAvalanche,
+  supportsBase,
   supportsBSC,
   supportsETH,
   supportsGnosis,
@@ -40,6 +42,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
     if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
+    if (chainId === baseChainId && !supportsBase(wallet)) continue
     if (
       wallet instanceof MetaMaskShapeShiftMultiChainHDWallet &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

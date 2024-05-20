@@ -19,6 +19,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'ARB'
     case KnownChainIds.ArbitrumNovaMainnet:
       return 'ARB-Nova'
+    case KnownChainIds.BaseMainnet:
+      return 'BAS'
     case KnownChainIds.BitcoinMainnet:
       return 'BTC'
     case KnownChainIds.BitcoinCashMainnet:

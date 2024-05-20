@@ -74,6 +74,7 @@ import type {
   AssetEquityItem,
   PortfolioAccountBalancesById,
   PortfolioAccounts,
+  WalletId,
 } from './portfolioSliceCommon'
 import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
@@ -1088,4 +1089,10 @@ export const selectEquityTotalBalance = createDeepEqualOutputSelector(
       initial,
     )
   },
+)
+
+export const selectPortfolioHasWalletId = createSelector(
+  (state: ReduxState) => state.portfolio.wallet.ids,
+  (_state: ReduxState, walletId: WalletId) => walletId,
+  (storeWalletIds, walletId): boolean => storeWalletIds.includes(walletId),
 )

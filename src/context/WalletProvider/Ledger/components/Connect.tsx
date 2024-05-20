@@ -10,11 +10,12 @@ import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletPr
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectWalletIdInStore } from 'state/slices/selectors'
+import { selectPortfolioHasWalletId } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { LedgerConfig } from '../config'
+import { LEDGER_DEVICE_ID } from '../constants'
 
 export interface LedgerSetupProps
   extends RouteComponentProps<
@@ -43,7 +44,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   // device ID as it's the same for all Ledger devices.
   // See https://github.com/shapeshift/web/issues/6814
   const isPreviousLedgerDeviceDetected = useAppSelector(state =>
-    selectWalletIdInStore(state, '0001'),
+    selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
   )
 
   const handlePair = useCallback(async () => {

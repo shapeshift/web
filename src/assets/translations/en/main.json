@@ -1421,7 +1421,7 @@
         "pairNewDeviceBody": " Click 'Pair new device' to get started",
         "pairNewDeviceButton": "Pair new device",
         "pairExistingDeviceButton": "Pair existing device",
-        "pairExistingDeviceBody": "Connecting a different Ledger device to last time? Click 'Pair new device' to start fresh."
+        "pairExistingDeviceBody": "Connecting a different Ledger device? Click 'Pair new device' to start fresh."
       },
       "failure": {
         "header": "Error",

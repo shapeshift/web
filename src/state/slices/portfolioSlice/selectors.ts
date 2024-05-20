@@ -1091,7 +1091,7 @@ export const selectEquityTotalBalance = createDeepEqualOutputSelector(
   },
 )
 
-export const selectWalletIdInStore = createSelector(
+export const selectPortfolioHasWalletId = createSelector(
   (state: ReduxState) => state.portfolio.wallet.ids,
   (_state: ReduxState, walletId: WalletId) => walletId,
   (storeWalletIds, walletId): boolean => storeWalletIds.includes(walletId),

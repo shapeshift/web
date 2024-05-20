@@ -1418,8 +1418,10 @@
       },
       "connect": {
         "header": "Pair Ledger",
-        "body": "Click Pair then select your Ledger from the popup window",
-        "button": "Pair"
+        "pairNewDeviceBody": " Click 'Pair new device' to get started",
+        "pairNewDeviceButton": "Pair new device",
+        "pairExistingDeviceButton": "Pair existing device",
+        "pairExistingDeviceBody": "Connecting a different Ledger device? Click 'Pair new device' to start fresh."
       },
       "failure": {
         "header": "Error",

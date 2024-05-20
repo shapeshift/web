@@ -303,9 +303,6 @@
       "connecting": "Подключение..."
     }
   },
-  "manageAccounts": {
-    "menuTitle": "Управление учетными записями"
-  },
   "defi": {
     "modals": {
       "learnMore": {
@@ -602,7 +599,7 @@
       },
       "trade": {
         "title": "Торговля или Мост",
-        "body": "Торгуйте или Переведите через мост вашу криптовалюту "
+        "body": "Торгуйте криптовалютой или используйте мост"
       },
       "buy": {
         "title": "Купить или продать",
@@ -1413,7 +1410,9 @@
       },
       "errors": {
         "connectFailure": "Не удается подключить кошелек Ledger",
-        "unknown": "Возникла непредвиденная ошибка при взаимодействии с кошельком Ledger"
+        "unknown": "Возникла непредвиденная ошибка при взаимодействии с кошельком Ledger",
+        "appNotOpen": "%{app} не открыто в Ledger",
+        "appNotOpenDescription": "Пожалуйста, откройте приложение %{app} на вашем устройстве и повторите попытку."
       },
       "connect": {
         "header": "Pair Ledger",
@@ -1790,10 +1789,29 @@
     "viewAccount": "Просмотр аккаунта",
     "expandAccount": "Расширить счет"
   },
-  "accountManagementSidebar": {
-    "title": "Импортировать %{chainNamespaceDisplayName} Аккаунты",
-    "description": "Выберите счета, которые вы хотите импортировать, из списка ниже.",
-    "import": "Импорт"
+  "accountManagement": {
+    "menuTitle": "Управление учетными записями",
+    "manageAccounts": {
+      "title": "Управление учетными записями",
+      "description": "Это цепочки, которые вы подключили, и количество импортированных учетных записей.",
+      "emptyList": "У вас еще нет подключенных аккаунтов. Добавьте цепочку, чтобы начать работу.",
+      "addChain": "Добавить цепочку",
+      "addAnotherChain": "Добавить еще одну цепочку"
+    },
+    "selectChain": {
+      "title": "Выбрать сеть",
+      "description": "Чтобы увидеть остатки по каждой цепочке, вам нужно подключить каждую цепочку и выбрать счета для импорта.",
+      "searchChains": "Поиск по имени"
+    },
+    "importAccounts": {
+      "title": "Импорт %{chainNamespaceDisplayName} учетных записей",
+      "description": "Выберите счета, которые вы хотите импортировать, из списка ниже.",
+      "import": "Импорт"
+    },
+    "ledgerOpenApp": {
+      "title": "Открыть %{appName} апликацию",
+      "description": "Чтобы подключить эту цепочку, необходимо открыть приложение Ledger на своем устройстве."
+    }
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2243,7 +2261,12 @@
       "borrowingHalted": "Заимствования временно прекращены.",
       "repaymentsDisabled": "Погашение временно отключено.",
       "borrowingDisabled": "Займы временно отключены.",
-      "amountTooLowToReturnCollateral": "Сумма слишком мала для возврата залога"
+      "amountTooLowToReturnCollateral": "Сумма слишком мала для возврата залога",
+      "amountTooLowToReturnCollateralTooltip": "Сумма погашения слишком мала для возврата залога. Пожалуйста, повторите попытку с большей суммой или погасите часть суммы (это не вернет вам залог, но уменьшит ваш долг).",
+      "amountTooSmallUnknownMinimumTooltip": "Введенная вами сумма погашения слишком мала. Пожалуйста, повторите попытку с большей суммой.",
+      "repaymentUnavailableTooltip": "Погашение кредита пока невозможно. Пожалуйста, подождите, пока не истечет срок блокировки погашения.",
+      "repaymentsHaltedTooltip": "Выплаты временно прекращены. Пожалуйста, повторите попытку позже.",
+      "errorGettingQuote": "При получении цитаты произошла ошибка. Пожалуйста, попробуйте еще раз."
     },
     "quote": {
       "collateral": "Общая сумма активов, которые будут обеспечены вашим кредитом",
@@ -2374,6 +2397,20 @@
       "title": "Начните формировать свой список наблюдения",
       "body": "Везде, где вы видите значок звезды, вы можете использовать его для добавления активов.",
       "cta": "Изучить больше активов"
+    }
+  },
+  "explore": {
+    "staking": {
+      "title": "Зарабатывайте больше с помощью стейкинга",
+      "body": "Получайте пассивный доход, стейкингом на свои активы с помощью THORChain Savers Vault."
+    },
+    "pools": {
+      "title": "Пулы",
+      "body": "Зарабатывайте комиссионные на сделках в пулах."
+    },
+    "lending": {
+      "title": "Кредитование",
+      "body": "Займите под залог своих активов."
     }
   }
 }

@@ -878,6 +878,7 @@
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
     "enableMetaMaskSnap": "use the multichain snap",
+    "connectChain": "connect %{chainName}",
     "approvalGasFee": "Approval gas fee %{fee}",
     "approvalFailed": "A problem occurred during allowance approval",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",

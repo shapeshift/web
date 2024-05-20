@@ -47,7 +47,7 @@ describe('opportunitiesSlice selectors', () => {
         supportedChainIds: [],
       },
       wallet,
-      enabledAccountIds: [gomesAccountId, fauxmesAccountId, catpuccinoAccountId],
+      enabledAccountIds: { [walletId]: [gomesAccountId, fauxmesAccountId, catpuccinoAccountId] },
     },
   }
   describe('selects ID/s', () => {
@@ -66,7 +66,7 @@ describe('opportunitiesSlice selectors', () => {
       },
       ids: [gomesAccountId, fauxmesAccountId],
     }
-    const enabledAccountIds = [gomesAccountId, fauxmesAccountId]
+    const enabledAccountIds = { [walletId]: [gomesAccountId, fauxmesAccountId] }
     const lp = {
       ...initialState.lp,
       byAccountId: {

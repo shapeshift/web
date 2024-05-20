@@ -159,6 +159,14 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
+      // TODO(gomes): the expected_amount_out from THOR doesn't seem to cut it and results in refunds e.g
+      // Update consumers to use 0 limit for streaming loans, and make the below assertIsValidMinOut instead
+      // https://viewblock.io/thorchain/tx/d76ed393598e60ec6d1aef287023c950223fa5db59f46250b7c5754cd9ea3644
+      // Two things are wrong here:
+      // - We should not *always* assume a positive MinOut as a streaming loan open should have a 0 limit
+      // - The quote returned to us by THOR is weird - it contains streaming parameters e.g streaming_swap_blocks
+      // but the memo itself doesn't contain said streaming params
+      // Streaming params aren't supported according to the docs, but the quote clearly mentions them
       assertIsValidPositiveMinOut(minOut, memo)
 
       return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${

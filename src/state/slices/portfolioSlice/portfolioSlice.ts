@@ -142,12 +142,20 @@ export const portfolio = createSlice({
      * during initial load, leading to all auto-detected accounts being disabled.
      */
     enableAccountId: (draftState, { payload: accountId }: { payload: AccountId }) => {
-      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds)
+      const walletId = draftState.connectedWallet?.id
+
+      if (!walletId) return
+
+      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
       enabledAccountIdsSet.add(accountId)
-      draftState.enabledAccountIds = Array.from(enabledAccountIdsSet)
+      draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
     },
     toggleAccountIdEnabled: (draftState, { payload: accountId }: { payload: AccountId }) => {
-      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds)
+      const walletId = draftState.connectedWallet?.id
+
+      if (!walletId) return
+
+      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
       const isEnabled = enabledAccountIdsSet.has(accountId)
 
       if (isEnabled) {
@@ -156,7 +164,7 @@ export const portfolio = createSlice({
         enabledAccountIdsSet.add(accountId)
       }
 
-      draftState.enabledAccountIds = Array.from(enabledAccountIdsSet)
+      draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
     },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),

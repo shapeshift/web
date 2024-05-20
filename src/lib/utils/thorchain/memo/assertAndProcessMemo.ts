@@ -159,7 +159,6 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
-      // Disable until we implement minout in borrows
       assertIsValidPositiveMinOut(minOut, memo)
 
       return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${

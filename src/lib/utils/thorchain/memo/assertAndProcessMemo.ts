@@ -61,12 +61,12 @@ const assertIsValidLimit = (limit: string | undefined, memo: string) => {
   if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
 }
 
-// const assertIsValidPositiveMinOut = (minOut: string | undefined, memo: string) => {
-// assertMemoHasMinOut(minOut, memo)
-//
-// if (!bn(minOut).isInteger()) throw new Error(`minOut must be an integer in memo: ${memo}`)
-// if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
-// }
+const assertIsValidPositiveMinOut = (minOut: string | undefined, memo: string) => {
+  assertMemoHasMinOut(minOut, memo)
+
+  if (!bn(minOut).isInteger()) throw new Error(`minOut must be an integer in memo: ${memo}`)
+  if (!bn(minOut).gt(0)) throw new Error(`positive minOut is required in memo: ${memo}`)
+}
 
 const assertIsValidMinOut = (minOut: string | undefined, memo: string) => {
   assertMemoHasMinOut(minOut, memo)
@@ -160,7 +160,7 @@ export const assertAndProcessMemo = (memo: string): string => {
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
       // Disable until we implement minout in borrows
-      // assertIsValidPositiveMinOut(minOut, memo)
+      assertIsValidPositiveMinOut(minOut, memo)
 
       return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${
         fee || 0

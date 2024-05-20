@@ -582,8 +582,7 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    // TODO(gomes): revert me back in https://github.com/shapeshift/web/pull/6753
-    it.skip('should throw on invalid min out', () => {
+    it('should throw on invalid min out', () => {
       let memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
       expect(() => assertAndProcessMemo(memo)).toThrow()

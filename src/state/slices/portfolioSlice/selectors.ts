@@ -89,19 +89,19 @@ export const selectPortfolioAccounts = createDeepEqualOutputSelector(
 )
 
 export const selectIsAccountIdEnabled = createCachedSelector(
-  selectPortfolioAccounts,
+  selectWalletAccountIds,
   selectAccountIdParamFromFilter,
-  (accountsById, accountId): boolean => {
-    return accountId !== undefined && accountsById[accountId] !== undefined
+  (walletAccountIds, accountId): boolean => {
+    return accountId !== undefined && walletAccountIds.includes(accountId)
   },
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 
 export const selectIsAnyAccountIdEnabled = createCachedSelector(
-  selectPortfolioAccounts,
+  selectWalletAccountIds,
   (_state: ReduxState, accountIds: AccountId[]) => accountIds,
-  (accountsById, accountIds): boolean => {
+  (walletAccountIds, accountIds): boolean => {
     if (accountIds.length === 0) return false
-    return accountIds.some(accountId => accountsById[accountId] !== undefined)
+    return accountIds.some(accountId => walletAccountIds.includes(accountId))
   },
 )((_s: ReduxState, accountIds) => JSON.stringify(accountIds))
 

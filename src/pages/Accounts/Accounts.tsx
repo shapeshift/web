@@ -34,7 +34,6 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
 
   const isSnapInstalled = useIsSnapInstalled()
-  // MM without snaps does not support non-EVM chains, hence no multi-account
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   useEffect(() => {
     if (!wallet) return

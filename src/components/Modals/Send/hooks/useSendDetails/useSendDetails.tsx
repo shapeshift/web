@@ -150,7 +150,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }) => {
       const [, { sendMax, amountCryptoPrecision }] = queryKey
 
-      if (bnOrZero(amountCryptoPrecision).lte(0)) return null
+      if (bnOrZero(amountCryptoPrecision).lt(0)) return null
       if (!asset || !accountId) return null
 
       const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(amountCryptoPrecision)
@@ -171,7 +171,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           throw estimatedFees.message
         }
 
-        const hasEnoughNativeTokenForGas = nativeAssetBalance.minus(estimatedFees.fast.txFee).gt(0)
+        const hasEnoughNativeTokenForGas = nativeAssetBalance.minus(estimatedFees.fast.txFee).gte(0)
 
         // The worst case scenario - user cannot ever cover the gas fees - regardless of whether this is a token send or not
         if (!hasEnoughNativeTokenForGas) {
@@ -234,7 +234,11 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     [cryptoHumanBalance],
   ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
 
-  const hasEnteredPositiveAmount = bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).gt(0)
+  const hasEnteredPositiveAmount = useMemo(() => {
+    if (amountCryptoPrecision === '' || fiatAmount === '') return false
+
+    return bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).isPositive()
+  }, [amountCryptoPrecision, fiatAmount])
 
   const {
     isLoading: _isEstimatedFormFeesLoading,

@@ -64,7 +64,7 @@ export type Portfolio = {
    * The `AccountId[]` that are enabled. Rather than removing the accounts and adding complexity
    * to the actions and state management, we enable them here and filter them out in the selectors.
    */
-  enabledAccountIds: AccountId[]
+  enabledAccountIds: PartialRecord<WalletId, AccountId[]>
   /**
    * 1:many mapping of a unique wallet id -> multiple account ids
    */
@@ -85,7 +85,7 @@ export const initialState: Portfolio = {
     byId: {},
     ids: [],
   },
-  enabledAccountIds: [],
+  enabledAccountIds: {},
   wallet: {
     byId: {},
     ids: [],

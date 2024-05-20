@@ -22,11 +22,19 @@ export const selectIsWalletConnected = (state: ReduxState) =>
   state.portfolio.connectedWallet !== undefined
 export const selectWalletSupportedChainIds = (state: ReduxState) =>
   state.portfolio.connectedWallet?.supportedChainIds ?? []
+export const selectWalletEnabledAccountIds = createDeepEqualOutputSelector(
+  selectWalletId,
+  (state: ReduxState) => state.portfolio.enabledAccountIds,
+  (walletId, enabledAccountIds) => {
+    if (!walletId) return []
+    return enabledAccountIds[walletId] ?? []
+  },
+)
 
 export const selectWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
-  (state: ReduxState) => state.portfolio.enabledAccountIds,
+  selectWalletEnabledAccountIds,
   (walletId, walletById, enabledAccountIds): AccountId[] => {
     const walletAccountIds = (walletId && walletById[walletId]) ?? []
     return walletAccountIds.filter(accountId => (enabledAccountIds ?? []).includes(accountId))
@@ -81,7 +89,7 @@ export const selectPortfolioCryptoBalanceBaseUnitByFilter = createCachedSelector
     if (accountId && assetId) return accountBalances?.[accountId]?.[assetId] ?? '0'
     return assetId ? assetBalances[assetId] : '0'
   },
-)((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
+)((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelector(
   selectAssets,
@@ -98,7 +106,7 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
     if (accountId) return fromBaseUnit(bnOrZero(accountBalances?.[accountId]?.[assetId]), precision)
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },
-)((_s: ReduxState, filter) => `${filter?.accountId}-${filter?.assetId}` ?? 'accountId-assetId')
+)((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,

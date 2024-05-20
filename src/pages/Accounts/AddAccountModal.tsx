@@ -73,7 +73,7 @@ export const AddAccountModal = () => {
     [chainIds, isMetaMaskMultichainWallet],
   )
 
-  const isUnsupportedChain = useMemo(
+  const isUnsupportedSnapChain = useMemo(
     () => unsupportedChainIds.includes(selectedChainId ?? ''),
     [selectedChainId, unsupportedChainIds],
   )
@@ -170,7 +170,7 @@ export const AddAccountModal = () => {
                 <AlertDescription>{translate('accounts.requiresPriorTxHistory')}</AlertDescription>
               </Alert>
             )}
-            {isUnsupportedChain && (
+            {isUnsupportedSnapChain && (
               <Alert size='sm'>
                 <AlertIcon as={FaInfoCircle} />
                 <AlertDescription>
@@ -184,7 +184,7 @@ export const AddAccountModal = () => {
           <Button
             colorScheme='blue'
             width='full'
-            isDisabled={!isAbleToAddAccount || isUnsupportedChain}
+            isDisabled={!isAbleToAddAccount || isUnsupportedSnapChain}
             onClick={handleAddAccount}
           >
             {translate('accounts.addAccount')}

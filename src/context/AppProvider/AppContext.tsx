@@ -1,7 +1,6 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -14,7 +13,10 @@ import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import {
+  canAddMetaMaskAccount,
+  useIsSnapInstalled,
+} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -66,7 +68,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()
-  const isSnapInstalled = useIsSnapInstalled()
+  const isSnapInstalled = Boolean(useIsSnapInstalled())
   useNfts()
 
   // track anonymous portfolio
@@ -137,14 +139,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           // Snaps do not support using the wallet entropy for EVM chains and the native MM functionality is used instead
           // This means we would get the same address for all account numbers and end in an infinite loop here
           if (
-            accountNumber > 0 &&
-            // Cosmos SDK chains account derivation > 0 is rugged for snaps, wut?
-            (isEvmChainId(accountChainId) ||
-              fromChainId(accountChainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) &&
-            isMetaMaskMultichainWallet
+            isMetaMaskMultichainWallet &&
+            !canAddMetaMaskAccount({
+              accountNumber,
+              chainId: accountChainId,
+              wallet,
+              isSnapInstalled,
+            })
           )
             // Return immediately rejected promise, to be caught in res.status below for early return
-            return Promise.reject('EVM multi-account not supported for MetaMask snaps')
+            return Promise.reject(
+              `Multi-account for chain ${accountChainId} is not supported by MetaMask snaps`,
+            )
           return dispatch(getAccount.initiate({ accountId }, { forceRefetch: true }))
         })
 

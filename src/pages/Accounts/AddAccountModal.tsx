@@ -14,8 +14,7 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, type ChainId, fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { type ChainId } from '@shapeshiftoss/caip'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -24,6 +23,10 @@ import { useSelector } from 'react-redux'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import {
+  canAddMetaMaskAccount,
+  useIsSnapInstalled,
+} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
@@ -58,20 +61,23 @@ export const AddAccountModal = () => {
     selectMaybeNextAccountNumberByChainId(s, filter),
   )
 
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-  const unsupportedChainIds = useMemo(
-    () =>
-      !isMetaMaskMultichainWallet
-        ? []
-        : chainIds.filter(chainId => {
-            // Snaps do not support EVM account numbers > 0
-            if (isEvmChainId(chainId)) return true
-            if (fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk) return true
+  const isSnapInstalled = Boolean(useIsSnapInstalled())
 
-            return false
-          }),
-    [chainIds, isMetaMaskMultichainWallet],
-  )
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+  const unsupportedChainIds = useMemo(() => {
+    if (!isMetaMaskMultichainWallet) return []
+    if (nextAccountNumber === null) return []
+
+    return chainIds.filter(
+      chainId =>
+        !canAddMetaMaskAccount({
+          accountNumber: nextAccountNumber,
+          chainId,
+          wallet,
+          isSnapInstalled,
+        }),
+    )
+  }, [chainIds, isMetaMaskMultichainWallet, isSnapInstalled, nextAccountNumber, wallet])
 
   const isUnsupportedSnapChain = useMemo(
     () => unsupportedChainIds.includes(selectedChainId ?? ''),

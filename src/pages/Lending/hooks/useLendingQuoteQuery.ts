@@ -63,12 +63,12 @@ const selectLendingQuoteQuery = memoize(
     const quoteCollateralAmountFiatUsd = bn(quoteCollateralAmountFiatUserCurrency)
       .div(userCurrencyToUsdRate)
       .toString()
-    const quoteDebtAmountThorBaseUnit = quote.expected_debt_issued
     const quoteDebtAmountUserCurrency = fromThorBaseUnit(quote.expected_debt_issued)
       .times(userCurrencyToUsdRate)
       .toString()
     const quoteDebtAmountUsd = bn(quoteDebtAmountUserCurrency).div(userCurrencyToUsdRate).toString()
 
+    const quoteBorrowedAmountThorBaseUnit = quote.expected_amount_out
     const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
     ).toString()
@@ -126,7 +126,7 @@ const selectLendingQuoteQuery = memoize(
       quoteCollateralAmountFiatUserCurrency,
       quoteCollateralAmountFiatUsd,
       quoteDebtAmountUserCurrency,
-      quoteDebtAmountThorBaseUnit,
+      quoteBorrowedAmountThorBaseUnit,
       quoteDebtAmountUsd,
       quoteBorrowedAmountCryptoPrecision,
       quoteBorrowedAmountUserCurrency,

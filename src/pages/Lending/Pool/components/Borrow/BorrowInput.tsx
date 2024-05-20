@@ -176,8 +176,8 @@ export const BorrowInput = ({
   const memo = useMemo(() => {
     if (!confirmedQuote) return null
 
-    // No need for slippage deduction here - quoteWithdrawnAmountAfterFeesThorBaseUnit (expected_debt_issued) already is quote.fees.slippage_bps deducted
-    const minDebtAmount = confirmedQuote.quoteDebtAmountThorBaseUnit
+    // No need for slippage deduction here - quoteBorrowedAmountThorBaseUnit (expected_amount_out) already is quote.fees.slippage_bps deducted
+    const minDebtAmount = confirmedQuote.quoteBorrowedAmountThorBaseUnit
     return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: minDebtAmount })
   }, [confirmedQuote])
 

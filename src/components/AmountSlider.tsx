@@ -63,6 +63,7 @@ export const AmountSlider: React.FC<AmountSliderProps> = ({
               // Calls the percentage change end event handler passed from the parent, *and* set the form context, informing
               // the parent we are ready here
               handlePercentageSliderChangeEnd(x)
+              console.log({ x })
               onChange(x)
             }}
           >

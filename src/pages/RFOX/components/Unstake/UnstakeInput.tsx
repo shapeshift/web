@@ -289,11 +289,14 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             />
 
             <Collapse in={hasEnteredValue}>
-              <UnstakeSummary
-                amountCryptoPrecision={amountCryptoPrecision ?? 0}
-                stakingAssetId={stakingAsset.assetId}
-                isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
-              />
+              {stakingAssetAccountId && (
+                <UnstakeSummary
+                  amountCryptoPrecision={amountCryptoPrecision ?? 0}
+                  stakingAssetAccountId={stakingAssetAccountId}
+                  stakingAssetId={stakingAsset.assetId}
+                  isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
+                />
+              )}
               <CardFooter
                 borderTopWidth={1}
                 borderColor='border.subtle'

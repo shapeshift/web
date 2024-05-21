@@ -10,6 +10,7 @@ import type {
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
+import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
@@ -637,16 +638,6 @@ export const selectCryptoHumanBalanceIncludingStakingByFilter = createCachedSele
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
-export const selectPortfolioChainIdsSortedUserCurrency = createDeepEqualOutputSelector(
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-  (userCurrencyAccountBalances): ChainId[] =>
-    Array.from(
-      new Set(
-        Object.keys(userCurrencyAccountBalances).map(accountId => fromAccountId(accountId).chainId),
-      ),
-    ),
-)
-
 export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   selectChainIdParamFromFilter,
@@ -1095,4 +1086,46 @@ export const selectPortfolioHasWalletId = createSelector(
   (state: ReduxState) => state.portfolio.wallet.ids,
   (_state: ReduxState, walletId: WalletId) => walletId,
   (storeWalletIds, walletId): boolean => storeWalletIds.includes(walletId),
+)
+
+export const selectPortfolioUserCurrencyTotalBalancesIncludingStakingByChainId =
+  createDeepEqualOutputSelector(
+    selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+    portfolioAccountsUserCurrencyBalancesIncludingStaking => {
+      return Object.entries(portfolioAccountsUserCurrencyBalancesIncludingStaking).reduce(
+        (acc, [accountId, accountBalancesUserCurrencyByAssetId]) => {
+          const { chainId } = fromAccountId(accountId)
+          const totalBalanceUserCurrency = Object.values(
+            accountBalancesUserCurrencyByAssetId,
+          ).reduce((accountTotal, assetBalanceUserCurrency) => {
+            return accountTotal.plus(bnOrZero(assetBalanceUserCurrency))
+          }, bn(0))
+
+          acc[chainId] = bnOrZero(acc[chainId]).plus(totalBalanceUserCurrency).toString()
+          return acc
+        },
+        {} as Record<ChainId, string>,
+      )
+    },
+  )
+
+export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector(
+  selectPortfolioUserCurrencyTotalBalancesIncludingStakingByChainId,
+  portfolioTotalBalanceUserCurrencyByChainId => {
+    const chainAdapterManager = getChainAdapterManager()
+
+    return orderBy(
+      Object.entries(portfolioTotalBalanceUserCurrencyByChainId).map(
+        ([chainId, totalBalanceUserCurrency]) => {
+          return {
+            chainId,
+            totalBalanceUserCurrency: Number(totalBalanceUserCurrency),
+            chainName: chainAdapterManager.get(chainId)?.getDisplayName() ?? '',
+          }
+        },
+      ),
+      ['totalBalanceUserCurrency', 'chainName'],
+      ['desc', 'asc'],
+    ).map(({ chainId }) => chainId)
+  },
 )

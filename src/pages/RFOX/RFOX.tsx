@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 
 import { Stake } from './components/Stake/Stake'
+import { Unstake } from './components/Unstake/Unstake'
 
 type FormHeaderTabProps = {
   index: number
@@ -46,6 +47,9 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
       <FormHeaderTab index={0} onClick={handleClick} isActive={activeIndex === 0}>
         {translate('RFOX.stake')}
       </FormHeaderTab>
+      <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1}>
+        {translate('RFOX.unstake')}
+      </FormHeaderTab>
     </Flex>
   )
 }
@@ -65,6 +69,9 @@ export const RFOX: React.FC = () => {
             <TabPanels>
               <TabPanel px={0} py={0}>
                 <Stake headerComponent={TabHeader} />
+              </TabPanel>
+              <TabPanel px={0} py={0}>
+                <Unstake headerComponent={TabHeader} />
               </TabPanel>
             </TabPanels>
           </Tabs>

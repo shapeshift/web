@@ -116,8 +116,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const [collapseIn, setCollapseIn] = useState(false)
   const percentOptions = useMemo(() => [1], [])
 
-  // TODO(gomes): wrong. This can be crypto or fiat.
-
   const amountCryptoPrecision = useWatch<StakeValues, 'amountCryptoPrecision'>({
     control,
     name: 'amountCryptoPrecision',

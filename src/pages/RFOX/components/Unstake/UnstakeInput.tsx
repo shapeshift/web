@@ -90,11 +90,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     name: 'amountUserCurrency',
   })
 
-  const amountFieldInput = useWatch<UnstakeInputValues, 'amountFieldInput'>({
-    control,
-    name: 'amountFieldInput',
-  })
-
   const percentage = useWatch<UnstakeInputValues, 'percentage'>({
     control,
     name: 'percentage',
@@ -185,26 +180,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const handleWarning = useCallback(() => {
     setShowWarning(true)
   }, [])
-
-  const handleSubmit = useCallback(() => {
-    if (!(stakingAssetAccountId && hasEnteredValue && stakingAsset)) return
-
-    setConfirmedQuote({
-      stakingAssetAccountId,
-      stakingAssetId,
-      unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
-    })
-
-    history.push(UnstakeRoutePaths.Confirm)
-  }, [
-    amountCryptoPrecision,
-    hasEnteredValue,
-    history,
-    setConfirmedQuote,
-    stakingAsset,
-    stakingAssetAccountId,
-    stakingAssetId,
-  ])
 
   const handlePercentageSliderChange = useCallback((percentage: number) => {
     setSliderValue(percentage)
@@ -318,6 +293,28 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: 15_000,
   })
+
+  const handleSubmit = useCallback(() => {
+    if (!(stakingAssetAccountId && hasEnteredValue && stakingAsset && cooldownPeriod)) return
+
+    setConfirmedQuote({
+      stakingAssetAccountId,
+      stakingAssetId,
+      unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
+      cooldownPeriod,
+    })
+
+    history.push(UnstakeRoutePaths.Confirm)
+  }, [
+    amountCryptoPrecision,
+    cooldownPeriod,
+    hasEnteredValue,
+    history,
+    setConfirmedQuote,
+    stakingAsset,
+    stakingAssetAccountId,
+    stakingAssetId,
+  ])
 
   if (!stakingAsset) return null
 

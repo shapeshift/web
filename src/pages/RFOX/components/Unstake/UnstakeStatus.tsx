@@ -81,11 +81,10 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
           title: 'common.success',
           body: [
             'RFOX.unstakeSuccess',
-            // TODO(gomes): store cooldownPeriod in confirmed quote
             {
               amount: unstakingAmountCryptoPrecision,
               symbol: stakingAsset.symbol,
-              cooldownPeriod: '28 days',
+              cooldownPeriod: confirmedQuote.cooldownPeriod,
             },
           ],
           element: <CheckCircleIcon color='text.success' boxSize='75px' />,
@@ -100,7 +99,7 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
       default:
         return null
     }
-  }, [stakingAsset, tx?.status, unstakingAmountCryptoPrecision])
+  }, [confirmedQuote.cooldownPeriod, stakingAsset, tx?.status, unstakingAmountCryptoPrecision])
 
   return (
     <SlideTransition>

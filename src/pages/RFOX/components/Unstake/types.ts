@@ -14,4 +14,5 @@ export type RfoxUnstakingQuote = {
   stakingAssetAccountId: AccountId
   stakingAssetId: AssetId
   unstakingAmountCryptoBaseUnit: string
+  cooldownPeriod: string
 }

@@ -219,11 +219,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setSliderValue(percentage)
   }, [])
 
-  // TODO(gomes): use percentage instead of percentageSelection
-  useEffect(() => {
-    // console.info(percentageSelection)
-  }, [])
-
   if (!stakingAsset) return null
 
   return (

@@ -1088,30 +1088,46 @@ export const selectPortfolioHasWalletId = createSelector(
   (storeWalletIds, walletId): boolean => storeWalletIds.includes(walletId),
 )
 
-export const selectPortfolioTotalBalanceUserCurrencyByChainId = createDeepEqualOutputSelector(
-  selectPortfolioUserCurrencyBalancesByAccountId,
-  portfolioUserCurrencyBalancesByAccountId => {
-    return Object.entries(portfolioUserCurrencyBalancesByAccountId).reduce(
-      (acc, [accountId, accountBalancesUserCurrencyByAssetId]) => {
-        const { chainId } = fromAccountId(accountId)
-        const totalBalanceUserCurrency = Object.values(accountBalancesUserCurrencyByAssetId).reduce(
-          (accountTotal, assetBalanceUserCurrency) =>
-            accountTotal.plus(bnOrZero(assetBalanceUserCurrency)),
-          bn(0),
-        )
+export const selectPortfolioUserCurrencyTotalBalancesIncludingStakingByChainId =
+  createDeepEqualOutputSelector(
+    selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+    portfolioAccountsUserCurrencyBalancesIncludingStaking => {
+      return Object.entries(portfolioAccountsUserCurrencyBalancesIncludingStaking).reduce(
+        (acc, [accountId, accountBalancesUserCurrencyByAssetId]) => {
+          const { chainId } = fromAccountId(accountId)
+          const totalBalanceUserCurrency = Object.values(
+            accountBalancesUserCurrencyByAssetId,
+          ).reduce((accountTotal, assetBalanceUserCurrency) => {
+            return accountTotal.plus(bnOrZero(assetBalanceUserCurrency))
+          }, bn(0))
 
-        acc[chainId] = bnOrZero(acc[chainId]).plus(totalBalanceUserCurrency).toString()
-        return acc
-      },
-      {} as Record<ChainId, string>,
-    )
-  },
-)
+          acc[chainId] = bnOrZero(acc[chainId]).plus(totalBalanceUserCurrency).toString()
+          return acc
+        },
+        {} as Record<ChainId, string>,
+      )
+    },
+  )
 
 export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector(
-  selectPortfolioTotalBalanceUserCurrencyByChainId,
+  selectPortfolioUserCurrencyTotalBalancesIncludingStakingByChainId,
   portfolioTotalBalanceUserCurrencyByChainId => {
     const chainAdapterManager = getChainAdapterManager()
+    console.log(
+      Object.fromEntries(
+        Object.entries(portfolioTotalBalanceUserCurrencyByChainId).map(
+          ([chainId, totalBalanceUserCurrency]) => {
+            return [
+              chainAdapterManager.get(chainId)?.getDisplayName() ?? '',
+              {
+                totalBalanceUserCurrency,
+                number: Number(totalBalanceUserCurrency),
+              },
+            ]
+          },
+        ),
+      ),
+    )
     return orderBy(
       Object.entries(portfolioTotalBalanceUserCurrencyByChainId).map(
         ([chainId, totalBalanceUserCurrency]) => {

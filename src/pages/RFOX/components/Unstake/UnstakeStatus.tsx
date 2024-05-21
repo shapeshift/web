@@ -1,5 +1,5 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Center, Heading, Stack } from '@chakra-ui/react'
+import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
@@ -11,6 +11,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -101,6 +102,11 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
     }
   }, [confirmedQuote.cooldownPeriod, stakingAsset, tx?.status, unstakingAmountCryptoPrecision])
 
+  const txLink = useMemo(
+    () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),
+    [stakingAsset?.explorerTxLink, txId],
+  )
+
   return (
     <SlideTransition>
       {bodyContent && (
@@ -119,7 +125,7 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
         </AnimatePresence>
       )}
       <CardFooter flexDir='column' gap={2}>
-        <Button size='lg' variant='ghost'>
+        <Button as={Link} href={txLink} size='lg' variant='ghost'>
           {translate('trade.viewTransaction')}
         </Button>
         <Button size='lg' colorScheme='blue' onClick={handleGoBack}>

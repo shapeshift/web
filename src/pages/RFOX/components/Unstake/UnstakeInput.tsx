@@ -209,8 +209,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
         .div(100)
         .toFixed()
 
-      console.log({ fiatValue, cryptoValue, userStakingBalanceUserCurrency })
-
       setValue('amountFieldInput', isFiat ? fiatValue : cryptoValue)
       setValue('amountCryptoPrecision', cryptoValue)
       setValue('amountUserCurrency', fiatValue)

@@ -10,10 +10,10 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -31,7 +31,6 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -68,6 +67,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   setStakeTxid,
   confirmedQuote,
 }) => {
+  const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
@@ -115,23 +115,49 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency.price],
   )
 
-  const { data: newContractBalanceOf, isSuccess: isNewContractBalanceOfSuccess } = useReadContract({
+  const {
+    data: userBalanceOfCryptoBaseUnit,
+    isSuccess: isUserBalanceOfCryptoBaseUnitSuccess,
+    queryKey: userBalanceOfCryptoBaseUnitQueryKey,
+  } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'balanceOf',
+    args: [getAddress(stakingAssetAccountAddress)],
+    chainId: arbitrum.id,
+    query: {
+      select: data => data.toString(),
+      enabled: Boolean(stakingAsset),
+    },
+  })
+
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+    queryKey: newContractBalanceOfCryptoBaseUnitQueryKey,
+  } = useReadContract({
     abi: erc20ABI,
-    address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
+    address: getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference),
     functionName: 'balanceOf',
     args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
     chainId: arbitrum.id,
     query: {
-      select: data => bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit),
+      select: data =>
+        bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
     },
   })
 
-  const shareOfPoolPercentage = useMemo(
+  const newShareOfPoolPercentage = useMemo(
     () =>
       bnOrZero(confirmedQuote.stakingAmountCryptoBaseUnit)
-        .div(newContractBalanceOf ?? 0)
+        .plus(userBalanceOfCryptoBaseUnit ?? 0)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
         .toFixed(4),
-    [confirmedQuote.stakingAmountCryptoBaseUnit, newContractBalanceOf],
+    [
+      confirmedQuote.stakingAmountCryptoBaseUnit,
+      newContractBalanceOfCryptoBaseUnit,
+      userBalanceOfCryptoBaseUnit,
+    ],
   )
 
   // Approval/Allowance bits
@@ -177,7 +203,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       accountNumber: stakingAssetAccountNumber!, // see isGetApprovalFeesEnabled
       feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
       feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(foxOnArbitrumOneAssetId).assetReference,
+      to: fromAssetId(confirmedQuote.stakingAssetId).assetReference,
       from: stakingAssetAccountAddress,
       data: approvalCallData,
       wallet: wallet!, // see isGetApprovalFeesEnabled
@@ -241,7 +267,13 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
         ),
       )
     })()
-  }, [approvalTx, stakingAsset?.assetId, isApprovalTxPending, stakingAssetAccountAddress])
+  }, [
+    approvalTx,
+    stakingAsset?.assetId,
+    isApprovalTxPending,
+    stakingAssetAccountAddress,
+    queryClient,
+  ])
 
   // Stake bits
 
@@ -357,8 +389,19 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
     await handleStake()
 
+    await queryClient.invalidateQueries({ queryKey: userBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+
     history.push(StakeRoutePaths.Status)
-  }, [handleApprove, handleStake, history, isApprovalRequired])
+  }, [
+    handleApprove,
+    handleStake,
+    history,
+    isApprovalRequired,
+    newContractBalanceOfCryptoBaseUnitQueryKey,
+    queryClient,
+    userBalanceOfCryptoBaseUnitQueryKey,
+  ])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null
@@ -422,9 +465,14 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
-                <Skeleton isLoaded={isNewContractBalanceOfSuccess}>
+                <Skeleton
+                  isLoaded={
+                    isNewContractBalanceOfCryptoBaseUnitSuccess &&
+                    isUserBalanceOfCryptoBaseUnitSuccess
+                  }
+                >
                   <Row.Value>
-                    <Amount.Percent value={shareOfPoolPercentage} />
+                    <Amount.Percent value={newShareOfPoolPercentage} />
                   </Row.Value>
                 </Skeleton>
               </CustomRow>

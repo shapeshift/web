@@ -1,5 +1,6 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
-import { type AssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -12,24 +13,30 @@ import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { toBaseUnit } from 'lib/math'
 import { formatDuration } from 'lib/utils/time'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakeSummaryProps = {
   isLoading?: boolean
-  assetId: AssetId
+  stakingAssetId: AssetId
   stakingAmountCryptoPrecision: string
+  stakingAssetAccountId: AccountId
 }
 
 export const StakeSummary: React.FC<StakeSummaryProps> = ({
   isLoading,
   stakingAmountCryptoPrecision,
-  assetId,
+  stakingAssetAccountId,
+  stakingAssetId,
 }) => {
-  const stakingAsset = useAppSelector(state => selectAssetById(state, assetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const translate = useTranslate()
+  const stakingAmountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(stakingAmountCryptoPrecision, stakingAsset?.precision ?? 0),
+    [stakingAmountCryptoPrecision, stakingAsset?.precision],
+  )
 
   const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useReadContract({
     abi: foxStakingV1Abi,
@@ -42,26 +49,45 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     },
   })
 
-  const { data: contractBalanceOf, isSuccess: isContractBalanceOfSuccess } = useReadContract({
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(stakingAssetAccountId).account,
+    [stakingAssetAccountId],
+  )
+
+  const { data: userBalanceOfCryptoBaseUnit, isSuccess: isUserBalanceOfCryptoBaseUnitSuccess } =
+    useReadContract({
+      abi: foxStakingV1Abi,
+      address: RFOX_PROXY_CONTRACT_ADDRESS,
+      functionName: 'balanceOf',
+      args: [getAddress(stakingAssetAccountAddress)],
+      chainId: arbitrum.id,
+      query: {
+        select: data => data.toString(),
+        enabled: Boolean(stakingAsset),
+      },
+    })
+
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
     abi: erc20ABI,
-    address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
+    address: getAddress(fromAssetId(stakingAssetId).assetReference),
     functionName: 'balanceOf',
     args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
     chainId: arbitrum.id,
     query: {
-      select: data =>
-        bnOrZero(fromBaseUnit(data.toString(), stakingAsset?.precision ?? 0)).plus(
-          stakingAmountCryptoPrecision,
-        ),
+      select: data => bnOrZero(data.toString()).plus(stakingAmountCryptoBaseUnit).toFixed(),
     },
   })
 
-  const shareOfPoolPercentage = useMemo(
+  const newShareOfPoolPercentage = useMemo(
     () =>
-      bnOrZero(stakingAmountCryptoPrecision)
-        .div(contractBalanceOf ?? 0)
+      bnOrZero(stakingAmountCryptoBaseUnit)
+        .plus(userBalanceOfCryptoBaseUnit ?? 0)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
         .toFixed(4),
-    [contractBalanceOf, stakingAmountCryptoPrecision],
+    [newContractBalanceOfCryptoBaseUnit, stakingAmountCryptoBaseUnit, userBalanceOfCryptoBaseUnit],
   )
 
   const stakeAmountToolTip = useCallback(() => {
@@ -106,8 +132,12 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
       <Row Tooltipbody={shareOfPoolToolTip}>
         <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={isContractBalanceOfSuccess}>
-            <Amount.Percent value={shareOfPoolPercentage} />
+          <Skeleton
+            isLoaded={
+              isNewContractBalanceOfCryptoBaseUnitSuccess && isUserBalanceOfCryptoBaseUnitSuccess
+            }
+          >
+            <Amount.Percent value={newShareOfPoolPercentage} />
           </Skeleton>
         </Row.Value>
       </Row>

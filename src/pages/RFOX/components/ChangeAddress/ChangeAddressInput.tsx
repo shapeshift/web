@@ -1,9 +1,10 @@
-import { Button, CardFooter, Stack } from '@chakra-ui/react'
+import { Button, CardFooter, Flex, Stack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import { type FC, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
+import { RawText, Text } from 'components/Text'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -11,7 +12,7 @@ import { useAppSelector } from 'state/store'
 import { AddressSelection } from '../AddressSelection'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
-export const ChangeAddressInput: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
+export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const translate = useTranslate()
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
@@ -26,6 +27,7 @@ export const ChangeAddressInput: React.FC<ChangeAddressRouteProps> = ({ headerCo
 
   const handleSubmit = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Confirm)
+    setNewAddress('1234')
   }, [history])
 
   if (!asset) return null
@@ -42,7 +44,13 @@ export const ChangeAddressInput: React.FC<ChangeAddressRouteProps> = ({ headerCo
       >
         <Stack>
           {headerComponent}
-          <AddressSelection />
+          <Stack px={6} py={4}>
+            <Flex justifyContent='space-between' mb={2} flexDir={'column'}>
+              <Text translation={'RFOX.currentRewardAddress'} fontWeight={'bold'} mb={2} />
+              <RawText as={'h4'}>1234</RawText>
+            </Flex>
+          </Stack>
+          <AddressSelection isNewAddress />
         </Stack>
         <CardFooter
           borderTopWidth={1}

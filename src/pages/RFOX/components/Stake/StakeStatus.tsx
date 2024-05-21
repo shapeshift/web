@@ -54,16 +54,16 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
-  const serializedApprovalTxIndex = useMemo(() => {
+  const serializedTxIndex = useMemo(() => {
     return serializeTxIndex(confirmedQuote.stakingAssetAccountId, txId, stakingAssetAccountAddress)
   }, [txId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
 
-  const approvalTx = useAppSelector(state => selectTxById(state, serializedApprovalTxIndex))
+  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
 
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null
 
-    switch (approvalTx?.status) {
+    switch (tx?.status) {
       case undefined:
       case TxStatus.Pending:
         return {
@@ -89,13 +89,13 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
         return {
           key: TxStatus.Failed,
           title: 'common.somethingWentWrong',
-          body: 'Show error message here',
+          body: 'common.somethingWentWrongBody',
           element: <WarningIcon color='text.error' boxSize='75px' />,
         }
       default:
         return null
     }
-  }, [approvalTx?.status, stakingAmountCryptoPrecision, stakingAsset])
+  }, [tx?.status, stakingAmountCryptoPrecision, stakingAsset])
 
   const txLink = useMemo(
     () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),

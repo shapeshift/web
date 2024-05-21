@@ -44,6 +44,7 @@ export const AmountSlider: React.FC<AmountSliderProps> = ({
       const handlePercentageClick = (percentage: number) => {
         return () => {
           onPercentageClick(percentage)
+          handlePercentageSliderChangeEnd(percentage)
           // This is a click, not a slide so we update the form context immediately
           onChange(percentage)
         }

@@ -9,8 +9,7 @@ import {
 } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import type { ControllerRenderProps } from 'react-hook-form'
-import { Controller, useFormContext } from 'react-hook-form'
-import type { UnstakeInputValues } from 'pages/RFOX/types'
+import { Controller, useForm, useFormContext } from 'react-hook-form'
 
 import { Amount } from './Amount/Amount'
 
@@ -21,11 +20,19 @@ type AmountSliderProps = {
   onPercentageClick: (percentage: number) => void
 }
 
+type AmountSliderInputValues = {
+  percentage: number
+}
+
 type RenderController = ({
   field,
 }: {
-  field: ControllerRenderProps<UnstakeInputValues, 'percentage'>
+  field: ControllerRenderProps<AmountSliderInputValues, 'percentage'>
 }) => React.ReactElement
+
+const defaultFormValues = {
+  percentage: 100,
+}
 
 export const AmountSlider: React.FC<AmountSliderProps> = ({
   sliderValue,
@@ -33,11 +40,16 @@ export const AmountSlider: React.FC<AmountSliderProps> = ({
   handlePercentageSliderChangeEnd,
   onPercentageClick,
 }) => {
-  // TODO(gomes): this assumes this lives within the context of a form which has a `percentage` field.
-  // If we plan to reuse this, which it looks like we do, we should probably use a fallback form context similar to TradeAmountInput.tsx
-  const methods = useFormContext<UnstakeInputValues>()
-
-  const { control } = methods
+  // Local controller in case consumers don't have a form context
+  // If you consume this component, try and leverage the form context for simplicity and to keep things DRY,
+  // but also fine to use this component as if the form context didn't exist if you wish to
+  const _methods = useForm<AmountSliderInputValues>({
+    defaultValues: defaultFormValues,
+    mode: 'onChange',
+    shouldUnregister: true,
+  })
+  const methods = useFormContext<AmountSliderInputValues>()
+  const control = methods?.control ?? _methods.control
 
   const renderController: RenderController = useCallback(
     ({ field: { onChange } }) => {

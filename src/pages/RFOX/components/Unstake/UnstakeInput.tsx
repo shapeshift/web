@@ -259,6 +259,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               onToggleIsFiat={handleToggleIsFiat}
               isFiat={isFiat}
               isReadOnly
+              isAccountSelectionHidden
             />
 
             <Collapse in={hasEnteredValue}>

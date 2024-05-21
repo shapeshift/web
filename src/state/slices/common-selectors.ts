@@ -133,26 +133,26 @@ export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOut
   selectPortfolioAccountBalancesBaseUnit,
   selectMarketDataUserCurrency,
   (assetsById, accounts, marketData) => {
-    return Object.entries(accounts).reduce<Record<AccountId, Record<AssetId, string>>>(
+    return Object.entries(accounts).reduce(
       (acc, [accountId, balanceObj]) => {
-        acc[accountId] = Object.entries(balanceObj).reduce<Record<AssetId, string>>(
-          (balanceByAssetId, [assetId, cryptoBalance]) => {
+        acc[accountId] = Object.entries(balanceObj).reduce(
+          (acc, [assetId, cryptoBalance]) => {
             const asset = assetsById[assetId]
-            if (!asset) return balanceByAssetId
+            if (!asset) return acc
             const precision = asset.precision
             const price = marketData[assetId]?.price ?? 0
             const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
             const userCurrencyBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            balanceByAssetId[assetId] = userCurrencyBalance
+            acc[assetId] = userCurrencyBalance
 
-            return balanceByAssetId
+            return acc
           },
-          {},
+          { ...balanceObj },
         )
 
         return acc
       },
-      {},
+      { ...accounts },
     )
   },
 )

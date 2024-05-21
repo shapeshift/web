@@ -13,5 +13,5 @@ export type UnstakeRouteProps = {
 export type RfoxUnstakingQuote = {
   stakingAssetAccountId: AccountId
   stakingAssetId: AssetId
-  stakingAmountCryptoBaseUnit: string
+  unstakingAmountCryptoBaseUnit: string
 }

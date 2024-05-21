@@ -192,7 +192,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
+      unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
     })
 
     history.push(UnstakeRoutePaths.Confirm)

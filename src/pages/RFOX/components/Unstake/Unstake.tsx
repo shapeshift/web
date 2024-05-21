@@ -50,18 +50,37 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const location = useLocation()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
+  const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
 
   const renderUnstakeInput = useCallback(() => {
     return <UnstakeInput setConfirmedQuote={setConfirmedQuote} headerComponent={headerComponent} />
   }, [headerComponent])
 
   const renderUnstakeConfirm = useCallback(() => {
-    return <UnstakeConfirm headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!confirmedQuote) return null
+
+    return (
+      <UnstakeConfirm
+        confirmedQuote={confirmedQuote}
+        unstakeTxid={unstakeTxid}
+        setUnstakeTxid={setUnstakeTxid}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [confirmedQuote, headerComponent, unstakeTxid])
 
   const renderUnstakeStatus = useCallback(() => {
-    return <UnstakeStatus headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!confirmedQuote) return null
+    if (!unstakeTxid) return null
+
+    return (
+      <UnstakeStatus
+        txId={unstakeTxid}
+        confirmedQuote={confirmedQuote}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [confirmedQuote, headerComponent, unstakeTxid])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

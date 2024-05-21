@@ -292,6 +292,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               <UnstakeSummary
                 amountCryptoPrecision={amountCryptoPrecision ?? 0}
                 stakingAssetId={stakingAsset.assetId}
+                isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
               />
               <CardFooter
                 borderTopWidth={1}

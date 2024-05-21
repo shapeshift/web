@@ -222,14 +222,21 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
           <Stack>
             {headerComponent}
             <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-              <Stack spacing={4} px={6} pb={4}>
+              <Stack>
                 <AmountSlider
                   sliderValue={sliderValue}
                   handlePercentageSliderChange={handlePercentageSliderChange}
                   onPercentageClick={handlePercentageClick}
                   handlePercentageSliderChangeEnd={handlePercentageSliderChangeEnd}
                 />
-                <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
+                <Flex
+                  width='full'
+                  px={6}
+                  py={4}
+                  justifyContent='space-between'
+                  fontSize='xs'
+                  color='text.subtle'
+                >
                   <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
                     <Amount.Fiat value={0} />
                   </Skeleton>

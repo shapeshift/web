@@ -7,6 +7,7 @@ export const zrxSupportedChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.BaseMainnet,
 ] as const
 
 export type ZrxSupportedChainId = (typeof zrxSupportedChainIds)[number]
@@ -32,6 +33,9 @@ export type ZrxPriceResponse = {
   minimumProtocolFee: string
   protocolFee: string
   estimatedPriceImpact: string
+  auxiliaryChainData: {
+    l1GasEstimate?: number
+  }
 }
 
 export type ZrxQuoteResponse = ZrxPriceResponse & {

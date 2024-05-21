@@ -152,7 +152,10 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
-      assertIsValidMinOut(minOut, memo)
+      // Here we go again with this being reverted. MinOut doesn't have to be present, and its absence is perfectly valid, in fact it's the default
+      // behaviour resulting in automagical internal streaming swaps. It's presence *will* enforce a limit, but we have to guesstimate the limit,
+      // since the expected_amount_out returned to us by THOR assumes streaming, which won't cut it when added to a memo and resulting in a non-streaming loan.
+      // assertIsValidMinOut(minOut, memo)
 
       return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:${
         fee || 0

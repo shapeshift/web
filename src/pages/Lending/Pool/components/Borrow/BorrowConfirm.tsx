@@ -246,9 +246,15 @@ export const BorrowConfirm = ({
   const memo = useMemo(() => {
     if (!confirmedQuote) return null
 
-    // No need for slippage deduction here - quoteBorrowedAmountThorBaseUnit (expected_amount_out) already is quote.fees.slippage_bps deducted
-    const minDebtAmount = confirmedQuote.quoteBorrowedAmountThorBaseUnit
-    return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: minDebtAmount })
+    // In theory, no need for slippage deduction here - quoteBorrowedAmountThorBaseUnit (expected_amount_out) already is quote.fees.slippage_bps deducted
+    // But things get weirder, see below.
+    // const minDebtAmount = confirmedQuote.quoteBorrowedAmountThorBaseUnit
+    // NOTE: We currently add a limit of '' (empty component) here, because loans are weird. There is some magical component in them using internal streaming swaps unless a limit
+    // is set. There is also no `expected_amount_out_streaming` field in the quote, only `expected_amount_out` (which assumes streaming).
+    // Meaning trying to use the `expected_amount_out` as a limit will yield a slightly worse rate, and result in a refund.
+    // TODO(gomes): after this PR goes in, we should add some slippage component here similar to swapper with a sane, default slippage.
+    // Said slippage should be high enough to account for the worsening of rate from streaming -> non-streaming, but low enough to not be a significant loss.
+    return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: '0' })
   }, [confirmedQuote])
 
   const { executeTransaction, estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({

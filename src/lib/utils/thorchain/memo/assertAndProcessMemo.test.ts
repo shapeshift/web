@@ -582,7 +582,9 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    it('should throw on invalid min out', () => {
+    // TODO(gomes): reimplement me when adding slippage functionality to lending, with a sane slippage to compensate
+    // for the worsened out from streaming -> non-streaming loan
+    it.skip('should throw on invalid min out', () => {
       let memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
       expect(() => assertAndProcessMemo(memo)).toThrow()

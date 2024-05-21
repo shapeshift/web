@@ -18,7 +18,7 @@ import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { toBaseUnit } from 'lib/math'
 import { formatDuration } from 'lib/utils/time'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,6 +38,10 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
 }) => {
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const translate = useTranslate()
+  const amountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    [amountCryptoPrecision, stakingAsset?.precision],
+  )
 
   const stakeAmountToolTip = useCallback(() => {
     return <Text color='text.subtle' translation='RFOX.tooltips.unstakeAmount' />
@@ -67,20 +71,25 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     [stakingAssetAccountId],
   )
 
-  // TODO(gomes): fix me both here and in staking, this should be the staking balance, not the hollistic balanceOf
-  const { data: userBalanceOf, isSuccess: isUserBalanceOfSuccess } = useReadContract({
+  const {
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'balanceOf',
-    args: [getAddress(stakingAssetAccountAddress)],
+    functionName: 'stakingInfo',
+    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
     chainId: arbitrum.id,
     query: {
-      select: data => fromBaseUnit(data.toString(), stakingAsset?.precision ?? 0),
-      enabled: Boolean(stakingAsset),
+      enabled: Boolean(stakingAssetAccountAddress),
+      select: ([stakingBalance]) => stakingBalance.toString(),
     },
   })
 
-  const { data: newContractBalanceOf, isSuccess: isNewContractBalanceOfSuccess } = useReadContract({
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
     abi: erc20ABI,
     // TODO(gomes): fixme, programmatic in the two places this is uses for unstaking, and in the two for staking
     address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
@@ -88,20 +97,17 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
     chainId: arbitrum.id,
     query: {
-      select: data =>
-        bnOrZero(fromBaseUnit(data.toString(), stakingAsset?.precision ?? 0)).minus(
-          amountCryptoPrecision,
-        ),
+      select: data => data.toString(),
     },
   })
 
   const newShareOfPoolPercentage = useMemo(
     () =>
-      bnOrZero(userBalanceOf)
-        .minus(amountCryptoPrecision ?? 0)
-        .div(newContractBalanceOf ?? 0)
+      bnOrZero(userStakingBalanceOfCryptoBaseUnit)
+        .minus(amountCryptoBaseUnit ?? 0)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
         .toFixed(4),
-    [amountCryptoPrecision, newContractBalanceOf, userBalanceOf],
+    [amountCryptoBaseUnit, newContractBalanceOfCryptoBaseUnit, userStakingBalanceOfCryptoBaseUnit],
   )
 
   if (!stakingAsset) return null
@@ -135,7 +141,12 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
       <Row Tooltipbody={shareOfPoolToolTip}>
         <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={isNewContractBalanceOfSuccess && isUserBalanceOfSuccess}>
+          <Skeleton
+            isLoaded={
+              isNewContractBalanceOfCryptoBaseUnitSuccess &&
+              isUserStakingBalanceOfCryptoBaseUnitSuccess
+            }
+          >
             <Amount.Percent value={newShareOfPoolPercentage} />
           </Skeleton>
         </Row.Value>

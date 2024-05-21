@@ -227,20 +227,25 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     [isUnstakeMutationPending, isUnstakeMutationSuccess, unstakeTx],
   )
 
-  // TODO(gomes): fix me both here and in staking, this should be the staking balance, not the hollistic balanceOf
-  const { data: userBalanceOf, isSuccess: isUserBalanceOfSuccess } = useReadContract({
+  const {
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'balanceOf',
-    args: [getAddress(stakingAssetAccountAddress)],
+    functionName: 'stakingInfo',
+    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
     chainId: arbitrum.id,
     query: {
-      select: data => fromBaseUnit(data.toString(), stakingAsset?.precision ?? 0),
-      enabled: Boolean(stakingAsset),
+      enabled: Boolean(stakingAssetAccountAddress),
+      select: ([stakingBalance]) => stakingBalance.toString(),
     },
   })
 
-  const { data: newContractBalanceOf, isSuccess: isNewContractBalanceOfSuccess } = useReadContract({
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
     abi: erc20ABI,
     // TODO(gomes): fixme, programmatic in the two places this is uses for unstaking, and in the two for staking
     address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
@@ -248,20 +253,21 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
     chainId: arbitrum.id,
     query: {
-      select: data =>
-        bnOrZero(fromBaseUnit(data.toString(), stakingAsset?.precision ?? 0)).minus(
-          unstakingAmountCryptoPrecision,
-        ),
+      select: data => data.toString(),
     },
   })
 
   const newShareOfPoolPercentage = useMemo(
     () =>
-      bnOrZero(userBalanceOf)
-        .minus(unstakingAmountCryptoPrecision ?? 0)
-        .div(newContractBalanceOf ?? 0)
+      bnOrZero(userStakingBalanceOfCryptoBaseUnit)
+        .minus(confirmedQuote.unstakingAmountCryptoBaseUnit)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
         .toFixed(4),
-    [newContractBalanceOf, unstakingAmountCryptoPrecision, userBalanceOf],
+    [
+      confirmedQuote.unstakingAmountCryptoBaseUnit,
+      newContractBalanceOfCryptoBaseUnit,
+      userStakingBalanceOfCryptoBaseUnit,
+    ],
   )
 
   return (
@@ -299,7 +305,12 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
               <CustomRow>
                 <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
                 <Row.Value>
-                  <Skeleton isLoaded={isNewContractBalanceOfSuccess && isUserBalanceOfSuccess}>
+                  <Skeleton
+                    isLoaded={
+                      isNewContractBalanceOfCryptoBaseUnitSuccess &&
+                      isUserStakingBalanceOfCryptoBaseUnitSuccess
+                    }
+                  >
                     <Amount.Percent value={newShareOfPoolPercentage} />
                   </Skeleton>
                 </Row.Value>

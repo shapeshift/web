@@ -97,8 +97,8 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
 
   const newShareOfPoolPercentage = useMemo(
     () =>
-      bnOrZero(amountCryptoPrecision)
-        .plus(userBalanceOf ?? 0)
+      bnOrZero(userBalanceOf)
+        .minus(amountCryptoPrecision ?? 0)
         .div(newContractBalanceOf ?? 0)
         .toFixed(4),
     [amountCryptoPrecision, newContractBalanceOf, userBalanceOf],

@@ -10,11 +10,16 @@ import { useAppSelector } from 'state/store'
 
 type UnstakeSummaryProps = {
   isLoading?: boolean
-  assetId: AssetId
+  amountCryptoPrecision: string
+  stakingAssetId: AssetId
 }
 
-export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({ isLoading, assetId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
+  isLoading,
+  amountCryptoPrecision,
+  stakingAssetId,
+}) => {
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const translate = useTranslate()
 
   const stakeAmountToolTip = useCallback(() => {
@@ -29,7 +34,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({ isLoading, asset
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  if (!asset) return null
+  if (!stakingAsset) return null
   return (
     <Stack
       fontSize='sm'
@@ -46,7 +51,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({ isLoading, asset
         <Row.Label>{translate('RFOX.unstakeAmount')}</Row.Label>
         <Row.Value>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto value='0' symbol={asset.symbol} />
+            <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAsset.symbol} />
           </Skeleton>
         </Row.Value>
       </Row>

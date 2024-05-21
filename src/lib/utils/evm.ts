@@ -141,11 +141,11 @@ export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitA
 
   // eip1559 fees
   if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
-    return bn(gasLimit).times(maxFeePerGas).plus(l1Fee).toString()
+    return bn(gasLimit).times(maxFeePerGas).plus(l1Fee).toFixed()
   }
 
   // legacy fees
-  return bn(gasLimit).times(gasPrice).plus(l1Fee).toString()
+  return bn(gasLimit).times(gasPrice).plus(l1Fee).toFixed()
 }
 
 export const createBuildCustomTxInput = async (

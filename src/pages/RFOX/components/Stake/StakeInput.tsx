@@ -469,6 +469,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                   stakingAssetId={stakingAsset.assetId}
                   stakingAssetAccountId={stakingAssetAccountId}
                   stakingAmountCryptoPrecision={amountCryptoPrecision}
+                  stakingAssetAccountId={stakingAssetAccountId}
                 />
               )}
               <CardFooter

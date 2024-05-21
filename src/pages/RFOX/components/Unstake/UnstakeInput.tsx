@@ -1,14 +1,16 @@
 import { Button, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import type { Address } from 'viem'
-import { getAddress } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
@@ -19,8 +21,10 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { formatDuration } from 'lib/utils/time'
 import type { UnstakeInputValues } from 'pages/RFOX/types'
 import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
 import {
@@ -33,7 +37,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { UnstakeSummary } from './components/UnstakeSummary'
-import type { UnstakeRouteProps } from './types'
+import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
 
 const formControlProps = {
@@ -53,12 +57,15 @@ const defaultFormValues = {
 
 type UnstakeInputProps = {
   stakingAssetId?: AssetId
+  setConfirmedQuote: (quote: RfoxUnstakingQuote | undefined) => void
 }
 
 export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   stakingAssetId = foxOnArbitrumOneAssetId,
+  setConfirmedQuote,
   headerComponent,
 }) => {
+  const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
 
@@ -68,7 +75,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     shouldUnregister: false,
   })
 
-  const { control, setValue } = methods
+  const {
+    formState: { errors },
+    control,
+    setValue,
+  } = methods
 
   const amountCryptoPrecision = useWatch<UnstakeInputValues, 'amountCryptoPrecision'>({
     control,
@@ -156,7 +167,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
-  const hasEnteredValue = useMemo(() => percentage > 0, [percentage])
+  const hasEnteredValue = useMemo(
+    () => bnOrZero(amountCryptoPrecision).gt(0),
+    [amountCryptoPrecision],
+  )
 
   const [isFiat, handleToggleIsFiat] = useToggle(false)
 
@@ -173,8 +187,24 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   }, [])
 
   const handleSubmit = useCallback(() => {
+    if (!(stakingAssetAccountId && hasEnteredValue && stakingAsset)) return
+
+    setConfirmedQuote({
+      stakingAssetAccountId,
+      stakingAssetId,
+      stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
+    })
+
     history.push(UnstakeRoutePaths.Confirm)
-  }, [history])
+  }, [
+    amountCryptoPrecision,
+    hasEnteredValue,
+    history,
+    setConfirmedQuote,
+    stakingAsset,
+    stakingAssetAccountId,
+    stakingAssetId,
+  ])
 
   const handlePercentageSliderChange = useCallback((percentage: number) => {
     setSliderValue(percentage)
@@ -219,13 +249,83 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setSliderValue(percentage)
   }, [])
 
+  const { data: cooldownPeriod } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'cooldownPeriod',
+    chainId: arbitrum.id,
+    query: {
+      staleTime: Infinity,
+      select: data => formatDuration(Number(data)),
+    },
+  })
+
+  const callData = useMemo(() => {
+    if (!hasEnteredValue) return
+
+    return encodeFunctionData({
+      abi: foxStakingV1Abi,
+      functionName: 'unstake',
+      args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0))],
+    })
+  }, [amountCryptoPrecision, hasEnteredValue, stakingAsset?.precision])
+
+  const isGetUnstakeFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        stakingAssetAccountId &&
+          stakingAssetAccountNumber !== undefined &&
+          hasEnteredValue &&
+          wallet &&
+          stakingAsset &&
+          callData &&
+          feeAsset &&
+          feeAssetMarketData &&
+          !Boolean(errors.amountFieldInput),
+      ),
+    [
+      stakingAssetAccountId,
+      stakingAssetAccountNumber,
+      hasEnteredValue,
+      wallet,
+      stakingAsset,
+      callData,
+      feeAsset,
+      feeAssetMarketData,
+      errors.amountFieldInput,
+    ],
+  )
+
+  const {
+    data: unstakeFees,
+    isLoading: isUnstakeFeesLoading,
+    isSuccess: isUnstakeFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetStakeFeesEnabled
+      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
+      data: callData!, // see isGetStakeFeesEnabled
+      value: '0', // contract call
+      wallet: wallet!, // see isGetStakeFeesEnabled
+      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+    }),
+    staleTime: 30_000,
+    enabled: isGetUnstakeFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: 15_000,
+  })
+
   if (!stakingAsset) return null
 
   return (
     <SlideTransition>
       <WarningAcknowledgement
         message={translate('RFOX.unstakeWarning', {
-          cooldownPeriod: '28-day',
+          cooldownPeriod,
         })}
         onAcknowledge={handleSubmit}
         shouldShowWarningAcknowledgement={showWarning}
@@ -302,18 +402,16 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
                 py={4}
                 bg='background.surface.raised.accent'
               >
-                <Row fontSize='sm' fontWeight='medium'>
-                  <Row.Label>{translate('common.gasFee')}</Row.Label>
-                  <Row.Value>
-                    <Amount.Fiat value='10' />
-                  </Row.Value>
-                </Row>
-                <Row fontSize='sm' fontWeight='medium'>
-                  <Row.Label>{translate('common.fees')}</Row.Label>
-                  <Row.Value>
-                    <Amount.Fiat value='0.0' />
-                  </Row.Value>
-                </Row>
+                {isGetUnstakeFeesEnabled && (
+                  <Row fontSize='sm' fontWeight='medium'>
+                    <Row.Label>{translate('common.gasFee')}</Row.Label>
+                    <Row.Value>
+                      <Skeleton isLoaded={Boolean(!isUnstakeFeesLoading && unstakeFees)}>
+                        <Amount.Fiat value={unstakeFees?.txFeeFiat ?? 0} />
+                      </Skeleton>
+                    </Row.Value>
+                  </Row>
+                )}
               </CardFooter>
             </Collapse>
           </Stack>
@@ -331,7 +429,13 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               mx={-2}
               onClick={handleWarning}
               colorScheme='blue'
-              isDisabled={!hasEnteredValue}
+              isDisabled={Boolean(
+                !hasEnteredValue ||
+                  !isUnstakeFeesSuccess ||
+                  Boolean(errors.amountFieldInput) ||
+                  !cooldownPeriod,
+              )}
+              isLoading={isUnstakeFeesLoading}
             >
               {translate('RFOX.unstake')}
             </Button>

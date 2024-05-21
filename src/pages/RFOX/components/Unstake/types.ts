@@ -1,3 +1,5 @@
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+
 export enum UnstakeRoutePaths {
   Input = '/remove/input',
   Confirm = '/remove/confirm',
@@ -6,4 +8,10 @@ export enum UnstakeRoutePaths {
 
 export type UnstakeRouteProps = {
   headerComponent?: JSX.Element
+}
+
+export type RfoxUnstakingQuote = {
+  stakingAssetAccountId: AccountId
+  stakingAssetId: AssetId
+  stakingAmountCryptoBaseUnit: string
 }

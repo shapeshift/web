@@ -78,7 +78,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps> = () => {
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.shapeShiftFee')}</Row.Label>
-                <Row.Value>Free</Row.Value>
+                <Row.Value>{translate('common.free')}</Row.Value>
               </CustomRow>
             </TimelineItem>
             <TimelineItem>

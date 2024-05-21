@@ -1,11 +1,6 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import {
-  type AssetId,
-  foxOnArbitrumOneAssetId,
-  fromAccountId,
-  fromAssetId,
-} from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -91,8 +86,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useReadContract({
     abi: erc20ABI,
-    // TODO(gomes): fixme, programmatic in the two places this is uses for unstaking, and in the two for staking
-    address: getAddress(fromAssetId(foxOnArbitrumOneAssetId).assetReference),
+    address: getAddress(fromAssetId(stakingAssetId).assetReference),
     functionName: 'balanceOf',
     args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
     chainId: arbitrum.id,

@@ -361,7 +361,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             <TradeAssetInput
               // amountFieldInputRules={amountFieldInputRules} TODO(gomes): implement me, validate has enough fee balance here
               assetIcon={stakingAsset?.icon ?? ''}
-              assetId={stakingAsset?.assetId}
+              assetId={stakingAssetId}
               assetSymbol={stakingAsset?.symbol ?? ''}
               cryptoAmount={amountCryptoPrecision}
               fiatAmount={amountUserCurrency}
@@ -386,7 +386,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
                 <UnstakeSummary
                   amountCryptoPrecision={amountCryptoPrecision ?? 0}
                   stakingAssetAccountId={stakingAssetAccountId}
-                  stakingAssetId={stakingAsset.assetId}
+                  stakingAssetId={stakingAssetId}
                   isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
                 />
               )}

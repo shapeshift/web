@@ -14,7 +14,6 @@ import type { ReduxState } from 'state/reducer'
 import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
 import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { opportunities } from 'state/slices/opportunitiesSlice/opportunitiesSlice'
@@ -85,10 +84,9 @@ type GetZapperNftUserTokensInput = {
   accountIds: AccountId[]
 }
 
-type GetZapperAppsBalancesInput = void // void in the interim, but should eventually be consumed programatically so we are reactive on accounts
-// {
-// accountIds: AccountId[]
-// }
+export type GetZapperAppsBalancesInput = {
+  evmAccountIds: AccountId[]
+}
 
 type GetZapperCollectionsInput = {
   accountIds: AccountId[]
@@ -311,31 +309,25 @@ export const zapper = createApi({
       GetZapperAppsBalancesOutput,
       GetZapperAppsBalancesInput
     >({
-      queryFn: async (_input, { dispatch, getState }) => {
+      queryFn: async ({ evmAccountIds }, { dispatch, getState }) => {
         const state = getState() as ReduxState
         const ReadOnlyAssets = selectFeatureFlag(state, 'ReadOnlyAssets')
 
-        if (!ReadOnlyAssets)
-          return {
-            data: {
-              userData: [],
-              opportunities: {},
-              metadataByProvider: {},
-            },
-          }
-
         try {
-          const accountIds = selectWalletAccountIds(state)
-
-          if (!accountIds.length) throw new Error('Not ready')
+          if (!ReadOnlyAssets || !evmAccountIds.length)
+            return {
+              data: {
+                userData: [],
+                opportunities: {},
+                metadataByProvider: {},
+              },
+            }
 
           const assets = selectAssets(state)
           const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
-          const addresses = accountIdsToEvmAddresses(accountIds)
-
-          // We may have some AccountIds, where none of them are EVM AccountIds
-          if (!addresses.length) throw new Error('No EVM addresses found')
+          // Get unique addresses set from EVM AccountIds
+          const addresses = accountIdsToEvmAddresses(evmAccountIds)
 
           const maybeZapperV2AppsData = await dispatch(
             zapperApi.endpoints.getZapperAppsOutput.initiate(),

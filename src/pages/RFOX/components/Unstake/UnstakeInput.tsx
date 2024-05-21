@@ -140,18 +140,18 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     },
   })
 
-  const userStakingBalanceCryptoPrecision = useMemo(
-    () => fromBaseUnit(userStakingBalanceOfCryptoBaseUnit ?? 0, stakingAsset?.precision ?? 0),
-    [stakingAsset?.precision, userStakingBalanceOfCryptoBaseUnit],
-  )
+  const userStakingBalanceCryptoPrecision = useMemo(() => {
+    if (!(userStakingBalanceOfCryptoBaseUnit && stakingAsset)) return
+    return fromBaseUnit(userStakingBalanceOfCryptoBaseUnit, stakingAsset?.precision)
+  }, [stakingAsset, userStakingBalanceOfCryptoBaseUnit])
 
-  const userStakingBalanceUserCurrency = useMemo(
-    () =>
-      bnOrZero(userStakingBalanceCryptoPrecision)
-        .times(stakingAssetMarketData?.price ?? 0)
-        .toFixed(2),
-    [stakingAssetMarketData?.price, userStakingBalanceCryptoPrecision],
-  )
+  const userStakingBalanceUserCurrency = useMemo(() => {
+    if (!(userStakingBalanceCryptoPrecision && stakingAssetMarketData)) return
+
+    return bnOrZero(userStakingBalanceCryptoPrecision)
+      .times(stakingAssetMarketData?.price ?? 0)
+      .toFixed(2)
+  }, [stakingAssetMarketData, userStakingBalanceCryptoPrecision])
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
@@ -189,16 +189,33 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
         .div(100)
         .toFixed()
 
+      console.log({ fiatValue, cryptoValue, userStakingBalanceUserCurrency })
+
       setValue('amountFieldInput', isFiat ? fiatValue : cryptoValue)
       setValue('amountCryptoPrecision', cryptoValue)
       setValue('amountUserCurrency', fiatValue)
     },
     [isFiat, setValue, userStakingBalanceCryptoPrecision, userStakingBalanceUserCurrency],
   )
+
+  // Set the form values on initial staked balance fetch
+  useEffect(() => {
+    if (!userStakingBalanceCryptoPrecision || !userStakingBalanceUserCurrency) return
+    if (amountCryptoPrecision && amountUserCurrency) return
+
+    handlePercentageSliderChangeEnd(percentage)
+  }, [
+    amountCryptoPrecision,
+    amountUserCurrency,
+    handlePercentageSliderChangeEnd,
+    percentage,
+    stakingAssetMarketData,
+    userStakingBalanceCryptoPrecision,
+    userStakingBalanceUserCurrency,
+  ])
+
   const handlePercentageClick = useCallback((percentage: number) => {
     setSliderValue(percentage)
-    // TODO(gomes): bring me bakk
-    // setPercentageSelection(percentage)
   }, [])
 
   // TODO(gomes): use percentage instead of percentageSelection
@@ -242,7 +259,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
                   </Skeleton>
                   <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
                     {/* Actually defined at display time, see isLoaded above */}
-                    <Amount.Fiat value={userStakingBalanceUserCurrency} />
+                    <Amount.Fiat value={userStakingBalanceUserCurrency ?? 0} />
                   </Skeleton>
                 </Flex>
               </Stack>

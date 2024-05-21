@@ -250,23 +250,25 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             <FormDivider />
             <TradeAssetInput
               // amountFieldInputRules={amountFieldInputRules} TODO(gomes): implement me, validate has enough fee balance here
+              assetIcon={stakingAsset?.icon ?? ''}
               assetId={stakingAsset?.assetId}
               assetSymbol={stakingAsset?.symbol ?? ''}
-              assetIcon={stakingAsset?.icon ?? ''}
-              percentOptions={percentOptions}
-              onAccountIdChange={handleAccountIdChange}
-              formControlProps={formControlProps}
-              isAccountSelectionDisabled
-              isSendMaxDisabled={true}
-              onChange={handleChange}
-              rightComponent={ReadOnlyAsset}
               cryptoAmount={amountCryptoPrecision}
               fiatAmount={amountUserCurrency}
-              showInputSkeleton={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
-              onToggleIsFiat={handleToggleIsFiat}
+              formControlProps={formControlProps}
+              // TODO(gomes): bring me back when multi account is implemented
+              isAccountSelectionDisabled
+              isAccountSelectionHidden
               isFiat={isFiat}
               isReadOnly
-              isAccountSelectionHidden
+              isSendMaxDisabled={true}
+              layout='inline'
+              onAccountIdChange={handleAccountIdChange}
+              onChange={handleChange}
+              onToggleIsFiat={handleToggleIsFiat}
+              percentOptions={percentOptions}
+              rightComponent={ReadOnlyAsset}
+              showInputSkeleton={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
             />
 
             <Collapse in={hasEnteredValue}>

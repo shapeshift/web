@@ -49,15 +49,15 @@ export const Unstake: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
 export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
-  const renderStakeInput = useCallback(() => {
+  const renderUnstakeInput = useCallback(() => {
     return <UnstakeInput headerComponent={headerComponent} />
   }, [headerComponent])
 
-  const renderStakeConfirm = useCallback(() => {
+  const renderUnstakeConfirm = useCallback(() => {
     return <UnstakeConfirm headerComponent={headerComponent} />
   }, [headerComponent])
 
-  const renderStakeStatus = useCallback(() => {
+  const renderUnstakeStatus = useCallback(() => {
     return <UnstakeStatus headerComponent={headerComponent} />
   }, [headerComponent])
 
@@ -68,17 +68,17 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
           <Route
             key={UnstakeRoutePaths.Input}
             path={UnstakeRoutePaths.Input}
-            render={renderStakeInput}
+            render={renderUnstakeInput}
           />
           <Route
             key={UnstakeRoutePaths.Confirm}
             path={UnstakeRoutePaths.Confirm}
-            render={renderStakeConfirm}
+            render={renderUnstakeConfirm}
           />
           <Route
             key={UnstakeRoutePaths.Status}
             path={UnstakeRoutePaths.Status}
-            render={renderStakeStatus}
+            render={renderUnstakeStatus}
           />
         </Suspense>
       </Switch>

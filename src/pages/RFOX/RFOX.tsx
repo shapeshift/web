@@ -70,7 +70,7 @@ export const RFOX: React.FC = () => {
               <TabPanel px={0} py={0}>
                 <Stake headerComponent={TabHeader} />
               </TabPanel>
-              <TabPanel>
+              <TabPanel px={0} py={0}>
                 <Unstake headerComponent={TabHeader} />
               </TabPanel>
             </TabPanels>

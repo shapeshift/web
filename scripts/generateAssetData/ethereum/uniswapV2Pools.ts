@@ -148,6 +148,7 @@ export const getUniswapV2Pools = async () => {
         name,
         precision: Number(appTokenData.decimals),
         icons,
+        icon: 'https://assets.coincap.io/assets/icons/256/uni.png',
       })
     })
     .filter(Boolean) as Asset[]

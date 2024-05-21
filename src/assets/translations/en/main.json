@@ -2431,7 +2431,9 @@
     "changeAddress": "Change address",
     "stakingDetails": "Staking Details",
     "stakeAmount": "Stake Amount",
+    "unstakeAmount": "Unstake Amount",
     "confirmAndStake": "Confirm & Stake",
+    "confirmAndUnstake": "Confirm & Unstake",
     "shapeShiftFee": "ShapeShift Fee",
     "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
@@ -2442,12 +2444,16 @@
     "useWalletAddress": "Use wallet address",
     "useCustomAddress": "Use custom address",
     "stakeWarning": "When you stake your FOX tokens, please be aware that there is a %{cooldownPeriod} lock-up period. This means that if you decide to unstake your tokens, you will need to wait 28 days before you can claim your funds.",
+    "unstakeWarning": "Before you can claim your FOX, there is a %{cooldownPeriod} cool down period. After that time has elapsed you will be able to claim your unstaked amount.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
+      "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
       "shareOfPool": "This is your percentage of the fees, you'll earn."
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
-    "stakePending": "Staking %{amount} %{symbol}..."
+    "stakePending": "Staking %{amount} %{symbol}...",
+    "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
+    "unstakeSuccess": "Once the %{cooldownPeriod} have elapsed, you will be able to claim your %{amount} %{symbol}"
   }
 }

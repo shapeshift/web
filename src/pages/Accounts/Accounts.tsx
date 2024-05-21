@@ -12,8 +12,8 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectPortfolioChainIdsSortedUserCurrency,
   selectPortfolioLoading,
+  selectWalletConnectedChainIdsSorted,
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -89,7 +89,7 @@ export const Accounts = () => {
   const { path } = useRouteMatch()
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectPortfolioLoading)
-  const portfolioChainIdsSortedUserCurrency = useSelector(selectPortfolioChainIdsSortedUserCurrency)
+  const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
   const chainRows = useMemo(
     () =>
       portfolioChainIdsSortedUserCurrency.map(chainId => (

@@ -8,6 +8,7 @@ import {
   useGetZapperUniV2PoolAssetIdsQuery,
 } from 'state/apis/zapper/zapperApi'
 import {
+  selectEvmAccountIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -19,14 +20,16 @@ export const useFetchOpportunities = () => {
   const dispatch = useAppDispatch()
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
+  const evmAccountIds = useSelector(selectEvmAccountIds)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const DynamicLpAssets = useFeatureFlag('DynamicLpAssets')
 
   const { isLoading: isZapperAppsBalancesOutputLoading } = useGetZapperAppsBalancesOutputQuery(
-    undefined,
+    { evmAccountIds },
     {
-      skip: !requestedAccountIds.length,
+      skip: !evmAccountIds.length,
+      refetchOnMountOrArgChange: true,
     },
   )
   const { isLoading: isZapperUniV2PoolAssetIdsLoading } = useGetZapperUniV2PoolAssetIdsQuery(

@@ -1418,8 +1418,10 @@
       },
       "connect": {
         "header": "Pair Ledger",
-        "body": "Click Pair then select your Ledger from the popup window",
-        "button": "Pair"
+        "pairNewDeviceBody": " Click 'Pair new device' to get started",
+        "pairNewDeviceButton": "Pair new device",
+        "pairExistingDeviceButton": "Pair existing device",
+        "pairExistingDeviceBody": "Connecting a different Ledger device? Click 'Pair new device' to start fresh."
       },
       "failure": {
         "header": "Error",
@@ -1466,7 +1468,8 @@
       "andMore": "...and more",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled",
-      "dontAskAgain": "Don't ask again"
+      "dontAskAgain": "Don't ask again",
+      "multiAccountUnsupported": "Multi-account is unsupported for this chain using the Multichain Snap on MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",

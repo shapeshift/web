@@ -17,6 +17,7 @@ import path from 'path'
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
+import * as base from './base'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as cosmos from './cosmos'
@@ -38,6 +39,7 @@ const generateAssetData = async () => {
   const gnosisAssets = await gnosis.getAssets()
   const arbitrumAssets = await arbitrum.getAssets()
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
+  const baseAssets = await base.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -56,6 +58,7 @@ const generateAssetData = async () => {
     ...gnosisAssets,
     ...arbitrumAssets,
     ...arbitrumNovaAssets,
+    ...baseAssets,
   ]
 
   // remove blacklisted assets
@@ -73,6 +76,7 @@ const generateAssetData = async () => {
     [KnownChainIds.GnosisMainnet]: gnosisAssets.map(asset => asset.name),
     [KnownChainIds.ArbitrumMainnet]: arbitrumAssets.map(asset => asset.name),
     [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNovaAssets.map(asset => asset.name),
+    [KnownChainIds.BaseMainnet]: baseAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -142,6 +146,11 @@ const generateAssetData = async () => {
     // mark any optimism assets that also exist on other evm chains
     if (chainId === KnownChainIds.OptimismMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Optimism`
+    }
+
+    // mark any base assets that also exist on other evm chains
+    if (chainId === KnownChainIds.BaseMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Base`
     }
 
     acc[asset.assetId] = asset

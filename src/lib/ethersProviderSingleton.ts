@@ -25,6 +25,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
       return getConfig().REACT_APP_ARBITRUM_NODE_URL
     case KnownChainIds.ArbitrumNovaMainnet:
       return getConfig().REACT_APP_ARBITRUM_NOVA_NODE_URL
+    case KnownChainIds.BaseMainnet:
+      return getConfig().REACT_APP_BASE_NODE_URL
     default:
       assertUnreachable(chainId)
   }

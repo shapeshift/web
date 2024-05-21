@@ -15,6 +15,10 @@ import tokenStandard from './mockData/tokenStandard'
 import xdaiSelfSend from './mockData/xdaiSelfSend'
 import xdaiStandard from './mockData/xdaiStandard'
 
+vi.hoisted(() => {
+  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+})
+
 const mockedApi = vi.mocked(new V1Api())
 
 const tokenMetadata: evm.TokenMetadata = {

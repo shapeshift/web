@@ -1,5 +1,12 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ASSET_REFERENCE, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  ethChainId,
+  optimismChainId,
+  polygonChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { BigNumber } from 'bignumber.js'
 import { getAddress, JsonRpcProvider } from 'ethers'
 
@@ -135,8 +142,11 @@ export class BaseTransactionParser<T extends Tx> {
       }
 
       const assetId = (() => {
-        // alias ether token on optimism to native asset as they are the same
-        if (transfer.contract === '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000') {
+        // alias LegacyERC20ETH on optimism to native asset as they are the same (pre bedrock)
+        if (
+          this.chainId === optimismChainId &&
+          transfer.contract === '0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000'
+        ) {
           return toAssetId({
             chainId: this.chainId,
             assetNamespace: 'slip44',
@@ -145,7 +155,10 @@ export class BaseTransactionParser<T extends Tx> {
         }
 
         // alias matic token on matic to native asset as they are the same
-        if (transfer.contract === '0x0000000000000000000000000000000000001010') {
+        if (
+          this.chainId === polygonChainId &&
+          transfer.contract === '0x0000000000000000000000000000000000001010'
+        ) {
           return toAssetId({
             chainId: this.chainId,
             assetNamespace: 'slip44',

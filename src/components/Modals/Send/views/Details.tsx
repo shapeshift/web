@@ -74,7 +74,11 @@ export const Details = () => {
     control,
   }) as Partial<SendInput>
 
-  const hasEnteredPositiveAmount = bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).gt(0)
+  const hasEnteredPositiveAmount = useMemo(() => {
+    if (amountCryptoPrecision === '' || fiatAmount === '') return false
+
+    return bnOrZero(amountCryptoPrecision).plus(bnOrZero(fiatAmount)).isPositive()
+  }, [amountCryptoPrecision, fiatAmount])
 
   const previousAccountId = usePrevious(accountId)
 

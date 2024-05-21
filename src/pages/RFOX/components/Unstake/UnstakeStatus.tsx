@@ -64,6 +64,7 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
     if (!stakingAsset) return null
 
     switch (tx?.status) {
+      case undefined:
       case TxStatus.Pending:
         return {
           key: TxStatus.Pending,

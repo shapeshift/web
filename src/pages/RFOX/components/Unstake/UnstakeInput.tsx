@@ -33,6 +33,7 @@ import {
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -76,6 +77,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   })
 
   const {
+    trigger,
     formState: { errors },
     control,
     setValue,
@@ -159,6 +161,18 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       .times(stakingAssetMarketData?.price ?? 0)
       .toFixed(2)
   }, [stakingAssetMarketData, userStakingBalanceCryptoPrecision])
+
+  const feeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: stakingAssetAccountId ?? '',
+      assetId: feeAsset?.assetId,
+    }),
+    [feeAsset?.assetId, stakingAssetAccountId],
+  )
+
+  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, feeAssetBalanceFilter),
+  )
 
   const handleAccountIdChange = useCallback(() => {}, [])
 
@@ -316,6 +330,48 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     stakingAssetId,
   ])
 
+  const validateHasEnoughFeeBalance = useCallback(
+    (input: string) => {
+      if (bnOrZero(input).isZero()) return true
+      if (bnOrZero(feeAssetBalanceCryptoPrecision).isZero()) return false
+
+      const fees = unstakeFees
+
+      const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
+        toBaseUnit(feeAssetBalanceCryptoPrecision, feeAsset?.precision ?? 0),
+      )
+
+      if (!hasEnoughFeeBalance) return false
+
+      return true
+    },
+    [feeAsset?.precision, feeAssetBalanceCryptoPrecision, unstakeFees],
+  )
+
+  // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
+  useEffect(() => {
+    trigger('amountFieldInput')
+  }, [
+    feeAsset?.precision,
+    feeAsset?.symbol,
+    feeAssetBalanceCryptoPrecision,
+    amountCryptoPrecision,
+    amountUserCurrency,
+    unstakeFees,
+    trigger,
+  ])
+
+  const amountFieldInputRules = useMemo(() => {
+    return {
+      defaultValue: '',
+      validate: {
+        hasEnoughFeeBalance: (input: string) =>
+          validateHasEnoughFeeBalance(input) ||
+          translate('modals.send.errors.notEnoughNativeToken', { asset: feeAsset?.symbol }),
+      },
+    }
+  }, [feeAsset?.symbol, translate, validateHasEnoughFeeBalance])
+
   if (!stakingAsset) return null
 
   return (
@@ -359,7 +415,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             </Skeleton>
             <FormDivider />
             <TradeAssetInput
-              // amountFieldInputRules={amountFieldInputRules} TODO(gomes): implement me, validate has enough fee balance here
+              amountFieldInputRules={amountFieldInputRules}
               assetIcon={stakingAsset?.icon ?? ''}
               assetId={stakingAssetId}
               assetSymbol={stakingAsset?.symbol ?? ''}
@@ -425,7 +481,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               size='lg'
               mx={-2}
               onClick={handleWarning}
-              colorScheme='blue'
+              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
               isDisabled={Boolean(
                 !hasEnteredValue ||
                   !isUnstakeFeesSuccess ||
@@ -434,7 +490,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               )}
               isLoading={isUnstakeFeesLoading}
             >
-              {translate('RFOX.unstake')}
+              {errors.amountFieldInput?.message || translate('RFOX.unstake')}
             </Button>
           </CardFooter>
         </FormProvider>

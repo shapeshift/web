@@ -14,4 +14,5 @@ export type RfoxChangeAddressQuote = {
   stakingAssetAccountId: AccountId
   stakingAssetId: AssetId
   newRuneAddress: string
+  currentRuneAddress: string
 }

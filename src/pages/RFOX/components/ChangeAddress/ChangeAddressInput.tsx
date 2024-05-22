@@ -9,12 +9,16 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import { encodeFunctionData } from 'viem'
+import type { Address } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { middleEllipsis } from 'lib/utils'
 import type { AddressSelectionValues } from 'pages/RFOX/types'
 import {
   selectAccountNumberByAccountId,
@@ -56,6 +60,11 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
+
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
   const stakingAssetAccountNumberFilter = useMemo(() => {
     return {
       assetId: stakingAssetId,
@@ -84,25 +93,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     formState: { errors },
   } = methods
 
-  const handleSubmit = useCallback(() => {
-    if (!newRuneAddress || !stakingAssetAccountId) return
-
-    setConfirmedQuote({
-      stakingAssetAccountId,
-      stakingAssetId,
-      newRuneAddress,
-    })
-
-    history.push(ChangeAddressRoutePaths.Confirm)
-  }, [newRuneAddress, stakingAssetAccountId, setConfirmedQuote, stakingAssetId, history])
-
-  const handleRuneAddressChange = useCallback(
-    (address: string | undefined) => {
-      onNewRuneAddressChange(address)
-    },
-    [onNewRuneAddressChange],
-  )
-
   const callData = useMemo(() => {
     if (!newRuneAddress) return
 
@@ -117,7 +107,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     () =>
       Boolean(
         stakingAssetAccountId &&
-          stakingAssetAccountNumber !== undefined &&
+          stakingAssetAccountAddress &&
           wallet &&
           newRuneAddress &&
           callData &&
@@ -127,7 +117,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
       ),
     [
       stakingAssetAccountId,
-      stakingAssetAccountNumber,
+      stakingAssetAccountAddress,
       wallet,
       newRuneAddress,
       callData,
@@ -144,13 +134,13 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   } = useQuery({
     ...reactQueries.common.evmFees({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetStakeFeesEnabled
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
+      from: stakingAssetAccountAddress!, // see isGetChangeAddressFeesEnabled
+      accountNumber: stakingAssetAccountNumber!, // see isGetChangeAddressFeesEnabled
+      data: callData!, // see isGetChangeAddressFeesEnabled
       value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+      wallet: wallet!, // see isGetChangeAddressFeesEnabled
+      feeAsset: feeAsset!, // see isGetChangeAddressFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetChangeAddressFeesEnabled
     }),
     staleTime: 30_000,
     enabled: isGetChangeAddressFeesEnabled,
@@ -159,6 +149,47 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     // Yeah this is arbitrary but come on, Arb is cheap
     refetchInterval: 15_000,
   })
+
+  const { data: currentRuneAddress, isSuccess: isCurrentRuneAddressSuccess } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'stakingInfo',
+    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)], // actually defined, see enabled below
+    chainId: arbitrum.id,
+    query: {
+      enabled: Boolean(stakingAssetAccountAddress),
+      // TODO(gomes): unused destructurreg values isn't an omission, it's to ensure
+      // we change it to stakingInfo[3] vs. stakingInfo[2] currently after we deploy and consume the latest version of the contract
+      select: ([_stakingBalance, _unstakingBalance, runeAddress]) => runeAddress || undefined,
+    },
+  })
+
+  const handleSubmit = useCallback(() => {
+    if (!newRuneAddress || !stakingAssetAccountId || !currentRuneAddress) return
+
+    setConfirmedQuote({
+      stakingAssetAccountId,
+      stakingAssetId,
+      currentRuneAddress,
+      newRuneAddress,
+    })
+
+    history.push(ChangeAddressRoutePaths.Confirm)
+  }, [
+    newRuneAddress,
+    stakingAssetAccountId,
+    setConfirmedQuote,
+    stakingAssetId,
+    currentRuneAddress,
+    history,
+  ])
+
+  const handleRuneAddressChange = useCallback(
+    (address: string | undefined) => {
+      onNewRuneAddressChange(address)
+    },
+    [onNewRuneAddressChange],
+  )
 
   if (!stakingAsset) return null
 
@@ -170,7 +201,9 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
           <Stack px={6} py={4}>
             <Flex justifyContent='space-between' mb={2} flexDir={'column'}>
               <Text translation={'RFOX.currentRewardAddress'} fontWeight={'bold'} mb={2} />
-              <RawText as={'h4'}>1234</RawText>
+              <Skeleton isLoaded={isCurrentRuneAddressSuccess}>
+                <RawText as={'h4'}>{middleEllipsis(currentRuneAddress ?? '')}</RawText>
+              </Skeleton>
             </Flex>
           </Stack>
           <AddressSelection isNewAddress onRuneAddressChange={handleRuneAddressChange} />
@@ -190,8 +223,8 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
               <Row.Value>
                 <Skeleton
                   isLoaded={Boolean(!isChangeAddressFeesLoading && changeAddressFees)}
-                  height='14px'
-                  width='50px'
+                  height='30px'
+                  width='full'
                 >
                   <Amount.Fiat value={changeAddressFees?.txFeeFiat ?? 0} />
                 </Skeleton>

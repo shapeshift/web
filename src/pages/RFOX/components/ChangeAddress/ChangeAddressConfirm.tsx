@@ -18,7 +18,6 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { middleEllipsis } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -97,20 +96,6 @@ export const ChangeAddressConfirm: React.FC<
           </Timeline>
         </Stack>
       </CardBody>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        py={4}
-        bg='background.surface.raised.accent'
-      >
-        <CustomRow>
-          <Row.Label>{translate('RFOX.thorchainRewardAddress')}</Row.Label>
-          <Row.Value>{middleEllipsis('123455667765')}</Row.Value>
-        </CustomRow>
-      </CardFooter>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'

@@ -78,7 +78,7 @@ export const RFOX: React.FC = () => {
                 <Unstake headerComponent={TabHeader} />
               </TabPanel>
               <TabPanel px={0} py={0}>
-                <ChangeAddress headerComponent={TabHeader} />
+                <ChangeAddress headerComponent={TabHeader} setStepIndex={setStepIndex} />
               </TabPanel>
             </TabPanels>
           </Tabs>

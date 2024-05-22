@@ -20,6 +20,8 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
+import { FoxIcon } from 'components/Icons/FoxIcon'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -39,6 +41,8 @@ import { AddressSelection } from '../AddressSelection'
 import type { RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
+const emptyIcon = <FoxIcon />
+
 type ChangeAddressInputProps = {
   newRuneAddress: string | undefined
   stakingAssetId?: AssetId
@@ -52,6 +56,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   newRuneAddress,
   stakingAssetId = foxOnArbitrumOneAssetId,
   setConfirmedQuote,
+  setStepIndex,
 }) => {
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
@@ -198,6 +203,10 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     [onNewRuneAddressChange],
   )
 
+  const handleGoToStake = useCallback(() => {
+    setStepIndex && setStepIndex(0)
+  }, [setStepIndex])
+
   const validateIsNewAddress = useCallback(
     (address: string) => {
       // This should never happen but it may
@@ -226,6 +235,21 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   }, [currentRuneAddress])
 
   if (!stakingAsset) return null
+
+  if (!currentRuneAddress) {
+    return (
+      <SlideTransition>
+        <Stack>
+          {headerComponent}
+          <ResultsEmpty title='RFOX.noPositionTitle' body='RFOX.noPositionBody' icon={emptyIcon}>
+            <Button size='md' colorScheme='blue' my={6} onClick={handleGoToStake}>
+              {translate('RFOX.stakeNow')}
+            </Button>
+          </ResultsEmpty>
+        </Stack>
+      </SlideTransition>
+    )
+  }
 
   return (
     <SlideTransition>

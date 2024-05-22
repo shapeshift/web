@@ -85,25 +85,9 @@ export const ChangeAddressConfirm: React.FC<ChangeAddressRouteProps> = () => {
             </TimelineItem>
             <TimelineItem>
               <CustomRow>
-                <Row.Label>{translate('RFOX.approvalFee')}</Row.Label>
-                <Row.Value>
-                  <Amount.Fiat value='0.0001' />
-                </Row.Value>
-              </CustomRow>
-            </TimelineItem>
-            <TimelineItem>
-              <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
                   <Amount.Fiat value='0.0001' />
-                </Row.Value>
-              </CustomRow>
-            </TimelineItem>
-            <TimelineItem>
-              <CustomRow>
-                <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
-                <Row.Value>
-                  <Amount.Percent value='0.0' />
                 </Row.Value>
               </CustomRow>
             </TimelineItem>

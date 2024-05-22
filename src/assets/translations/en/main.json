@@ -2454,6 +2454,8 @@
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",
+    "changeRewardAddressPending": "Changing Reward Address...",
+    "changeRewardAddressSuccess": "You have successfully changed your THORCHain Reward Address",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
     "unstakeSuccess": "Once the %{cooldownPeriod} has elapsed, you will be able to claim your %{amount} %{symbol}",
     "currentRewardAddress": "Current Reward Address",

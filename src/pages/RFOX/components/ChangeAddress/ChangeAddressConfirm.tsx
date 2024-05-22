@@ -11,7 +11,8 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
@@ -27,11 +28,18 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from 'lib/utils/evm'
+import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectTxById,
 } from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import type { RfoxChangeAddressQuote } from './types'
@@ -42,11 +50,14 @@ const backIcon = <ArrowBackIcon />
 
 type ChangeAddressConfirmProps = {
   confirmedQuote: RfoxChangeAddressQuote
+  changeAddressTxid: string | undefined
+  setChangeAddressTxid: (txId: string) => void
 }
 
 export const ChangeAddressConfirm: React.FC<
   ChangeAddressRouteProps & ChangeAddressConfirmProps
-> = ({ confirmedQuote }) => {
+> = ({ changeAddressTxid, setChangeAddressTxid, confirmedQuote }) => {
+  const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
@@ -111,12 +122,67 @@ export const ChangeAddressConfirm: React.FC<
     refetchInterval: 15_000,
   })
 
+  const serializedChangeAddressTxIndex = useMemo(() => {
+    if (!(changeAddressTxid && stakingAssetAccountAddress)) return ''
+    return serializeTxIndex(
+      confirmedQuote.stakingAssetAccountId,
+      changeAddressTxid,
+      stakingAssetAccountAddress,
+    )
+  }, [changeAddressTxid, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
+
+  const {
+    mutateAsync: sendChangeAddressTx,
+    isPending: isChangeAddressMutationPending,
+    isSuccess: isChangeAddressMutationSuccess,
+  } = useMutation({
+    mutationFn: async () => {
+      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset || !callData) return
+
+      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+
+      const buildCustomTxInput = await createBuildCustomTxInput({
+        accountNumber: stakingAssetAccountNumber,
+        adapter,
+        data: callData,
+        value: '0',
+        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        wallet,
+      })
+
+      const txId = await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+      })
+
+      return txId
+    },
+    onSuccess: (txId: string | undefined) => {
+      if (!txId) return
+
+      setChangeAddressTxid(txId)
+    },
+  })
+
+  const handleSubmit = useCallback(async () => {
+    await sendChangeAddressTx(undefined)
+
+    // TODO(gomes): invalidate currentAddress
+    // await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
+    // await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+
+    history.push(ChangeAddressRoutePaths.Status)
+  }, [history, sendChangeAddressTx])
+
+  const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
+  const isChangeAddressTxPending = useMemo(
+    () => isChangeAddressMutationPending || (isChangeAddressMutationSuccess && !changeAddressTx),
+    [changeAddressTx, isChangeAddressMutationPending, isChangeAddressMutationSuccess],
+  )
+
   const handleGoBack = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Input)
-  }, [history])
-
-  const handleSubmit = useCallback(() => {
-    history.push(ChangeAddressRoutePaths.Status)
   }, [history])
 
   const changeAddressCard = useMemo(() => {
@@ -183,7 +249,7 @@ export const ChangeAddressConfirm: React.FC<
       >
         <Button
           isLoading={isChangeAddressFeesLoading}
-          disabled={!isChangeAddressFeesSuccess}
+          disabled={!isChangeAddressFeesSuccess || isChangeAddressTxPending}
           size='lg'
           mx={-2}
           colorScheme='blue'

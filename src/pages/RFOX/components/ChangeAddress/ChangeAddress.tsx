@@ -2,10 +2,10 @@ import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useMemo } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import type { TextPropTypes } from 'components/Text/Text'
 
 import type { ChangeAddressRouteProps } from './types'
 import { ChangeAddressRoutePaths } from './types'
-import type { TextPropTypes } from 'components/Text/Text'
 
 const suspenseFallback = <div>Loading...</div>
 

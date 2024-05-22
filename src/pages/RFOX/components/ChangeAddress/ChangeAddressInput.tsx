@@ -13,13 +13,21 @@ import { useAppSelector } from 'state/store'
 import { AddressSelection } from '../AddressSelection'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
-export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
+type ChangeAddressInputProps = {
+  onNewRuneAddressChange: (address: string | undefined) => void
+  newRuneAddress: string | undefined
+}
+
+export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInputProps> = ({
+  headerComponent,
+  onNewRuneAddressChange,
+  newRuneAddress,
+}) => {
   const translate = useTranslate()
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  const [newAddress, setNewAddress] = useState<string | null>()
 
-  const hasEnteredAddress = useMemo(() => !!newAddress, [newAddress])
+  const hasValidNewRuneAddress = useMemo(() => !!newRuneAddress, [newRuneAddress])
 
   const defaultFormValues = {
     manualRuneAddress: '',
@@ -36,13 +44,17 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
   } = methods
 
   const handleSubmit = useCallback(() => {
-    history.push(ChangeAddressRoutePaths.Confirm)
-    setNewAddress('1234')
-  }, [history])
+    if (!hasValidNewRuneAddress) return
 
-  const handleRuneAddressChange = useCallback((_address: string | undefined) => {
-    console.info('TODO: implement me')
-  }, [])
+    history.push(ChangeAddressRoutePaths.Confirm)
+  }, [hasValidNewRuneAddress, history])
+
+  const handleRuneAddressChange = useCallback(
+    (address: string | undefined) => {
+      onNewRuneAddressChange(address)
+    },
+    [onNewRuneAddressChange],
+  )
 
   if (!asset) return null
 
@@ -73,7 +85,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
             mx={-2}
             onClick={handleSubmit}
             colorScheme={Boolean(errors.manualRuneAddress) ? 'red' : 'blue'}
-            isDisabled={!hasEnteredAddress}
+            isDisabled={!hasValidNewRuneAddress}
           >
             {errors.manualRuneAddress?.message || translate('RFOX.changeAddress')}
           </Button>

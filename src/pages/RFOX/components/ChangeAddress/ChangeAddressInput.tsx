@@ -1,6 +1,12 @@
 import { Button, CardFooter, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+  thorchainChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -208,6 +214,17 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     trigger('manualRuneAddress')
   }, [trigger, currentRuneAddress])
 
+  const hiddenAccountIds = useMemo(() => {
+    if (!currentRuneAddress) return []
+
+    const currentRuneAddesssAccountId = toAccountId({
+      chainId: thorchainChainId,
+      account: currentRuneAddress,
+    })
+
+    return [currentRuneAddesssAccountId]
+  }, [currentRuneAddress])
+
   if (!stakingAsset) return null
 
   return (
@@ -223,11 +240,14 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
               </Skeleton>
             </Flex>
           </Stack>
-          <AddressSelection
-            isNewAddress
-            onRuneAddressChange={handleRuneAddressChange}
-            validateIsNewAddress={validateIsNewAddress}
-          />
+          <Skeleton isLoaded={isCurrentRuneAddressSuccess}>
+            <AddressSelection
+              isNewAddress
+              hiddenAccountIds={hiddenAccountIds}
+              onRuneAddressChange={handleRuneAddressChange}
+              validateIsNewAddress={validateIsNewAddress}
+            />
+          </Skeleton>
         </Stack>
         <CardFooter
           borderTopWidth={1}

@@ -8,6 +8,7 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -24,10 +25,12 @@ type AddressSelectionProps = {
   | {
       isNewAddress: boolean
       validateIsNewAddress: (address: string) => boolean
+      hiddenAccountIds: AccountId[]
     }
   | {
       isNewAddress?: never
       validateIsNewAddress?: never
+      hiddenAccountIds?: never
     }
 )
 
@@ -39,6 +42,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
   validateIsNewAddress,
+  hiddenAccountIds = [],
 }) => {
   const translate = useTranslate()
 
@@ -124,11 +128,12 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return (
       <AccountDropdown
         assetId={thorchainAssetId}
+        hiddenAccountIds={hiddenAccountIds}
         onChange={handleAccountIdChange}
         boxProps={boxProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress])
+  }, [handleAccountIdChange, hiddenAccountIds, isManualAddress])
 
   const addressSelectionLabel = useMemo(
     () =>

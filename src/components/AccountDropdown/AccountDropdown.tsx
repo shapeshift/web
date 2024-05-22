@@ -55,6 +55,8 @@ export type AccountDropdownProps = {
   autoSelectHighestBalance?: boolean
   // Prevents accounts in the dropdown from being selected
   disabled?: boolean
+  // Hides a given set of AccountIds from the dropdown
+  hiddenAccountIds?: AccountId[]
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
   boxProps?: BoxProps
@@ -193,6 +195,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     buttonProps,
     onChange: handleChange,
     disabled,
+    hiddenAccountIds = [],
     defaultAccountId,
     listProps,
     autoSelectHighestBalance,
@@ -201,11 +204,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     label,
   }) => {
     const filter = useMemo(() => ({ assetId }), [assetId])
-    // TODO(gomes): we should find a way to somehow filter out *some* accounts, i.e in the case of RFOX change address, we obviously don't want the same address as before
-    // For paranoia, we should also add a validation rule at input step
     const accountIds = useAppSelector((s: ReduxState) =>
       selectPortfolioAccountIdsByAssetIdFilter(s, filter),
-    )
+    ).filter(accountId => !hiddenAccountIds.includes(accountId))
 
     const translate = useTranslate()
     const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))

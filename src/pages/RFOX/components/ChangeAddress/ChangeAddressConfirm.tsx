@@ -248,7 +248,7 @@ export const ChangeAddressConfirm: React.FC<
         borderBottomRadius='xl'
       >
         <Button
-          isLoading={isChangeAddressFeesLoading}
+          isLoading={isChangeAddressFeesLoading || isChangeAddressTxPending}
           disabled={!isChangeAddressFeesSuccess || isChangeAddressTxPending}
           size='lg'
           mx={-2}

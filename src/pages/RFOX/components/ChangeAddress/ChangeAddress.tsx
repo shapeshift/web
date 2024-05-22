@@ -49,20 +49,14 @@ export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerCompone
 export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
-  const [newRuneAddress, setNewRuneAddress] = useState<string | undefined>()
   const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
 
   const renderChangeAddressInput = useCallback(() => {
     return (
-      <ChangeAddressInput
-        newRuneAddress={newRuneAddress}
-        onNewRuneAddressChange={setNewRuneAddress}
-        headerComponent={headerComponent}
-        setConfirmedQuote={setConfirmedQuote}
-      />
+      <ChangeAddressInput headerComponent={headerComponent} setConfirmedQuote={setConfirmedQuote} />
     )
-  }, [headerComponent, newRuneAddress])
+  }, [headerComponent])
 
   const renderChangeAddressConfirm = useCallback(() => {
     if (!confirmedQuote) return null

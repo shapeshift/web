@@ -8,7 +8,6 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -25,12 +24,10 @@ type AddressSelectionProps = {
   | {
       isNewAddress: boolean
       validateIsNewAddress: (address: string) => boolean
-      hiddenAccountIds: AccountId[]
     }
   | {
       isNewAddress?: never
       validateIsNewAddress?: never
-      hiddenAccountIds?: never
     }
 )
 

@@ -56,7 +56,6 @@ export type AccountDropdownProps = {
   // Prevents accounts in the dropdown from being selected
   disabled?: boolean
   // Hides a given set of AccountIds from the dropdown
-  hiddenAccountIds?: AccountId[]
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
   boxProps?: BoxProps
@@ -195,7 +194,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     buttonProps,
     onChange: handleChange,
     disabled,
-    hiddenAccountIds = [],
     defaultAccountId,
     listProps,
     autoSelectHighestBalance,
@@ -206,7 +204,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     const filter = useMemo(() => ({ assetId }), [assetId])
     const accountIds = useAppSelector((s: ReduxState) =>
       selectPortfolioAccountIdsByAssetIdFilter(s, filter),
-    ).filter(accountId => !hiddenAccountIds.includes(accountId))
+    )
 
     const translate = useTranslate()
     const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))

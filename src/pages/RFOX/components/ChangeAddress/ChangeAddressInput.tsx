@@ -1,17 +1,11 @@
-import { Box, Button, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Button, CardFooter, Collapse, Flex, Input, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  foxOnArbitrumOneAssetId,
-  fromAccountId,
-  fromAssetId,
-  thorchainChainId,
-  toAccountId,
-} from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
@@ -40,16 +34,14 @@ import type { RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
 type ChangeAddressInputProps = {
-  newRuneAddress: string | undefined
   stakingAssetId?: AssetId
   setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void
-  onNewRuneAddressChange: (address: string | undefined) => void
 }
+
+type ChangeAddressInputValues = AddressSelectionValues & { newRuneAddress: string | undefined }
 
 export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInputProps> = ({
   headerComponent,
-  onNewRuneAddressChange,
-  newRuneAddress,
   stakingAssetId = foxOnArbitrumOneAssetId,
   setConfirmedQuote,
 }) => {
@@ -87,18 +79,27 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
   const defaultFormValues = {
     manualRuneAddress: '',
+    newRuneAddress: '',
   }
 
-  const methods = useForm<AddressSelectionValues>({
+  const methods = useForm<ChangeAddressInputValues>({
     defaultValues: defaultFormValues,
     mode: 'onChange',
     shouldUnregister: true,
   })
 
   const {
+    setValue,
     trigger,
     formState: { errors },
+    control,
+    register,
   } = methods
+
+  const newRuneAddress = useWatch<ChangeAddressInputValues, 'newRuneAddress'>({
+    control,
+    name: 'newRuneAddress',
+  })
 
   const callData = useMemo(() => {
     if (!newRuneAddress) return
@@ -193,15 +194,14 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
-      onNewRuneAddressChange(address)
+      setValue('newRuneAddress', address, { shouldValidate: true })
     },
-    [onNewRuneAddressChange],
+    [setValue],
   )
 
   const validateIsNewAddress = useCallback(
     (address: string) => {
       // This should never happen but it may
-      console.log({ address, currentRuneAddress })
       if (!currentRuneAddress) return true
 
       return address !== currentRuneAddress
@@ -212,18 +212,8 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
   useEffect(() => {
     trigger('manualRuneAddress')
+    trigger('newRuneAddress')
   }, [trigger, currentRuneAddress])
-
-  const hiddenAccountIds = useMemo(() => {
-    if (!currentRuneAddress) return []
-
-    const currentRuneAddesssAccountId = toAccountId({
-      chainId: thorchainChainId,
-      account: currentRuneAddress,
-    })
-
-    return [currentRuneAddesssAccountId]
-  }, [currentRuneAddress])
 
   if (!stakingAsset) return null
 
@@ -246,9 +236,29 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
           </Stack>
           <Box display={!!currentRuneAddress && isCurrentRuneAddressSuccess ? 'block' : 'none'}>
             <Skeleton isLoaded={isCurrentRuneAddressSuccess}>
+              <Input
+                type='hidden'
+                {...register('newRuneAddress', {
+                  minLength: 1,
+                  validate: {
+                    validateIsNewAddress: address => {
+                      // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
+                      if (!address) return true
+
+                      const isNewAddress = validateIsNewAddress(address)
+
+                      // Not a new address - we should obviously trigger an error
+                      if (!isNewAddress) {
+                        return translate('RFOX.sameAddressNotAllowed')
+                      }
+
+                      return true
+                    },
+                  },
+                })}
+              />
               <AddressSelection
                 isNewAddress
-                hiddenAccountIds={hiddenAccountIds}
                 onRuneAddressChange={handleRuneAddressChange}
                 validateIsNewAddress={validateIsNewAddress}
               />
@@ -293,13 +303,19 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
             size='lg'
             mx={-2}
             onClick={handleSubmit}
-            colorScheme={Boolean(errors.manualRuneAddress) ? 'red' : 'blue'}
+            colorScheme={
+              Boolean(errors.manualRuneAddress || errors.newRuneAddress) ? 'red' : 'blue'
+            }
             isDisabled={
-              Boolean(errors.manualRuneAddress) || !newRuneAddress || !isChangeAddressFeesSuccess
+              Boolean(errors.manualRuneAddress || errors.newRuneAddress) ||
+              !newRuneAddress ||
+              !isChangeAddressFeesSuccess
             }
             isLoading={isChangeAddressFeesLoading}
           >
-            {errors.manualRuneAddress?.message || translate('RFOX.changeAddress')}
+            {errors.newRuneAddress?.message ||
+              errors.manualRuneAddress?.message ||
+              translate('RFOX.changeAddress')}
           </Button>
         </CardFooter>
       </FormProvider>

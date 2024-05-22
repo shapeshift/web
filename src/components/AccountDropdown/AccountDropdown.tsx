@@ -201,6 +201,8 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     label,
   }) => {
     const filter = useMemo(() => ({ assetId }), [assetId])
+    // TODO(gomes): we should find a way to somehow filter out *some* accounts, i.e in the case of RFOX change address, we obviously don't want the same address as before
+    // For paranoia, we should also add a validation rule at input step
     const accountIds = useAppSelector((s: ReduxState) =>
       selectPortfolioAccountIdsByAssetIdFilter(s, filter),
     )

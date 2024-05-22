@@ -2429,6 +2429,7 @@
     "unstake": "Unstake",
     "claim": "Claim",
     "changeAddress": "Change address",
+    "sameAddressNotAllowed": "Same address not allowed",
     "stakingDetails": "Staking Details",
     "stakeAmount": "Stake Amount",
     "unstakeAmount": "Unstake Amount",

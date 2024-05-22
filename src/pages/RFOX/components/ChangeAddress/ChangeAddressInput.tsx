@@ -4,7 +4,7 @@ import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshift
 import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { type FC, useCallback, useMemo } from 'react'
+import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
@@ -90,6 +90,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   })
 
   const {
+    trigger,
     formState: { errors },
   } = methods
 
@@ -191,6 +192,22 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     [onNewRuneAddressChange],
   )
 
+  const validateIsNewAddress = useCallback(
+    (address: string) => {
+      // This should never happen but it may
+      console.log({ address, currentRuneAddress })
+      if (!currentRuneAddress) return true
+
+      return address !== currentRuneAddress
+    },
+    [currentRuneAddress],
+  )
+
+  // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
+  useEffect(() => {
+    trigger('manualRuneAddress')
+  }, [trigger, currentRuneAddress])
+
   if (!stakingAsset) return null
 
   return (
@@ -206,7 +223,11 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
               </Skeleton>
             </Flex>
           </Stack>
-          <AddressSelection isNewAddress onRuneAddressChange={handleRuneAddressChange} />
+          <AddressSelection
+            isNewAddress
+            onRuneAddressChange={handleRuneAddressChange}
+            validateIsNewAddress={validateIsNewAddress}
+          />
         </Stack>
         <CardFooter
           borderTopWidth={1}

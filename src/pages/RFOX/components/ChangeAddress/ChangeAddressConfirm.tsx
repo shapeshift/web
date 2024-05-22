@@ -7,18 +7,31 @@ import {
   CardHeader,
   Flex,
   IconButton,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
+import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { selectAssetById } from 'state/slices/selectors'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { RfoxChangeAddressQuote } from './types'
@@ -34,11 +47,69 @@ type ChangeAddressConfirmProps = {
 export const ChangeAddressConfirm: React.FC<
   ChangeAddressRouteProps & ChangeAddressConfirmProps
 > = ({ confirmedQuote }) => {
+  const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
   )
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
+  )
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
+
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+    [confirmedQuote.stakingAssetAccountId],
+  )
+
+  const stakingAssetAccountNumberFilter = useMemo(() => {
+    return {
+      assetId: confirmedQuote.stakingAssetId,
+      accountId: confirmedQuote.stakingAssetAccountId,
+    }
+  }, [confirmedQuote.stakingAssetAccountId, confirmedQuote.stakingAssetId])
+  const stakingAssetAccountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
+  )
+
+  const callData = useMemo(() => {
+    return encodeFunctionData({
+      abi: foxStakingV1Abi,
+      functionName: 'setRuneAddress',
+      args: [confirmedQuote.newRuneAddress],
+    })
+  }, [confirmedQuote.newRuneAddress])
+
+  const isGetChangeAddressFeesEnabled = useMemo(
+    () => Boolean(wallet && feeAsset && feeAssetMarketData),
+    [wallet, feeAsset, feeAssetMarketData],
+  )
+
+  const {
+    data: changeAddressFees,
+    isLoading: isChangeAddressFeesLoading,
+    isSuccess: isChangeAddressFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress,
+      accountNumber: stakingAssetAccountNumber!, // see isGetChangeAddressFeesEnabled
+      data: callData,
+      value: '0', // contract call
+      wallet: wallet!, // see isGetChangeAddressFeesEnabled
+      feeAsset: feeAsset!, // see isGetChangeAddressFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetChangeAddressFeesEnabled
+    }),
+    staleTime: 30_000,
+    enabled: isGetChangeAddressFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: 15_000,
+  })
 
   const handleGoBack = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Input)
@@ -48,7 +119,8 @@ export const ChangeAddressConfirm: React.FC<
     history.push(ChangeAddressRoutePaths.Status)
   }, [history])
 
-  const stakeCards = useMemo(() => {
+  const changeAddressCard = useMemo(() => {
+    // TODO(gomes): implement current/new rune address display here
     if (!stakingAsset) return null
 
     return (
@@ -83,13 +155,17 @@ export const ChangeAddressConfirm: React.FC<
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>
-          {stakeCards}
+          {changeAddressCard}
           <Timeline>
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
-                  <Amount.Fiat value='0.0001' />
+                  <Skeleton isLoaded={!isChangeAddressFeesLoading}>
+                    <Row.Value>
+                      <Amount.Fiat value={changeAddressFees?.txFeeFiat ?? '0.0'} />
+                    </Row.Value>
+                  </Skeleton>
                 </Row.Value>
               </CustomRow>
             </TimelineItem>
@@ -105,7 +181,14 @@ export const ChangeAddressConfirm: React.FC<
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Button size='lg' mx={-2} colorScheme='blue' onClick={handleSubmit}>
+        <Button
+          isLoading={isChangeAddressFeesLoading}
+          disabled={!isChangeAddressFeesSuccess}
+          size='lg'
+          mx={-2}
+          colorScheme='blue'
+          onClick={handleSubmit}
+        >
           {translate('RFOX.confirmAndStake')}
         </Button>
       </CardFooter>

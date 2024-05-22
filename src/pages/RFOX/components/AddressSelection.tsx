@@ -20,8 +20,16 @@ import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
   onRuneAddressChange: (address: string | undefined) => void
-  isNewAddress?: boolean
-}
+} & (
+  | {
+      isNewAddress: boolean
+      validateIsNewAddress: (address: string) => boolean
+    }
+  | {
+      isNewAddress?: never
+      validateIsNewAddress?: never
+    }
+)
 
 const boxProps = {
   width: 'full',
@@ -30,6 +38,7 @@ const boxProps = {
 export const AddressSelection: FC<AddressSelectionProps> = ({
   onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
+  validateIsNewAddress,
 }) => {
   const translate = useTranslate()
 
@@ -55,15 +64,35 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     setIsManualAddress(!isManualAddress)
   }, [isManualAddress, handleRuneAddressChange])
 
-  const accountSelection = useMemo(() => {
-    if (isManualAddress) {
-      return (
-        <Input
-          {...register('manualRuneAddress', {
-            minLength: 1,
-            validate: async address => {
+  const manualAddressSelection = useMemo(() => {
+    if (!isManualAddress) return null
+    return (
+      <Input
+        {...register('manualRuneAddress', {
+          minLength: 1,
+          validate: {
+            ...(validateIsNewAddress
+              ? {
+                  validateIsNewAddress: address => {
+                    // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
+                    if (!address) return true
+
+                    const isNewAddress = validateIsNewAddress(address)
+
+                    // Not a new address - we should obviously trigger an error
+                    if (!isNewAddress) {
+                      handleRuneAddressChange(undefined)
+                      return translate('RFOX.sameAddressNotAllowed')
+                    }
+
+                    // Tada, we know this is not the same as the previous rewards address - fire the onRuneAddressChange callback to notify the consumer we're g2g
+                    handleRuneAddressChange(address)
+                  },
+                }
+              : {}),
+            isValidRuneAddress: async address => {
               // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
-              if (address === '') return true
+              if (!address) return true
 
               const isValid = await validateAddress({
                 maybeAddress: address ?? '',
@@ -80,13 +109,17 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
               // Tada, we've passed bech32 validation - fire the onRuneAddressChange callback to notify the consumer we're g2g
               handleRuneAddressChange(address)
             },
-          })}
-          placeholder={translate('common.enterAddress')}
-          autoFocus
-          defaultValue=''
-        />
-      )
-    }
+          },
+        })}
+        placeholder={translate('common.enterAddress')}
+        autoFocus
+        defaultValue=''
+      />
+    )
+  }, [handleRuneAddressChange, isManualAddress, register, translate, validateIsNewAddress])
+
+  const accountSelection = useMemo(() => {
+    if (isManualAddress) return null
 
     return (
       <AccountDropdown
@@ -95,7 +128,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         boxProps={boxProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress, handleRuneAddressChange, register, translate])
+  }, [handleAccountIdChange, isManualAddress])
 
   const addressSelectionLabel = useMemo(
     () =>
@@ -122,7 +155,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
               : translate('RFOX.useCustomAddress')}
           </Button>
         </Flex>
-        <Box width='full'>{accountSelection}</Box>
+        <Box width='full'>{accountSelection || manualAddressSelection}</Box>
         <FormHelperText>{addressSelectionDescription}</FormHelperText>
       </Stack>
     </FormControl>

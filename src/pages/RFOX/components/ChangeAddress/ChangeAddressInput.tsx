@@ -1,12 +1,11 @@
 import { Button, CardFooter, Flex, Stack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { type FC, useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import type { AddressSelectionValues } from 'pages/RFOX/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -18,7 +17,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
   const translate = useTranslate()
   const history = useHistory()
   const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
-  const [showWarning, setShowWarning] = useState(false)
   const [newAddress, setNewAddress] = useState<string | null>()
 
   const hasEnteredAddress = useMemo(() => !!newAddress, [newAddress])
@@ -35,13 +33,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
 
   const {
     formState: { errors },
-    control,
-    trigger,
   } = methods
-
-  const handleWarning = useCallback(() => {
-    setShowWarning(true)
-  }, [])
 
   const handleSubmit = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Confirm)
@@ -56,14 +48,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
 
   return (
     <SlideTransition>
-      <WarningAcknowledgement
-        message={translate('RFOX.stakeWarning', {
-          cooldownPeriod: '28-days',
-        })}
-        onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={showWarning}
-        setShouldShowWarningAcknowledgement={setShowWarning}
-      >
+      <FormProvider {...methods}>
         <Stack>
           {headerComponent}
           <Stack px={6} py={4}>
@@ -86,14 +71,14 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
           <Button
             size='lg'
             mx={-2}
-            onClick={handleWarning}
+            onClick={handleSubmit}
             colorScheme={Boolean(errors.manualRuneAddress) ? 'red' : 'blue'}
             isDisabled={!hasEnteredAddress}
           >
             {errors.manualRuneAddress?.message || translate('RFOX.changeAddress')}
           </Button>
         </CardFooter>
-      </WarningAcknowledgement>
+      </FormProvider>
     </SlideTransition>
   )
 }

@@ -3,7 +3,7 @@ import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
-import type { ChangeAddressRouteProps } from './types'
+import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
@@ -50,6 +50,7 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
   const location = useLocation()
 
   const [newRuneAddress, setNewRuneAddress] = useState<string | undefined>()
+  const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
 
   const renderChangeAddressInput = useCallback(() => {
     return (
@@ -57,13 +58,18 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
         newRuneAddress={newRuneAddress}
         onNewRuneAddressChange={setNewRuneAddress}
         headerComponent={headerComponent}
+        setConfirmedQuote={setConfirmedQuote}
       />
     )
   }, [headerComponent, newRuneAddress])
 
   const renderChangeAddressConfirm = useCallback(() => {
-    return <ChangeAddressConfirm headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!confirmedQuote) return null
+
+    return (
+      <ChangeAddressConfirm confirmedQuote={confirmedQuote} headerComponent={headerComponent} />
+    )
+  }, [confirmedQuote, headerComponent])
 
   const renderChangeAddressStatus = useCallback(() => {
     return <ChangeAddressStatus headerComponent={headerComponent} />

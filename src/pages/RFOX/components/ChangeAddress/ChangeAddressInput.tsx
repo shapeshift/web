@@ -26,12 +26,14 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
+import type { RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
 type ChangeAddressInputProps = {
-  onNewRuneAddressChange: (address: string | undefined) => void
   newRuneAddress: string | undefined
   stakingAssetId?: AssetId
+  setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void
+  onNewRuneAddressChange: (address: string | undefined) => void
 }
 
 export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInputProps> = ({
@@ -39,6 +41,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   onNewRuneAddressChange,
   newRuneAddress,
   stakingAssetId = foxOnArbitrumOneAssetId,
+  setConfirmedQuote,
 }) => {
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
@@ -67,8 +70,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
-  const hasValidNewRuneAddress = useMemo(() => !!newRuneAddress, [newRuneAddress])
-
   const defaultFormValues = {
     manualRuneAddress: '',
   }
@@ -84,10 +85,16 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   } = methods
 
   const handleSubmit = useCallback(() => {
-    if (!hasValidNewRuneAddress) return
+    if (!newRuneAddress || !stakingAssetAccountId) return
+
+    setConfirmedQuote({
+      stakingAssetAccountId,
+      stakingAssetId,
+      newRuneAddress,
+    })
 
     history.push(ChangeAddressRoutePaths.Confirm)
-  }, [hasValidNewRuneAddress, history])
+  }, [newRuneAddress, stakingAssetAccountId, setConfirmedQuote, stakingAssetId, history])
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -97,14 +104,14 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   )
 
   const callData = useMemo(() => {
-    if (!hasValidNewRuneAddress) return
+    if (!newRuneAddress) return
 
     return encodeFunctionData({
       abi: foxStakingV1Abi,
       functionName: 'setRuneAddress',
-      args: [newRuneAddress!], // actually defined, see isGetUnstakeFeesEnabled below
+      args: [newRuneAddress],
     })
-  }, [hasValidNewRuneAddress, newRuneAddress])
+  }, [newRuneAddress])
 
   const isGetChangeAddressFeesEnabled = useMemo(
     () =>

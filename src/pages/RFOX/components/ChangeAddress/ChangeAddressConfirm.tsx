@@ -9,7 +9,6 @@ import {
   IconButton,
   Stack,
 } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -23,15 +22,24 @@ import { middleEllipsis } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import type { RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
 
-export const ChangeAddressConfirm: React.FC<ChangeAddressRouteProps> = () => {
+type ChangeAddressConfirmProps = {
+  confirmedQuote: RfoxChangeAddressQuote
+}
+
+export const ChangeAddressConfirm: React.FC<
+  ChangeAddressRouteProps & ChangeAddressConfirmProps
+> = ({ confirmedQuote }) => {
   const history = useHistory()
   const translate = useTranslate()
-  const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote.stakingAssetId),
+  )
 
   const handleGoBack = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Input)
@@ -42,7 +50,8 @@ export const ChangeAddressConfirm: React.FC<ChangeAddressRouteProps> = () => {
   }, [history])
 
   const stakeCards = useMemo(() => {
-    if (!asset) return null
+    if (!stakingAsset) return null
+
     return (
       <Card
         display='flex'
@@ -55,14 +64,14 @@ export const ChangeAddressConfirm: React.FC<ChangeAddressRouteProps> = () => {
         flex={1}
         mx={-2}
       >
-        <AssetIcon size='sm' assetId={asset?.assetId} />
+        <AssetIcon size='sm' assetId={stakingAsset.assetId} />
         <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value='0.0' symbol={asset?.symbol} />
+          <Amount.Crypto value='0.0' symbol={stakingAsset.symbol} />
           <Amount.Fiat fontSize='sm' color='text.subtle' value='0.0' />
         </Stack>
       </Card>
     )
-  }, [asset])
+  }, [stakingAsset])
 
   return (
     <SlideTransition>
@@ -77,12 +86,6 @@ export const ChangeAddressConfirm: React.FC<ChangeAddressRouteProps> = () => {
         <Stack spacing={6}>
           {stakeCards}
           <Timeline>
-            <TimelineItem>
-              <CustomRow>
-                <Row.Label>{translate('RFOX.shapeShiftFee')}</Row.Label>
-                <Row.Value>Free</Row.Value>
-              </CustomRow>
-            </TimelineItem>
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>

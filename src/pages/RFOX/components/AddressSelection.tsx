@@ -8,10 +8,14 @@ import {
   Select,
   Stack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import { type FC, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-export const AddressSelection = () => {
+type AddressSelectionProps = {
+  isNewAddress?: boolean
+}
+
+export const AddressSelection: FC<AddressSelectionProps> = ({ isNewAddress }) => {
   const translate = useTranslate()
   const [isManualAddress, setIsManualAddress] = useState(false)
 
@@ -30,12 +34,25 @@ export const AddressSelection = () => {
       </Select>
     )
   }, [isManualAddress])
+
+  const addressSelectionLabel = useMemo(
+    () =>
+      isNewAddress ? translate('RFOX.newRewardAddress') : translate('RFOX.thorchainRewardAddress'),
+    [isNewAddress, translate],
+  )
+
+  const addressSelectionDescription = useMemo(
+    () =>
+      isNewAddress ? translate('RFOX.rewardCycleExplainer') : translate('RFOX.rewardAddressHelper'),
+    [isNewAddress, translate],
+  )
+
   return (
     <FormControl>
       <Stack px={6} py={4}>
         <Flex alignItems='center' justifyContent='space-between' mb={2}>
           <FormLabel fontSize='sm' mb={0}>
-            {translate('RFOX.thorchainRewardAddress')}
+            {addressSelectionLabel}
           </FormLabel>
           <Button variant='link' colorScheme='blue' size='sm' onClick={handleToggleInputMethod}>
             {isManualAddress
@@ -44,7 +61,7 @@ export const AddressSelection = () => {
           </Button>
         </Flex>
         {renderSelection}
-        <FormHelperText>{translate('RFOX.rewardAddressHelper')}</FormHelperText>
+        <FormHelperText>{addressSelectionDescription}</FormHelperText>
       </Stack>
     </FormControl>
   )

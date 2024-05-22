@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 
+import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Stake } from './components/Stake/Stake'
 import { Unstake } from './components/Unstake/Unstake'
 
@@ -50,6 +51,9 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
       <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1}>
         {translate('RFOX.unstake')}
       </FormHeaderTab>
+      <FormHeaderTab index={2} onClick={handleClick} isActive={activeIndex === 2}>
+        {translate('RFOX.changeAddress')}
+      </FormHeaderTab>
     </Flex>
   )
 }
@@ -72,6 +76,9 @@ export const RFOX: React.FC = () => {
               </TabPanel>
               <TabPanel px={0} py={0}>
                 <Unstake headerComponent={TabHeader} />
+              </TabPanel>
+              <TabPanel px={0} py={0}>
+                <ChangeAddress headerComponent={TabHeader} />
               </TabPanel>
             </TabPanels>
           </Tabs>

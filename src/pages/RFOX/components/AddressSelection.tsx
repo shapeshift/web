@@ -11,7 +11,7 @@ import {
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
@@ -36,10 +36,13 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext<StakeValues>()
+  // Local controller in case consumers don't have a form context
+  const _methods = useForm<StakeValues>()
+  const methods = useFormContext<StakeValues>()
+
+  const register = methods?.register ?? _methods.register
+  const formState = methods?.formState ?? _methods.formState
+  const { errors } = formState
 
   const [isManualAddress, setIsManualAddress] = useState(false)
 

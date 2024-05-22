@@ -19,7 +19,9 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import { encodeFunctionData } from 'viem'
+import { encodeFunctionData, getAddress } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
@@ -165,15 +167,21 @@ export const ChangeAddressConfirm: React.FC<
     },
   })
 
+  const { queryKey: stakingInfoQueryKey } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'stakingInfo',
+    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
+    chainId: arbitrum.id,
+  })
+
   const handleSubmit = useCallback(async () => {
     await sendChangeAddressTx(undefined)
 
-    // TODO(gomes): invalidate currentAddress
-    // await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
-    // await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
-
     history.push(ChangeAddressRoutePaths.Status)
-  }, [history, sendChangeAddressTx])
+
+    await queryClient.invalidateQueries({ queryKey: stakingInfoQueryKey })
+  }, [history, queryClient, sendChangeAddressTx, stakingInfoQueryKey])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

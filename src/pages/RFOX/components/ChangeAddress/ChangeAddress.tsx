@@ -1,10 +1,11 @@
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import React, { lazy, Suspense, useCallback, useMemo } from 'react'
+import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
 import type { ChangeAddressRouteProps } from './types'
 import { ChangeAddressRoutePaths } from './types'
+import type { TextPropTypes } from 'components/Text/Text'
 
 const suspenseFallback = <div>Loading...</div>
 
@@ -26,8 +27,8 @@ const ChangeAddressConfirm = makeSuspenseful(
 
 const ChangeAddressStatus = makeSuspenseful(
   lazy(() =>
-    import('./ChangeAddressStatus').then(({ ChangeAddressStatus }) => ({
-      default: ChangeAddressStatus,
+    import('../Status').then(({ Status }) => ({
+      default: Status,
     })),
   ),
 )
@@ -48,6 +49,7 @@ export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerCompone
 
 export const StakeRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
+  const history = useHistory()
 
   const renderChangeAddressInput = useCallback(() => {
     return <ChangeAddressInput headerComponent={headerComponent} />
@@ -57,9 +59,29 @@ export const StakeRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent
     return <ChangeAddressConfirm headerComponent={headerComponent} />
   }, [headerComponent])
 
+  const pendingBody: TextPropTypes['translation'] = useMemo(
+    () => ['RFOX.unstakePending', { amount: '1,500', symbol: 'FOX' }],
+    [],
+  )
+  const confirmedBody: TextPropTypes['translation'] = useMemo(
+    () => ['RFOX.unstakeSuccess', { amount: '1,500', symbol: 'FOX' }],
+    [],
+  )
+
+  const handleBack = useCallback(() => {
+    history.push(ChangeAddressRoutePaths.Input)
+  }, [history])
+
   const renderChangeAddressStatus = useCallback(() => {
-    return <ChangeAddressStatus headerComponent={headerComponent} />
-  }, [headerComponent])
+    return (
+      <ChangeAddressStatus
+        headerComponent={headerComponent}
+        pendingBody={pendingBody}
+        confirmedBody={confirmedBody}
+        onBack={handleBack}
+      />
+    )
+  }, [confirmedBody, handleBack, headerComponent, pendingBody])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

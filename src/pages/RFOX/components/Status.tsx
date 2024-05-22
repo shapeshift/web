@@ -2,16 +2,13 @@ import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { Button, CardBody, CardFooter, Center, Heading, Stack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
-import React, { useCallback, useMemo, useState } from 'react'
+import { type FC, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { SlideTransition } from 'components/SlideTransition'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-
-import { StakeRoutePaths, type StakeRouteProps } from './types'
 
 type BodyContent = {
   key: TxStatus
@@ -20,14 +17,16 @@ type BodyContent = {
   element: JSX.Element
 }
 
-export const StakeStatus: React.FC<StakeRouteProps> = () => {
-  const [status, setStatus] = useState<TxStatus>(TxStatus.Pending)
-  const history = useHistory()
-  const translate = useTranslate()
+type StatusProps = {
+  headerComponent?: JSX.Element
+  onBack: () => void
+  pendingBody: TextPropTypes['translation']
+  confirmedBody: TextPropTypes['translation']
+}
 
-  const handleGoBack = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
-  }, [history])
+export const Status: FC<StatusProps> = ({ onBack }) => {
+  const [status, setStatus] = useState<TxStatus>(TxStatus.Pending)
+  const translate = useTranslate()
 
   const handleFakeStatus = useCallback(() => {
     setStatus(TxStatus.Confirmed)
@@ -82,7 +81,7 @@ export const StakeStatus: React.FC<StakeRouteProps> = () => {
         <Button size='lg' variant='ghost'>
           {translate('trade.viewTransaction')}
         </Button>
-        <Button size='lg' colorScheme='blue' onClick={handleGoBack}>
+        <Button size='lg' colorScheme='blue' onClick={onBack}>
           {translate('common.goBack')}
         </Button>
       </CardFooter>

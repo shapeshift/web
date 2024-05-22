@@ -1,7 +1,8 @@
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import React, { lazy, Suspense, useCallback, useMemo } from 'react'
+import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import type { TextPropTypes } from 'components/Text/Text'
 
 import type { StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
@@ -26,8 +27,8 @@ const StakeConfirm = makeSuspenseful(
 
 const StakeStatus = makeSuspenseful(
   lazy(() =>
-    import('./StakeStatus').then(({ StakeStatus }) => ({
-      default: StakeStatus,
+    import('../Status').then(({ Status }) => ({
+      default: Status,
     })),
   ),
 )
@@ -44,6 +45,7 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
+  const history = useHistory()
 
   const renderStakeInput = useCallback(() => {
     return <StakeInput headerComponent={headerComponent} />
@@ -53,9 +55,29 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
     return <StakeConfirm headerComponent={headerComponent} />
   }, [headerComponent])
 
+  const pendingBody: TextPropTypes['translation'] = useMemo(
+    () => ['RFOX.stakePending', { amount: '1,500', symbol: 'FOX' }],
+    [],
+  )
+  const confirmedBody: TextPropTypes['translation'] = useMemo(
+    () => ['RFOX.stakeSuccess', { amount: '1,500', symbol: 'FOX' }],
+    [],
+  )
+
+  const handleBack = useCallback(() => {
+    history.push(StakeRoutePaths.Input)
+  }, [history])
+
   const renderStakeStatus = useCallback(() => {
-    return <StakeStatus headerComponent={headerComponent} />
-  }, [headerComponent])
+    return (
+      <StakeStatus
+        headerComponent={headerComponent}
+        pendingBody={pendingBody}
+        confirmedBody={confirmedBody}
+        onBack={handleBack}
+      />
+    )
+  }, [confirmedBody, handleBack, headerComponent, pendingBody])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

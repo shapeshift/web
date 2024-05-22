@@ -1,6 +1,6 @@
 import { Button, CardFooter, Flex, Stack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { type FC, useCallback, useMemo, useState } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'

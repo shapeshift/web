@@ -62,16 +62,22 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
           {...register('manualRuneAddress', {
             minLength: 1,
             validate: async address => {
+              // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
+              if (address === '') return true
+
               const isValid = await validateAddress({
                 maybeAddress: address ?? '',
                 chainId: thorchainChainId,
               })
 
+              // Inputs failing bech32 THOR address validation should obviously trigger an error
               if (!isValid) {
                 handleRuneAddressChange(undefined)
                 return translate('common.invalidAddress')
               }
 
+              handleRuneAddressChange(address)
+              // Tada, we've passed bech32 validation - fire the onRuneAddressChange callback to notify the consumer we're g2g
               handleRuneAddressChange(address)
             },
           })}

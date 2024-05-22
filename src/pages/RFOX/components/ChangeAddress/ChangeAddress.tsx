@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
@@ -41,17 +41,25 @@ const ChangeAddressEntries = [
 export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   return (
     <MemoryRouter initialEntries={ChangeAddressEntries} initialIndex={0}>
-      <StakeRoutes headerComponent={headerComponent} />
+      <ChangeAddressRoutes headerComponent={headerComponent} />
     </MemoryRouter>
   )
 }
 
-export const StakeRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
+export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
+  const [newRuneAddress, setNewRuneAddress] = useState<string | undefined>()
+
   const renderChangeAddressInput = useCallback(() => {
-    return <ChangeAddressInput headerComponent={headerComponent} />
-  }, [headerComponent])
+    return (
+      <ChangeAddressInput
+        newRuneAddress={newRuneAddress}
+        onNewRuneAddressChange={setNewRuneAddress}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [headerComponent, newRuneAddress])
 
   const renderChangeAddressConfirm = useCallback(() => {
     return <ChangeAddressConfirm headerComponent={headerComponent} />

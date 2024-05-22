@@ -101,7 +101,11 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     name: 'newRuneAddress',
   })
 
-  const { data: currentRuneAddress, isSuccess: isCurrentRuneAddressSuccess } = useReadContract({
+  const {
+    data: currentRuneAddress,
+    isLoading: isCurrentRuneAddressLoading,
+    isSuccess: isCurrentRuneAddressSuccess,
+  } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
     functionName: 'stakingInfo',
@@ -310,11 +314,12 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
               Boolean(errors.manualRuneAddress || errors.newRuneAddress) ? 'red' : 'blue'
             }
             isDisabled={
+              !currentRuneAddress ||
               Boolean(errors.manualRuneAddress || errors.newRuneAddress) ||
               !newRuneAddress ||
               !isChangeAddressFeesSuccess
             }
-            isLoading={isChangeAddressFeesLoading}
+            isLoading={isCurrentRuneAddressLoading || isChangeAddressFeesLoading}
           >
             {errors.newRuneAddress?.message ||
               errors.manualRuneAddress?.message ||

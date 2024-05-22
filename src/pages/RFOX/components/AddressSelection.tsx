@@ -9,6 +9,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -18,6 +19,7 @@ import { validateAddress } from 'lib/address/address'
 
 type AddressSelectionProps = {
   onRuneAddressChange: (address: string | undefined) => void
+  isNewAddress?: boolean
 }
 
 const boxProps = {
@@ -28,7 +30,10 @@ export type StakeValues = {
   manualRuneAddress: string | undefined
 } & TradeAmountInputFormValues
 
-export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps) => {
+export const AddressSelection: FC<AddressSelectionProps> = ({
+  onRuneAddressChange,
+  isNewAddress,
+}) => {
   const translate = useTranslate()
 
   const {
@@ -87,12 +92,24 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
     )
   }, [handleAccountIdChange, isManualAddress, onRuneAddressChange, register, translate])
 
+  const addressSelectionLabel = useMemo(
+    () =>
+      isNewAddress ? translate('RFOX.newRewardAddress') : translate('RFOX.thorchainRewardAddress'),
+    [isNewAddress, translate],
+  )
+
+  const addressSelectionDescription = useMemo(
+    () =>
+      isNewAddress ? translate('RFOX.rewardCycleExplainer') : translate('RFOX.rewardAddressHelper'),
+    [isNewAddress, translate],
+  )
+
   return (
     <FormControl isInvalid={Boolean(isManualAddress && errors.manualRuneAddress)}>
       <Stack px={6} py={4}>
         <Flex alignItems='center' justifyContent='space-between' mb={2}>
           <FormLabel fontSize='sm' mb={0}>
-            {translate('RFOX.thorchainRewardAddress')}
+            {addressSelectionLabel}
           </FormLabel>
           <Button variant='link' colorScheme='blue' size='sm' onClick={handleToggleInputMethod}>
             {isManualAddress
@@ -101,7 +118,7 @@ export const AddressSelection = ({ onRuneAddressChange }: AddressSelectionProps)
           </Button>
         </Flex>
         <Box width='full'>{accountSelection}</Box>
-        <FormHelperText>{translate('RFOX.rewardAddressHelper')}</FormHelperText>
+        <FormHelperText>{addressSelectionDescription}</FormHelperText>
       </Stack>
     </FormControl>
   )

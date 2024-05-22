@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
@@ -139,27 +139,26 @@ export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOut
   selectPortfolioAccountBalancesBaseUnit,
   selectMarketDataUserCurrency,
   (assetsById, accounts, marketData) => {
-    return Object.entries(accounts).reduce(
-      (acc, [accountId, balanceObj]) => {
-        acc[accountId] = Object.entries(balanceObj).reduce(
-          (acc, [assetId, cryptoBalance]) => {
-            const asset = assetsById[assetId]
-            if (!asset) return acc
-            const precision = asset.precision
-            const price = marketData[assetId]?.price ?? 0
-            const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
-            const userCurrencyBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = userCurrencyBalance
+    return Object.entries(accounts).reduce<
+      PartialRecord<AccountId, PartialRecord<AssetId, string>>
+    >((acc, [accountId, balanceObj]) => {
+      acc[accountId] = Object.entries(balanceObj).reduce<PartialRecord<AssetId, string>>(
+        (balanceByAssetId, [assetId, cryptoBalance]) => {
+          const asset = assetsById[assetId]
+          if (!asset) return balanceByAssetId
+          const precision = asset.precision
+          const price = marketData[assetId]?.price ?? 0
+          const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
+          const userCurrencyBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
+          balanceByAssetId[assetId] = userCurrencyBalance
 
-            return acc
-          },
-          { ...balanceObj },
-        )
+          return balanceByAssetId
+        },
+        {},
+      )
 
-        return acc
-      },
-      { ...accounts },
-    )
+      return acc
+    }, {})
   },
 )
 

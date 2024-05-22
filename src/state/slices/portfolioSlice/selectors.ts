@@ -275,7 +275,7 @@ export const selectPortfolioUserCurrencyBalanceByFilter = createCachedSelector(
     if (!assetId && accountId) {
       const accountBalances = portfolioAccountUserCurrencyBalances[accountId]
       const totalAccountBalances =
-        Object.values(accountBalances).reduce((totalBalance, userCurrencyBalance) => {
+        Object.values(accountBalances ?? {}).reduce((totalBalance, userCurrencyBalance) => {
           return bnOrZero(totalBalance).plus(bnOrZero(userCurrencyBalance)).toFixed(2)
         }, '0') ?? '0'
       return totalAccountBalances
@@ -409,7 +409,7 @@ export const selectPortfolioAssetAccountBalancesSortedUserCurrency = createDeepE
     return Object.entries(
       portfolioUserCurrencyAccountBalances,
     ).reduce<PortfolioAccountBalancesById>((acc, [accountId, assetBalanceObj]) => {
-      const sortedAssetsByUserCurrencyBalances = Object.entries(assetBalanceObj)
+      const sortedAssetsByUserCurrencyBalances = Object.entries(assetBalanceObj ?? {})
         .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
         .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetUserCurrencyBalance]) => {
           if (bnOrZero(assetUserCurrencyBalance).lt(bnOrZero(balanceThreshold))) return acc
@@ -452,7 +452,7 @@ export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
       [k: AccountId]: number
     }>((acc, [currentAccountId, assetAccountUserCurrencyBalance]) => {
       const allocation = bnOrZero(
-        bnOrZero(assetAccountUserCurrencyBalance[assetId])
+        bnOrZero(assetAccountUserCurrencyBalance?.[assetId])
           .div(totalAssetUserCurrencyBalance)
           .times(100),
       ).toNumber()
@@ -787,7 +787,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
     const aboveThreshold = Object.entries(accountBalances).reduce<AccountId[]>(
       (acc, [accountId, balanceObj]) => {
         if (accounts.includes(accountId)) {
-          const totalAccountUserCurrencyBalance = Object.values(balanceObj).reduce(
+          const totalAccountUserCurrencyBalance = Object.values(balanceObj ?? {}).reduce(
             (totalBalance, currentBalance) => {
               return bnOrZero(bn(totalBalance).plus(bnOrZero(currentBalance)))
             },
@@ -989,7 +989,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     const asset = assets[assetId]
     const accounts = accountIds.map(accountId => {
       const userCurrencyAmount = bnOrZero(
-        portfolioUserCurrencyBalances[accountId][assetId],
+        portfolioUserCurrencyBalances?.[accountId]?.[assetId],
       ).toString()
       const cryptoAmountBaseUnit = bnOrZero(
         portfolioCryptoBalancesBaseUnit[accountId][assetId],

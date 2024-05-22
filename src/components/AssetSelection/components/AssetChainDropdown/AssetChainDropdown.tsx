@@ -28,10 +28,20 @@ type AssetChainDropdownProps = {
   isLoading?: boolean
   isError?: boolean
   onlyConnectedChains: boolean
+  isDisabled?: boolean
 }
 
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
-  ({ assetId, assetIds, onChangeAsset, buttonProps, isLoading, isError, onlyConnectedChains }) => {
+  ({
+    assetId,
+    assetIds,
+    buttonProps,
+    isDisabled,
+    isError,
+    isLoading,
+    onChangeAsset,
+    onlyConnectedChains,
+  }) => {
     const {
       state: { wallet },
     } = useWallet()
@@ -77,11 +87,11 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       [onChangeAsset],
     )
 
-    const isDisabled = useMemo(() => {
-      return filteredRelatedAssetIds.length <= 1 || isLoading || isError
-    }, [filteredRelatedAssetIds, isError, isLoading])
+    const isButtonDisabled = useMemo(() => {
+      return isDisabled || filteredRelatedAssetIds.length <= 1 || isLoading || isError
+    }, [filteredRelatedAssetIds.length, isDisabled, isError, isLoading])
 
-    const isTooltipDisabled = useMemo(() => {
+    const isTooltipExplainerDisabled = useMemo(() => {
       // only render the tooltip when there are no other related assets and we're not loading and not
       // errored
       return filteredRelatedAssetIds.length > 1 || isLoading || isError
@@ -95,8 +105,11 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
 
     return (
       <Menu isLazy>
-        <Tooltip isDisabled={isTooltipDisabled} label={buttonTooltipText}>
-          <MenuButton as={Button} isDisabled={isDisabled} {...buttonProps}>
+        {/* If we do have related assets (or we're loading/errored), assume everything is happy. 
+            Else if there's no related assets for that asset, display a tooltip explaining "This asset is only available on <currentChain>  
+        */}
+        <Tooltip isDisabled={isTooltipExplainerDisabled} label={buttonTooltipText}>
+          <MenuButton as={Button} isDisabled={isButtonDisabled} {...buttonProps}>
             <AssetChainRow
               assetId={assetId}
               mainImplementationAssetId={assetId}

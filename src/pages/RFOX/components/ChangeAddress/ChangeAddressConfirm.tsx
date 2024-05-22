@@ -180,6 +180,7 @@ export const ChangeAddressConfirm: React.FC<
 
     history.push(ChangeAddressRoutePaths.Status)
 
+    // This isn't a mistake - we invalidate as a cleanup operation before unmount to avoid current subscribers refetching with wrong args, hence making invalidation useless
     await queryClient.invalidateQueries({ queryKey: stakingInfoQueryKey })
   }, [history, queryClient, sendChangeAddressTx, stakingInfoQueryKey])
 

@@ -121,7 +121,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
           callData &&
           feeAsset &&
           feeAssetMarketData &&
-          !Boolean(errors.manualRuneAddress),
+          !Boolean(errors.manualRuneAddress || errors.newRuneAddress),
       ),
     [
       stakingAssetAccountId,
@@ -132,6 +132,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
       feeAsset,
       feeAssetMarketData,
       errors.manualRuneAddress,
+      errors.newRuneAddress,
     ],
   )
 

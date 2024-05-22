@@ -1,4 +1,4 @@
-import { Button, CardFooter, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { Box, Button, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   foxOnArbitrumOneAssetId,
@@ -20,8 +20,6 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
-import { FoxIcon } from 'components/Icons/FoxIcon'
-import { ResultsEmpty } from 'components/ResultsEmpty'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -41,8 +39,6 @@ import { AddressSelection } from '../AddressSelection'
 import type { RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
-const emptyIcon = <FoxIcon />
-
 type ChangeAddressInputProps = {
   newRuneAddress: string | undefined
   stakingAssetId?: AssetId
@@ -56,7 +52,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   newRuneAddress,
   stakingAssetId = foxOnArbitrumOneAssetId,
   setConfirmedQuote,
-  setStepIndex,
 }) => {
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
@@ -203,10 +198,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     [onNewRuneAddressChange],
   )
 
-  const handleGoToStake = useCallback(() => {
-    setStepIndex && setStepIndex(0)
-  }, [setStepIndex])
-
   const validateIsNewAddress = useCallback(
     (address: string) => {
       // This should never happen but it may
@@ -236,21 +227,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
   if (!stakingAsset) return null
 
-  if (!currentRuneAddress) {
-    return (
-      <SlideTransition>
-        <Stack>
-          {headerComponent}
-          <ResultsEmpty title='RFOX.noPositionTitle' body='RFOX.noPositionBody' icon={emptyIcon}>
-            <Button size='md' colorScheme='blue' my={6} onClick={handleGoToStake}>
-              {translate('RFOX.stakeNow')}
-            </Button>
-          </ResultsEmpty>
-        </Stack>
-      </SlideTransition>
-    )
-  }
-
   return (
     <SlideTransition>
       <FormProvider {...methods}>
@@ -260,29 +236,35 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
             <Flex justifyContent='space-between' mb={2} flexDir={'column'}>
               <Text translation={'RFOX.currentRewardAddress'} fontWeight={'bold'} mb={2} />
               <Skeleton isLoaded={isCurrentRuneAddressSuccess}>
-                <RawText as={'h4'}>{middleEllipsis(currentRuneAddress ?? '')}</RawText>
+                <RawText fontSize='xl' color={currentRuneAddress ? 'text.base' : 'text.warning'}>
+                  {currentRuneAddress
+                    ? middleEllipsis(currentRuneAddress)
+                    : translate('RFOX.noAddressFound')}
+                </RawText>
               </Skeleton>
             </Flex>
           </Stack>
-          <Skeleton isLoaded={isCurrentRuneAddressSuccess}>
-            <AddressSelection
-              isNewAddress
-              hiddenAccountIds={hiddenAccountIds}
-              onRuneAddressChange={handleRuneAddressChange}
-              validateIsNewAddress={validateIsNewAddress}
-            />
-          </Skeleton>
+          <Box display={!!currentRuneAddress && isCurrentRuneAddressSuccess ? 'block' : 'none'}>
+            <Skeleton isLoaded={isCurrentRuneAddressSuccess}>
+              <AddressSelection
+                isNewAddress
+                hiddenAccountIds={hiddenAccountIds}
+                onRuneAddressChange={handleRuneAddressChange}
+                validateIsNewAddress={validateIsNewAddress}
+              />
+            </Skeleton>
+          </Box>
         </Stack>
-        <CardFooter
-          borderTopWidth={1}
-          borderColor='border.subtle'
-          flexDir='column'
-          gap={4}
-          px={6}
-          py={4}
-          bg='background.surface.raised.accent'
-        >
-          {isGetChangeAddressFeesEnabled && (
+        <Collapse in={isGetChangeAddressFeesEnabled}>
+          <CardFooter
+            borderTopWidth={1}
+            borderColor='border.subtle'
+            flexDir='column'
+            gap={4}
+            px={6}
+            py={4}
+            bg='background.surface.raised.accent'
+          >
             <Row fontSize='sm' fontWeight='medium'>
               <Row.Label>{translate('common.gasFee')}</Row.Label>
               <Row.Value>
@@ -295,8 +277,8 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
                 </Skeleton>
               </Row.Value>
             </Row>
-          )}
-        </CardFooter>
+          </CardFooter>
+        </Collapse>
 
         <CardFooter
           borderTopWidth={1}

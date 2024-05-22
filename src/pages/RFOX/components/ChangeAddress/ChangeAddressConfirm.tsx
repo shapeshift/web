@@ -1,4 +1,4 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, InfoIcon } from '@chakra-ui/icons'
 import {
   Button,
   Card,
@@ -23,12 +23,12 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { RawText } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { middleEllipsis } from 'lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -204,20 +204,30 @@ export const ChangeAddressConfirm: React.FC<
         alignItems='center'
         justifyContent='center'
         flexDir='column'
-        gap={4}
-        py={6}
-        px={4}
         flex={1}
         mx={-2}
       >
-        <AssetIcon size='sm' assetId={stakingAsset.assetId} />
-        <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value='0.0' symbol={stakingAsset.symbol} />
-          <Amount.Fiat fontSize='sm' color='text.subtle' value='0.0' />
-        </Stack>
+        <CardBody display='flex' gap={2} flexDir='column' width='full'>
+          <RawText color='text.subtle' fontSize='sm' fontWeight='semibold'>
+            {translate('RFOX.currentRewardAddress')}
+          </RawText>
+          <RawText fontSize='lg'>{middleEllipsis(confirmedQuote.currentRuneAddress)}</RawText>
+        </CardBody>
+        <Card width='full' borderWidth={1}>
+          <CardBody display='flex' flexDir='column' width='full' gap={2}>
+            <RawText color='text.subtle' fontSize='sm' fontWeight='semibold'>
+              {translate('RFOX.newRewardAddress')}
+            </RawText>
+            <RawText fontSize='lg'>{middleEllipsis(confirmedQuote.newRuneAddress)}</RawText>
+            <Flex alignItems='center' gap={2} fontSize='sm' color='text.subtle'>
+              <InfoIcon />
+              <RawText>{translate('RFOX.newAddressInfo')}</RawText>
+            </Flex>
+          </CardBody>
+        </Card>
       </Card>
     )
-  }, [stakingAsset])
+  }, [confirmedQuote.currentRuneAddress, confirmedQuote.newRuneAddress, stakingAsset, translate])
 
   return (
     <SlideTransition>
@@ -229,24 +239,28 @@ export const ChangeAddressConfirm: React.FC<
         <Flex flex={1}></Flex>
       </CardHeader>
       <CardBody>
-        <Stack spacing={6}>
-          {changeAddressCard}
-          <Timeline>
-            <TimelineItem>
-              <CustomRow>
-                <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={!isChangeAddressFeesLoading}>
-                    <Row.Value>
-                      <Amount.Fiat value={changeAddressFees?.txFeeFiat ?? '0.0'} />
-                    </Row.Value>
-                  </Skeleton>
-                </Row.Value>
-              </CustomRow>
-            </TimelineItem>
-          </Timeline>
-        </Stack>
+        <Stack spacing={6}>{changeAddressCard}</Stack>
       </CardBody>
+      <CardFooter
+        borderTopWidth={1}
+        borderColor='border.subtle'
+        flexDir='column'
+        gap={4}
+        px={6}
+        py={4}
+        bg='background.surface.raised.accent'
+      >
+        <CustomRow>
+          <Row.Label>{translate('common.gasFee')}</Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!isChangeAddressFeesLoading}>
+              <Row.Value>
+                <Amount.Fiat value={changeAddressFees?.txFeeFiat ?? '0.0'} />
+              </Row.Value>
+            </Skeleton>
+          </Row.Value>
+        </CustomRow>
+      </CardFooter>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
@@ -264,7 +278,7 @@ export const ChangeAddressConfirm: React.FC<
           colorScheme='blue'
           onClick={handleSubmit}
         >
-          {translate('RFOX.confirmAndStake')}
+          {translate('RFOX.confirmAndUpdateAddress')}
         </Button>
       </CardFooter>
     </SlideTransition>

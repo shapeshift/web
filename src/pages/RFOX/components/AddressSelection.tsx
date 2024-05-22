@@ -36,13 +36,20 @@ type AddressSelectionProps = {
 
 const boxProps = {
   width: 'full',
+  p: 0,
+  m: 0,
+}
+const buttonProps = {
+  width: 'full',
+  variant: 'solid',
+  height: '40px',
+  px: 4,
 }
 
 export const AddressSelection: FC<AddressSelectionProps> = ({
   onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
   validateIsNewAddress,
-  hiddenAccountIds = [],
 }) => {
   const translate = useTranslate()
 
@@ -118,6 +125,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         placeholder={translate('common.enterAddress')}
         autoFocus
         defaultValue=''
+        autoComplete='off'
       />
     )
   }, [handleRuneAddressChange, isManualAddress, register, translate, validateIsNewAddress])
@@ -128,12 +136,12 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return (
       <AccountDropdown
         assetId={thorchainAssetId}
-        hiddenAccountIds={hiddenAccountIds}
         onChange={handleAccountIdChange}
         boxProps={boxProps}
+        buttonProps={buttonProps}
       />
     )
-  }, [handleAccountIdChange, hiddenAccountIds, isManualAddress])
+  }, [handleAccountIdChange, isManualAddress])
 
   const addressSelectionLabel = useMemo(
     () =>

@@ -484,11 +484,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.approvalFee')}</Row.Label>
                     <Row.Value>
-                      <Skeleton
-                        isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}
-                        height='14px'
-                        width='50px'
-                      >
+                      <Skeleton isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}>
                         <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
                       </Skeleton>
                     </Row.Value>
@@ -498,11 +494,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.gasFee')}</Row.Label>
                     <Row.Value>
-                      <Skeleton
-                        isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}
-                        height='14px'
-                        width='50px'
-                      >
+                      <Skeleton isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}>
                         <Amount.Fiat value={stakeFees?.txFeeFiat ?? 0} />
                       </Skeleton>
                     </Row.Value>

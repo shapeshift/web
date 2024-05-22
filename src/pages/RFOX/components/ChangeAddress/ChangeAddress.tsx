@@ -38,21 +38,15 @@ const ChangeAddressEntries = [
   ChangeAddressRoutePaths.Status,
 ]
 
-export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({
-  headerComponent,
-  setStepIndex,
-}) => {
+export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   return (
     <MemoryRouter initialEntries={ChangeAddressEntries} initialIndex={0}>
-      <ChangeAddressRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
+      <ChangeAddressRoutes headerComponent={headerComponent} />
     </MemoryRouter>
   )
 }
 
-export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({
-  headerComponent,
-  setStepIndex,
-}) => {
+export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
   const [newRuneAddress, setNewRuneAddress] = useState<string | undefined>()
@@ -66,10 +60,9 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({
         onNewRuneAddressChange={setNewRuneAddress}
         headerComponent={headerComponent}
         setConfirmedQuote={setConfirmedQuote}
-        setStepIndex={setStepIndex}
       />
     )
-  }, [headerComponent, newRuneAddress, setStepIndex])
+  }, [headerComponent, newRuneAddress])
 
   const renderChangeAddressConfirm = useCallback(() => {
     if (!confirmedQuote) return null

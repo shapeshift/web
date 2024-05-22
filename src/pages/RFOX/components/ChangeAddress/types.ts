@@ -8,7 +8,6 @@ export enum ChangeAddressRoutePaths {
 
 export type ChangeAddressRouteProps = {
   headerComponent?: JSX.Element
-  setStepIndex?: (index: number) => void
 }
 
 export type RfoxChangeAddressQuote = {

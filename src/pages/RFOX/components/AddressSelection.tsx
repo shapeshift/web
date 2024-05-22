@@ -14,8 +14,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { validateAddress } from 'lib/address/address'
+
+import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
   onRuneAddressChange: (address: string | undefined) => void
@@ -26,10 +27,6 @@ const boxProps = {
   width: 'full',
 }
 
-export type StakeValues = {
-  manualRuneAddress: string | undefined
-} & TradeAmountInputFormValues
-
 export const AddressSelection: FC<AddressSelectionProps> = ({
   onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
@@ -37,8 +34,8 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   const translate = useTranslate()
 
   // Local controller in case consumers don't have a form context
-  const _methods = useForm<StakeValues>()
-  const methods = useFormContext<StakeValues>()
+  const _methods = useForm<AddressSelectionValues>()
+  const methods = useFormContext<AddressSelectionValues>()
 
   const register = methods?.register ?? _methods.register
   const formState = methods?.formState ?? _methods.formState
@@ -63,7 +60,6 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
       return (
         <Input
           {...register('manualRuneAddress', {
-            required: translate('A RUNE address is required'),
             minLength: 1,
             validate: async address => {
               const isValid = await validateAddress({

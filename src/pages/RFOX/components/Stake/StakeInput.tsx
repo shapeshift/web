@@ -26,6 +26,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { formatSecondsToDuration } from 'lib/utils/time'
+import type { StakeInputValues } from 'pages/RFOX/types'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountNumberByAccountId,
@@ -37,7 +38,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import type { StakeValues } from '../AddressSelection'
 import { AddressSelection } from '../AddressSelection'
 import { StakeSummary } from './components/StakeSummary'
 import type { RfoxStakingQuote } from './types'
@@ -77,7 +77,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const methods = useForm<StakeValues>({
+  const methods = useForm<StakeInputValues>({
     defaultValues: defaultFormValues,
     mode: 'onChange',
     shouldUnregister: true,
@@ -118,11 +118,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const [collapseIn, setCollapseIn] = useState(false)
   const percentOptions = useMemo(() => [1], [])
 
-  const amountCryptoPrecision = useWatch<StakeValues, 'amountCryptoPrecision'>({
+  const amountCryptoPrecision = useWatch<StakeInputValues, 'amountCryptoPrecision'>({
     control,
     name: 'amountCryptoPrecision',
   })
-  const amountUserCurrency = useWatch<StakeValues, 'amountUserCurrency'>({
+  const amountUserCurrency = useWatch<StakeInputValues, 'amountUserCurrency'>({
     control,
     name: 'amountUserCurrency',
   })
@@ -532,9 +532,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 !cooldownPeriod
               }
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
-              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
+              colorScheme={
+                Boolean(errors.amountFieldInput || errors.manualRuneAddress) ? 'red' : 'blue'
+              }
             >
-              {errors.amountFieldInput?.message || translate('RFOX.stake')}
+              {errors.manualRuneAddress?.message || translate('RFOX.stake')}
             </Button>
           </CardFooter>
         </FormProvider>

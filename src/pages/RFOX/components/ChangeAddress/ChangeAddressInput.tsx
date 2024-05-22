@@ -1,11 +1,13 @@
 import { Button, CardFooter, Flex, Stack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { type FC, useCallback, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
+import type { AddressSelectionValues } from 'pages/RFOX/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -20,6 +22,22 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
   const [newAddress, setNewAddress] = useState<string | null>()
 
   const hasEnteredAddress = useMemo(() => !!newAddress, [newAddress])
+
+  const defaultFormValues = {
+    manualRuneAddress: '',
+  }
+
+  const methods = useForm<AddressSelectionValues>({
+    defaultValues: defaultFormValues,
+    mode: 'onChange',
+    shouldUnregister: true,
+  })
+
+  const {
+    formState: { errors },
+    control,
+    trigger,
+  } = methods
 
   const handleWarning = useCallback(() => {
     setShowWarning(true)
@@ -69,10 +87,10 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
             size='lg'
             mx={-2}
             onClick={handleWarning}
-            colorScheme='blue'
+            colorScheme={Boolean(errors.manualRuneAddress) ? 'red' : 'blue'}
             isDisabled={!hasEnteredAddress}
           >
-            {translate('RFOX.stake')}
+            {errors.manualRuneAddress?.message || translate('RFOX.changeAddress')}
           </Button>
         </CardFooter>
       </WarningAcknowledgement>

@@ -88,7 +88,7 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
         headerComponent={headerComponent}
       />
     )
-  }, [changeAddressTxid, headerComponent])
+  }, [changeAddressTxid, confirmedQuote, headerComponent])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

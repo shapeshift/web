@@ -458,6 +458,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               label={translate('transactionRow.amount')}
               labelPostFix={assetSelectComponent}
               isSendMaxDisabled={false}
+              cryptoAmount={amountCryptoPrecision}
               fiatAmount={amountUserCurrency}
             />
             <FormDivider />

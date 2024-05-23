@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
 
 export enum UnstakeRoutePaths {
   Input = '/remove/input',
@@ -16,3 +17,4 @@ export type RfoxUnstakingQuote = {
   unstakingAmountCryptoBaseUnit: string
   cooldownPeriod: string
 }
+export type UnstakeInputValues = TradeAmountInputFormValues & { percentage: number }

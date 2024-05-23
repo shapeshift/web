@@ -25,7 +25,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import type { UnstakeInputValues } from 'pages/RFOX/types'
 import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
 import {
   selectAccountNumberByAccountId,
@@ -38,7 +37,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { UnstakeSummary } from './components/UnstakeSummary'
-import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
+import type { RfoxUnstakingQuote, UnstakeInputValues, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
 
 const formControlProps = {

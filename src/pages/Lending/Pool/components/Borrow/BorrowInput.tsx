@@ -108,8 +108,16 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: borrowAssets, isLoading: isLendingSupportedAssetsLoading } =
+  const { data: borrowAssets, isLoading: isSupportedBorrowAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
+  const borrowAssetIds = useMemo(() => {
+    return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
+  }, [borrowAssets])
+  const { data: collateralAssets, isLoading: isSupportedCollateralAssetsLoading } =
+    useLendingSupportedAssets({ type: 'borrow' })
+  const collateralAssetIds = useMemo(() => {
+    return collateralAssets?.map(collateralAsset => collateralAsset.assetId) ?? []
+  }, [collateralAssets])
 
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: collateralAssetId }), [collateralAssetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
@@ -119,10 +127,6 @@ export const BorrowInput = ({
   }, [poolData])
 
   const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
-
-  const borrowAssetIds = useMemo(() => {
-    return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
-  }, [borrowAssets])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
@@ -417,12 +421,13 @@ export const BorrowInput = ({
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
+        assetIds={collateralAssetIds}
         isReadOnly
-        isLoading={isLendingSupportedAssetsLoading}
+        isLoading={isSupportedCollateralAssetsLoading}
         onlyConnectedChains={true}
       />
     )
-  }, [collateralAssetId, isLendingSupportedAssetsLoading])
+  }, [collateralAssetId, collateralAssetIds, isSupportedCollateralAssetsLoading])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
@@ -431,7 +436,7 @@ export const BorrowInput = ({
         assetIds={borrowAssetIds}
         onAssetClick={handleBorrowAssetClick}
         onAssetChange={setBorrowAsset}
-        isLoading={isLendingSupportedAssetsLoading}
+        isLoading={isSupportedBorrowAssetsLoading}
         onlyConnectedChains={true}
       />
     )
@@ -440,7 +445,7 @@ export const BorrowInput = ({
     borrowAssetIds,
     setBorrowAsset,
     handleBorrowAssetClick,
-    isLendingSupportedAssetsLoading,
+    isSupportedBorrowAssetsLoading,
   ])
 
   const quoteErrorTranslation = useMemo(() => {

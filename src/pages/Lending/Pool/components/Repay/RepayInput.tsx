@@ -318,15 +318,19 @@ export const RepayInput = ({
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
-  const { data: lendingSupportedAssets, isLoading: isLendingSupportedAssetsLoading } =
+  const { data: supportedRepaymentAssets, isLoading: isSupportedRepaymentAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
+  const repaymentAssetIds = useMemo(
+    () => supportedRepaymentAssets?.map(asset => asset.assetId) ?? [],
+    [supportedRepaymentAssets],
+  )
 
   useEffect(() => {
-    if (!(lendingSupportedAssets && collateralAsset)) return
+    if (!(supportedRepaymentAssets && collateralAsset)) return
     if (repaymentAsset) return
 
     setRepaymentAsset(collateralAsset)
-  }, [collateralAsset, lendingSupportedAssets, repaymentAsset, setRepaymentAsset])
+  }, [collateralAsset, supportedRepaymentAssets, repaymentAsset, setRepaymentAsset])
 
   const buyAssetSearch = useModal('buyAssetSearch')
 
@@ -334,14 +338,15 @@ export const RepayInput = ({
     buyAssetSearch.open({
       onAssetClick: setRepaymentAsset,
       title: 'lending.repay',
-      assets: lendingSupportedAssets ?? [],
+      assets: supportedRepaymentAssets ?? [],
     })
-  }, [buyAssetSearch, lendingSupportedAssets, setRepaymentAsset])
+  }, [buyAssetSearch, supportedRepaymentAssets, setRepaymentAsset])
 
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={repaymentAsset?.assetId ?? ''}
+        assetIds={repaymentAssetIds}
         onAssetClick={handleRepaymentAssetClick}
         onAssetChange={setRepaymentAsset}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
@@ -350,18 +355,18 @@ export const RepayInput = ({
         onlyConnectedChains={true}
       />
     )
-  }, [setRepaymentAsset, handleRepaymentAssetClick, repaymentAsset?.assetId])
+  }, [repaymentAsset?.assetId, repaymentAssetIds, handleRepaymentAssetClick, setRepaymentAsset])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
         isReadOnly
-        isLoading={isLendingSupportedAssetsLoading}
+        isLoading={isSupportedRepaymentAssetsLoading}
         onlyConnectedChains={true}
       />
     )
-  }, [collateralAssetId, isLendingSupportedAssetsLoading])
+  }, [collateralAssetId, isSupportedRepaymentAssetsLoading])
 
   const handleSeenNotice = useCallback(() => setSeenNotice(true), [])
 

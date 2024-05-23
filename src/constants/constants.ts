@@ -16,6 +16,7 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
   switch (swapperName) {
     case SwapperName.Zrx:
     case SwapperName.OneInch:
+    case SwapperName.ArbitrumBridge:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.LIFI:

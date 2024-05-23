@@ -29,6 +29,7 @@ export const SwapperIcon = ({
         return THORChainIcon
       case SwapperName.OneInch:
         return OneInchIcon
+      case SwapperName.ArbitrumBridge:
       case SwapperName.Test:
         return ''
       default:

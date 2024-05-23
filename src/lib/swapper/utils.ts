@@ -109,6 +109,8 @@ export const getEnabledSwappers = (
       OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
     [SwapperName.CowSwap]:
       Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
+    // TODO(gomes): flag
+    [SwapperName.ArbitrumBridge]: true,
     [SwapperName.Test]: false,
   }
 }

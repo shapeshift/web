@@ -7,6 +7,7 @@ import {
   SliderTrack,
   Stack,
 } from '@chakra-ui/react'
+import type { PropsWithChildren } from 'react'
 import { useCallback } from 'react'
 import type { ControllerRenderProps } from 'react-hook-form'
 import { Controller, useForm, useFormContext } from 'react-hook-form'
@@ -18,7 +19,7 @@ type AmountSliderProps = {
   handlePercentageSliderChange: (percentage: number) => void
   handlePercentageSliderChangeEnd: (percentage: number) => void
   onPercentageClick: (percentage: number) => void
-}
+} & PropsWithChildren
 
 type AmountSliderInputValues = {
   percentage: number
@@ -39,6 +40,7 @@ export const AmountSlider: React.FC<AmountSliderProps> = ({
   handlePercentageSliderChange,
   handlePercentageSliderChangeEnd,
   onPercentageClick,
+  children,
 }) => {
   // Local controller in case consumers don't have a form context
   // If you consume this component, try and leverage the form context for simplicity and to keep things DRY,
@@ -84,6 +86,7 @@ export const AmountSlider: React.FC<AmountSliderProps> = ({
             </SliderTrack>
             <SliderThumb />
           </Slider>
+          {children}
           <ButtonGroup size='sm' justifyContent='space-between'>
             <Button onClick={handlePercentageClick(25)} flex={1}>
               25%
@@ -101,7 +104,13 @@ export const AmountSlider: React.FC<AmountSliderProps> = ({
         </>
       )
     },
-    [handlePercentageSliderChange, handlePercentageSliderChangeEnd, onPercentageClick, sliderValue],
+    [
+      children,
+      handlePercentageSliderChange,
+      handlePercentageSliderChangeEnd,
+      onPercentageClick,
+      sliderValue,
+    ],
   )
 
   return (

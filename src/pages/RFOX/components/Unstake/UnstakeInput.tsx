@@ -382,23 +382,22 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
                   handlePercentageSliderChange={handlePercentageSliderChange}
                   onPercentageClick={handlePercentageClick}
                   handlePercentageSliderChangeEnd={handlePercentageSliderChangeEnd}
-                />
-                <Flex
-                  width='full'
-                  px={6}
-                  py={4}
-                  justifyContent='space-between'
-                  fontSize='xs'
-                  color='text.subtle'
                 >
-                  <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-                    <Amount.Fiat value={0} />
-                  </Skeleton>
-                  <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-                    {/* Actually defined at display time, see isLoaded above */}
-                    <Amount.Fiat value={userStakingBalanceUserCurrency ?? 0} />
-                  </Skeleton>
-                </Flex>
+                  <Flex
+                    width='full'
+                    justifyContent='space-between'
+                    fontSize='xs'
+                    color='text.subtle'
+                  >
+                    <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+                      <Amount.Fiat value={0} />
+                    </Skeleton>
+                    <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+                      {/* Actually defined at display time, see isLoaded above */}
+                      <Amount.Fiat value={userStakingBalanceUserCurrency ?? 0} />
+                    </Skeleton>
+                  </Flex>
+                </AmountSlider>
               </Stack>
             </Skeleton>
             <FormDivider />

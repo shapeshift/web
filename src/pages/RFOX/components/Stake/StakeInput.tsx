@@ -230,7 +230,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           !isApprovalRequired &&
           feeAsset &&
           feeAssetMarketData &&
-          !Boolean(errors.amountFieldInput),
+          !Boolean(errors.amountFieldInput || errors.manualRuneAddress),
       ),
     [
       hasEnoughBalance,
@@ -246,6 +246,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       feeAsset,
       feeAssetMarketData,
       errors.amountFieldInput,
+      errors.manualRuneAddress,
     ],
   )
 
@@ -293,10 +294,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           wallet &&
           feeAsset &&
           feeAssetMarketData &&
-          !Boolean(errors.amountFieldInput),
+          !Boolean(errors.amountFieldInput || errors.manualRuneAddress),
       ),
     [
       errors.amountFieldInput,
+      errors.manualRuneAddress,
       feeAsset,
       feeAssetMarketData,
       hasEnoughBalance,
@@ -527,7 +529,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 Boolean(errors.amountFieldInput || errors.manualRuneAddress) ? 'red' : 'blue'
               }
             >
-              {errors.manualRuneAddress?.message || translate('RFOX.stake')}
+              {errors.amountFieldInput?.message ||
+                errors.manualRuneAddress?.message ||
+                translate('RFOX.stake')}
             </Button>
           </CardFooter>
         </FormProvider>

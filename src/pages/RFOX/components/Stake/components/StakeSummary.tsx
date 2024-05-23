@@ -96,13 +96,6 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     ],
   )
 
-  console.log({
-    stakingAmountCryptoBaseUnit,
-    userStakingBalanceOfCryptoBaseUnit,
-    newContractBalanceOfCryptoBaseUnit,
-    newShareOfPoolPercentage,
-  })
-
   const stakeAmountToolTip = useCallback(() => {
     return <Text color='text.subtle' translation='RFOX.tooltips.stakeAmount' />
   }, [])

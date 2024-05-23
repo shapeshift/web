@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import durationPlugin from 'dayjs/plugin/duration'
 
-export const formatDuration = (seconds: number) => {
+export const formatSecondsToDuration = (seconds: number) => {
   dayjs.extend(durationPlugin)
   const duration = dayjs.duration(seconds, 'seconds')
   const hours = duration.asHours()

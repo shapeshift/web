@@ -25,7 +25,7 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { formatDuration } from 'lib/utils/time'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountNumberByAccountId,
@@ -184,7 +184,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     chainId: arbitrum.id,
     query: {
       staleTime: Infinity,
-      select: data => formatDuration(Number(data)),
+      select: data => formatSecondsToDuration(Number(data)),
     },
   })
 

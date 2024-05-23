@@ -14,7 +14,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { formatDuration } from 'lib/utils/time'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -45,7 +45,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     chainId: arbitrum.id,
     query: {
       staleTime: Infinity,
-      select: data => formatDuration(Number(data)),
+      select: data => formatSecondsToDuration(Number(data)),
     },
   })
 

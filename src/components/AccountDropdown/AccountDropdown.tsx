@@ -55,7 +55,6 @@ export type AccountDropdownProps = {
   autoSelectHighestBalance?: boolean
   // Prevents accounts in the dropdown from being selected
   disabled?: boolean
-  // Hides a given set of AccountIds from the dropdown
   buttonProps?: ButtonProps
   listProps?: MenuItemOptionProps
   boxProps?: BoxProps

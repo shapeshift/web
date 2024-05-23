@@ -134,7 +134,7 @@ export const ChangeAddressConfirm: React.FC<
   }, [changeAddressTxid, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
 
   const {
-    mutateAsync: sendChangeAddressTx,
+    mutateAsync: handleChangeAddress,
     isPending: isChangeAddressMutationPending,
     isSuccess: isChangeAddressMutationSuccess,
   } = useMutation({
@@ -176,13 +176,13 @@ export const ChangeAddressConfirm: React.FC<
   })
 
   const handleSubmit = useCallback(async () => {
-    await sendChangeAddressTx(undefined)
+    await handleChangeAddress()
 
     history.push(ChangeAddressRoutePaths.Status)
 
     // This isn't a mistake - we invalidate as a cleanup operation before unmount to avoid current subscribers refetching with wrong args, hence making invalidation useless
     await queryClient.invalidateQueries({ queryKey: stakingInfoQueryKey })
-  }, [history, queryClient, sendChangeAddressTx, stakingInfoQueryKey])
+  }, [history, queryClient, handleChangeAddress, stakingInfoQueryKey])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

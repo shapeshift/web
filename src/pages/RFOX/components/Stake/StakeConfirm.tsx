@@ -380,7 +380,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   }, [confirmedQuote.stakingAssetAccountId, stakeTxid, stakingAssetAccountAddress])
 
   const {
-    mutateAsync: sendStakeTx,
+    mutateAsync: handleStake,
     isPending: isStakeMutationPending,
     isSuccess: isStakeMutationSuccess,
   } = useMutation({
@@ -412,8 +412,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       setStakeTxid(txId)
     },
   })
-
-  const handleStake = useCallback(() => sendStakeTx(undefined), [sendStakeTx])
 
   const stakeTx = useAppSelector(gs => selectTxById(gs, serializedStakeTxIndex))
   const isStakeTxPending = useMemo(

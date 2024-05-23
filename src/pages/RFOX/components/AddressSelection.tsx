@@ -31,7 +31,7 @@ export type StakeValues = {
 } & TradeAmountInputFormValues
 
 export const AddressSelection: FC<AddressSelectionProps> = ({
-  onRuneAddressChange,
+  onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
 }) => {
   const translate = useTranslate()
@@ -48,15 +48,15 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
 
   const handleAccountIdChange = useCallback(
     (accountId: string) => {
-      onRuneAddressChange(fromAccountId(accountId).account)
+      handleRuneAddressChange(fromAccountId(accountId).account)
     },
-    [onRuneAddressChange],
+    [handleRuneAddressChange],
   )
 
   const handleToggleInputMethod = useCallback(() => {
-    onRuneAddressChange(undefined)
+    handleRuneAddressChange(undefined)
     setIsManualAddress(!isManualAddress)
-  }, [isManualAddress, onRuneAddressChange])
+  }, [isManualAddress, handleRuneAddressChange])
 
   const accountSelection = useMemo(() => {
     if (isManualAddress) {
@@ -72,11 +72,11 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
               })
 
               if (!isValid) {
-                onRuneAddressChange(undefined)
+                handleRuneAddressChange(undefined)
                 return translate('common.invalidAddress')
               }
 
-              onRuneAddressChange(address)
+              handleRuneAddressChange(address)
             },
           })}
           placeholder={translate('common.enterAddress')}
@@ -93,7 +93,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         boxProps={boxProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress, onRuneAddressChange, register, translate])
+  }, [handleAccountIdChange, isManualAddress, handleRuneAddressChange, register, translate])
 
   const addressSelectionLabel = useMemo(
     () =>

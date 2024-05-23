@@ -100,7 +100,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [], [])
   const [sliderValue, setSliderValue] = useState<number>(100)
-  // const [percentageSelection, setPercentageSelection] = useState<number>(50)
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
@@ -181,14 +180,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   )
 
   const [isFiat, handleToggleIsFiat] = useToggle(false)
-
-  const handleChange = useCallback((_value: string, isFiat?: boolean) => {
-    if (isFiat) {
-      // setFiatAmount(value)
-    } else {
-      // setCryptoAmount(value)
-    }
-  }, [])
 
   const handleWarning = useCallback(() => {
     setShowWarning(true)
@@ -427,7 +418,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               isSendMaxDisabled={true}
               layout='inline'
               onAccountIdChange={handleAccountIdChange}
-              onChange={handleChange}
               onToggleIsFiat={handleToggleIsFiat}
               percentOptions={percentOptions}
               rightComponent={ReadOnlyAsset}

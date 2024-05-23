@@ -54,18 +54,20 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     [stakingAssetAccountId],
   )
 
-  const { data: userBalanceOfCryptoBaseUnit, isSuccess: isUserBalanceOfCryptoBaseUnitSuccess } =
-    useReadContract({
-      abi: foxStakingV1Abi,
-      address: RFOX_PROXY_CONTRACT_ADDRESS,
-      functionName: 'balanceOf',
-      args: [getAddress(stakingAssetAccountAddress)],
-      chainId: arbitrum.id,
-      query: {
-        select: data => data.toString(),
-        enabled: Boolean(stakingAsset),
-      },
-    })
+  const {
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'stakingInfo',
+    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
+    chainId: arbitrum.id,
+    query: {
+      enabled: Boolean(stakingAssetAccountAddress),
+      select: ([stakingBalance]) => stakingBalance.toString(),
+    },
+  })
 
   const {
     data: newContractBalanceOfCryptoBaseUnit,
@@ -84,11 +86,22 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
   const newShareOfPoolPercentage = useMemo(
     () =>
       bnOrZero(stakingAmountCryptoBaseUnit)
-        .plus(userBalanceOfCryptoBaseUnit ?? 0)
+        .plus(userStakingBalanceOfCryptoBaseUnit ?? 0)
         .div(newContractBalanceOfCryptoBaseUnit ?? 0)
         .toFixed(4),
-    [newContractBalanceOfCryptoBaseUnit, stakingAmountCryptoBaseUnit, userBalanceOfCryptoBaseUnit],
+    [
+      newContractBalanceOfCryptoBaseUnit,
+      stakingAmountCryptoBaseUnit,
+      userStakingBalanceOfCryptoBaseUnit,
+    ],
   )
+
+  console.log({
+    stakingAmountCryptoBaseUnit,
+    userStakingBalanceOfCryptoBaseUnit,
+    newContractBalanceOfCryptoBaseUnit,
+    newShareOfPoolPercentage,
+  })
 
   const stakeAmountToolTip = useCallback(() => {
     return <Text color='text.subtle' translation='RFOX.tooltips.stakeAmount' />
@@ -134,7 +147,8 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
         <Row.Value>
           <Skeleton
             isLoaded={
-              isNewContractBalanceOfCryptoBaseUnitSuccess && isUserBalanceOfCryptoBaseUnitSuccess
+              isNewContractBalanceOfCryptoBaseUnitSuccess &&
+              isUserStakingBalanceOfCryptoBaseUnitSuccess
             }
           >
             <Amount.Percent value={newShareOfPoolPercentage} />

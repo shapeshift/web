@@ -116,18 +116,18 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   )
 
   const {
-    data: userBalanceOfCryptoBaseUnit,
-    isSuccess: isUserBalanceOfCryptoBaseUnitSuccess,
-    queryKey: userBalanceOfCryptoBaseUnitQueryKey,
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+    queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey,
   } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'balanceOf',
-    args: [getAddress(stakingAssetAccountAddress)],
+    functionName: 'stakingInfo',
+    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
     chainId: arbitrum.id,
     query: {
-      select: data => data.toString(),
-      enabled: Boolean(stakingAsset),
+      enabled: Boolean(stakingAssetAccountAddress),
+      select: ([stakingBalance]) => stakingBalance.toString(),
     },
   })
 
@@ -150,13 +150,13 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   const newShareOfPoolPercentage = useMemo(
     () =>
       bnOrZero(confirmedQuote.stakingAmountCryptoBaseUnit)
-        .plus(userBalanceOfCryptoBaseUnit ?? 0)
+        .plus(userStakingBalanceOfCryptoBaseUnit ?? 0)
         .div(newContractBalanceOfCryptoBaseUnit ?? 0)
         .toFixed(4),
     [
       confirmedQuote.stakingAmountCryptoBaseUnit,
       newContractBalanceOfCryptoBaseUnit,
-      userBalanceOfCryptoBaseUnit,
+      userStakingBalanceOfCryptoBaseUnit,
     ],
   )
 
@@ -389,7 +389,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
     await handleStake()
 
-    await queryClient.invalidateQueries({ queryKey: userBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
 
     history.push(StakeRoutePaths.Status)
@@ -400,7 +400,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isApprovalRequired,
     newContractBalanceOfCryptoBaseUnitQueryKey,
     queryClient,
-    userBalanceOfCryptoBaseUnitQueryKey,
+    userStakingBalanceOfCryptoBaseUnitQueryKey,
   ])
 
   const stakeCards = useMemo(() => {
@@ -468,7 +468,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
                 <Skeleton
                   isLoaded={
                     isNewContractBalanceOfCryptoBaseUnitSuccess &&
-                    isUserBalanceOfCryptoBaseUnitSuccess
+                    isUserStakingBalanceOfCryptoBaseUnitSuccess
                   }
                 >
                   <Row.Value>

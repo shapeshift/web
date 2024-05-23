@@ -415,7 +415,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               isFiat={isFiat}
               isReadOnly
               isSendMaxDisabled={true}
-              layout='inline'
+              layout='stacked'
               onAccountIdChange={handleAccountIdChange}
               onToggleIsFiat={handleToggleIsFiat}
               percentOptions={percentOptions}

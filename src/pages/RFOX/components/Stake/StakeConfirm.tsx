@@ -9,6 +9,8 @@ import {
   IconButton,
   Skeleton,
   Stack,
+  Text,
+  useToast,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
@@ -67,6 +69,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   setStakeTxid,
   confirmedQuote,
 }) => {
+  const toast = useToast()
   const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
   const history = useHistory()
@@ -243,6 +246,22 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     }),
     onSuccess: (txId: string) => {
       setApprovalTxId(txId)
+      toast({
+        title: translate('modals.send.transactionSent'),
+        description: (
+          <Text>
+            {feeAsset?.explorerTxLink && (
+              <Link href={`${feeAsset.explorerTxLink}${txId}`} isExternal>
+                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+              </Link>
+            )}
+          </Text>
+        ),
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
     },
   })
 

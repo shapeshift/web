@@ -376,7 +376,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             symbol: token.symbol,
           })),
         },
-        pubkey: data.pubkey,
+        pubkey,
       } as Account<T>
     } catch (err) {
       return ErrorHandler(err)

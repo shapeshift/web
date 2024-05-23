@@ -183,7 +183,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, unstakeTxid])
 
   const {
-    mutateAsync: sendUnstakeTx,
+    mutateAsync: handleUnstake,
     isPending: isUnstakeMutationPending,
     isSuccess: isUnstakeMutationSuccess,
   } = useMutation({
@@ -261,17 +261,17 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   )
 
   const handleSubmit = useCallback(async () => {
-    await sendUnstakeTx(undefined)
+    await handleUnstake()
 
     await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
 
     history.push(UnstakeRoutePaths.Status)
   }, [
+    handleUnstake,
     history,
     newContractBalanceOfCryptoBaseUnitQueryKey,
     queryClient,
-    sendUnstakeTx,
     userStakingBalanceOfCryptoBaseUnitQueryKey,
   ])
 

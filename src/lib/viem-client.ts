@@ -70,7 +70,7 @@ export const viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Cha
   [KnownChainIds.ArbitrumNovaMainnet]: viemArbitrumNovaClient,
   [KnownChainIds.GnosisMainnet]: viemGnosisClient,
   [KnownChainIds.PolygonMainnet]: viemPolygonClient,
-  // cast required due to typescript shenanigans
+  // cast required for these due to typescript shenanigans
   // https://github.com/wagmi-dev/viem/issues/1018
   [KnownChainIds.OptimismMainnet]: viemOptimismClient as PublicClient<Transport, Chain>,
   [KnownChainIds.BaseMainnet]: viemBaseClient as PublicClient<Transport, Chain>,
@@ -81,12 +81,13 @@ export const viemClientByNetworkId: Record<number, PublicClient<Transport, Chain
   [bsc.id]: viemBscClient,
   [avalanche.id]: viemAvalancheClient,
   [arbitrum.id]: viemArbitrumClient,
-  // cast required due to typescript shenanigans
-  // https://github.com/wagmi-dev/viem/issues/1018
-  [optimism.id]: viemOptimismClient as PublicClient<Transport, Chain>,
   [arbitrumNova.id]: viemArbitrumNovaClient,
   [gnosis.id]: viemGnosisClient,
   [polygon.id]: viemPolygonClient,
+  // cast required for these due to typescript shenanigans
+  // https://github.com/wagmi-dev/viem/issues/1018
+  [optimism.id]: viemOptimismClient as PublicClient<Transport, Chain>,
+  [base.id]: viemBaseClient as PublicClient<Transport, Chain>,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient<Transport, Chain> => {

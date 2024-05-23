@@ -418,6 +418,15 @@ const userNftTokenSchema = z.object({
   items: z.array(userNftItemSchema).optional(),
 })
 
+const categorySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
 export type V2NftUserItem = Infer<typeof userNftItemSchema>
 
 export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
@@ -472,6 +481,8 @@ const V2AppGroupResponse = z.object({
 const V2AppResponse = z.object({
   id: z.string(),
   databaseId: z.number(),
+  categoryId: z.number().nullable(),
+  category: categorySchema.nullable(),
   slug: z.string(),
   name: z.string(),
   description: z.string(),

@@ -26,7 +26,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import type { StakeInputValues } from 'pages/RFOX/types'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountNumberByAccountId,
@@ -40,7 +39,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
 import { StakeSummary } from './components/StakeSummary'
-import type { RfoxStakingQuote } from './types'
+import type { RfoxStakingQuote, StakeInputValues } from './types'
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
 const formControlProps = {

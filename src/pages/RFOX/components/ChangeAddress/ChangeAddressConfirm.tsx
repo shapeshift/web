@@ -195,7 +195,6 @@ export const ChangeAddressConfirm: React.FC<
   }, [history])
 
   const changeAddressCard = useMemo(() => {
-    // TODO(gomes): implement current/new rune address display here
     if (!stakingAsset) return null
 
     return (

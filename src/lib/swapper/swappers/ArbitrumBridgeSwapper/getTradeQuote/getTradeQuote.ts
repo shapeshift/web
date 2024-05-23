@@ -1,5 +1,6 @@
-import { Erc20Bridger, getL2Network } from '@arbitrum/sdk'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
+import type { L1ToL2TransactionRequest } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   GetEvmTradeQuoteInput,
   SingleHopTradeQuoteSteps,
@@ -17,7 +18,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import { BigNumber } from 'ethers5'
 import { v4 as uuid } from 'uuid'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
-import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 
 import { assertValidTrade } from '../utils/helpers'
 
@@ -38,7 +39,9 @@ export async function getTradeQuote(
   } = input
   // TODO(gomes): don't hardcode me
   const l2Network = await getL2Network(42161)
-  const bridger = new Erc20Bridger(l2Network)
+  const isEthBridge = sellAsset.assetId === ethAssetId
+
+  const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
 
   const erc20L1Address = fromAssetId(sellAsset.assetId).assetReference
   const l1Provider = getEthersV5Provider(sellAsset.chainId)
@@ -64,18 +67,19 @@ export async function getTradeQuote(
   // 1/1 when bridging on Arbitrum bridge
   const rate = '1'
 
-  const allowanceContract = request.retryableData.from
+  const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || ''
+
+  const feeData = await getFees({
+    adapter: assertGetEvmChainAdapter(chainId),
+    data: request.txRequest.data.toString(),
+    to: request.txRequest.to,
+    value: request.txRequest.value.toString(),
+    from: request.txRequest.from,
+    supportsEIP1559,
+  })
 
   try {
-    // assert get is allowed because we chain chainId is an EVM chainId above in assertValidTrade
-    const adapter = assertGetEvmChainAdapter(chainId)
-    const { average } = await adapter.getGasFeeData()
-    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
-      ...average,
-      supportsEIP1559,
-      gasLimit: request.retryableData.gasLimit.toString(),
-    })
-
+    const networkFeeCryptoBaseUnit = feeData.networkFeeCryptoBaseUnit
     return Ok({
       id: uuid(),
       receiveAddress,

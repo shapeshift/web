@@ -1,4 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AddressSelectionValues } from 'pages/RFOX/types'
 
 export enum ChangeAddressRoutePaths {
   Input = '/change-address/input',
@@ -15,4 +16,8 @@ export type RfoxChangeAddressQuote = {
   stakingAssetId: AssetId
   newRuneAddress: string
   currentRuneAddress: string
+}
+
+export type ChangeAddressInputValues = AddressSelectionValues & {
+  newRuneAddress: string | undefined
 }

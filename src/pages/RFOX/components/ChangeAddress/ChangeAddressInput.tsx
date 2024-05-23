@@ -19,7 +19,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
-import type { AddressSelectionValues } from 'pages/RFOX/types'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -30,15 +29,13 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
-import type { RfoxChangeAddressQuote } from './types'
+import type { ChangeAddressInputValues, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
 type ChangeAddressInputProps = {
   stakingAssetId?: AssetId
   setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void
 }
-
-type ChangeAddressInputValues = AddressSelectionValues & { newRuneAddress: string | undefined }
 
 export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInputProps> = ({
   headerComponent,

@@ -1,4 +1,4 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Button,
   Card,
@@ -7,6 +7,7 @@ import {
   CardHeader,
   Flex,
   IconButton,
+  Link,
   Skeleton,
   Stack,
   Text,
@@ -274,6 +275,27 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
   )
 
+  const isApprovalTxSuccess = useMemo(
+    () => approvalTx?.status === TxStatus.Confirmed,
+    [approvalTx?.status],
+  )
+
+  // The approval Tx may be confirmed, but that's not enough to know we're ready to stake
+  // Allowance then needs to be succesfully refetched - failure to wait for it will result in jumpy states between
+  // the time the Tx is confirmed, and the time the allowance is succesfully refetched
+  // This allows us to detect such transition state
+  const isTransitioning = useMemo(() => {
+    // If we don't have a success Tx, we know we're not transitioning
+    if (!isApprovalTxSuccess) return false
+    // We have a success approval Tx, but approval is still required, meaning we haven't re-rendered with the updated allowance just yet
+    if (isApprovalRequired) return true
+
+    // Allowance has been updated, we've finished transitioning
+    return false
+  }, [isApprovalRequired, isApprovalTxSuccess])
+
+  console.log({ isApprovalRequired, isTransitioning })
+
   useEffect(() => {
     if (!approvalTx) return
     if (isApprovalTxPending) return
@@ -531,7 +553,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
               isAllowanceDataLoading,
           )}
           isLoading={
-            isAllowanceDataLoading || isApprovalTxPending || isStakeFeesLoading || isStakeTxPending
+            isAllowanceDataLoading ||
+            isApprovalTxPending ||
+            isTransitioning ||
+            isStakeFeesLoading ||
+            isStakeTxPending
           }
           colorScheme='blue'
           onClick={handleSubmit}

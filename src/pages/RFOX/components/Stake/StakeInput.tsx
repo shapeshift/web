@@ -26,6 +26,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { formatDuration } from 'lib/utils/time'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -34,7 +35,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import type { StakeValues } from '../AddressSelection'
 import { AddressSelection } from '../AddressSelection'
@@ -72,6 +73,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
 }) => {
   const wallet = useWallet().state.wallet
+  const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
 
@@ -132,6 +134,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [amountCryptoPrecision, amountUserCurrency],
   )
 
+  useEffect(() => {
+    // hydrate FOX market data in case the user doesn't hold it
+    dispatch(marketApi.endpoints.findByAssetIds.initiate([stakingAssetId]))
+  }, [dispatch, stakingAssetId])
   useEffect(() => {
     // Only set this once, never collapse out
     if (collapseIn) return

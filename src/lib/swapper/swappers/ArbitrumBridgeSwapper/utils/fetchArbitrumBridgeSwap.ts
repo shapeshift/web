@@ -1,6 +1,6 @@
-import { Erc20Bridger, getL2Network } from '@arbitrum/sdk'
+import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
 import type { L1ToL2TransactionRequest } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { BigNumber } from 'ethers5'
@@ -31,10 +31,12 @@ export const fetchArbitrumBridgeSwap = async ({
   sellAsset,
   maximumSlippageDecimalPercentage,
   sendAddress, // TODO(gomes): support L2 to L1 too, as well as ETH
-}: FetchArbitrumBridgeSwapInput): Promise<L1ToL2TransactionRequest> => {
+}: FetchArbitrumBridgeSwapInput): Promise<Omit<L1ToL2TransactionRequest, 'retryableData'>> => {
   // TODO(gomes): don't hardcode me
   const l2Network = await getL2Network(42161)
-  const bridger = new Erc20Bridger(l2Network)
+  const isEthBridge = sellAsset.assetId === ethAssetId
+
+  const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
 
   const erc20L1Address = fromAssetId(sellAsset.assetId).assetReference
   const l1Provider = getEthersV5Provider(sellAsset.chainId)

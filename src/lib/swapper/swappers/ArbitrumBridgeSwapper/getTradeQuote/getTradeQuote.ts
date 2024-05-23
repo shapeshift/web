@@ -67,7 +67,7 @@ export async function getTradeQuote(
   // 1/1 when bridging on Arbitrum bridge
   const rate = '1'
 
-  const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || ''
+  const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || '0x0' // no allowance needed for ETH deposits
 
   const feeData = await getFees({
     adapter: assertGetEvmChainAdapter(chainId),

@@ -30,7 +30,6 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
-  selectHighestAccountNumberForChainId,
   selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
@@ -38,10 +37,6 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { getAccountIdsWithActivityAndMetadata } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
-
-// The number of additional empty accounts to include in the initial fetch
-// Allows users to see more accounts without having to load more
-const NUM_ADDITIONAL_EMPTY_ACCOUNTS = 1
 
 export type ImportAccountsProps = {
   chainId: ChainId
@@ -165,10 +160,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     () => wallet instanceof MetaMaskShapeShiftMultiChainHDWallet,
     [wallet],
   )
-  const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
-  const highestAccountNumber = useAppSelector(state =>
-    selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
-  )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [autoFetching, setAutoFetching] = useState(true)
   const [queryEnabled, setQueryEnabled] = useState(false)
@@ -230,17 +221,19 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   useEffect(() => {
     if (isLoading || !autoFetching || !accounts || !queryEnabled) return
 
-    // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
-    // Add additional empty accounts to show more accounts without having to load more.
-    const numAccountsToLoad = highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS
+    // Check if the most recently fetched account has activity
+    const isLastAccountActive = accounts.pages[
+      accounts.pages.length - 1
+    ].accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
-    if (accounts.pages.length < numAccountsToLoad) {
+    // Keep fetching until we find an account without activity
+    if (isLastAccountActive) {
       fetchNextPage()
     } else {
       // Stop auto-fetching and switch to manual mode
       setAutoFetching(false)
     }
-  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching, isLoading, queryEnabled])
+  }, [accounts, fetchNextPage, autoFetching, isLoading, queryEnabled])
 
   const handleLoadMore = useCallback(() => {
     if (isLoading || autoFetching) return

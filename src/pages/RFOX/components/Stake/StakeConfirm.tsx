@@ -185,57 +185,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     })
   }, [confirmedQuote.stakingAmountCryptoBaseUnit])
 
-  const isGetApprovalFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        isApprovalRequired &&
-          stakingAssetAccountNumber !== undefined &&
-          feeAsset &&
-          feeAssetMarketData &&
-          wallet,
-      ),
-    [feeAsset, feeAssetMarketData, isApprovalRequired, stakingAssetAccountNumber, wallet],
-  )
-
-  const {
-    data: approvalFees,
-    isLoading: isGetApprovalFeesLoading,
-    isSuccess: isGetApprovalFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      value: '0',
-      accountNumber: stakingAssetAccountNumber!, // see isGetApprovalFeesEnabled
-      feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(confirmedQuote.stakingAssetId).assetReference,
-      from: stakingAssetAccountAddress,
-      data: approvalCallData,
-      wallet: wallet!, // see isGetApprovalFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetApprovalFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: 15_000,
-  })
-
-  const serializedApprovalTxIndex = useMemo(() => {
-    if (!(approvalTxId && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
-      return ''
-    return serializeTxIndex(
-      confirmedQuote.stakingAssetAccountId,
-      approvalTxId,
-      stakingAssetAccountAddress,
-    )
-  }, [approvalTxId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
-
-  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
-
   const {
     mutate: sendApprovalTx,
     isPending: isApprovalMutationPending,
     isSuccess: isApprovalMutationSuccess,
+    isIdle: isApprovalMutationIdle,
   } = useMutation({
     ...reactQueries.mutations.approve({
       assetId: confirmedQuote.stakingAssetId,
@@ -266,6 +220,61 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     },
   })
 
+  const isGetApprovalFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        isApprovalMutationIdle &&
+          isApprovalRequired &&
+          stakingAssetAccountNumber !== undefined &&
+          feeAsset &&
+          feeAssetMarketData &&
+          wallet,
+      ),
+    [
+      feeAsset,
+      feeAssetMarketData,
+      isApprovalMutationIdle,
+      isApprovalRequired,
+      stakingAssetAccountNumber,
+      wallet,
+    ],
+  )
+
+  const {
+    data: approvalFees,
+    isLoading: isGetApprovalFeesLoading,
+    isSuccess: isGetApprovalFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      value: '0',
+      accountNumber: stakingAssetAccountNumber!, // see isGetApprovalFeesEnabled
+      feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
+      to: fromAssetId(confirmedQuote.stakingAssetId).assetReference,
+      from: stakingAssetAccountAddress,
+      data: approvalCallData,
+      wallet: wallet!, // see isGetApprovalFeesEnabled
+    }),
+    staleTime: 30_000,
+    enabled: isGetApprovalFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: isGetApprovalFeesEnabled ? 15_000 : false,
+  })
+
+  const serializedApprovalTxIndex = useMemo(() => {
+    if (!(approvalTxId && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
+      return ''
+    return serializeTxIndex(
+      confirmedQuote.stakingAssetAccountId,
+      approvalTxId,
+      stakingAssetAccountAddress,
+    )
+  }, [approvalTxId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
+
+  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
+
   const handleApprove = useCallback(() => sendApprovalTx(undefined), [sendApprovalTx])
 
   const isApprovalTxPending = useMemo(
@@ -293,8 +302,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     // Allowance has been updated, we've finished transitioning
     return false
   }, [isApprovalRequired, isApprovalTxSuccess])
-
-  console.log({ isApprovalRequired, isTransitioning })
 
   useEffect(() => {
     if (!approvalTx) return
@@ -326,63 +333,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     })
   }, [confirmedQuote.runeAddress, confirmedQuote.stakingAmountCryptoBaseUnit])
 
-  const isGetStakeFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        stakingAssetAccountNumber !== undefined &&
-          wallet &&
-          stakingAsset &&
-          !isApprovalRequired &&
-          feeAsset &&
-          feeAssetMarketData,
-      ),
-    [
-      stakingAssetAccountNumber,
-      wallet,
-      stakingAsset,
-      isApprovalRequired,
-      feeAsset,
-      feeAssetMarketData,
-    ],
-  )
-
-  const {
-    data: stakeFees,
-    isLoading: isStakeFeesLoading,
-    isSuccess: isStakeFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: stakeCallData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetStakeFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: 15_000,
-  })
-
-  const serializedStakeTxIndex = useMemo(() => {
-    if (!(stakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
-      return ''
-    return serializeTxIndex(
-      confirmedQuote.stakingAssetAccountId,
-      stakeTxid,
-      stakingAssetAccountAddress,
-    )
-  }, [confirmedQuote.stakingAssetAccountId, stakeTxid, stakingAssetAccountAddress])
-
   const {
     mutateAsync: handleStake,
     isPending: isStakeMutationPending,
     isSuccess: isStakeMutationSuccess,
+    isIdle: isStakeMutationIdle,
   } = useMutation({
     mutationFn: async () => {
       if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset) return
@@ -412,6 +367,61 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       setStakeTxid(txId)
     },
   })
+
+  const isGetStakeFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        isStakeMutationIdle &&
+          stakingAssetAccountNumber !== undefined &&
+          wallet &&
+          stakingAsset &&
+          !isApprovalRequired &&
+          feeAsset &&
+          feeAssetMarketData,
+      ),
+    [
+      isStakeMutationIdle,
+      stakingAssetAccountNumber,
+      wallet,
+      stakingAsset,
+      isApprovalRequired,
+      feeAsset,
+      feeAssetMarketData,
+    ],
+  )
+
+  const {
+    data: stakeFees,
+    isLoading: isStakeFeesLoading,
+    isSuccess: isStakeFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress,
+      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
+      data: stakeCallData!, // see isGetStakeFeesEnabled
+      value: '0', // contract call
+      wallet: wallet!, // see isGetStakeFeesEnabled
+      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+    }),
+    staleTime: 30_000,
+    enabled: isGetStakeFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: isGetStakeFeesEnabled ? 15_000 : false,
+  })
+
+  const serializedStakeTxIndex = useMemo(() => {
+    if (!(stakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
+      return ''
+    return serializeTxIndex(
+      confirmedQuote.stakingAssetAccountId,
+      stakeTxid,
+      stakingAssetAccountAddress,
+    )
+  }, [confirmedQuote.stakingAssetAccountId, stakeTxid, stakingAssetAccountAddress])
 
   const stakeTx = useAppSelector(gs => selectTxById(gs, serializedStakeTxIndex))
   const isStakeTxPending = useMemo(

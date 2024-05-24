@@ -294,8 +294,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     return false
   }, [isApprovalRequired, isApprovalTxSuccess])
 
-  console.log({ isApprovalRequired, isTransitioning })
-
   useEffect(() => {
     if (!approvalTx) return
     if (isApprovalTxPending) return

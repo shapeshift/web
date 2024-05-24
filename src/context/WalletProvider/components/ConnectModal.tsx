@@ -16,6 +16,7 @@ export type ConnectModalProps = {
   buttonText: string
   onPairDeviceClick: () => void
   loading: boolean
+  isButtonDisabled?: boolean
   error: string | null
   children?: ReactNode
 }
@@ -28,6 +29,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
   error,
   headerText,
   loading,
+  isButtonDisabled,
   onPairDeviceClick: handlePairDeviceClick,
   children,
 }) => {
@@ -39,7 +41,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
       <ModalBody>
         <Text mb={4} color='text.subtle' translation={bodyText} />
         {error && (
-          <Alert status='info' mt={4}>
+          <Alert status='info' mb={2}>
             <AlertIcon />
             <AlertDescription>
               <Text translation={error} />
@@ -53,7 +55,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             isLoading
             loadingText='Pairing Wallet'
             spinner={spinner}
-            isDisabled={loading}
+            isDisabled={isButtonDisabled || loading}
           >
             <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />
           </Button>
@@ -62,7 +64,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             width='full'
             colorScheme='blue'
             onClick={handlePairDeviceClick}
-            isDisabled={loading}
+            isDisabled={isButtonDisabled || loading}
             data-test='wallet-pair-button'
           >
             <Text translation={buttonText || 'walletProvider.keepKey.connect.button'} />

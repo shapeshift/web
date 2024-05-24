@@ -1,5 +1,6 @@
 import { Button } from '@chakra-ui/react'
-import React, { useCallback, useState } from 'react'
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import type { ActionTypes } from 'context/WalletProvider/actions'
@@ -32,6 +33,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   const dispatch = useAppDispatch()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
 
@@ -113,6 +115,35 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     await handlePair()
   }, [handleClearPortfolio, handlePair])
 
+  const handleCheckSingleDevice = useCallback(async () => {
+    const devices = await TransportWebUSB.list()
+    const numDevices = devices.length
+
+    switch (true) {
+      case numDevices < 1:
+        setDeviceCountError('walletProvider.ledger.errors.noDeviceConnected')
+        return
+      case numDevices > 1:
+        setDeviceCountError('walletProvider.ledger.errors.multipleDevicesConnected')
+        return
+      default:
+        setDeviceCountError(null)
+        return
+    }
+  }, [])
+
+  // Periodically check for a single device
+  useEffect(() => {
+    // Initial call before interval
+    handleCheckSingleDevice()
+
+    // Periodic call
+    const interval = setInterval(handleCheckSingleDevice, 1000)
+
+    // Stop polling on unmount
+    return () => clearInterval(interval)
+  }, [getAdapter, setErrorLoading, handleCheckSingleDevice])
+
   return (
     <ConnectModal
       headerText={'walletProvider.ledger.connect.header'}
@@ -128,7 +159,8 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       }
       onPairDeviceClick={handlePair}
       loading={isLoading}
-      error={error}
+      isButtonDisabled={isLoading || Boolean(deviceCountError)}
+      error={error ?? deviceCountError}
     >
       {/* Hide the whole button while loading to prevent UI glitching during pairing */}
       {!isLoading && isPreviousLedgerDeviceDetected && (
@@ -138,7 +170,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
           width='full'
           colorScheme='blue'
           variant='outline'
-          isDisabled={isLoading}
+          isDisabled={isLoading || Boolean(deviceCountError)}
         >
           {translate('walletProvider.ledger.connect.pairNewDeviceButton')}
         </Button>

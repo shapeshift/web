@@ -6,6 +6,7 @@ import { assertUnreachable } from 'lib/utils'
 
 import ZrxIcon from './0x-icon.png'
 import OneInchIcon from './1inch-icon.png'
+import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
 import CowIcon from './cow-icon.png'
 import LiFiIcon from './lifi-icon.png'
 import THORChainIcon from './thorchain-icon.png'
@@ -30,6 +31,7 @@ export const SwapperIcon = ({
       case SwapperName.OneInch:
         return OneInchIcon
       case SwapperName.ArbitrumBridge:
+        return ArbitrumBridgeIcon
       case SwapperName.Test:
         return ''
       default:

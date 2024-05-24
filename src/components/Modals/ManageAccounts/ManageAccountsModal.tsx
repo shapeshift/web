@@ -157,6 +157,7 @@ export const ManageAccountsModal = () => {
                 onClick={handleClickAddChain}
                 width='full'
                 size='lg'
+                isLoading={isDrawerOpen}
                 isDisabled={disableAddChain}
                 _disabled={disabledProp}
               >
@@ -164,7 +165,13 @@ export const ManageAccountsModal = () => {
                   ? translate('accountManagement.manageAccounts.addChain')
                   : translate('accountManagement.manageAccounts.addAnotherChain')}
               </Button>
-              <Button size='lg' colorScheme='gray' onClick={close} width='full'>
+              <Button
+                size='lg'
+                colorScheme='gray'
+                onClick={close}
+                isDisabled={isDrawerOpen}
+                width='full'
+              >
                 {translate('common.done')}
               </Button>
             </VStack>

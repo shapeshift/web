@@ -136,54 +136,9 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     })
   }, [stakingAsset, unstakingAmountCryptoPrecision])
 
-  const isGetUnstakeFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        stakingAssetAccountNumber !== undefined &&
-          wallet &&
-          stakingAsset &&
-          callData &&
-          feeAsset &&
-          feeAssetMarketData,
-      ),
-    [stakingAssetAccountNumber, wallet, stakingAsset, callData, feeAsset, feeAssetMarketData],
-  )
-
-  const {
-    data: unstakeFees,
-    isLoading: isUnstakeFeesLoading,
-    isSuccess: isUnstakeFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetUnstakeFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: 15_000,
-  })
-
-  const serializedUnstakeTxIndex = useMemo(() => {
-    if (!(unstakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
-      return ''
-    return serializeTxIndex(
-      confirmedQuote.stakingAssetAccountId,
-      unstakeTxid,
-      stakingAssetAccountAddress,
-    )
-  }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, unstakeTxid])
-
   const {
     mutateAsync: handleUnstake,
+    isIdle: isUnstakeMutationIdle,
     isPending: isUnstakeMutationPending,
     isSuccess: isUnstakeMutationSuccess,
   } = useMutation({
@@ -215,6 +170,61 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
       setUnstakeTxid(txId)
     },
   })
+
+  const isGetUnstakeFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        isUnstakeMutationIdle &&
+          stakingAssetAccountNumber !== undefined &&
+          wallet &&
+          stakingAsset &&
+          callData &&
+          feeAsset &&
+          feeAssetMarketData,
+      ),
+    [
+      isUnstakeMutationIdle,
+      stakingAssetAccountNumber,
+      wallet,
+      stakingAsset,
+      callData,
+      feeAsset,
+      feeAssetMarketData,
+    ],
+  )
+
+  const {
+    data: unstakeFees,
+    isLoading: isUnstakeFeesLoading,
+    isSuccess: isUnstakeFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress,
+      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
+      data: callData!, // see isGetStakeFeesEnabled
+      value: '0', // contract call
+      wallet: wallet!, // see isGetStakeFeesEnabled
+      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+    }),
+    staleTime: 30_000,
+    enabled: isGetUnstakeFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: isGetUnstakeFeesEnabled ? 15_000 : false,
+  })
+
+  const serializedUnstakeTxIndex = useMemo(() => {
+    if (!(unstakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
+      return ''
+    return serializeTxIndex(
+      confirmedQuote.stakingAssetAccountId,
+      unstakeTxid,
+      stakingAssetAccountAddress,
+    )
+  }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, unstakeTxid])
 
   const {
     data: userStakingBalanceOfCryptoBaseUnit,

@@ -2,7 +2,7 @@ import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshi
 import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
-import type { GetContractReturnType, WalletClient } from 'viem'
+import type { GetContractReturnType } from 'viem'
 import { type Address, getAddress, getContract, type PublicClient } from 'viem'
 
 import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
@@ -127,7 +127,7 @@ export const getContractDataByPool = (
       const poolContract = getContract({
         abi: IUniswapV3PoolABI,
         address,
-        publicClient,
+        client: publicClient,
       })
       const tokenIn = token0Address === tokenAAddress ? token0Address : token1Address
       const tokenOut = token1Address === tokenBAddress ? token1Address : token0Address
@@ -146,7 +146,7 @@ export const getContractDataByPool = (
 export const getQuotedAmountOutByPool = async (
   poolContracts: Map<Address, ContractData>,
   sellAmount: bigint,
-  quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient>,
+  quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, Address>,
 ): Promise<Map<Address, bigint>> => {
   const results = await Promise.allSettled(
     Array.from(poolContracts.entries()).map(async ([poolContract, data]) => {

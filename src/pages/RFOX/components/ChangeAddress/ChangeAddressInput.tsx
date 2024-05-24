@@ -30,6 +30,10 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
     setNewAddress('1234')
   }, [history])
 
+  const handleRuneAddressChange = useCallback((_address: string | undefined) => {
+    console.info('TODO: implement me')
+  }, [])
+
   if (!asset) return null
 
   return (
@@ -50,7 +54,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps> = ({ headerComponen
               <RawText as={'h4'}>1234</RawText>
             </Flex>
           </Stack>
-          <AddressSelection isNewAddress />
+          <AddressSelection isNewAddress onRuneAddressChange={handleRuneAddressChange} />
         </Stack>
         <CardFooter
           borderTopWidth={1}

@@ -1,39 +1,99 @@
 import {
+  Box,
   Button,
   Flex,
   FormControl,
   FormHelperText,
   FormLabel,
   Input,
-  Select,
   Stack,
 } from '@chakra-ui/react'
-import { type FC, useCallback, useMemo, useState } from 'react'
+import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { FC } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
+import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
+import { validateAddress } from 'lib/address/address'
 
 type AddressSelectionProps = {
+  onRuneAddressChange: (address: string | undefined) => void
   isNewAddress?: boolean
 }
 
-export const AddressSelection: FC<AddressSelectionProps> = ({ isNewAddress }) => {
+const boxProps = {
+  width: 'full',
+}
+
+export type StakeValues = {
+  manualRuneAddress: string | undefined
+} & TradeAmountInputFormValues
+
+export const AddressSelection: FC<AddressSelectionProps> = ({
+  onRuneAddressChange: handleRuneAddressChange,
+  isNewAddress,
+}) => {
   const translate = useTranslate()
+
+  // Local controller in case consumers don't have a form context
+  const _methods = useForm<StakeValues>()
+  const methods = useFormContext<StakeValues>()
+
+  const register = methods?.register ?? _methods.register
+  const formState = methods?.formState ?? _methods.formState
+  const { errors } = formState
+
   const [isManualAddress, setIsManualAddress] = useState(false)
 
-  const handleToggleInputMethod = useCallback(() => {
-    setIsManualAddress(!isManualAddress)
-  }, [isManualAddress])
+  const handleAccountIdChange = useCallback(
+    (accountId: string) => {
+      handleRuneAddressChange(fromAccountId(accountId).account)
+    },
+    [handleRuneAddressChange],
+  )
 
-  const renderSelection = useMemo(() => {
+  const handleToggleInputMethod = useCallback(() => {
+    handleRuneAddressChange(undefined)
+    setIsManualAddress(!isManualAddress)
+  }, [isManualAddress, handleRuneAddressChange])
+
+  const accountSelection = useMemo(() => {
     if (isManualAddress) {
-      return <Input autoFocus />
+      return (
+        <Input
+          {...register('manualRuneAddress', {
+            required: translate('A RUNE address is required'),
+            minLength: 1,
+            validate: async address => {
+              const isValid = await validateAddress({
+                maybeAddress: address ?? '',
+                chainId: thorchainChainId,
+              })
+
+              if (!isValid) {
+                handleRuneAddressChange(undefined)
+                return translate('common.invalidAddress')
+              }
+
+              handleRuneAddressChange(address)
+            },
+          })}
+          placeholder={translate('common.enterAddress')}
+          autoFocus
+          defaultValue=''
+        />
+      )
     }
+
     return (
-      <Select borderRadius='xl' borderColor='border.base'>
-        <option value='1234'>1234</option>
-        <option value='2365'>2365</option>
-      </Select>
+      <AccountDropdown
+        assetId={thorchainAssetId}
+        onChange={handleAccountIdChange}
+        boxProps={boxProps}
+      />
     )
-  }, [isManualAddress])
+  }, [handleAccountIdChange, isManualAddress, handleRuneAddressChange, register, translate])
 
   const addressSelectionLabel = useMemo(
     () =>
@@ -48,7 +108,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({ isNewAddress }) =>
   )
 
   return (
-    <FormControl>
+    <FormControl isInvalid={Boolean(isManualAddress && errors.manualRuneAddress)}>
       <Stack px={6} py={4}>
         <Flex alignItems='center' justifyContent='space-between' mb={2}>
           <FormLabel fontSize='sm' mb={0}>
@@ -60,7 +120,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({ isNewAddress }) =>
               : translate('RFOX.useCustomAddress')}
           </Button>
         </Flex>
-        {renderSelection}
+        <Box width='full'>{accountSelection}</Box>
         <FormHelperText>{addressSelectionDescription}</FormHelperText>
       </Stack>
     </FormControl>

@@ -3,6 +3,7 @@ import 'dotenv/config'
 import {
   avalancheAssetId,
   ethAssetId,
+  foxOnArbitrumOneAssetId,
   fromAssetId,
   gnosisAssetId,
   polygonAssetId,
@@ -165,6 +166,21 @@ const generateAssetData = async () => {
     },
     generatedAssetData,
   )
+
+  // Temporary workaround to circumvent the fact that no lists have that asset currently
+  const foxOnArbitrumOne = {
+    assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+    chainId: 'eip155:42161',
+    name: 'FOX on Arbitrum One',
+    precision: 18,
+    color: '#3761F9',
+    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    symbol: 'FOX',
+    explorer: 'https://arbiscan.io',
+    explorerAddressLink: 'https://arbiscan.io/address/',
+    explorerTxLink: 'https://arbiscan.io/tx/',
+  }
+  assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 
   await fs.promises.writeFile(
     path.join(__dirname, '../../src/lib/asset-service/service/generatedAssetData.json'),

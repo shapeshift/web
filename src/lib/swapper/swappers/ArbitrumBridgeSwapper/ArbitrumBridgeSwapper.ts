@@ -1,24 +1,37 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { arbitrumChainId, ethChainId } from '@shapeshiftoss/caip'
 import type { BuyAssetBySellIdInput, Swapper } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { executeEvmTransaction } from 'lib/utils/evm'
 
-import { filterEvmAssetIdsBySellable } from '../utils/filterAssetIdsBySellable/filterAssetIdsBySellable'
-import { filterSameChainEvmBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
+import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './utils/constants'
 
 export const arbitrumBridgeSwapper: Swapper = {
   executeEvmTransaction,
 
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
     return Promise.resolve(
-      // TODO(gomes): should be Arb supported networks only
-      assets.filter(asset => isEvmChainId(asset.chainId)).map(asset => asset.assetId),
+      assets
+        .filter(asset => ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS.sell.includes(asset.chainId))
+        .map(asset => asset.assetId),
     )
   },
 
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
-    // TODO(gomes): actually implement me
-    return Promise.resolve(input.assets.map(asset => asset.assetId))
+    const supportedChainIds = (() => {
+      switch (input.sellAsset.chainId) {
+        case ethChainId:
+          return [arbitrumChainId]
+        case arbitrumChainId:
+          return [ethChainId]
+        default:
+          return []
+      }
+    })()
+    return Promise.resolve(
+      input.assets
+        .filter(asset => supportedChainIds.includes(asset.chainId))
+        .map(asset => asset.assetId),
+    )
   },
 }

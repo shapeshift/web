@@ -1,6 +1,7 @@
 import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
 import type { L1ToL2TransactionRequest } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type {
   GetEvmTradeQuoteInput,
   SingleHopTradeQuoteSteps,
@@ -44,6 +45,10 @@ export async function getTradeQuote(
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
 
   const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
+
+  if (!(isEvmChainId(sellAsset.chainId) && isEvmChainId(buyAsset.chainId))) {
+    throw new Error(`Arbitrum Bridge only supports EVM chains`)
+  }
 
   const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
   const l1Provider = getEthersV5Provider(sellAsset.chainId)

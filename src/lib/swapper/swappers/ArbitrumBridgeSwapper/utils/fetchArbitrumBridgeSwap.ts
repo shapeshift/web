@@ -4,6 +4,7 @@ import type {
   L2ToL1TransactionRequest,
 } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber } from 'ethers5'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
@@ -19,7 +20,6 @@ export type FetchArbitrumBridgeSwapInput = {
 }
 
 export const fetchArbitrumBridgeSwap = async ({
-  affiliateBps,
   buyAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
   sellAsset,
@@ -34,6 +34,10 @@ export const fetchArbitrumBridgeSwap = async ({
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
 
   const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
+
+  if (!(isEvmChainId(sellAsset.chainId) && isEvmChainId(buyAsset.chainId))) {
+    throw new Error(`Arbitrum Bridge only supports EVM chains`)
+  }
 
   const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
   const l1Provider = getEthersV5Provider(sellAsset.chainId)

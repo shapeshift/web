@@ -48,6 +48,8 @@ export enum TradeQuoteError {
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   // the fees exceed the sell amount
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
+  // the swapper has exceeded it's rate limit
+  RateLimitExceeded = 'RateLimitExceeded',
   // catch-all for XHRs that can fail
   QueryFailed = 'QueryFailed',
   // an assertion triggered, indicating a bug

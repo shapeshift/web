@@ -1,6 +1,6 @@
 import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
 import type { L1ToL2TransactionRequest } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   GetEvmTradeQuoteInput,
   SingleHopTradeQuoteSteps,
@@ -39,24 +39,34 @@ export async function getTradeQuote(
   } = input
   // TODO(gomes): don't hardcode me
   const l2Network = await getL2Network(42161)
-  const isEthBridge = sellAsset.assetId === ethAssetId
+
+  const isDeposit = sellAsset.chainId === ethChainId
+  const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
 
   const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
 
-  const erc20L1Address = fromAssetId(sellAsset.assetId).assetReference
+  const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
   const l1Provider = getEthersV5Provider(sellAsset.chainId)
   const l2Provider = getEthersV5Provider(buyAsset.chainId)
 
   // TODO(gomes): handle deposits/withdraws, ERC20s/ETH
   // TODO(gomes): this no work when approval is needed and we'll need to construct Txs manually
   // "SDKs suck, sink with it" - Elon Musk, 2024
-  const request = await bridger.getDepositRequest({
-    amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-    erc20L1Address,
-    l1Provider,
-    l2Provider,
-    from: sendAddress ?? '',
-  })
+  const request = await (isDeposit
+    ? bridger.getDepositRequest({
+        amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+        erc20L1Address,
+        l1Provider,
+        l2Provider,
+        from: sendAddress ?? '',
+      })
+    : bridger.getWithdrawalRequest({
+        amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+        // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
+        erc20l1Address: erc20L1Address,
+        destinationAddress: receiveAddress ?? '',
+        from: sendAddress ?? '',
+      }))
 
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())

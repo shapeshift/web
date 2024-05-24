@@ -124,7 +124,7 @@
     "@walletconnect/utils": "^2.11.3",
     "@walletconnect/web3wallet": "^1.10.3",
     "@wherever/react-notification-feed": "^0.4.4",
-    "alchemy-sdk": "^2.8.3",
+    "alchemy-sdk": "^3.3.1",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^1.6.5",
     "axios-cache-interceptor": "^1.3.0",

@@ -51,9 +51,9 @@ export const parseAlchemyNftContractToCollectionItem = (
   contract: NftContract,
   chainId: ChainId,
 ): NftCollectionType => {
-  const { name, openSea } = contract
+  const { name, openSeaMetadata } = contract
 
-  const socialLinks = makeSocialLinks(openSea)
+  const socialLinks = makeSocialLinks(openSeaMetadata)
   const assetId = toAssetId({
     assetReference: contract.address,
     assetNamespace: contract.tokenType.toLowerCase() as AssetNamespace,
@@ -64,9 +64,9 @@ export const parseAlchemyNftContractToCollectionItem = (
     assetId,
     chainId,
     name: name ?? '',
-    floorPrice: openSea?.floorPrice ? bnOrZero(openSea.floorPrice).toString() : '',
+    floorPrice: openSeaMetadata?.floorPrice ? bnOrZero(openSeaMetadata.floorPrice).toString() : '',
     openseaId: '', // not supported by Alchemy
-    description: openSea?.description ?? '',
+    description: openSeaMetadata?.description ?? '',
     socialLinks,
   }
 }
@@ -80,15 +80,18 @@ export const parseAlchemyNftToNftItem = async (
     assetNamespace: alchemyNft.contract.tokenType.toLowerCase() as AssetNamespace,
     chainId,
   })
-  const socialLinks = makeSocialLinks(alchemyNft.contract.openSea)
+  const socialLinks = makeSocialLinks(alchemyNft.contract.openSeaMetadata)
 
   const nftCollection = {
     assetId: collectionId,
     chainId,
-    name: alchemyNft.contract.name || alchemyNft.contract.openSea?.collectionName || 'Collection',
+    name:
+      alchemyNft.contract.name ||
+      alchemyNft.contract.openSeaMetadata?.collectionName ||
+      'Collection',
     floorPrice: '', // Seemingly unreliable
     openseaId: '', // The Alchemy NFT data does not have an openseaId
-    description: alchemyNft.contract.openSea?.description ?? '',
+    description: alchemyNft.contract.openSeaMetadata?.description ?? '',
     socialLinks,
   }
 
@@ -98,7 +101,7 @@ export const parseAlchemyNftToNftItem = async (
   // - We're only able to get fresh meta from unchained for IPNS URLs, not IPFS ones
   // - This hasn't been tested on Optimism, hence we only support this refresh for Polygon for now
   const shouldFetchIpfsGatewayMediaUrl =
-    chainId === polygonChainId && alchemyNft.tokenUri?.gateway.includes('ipns')
+    chainId === polygonChainId && alchemyNft.tokenUri?.includes('ipns')
 
   const getMaybeMediasIpfsGatewayUrl = async (): Promise<
     Result<{ originalUrl: string; type: string }[], string>
@@ -107,12 +110,12 @@ export const parseAlchemyNftToNftItem = async (
       // Unable to fetch media from an IPFS gateway, use alchemy media collection
       // which may be stale, but is our best bet
       if (!shouldFetchIpfsGatewayMediaUrl)
-        return Ok(
-          alchemyNft.media.map(media => ({
-            originalUrl: media.gateway,
-            type: getMediaType(`media.${media.format}`) ?? 'image',
-          })),
-        )
+        return Ok([
+          {
+            originalUrl: alchemyNft.image.originalUrl ?? '',
+            type: getMediaType(`media.${alchemyNft.image.contentType}`) ?? 'image',
+          },
+        ])
 
       // Get unchained meta if Polygon node is alive
       const tokenMetadata = await v1HttpApi.getTokenMetadata({
@@ -133,7 +136,7 @@ export const parseAlchemyNftToNftItem = async (
     } catch (error) {
       console.error(error)
 
-      const ipnsMetadataUrl = alchemyNft.tokenUri?.gateway
+      const ipnsMetadataUrl = alchemyNft.tokenUri
 
       if (!ipnsMetadataUrl) return Err('No IPNS metadata gateway URL found')
 
@@ -164,7 +167,7 @@ export const parseAlchemyNftToNftItem = async (
       ? { balance: bnOrZero((alchemyNft as OwnedNft).balance).toString() }
       : {}
 
-  const nftItem = {
+  const nftItem: NftItemWithCollection = {
     id: alchemyNft.tokenId,
     assetId: toAssetId({
       assetReference: `${alchemyNft.contract.address}/${alchemyNft.tokenId}`,
@@ -180,13 +183,13 @@ export const parseAlchemyNftToNftItem = async (
     symbol: alchemyNft.contract.symbol ?? '',
     ...maybeBalance,
     name:
-      (alchemyNft.title ||
+      (alchemyNft.name ||
         alchemyNft.contract.name ||
-        alchemyNft.contract.openSea?.collectionName) ??
+        alchemyNft.contract.openSeaMetadata?.collectionName) ??
       '',
     price: '', // The Alchemy NFT data does not have a spot price
     chainId,
-    description: alchemyNft.description,
+    description: alchemyNft.description ?? '',
     collection: nftCollection,
     medias,
     rarityRank: null,

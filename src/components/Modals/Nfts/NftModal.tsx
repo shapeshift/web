@@ -29,6 +29,7 @@ import {
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
+  baseChainId,
   ethChainId,
   fromAssetId,
   optimismChainId,
@@ -180,6 +181,10 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
           return `${getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL}/${
             getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY
           }`
+        case baseChainId:
+          return `${getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_BASE_URL}/${
+            getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY
+          }`
         default:
           return undefined
       }
@@ -194,8 +199,13 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
         }),
       )
 
-      // Alchemy only supports spam reporting for Ethereum, Polygon, Optimism, and Arbitrum
-      if (![ethChainId, polygonChainId, optimismChainId, arbitrumChainId].includes(chainId)) return
+      // Alchemy only supports spam reporting for Ethereum, Polygon, Optimism, Arbitrum and Base
+      if (
+        ![ethChainId, polygonChainId, optimismChainId, arbitrumChainId, baseChainId].includes(
+          chainId,
+        )
+      )
+        return
 
       await axios.get<string>(`${alchemyUri!}/reportSpam`, { params: { address } })
     } catch (e) {

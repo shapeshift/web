@@ -1,9 +1,10 @@
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
-import type { StakeRouteProps } from './types'
+import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
@@ -45,17 +46,47 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
+  const [runeAddress, setRuneAddress] = useState<string | undefined>()
+  const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
+  const [stakeTxid, setStakeTxid] = useState<string | undefined>()
+
   const renderStakeInput = useCallback(() => {
-    return <StakeInput headerComponent={headerComponent} />
-  }, [headerComponent])
+    return (
+      <StakeInput
+        stakingAssetId={foxOnArbitrumOneAssetId}
+        runeAddress={runeAddress}
+        headerComponent={headerComponent}
+        onRuneAddressChange={setRuneAddress}
+        setConfirmedQuote={setConfirmedQuote}
+      />
+    )
+  }, [headerComponent, runeAddress])
 
   const renderStakeConfirm = useCallback(() => {
-    return <StakeConfirm headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!confirmedQuote) return null
+
+    return (
+      <StakeConfirm
+        stakeTxid={stakeTxid}
+        setStakeTxid={setStakeTxid}
+        confirmedQuote={confirmedQuote}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [confirmedQuote, headerComponent, stakeTxid])
 
   const renderStakeStatus = useCallback(() => {
-    return <StakeStatus headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!confirmedQuote) return null
+    if (!stakeTxid) return null
+
+    return (
+      <StakeStatus
+        txId={stakeTxid}
+        confirmedQuote={confirmedQuote}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [confirmedQuote, headerComponent, stakeTxid])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

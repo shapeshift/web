@@ -7,6 +7,7 @@ export const oneInchSupportedChainIds = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.BaseMainnet,
 ] as const
 
 export type OneInchSupportedChainId = (typeof oneInchSupportedChainIds)[number]

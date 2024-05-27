@@ -1,21 +1,42 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { erc20ABI } from 'contracts/abis/ERC20ABI'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { getAddress } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type UnstakeSummaryProps = {
   isLoading?: boolean
-  assetId: AssetId
+  amountCryptoPrecision: string
+  stakingAssetId: AssetId
+  stakingAssetAccountId: AccountId
 }
 
-export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({ isLoading, assetId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
+  isLoading,
+  amountCryptoPrecision,
+  stakingAssetId,
+  stakingAssetAccountId,
+}) => {
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const translate = useTranslate()
+  const amountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    [amountCryptoPrecision, stakingAsset?.precision],
+  )
 
   const stakeAmountToolTip = useCallback(() => {
     return <Text color='text.subtle' translation='RFOX.tooltips.unstakeAmount' />
@@ -29,7 +50,62 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({ isLoading, asset
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  if (!asset) return null
+  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'cooldownPeriod',
+    chainId: arbitrum.id,
+    query: {
+      staleTime: Infinity,
+      select: data => formatSecondsToDuration(Number(data)),
+    },
+  })
+
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(stakingAssetAccountId).account,
+    [stakingAssetAccountId],
+  )
+
+  const {
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'stakingInfo',
+    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
+    chainId: arbitrum.id,
+    query: {
+      enabled: Boolean(stakingAssetAccountAddress),
+      select: ([stakingBalance]) => stakingBalance.toString(),
+    },
+  })
+
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+  } = useReadContract({
+    abi: erc20ABI,
+    address: getAddress(fromAssetId(stakingAssetId).assetReference),
+    functionName: 'balanceOf',
+    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
+    chainId: arbitrum.id,
+    query: {
+      select: data => data.toString(),
+    },
+  })
+
+  const newShareOfPoolPercentage = useMemo(
+    () =>
+      bnOrZero(userStakingBalanceOfCryptoBaseUnit)
+        .minus(amountCryptoBaseUnit ?? 0)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
+        .toFixed(4),
+    [amountCryptoBaseUnit, newContractBalanceOfCryptoBaseUnit, userStakingBalanceOfCryptoBaseUnit],
+  )
+
+  if (!stakingAsset) return null
+
   return (
     <Stack
       fontSize='sm'
@@ -46,21 +122,26 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({ isLoading, asset
         <Row.Label>{translate('RFOX.unstakeAmount')}</Row.Label>
         <Row.Value>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto value='0' symbol={asset.symbol} />
+            <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAsset.symbol} />
           </Skeleton>
         </Row.Value>
       </Row>
       <Row Tooltipbody={lockupPeriodToolTip}>
         <Row.Label>{translate('RFOX.lockupPeriod')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading}>28 days</Skeleton>
+          <Skeleton isLoaded={isCooldownPeriodSuccess}>{cooldownPeriod}</Skeleton>
         </Row.Value>
       </Row>
       <Row Tooltipbody={shareOfPoolToolTip}>
         <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Percent value='0.02' />
+          <Skeleton
+            isLoaded={
+              isNewContractBalanceOfCryptoBaseUnitSuccess &&
+              isUserStakingBalanceOfCryptoBaseUnitSuccess
+            }
+          >
+            <Amount.Percent value={newShareOfPoolPercentage} />
           </Skeleton>
         </Row.Value>
       </Row>

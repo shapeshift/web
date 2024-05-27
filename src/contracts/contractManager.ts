@@ -75,7 +75,7 @@ export const getOrCreateContractByAddress = <T extends KnownContractAddress>(
   const contract = getContract({
     abi: contractAbi,
     address,
-    publicClient: viemEthMainnetClient,
+    client: viemEthMainnetClient,
   }) as KnownContractByAddress<T>
   definedContracts.push({ contract, address } as unknown as DefinedContract)
   return contract
@@ -100,8 +100,7 @@ export const getOrCreateContractByType = <T extends ContractType>({
   const contract = getContract({
     abi: CONTRACT_TYPE_TO_ABI[type],
     address: address as Address,
-
-    publicClient,
+    client: publicClient,
   })
   definedContracts.push({
     contract,

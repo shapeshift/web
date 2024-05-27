@@ -83,7 +83,10 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
               ? {
                   validateIsNewAddress: address => {
                     // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
-                    if (!address) return true
+                    if (!address) {
+                      handleRuneAddressChange(undefined)
+                      return true
+                    }
 
                     const isNewAddress = validateIsNewAddress(address)
 
@@ -100,7 +103,10 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
               : {}),
             isValidRuneAddress: async address => {
               // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
-              if (!address) return true
+              if (!address) {
+                handleRuneAddressChange(undefined)
+                return true
+              }
 
               const isValid = await validateAddress({
                 maybeAddress: address ?? '',

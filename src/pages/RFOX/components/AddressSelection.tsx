@@ -14,31 +14,45 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
-import type { TradeAmountInputFormValues } from 'components/MultiHopTrade/components/TradeAmountInput'
 import { validateAddress } from 'lib/address/address'
+
+import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
   onRuneAddressChange: (address: string | undefined) => void
-  isNewAddress?: boolean
-}
+} & (
+  | {
+      isNewAddress: boolean
+      validateIsNewAddress: (address: string) => boolean
+    }
+  | {
+      isNewAddress?: never
+      validateIsNewAddress?: never
+    }
+)
 
 const boxProps = {
   width: 'full',
+  p: 0,
+  m: 0,
 }
-
-export type StakeValues = {
-  manualRuneAddress: string | undefined
-} & TradeAmountInputFormValues
+const buttonProps = {
+  width: 'full',
+  variant: 'solid',
+  height: '40px',
+  px: 4,
+}
 
 export const AddressSelection: FC<AddressSelectionProps> = ({
   onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
+  validateIsNewAddress,
 }) => {
   const translate = useTranslate()
 
   // Local controller in case consumers don't have a form context
-  const _methods = useForm<StakeValues>()
-  const methods = useFormContext<StakeValues>()
+  const _methods = useForm<AddressSelectionValues>()
+  const methods = useFormContext<AddressSelectionValues>()
 
   const register = methods?.register ?? _methods.register
   const formState = methods?.formState ?? _methods.formState
@@ -58,42 +72,79 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     setIsManualAddress(!isManualAddress)
   }, [isManualAddress, handleRuneAddressChange])
 
-  const accountSelection = useMemo(() => {
-    if (isManualAddress) {
-      return (
-        <Input
-          {...register('manualRuneAddress', {
-            required: translate('A RUNE address is required'),
-            minLength: 1,
-            validate: async address => {
+  const manualAddressSelection = useMemo(() => {
+    if (!isManualAddress) return null
+    return (
+      <Input
+        {...register('manualRuneAddress', {
+          minLength: 1,
+          validate: {
+            ...(validateIsNewAddress
+              ? {
+                  validateIsNewAddress: address => {
+                    // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
+                    if (!address) {
+                      handleRuneAddressChange(undefined)
+                      return true
+                    }
+
+                    const isNewAddress = validateIsNewAddress(address)
+
+                    // Not a new address - we should obviously trigger an error
+                    if (!isNewAddress) {
+                      handleRuneAddressChange(undefined)
+                      return translate('RFOX.sameAddressNotAllowed')
+                    }
+
+                    // Tada, we know this is not the same as the previous rewards address - fire the onRuneAddressChange callback to notify the consumer we're g2g
+                    handleRuneAddressChange(address)
+                  },
+                }
+              : {}),
+            isValidRuneAddress: async address => {
+              // User inputed something and then deleted it - don't trigger an invalid error, we're simply not ready, again.
+              if (!address) {
+                handleRuneAddressChange(undefined)
+                return true
+              }
+
               const isValid = await validateAddress({
                 maybeAddress: address ?? '',
                 chainId: thorchainChainId,
               })
 
+              // Inputs failing bech32 THOR address validation should obviously trigger an error
               if (!isValid) {
                 handleRuneAddressChange(undefined)
                 return translate('common.invalidAddress')
               }
 
               handleRuneAddressChange(address)
+              // Tada, we've passed bech32 validation - fire the onRuneAddressChange callback to notify the consumer we're g2g
+              handleRuneAddressChange(address)
             },
-          })}
-          placeholder={translate('common.enterAddress')}
-          autoFocus
-          defaultValue=''
-        />
-      )
-    }
+          },
+        })}
+        placeholder={translate('common.enterAddress')}
+        autoFocus
+        defaultValue=''
+        autoComplete='off'
+      />
+    )
+  }, [handleRuneAddressChange, isManualAddress, register, translate, validateIsNewAddress])
+
+  const accountSelection = useMemo(() => {
+    if (isManualAddress) return null
 
     return (
       <AccountDropdown
         assetId={thorchainAssetId}
         onChange={handleAccountIdChange}
         boxProps={boxProps}
+        buttonProps={buttonProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress, handleRuneAddressChange, register, translate])
+  }, [handleAccountIdChange, isManualAddress])
 
   const addressSelectionLabel = useMemo(
     () =>
@@ -120,7 +171,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
               : translate('RFOX.useCustomAddress')}
           </Button>
         </Flex>
-        <Box width='full'>{accountSelection}</Box>
+        <Box width='full'>{accountSelection || manualAddressSelection}</Box>
         <FormHelperText>{addressSelectionDescription}</FormHelperText>
       </Stack>
     </FormControl>

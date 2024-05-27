@@ -124,7 +124,9 @@ export async function getTradeQuote(
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ArbitrumBridge),
       steps: [
         {
-          estimatedExecutionTimeMs: undefined,
+          // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/components/TransactionHistory/TransactionsTableDetailsSteps.tsx#L42
+          // 15 minutes in ms
+          estimatedExecutionTimeMs: 15 * 60 * 1000,
           allowanceContract,
           rate: '1',
           buyAsset,
@@ -193,7 +195,10 @@ export async function getTradeQuote(
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ArbitrumBridge),
       steps: [
         {
-          estimatedExecutionTimeMs: undefined,
+          estimatedExecutionTimeMs: isDeposit
+            ? // 15 minutes for deposits, 7 days for withdrawals
+              15 * 60 * 1000
+            : 7 * 24 * 60 * 60 * 1000,
           allowanceContract,
           rate,
           buyAsset,

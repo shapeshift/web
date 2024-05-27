@@ -466,7 +466,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             <Collapse in={collapseIn}>
               {stakingAssetAccountId && (
                 <StakeSummary
-                  stakingAssetId={stakingAsset.assetId}
+                  stakingAssetId={stakingAssetId}
                   stakingAssetAccountId={stakingAssetAccountId}
                   stakingAmountCryptoPrecision={amountCryptoPrecision}
                 />

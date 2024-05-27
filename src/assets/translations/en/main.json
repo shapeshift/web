@@ -2454,7 +2454,7 @@
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
-    "unstakeSuccess": "Once the %{cooldownPeriod} have elapsed, you will be able to claim your %{amount} %{symbol}",
+    "unstakeSuccess": "Once the %{cooldownPeriod} has elapsed, you will be able to claim your %{amount} %{symbol}",
     "currentRewardAddress": "Current Reward Address",
     "newRewardAddress": "New Address",
     "rewardCycleExplainer": "This will update for the next reward cycle.",

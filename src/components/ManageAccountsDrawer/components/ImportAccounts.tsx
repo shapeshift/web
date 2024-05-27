@@ -240,15 +240,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       // Stop auto-fetching and switch to manual mode
       setAutoFetching(false)
     }
-  }, [
-    accounts,
-    highestAccountNumber,
-    fetchNextPage,
-    autoFetching,
-    isFetching,
-    isLoading,
-    queryEnabled,
-  ])
+  }, [accounts, fetchNextPage, autoFetching, isFetching, isLoading, queryEnabled])
 
   const handleLoadMore = useCallback(() => {
     if (isFetching || isLoading || autoFetching) return

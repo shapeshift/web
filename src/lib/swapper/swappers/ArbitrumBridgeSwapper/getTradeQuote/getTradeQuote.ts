@@ -18,11 +18,15 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { BigNumber } from 'ethers5'
 import { v4 as uuid } from 'uuid'
+import { getAddress, isAddressEqual } from 'viem'
+import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { bn } from 'lib/bignumber/bignumber'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 
 import { assertValidTrade } from '../utils/helpers'
+
+const usdcOnArbitrumAssetId = 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
 
 const fetchTokenFallbackGasEstimates = () =>
   // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
@@ -45,6 +49,10 @@ export async function getTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
   } = input
+  if (!(isEvmChainId(sellAsset.chainId) && isEvmChainId(buyAsset.chainId))) {
+    throw new Error(`Arbitrum Bridge only supports EVM chains`)
+  }
+
   const adapter = assertGetEvmChainAdapter(chainId)
 
   // TODO(gomes): don't hardcode me
@@ -52,16 +60,48 @@ export async function getTradeQuote(
 
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
+  const isTokenBridge = !isEthBridge
 
   const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
-
-  if (!(isEvmChainId(sellAsset.chainId) && isEvmChainId(buyAsset.chainId))) {
-    throw new Error(`Arbitrum Bridge only supports EVM chains`)
-  }
-
   const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
+  const erc20L2Address = fromAssetId((isDeposit ? buyAsset : sellAsset).assetId).assetReference
   const l1Provider = getEthersV5Provider(sellAsset.chainId)
   const l2Provider = getEthersV5Provider(buyAsset.chainId)
+
+  if (isTokenBridge) {
+    // Since our related assets list isn't exhaustive and won't cut it to determine the L1 <-> L2 mapping, we double check that the bridge is valid
+    // by checking against Arbitrum bridge's own mappings, which uses different sources (Coingecko, Gemini, Uni and its own lists at the time of writing)
+    const arbitrumBridgeErc20L2Address = await (bridger as Erc20Bridger).getL2ERC20Address(
+      erc20L1Address,
+      l1Provider,
+    )
+    const arbitrumBridgeErc20L1Address = await (bridger as Erc20Bridger).getL1ERC20Address(
+      erc20L2Address,
+      l2Provider,
+    )
+
+    if (!isAddressEqual(getAddress(arbitrumBridgeErc20L1Address), getAddress(erc20L1Address))) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[ArbitrumBridge: tradeQuote] - Invalid L1 ERC20 address: ${erc20L1Address}`,
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
+    if (!isAddressEqual(getAddress(arbitrumBridgeErc20L2Address), getAddress(erc20L2Address))) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[ArbitrumBridge: tradeQuote] - Invalid L2 ERC20 address: ${erc20L2Address}`,
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
+  }
+
+  if (sellAsset.assetId === usdcAssetId || sellAsset.assetId === usdcOnArbitrumAssetId) {
+    // https://www.circle.com/en/cross-chain-transfer-protocol
+    throw new Error('cctp not implemented')
+  }
 
   // TODO(gomes): isApprovalRequired
   if (isDeposit && !isEthBridge) {

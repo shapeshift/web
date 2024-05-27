@@ -2465,7 +2465,7 @@
     "addressUpdateActionPending": "Change Reward Address...",
     "addressUpdateSucces": "You have successfully updated your Thorchain Reward Address",
     "noPositionTitle": "No Active Position",
-    "noPositionBody": "You will be able to change your reward address here, once you have an active position.",
+    "noPositionBody": "You will be able to change your reward address here once you have an active position.",
     "stakeNow": "Stake Now",
     "noAddressFound": "No address found",
     "newAddressInfo": "This will update for the next reward cycle",

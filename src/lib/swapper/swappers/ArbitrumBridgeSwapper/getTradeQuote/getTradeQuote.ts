@@ -18,10 +18,17 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { BigNumber } from 'ethers5'
 import { v4 as uuid } from 'uuid'
+import { bn } from 'lib/bignumber/bignumber'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 
 import { assertValidTrade } from '../utils/helpers'
+
+const fetchTokenFallbackGasEstimates = () =>
+  // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
+  // Use hardcoded gas estimate values
+  // Values set by looking at a couple of different ERC-20 deposits
+  bn(240_000)
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -38,6 +45,8 @@ export async function getTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
   } = input
+  const adapter = assertGetEvmChainAdapter(chainId)
+
   // TODO(gomes): don't hardcode me
   const l2Network = await getL2Network(42161)
 
@@ -54,9 +63,46 @@ export async function getTradeQuote(
   const l1Provider = getEthersV5Provider(sellAsset.chainId)
   const l2Provider = getEthersV5Provider(buyAsset.chainId)
 
-  // TODO(gomes): handle deposits/withdraws, ERC20s/ETH
-  // TODO(gomes): this no work when approval is needed and we'll need to construct Txs manually
-  // "SDKs suck, sink with it" - Elon Musk, 2024
+  // TODO(gomes): isApprovalRequired
+  if (isDeposit && !isEthBridge) {
+    const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
+    const allowanceContract = await (bridger as Erc20Bridger).getL1GatewayAddress(
+      erc20L1Address,
+      l1Provider,
+    )
+
+    const { fast } = await adapter.getGasFeeData()
+
+    return Ok({
+      id: uuid(),
+      receiveAddress,
+      affiliateBps,
+      potentialAffiliateBps,
+      rate: '1',
+      slippageTolerancePercentageDecimal:
+        input.slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ArbitrumBridge),
+      steps: [
+        {
+          estimatedExecutionTimeMs: undefined,
+          allowanceContract,
+          rate: '1',
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          buyAmountBeforeFeesCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          feeData: {
+            protocolFees: {},
+            networkFeeCryptoBaseUnit: estimatedParentChainGas.times(fast.gasPrice).toString(),
+          },
+          source: SwapperName.ArbitrumBridge,
+        },
+      ] as SingleHopTradeQuoteSteps,
+    })
+  }
+
   const request = await (isDeposit
     ? bridger.getDepositRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
@@ -85,7 +131,7 @@ export async function getTradeQuote(
   const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || '0x0' // no allowance needed for ETH deposits
 
   const feeData = await getFees({
-    adapter: assertGetEvmChainAdapter(chainId),
+    adapter,
     data: request.txRequest.data.toString(),
     to: request.txRequest.to,
     value: request.txRequest.value.toString(),

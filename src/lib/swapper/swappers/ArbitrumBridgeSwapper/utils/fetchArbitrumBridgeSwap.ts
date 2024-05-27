@@ -43,9 +43,6 @@ export const fetchArbitrumBridgeSwap = async ({
   const l1Provider = getEthersV5Provider(sellAsset.chainId)
   const l2Provider = getEthersV5Provider(buyAsset.chainId)
 
-  // TODO(gomes): handle deposits/withdraws, ERC20s/ETH
-  // TODO(gomes): this no work when approval is needed and we'll need to construct Txs manually
-  // "SDKs suck, sink with it" - Elon Musk, 2024
   const request = await (isDeposit
     ? bridger.getDepositRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),

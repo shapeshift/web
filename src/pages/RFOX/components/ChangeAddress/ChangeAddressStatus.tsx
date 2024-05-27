@@ -99,7 +99,7 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
                 {bodyContent.element}
                 <Stack spacing={0} alignItems='center'>
                   <Heading as='h4'>{translate(bodyContent.title)}</Heading>
-                  <Text translation={bodyContent.body} />
+                  <Text translation={bodyContent.body} textAlign='center' mt={2} />
                 </Stack>
               </Center>
             </CardBody>

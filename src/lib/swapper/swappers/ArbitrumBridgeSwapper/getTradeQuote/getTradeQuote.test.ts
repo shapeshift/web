@@ -1,113 +1,79 @@
+import type { L2Network } from '@arbitrum/sdk'
+import { EthBridger, getL2Network } from '@arbitrum/sdk'
+import { ethChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { Ok } from '@sniptt/monads'
-import type { AxiosResponse } from 'axios'
+import { arbitrum, ethereum } from 'test/mocks/assets'
 import { describe, expect, it, vi } from 'vitest'
 
-import { setupQuote } from '../../utils/test-data/setupSwapQuote'
-import { oneInchService } from '../utils/oneInchService'
-import type { OneInchBaseResponse } from '../utils/types'
 import { getTradeQuote } from './getTradeQuote'
 
-const mocks = vi.hoisted(() => ({
-  get: vi.fn(),
-  post: vi.fn(),
+vi.mock('@arbitrum/sdk', () => ({
+  Erc20Bridger: vi.fn(),
+  EthBridger: vi.fn(),
+  getL2Network: vi.fn(),
 }))
 
-vi.mock('../utils/oneInchService', () => {
-  const mockAxios = {
-    default: {
-      create: vi.fn(() => ({
-        get: mocks.get,
-        post: mocks.post,
-      })),
-    },
-  }
+vi.mock('@shapeshiftoss/chain-adapters', () => ({
+  isEvmChainId: vi.fn(),
+}))
 
-  return {
-    oneInchService: mockAxios.default.create(),
-  }
-})
-
-const averageGasPrice = '15000000000' // 15 gwei
-vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
-  getChainAdapterManager: () => {
-    return {
-      get: () => ({
-        getChainId: vi.fn(() => 'eip155:1'),
-        getGasFeeData: vi.fn(() => ({
-          average: { gasPrice: averageGasPrice },
-        })),
-      }),
-    }
-  },
+vi.mock('lib/utils/evm', () => ({
+  assertGetEvmChainAdapter: vi.fn(),
+  getFees: vi.fn().mockResolvedValue({ networkFeeCryptoBaseUnit: '42' }),
 }))
 
 describe('getTradeQuote', () => {
-  const apiUrl = 'https://api-shapeshift.1inch.io/v5.0'
-  const quoteURL = `${apiUrl}/1/quote`
-  const approvalURL = `${apiUrl}/1/approve/spender`
+  const setupMocks = () => {
+    vi.mocked(isEvmChainId).mockReturnValue(true)
+    vi.mocked(getL2Network).mockResolvedValue({ chainID: 42161 } as L2Network)
+  }
 
-  it('returns the correct quote', async () => {
-    vi.mocked(oneInchService.get).mockImplementation(async url => {
-      switch (url) {
-        case approvalURL:
-          return await Promise.resolve(
-            Ok({
-              data: {
-                address: '0x1111111254eeb25477b68fb85ed929f73a960583',
-              },
-            } as unknown as AxiosResponse<OneInchBaseResponse>),
-          )
-        case quoteURL:
-          return await Promise.resolve(
-            Ok({
-              data: {
-                fromToken: {
-                  symbol: 'FOX',
-                  name: 'FOX',
-                  decimals: 18,
-                  address: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-                  logoURI: 'https://tokens.1inch.io/0xc770eefad204b5180df6a14ee197d99d808ee52d.png',
-                  tags: ['tokens'],
-                },
-                toToken: {
-                  symbol: 'WETH',
-                  name: 'Wrapped Ether',
-                  address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-                  decimals: 18,
-                  logoURI: 'https://tokens.1inch.io/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png',
-                  wrappedNative: 'true',
-                  tags: ['tokens', 'PEG:ETH'],
-                },
-                toTokenAmount: '16426735042245',
-                fromTokenAmount: '1000000000000000000',
-                protocols: [
-                  [
-                    [
-                      {
-                        name: 'UNISWAP_V2',
-                        part: 100,
-                        fromTokenAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-                        toTokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-                      },
-                    ],
-                  ],
-                ],
-                estimatedGas: 189386,
-              },
-            } as unknown as AxiosResponse<OneInchBaseResponse>),
-          )
-        default:
-          return await Promise.resolve(Ok({} as unknown as AxiosResponse<OneInchBaseResponse>))
-      }
-    })
+  const commonInput = {
+    allowMultiHop: false,
+    chainId: ethChainId,
+    sellAsset: ethereum,
+    buyAsset: arbitrum,
+    accountNumber: 0,
+    affiliateBps: '0',
+    potentialAffiliateBps: '0',
+    supportsEIP1559: true,
+    receiveAddress: '0x0000000000000000000000000000000000000000',
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
+    sendAddress: '0x0000000000000000000000000000000000000000',
+  } as GetEvmTradeQuoteInput
 
-    const { quoteInput } = setupQuote()
-    const maybeQuote = await getTradeQuote(quoteInput)
+  it('returns a correct ETH deposit quote', async () => {
+    setupMocks()
+
+    const ethBridgerMock = {
+      getDepositRequest: vi.fn().mockResolvedValue({
+        txRequest: {
+          data: '0x',
+          to: '0x',
+          value: '0',
+          from: '0x',
+        },
+      }),
+    }
+    vi.mocked(EthBridger).mockReturnValue(ethBridgerMock as unknown as EthBridger)
+
+    const maybeQuote = await getTradeQuote(commonInput)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
-    expect(quote.steps[0].rate).toBe('0.000016426735042245')
-    expect(quote.steps[0].allowanceContract).toBe('0x1111111254eeb25477b68fb85ed929f73a960583')
-    expect(quote.steps[0].source).toEqual(SwapperName.OneInch)
+
+    expect(quote.receiveAddress).toBe(commonInput.receiveAddress)
+    expect(quote.rate).toBe('1')
+    expect(quote.steps[0].allowanceContract).toBe('0x0')
+    expect(quote.steps[0].source).toBe(SwapperName.ArbitrumBridge)
+  })
+
+  it('throws an error if non-EVM chain IDs are used', async () => {
+    vi.mocked(isEvmChainId).mockReturnValueOnce(false)
+
+    await expect(getTradeQuote(commonInput)).rejects.toThrow(
+      'Arbitrum Bridge only supports EVM chains',
+    )
   })
 })

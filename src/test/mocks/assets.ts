@@ -1,4 +1,12 @@
-import { btcAssetId, btcChainId, ethAssetId, ethChainId, foxAssetId } from '@shapeshiftoss/caip'
+import {
+  arbitrumAssetId,
+  arbitrumChainId,
+  btcAssetId,
+  btcChainId,
+  ethAssetId,
+  ethChainId,
+  foxAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 
@@ -26,6 +34,19 @@ export const ethereum: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+}
+
+export const arbitrum: Asset = {
+  chainId: arbitrumChainId,
+  assetId: arbitrumAssetId,
+  symbol: 'ETH',
+  name: 'Ethereum',
+  precision: 18,
+  color: '#FFFFFF',
+  icon: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+  explorer: 'https://arbiscan.io',
+  explorerTxLink: 'https://arbiscan.io/tx/',
+  explorerAddressLink: 'https://arbiscan.io/address/',
 }
 
 export const usdc: Asset = {

@@ -215,40 +215,21 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [allowanceCryptoPrecision, amountCryptoPrecision, isAllowanceDataSuccess],
   )
 
-  const isGetStakeFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        hasEnoughBalance &&
-          stakingAssetAccountId &&
-          stakingAssetAccountNumber !== undefined &&
-          isValidStakingAmount &&
-          wallet &&
-          stakingAsset &&
-          runeAddress &&
-          callData &&
-          isAllowanceDataSuccess &&
-          !isApprovalRequired &&
-          feeAsset &&
-          feeAssetMarketData &&
-          !Boolean(errors.amountFieldInput || errors.manualRuneAddress),
-      ),
-    [
-      hasEnoughBalance,
-      stakingAssetAccountId,
-      stakingAssetAccountNumber,
-      isValidStakingAmount,
-      wallet,
-      stakingAsset,
-      runeAddress,
-      callData,
-      isAllowanceDataSuccess,
-      isApprovalRequired,
-      feeAsset,
-      feeAssetMarketData,
-      errors.amountFieldInput,
-      errors.manualRuneAddress,
-    ],
-  )
+  // No need to memoize as it evaluates to a primitive (boolean)
+  const isGetStakeFeesEnabled =
+    hasEnoughBalance &&
+    !!stakingAssetAccountId &&
+    stakingAssetAccountNumber !== undefined &&
+    isValidStakingAmount &&
+    !!wallet &&
+    !!stakingAsset &&
+    !!runeAddress &&
+    !!callData &&
+    isAllowanceDataSuccess &&
+    !isApprovalRequired &&
+    !!feeAsset &&
+    !!feeAssetMarketData &&
+    !(errors.amountFieldInput || errors.manualRuneAddress)
 
   const {
     data: stakeFees,

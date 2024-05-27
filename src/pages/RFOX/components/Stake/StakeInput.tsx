@@ -1,7 +1,7 @@
 import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -255,18 +255,22 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     isLoading: isStakeFeesLoading,
     isSuccess: isStakeFeesSuccess,
   } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetStakeFeesEnabled
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
+    queryKey: ['stakeFees'],
+    queryFn: isGetStakeFeesEnabled
+      ? () => {
+          return reactQueries.common.evmFees({
+            to: RFOX_PROXY_CONTRACT_ADDRESS,
+            from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
+            accountNumber: stakingAssetAccountNumber,
+            data: callData,
+            value: '0',
+            wallet: wallet!,
+            feeAsset: feeAsset!,
+            feeAssetMarketData: feeAssetMarketData!,
+          })
+        }
+      : skipToken,
     staleTime: 30_000,
-    enabled: isGetStakeFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap

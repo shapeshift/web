@@ -10,7 +10,7 @@ export type DrawerWrapperProps = {
 export const DrawerWrapper = ({ children, isOpen, onClose, variant }: DrawerWrapperProps) => {
   return (
     <Drawer isOpen={isOpen} size='lg' placement='right' onClose={onClose} variant={variant}>
-      <DrawerOverlay />
+      <DrawerOverlay zIndex='modal' />
       <DrawerContent>
         <DrawerCloseButton />
         {children}

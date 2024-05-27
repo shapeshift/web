@@ -14,7 +14,6 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { OPTIMISM_L1_SWAP_GAS_LIMIT } from 'lib/swapper/swappers/ZrxSwapper/utils/constants'
 import { isSupportedChainId } from 'lib/swapper/swappers/ZrxSwapper/utils/helpers/helpers'
 import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 
@@ -92,6 +91,7 @@ export async function getZrxTradeQuote(
     allowanceTarget,
     gas,
     expectedSlippage,
+    auxiliaryChainData,
   } = zrxQuoteResponse
 
   const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -108,7 +108,6 @@ export async function getZrxTradeQuote(
       // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
       // which are inaccurate and not what we use for the tx to broadcast
       gasLimit: bnOrZero(gas).times(1.2).toFixed(),
-      l1GasLimit: OPTIMISM_L1_SWAP_GAS_LIMIT,
     })
 
     return Ok({
@@ -134,7 +133,9 @@ export async function getZrxTradeQuote(
           rate,
           feeData: {
             protocolFees: {},
-            networkFeeCryptoBaseUnit,
+            networkFeeCryptoBaseUnit: bn(networkFeeCryptoBaseUnit)
+              .plus(auxiliaryChainData.l1GasEstimate ?? 0)
+              .toFixed(),
           },
           buyAmountBeforeFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit,

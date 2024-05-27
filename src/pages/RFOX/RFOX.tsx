@@ -69,7 +69,7 @@ export const RFOX: React.FC = () => {
     <Main py={16}>
       <Center>
         <Card width='full' maxWidth='md'>
-          <Tabs variant='unstyled' index={stepIndex}>
+          <Tabs variant='unstyled' index={stepIndex} isLazy>
             <TabPanels>
               <TabPanel px={0} py={0}>
                 <Stake headerComponent={TabHeader} />

@@ -1,9 +1,9 @@
 import { AnimatePresence } from 'framer-motion'
-import React, { lazy, Suspense, useCallback } from 'react'
+import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
-import type { ChangeAddressRouteProps } from './types'
+import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
@@ -41,25 +41,48 @@ const ChangeAddressEntries = [
 export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   return (
     <MemoryRouter initialEntries={ChangeAddressEntries} initialIndex={0}>
-      <StakeRoutes headerComponent={headerComponent} />
+      <ChangeAddressRoutes headerComponent={headerComponent} />
     </MemoryRouter>
   )
 }
 
-export const StakeRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
+export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
+  const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
+  const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
+
   const renderChangeAddressInput = useCallback(() => {
-    return <ChangeAddressInput headerComponent={headerComponent} />
+    return (
+      <ChangeAddressInput headerComponent={headerComponent} setConfirmedQuote={setConfirmedQuote} />
+    )
   }, [headerComponent])
 
   const renderChangeAddressConfirm = useCallback(() => {
-    return <ChangeAddressConfirm headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!confirmedQuote) return null
+
+    return (
+      <ChangeAddressConfirm
+        changeAddressTxid={changeAddressTxid}
+        setChangeAddressTxid={setChangeAddressTxid}
+        confirmedQuote={confirmedQuote}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [changeAddressTxid, confirmedQuote, headerComponent])
 
   const renderChangeAddressStatus = useCallback(() => {
-    return <ChangeAddressStatus headerComponent={headerComponent} />
-  }, [headerComponent])
+    if (!changeAddressTxid) return null
+    if (!confirmedQuote) return null
+
+    return (
+      <ChangeAddressStatus
+        txId={changeAddressTxid}
+        confirmedQuote={confirmedQuote}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [changeAddressTxid, confirmedQuote, headerComponent])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

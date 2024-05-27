@@ -77,7 +77,7 @@ describe('getZrxTradeQuote', () => {
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         mockOk({
-          data: { price: '100', gasPrice: '1000', gas: '1000000' },
+          data: { price: '100', gasPrice: '1000', gas: '1000000', auxiliaryChainData: {} },
         } as AxiosResponse<unknown, any>),
       ),
     )
@@ -131,7 +131,7 @@ describe('getZrxTradeQuote', () => {
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         Ok({
-          data: { price: '100' },
+          data: { price: '100', auxiliaryChainData: {} },
         } as AxiosResponse<unknown>),
       ),
     )

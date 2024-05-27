@@ -43,7 +43,7 @@ export const parseToNftItem = (
     price: lastSaleEth ?? '',
     chainId,
     collection: collectionItem,
-    medias,
+    medias: medias.filter(media => media.originalUrl),
     rarityRank,
     symbol: '', // Zapper doesn't provide this
   }

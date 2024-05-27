@@ -30,7 +30,6 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectFeeAssetByChainId,
-  selectHighestAccountNumberForChainId,
   selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
@@ -38,10 +37,6 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { getAccountIdsWithActivityAndMetadata } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
-
-// The number of additional empty accounts to include in the initial fetch
-// Allows users to see more accounts without having to load more
-const NUM_ADDITIONAL_EMPTY_ACCOUNTS = 1
 
 export type ImportAccountsProps = {
   chainId: ChainId
@@ -134,22 +129,28 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
   },
 )
 
-const LoadingRow = () => {
+const LoadingRow = ({ numRows }: { numRows: number }) => {
   return (
-    <Tr>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-    </Tr>
+    <>
+      {Array(numRows)
+        .fill(null)
+        .map((_, i) => (
+          <Tr key={i}>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+          </Tr>
+        ))}
+    </>
   )
 }
 
@@ -164,10 +165,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const isMetaMaskMultichainWallet = useMemo(
     () => wallet instanceof MetaMaskShapeShiftMultiChainHDWallet,
     [wallet],
-  )
-  const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
-  const highestAccountNumber = useAppSelector(state =>
-    selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [autoFetching, setAutoFetching] = useState(true)
@@ -186,6 +183,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     data: accounts,
     fetchNextPage,
     isLoading,
+    isFetching,
   } = useInfiniteQuery({
     queryKey: ['accountIdWithActivityAndMetadata', chainId, walletDeviceId, wallet !== null],
     queryFn: async ({ pageParam: accountNumber }) => {
@@ -228,24 +226,26 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   // Handle initial automatic loading
   useEffect(() => {
-    if (isLoading || !autoFetching || !accounts || !queryEnabled) return
+    if (isFetching || isLoading || !autoFetching || !accounts || !queryEnabled) return
 
-    // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
-    // Add additional empty accounts to show more accounts without having to load more.
-    const numAccountsToLoad = highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS
+    // Check if the most recently fetched account has activity
+    const isLastAccountActive = accounts.pages[
+      accounts.pages.length - 1
+    ].accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
-    if (accounts.pages.length < numAccountsToLoad) {
+    // Keep fetching until we find an account without activity
+    if (isLastAccountActive) {
       fetchNextPage()
     } else {
       // Stop auto-fetching and switch to manual mode
       setAutoFetching(false)
     }
-  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching, isLoading, queryEnabled])
+  }, [accounts, fetchNextPage, autoFetching, isFetching, isLoading, queryEnabled])
 
   const handleLoadMore = useCallback(() => {
-    if (isLoading || autoFetching) return
+    if (isFetching || isLoading || autoFetching) return
     fetchNextPage()
-  }, [autoFetching, isLoading, fetchNextPage])
+  }, [autoFetching, isFetching, isLoading, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledAccountIds(previousState => {
@@ -357,7 +357,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           <Button
             colorScheme='blue'
             onClick={handleDone}
-            isDisabled={isLoading || autoFetching || isSubmitting || !accounts}
+            isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
             _disabled={disabledProps}
           >
             {translate('common.done')}
@@ -370,14 +370,21 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             <Table variant='simple'>
               <Tbody>
                 {accountRows}
-                {(isLoading || autoFetching) && <LoadingRow />}
+                {(isFetching || isLoading || autoFetching) && (
+                  <LoadingRow
+                    numRows={
+                      accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
+                        .length ?? 0
+                    }
+                  />
+                )}
               </Tbody>
             </Table>
           </TableContainer>
           <Button
             colorScheme='gray'
             onClick={handleLoadMore}
-            isDisabled={isLoading || autoFetching || isSubmitting}
+            isDisabled={isFetching || isLoading || autoFetching || isSubmitting}
             _disabled={disabledProps}
           >
             {translate('common.loadMore')}

@@ -3,7 +3,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { SupportedChainIds } from 'lib/swapper/types'
 
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
-export const OPTIMISM_L1_SWAP_GAS_LIMIT = '50000'
 
 // Zrx doesn't have an easily accessible master assets list.
 
@@ -25,6 +24,7 @@ export const ZRX_SUPPORTED_CHAINIDS = Object.freeze([
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.BaseMainnet,
 ])
 
 export const ZRX_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

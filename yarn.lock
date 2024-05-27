@@ -11192,7 +11192,7 @@ __metadata:
     "@walletconnect/web3wallet": ^1.10.3
     "@welldone-software/why-did-you-render": ^7.0.1
     "@wherever/react-notification-feed": ^0.4.4
-    alchemy-sdk: ^2.8.3
+    alchemy-sdk: ^3.3.1
     allsettled-polyfill: ^1.0.4
     assert: ^2.0.0
     axios: ^1.6.5
@@ -16181,9 +16181,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"alchemy-sdk@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "alchemy-sdk@npm:2.8.3"
+"alchemy-sdk@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "alchemy-sdk@npm:3.3.1"
   dependencies:
     "@ethersproject/abi": ^5.7.0
     "@ethersproject/abstract-provider": ^5.7.0
@@ -16196,10 +16196,10 @@ __metadata:
     "@ethersproject/units": ^5.7.0
     "@ethersproject/wallet": ^5.7.0
     "@ethersproject/web": ^5.7.0
-    axios: ^0.26.1
+    axios: ^1.6.5
     sturdy-websocket: ^0.2.1
     websocket: ^1.0.34
-  checksum: 6c37963e311daf68c79c91f24e0bef232137e724fdeec4f576994580a559f857aa79b537c8140ceeedd50049759e85ed13b4168aeab19a25073c6bed539ac071
+  checksum: 37110b41ce7cc96ac36e619065d9252270e71c33eddeb431f01b437c38cedb2e7092161ec634a4163b351b708e68ce520113f72b0347c26d45dae2b7f33a64db
   languageName: node
   linkType: hard
 

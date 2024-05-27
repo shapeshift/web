@@ -13,6 +13,7 @@ import {
   SwapperName,
   TradeQuoteError,
 } from '@shapeshiftoss/swapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
@@ -65,8 +66,8 @@ export async function getTradeQuote(
   const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
   const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
   const erc20L2Address = fromAssetId((isDeposit ? buyAsset : sellAsset).assetId).assetReference
-  const l1Provider = getEthersV5Provider(sellAsset.chainId)
-  const l2Provider = getEthersV5Provider(buyAsset.chainId)
+  const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
+  const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
   if (isTokenBridge) {
     // Since our related assets list isn't exhaustive and won't cut it to determine the L1 <-> L2 mapping, we double check that the bridge is valid

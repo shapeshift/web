@@ -30,7 +30,7 @@ export const fetchArbitrumBridgeSwap = async ({
 }: FetchArbitrumBridgeSwapInput): Promise<
   Omit<L1ToL2TransactionRequest | L2ToL1TransactionRequest, 'retryableData'>
 > => {
-  const assertion = assertValidTrade({ buyAsset, sellAsset })
+  const assertion = await assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 
   const l2Network = await getL2Network(arbitrum.id)

@@ -22,8 +22,10 @@ import { arbitrum } from 'viem/chains'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { bn } from 'lib/bignumber/bignumber'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
+import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 
+import { BRIDGE_TYPE } from '../types'
 import { assertValidTrade } from '../utils/helpers'
 
 const usdcOnArbitrumAssetId = 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
@@ -57,6 +59,7 @@ export async function getTradeQuote(
 
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
+  const bridgeType = isEthBridge ? BRIDGE_TYPE.ETH : BRIDGE_TYPE.ERC20
 
   const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
@@ -65,185 +68,193 @@ export async function getTradeQuote(
   const rate = '1'
 
   try {
-    if (isEthBridge) {
-      const bridger = new EthBridger(l2Network)
+    switch (bridgeType) {
+      case BRIDGE_TYPE.ETH: {
+        const bridger = new EthBridger(l2Network)
 
-      if (sellAsset.assetId === usdcAssetId || sellAsset.assetId === usdcOnArbitrumAssetId) {
-        // https://www.circle.com/en/cross-chain-transfer-protocol
-        throw new Error('cctp not implemented')
+        if (sellAsset.assetId === usdcAssetId || sellAsset.assetId === usdcOnArbitrumAssetId) {
+          // https://www.circle.com/en/cross-chain-transfer-protocol
+          throw new Error('cctp not implemented')
+        }
+
+        const request = await (isDeposit
+          ? bridger.getDepositToRequest({
+              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+              l1Provider,
+              l2Provider,
+              from: sendAddress ?? '',
+              destinationAddress: receiveAddress ?? '',
+            })
+          : bridger.getWithdrawalRequest({
+              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+              destinationAddress: receiveAddress ?? '',
+              from: sendAddress ?? '',
+            }))
+
+        const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
+        const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
+
+        const allowanceContract = '0x0' // no allowance needed for ETH
+
+        const feeData = await getFees({
+          adapter,
+          data: request.txRequest.data.toString(),
+          to: request.txRequest.to,
+          value: request.txRequest.value.toString(),
+          from: request.txRequest.from,
+          supportsEIP1559,
+        })
+
+        const networkFeeCryptoBaseUnit = feeData.networkFeeCryptoBaseUnit
+        return Ok({
+          id: uuid(),
+          receiveAddress,
+          affiliateBps,
+          potentialAffiliateBps: '0',
+          rate,
+          slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
+            SwapperName.ArbitrumBridge,
+          ),
+          steps: [
+            {
+              estimatedExecutionTimeMs: isDeposit
+                ? // 15 minutes for deposits, 7 days for withdrawals
+                  15 * 60 * 1000
+                : 7 * 24 * 60 * 60 * 1000,
+              allowanceContract,
+              rate,
+              buyAsset,
+              sellAsset,
+              accountNumber,
+              buyAmountBeforeFeesCryptoBaseUnit,
+              buyAmountAfterFeesCryptoBaseUnit,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              feeData: {
+                protocolFees: {},
+                networkFeeCryptoBaseUnit,
+              },
+              source: SwapperName.ArbitrumBridge,
+            },
+          ] as SingleHopTradeQuoteSteps,
+        })
       }
 
-      const request = await (isDeposit
-        ? bridger.getDepositToRequest({
-            amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-            l1Provider,
-            l2Provider,
-            from: sendAddress ?? '',
-            destinationAddress: receiveAddress ?? '',
-          })
-        : bridger.getWithdrawalRequest({
-            amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-            destinationAddress: receiveAddress ?? '',
-            from: sendAddress ?? '',
-          }))
+      case BRIDGE_TYPE.ERC20: {
+        const bridger = new Erc20Bridger(l2Network)
+        const erc20L1Address = fromAssetId(
+          (isDeposit ? sellAsset : buyAsset).assetId,
+        ).assetReference
 
-      const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
-      const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
+        if (sellAsset.assetId === usdcAssetId || sellAsset.assetId === usdcOnArbitrumAssetId) {
+          // https://www.circle.com/en/cross-chain-transfer-protocol
+          throw new Error('cctp not implemented')
+        }
 
-      const allowanceContract = '0x0' // no allowance needed for ETH
+        if (isDeposit) {
+          const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
+          const allowanceContract = await bridger.getL1GatewayAddress(erc20L1Address, l1Provider)
 
-      const feeData = await getFees({
-        adapter,
-        data: request.txRequest.data.toString(),
-        to: request.txRequest.to,
-        value: request.txRequest.value.toString(),
-        from: request.txRequest.from,
-        supportsEIP1559,
-      })
+          const { fast } = await adapter.getGasFeeData()
 
-      const networkFeeCryptoBaseUnit = feeData.networkFeeCryptoBaseUnit
-      return Ok({
-        id: uuid(),
-        receiveAddress,
-        affiliateBps,
-        potentialAffiliateBps: '0',
-        rate,
-        slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
-          SwapperName.ArbitrumBridge,
-        ),
-        steps: [
-          {
-            estimatedExecutionTimeMs: isDeposit
-              ? // 15 minutes for deposits, 7 days for withdrawals
-                15 * 60 * 1000
-              : 7 * 24 * 60 * 60 * 1000,
-            allowanceContract,
-            rate,
-            buyAsset,
-            sellAsset,
-            accountNumber,
-            buyAmountBeforeFeesCryptoBaseUnit,
-            buyAmountAfterFeesCryptoBaseUnit,
-            sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            feeData: {
-              protocolFees: {},
-              networkFeeCryptoBaseUnit,
-            },
-            source: SwapperName.ArbitrumBridge,
-          },
-        ] as SingleHopTradeQuoteSteps,
-      })
-    }
-
-    const bridger = new Erc20Bridger(l2Network)
-    const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
-
-    if (sellAsset.assetId === usdcAssetId || sellAsset.assetId === usdcOnArbitrumAssetId) {
-      // https://www.circle.com/en/cross-chain-transfer-protocol
-      throw new Error('cctp not implemented')
-    }
-
-    if (isDeposit) {
-      const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
-      const allowanceContract = await bridger.getL1GatewayAddress(erc20L1Address, l1Provider)
-
-      const { fast } = await adapter.getGasFeeData()
-
-      return Ok({
-        id: uuid(),
-        receiveAddress,
-        affiliateBps,
-        potentialAffiliateBps: '0',
-        rate: '1',
-        slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
-          SwapperName.ArbitrumBridge,
-        ),
-        steps: [
-          {
-            // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/components/TransactionHistory/TransactionsTableDetailsSteps.tsx#L42
-            // 15 minutes in ms
-            estimatedExecutionTimeMs: 15 * 60 * 1000,
-            allowanceContract,
+          return Ok({
+            id: uuid(),
+            receiveAddress,
+            affiliateBps,
+            potentialAffiliateBps: '0',
             rate: '1',
-            buyAsset,
-            sellAsset,
-            accountNumber,
-            buyAmountBeforeFeesCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            buyAmountAfterFeesCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            feeData: {
-              protocolFees: {},
-              networkFeeCryptoBaseUnit: estimatedParentChainGas.times(fast.gasPrice).toString(),
-            },
-            source: SwapperName.ArbitrumBridge,
-          },
-        ] as SingleHopTradeQuoteSteps,
-      })
-    }
+            slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
+              SwapperName.ArbitrumBridge,
+            ),
+            steps: [
+              {
+                // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/components/TransactionHistory/TransactionsTableDetailsSteps.tsx#L42
+                // 15 minutes in ms
+                estimatedExecutionTimeMs: 15 * 60 * 1000,
+                allowanceContract,
+                rate: '1',
+                buyAsset,
+                sellAsset,
+                accountNumber,
+                buyAmountBeforeFeesCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                buyAmountAfterFeesCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                feeData: {
+                  protocolFees: {},
+                  networkFeeCryptoBaseUnit: estimatedParentChainGas.times(fast.gasPrice).toString(),
+                },
+                source: SwapperName.ArbitrumBridge,
+              },
+            ] as SingleHopTradeQuoteSteps,
+          })
+        }
 
-    const request = await (isDeposit
-      ? bridger.getDepositRequest({
-          amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-          erc20L1Address,
-          l1Provider,
-          l2Provider,
-          from: sendAddress ?? '',
-          destinationAddress: receiveAddress ?? '',
+        const request = await (isDeposit
+          ? bridger.getDepositRequest({
+              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+              erc20L1Address,
+              l1Provider,
+              l2Provider,
+              from: sendAddress ?? '',
+              destinationAddress: receiveAddress ?? '',
+            })
+          : bridger.getWithdrawalRequest({
+              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+              // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
+              erc20l1Address: erc20L1Address,
+              destinationAddress: receiveAddress ?? '',
+              from: sendAddress ?? '',
+            }))
+
+        const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
+        const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
+
+        const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || '0x0' // no allowance needed for ETH deposits
+
+        const feeData = await getFees({
+          adapter,
+          data: request.txRequest.data.toString(),
+          to: request.txRequest.to,
+          value: request.txRequest.value.toString(),
+          from: request.txRequest.from,
+          supportsEIP1559,
         })
-      : bridger.getWithdrawalRequest({
-          amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-          // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
-          erc20l1Address: erc20L1Address,
-          destinationAddress: receiveAddress ?? '',
-          from: sendAddress ?? '',
-        }))
 
-    const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
-
-    const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || '0x0' // no allowance needed for ETH deposits
-
-    const feeData = await getFees({
-      adapter,
-      data: request.txRequest.data.toString(),
-      to: request.txRequest.to,
-      value: request.txRequest.value.toString(),
-      from: request.txRequest.from,
-      supportsEIP1559,
-    })
-
-    const networkFeeCryptoBaseUnit = feeData.networkFeeCryptoBaseUnit
-    return Ok({
-      id: uuid(),
-      receiveAddress,
-      affiliateBps,
-      potentialAffiliateBps: '0',
-      rate,
-      slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
-        SwapperName.ArbitrumBridge,
-      ),
-      steps: [
-        {
-          estimatedExecutionTimeMs: isDeposit
-            ? // 15 minutes for deposits, 7 days for withdrawals
-              15 * 60 * 1000
-            : 7 * 24 * 60 * 60 * 1000,
-          allowanceContract,
+        const networkFeeCryptoBaseUnit = feeData.networkFeeCryptoBaseUnit
+        return Ok({
+          id: uuid(),
+          receiveAddress,
+          affiliateBps,
+          potentialAffiliateBps: '0',
           rate,
-          buyAsset,
-          sellAsset,
-          accountNumber,
-          buyAmountBeforeFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          feeData: {
-            protocolFees: {},
-            networkFeeCryptoBaseUnit,
-          },
-          source: SwapperName.ArbitrumBridge,
-        },
-      ] as SingleHopTradeQuoteSteps,
-    })
+          slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
+            SwapperName.ArbitrumBridge,
+          ),
+          steps: [
+            {
+              estimatedExecutionTimeMs: isDeposit
+                ? // 15 minutes for deposits, 7 days for withdrawals
+                  15 * 60 * 1000
+                : 7 * 24 * 60 * 60 * 1000,
+              allowanceContract,
+              rate,
+              buyAsset,
+              sellAsset,
+              accountNumber,
+              buyAmountBeforeFeesCryptoBaseUnit,
+              buyAmountAfterFeesCryptoBaseUnit,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              feeData: {
+                protocolFees: {},
+                networkFeeCryptoBaseUnit,
+              },
+              source: SwapperName.ArbitrumBridge,
+            },
+          ] as SingleHopTradeQuoteSteps,
+        })
+      }
+      default:
+        assertUnreachable(bridgeType)
+    }
   } catch (err) {
     return Err(
       makeSwapErrorRight({

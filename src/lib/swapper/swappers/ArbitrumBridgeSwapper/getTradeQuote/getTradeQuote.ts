@@ -90,7 +90,7 @@ export async function getTradeQuote(
       const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
       const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-      const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || '0x0' // no allowance needed for ETH deposits
+      const allowanceContract = '0x0' // no allowance needed for ETH
 
       const feeData = await getFees({
         adapter,

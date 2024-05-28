@@ -4,8 +4,8 @@ import type {
   L1ToL2MessageReader,
 } from '@arbitrum/sdk/dist/lib/message/L1ToL2Message'
 import type { Provider } from '@ethersproject/providers'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, ethAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type {
   EvmTransactionRequest,
@@ -30,7 +30,7 @@ import { fetchArbitrumBridgeSwap } from './utils/fetchArbitrumBridgeSwap'
 const L1_TX_CONFIRMATION_TIME_MS = 15 * 60 * 1000 // 15 minutes in milliseconds
 const startTimeMap: Map<string, number> = new Map()
 
-const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
+const tradeQuoteMetadata: Map<string, { sellAssetId: AssetId; chainId: EvmChainId }> = new Map()
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/deposits/helpers.ts#L268
 export const getL1ToL2MessageDataFromL1TxHash = async ({
@@ -108,7 +108,10 @@ export const arbitrumBridgeApi: SwapperApi = {
     return tradeQuoteResult.map(tradeQuote => {
       const id = uuid()
       const firstHop = getHopByIndex(tradeQuote, 0)!
-      tradeQuoteMetadata.set(id, { chainId: firstHop.sellAsset.chainId as EvmChainId })
+      tradeQuoteMetadata.set(id, {
+        sellAssetId: firstHop.sellAsset.assetId,
+        chainId: firstHop.sellAsset.chainId as EvmChainId,
+      })
       return [tradeQuote]
     })
   },
@@ -165,14 +168,13 @@ export const arbitrumBridgeApi: SwapperApi = {
   checkTradeStatus: async ({
     txHash,
     chainId,
-  }: {
-    txHash: string
-    chainId: ChainId
+    quoteId,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
     message: string | undefined
   }> => {
+    const sellAssetId = tradeQuoteMetadata.get(quoteId)?.sellAssetId ?? ''
     const swapTxStatus = await checkEvmSwapStatus({ txHash, chainId })
     const isWithdraw = chainId === arbitrumChainId
 
@@ -202,7 +204,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
     const maybeL1ToL2MessageData = await getL1ToL2MessageDataFromL1TxHash({
       depositTxId: txHash,
-      isEthDeposit: true,
+      isEthDeposit: sellAssetId === ethAssetId,
       l1Provider,
       l2Provider,
     })

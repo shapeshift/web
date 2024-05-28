@@ -190,7 +190,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       }
     }
 
-    if (swapTxStatus.status === TxStatus.Pending) {
+    if (swapTxStatus.status === TxStatus.Pending || swapTxStatus.status === TxStatus.Unknown) {
       return {
         status: TxStatus.Pending,
         buyTxHash: undefined,
@@ -219,13 +219,6 @@ export const arbitrumBridgeApi: SwapperApi = {
         : undefined
     })()
 
-    if (swapTxStatus.status !== TxStatus.Confirmed)
-      return {
-        status: TxStatus.Pending,
-        buyTxHash: undefined,
-        message: 'L1 Tx Pending',
-      }
-
     if (!maybeBuyTxHash) {
       return {
         status: TxStatus.Pending,
@@ -239,7 +232,8 @@ export const arbitrumBridgeApi: SwapperApi = {
       chainId: arbitrumChainId,
     })
 
-    if (l2TxStatus.status !== TxStatus.Confirmed) {
+    // i.e Unknown is perfectly valid since ETH deposits L2 Txids are available immediately deterministically, but will only be in the mempool after ~10mn
+    if (l2TxStatus.status === TxStatus.Pending || l2TxStatus.status === TxStatus.Unknown) {
       return {
         status: TxStatus.Pending,
         buyTxHash: maybeBuyTxHash,

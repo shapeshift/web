@@ -104,7 +104,6 @@ export async function getTradeQuote(
     throw new Error('cctp not implemented')
   }
 
-  // TODO(gomes): isApprovalRequired
   if (isDeposit && !isEthBridge) {
     const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
     const allowanceContract = await (bridger as Erc20Bridger).getL1GatewayAddress(

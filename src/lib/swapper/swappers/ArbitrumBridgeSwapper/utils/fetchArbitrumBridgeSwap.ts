@@ -24,7 +24,7 @@ export const fetchArbitrumBridgeSwap = async ({
   buyAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
   sellAsset,
-  sendAddress, // TODO(gomes): support L2 to L1 too, as well as ETH
+  sendAddress,
   receiveAddress,
 }: FetchArbitrumBridgeSwapInput): Promise<
   Omit<L1ToL2TransactionRequest | L2ToL1TransactionRequest, 'retryableData'>

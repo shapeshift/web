@@ -1,7 +1,8 @@
 import { Box, CardBody, Flex, Stack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import { type FC } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -16,6 +17,7 @@ type ClaimSelectProps = {
 }
 
 const ClaimRow: FC<ClaimSelectProps> = ({ assetSymbol, amount, status }) => {
+  const translate = useTranslate()
   return (
     <Flex align='center' p={4} borderRadius='md'>
       <Box mr={4}>
@@ -25,7 +27,7 @@ const ClaimRow: FC<ClaimSelectProps> = ({ assetSymbol, amount, status }) => {
       </Box>
       <Box mr={4}>
         <RawText fontSize='sm' color='gray.400'>
-          Unstake from r{assetSymbol}
+          {translate('RFOX.unstakeFrom', { assetSymbol })}
         </RawText>
         <RawText fontSize='xl' fontWeight='bold' color='white'>
           {assetSymbol}

@@ -1,10 +1,9 @@
 import type { L2Network } from '@arbitrum/sdk'
-import { EthBridger, getL2Network } from '@arbitrum/sdk'
+import { EthBridger } from '@arbitrum/sdk'
 import { ethChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { arbitrum, ethereum } from 'test/mocks/assets'
+import { arbitrum, bitcoin, ethereum } from 'test/mocks/assets'
 import { describe, expect, it, vi } from 'vitest'
 
 import { getTradeQuote } from './getTradeQuote'
@@ -12,11 +11,7 @@ import { getTradeQuote } from './getTradeQuote'
 vi.mock('@arbitrum/sdk', () => ({
   Erc20Bridger: vi.fn(),
   EthBridger: vi.fn(),
-  getL2Network: vi.fn(),
-}))
-
-vi.mock('@shapeshiftoss/chain-adapters', () => ({
-  isEvmChainId: vi.fn(),
+  getL2Network: vi.fn().mockResolvedValue({ chainID: 42161 } as L2Network),
 }))
 
 vi.mock('lib/utils/evm', () => ({
@@ -25,11 +20,6 @@ vi.mock('lib/utils/evm', () => ({
 }))
 
 describe('getTradeQuote', () => {
-  const setupMocks = () => {
-    vi.mocked(isEvmChainId).mockReturnValue(true)
-    vi.mocked(getL2Network).mockResolvedValue({ chainID: 42161 } as L2Network)
-  }
-
   const commonInput = {
     allowMultiHop: false,
     chainId: ethChainId,
@@ -45,8 +35,6 @@ describe('getTradeQuote', () => {
   } as GetEvmTradeQuoteInput
 
   it('returns a correct ETH deposit quote', async () => {
-    setupMocks()
-
     const ethBridgerMock = {
       getDepositRequest: vi.fn().mockResolvedValue({
         txRequest: {
@@ -70,9 +58,7 @@ describe('getTradeQuote', () => {
   })
 
   it('throws an error if non-EVM chain IDs are used', async () => {
-    vi.mocked(isEvmChainId).mockReturnValueOnce(false)
-
-    await expect(getTradeQuote(commonInput)).rejects.toThrow(
+    await expect(getTradeQuote({ ...commonInput, sellAsset: bitcoin })).rejects.toThrow(
       'Arbitrum Bridge only supports EVM chains',
     )
   })

@@ -3,7 +3,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 export const arbitrumBridgeSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.ArbitrumMainnet,
-  KnownChainIds.ArbitrumNovaMainnet,
 ] as const
 
 export type ArbitrumBridgeSupportedChainId = (typeof arbitrumBridgeSupportedChainIds)[number]

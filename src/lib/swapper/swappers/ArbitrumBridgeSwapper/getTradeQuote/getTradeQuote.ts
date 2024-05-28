@@ -43,7 +43,6 @@ export async function getTradeQuote(
     buyAsset,
     accountNumber,
     affiliateBps,
-    potentialAffiliateBps,
     supportsEIP1559,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -82,7 +81,7 @@ export async function getTradeQuote(
       id: uuid(),
       receiveAddress,
       affiliateBps,
-      potentialAffiliateBps,
+      potentialAffiliateBps: '0',
       rate: '1',
       slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.ArbitrumBridge,
@@ -150,7 +149,7 @@ export async function getTradeQuote(
       id: uuid(),
       receiveAddress,
       affiliateBps,
-      potentialAffiliateBps,
+      potentialAffiliateBps: '0',
       rate,
       slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.ArbitrumBridge,

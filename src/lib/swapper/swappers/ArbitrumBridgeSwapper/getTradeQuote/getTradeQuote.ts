@@ -189,10 +189,8 @@ export async function getTradeQuote(
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      // slippage is a pass-thru for this swapper because it's actually inputted to 1inch when building the tx
-      slippageTolerancePercentageDecimal:
-        input.slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ArbitrumBridge),
+      // No slippage for Arbitrum Bridge
+      slippageTolerancePercentageDecimal: '0',
       steps: [
         {
           estimatedExecutionTimeMs: isDeposit

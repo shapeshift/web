@@ -20,6 +20,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constan
 import { BigNumber } from 'ethers5'
 import { v4 as uuid } from 'uuid'
 import { getAddress, isAddressEqual } from 'viem'
+import { arbitrum } from 'viem/chains'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 import { bn } from 'lib/bignumber/bignumber'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
@@ -56,8 +57,7 @@ export async function getTradeQuote(
 
   const adapter = assertGetEvmChainAdapter(chainId)
 
-  // TODO(gomes): don't hardcode me
-  const l2Network = await getL2Network(42161)
+  const l2Network = await getL2Network(arbitrum.id)
 
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId

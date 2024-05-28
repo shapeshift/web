@@ -7,6 +7,7 @@ import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { BigNumber } from 'ethers5'
+import { arbitrum } from 'viem/chains'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 
 export type FetchArbitrumBridgeSwapInput = {
@@ -28,8 +29,7 @@ export const fetchArbitrumBridgeSwap = async ({
 }: FetchArbitrumBridgeSwapInput): Promise<
   Omit<L1ToL2TransactionRequest | L2ToL1TransactionRequest, 'retryableData'>
 > => {
-  // TODO(gomes): don't hardcode me
-  const l2Network = await getL2Network(42161)
+  const l2Network = await getL2Network(arbitrum.id)
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
 

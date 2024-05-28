@@ -5,7 +5,7 @@ import type {
 } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { BigNumber } from 'ethers5'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 
@@ -40,8 +40,8 @@ export const fetchArbitrumBridgeSwap = async ({
   }
 
   const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
-  const l1Provider = getEthersV5Provider(sellAsset.chainId)
-  const l2Provider = getEthersV5Provider(buyAsset.chainId)
+  const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
+  const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
   const request = await (isDeposit
     ? bridger.getDepositRequest({

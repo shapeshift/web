@@ -1,3 +1,9 @@
+import { type L1ToL2MessageReaderClassic, L1TransactionReceipt } from '@arbitrum/sdk'
+import type {
+  EthDepositMessage,
+  L1ToL2MessageReader,
+} from '@arbitrum/sdk/dist/lib/message/L1ToL2Message'
+import type { Provider } from '@ethersproject/providers'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -10,9 +16,11 @@ import type {
   SwapperApi,
   TradeQuote,
 } from '@shapeshiftoss/swapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
+import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus, getFees } from 'lib/utils/evm'
 import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 
@@ -23,6 +31,73 @@ const L1_TX_CONFIRMATION_TIME_MS = 15 * 60 * 1000 // 15 minutes in milliseconds
 const startTimeMap: Map<string, number> = new Map()
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
+
+// https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/deposits/helpers.ts#L268
+export const getL1ToL2MessageDataFromL1TxHash = async ({
+  depositTxId,
+  isEthDeposit,
+  l1Provider,
+  l2Provider,
+  isClassic, // optional: if we already know if tx is classic (eg. through subgraph) then no need to re-check in this fn
+}: {
+  depositTxId: string
+  l1Provider: Provider
+  isEthDeposit: boolean
+  l2Provider: Provider
+  isClassic?: boolean
+}): Promise<
+  | {
+      isClassic?: boolean
+      l1ToL2Msg?: L1ToL2MessageReaderClassic | EthDepositMessage | L1ToL2MessageReader
+    }
+  | undefined
+> => {
+  // fetch L1 transaction receipt
+  const depositTxReceipt = await l1Provider.getTransactionReceipt(depositTxId)
+
+  if (!depositTxReceipt) {
+    return undefined
+  }
+
+  const l1TxReceipt = new L1TransactionReceipt(depositTxReceipt)
+
+  const getClassicDepositMessage = async () => {
+    const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2MessagesClassic(l2Provider)
+    return {
+      isClassic: true,
+      l1ToL2Msg,
+    }
+  }
+
+  const getNitroDepositMessage = async () => {
+    // post-nitro handling
+    if (isEthDeposit) {
+      // nitro eth deposit
+      const [ethDepositMessage] = await l1TxReceipt.getEthDeposits(l2Provider)
+      return {
+        isClassic: false,
+        l1ToL2Msg: ethDepositMessage,
+      }
+    }
+
+    // Else, nitro token deposit
+    const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2Messages(l2Provider)
+    return {
+      isClassic: false,
+      l1ToL2Msg,
+    }
+  }
+
+  const safeIsClassic = isClassic ?? (await l1TxReceipt.isClassic(l2Provider)) // if it is unknown whether the transaction isClassic or not, fetch the result
+
+  if (safeIsClassic) {
+    // classic (pre-nitro) deposit - both eth + token
+    return getClassicDepositMessage()
+  }
+
+  // post-nitro deposit - both eth + token
+  return getNitroDepositMessage()
+}
 
 export const arbitrumBridgeApi: SwapperApi = {
   getTradeQuote: async (
@@ -123,20 +198,35 @@ export const arbitrumBridgeApi: SwapperApi = {
       }
     }
 
+    const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
+    const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+    const maybeL1ToL2MessageData = await getL1ToL2MessageDataFromL1TxHash({
+      depositTxId: txHash,
+      isEthDeposit: true,
+      l1Provider,
+      l2Provider,
+    })
+    const maybeL1ToL2Msg = maybeL1ToL2MessageData?.l1ToL2Msg
+    const maybeBuyTxHash = (maybeL1ToL2Msg as EthDepositMessage | undefined)?.l2DepositTxHash
+
     if (swapTxStatus.status === TxStatus.Confirmed) {
       const timeElapsed = Date.now() - startTime
 
       if (timeElapsed < L1_TX_CONFIRMATION_TIME_MS) {
         return {
           status: TxStatus.Pending,
-          // TODO(gomes): getL1ToL2MessageDataFromL1TxHash here and return the right txHash
-          buyTxHash: undefined,
+          buyTxHash: maybeBuyTxHash,
           message: 'L1 Tx confirmed, waiting for L2',
         }
       }
+
+      return {
+        status: TxStatus.Confirmed,
+        buyTxHash: maybeBuyTxHash,
+        message: undefined,
+      }
     }
 
-    // TODO(gomes): buyTxHash too, but TxStatus.confirmed
     return swapTxStatus
   },
 }

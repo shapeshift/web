@@ -1,4 +1,8 @@
-import { type L1ToL2MessageReaderClassic, L1TransactionReceipt } from '@arbitrum/sdk'
+import {
+  type L1ToL2MessageReaderClassic,
+  L1ToL2MessageStatus,
+  L1TransactionReceipt,
+} from '@arbitrum/sdk'
 import type {
   EthDepositMessage,
   L1ToL2MessageReader,
@@ -206,14 +210,24 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
     const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+    const isEthDeposit = sellAssetId === ethAssetId
     const maybeL1ToL2MessageData = await getL1ToL2MessageDataFromL1TxHash({
       depositTxId: txHash,
-      isEthDeposit: sellAssetId === ethAssetId,
+      isEthDeposit,
       l1Provider,
       l2Provider,
     })
     const maybeL1ToL2Msg = maybeL1ToL2MessageData?.l1ToL2Msg
-    const maybeBuyTxHash = (maybeL1ToL2Msg as EthDepositMessage | undefined)?.l2DepositTxHash
+    const maybeBuyTxHash = await (async () => {
+      if (isEthDeposit) return (maybeL1ToL2Msg as EthDepositMessage | undefined)?.l2DepositTxHash
+      const successfulRedeem = await (
+        maybeL1ToL2Msg as L1ToL2MessageReader | undefined
+      )?.getSuccessfulRedeem()
+
+      return successfulRedeem?.status === L1ToL2MessageStatus.REDEEMED
+        ? successfulRedeem.l2TxReceipt.transactionHash
+        : undefined
+    })()
 
     if (swapTxStatus.status === TxStatus.Confirmed) {
       const timeElapsed = Date.now() - startTime

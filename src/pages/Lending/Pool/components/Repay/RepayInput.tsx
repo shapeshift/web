@@ -386,8 +386,6 @@ export const RepayInput = ({
     return assertAndProcessMemo(confirmedQuote.quoteMemo)
   }, [confirmedQuote])
 
-  debugger
-
   const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
     {
       assetId: repaymentAsset?.assetId ?? '',

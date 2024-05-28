@@ -232,18 +232,20 @@ export const arbitrumBridgeApi: SwapperApi = {
     if (swapTxStatus.status === TxStatus.Confirmed) {
       const timeElapsed = Date.now() - startTime
 
+      if (maybeBuyTxHash) {
+        return {
+          status: TxStatus.Confirmed,
+          buyTxHash: maybeBuyTxHash,
+          message: undefined,
+        }
+      }
+      // Worst case scenario if the outbound Tx isn't seen after the 15mn timeout
       if (timeElapsed < L1_TX_CONFIRMATION_TIME_MS) {
         return {
           status: TxStatus.Pending,
           buyTxHash: maybeBuyTxHash,
           message: 'L1 Tx confirmed, waiting for L2',
         }
-      }
-
-      return {
-        status: TxStatus.Confirmed,
-        buyTxHash: maybeBuyTxHash,
-        message: undefined,
       }
     }
 

@@ -117,9 +117,9 @@ export async function getTradeQuote(
       affiliateBps,
       potentialAffiliateBps,
       rate: '1',
-      slippageTolerancePercentageDecimal:
-        input.slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.ArbitrumBridge),
+      slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
+        SwapperName.ArbitrumBridge,
+      ),
       steps: [
         {
           // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/components/TransactionHistory/TransactionsTableDetailsSteps.tsx#L42
@@ -185,8 +185,9 @@ export async function getTradeQuote(
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      // No slippage for Arbitrum Bridge
-      slippageTolerancePercentageDecimal: '0',
+      slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
+        SwapperName.ArbitrumBridge,
+      ),
       steps: [
         {
           estimatedExecutionTimeMs: isDeposit

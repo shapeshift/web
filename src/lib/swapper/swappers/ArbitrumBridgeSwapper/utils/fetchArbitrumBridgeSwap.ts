@@ -50,6 +50,7 @@ export const fetchArbitrumBridgeSwap = async ({
         l1Provider,
         l2Provider,
         from: sendAddress ?? '',
+        destinationAddress: receiveAddress ?? '',
       })
     : bridger.getWithdrawalRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),

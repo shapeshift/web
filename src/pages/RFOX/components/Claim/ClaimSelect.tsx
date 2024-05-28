@@ -19,8 +19,8 @@ const ClaimRow: FC<ClaimSelectProps> = ({ assetSymbol, amount, status }) => {
   return (
     <Flex align='center' p={4} borderRadius='md'>
       <Box mr={4}>
-        <AssetIconWithBadge type={TransferType.Receive} assetId={foxAssetId}>
-          <TransactionTypeIcon type={TransferType.Receive} status={TxStatus.Confirmed} />
+        <AssetIconWithBadge assetId={foxAssetId}>
+          <TransactionTypeIcon type={TransferType.Receive} />
         </AssetIconWithBadge>
       </Box>
       <Box mr={4}>

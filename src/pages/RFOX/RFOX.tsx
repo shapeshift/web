@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
+import { Claim } from './components/Claim/Claim'
 import { Stake } from './components/Stake/Stake'
 import { Unstake } from './components/Unstake/Unstake'
 
@@ -81,8 +82,7 @@ export const RFOX: React.FC = () => {
                 <Unstake headerComponent={TabHeader} />
               </TabPanel>
               <TabPanel px={0} py={0}>
-                {/* TODO: replace me with claim */}
-                <Unstake headerComponent={TabHeader} />
+                <Claim headerComponent={TabHeader} />
               </TabPanel>
               <TabPanel px={0} py={0}>
                 <ChangeAddress headerComponent={TabHeader} />

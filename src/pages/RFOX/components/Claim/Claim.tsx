@@ -7,7 +7,7 @@ import { ClaimRoutePaths, type ClaimRouteProps } from './types'
 
 const suspenseFallback = <div>Loading...</div>
 
-const ClaimInput = makeSuspenseful(
+const ClaimSelect = makeSuspenseful(
   lazy(() =>
     import('./ClaimSelect').then(({ ClaimSelect }) => ({
       default: ClaimSelect,
@@ -47,7 +47,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
   const renderClaimSelect = useCallback(() => {
-    return <ClaimInput headerComponent={headerComponent} />
+    return <ClaimSelect headerComponent={headerComponent} />
   }, [headerComponent])
 
   const renderClaimConfirm = useCallback(() => {

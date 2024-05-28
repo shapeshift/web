@@ -74,6 +74,12 @@ export const fetchArbitrumBridgeSwap = async ({
             l2Provider,
             from: sendAddress ?? '',
             destinationAddress: receiveAddress ?? '',
+            retryableGasOverrides: {
+              // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L159
+              // the gas limit may vary by about 20k due to SSTORE (zero vs nonzero)
+              // the 30% gas limit increase should cover the difference
+              gasLimit: { percentIncrease: BigNumber.from(30) },
+            },
           })
         : bridger.getWithdrawalRequest({
             amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),

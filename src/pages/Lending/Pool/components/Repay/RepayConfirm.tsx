@@ -47,7 +47,7 @@ import { isToken } from 'lib/utils'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { LendingQuoteClose } from 'lib/utils/thorchain/lending/types'
-import { addLimitToMemo } from 'lib/utils/thorchain/memo/addLimitToMemo'
+import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { useLendingQuoteCloseQuery } from 'pages/Lending/hooks/useLendingCloseQuery'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import {
@@ -249,9 +249,7 @@ export const RepayConfirm = ({
   const memo = useMemo(() => {
     if (!confirmedQuote) return null
 
-    // No need for slippage deduction here - quoteWithdrawnAmountAfterFeesThorBaseUnit (expected_amount_out) already is quote.fees.slippage_bps deducted
-    const minCollateralOut = confirmedQuote.quoteWithdrawnAmountAfterFeesThorBaseUnit
-    return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: minCollateralOut })
+    return assertAndProcessMemo(confirmedQuote.quoteMemo)
   }, [confirmedQuote])
 
   const {

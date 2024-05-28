@@ -2,21 +2,9 @@ import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shape
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { Err, Ok } from '@sniptt/monads/build'
-import type BigNumber from 'bignumber.js'
-import { bn } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
 
-import type { ArbitrumBridgeSupportedChainId, OneInchBaseResponse } from './types'
+import type { ArbitrumBridgeSupportedChainId } from './types'
 import { arbitrumBridgeSupportedChainIds } from './types'
-
-export const getRate = (response: OneInchBaseResponse): BigNumber => {
-  const fromTokenAmountCryptoHuman = fromBaseUnit(
-    response.fromTokenAmount,
-    response.fromToken.decimals,
-  )
-  const toTokenAmountCryptoHuman = fromBaseUnit(response.toTokenAmount, response.toToken.decimals)
-  return bn(toTokenAmountCryptoHuman).div(fromTokenAmountCryptoHuman)
-}
 
 export const assertValidTrade = ({
   buyAsset,

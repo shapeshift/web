@@ -1,5 +1,4 @@
-import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
-import type { L1ToL2TransactionRequest } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
+import { Erc20Bridger, getL2Network } from '@arbitrum/sdk'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type {
   GetEvmTradeQuoteInput,
@@ -26,6 +25,7 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 
 import { BRIDGE_TYPE } from '../types'
+import { fetchArbitrumBridgeSwap } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
 const usdcOnArbitrumAssetId = 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
@@ -62,7 +62,6 @@ export async function getTradeQuote(
   const bridgeType = isEthBridge ? BRIDGE_TYPE.ETH : BRIDGE_TYPE.ERC20
 
   const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
-  const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
   // 1/1 when bridging on Arbitrum bridge
   const rate = '1'
@@ -70,27 +69,18 @@ export async function getTradeQuote(
   try {
     switch (bridgeType) {
       case BRIDGE_TYPE.ETH: {
-        const bridger = new EthBridger(l2Network)
-
         if (sellAsset.assetId === usdcAssetId || sellAsset.assetId === usdcOnArbitrumAssetId) {
           // https://www.circle.com/en/cross-chain-transfer-protocol
           throw new Error('cctp not implemented')
         }
 
-        const request = await (isDeposit
-          ? bridger.getDepositToRequest({
-              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-              l1Provider,
-              l2Provider,
-              from: sendAddress ?? '',
-              destinationAddress: receiveAddress ?? '',
-            })
-          : bridger.getWithdrawalRequest({
-              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-              destinationAddress: receiveAddress ?? '',
-              from: sendAddress ?? '',
-            }))
-
+        const request = await fetchArbitrumBridgeSwap({
+          buyAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sellAsset,
+          sendAddress: sendAddress ?? '',
+          receiveAddress,
+        })
         const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
         const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
 
@@ -150,6 +140,9 @@ export async function getTradeQuote(
           throw new Error('cctp not implemented')
         }
 
+        // TODO(gomes): allowance checks, only use fallback if allowance grant is required
+        // Also, make fetchArbitrumBridgeSwap do the whole check allowance and return either request, or fallback fees in addition to the request
+        // which means we'll be able to nuke most of this logic and just consume it here, same as the BRIDGE_TYPE.ETH: case above
         if (isDeposit) {
           const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
           const allowanceContract = await bridger.getL1GatewayAddress(erc20L1Address, l1Provider)
@@ -188,27 +181,18 @@ export async function getTradeQuote(
           })
         }
 
-        const request = await (isDeposit
-          ? bridger.getDepositRequest({
-              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-              erc20L1Address,
-              l1Provider,
-              l2Provider,
-              from: sendAddress ?? '',
-              destinationAddress: receiveAddress ?? '',
-            })
-          : bridger.getWithdrawalRequest({
-              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-              // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
-              erc20l1Address: erc20L1Address,
-              destinationAddress: receiveAddress ?? '',
-              from: sendAddress ?? '',
-            }))
+        const request = await bridger.getWithdrawalRequest({
+          amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+          // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
+          erc20l1Address: erc20L1Address,
+          destinationAddress: receiveAddress ?? '',
+          from: sendAddress ?? '',
+        })
 
         const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
         const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-        const allowanceContract = (request as L1ToL2TransactionRequest).retryableData?.from || '0x0' // no allowance needed for ETH deposits
+        const allowanceContract = '0x0' // no allowance needed for briding out of Arbitrum
 
         const feeData = await getFees({
           adapter,

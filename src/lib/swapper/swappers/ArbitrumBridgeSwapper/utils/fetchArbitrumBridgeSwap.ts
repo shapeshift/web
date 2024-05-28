@@ -12,7 +12,6 @@ import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertValidTrade } from './helpers'
 
 export type FetchArbitrumBridgeSwapInput = {
-  affiliateBps: string
   buyAsset: Asset
   receiveAddress: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string

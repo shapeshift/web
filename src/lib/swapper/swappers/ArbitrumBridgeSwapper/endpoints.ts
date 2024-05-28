@@ -130,10 +130,9 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
 
-    const { receiveAddress, affiliateBps } = tradeQuote
+    const { receiveAddress } = tradeQuote
 
     const swap = await fetchArbitrumBridgeSwap({
-      affiliateBps,
       buyAsset,
       receiveAddress,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,

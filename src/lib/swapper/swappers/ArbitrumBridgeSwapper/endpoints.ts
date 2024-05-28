@@ -231,20 +231,28 @@ export const arbitrumBridgeApi: SwapperApi = {
     if (swapTxStatus.status === TxStatus.Confirmed) {
       const timeElapsed = Date.now() - startTime
 
-      if (maybeBuyTxHash) {
+      // Note, ETH deposits get their buyTxHash immediately, deterministically
+      // However, it still takes at least ~10mn for it to be reflected
+      if (!isEthDeposit && maybeBuyTxHash) {
         return {
           status: TxStatus.Confirmed,
           buyTxHash: maybeBuyTxHash,
           message: undefined,
         }
       }
-      // Worst case scenario if the outbound Tx isn't seen after the 15mn timeout
+      // Worst case scenario if the outbound Tx isn't seen at this point, or if we're dealing with ETH deposits
       if (timeElapsed < L1_TX_CONFIRMATION_TIME_MS) {
         return {
           status: TxStatus.Pending,
           buyTxHash: maybeBuyTxHash,
           message: 'L1 Tx confirmed, waiting for L2',
         }
+      }
+
+      return {
+        status: TxStatus.Confirmed,
+        buyTxHash: maybeBuyTxHash,
+        message: undefined,
       }
     }
 

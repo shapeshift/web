@@ -52,6 +52,9 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
         {translate('RFOX.unstake')}
       </FormHeaderTab>
       <FormHeaderTab index={2} onClick={handleClick} isActive={activeIndex === 2}>
+        {translate('RFOX.claim')}
+      </FormHeaderTab>
+      <FormHeaderTab index={3} onClick={handleClick} isActive={activeIndex === 3}>
         {translate('RFOX.changeAddress')}
       </FormHeaderTab>
     </Flex>
@@ -75,6 +78,10 @@ export const RFOX: React.FC = () => {
                 <Stake headerComponent={TabHeader} />
               </TabPanel>
               <TabPanel px={0} py={0}>
+                <Unstake headerComponent={TabHeader} />
+              </TabPanel>
+              <TabPanel px={0} py={0}>
+                {/* TODO: replace me with claim */}
                 <Unstake headerComponent={TabHeader} />
               </TabPanel>
               <TabPanel px={0} py={0}>

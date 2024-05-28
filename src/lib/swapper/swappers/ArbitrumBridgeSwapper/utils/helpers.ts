@@ -28,5 +28,15 @@ export const assertValidTrade = ({
     )
   }
 
+  if (buyAsset.chainId === sellAsset.chainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[ArbitrumBridge: assertValidTrade] - both assets must be on different chainIds`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
+
   return Ok(true)
 }

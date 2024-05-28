@@ -23,7 +23,6 @@ import type {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
-import { v4 as uuid } from 'uuid'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, checkEvmSwapStatus, getFees } from 'lib/utils/evm'
 import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
@@ -110,7 +109,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(tradeQuote => {
-      const id = uuid()
+      const id = tradeQuote.id
       const firstHop = getHopByIndex(tradeQuote, 0)!
       tradeQuoteMetadata.set(id, {
         sellAssetId: firstHop.sellAsset.assetId,

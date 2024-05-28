@@ -7,40 +7,104 @@ import {
   CardHeader,
   Flex,
   IconButton,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { erc20ABI } from 'contracts/abis/ERC20ABI'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
+import { encodeFunctionData, getAddress } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { selectAssetById } from 'state/slices/selectors'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from 'lib/utils/evm'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectTxById,
+} from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import type { RfoxUnstakingQuote } from './types'
 import { UnstakeRoutePaths, type UnstakeRouteProps } from './types'
+
+type UnstakeConfirmProps = {
+  confirmedQuote: RfoxUnstakingQuote
+  unstakeTxid: string | undefined
+  setUnstakeTxid: (txId: string) => void
+}
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
-export const UnstakeConfirm: React.FC<UnstakeRouteProps> = () => {
+
+export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> = ({
+  confirmedQuote,
+  unstakeTxid,
+  setUnstakeTxid,
+}) => {
+  const queryClient = useQueryClient()
+  const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
-  const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
+
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote.stakingAssetId),
+  )
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
+  )
+
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+    [confirmedQuote.stakingAssetAccountId],
+  )
+  const stakingAssetAccountNumberFilter = useMemo(() => {
+    return {
+      assetId: confirmedQuote.stakingAssetId,
+      accountId: confirmedQuote.stakingAssetAccountId,
+    }
+  }, [confirmedQuote.stakingAssetAccountId, confirmedQuote.stakingAssetId])
+  const stakingAssetAccountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
+  )
+
+  const unstakingAmountCryptoPrecision = useMemo(
+    () => fromBaseUnit(confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+    [confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision],
+  )
+
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
 
   const handleGoBack = useCallback(() => {
     history.push(UnstakeRoutePaths.Input)
   }, [history])
 
-  const handleSubmit = useCallback(() => {
-    history.push(UnstakeRoutePaths.Status)
-  }, [history])
-
   const stakeCards = useMemo(() => {
-    if (!asset) return null
+    if (!stakingAsset) return null
     return (
       <Card
         display='flex'
@@ -53,14 +117,180 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps> = () => {
         flex={1}
         mx={-2}
       >
-        <AssetIcon size='sm' assetId={asset?.assetId} />
+        <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value='0.0' symbol={asset?.symbol} />
+          <Amount.Crypto value={unstakingAmountCryptoPrecision} symbol={stakingAsset?.symbol} />
           <Amount.Fiat fontSize='sm' color='text.subtle' value='0.0' />
         </Stack>
       </Card>
     )
-  }, [asset])
+  }, [stakingAsset, unstakingAmountCryptoPrecision])
+
+  const callData = useMemo(() => {
+    if (!stakingAsset) return
+
+    return encodeFunctionData({
+      abi: foxStakingV1Abi,
+      functionName: 'unstake',
+      args: [BigInt(toBaseUnit(unstakingAmountCryptoPrecision, stakingAsset.precision))],
+    })
+  }, [stakingAsset, unstakingAmountCryptoPrecision])
+
+  const {
+    mutateAsync: handleUnstake,
+    isIdle: isUnstakeMutationIdle,
+    isPending: isUnstakeMutationPending,
+    isSuccess: isUnstakeMutationSuccess,
+  } = useMutation({
+    mutationFn: async () => {
+      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset || !callData) return
+
+      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+
+      const buildCustomTxInput = await createBuildCustomTxInput({
+        accountNumber: stakingAssetAccountNumber,
+        adapter,
+        data: callData,
+        value: '0',
+        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        wallet,
+      })
+
+      const txId = await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+      })
+
+      return txId
+    },
+    onSuccess: (txId: string | undefined) => {
+      if (!txId) return
+
+      setUnstakeTxid(txId)
+    },
+  })
+
+  const isGetUnstakeFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        isUnstakeMutationIdle &&
+          stakingAssetAccountNumber !== undefined &&
+          wallet &&
+          stakingAsset &&
+          callData &&
+          feeAsset &&
+          feeAssetMarketData,
+      ),
+    [
+      isUnstakeMutationIdle,
+      stakingAssetAccountNumber,
+      wallet,
+      stakingAsset,
+      callData,
+      feeAsset,
+      feeAssetMarketData,
+    ],
+  )
+
+  const {
+    data: unstakeFees,
+    isLoading: isUnstakeFeesLoading,
+    isSuccess: isUnstakeFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress,
+      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
+      data: callData!, // see isGetStakeFeesEnabled
+      value: '0', // contract call
+      wallet: wallet!, // see isGetStakeFeesEnabled
+      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+    }),
+    staleTime: 30_000,
+    enabled: isGetUnstakeFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: isGetUnstakeFeesEnabled ? 15_000 : false,
+  })
+
+  const serializedUnstakeTxIndex = useMemo(() => {
+    if (!(unstakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
+      return ''
+    return serializeTxIndex(
+      confirmedQuote.stakingAssetAccountId,
+      unstakeTxid,
+      stakingAssetAccountAddress,
+    )
+  }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, unstakeTxid])
+
+  const {
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+    queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey,
+  } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'stakingInfo',
+    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
+    chainId: arbitrum.id,
+    query: {
+      enabled: Boolean(stakingAssetAccountAddress),
+      select: ([stakingBalance]) => stakingBalance.toString(),
+    },
+  })
+
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+    queryKey: newContractBalanceOfCryptoBaseUnitQueryKey,
+  } = useReadContract({
+    abi: erc20ABI,
+    address: getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference),
+    functionName: 'balanceOf',
+    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
+    chainId: arbitrum.id,
+    query: {
+      select: data => data.toString(),
+    },
+  })
+
+  const newShareOfPoolPercentage = useMemo(
+    () =>
+      bnOrZero(userStakingBalanceOfCryptoBaseUnit)
+        .minus(confirmedQuote.unstakingAmountCryptoBaseUnit)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
+        .toFixed(4),
+    [
+      confirmedQuote.unstakingAmountCryptoBaseUnit,
+      newContractBalanceOfCryptoBaseUnit,
+      userStakingBalanceOfCryptoBaseUnit,
+    ],
+  )
+
+  const handleSubmit = useCallback(async () => {
+    await handleUnstake()
+
+    // This isn't a mistake - we invalidate as a cleanup operation before unmount to avoid current subscribers refetching with wrong args, hence making invalidation useless
+    history.push(UnstakeRoutePaths.Status)
+
+    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+  }, [
+    handleUnstake,
+    history,
+    newContractBalanceOfCryptoBaseUnitQueryKey,
+    queryClient,
+    userStakingBalanceOfCryptoBaseUnitQueryKey,
+  ])
+
+  const unstakeTx = useAppSelector(gs => selectTxById(gs, serializedUnstakeTxIndex))
+  const isUnstakeTxPending = useMemo(
+    () => isUnstakeMutationPending || (isUnstakeMutationSuccess && !unstakeTx),
+    [isUnstakeMutationPending, isUnstakeMutationSuccess, unstakeTx],
+  )
 
   return (
     <SlideTransition>
@@ -85,7 +315,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps> = () => {
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
-                  <Amount.Fiat value='0.0001' />
+                  <Skeleton isLoaded={!isUnstakeFeesLoading}>
+                    <Row.Value>
+                      <Amount.Fiat value={unstakeFees?.txFeeFiat ?? '0.0'} />
+                    </Row.Value>
+                  </Skeleton>
                 </Row.Value>
               </CustomRow>
             </TimelineItem>
@@ -93,7 +327,14 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps> = () => {
               <CustomRow>
                 <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
                 <Row.Value>
-                  <Amount.Percent value='0.0' />
+                  <Skeleton
+                    isLoaded={
+                      isNewContractBalanceOfCryptoBaseUnitSuccess &&
+                      isUserStakingBalanceOfCryptoBaseUnitSuccess
+                    }
+                  >
+                    <Amount.Percent value={newShareOfPoolPercentage} />
+                  </Skeleton>
                 </Row.Value>
               </CustomRow>
             </TimelineItem>
@@ -110,7 +351,14 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps> = () => {
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Button size='lg' mx={-2} colorScheme='blue' onClick={handleSubmit}>
+        <Button
+          size='lg'
+          mx={-2}
+          colorScheme='blue'
+          isLoading={isUnstakeFeesLoading || isUnstakeTxPending}
+          disabled={Boolean(!isUnstakeFeesSuccess || isUnstakeTxPending)}
+          onClick={handleSubmit}
+        >
           {translate('RFOX.confirmAndUnstake')}
         </Button>
       </CardFooter>

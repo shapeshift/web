@@ -2430,6 +2430,7 @@
     "unstake": "Unstake",
     "claim": "Claim",
     "changeAddress": "Change address",
+    "sameAddressNotAllowed": "Same address not allowed",
     "stakingDetails": "Staking Details",
     "stakeAmount": "Stake Amount",
     "unstakeAmount": "Unstake Amount",
@@ -2454,12 +2455,19 @@
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",
+    "addressUpdated": "Address updated",
+    "changeRewardAddressPending": "Changing Reward Address...",
+    "changeRewardAddressSuccess": "You have successfully changed your THORCHain Reward Address.",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
-    "unstakeSuccess": "Once the %{cooldownPeriod} have elapsed, you will be able to claim your %{amount} %{symbol}",
+    "unstakeSuccess": "Once the %{cooldownPeriod} has elapsed, you will be able to claim your %{amount} %{symbol}",
     "currentRewardAddress": "Current Reward Address",
-    "newRewardAddress": "New Address",
+    "newRewardAddress": "New Reward Address",
     "rewardCycleExplainer": "This will update for the next reward cycle.",
-    "addressUpdateActionPending": "Change Reward Address...",
-    "addressUpdateSucces": "You have successfully updated your Thorchain Reward Address"
+    "noPositionTitle": "No Active Position",
+    "noPositionBody": "You will be able to change your reward address here once you have an active position.",
+    "stakeNow": "Stake Now",
+    "noAddressFound": "No address found",
+    "newAddressInfo": "This will update for the next reward cycle",
+    "confirmAndUpdateAddress": "Confirm & Update Address"
   }
 }

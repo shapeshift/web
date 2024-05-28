@@ -35,11 +35,32 @@ export const fetchArbitrumBridgeSwap = async ({
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
 
-  const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
-
-  const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
   const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+
+  if (isEthBridge) {
+    const bridger = new EthBridger(l2Network)
+
+    const request = await (isDeposit
+      ? bridger.getDepositToRequest({
+          l1Provider,
+          l2Provider,
+          amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+          from: sendAddress ?? '',
+          destinationAddress: receiveAddress ?? '',
+        })
+      : bridger.getWithdrawalRequest({
+          amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+          destinationAddress: receiveAddress ?? '',
+          from: sendAddress ?? '',
+        }))
+
+    return request
+  }
+
+  const bridger = new Erc20Bridger(l2Network)
+
+  const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
 
   const request = await (isDeposit
     ? bridger.getDepositRequest({

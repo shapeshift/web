@@ -5,7 +5,7 @@ import { type FC } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 
 import type { ClaimRouteProps } from './types'
@@ -45,7 +45,7 @@ const ClaimRow: FC<ClaimSelectProps> = ({ assetSymbol, amount, status }) => {
   )
 }
 
-export const ClaimSelect: FC<ClaimRouteProps & ClaimSelectProps> = ({ headerComponent }) => {
+export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent }) => {
   return (
     <SlideTransition>
       <Stack>{headerComponent}</Stack>

@@ -183,7 +183,11 @@ export const arbitrumBridgeApi: SwapperApi = {
       // We simply return success when the L2 Tx is confirmed, meaning the trade will show "complete" almost instantly
       // and will handle the whole 7 days thing (that the user should've already been warned about with an ack before previewing)
       // at confirm step
-      return swapTxStatus
+      return {
+        ...swapTxStatus,
+        // Note, we don't care about the buyTxHash here, since it will be available... in 7 days.
+        buyTxHash: undefined,
+      }
     }
 
     let startTime = startTimeMap.get(txHash)

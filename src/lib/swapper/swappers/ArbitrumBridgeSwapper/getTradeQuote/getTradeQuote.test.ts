@@ -57,6 +57,35 @@ describe('getTradeQuote', () => {
     expect(quote.steps[0].source).toBe(SwapperName.ArbitrumBridge)
   })
 
+  it('returns a correct ETH withdraw quote', async () => {
+    const ethBridgerMock = {
+      getWithdrawalRequest: vi.fn().mockResolvedValue({
+        txRequest: {
+          data: '0x',
+          to: '0x',
+          value: '0',
+          from: '0x',
+        },
+      }),
+    }
+    vi.mocked(EthBridger).mockReturnValue(ethBridgerMock as unknown as EthBridger)
+
+    const withdrawInput = {
+      ...commonInput,
+      sellAsset: arbitrum,
+      buyAsset: ethereum,
+    }
+
+    const maybeQuote = await getTradeQuote(withdrawInput)
+    expect(maybeQuote.isOk()).toBe(true)
+    const quote = maybeQuote.unwrap()
+
+    expect(quote.receiveAddress).toBe(withdrawInput.receiveAddress)
+    expect(quote.rate).toBe('1')
+    expect(quote.steps[0].allowanceContract).toBe('0x0')
+    expect(quote.steps[0].source).toBe(SwapperName.ArbitrumBridge)
+  })
+
   it('throws an error if non-EVM chain IDs are used', async () => {
     await expect(getTradeQuote({ ...commonInput, sellAsset: bitcoin })).rejects.toThrow(
       'Arbitrum Bridge only supports EVM chains',

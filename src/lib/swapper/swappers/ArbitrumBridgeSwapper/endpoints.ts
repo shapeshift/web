@@ -30,9 +30,6 @@ import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchArbitrumBridgeSwap } from './utils/fetchArbitrumBridgeSwap'
 
-const L1_TX_CONFIRMATION_TIME_MS = 15 * 60 * 1000 // 15 minutes in milliseconds
-const startTimeMap: Map<string, number> = new Map()
-
 const tradeQuoteMetadata: Map<string, { sellAssetId: AssetId; chainId: EvmChainId }> = new Map()
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/deposits/helpers.ts#L268
@@ -193,12 +190,6 @@ export const arbitrumBridgeApi: SwapperApi = {
       }
     }
 
-    let startTime = startTimeMap.get(txHash)
-    if (!startTime) {
-      startTime = Date.now()
-      startTimeMap.set(txHash, startTime)
-    }
-
     if (swapTxStatus.status === TxStatus.Pending) {
       return {
         status: TxStatus.Pending,
@@ -228,34 +219,38 @@ export const arbitrumBridgeApi: SwapperApi = {
         : undefined
     })()
 
-    if (swapTxStatus.status === TxStatus.Confirmed) {
-      const timeElapsed = Date.now() - startTime
-
-      // Note, ETH deposits get their buyTxHash immediately, deterministically
-      // However, it still takes at least ~10mn for it to be reflected
-      if (!isEthDeposit && maybeBuyTxHash) {
-        return {
-          status: TxStatus.Confirmed,
-          buyTxHash: maybeBuyTxHash,
-          message: undefined,
-        }
-      }
-      // Worst case scenario if the outbound Tx isn't seen at this point, or if we're dealing with ETH deposits
-      if (timeElapsed < L1_TX_CONFIRMATION_TIME_MS) {
-        return {
-          status: TxStatus.Pending,
-          buyTxHash: maybeBuyTxHash,
-          message: 'L1 Tx confirmed, waiting for L2',
-        }
-      }
-
+    if (swapTxStatus.status !== TxStatus.Confirmed)
       return {
-        status: TxStatus.Confirmed,
+        status: TxStatus.Pending,
+        buyTxHash: undefined,
+        message: 'L1 Tx Pending',
+      }
+
+    if (!maybeBuyTxHash) {
+      return {
+        status: TxStatus.Pending,
         buyTxHash: maybeBuyTxHash,
-        message: undefined,
+        message: 'L1 Tx confirmed, waiting for L2',
       }
     }
 
-    return swapTxStatus
+    const l2TxStatus = await checkEvmSwapStatus({
+      txHash: maybeBuyTxHash,
+      chainId: arbitrumChainId,
+    })
+
+    if (l2TxStatus.status !== TxStatus.Confirmed) {
+      return {
+        status: TxStatus.Pending,
+        buyTxHash: maybeBuyTxHash,
+        message: 'L2 Tx Pending',
+      }
+    }
+
+    return {
+      status: TxStatus.Confirmed,
+      buyTxHash: maybeBuyTxHash,
+      message: undefined,
+    }
   },
 }

@@ -119,7 +119,6 @@ export const arbitrumBridgeApi: SwapperApi = {
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
-    slippageTolerancePercentageDecimal,
     stepIndex,
     tradeQuote,
     supportsEIP1559,
@@ -137,7 +136,6 @@ export const arbitrumBridgeApi: SwapperApi = {
       receiveAddress,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
-      maximumSlippageDecimalPercentage: slippageTolerancePercentageDecimal,
       sendAddress: from,
     })
 

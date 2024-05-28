@@ -16,7 +16,6 @@ export type FetchArbitrumBridgeSwapInput = {
   receiveAddress: string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  maximumSlippageDecimalPercentage: string
   sendAddress: string
 }
 

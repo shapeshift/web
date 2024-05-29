@@ -28,7 +28,6 @@ import { TransactionRow } from './TransactionRow'
 
 type ReusableLpStatusProps = {
   onBack: () => void
-  onSign: () => void
   confirmedQuote: RfoxBridgeQuote
 } & PropsWithChildren
 
@@ -38,6 +37,8 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
   children,
 }) => {
   const translate = useTranslate()
+  // TODO(gomes): programmatic, this works for Arbitrum Bridge but we need to find a better way
+  const numSteps = 2
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [canGoBack, setCanGoBack] = useState(true)
   const [isFailed, setIsFailed] = useState(false)
@@ -50,10 +51,19 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
-  const txAssets: Asset[] = useMemo(() => {
-    if (!sellAsset) return []
-    return [sellAsset]
-  }, [sellAsset])
+  const steps: { asset: Asset; headerCopy: string; isActionable: boolean }[] = useMemo(() => {
+    if (!(sellAsset && buyAsset)) return []
+    return [
+      {
+        asset: sellAsset,
+        // TODO(gomes): copy
+        headerCopy: `Send ${bridgeAmountCryptoPrecision} ${sellAsset.symbol}`,
+        // TODO(gomes): find a clean way to pass onSignAndBroadcast per step, *if* actionable
+        isActionable: true,
+      },
+      { asset: buyAsset, headerCopy: 'Bridge Funds', isActionable: false },
+    ]
+  }, [bridgeAmountCryptoPrecision, buyAsset, sellAsset])
 
   // TODO(gomes): handle L2 complete
   const handleComplete = useCallback(
@@ -72,16 +82,19 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
   // Once a step is complete the next step is shown
   // If the active step is the same as the length of steps we can assume it is complete.
   const isComplete = useMemo(
-    () => activeStepIndex === txAssets.length,
-    [activeStepIndex, txAssets.length],
+    () => activeStepIndex === steps.length,
+    [activeStepIndex, steps.length],
   )
 
   // TODO(gomes): implement progress
   const progress = useMemo(() => 1, [])
-  const progressPercentage = useMemo(() => `${progress}%`, [progress])
+  const progressPercentage = useMemo(
+    () => `${activeStepIndex + 1}/${numSteps}`,
+    [activeStepIndex, numSteps],
+  )
 
   const renderBody = useMemo(() => {
-    if (!txAssets.length) return null
+    if (!steps.length) return null
 
     if (isComplete) {
       return (
@@ -96,7 +109,8 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
           >
             <FaCheck />
           </Center>
-          <Heading as='h4'>{translate('pools.transactionSubmitted')}</Heading>
+          <Heading as='h4'>{translate('common.happySuccess')}</Heading>
+          <Text translation='RFOX.bridgeSuccess' />
         </CardBody>
       )
     }
@@ -140,7 +154,7 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
       </CardBody>
     )
   }, [
-    txAssets.length,
+    steps.length,
     isComplete,
     isFailed,
     progress,
@@ -151,31 +165,37 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
   ])
 
   const assetCards = useMemo(() => {
+    const handleSignAndBroadcast = async () => {
+      console.log('TODO: handleSignAndBroadcast')
+      await Promise.resolve()
+    }
     return (
       <Stack mt={4}>
-        {txAssets.map((asset, index) => {
+        {steps.map(({ asset, headerCopy, isActionable }, index) => {
+          const onClick = () => {
+            // TODO(gomes): remove me - this is for dev only so we can test the final step completing
+            if (index === steps.length - 1) {
+              handleComplete(TxStatus.Confirmed)
+            }
+          }
           return (
             <TransactionRow
               key={asset.assetId}
               assetId={asset.assetId}
-              amountCryptoPrecision={bridgeAmountCryptoPrecision}
+              headerCopy={headerCopy}
               onStart={handleStart}
+              onSignAndBroadcast={handleSignAndBroadcast}
               onComplete={handleComplete}
+              // TODO(gomes): once again, don't forget to remove me
+              onClick={onClick}
               isActive={index === activeStepIndex && !isFailed}
-              isActionable
+              isActionable={isActionable}
             />
           )
         })}
       </Stack>
     )
-  }, [
-    txAssets,
-    bridgeAmountCryptoPrecision,
-    handleStart,
-    handleComplete,
-    activeStepIndex,
-    isFailed,
-  ])
+  }, [steps, handleStart, handleComplete, activeStepIndex, isFailed])
 
   if (!(sellAsset && buyAsset)) return null
 

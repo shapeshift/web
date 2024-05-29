@@ -7,11 +7,9 @@ import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
 type BridgeStatusProps = {
   confirmedQuote: RfoxBridgeQuote
-  txId: string
 }
 export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   confirmedQuote,
-  txId,
 }) => {
   const history = useHistory()
 

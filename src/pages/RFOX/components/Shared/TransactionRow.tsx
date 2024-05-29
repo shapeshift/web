@@ -1,4 +1,14 @@
-import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Center,
+  Collapse,
+  Flex,
+  Link,
+  Text,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -7,7 +17,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { getTxLink } from 'lib/getTxLink'
@@ -16,24 +25,29 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId: AssetId
-  amountCryptoPrecision: string
   onComplete: (status: TxStatus) => void
   onStart: () => void
+  onSignAndBroadcast: () => Promise<void>
+  headerCopy: string
   isActive?: boolean
   isLast?: boolean
   isActionable: boolean
   txId?: string
   serializedTxIndex?: string
+  // TODO(gomes): remove me, dev only
+  onClick?: () => void
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
-  amountCryptoPrecision,
+  headerCopy,
   onComplete,
   onStart,
+  onClick,
   isActive,
   isActionable,
   serializedTxIndex,
+  onSignAndBroadcast,
   txId,
 }) => {
   const translate = useTranslate()
@@ -57,18 +71,19 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     [txId],
   )
 
-  const handleSignTx = useCallback(() => {
+  const handleSignTx = useCallback(async () => {
     setIsSubmitting(true)
 
+    await onSignAndBroadcast()
     // TODO: pass down a signAndBroadcast function to handle the transaction signing
     // It shouldn't be this component's responsibility to handle this, since it may differ from step to step, and some steps may actually be hops that don't require signing altogether
     // e.g Arbitrum L2 outbound which is automagical
 
     onStart()
 
-    // TODO: handle complete
+    // TODO: handle complete, this should live in an effect instead and react on TxStatus.Confirmed on the passed serializedTxIndex
     onComplete(TxStatus.Confirmed)
-  }, [onComplete, onStart])
+  }, [onComplete, onSignAndBroadcast, onStart])
 
   const confirmTranslation = useMemo(() => {
     return translate('common.signTransaction')
@@ -109,10 +124,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   if (!asset || !feeAsset) return null
 
   return (
-    <Card>
+    <Card onClick={onClick}>
       <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
         <AssetIcon size='xs' assetId={asset.assetId} />
-        <Amount.Crypto fontWeight='bold' value={amountCryptoPrecision} symbol={asset.symbol} />{' '}
+        <Text>{headerCopy}</Text>
         <Flex ml='auto' alignItems='center' gap={2}>
           {txId && (
             <Button as={Link} isExternal href={txIdLink} size='xs'>

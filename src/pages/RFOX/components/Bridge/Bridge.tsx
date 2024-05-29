@@ -40,7 +40,7 @@ export const Bridge: React.FC<BridgeRouteProps> = ({ headerComponent }) => {
 export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
-  // TODO(gomes): dummy quote, and actually setBridgeQuote once we consume this as part of the staking flow -
+  // TODO(gomes): remove dummy quote, and actually setBridgeQuote once we consume this as part of the staking flow -
   // we really won't need to setBridgeQuote anymore, as we will just instantiate this component with the bridge quote already
   // i.e when pushing to bridge, we will push with query args and use react-router to consume these here
   //
@@ -83,14 +83,8 @@ export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) =>
     // TODO(gomes): remove txId - we won't need it, and broadcasting won't be the responsbility of confirm here.
     // Bridge won't do the same logic as all others (staking/unstaking/change address) and we will need to implement a reusable
     // multi-step broadcast + status component of sorts, similar to what THROCHain LP's doing
-    return (
-      <BridgeStatus
-        confirmedQuote={bridgeQuote}
-        txId={bridgeTxid ?? ''}
-        headerComponent={headerComponent}
-      />
-    )
-  }, [bridgeQuote, bridgeTxid, headerComponent])
+    return <BridgeStatus confirmedQuote={bridgeQuote} headerComponent={headerComponent} />
+  }, [bridgeQuote, headerComponent])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

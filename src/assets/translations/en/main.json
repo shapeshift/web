@@ -69,6 +69,7 @@
     "degradedTransactionHistory": "Transaction history degraded",
     "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
+    "happySuccess": "Success!",
     "retry": "Retry",
     "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
@@ -2427,6 +2428,7 @@
   },
   "RFOX": {
     "bridge": "Bridge",
+    "bridgeSuccess": "Your funds have been successfully bridged. You can now continue to staking.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",

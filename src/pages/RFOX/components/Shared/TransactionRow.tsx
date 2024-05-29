@@ -1,0 +1,147 @@
+import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useCallback, useMemo, useState } from 'react'
+import { FaCheck } from 'react-icons/fa'
+import { FaX } from 'react-icons/fa6'
+import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
+import { AssetIcon } from 'components/AssetIcon'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { getTxLink } from 'lib/getTxLink'
+import { selectAssetById, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+type TransactionRowProps = {
+  assetId: AssetId
+  amountCryptoPrecision: string
+  onComplete: (status: TxStatus) => void
+  onStart: () => void
+  isActive?: boolean
+  isLast?: boolean
+  isActionable: boolean
+  txId?: string
+  serializedTxIndex?: string
+}
+
+export const TransactionRow: React.FC<TransactionRowProps> = ({
+  assetId,
+  amountCryptoPrecision,
+  onComplete,
+  onStart,
+  isActive,
+  isActionable,
+  serializedTxIndex,
+  txId,
+}) => {
+  const translate = useTranslate()
+
+  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex ?? ''))
+  const status = useMemo(() => tx?.status, [tx?.status])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
+  )
+
+  const txIdLink = useMemo(
+    () =>
+      getTxLink({
+        defaultExplorerBaseUrl: 'TODO',
+        tradeId: txId ?? '',
+        name: SwapperName.ArbitrumBridge,
+      }),
+    [txId],
+  )
+
+  const handleSignTx = useCallback(() => {
+    setIsSubmitting(true)
+
+    // TODO: pass down a signAndBroadcast function to handle the transaction signing
+    // It shouldn't be this component's responsibility to handle this, since it may differ from step to step, and some steps may actually be hops that don't require signing altogether
+    // e.g Arbitrum L2 outbound which is automagical
+
+    onStart()
+
+    // TODO: handle complete
+    onComplete(TxStatus.Confirmed)
+  }, [onComplete, onStart])
+
+  const confirmTranslation = useMemo(() => {
+    return translate('common.signTransaction')
+  }, [translate])
+
+  const txStatusIndicator = useMemo(() => {
+    if (status === TxStatus.Confirmed) {
+      return (
+        <Center
+          bg='background.success'
+          boxSize='24px'
+          borderRadius='full'
+          color='text.success'
+          fontSize='xs'
+        >
+          <FaCheck />
+        </Center>
+      )
+    }
+
+    if (status === TxStatus.Failed) {
+      return (
+        <Center
+          bg='background.error'
+          boxSize='24px'
+          borderRadius='full'
+          color='text.error'
+          fontSize='xs'
+        >
+          <FaX />
+        </Center>
+      )
+    }
+
+    return <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
+  }, [status])
+
+  if (!asset || !feeAsset) return null
+
+  return (
+    <Card>
+      <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
+        <AssetIcon size='xs' assetId={asset.assetId} />
+        <Amount.Crypto fontWeight='bold' value={amountCryptoPrecision} symbol={asset.symbol} />{' '}
+        <Flex ml='auto' alignItems='center' gap={2}>
+          {txId && (
+            <Button as={Link} isExternal href={txIdLink} size='xs'>
+              {translate('common.seeDetails')}
+            </Button>
+          )}
+          {txStatusIndicator}
+        </Flex>
+      </CardHeader>
+      {isActionable && (
+        <Collapse in={isActive}>
+          <CardBody display='flex' flexDir='column' gap={2}>
+            <Button
+              mx={-2}
+              size='lg'
+              colorScheme={status === TxStatus.Failed ? 'red' : 'blue'}
+              onClick={handleSignTx}
+              isDisabled={status === TxStatus.Failed}
+              isLoading={
+                // TODO(gomes): implement proper loading state
+                // !Boolean(txFeeCryptoPrecision) ||
+                isSubmitting
+              }
+            >
+              {confirmTranslation}
+            </Button>
+          </CardBody>
+        </Collapse>
+      )}
+    </Card>
+  )
+}

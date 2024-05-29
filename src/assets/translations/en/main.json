@@ -2426,6 +2426,7 @@
     }
   },
   "RFOX": {
+    "bridge": "Bridge",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",
@@ -2468,6 +2469,7 @@
     "stakeNow": "Stake Now",
     "noAddressFound": "No address found",
     "newAddressInfo": "This will update for the next reward cycle",
-    "confirmAndUpdateAddress": "Confirm & Update Address"
+    "confirmAndUpdateAddress": "Confirm & Update Address",
+    "confirmAndBridge": "Confirm & Bridge"
   }
 }

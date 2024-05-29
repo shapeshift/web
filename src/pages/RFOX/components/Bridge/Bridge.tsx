@@ -1,0 +1,113 @@
+import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { AnimatePresence } from 'framer-motion'
+import { lazy, Suspense, useCallback, useState } from 'react'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+import type { RfoxBridgeQuote } from './types'
+import { BridgeRoutePaths, type BridgeRouteProps } from './types'
+
+const suspenseFallback = <div>Loading...</div>
+
+const BridgeConfirm = makeSuspenseful(
+  lazy(() =>
+    import('./BridgeConfirm').then(({ BridgeConfirm }) => ({
+      default: BridgeConfirm,
+    })),
+  ),
+)
+
+const BridgeStatus = makeSuspenseful(
+  lazy(() =>
+    import('./BridgeStatus').then(({ BridgeStatus }) => ({
+      default: BridgeStatus,
+    })),
+  ),
+)
+
+const BridgeEntries = [BridgeRoutePaths.Confirm, BridgeRoutePaths.Status]
+
+export const Bridge: React.FC<BridgeRouteProps> = ({ headerComponent }) => {
+  return (
+    <MemoryRouter initialEntries={BridgeEntries} initialIndex={0}>
+      <BridgeRoutes headerComponent={headerComponent} />
+    </MemoryRouter>
+  )
+}
+
+export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) => {
+  const location = useLocation()
+
+  // TODO(gomes): dummy quote, and actually setBridgeQuote once we consume this as part of the staking flow -
+  // we really won't need to setBridgeQuote anymore, as we will just instantiate this component with the bridge quote already
+  // i.e when pushing to bridge, we will push with query args and use react-router to consume these here
+  //
+  const sellAssetId = foxOnArbitrumOneAssetId
+  const buyAssetId = foxAssetId
+  const sellAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, fromAssetId(sellAssetId).chainId),
+  )
+  const buyAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, fromAssetId(buyAssetId).chainId),
+  )
+
+  const dummyBridgeQuote: RfoxBridgeQuote = {
+    // Just to keep things cheap while devving this, TODO invert sell and buy assets
+    sellAssetId,
+    sellAssetAccountId: sellAssetAccountId ?? '',
+    buyAssetAccountId: buyAssetAccountId ?? '',
+    buyAssetId,
+    bridgeAmountCryptoBaseUnit: '420000000000000000000',
+  }
+  const [bridgeQuote, setBridgeQuote] = useState<RfoxBridgeQuote | undefined>(dummyBridgeQuote)
+  // TODO(gomes): bridge status
+  const [bridgeTxid, setBridgeTxid] = useState<string | undefined>()
+
+  const renderBridgeConfirm = useCallback(() => {
+    if (!bridgeQuote) return null
+
+    return (
+      <BridgeConfirm
+        bridgeQuote={bridgeQuote}
+        setBridgeTxid={setBridgeTxid}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [bridgeQuote, headerComponent])
+
+  const renderBridgeStatus = useCallback(() => {
+    if (!bridgeQuote) return null
+
+    // TODO(gomes): remove txId - we won't need it, and broadcasting won't be the responsbility of confirm here.
+    // Bridge won't do the same logic as all others (staking/unstaking/change address) and we will need to implement a reusable
+    // multi-step broadcast + status component of sorts, similar to what THROCHain LP's doing
+    return (
+      <BridgeStatus
+        confirmedQuote={bridgeQuote}
+        txId={bridgeTxid ?? ''}
+        headerComponent={headerComponent}
+      />
+    )
+  }, [bridgeQuote, bridgeTxid, headerComponent])
+
+  return (
+    <AnimatePresence mode='wait' initial={false}>
+      <Switch location={location}>
+        <Suspense fallback={suspenseFallback}>
+          <Route
+            key={BridgeRoutePaths.Confirm}
+            path={BridgeRoutePaths.Confirm}
+            render={renderBridgeConfirm}
+          />
+          <Route
+            key={BridgeRoutePaths.Status}
+            path={BridgeRoutePaths.Status}
+            render={renderBridgeStatus}
+          />
+        </Suspense>
+      </Switch>
+    </AnimatePresence>
+  )
+}

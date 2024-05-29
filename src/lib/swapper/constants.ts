@@ -11,6 +11,9 @@ import { thorchainSwapper } from 'lib/swapper/swappers/ThorchainSwapper/Thorchai
 import { zrxApi } from 'lib/swapper/swappers/ZrxSwapper/endpoints'
 import { zrxSwapper } from 'lib/swapper/swappers/ZrxSwapper/ZrxSwapper'
 
+import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
+import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
+import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
 import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './swappers/CowSwapper/utils/constants'
 import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants'
 import { ONE_INCH_SUPPORTED_CHAIN_IDS } from './swappers/OneInchSwapper/utils/constants'
@@ -49,6 +52,11 @@ export const swappers: Record<
     ...oneInchSwapper,
     ...oneInchApi,
     supportedChainIds: ONE_INCH_SUPPORTED_CHAIN_IDS,
+  },
+  [SwapperName.ArbitrumBridge]: {
+    ...arbitrumBridgeSwapper,
+    ...arbitrumBridgeApi,
+    supportedChainIds: ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS,
   },
   [SwapperName.Test]: undefined,
 }

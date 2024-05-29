@@ -110,9 +110,14 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     chainId: arbitrum.id,
     query: {
       enabled: Boolean(stakingAssetAccountAddress),
-      // TODO(gomes): unused destructured values isn't an omission, it's to ensure
-      // we change it to stakingInfo[3] vs. stakingInfo[2] currently after we deploy and consume the latest version of the contract
-      select: ([_stakingBalance, _unstakingBalance, runeAddress]) => runeAddress || undefined,
+      // Destructuring the result as a verbose way get the rune address
+      select: ([
+        _stakingBalance,
+        _unstakingBalance,
+        _earnedRewards,
+        _rewardPerTokenStored,
+        runeAddress,
+      ]) => runeAddress || undefined,
     },
   })
 

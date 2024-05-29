@@ -312,6 +312,9 @@ export const getTimeFrameBounds = (timeframe: HistoryTimeframe): { start: Dayjs;
 export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
   getChainAdapterManager().get(chainId)?.getFeeAssetId()
 
+export const chainIdToChainDisplayName = (chainId: ChainId): AssetId | undefined =>
+  getChainAdapterManager().get(chainId)?.getDisplayName()
+
 export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
   chainIdToFeeAssetId(fromAssetId(assetId).chainId)
 

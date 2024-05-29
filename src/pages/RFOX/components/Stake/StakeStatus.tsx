@@ -120,7 +120,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
         </AnimatePresence>
       )}
       <CardFooter flexDir='column' gap={2}>
-        <Button as={Link} href={txLink} size='lg' variant='ghost'>
+        <Button as={Link} href={txLink} size='lg' variant='ghost' isExternal>
           {translate('trade.viewTransaction')}
         </Button>
         <Button size='lg' colorScheme='blue' onClick={handleGoBack}>

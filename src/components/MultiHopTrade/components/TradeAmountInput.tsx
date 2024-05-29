@@ -405,7 +405,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 onMaxClick={handleOnMaxClick}
                 onClick={onPercentOptionClick ?? noop}
               />
-              {balance && assetId && !label && (
+              {balance && assetId && !label && !isAccountSelectionHidden && (
                 <AccountDropdown
                   defaultAccountId={accountId}
                   assetId={assetId}

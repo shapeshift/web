@@ -37,10 +37,9 @@ import {
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import type { StakeValues } from '../AddressSelection'
 import { AddressSelection } from '../AddressSelection'
 import { StakeSummary } from './components/StakeSummary'
-import type { RfoxStakingQuote } from './types'
+import type { RfoxStakingQuote, StakeInputValues } from './types'
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
 const formControlProps = {
@@ -77,7 +76,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const methods = useForm<StakeValues>({
+  const methods = useForm<StakeInputValues>({
     defaultValues: defaultFormValues,
     mode: 'onChange',
     shouldUnregister: true,
@@ -118,11 +117,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const [collapseIn, setCollapseIn] = useState(false)
   const percentOptions = useMemo(() => [1], [])
 
-  const amountCryptoPrecision = useWatch<StakeValues, 'amountCryptoPrecision'>({
+  const amountCryptoPrecision = useWatch<StakeInputValues, 'amountCryptoPrecision'>({
     control,
     name: 'amountCryptoPrecision',
   })
-  const amountUserCurrency = useWatch<StakeValues, 'amountUserCurrency'>({
+  const amountUserCurrency = useWatch<StakeInputValues, 'amountUserCurrency'>({
     control,
     name: 'amountUserCurrency',
   })
@@ -231,7 +230,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           !isApprovalRequired &&
           feeAsset &&
           feeAssetMarketData &&
-          !Boolean(errors.amountFieldInput),
+          !Boolean(errors.amountFieldInput || errors.manualRuneAddress),
       ),
     [
       hasEnoughBalance,
@@ -247,6 +246,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       feeAsset,
       feeAssetMarketData,
       errors.amountFieldInput,
+      errors.manualRuneAddress,
     ],
   )
 
@@ -294,10 +294,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           wallet &&
           feeAsset &&
           feeAssetMarketData &&
-          !Boolean(errors.amountFieldInput),
+          !Boolean(errors.amountFieldInput || errors.manualRuneAddress),
       ),
     [
       errors.amountFieldInput,
+      errors.manualRuneAddress,
       feeAsset,
       feeAssetMarketData,
       hasEnoughBalance,
@@ -466,7 +467,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             <Collapse in={collapseIn}>
               {stakingAssetAccountId && (
                 <StakeSummary
-                  stakingAssetId={stakingAsset.assetId}
+                  stakingAssetId={stakingAssetId}
                   stakingAssetAccountId={stakingAssetAccountId}
                   stakingAmountCryptoPrecision={amountCryptoPrecision}
                 />
@@ -484,11 +485,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.approvalFee')}</Row.Label>
                     <Row.Value>
-                      <Skeleton
-                        isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}
-                        height='14px'
-                        width='50px'
-                      >
+                      <Skeleton isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}>
                         <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
                       </Skeleton>
                     </Row.Value>
@@ -498,11 +495,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.gasFee')}</Row.Label>
                     <Row.Value>
-                      <Skeleton
-                        isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}
-                        height='14px'
-                        width='50px'
-                      >
+                      <Skeleton isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}>
                         <Amount.Fiat value={stakeFees?.txFeeFiat ?? 0} />
                       </Skeleton>
                     </Row.Value>
@@ -532,9 +525,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 !cooldownPeriod
               }
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
-              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
+              colorScheme={
+                Boolean(errors.amountFieldInput || errors.manualRuneAddress) ? 'red' : 'blue'
+              }
             >
-              {errors.amountFieldInput?.message || translate('RFOX.stake')}
+              {errors.amountFieldInput?.message ||
+                errors.manualRuneAddress?.message ||
+                translate('RFOX.stake')}
             </Button>
           </CardFooter>
         </FormProvider>

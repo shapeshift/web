@@ -1,7 +1,7 @@
-import { Box, CardBody, Flex, Stack } from '@chakra-ui/react'
+import { Box, Button, CardBody, Flex, Stack } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { type FC } from 'react'
+import { type FC, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SlideTransition } from 'components/SlideTransition'
@@ -16,20 +16,36 @@ type ClaimSelectProps = {
   status: string
 }
 
+const hoverProps = { bg: 'gray.700' }
+
 const ClaimRow: FC<ClaimSelectProps> = ({ assetSymbol, amount, status }) => {
   const translate = useTranslate()
+
+  const handleClick = useCallback(() => {
+    console.log('ClaimRow clicked')
+  }, [])
+
   return (
-    <Flex align='center' p={4} borderRadius='md'>
+    <Flex
+      as={Button}
+      align='center'
+      variant='unstyled'
+      p={8}
+      borderRadius='md'
+      width='100%'
+      onClick={handleClick}
+      _hover={hoverProps}
+    >
       <Box mr={4}>
         <AssetIconWithBadge assetId={foxAssetId}>
           <TransactionTypeIcon type={TransferType.Receive} />
         </AssetIconWithBadge>
       </Box>
       <Box mr={4}>
-        <RawText fontSize='sm' color='gray.400'>
+        <RawText fontSize='sm' color='gray.400' align={'start'}>
           {translate('RFOX.unstakeFrom', { assetSymbol })}
         </RawText>
-        <RawText fontSize='xl' fontWeight='bold' color='white'>
+        <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
           {assetSymbol}
         </RawText>
       </Box>

@@ -12,7 +12,7 @@ import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { TRADE_POLL_INTERVAL_MILLISECONDS } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
+import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
 import { TradeExecution } from 'lib/swapper/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -107,7 +107,7 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
       const execution = new TradeExecution()
 
       if (swapperName === SwapperName.LIFI) {
-        execution.setPollInterval(TRADE_POLL_INTERVAL_MILLISECONDS)
+        execution.setPollInterval(LIFI_TRADE_POLL_INTERVAL_MILLISECONDS)
       }
 
       let txHashReceived: boolean = false

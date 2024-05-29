@@ -10,7 +10,6 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -23,18 +22,10 @@ import { fromBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { UnstakeRoutePaths } from '../Unstake/types'
-import { ClaimRoutePaths, type ClaimRouteProps } from './types'
-
-export type RfoxClaimQuote = {
-  claimAssetAccountId: AccountId
-  claimAssetId: AssetId
-  claimAmountCryptoBaseUnit: string
-}
+import { ClaimRoutePaths, type ClaimRouteProps, type RfoxClaimQuote } from './types'
 
 type ClaimConfirmProps = {
-  claimQuote: RfoxClaimQuote | undefined
-  claimTxid: string | undefined
+  claimQuote: RfoxClaimQuote
   setClaimTxid: (txId: string) => void
 }
 
@@ -42,7 +33,10 @@ const backIcon = <ArrowBackIcon />
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 
-export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({ claimQuote }) => {
+export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({
+  claimQuote,
+  setClaimTxid,
+}) => {
   const history = useHistory()
   const translate = useTranslate()
 
@@ -50,13 +44,13 @@ export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({ claimQuo
     history.push(ClaimRoutePaths.Select)
   }, [history])
 
-  const claimAsset = useAppSelector(state => selectAssetById(state, claimQuote?.claimAssetId ?? ''))
+  const claimAsset = useAppSelector(state => selectAssetById(state, claimQuote.claimAssetId))
   const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(claimQuote?.claimAmountCryptoBaseUnit ?? '0', claimAsset?.precision ?? 0),
-    [claimQuote?.claimAmountCryptoBaseUnit, claimAsset?.precision],
+    () => fromBaseUnit(claimQuote.claimAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
+    [claimQuote.claimAmountCryptoBaseUnit, claimAsset?.precision],
   )
 
-  const stakeCard = useMemo(() => {
+  const claimCard = useMemo(() => {
     if (!claimAsset) return null
     return (
       <Card
@@ -80,8 +74,9 @@ export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({ claimQuo
   }, [claimAsset, claimAmountCryptoPrecision])
 
   const handleSubmit = useCallback(() => {
-    history.push(UnstakeRoutePaths.Status)
-  }, [history])
+    setClaimTxid('1234')
+    history.push(ClaimRoutePaths.Status)
+  }, [history, setClaimTxid])
 
   return (
     <SlideTransition>
@@ -94,7 +89,7 @@ export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({ claimQuo
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>
-          {stakeCard}
+          {claimCard}
           <Timeline>
             <TimelineItem>
               <CustomRow>

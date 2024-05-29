@@ -3,7 +3,7 @@ import { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
-import type { RfoxClaimQuote } from './ClaimConfirm'
+import type { RfoxClaimQuote } from './types'
 import { ClaimRoutePaths, type ClaimRouteProps } from './types'
 
 const suspenseFallback = <div>Loading...</div>
@@ -53,19 +53,25 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
   }, [headerComponent])
 
   const renderClaimConfirm = useCallback(() => {
+    if (!claimQuote) return null
+
     return (
       <ClaimConfirm
         claimQuote={claimQuote}
-        claimTxid={claimTxid}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
       />
     )
-  }, [claimQuote, claimTxid, headerComponent])
+  }, [claimQuote, headerComponent])
 
   const renderClaimStatus = useCallback(() => {
-    return <ClaimStatus txId={claimTxid} headerComponent={headerComponent} />
-  }, [claimTxid, headerComponent])
+    if (!claimTxid) return null
+    if (!claimQuote) return null
+
+    return (
+      <ClaimStatus txId={claimTxid} headerComponent={headerComponent} confirmedQuote={claimQuote} />
+    )
+  }, [claimQuote, claimTxid, headerComponent])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

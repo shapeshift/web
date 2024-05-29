@@ -11,10 +11,10 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import { toBaseUnit } from 'lib/math'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { RfoxClaimQuote } from './ClaimConfirm'
+import type { RfoxClaimQuote } from './types'
 import { ClaimRoutePaths, type ClaimRouteProps } from './types'
 
 type ClaimRowProps = {
@@ -34,17 +34,21 @@ const ClaimRow: FC<ClaimRowProps> = ({ assetId, amount, status, setClaimQuote })
   const assetSymbol = claimAsset?.symbol
   const claimAmountCryptoBaseUnit = toBaseUnit(bnOrZero(amount), claimAsset?.precision ?? 0)
 
+  // TODO(apotheosis): make this programmatic when we implement multi-account
+  const claimAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, claimAsset?.chainId ?? ''),
+  )
+
   const claimQuote: RfoxClaimQuote = useMemo(
     () => ({
-      claimAssetAccountId: '1234',
+      claimAssetAccountId: claimAssetAccountId ?? '',
       claimAssetId: assetId,
       claimAmountCryptoBaseUnit,
     }),
-    [assetId, claimAmountCryptoBaseUnit],
+    [assetId, claimAmountCryptoBaseUnit, claimAssetAccountId],
   )
 
   const handleClick = useCallback(() => {
-    console.log('ClaimRow clicked')
     setClaimQuote(claimQuote)
     history.push(ClaimRoutePaths.Confirm)
   }, [claimQuote, history, setClaimQuote])

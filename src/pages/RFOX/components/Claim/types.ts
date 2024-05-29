@@ -1,3 +1,5 @@
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+
 export enum ClaimRoutePaths {
   Select = '/claim/select',
   Confirm = '/claim/confirm',
@@ -6,4 +8,10 @@ export enum ClaimRoutePaths {
 
 export type ClaimRouteProps = {
   headerComponent?: JSX.Element
+}
+
+export type RfoxClaimQuote = {
+  claimAssetAccountId: AccountId
+  claimAssetId: AssetId
+  claimAmountCryptoBaseUnit: string
 }

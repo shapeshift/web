@@ -273,18 +273,8 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   const handleSubmit = useCallback(async () => {
     await handleUnstake()
 
-    // This isn't a mistake - we invalidate as a cleanup operation before unmount to avoid current subscribers refetching with wrong args, hence making invalidation useless
     history.push(UnstakeRoutePaths.Status)
-
-    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
-  }, [
-    handleUnstake,
-    history,
-    newContractBalanceOfCryptoBaseUnitQueryKey,
-    queryClient,
-    userStakingBalanceOfCryptoBaseUnitQueryKey,
-  ])
+  }, [handleUnstake, history])
 
   const unstakeTx = useAppSelector(gs => selectTxById(gs, serializedUnstakeTxIndex))
   const isUnstakeTxPending = useMemo(

@@ -2,6 +2,7 @@ import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,12 +31,15 @@ type BodyContent = {
 type UnstakeStatusProps = {
   confirmedQuote: RfoxUnstakingQuote
   txId: string
+  onTxConfirmed: () => Promise<void>
 }
 
 export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = ({
   confirmedQuote,
   txId,
+  onTxConfirmed: handleTxConfirmed,
 }) => {
+  const queryClient = useQueryClient()
   const history = useHistory()
   const translate = useTranslate()
 
@@ -60,6 +64,12 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
   }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, txId])
 
   const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+
+  useEffect(() => {
+    if (tx?.status !== TxStatus.Confirmed) return
+
+    handleTxConfirmed()
+  }, [handleTxConfirmed, queryClient, tx?.status])
 
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null

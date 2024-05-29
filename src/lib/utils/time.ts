@@ -19,7 +19,7 @@ export const formatSecondsToDuration = (seconds: number) => {
   if (hours < 24) {
     return `${Math.floor(hours)} hour${Math.floor(hours) !== 1 ? 's' : ''}`
   }
-  if (days < 31) {
+  if (days < 30) {
     return `${Math.floor(days)} day${Math.floor(days) !== 1 ? 's' : ''}`
   }
   return `${Math.floor(months)} month${Math.floor(months) !== 1 ? 's' : ''}`

@@ -24,10 +24,10 @@ describe('formatSecondsToDuration', () => {
     expect(formatSecondsToDuration(86400)).toBe('1 day')
     expect(formatSecondsToDuration(172800)).toBe('2 days')
     expect(formatSecondsToDuration(2591999)).toBe('29 days')
-    expect(formatSecondsToDuration(2592000)).toBe('30 days')
   })
 
   it('should format seconds into months when more than or equal to a month', () => {
+    expect(formatSecondsToDuration(2592000)).toBe('1 month')
     expect(formatSecondsToDuration(5184000)).toBe('2 months')
     expect(formatSecondsToDuration(7776000)).toBe('3 months')
   })

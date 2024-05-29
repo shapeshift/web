@@ -82,13 +82,33 @@ export const assertAndProcessMemo = (memo: string): string => {
     case '=':
     case 's': {
       // SWAP:ASSET:DESTADDR:LIM/INTERVAL/QUANTITY:AFFILIATE:FEE
-      const [_action, asset, destAddr, limit, , fee] = memo.split(':')
+      const [
+        _action,
+        asset,
+        destAddr,
+        limit,
+        ,
+        fee,
+        aggregatorLastTwoChars,
+        finalAssetAddressShortened,
+        finalAssetAmountOut,
+      ] = memo.split(':')
 
       assertMemoHasAsset(asset, memo)
       assertMemoHasDestAddr(destAddr, memo)
       assertIsValidLimit(limit, memo)
 
-      return `${_action}:${asset}:${destAddr}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${fee || 0}`
+      const swapOutParts = (() => {
+        if (aggregatorLastTwoChars && finalAssetAddressShortened && finalAssetAmountOut) {
+          return `:${aggregatorLastTwoChars}:${finalAssetAddressShortened}:${finalAssetAmountOut}`
+        }
+
+        return ''
+      })()
+
+      return `${_action}:${asset}:${destAddr}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${
+        fee || 0
+      }${swapOutParts}`
     }
     case 'add':
     case '+':

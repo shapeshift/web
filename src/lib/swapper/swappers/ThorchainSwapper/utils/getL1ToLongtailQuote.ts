@@ -1,4 +1,5 @@
-import { bchChainId, CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, MultiHopTradeQuoteSteps } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -37,7 +38,18 @@ export const getL1ToLongtailQuote = async (
     slippageTolerancePercentageDecimal,
   } = input
 
-  const { chainNamespace } = fromAssetId(sellAsset.assetId)
+  const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
+  const longtailTokens: AssetId[] = longtailTokensJson.default
+
+  if (!longtailTokens.includes(buyAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Unsupported assetId ${buyAsset.assetId}.`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { buyAssetChainId: buyAsset.chainId },
+      }),
+    )
+  }
 
   /*
     We only support L1 -> ethereum longtail swaps for now.
@@ -55,15 +67,6 @@ export const getL1ToLongtailQuote = async (
   const chainAdapterManager = getChainAdapterManager()
   const sellChainId = sellAsset.chainId
   const buyChainId = buyAsset.chainId
-
-  if (sellChainId !== bchChainId && chainNamespace === CHAIN_NAMESPACE.Utxo) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - DOGE, BTC and LTC to ERC20 is not supported.`,
-        code: TradeQuoteError.InternalError,
-      }),
-    )
-  }
 
   const sellAssetFeeAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
   const sellAssetFeeAsset = sellAssetFeeAssetId ? assetsById[sellAssetFeeAssetId] : undefined
@@ -140,8 +143,7 @@ export const getL1ToLongtailQuote = async (
             getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
         ).toString(),
         quotedMemo: quote.memo,
-        finalAssetPrecision: buyAsset.precision,
-        chainNamespace,
+        longtailTokens,
       })
 
       return Ok({

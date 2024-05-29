@@ -1,15 +1,18 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { bchChainId, CHAIN_NAMESPACE, type ChainNamespace } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { bchChainId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
 import type { Address } from 'viem'
-import { fromBaseUnit } from 'lib/math'
+import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
+import { isUtxoChainId } from 'lib/utils/utxo'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { BCH_MAXIMUM_BYTES_LENGTH, UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
+import { getUniqueAddressSubstring } from './getUniqueAddressSubstring'
 import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
+import { makeMemoWithShortenedFinalAssetAmount } from './makeMemoWithShortenedFinalAssetAmount'
 
 export const addAggregatorAndDestinationToMemo = ({
   sellChainId,
@@ -18,8 +21,7 @@ export const addAggregatorAndDestinationToMemo = ({
   finalAssetAddress,
   minAmountOut,
   slippageBps,
-  finalAssetPrecision,
-  chainNamespace,
+  longtailTokens,
 }: {
   sellChainId: ChainId
   slippageBps: BigNumber.Value
@@ -27,8 +29,7 @@ export const addAggregatorAndDestinationToMemo = ({
   aggregator: Address
   finalAssetAddress: Address
   minAmountOut: string
-  finalAssetPrecision: number
-  chainNamespace: ChainNamespace
+  longtailTokens: AssetId[]
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
 
@@ -41,39 +42,21 @@ export const addAggregatorAndDestinationToMemo = ({
     affiliateBps,
   ] = quotedMemo.split(MEMO_PART_DELIMITER)
 
+  const maxMemoSize = (() => {
+    if (sellChainId === bchChainId) return BCH_MAXIMUM_BYTES_LENGTH
+    if (isUtxoChainId(sellChainId)) return UTXO_MAXIMUM_BYTES_LENGTH
+    return Infinity
+  })()
+
   const finalAssetLimitWithManualSlippage = subtractBasisPointAmount(
     bn(minAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
     slippageBps,
     BigNumber.ROUND_DOWN,
   )
 
-  const maximumPrecision = 6
-  const endingExponential = finalAssetPrecision - maximumPrecision
-  const finalAssetLimitCryptoPrecision = fromBaseUnit(
-    finalAssetLimitWithManualSlippage,
-    finalAssetPrecision,
-    maximumPrecision,
-  )
-  const shouldPrependZero = endingExponential < 10
-  const thorAggregatorExponential = shouldPrependZero
-    ? `0${endingExponential > 0 ? endingExponential : '1'}`
-    : endingExponential
+  const finalAssetAddressShortened = getUniqueAddressSubstring(finalAssetAddress, longtailTokens)
 
-  // The THORChain aggregators expects this amount to be an exponent, we need to add two numbers at the end which are used at exponents in the contract
-  // We trim 10 of precisions to make sure the THORChain parser can handle the amount without precisions and rounding issues
-  // If the finalAssetPrecision is under 5, the THORChain parser won't fail and we add one exponent at the end so the aggregator contract won't multiply the amount
-  const finalAssetLimitWithTwoLastNumbersAsExponent = `${
-    finalAssetPrecision < maximumPrecision
-      ? finalAssetLimitWithManualSlippage
-      : finalAssetLimitCryptoPrecision.replace('.', '')
-  }${thorAggregatorExponential}`
-
-  // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-  assert(
-    BigInt(finalAssetLimitWithTwoLastNumbersAsExponent) > 0n,
-    'expected finalAssetLimitWithManualSlippage to be a positive amount',
-  )
-
+  // THORChain themselves uses 2 characters but it might collide at some points in the future (https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/aggregators/dex_mainnet_current.go)
   const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 2, aggregator.length)
 
   const shortenedNativeAssetName =
@@ -83,10 +66,7 @@ export const addAggregatorAndDestinationToMemo = ({
 
   assert(shortenedNativeAssetName, 'cannot find shortened native asset name')
 
-  // Thorchain memo format:
-  // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
-  // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
-  const memo = [
+  const memoWithoutMinAmountOut = [
     prefix,
     shortenedNativeAssetName,
     address,
@@ -94,22 +74,17 @@ export const addAggregatorAndDestinationToMemo = ({
     affiliate,
     affiliateBps,
     aggregatorLastTwoChars,
-    finalAssetAddress,
-    finalAssetLimitWithTwoLastNumbersAsExponent,
+    finalAssetAddressShortened,
   ].join(MEMO_PART_DELIMITER)
 
-  const memoBytesLength = new Blob([memo]).size
+  const memoWithShortenedMinAmountOut = makeMemoWithShortenedFinalAssetAmount({
+    maxMemoSize,
+    memoWithoutMinAmountOut,
+    finalAssetLimitWithManualSlippage,
+  })
 
-  // Dogecoin, BTC and LTC only supports 80 bytes memo and we don't want to lose more precision for now
-  // We already check it in the L1ToLongtail handler but paranoia double security as this function is reusable.
-  if (chainNamespace === CHAIN_NAMESPACE.Utxo && sellChainId !== bchChainId) {
-    assert(memoBytesLength < UTXO_MAXIMUM_BYTES_LENGTH, 'memo is too long')
-  }
+  assert(memoWithShortenedMinAmountOut.length <= maxMemoSize, 'memo is too long')
+  console.log(memoWithShortenedMinAmountOut)
 
-  // BCH supports 220 bytes of data
-  if (sellChainId === bchChainId) {
-    assert(memoBytesLength < BCH_MAXIMUM_BYTES_LENGTH, 'memo is too long')
-  }
-
-  return memo
+  return assertAndProcessMemo(memoWithShortenedMinAmountOut)
 }

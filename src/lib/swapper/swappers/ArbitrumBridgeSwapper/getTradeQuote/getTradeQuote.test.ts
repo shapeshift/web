@@ -45,7 +45,7 @@ describe('getTradeQuote', () => {
 
   it('returns a correct ETH deposit quote', async () => {
     const ethBridgerMock = {
-      getDepositRequest: vi.fn().mockResolvedValue({
+      getDepositToRequest: vi.fn().mockResolvedValue({
         txRequest: {
           data: '0x',
           to: '0x',
@@ -161,9 +161,11 @@ describe('getTradeQuote', () => {
     expect(quote.steps[0].source).toBe(SwapperName.ArbitrumBridge)
   })
 
-  it('throws an error if non-EVM chain IDs are used', async () => {
-    await expect(getTradeQuote({ ...commonInput, sellAsset: bitcoin })).rejects.toThrow(
-      'Arbitrum Bridge only supports EVM chains',
+  it('returns an error monad if non-EVM chain IDs are used', async () => {
+    const result = await getTradeQuote({ ...commonInput, sellAsset: bitcoin })
+    expect(result.isErr()).toBe(true)
+    expect(result.unwrapErr().message).toBe(
+      '[ArbitrumBridge: assertValidTrade] - unsupported chainId',
     )
   })
 })

@@ -3,7 +3,7 @@ import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@cha
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -29,11 +29,13 @@ type BodyContent = {
 type ChangeAddressStatusProps = {
   txId: string
   confirmedQuote: RfoxChangeAddressQuote
+  onTxConfirmed: () => Promise<void>
 }
 
 export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddressStatusProps> = ({
   txId,
   confirmedQuote,
+  onTxConfirmed: handleTxConfirmed,
 }) => {
   const history = useHistory()
   const translate = useTranslate()
@@ -55,6 +57,12 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
     [stakingAsset?.explorerTxLink, txId],
   )
   const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+
+  useEffect(() => {
+    if (tx?.status !== TxStatus.Confirmed) return
+
+    handleTxConfirmed()
+  }, [handleTxConfirmed, tx?.status])
 
   const handleGoBack = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Input)

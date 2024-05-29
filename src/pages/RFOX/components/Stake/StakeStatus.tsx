@@ -2,8 +2,9 @@ import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -30,11 +31,14 @@ type BodyContent = {
 type StakeStatusProps = {
   confirmedQuote: RfoxStakingQuote
   txId: string
+  onTxConfirmed: () => Promise<void>
 }
 export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   confirmedQuote,
   txId,
+  onTxConfirmed: handleTxConfirmed,
 }) => {
+  const queryClient = useQueryClient()
   const history = useHistory()
   const translate = useTranslate()
 
@@ -59,6 +63,12 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   }, [txId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
 
   const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+
+  useEffect(() => {
+    if (tx?.status !== TxStatus.Confirmed) return
+
+    handleTxConfirmed()
+  }, [handleTxConfirmed, queryClient, tx?.status])
 
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null

@@ -1,8 +1,16 @@
-import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { useQueryClient } from '@tanstack/react-query'
+import { erc20ABI } from 'contracts/abis/ERC20ABI'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import type { Address } from 'viem'
+import { getAddress } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useReadContract } from 'wagmi'
 
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
@@ -50,6 +58,40 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
   const [stakeTxid, setStakeTxid] = useState<string | undefined>()
 
+  const queryClient = useQueryClient()
+
+  const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'stakingInfo',
+    args: [
+      // actually defined by the time we actually consume the queryKey
+      confirmedQuote
+        ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+        : ('' as Address),
+    ],
+    chainId: arbitrum.id,
+  })
+
+  const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useReadContract({
+    abi: erc20ABI,
+    // actually defined by the time we actually consume the queryKey
+    address: confirmedQuote
+      ? getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference)
+      : ('' as Address),
+    functionName: 'balanceOf',
+    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
+    chainId: arbitrum.id,
+  })
+  const handleTxConfirmed = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+  }, [
+    newContractBalanceOfCryptoBaseUnitQueryKey,
+    queryClient,
+    userStakingBalanceOfCryptoBaseUnitQueryKey,
+  ])
+
   const renderStakeInput = useCallback(() => {
     return (
       <StakeInput
@@ -83,10 +125,11 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
       <StakeStatus
         txId={stakeTxid}
         confirmedQuote={confirmedQuote}
+        onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}
       />
     )
-  }, [confirmedQuote, headerComponent, stakeTxid])
+  }, [confirmedQuote, handleTxConfirmed, headerComponent, stakeTxid])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

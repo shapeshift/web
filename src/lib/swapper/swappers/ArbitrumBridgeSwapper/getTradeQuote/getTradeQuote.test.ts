@@ -23,7 +23,7 @@ vi.mock('lib/utils/evm', () => ({
 
 describe('getTradeQuote', () => {
   const mockAdapter = {
-    getGasFeeData: vi.fn().mockResolvedValue({ fast: { gasPrice: '42' } }),
+    getGasFeeData: vi.fn().mockResolvedValue({ fast: { gasPrice: '42', maxFeePerGas: '42' } }),
   }
   const mockAdapterEth = Object.assign({}, mockAdapter, {
     getFeeAssetId: () => ethAssetId,

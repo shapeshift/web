@@ -2,14 +2,10 @@ import { ethChainId } from '@shapeshiftoss/caip'
 import type {
   GetEvmTradeQuoteInput,
   SingleHopTradeQuoteSteps,
+  SwapErrorRight,
   TradeQuote,
 } from '@shapeshiftoss/swapper'
-import {
-  makeSwapErrorRight,
-  type SwapErrorRight,
-  SwapperName,
-  TradeQuoteError,
-} from '@shapeshiftoss/swapper'
+import { makeSwapErrorRight, SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
@@ -26,21 +22,19 @@ export async function getTradeQuote(
     sellAsset,
     buyAsset,
     accountNumber,
-    affiliateBps,
     supportsEIP1559,
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
   } = input
+
   const assertion = await assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const isDeposit = sellAsset.chainId === ethChainId
 
-  const estimatedExecutionTimeMs = isDeposit
-    ? // 15 minutes for deposits, 7 days for withdrawals
-      15 * 60 * 1000
-    : 7 * 24 * 60 * 60 * 1000
+  // 15 minutes for deposits, 7 days for withdrawals
+  const estimatedExecutionTimeMs = isDeposit ? 15 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
 
   // 1/1 when bridging on Arbitrum bridge
   const rate = '1'
@@ -62,7 +56,7 @@ export async function getTradeQuote(
     return Ok({
       id: uuid(),
       receiveAddress,
-      affiliateBps,
+      affiliateBps: '0',
       potentialAffiliateBps: '0',
       rate,
       slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(

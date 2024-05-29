@@ -1,4 +1,4 @@
-import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
+import { Erc20Bridger, getL2Network } from '@arbitrum/sdk'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
@@ -47,24 +47,18 @@ export const assertValidTrade = async ({
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
   const isTokenBridge = !isEthBridge
 
-  const l2Network = await getL2Network(arbitrum.id)
-  const bridger = isEthBridge ? new EthBridger(l2Network) : new Erc20Bridger(l2Network)
-  const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
-  const erc20L2Address = fromAssetId((isDeposit ? buyAsset : sellAsset).assetId).assetReference
-  const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
-  const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
-
   if (isTokenBridge) {
+    const l2Network = await getL2Network(arbitrum.id)
+    const bridger = new Erc20Bridger(l2Network)
+    const erc20L1Address = fromAssetId((isDeposit ? sellAsset : buyAsset).assetId).assetReference
+    const erc20L2Address = fromAssetId((isDeposit ? buyAsset : sellAsset).assetId).assetReference
+    const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
+    const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+
     // Since our related assets list isn't exhaustive and won't cut it to determine the L1 <-> L2 mapping, we double check that the bridge is valid
     // by checking against Arbitrum bridge's own mappings, which uses different sources (Coingecko, Gemini, Uni and its own lists at the time of writing)
-    const arbitrumBridgeErc20L2Address = await (bridger as Erc20Bridger).getL2ERC20Address(
-      erc20L1Address,
-      l1Provider,
-    )
-    const arbitrumBridgeErc20L1Address = await (bridger as Erc20Bridger).getL1ERC20Address(
-      erc20L2Address,
-      l2Provider,
-    )
+    const arbitrumBridgeErc20L2Address = await bridger.getL2ERC20Address(erc20L1Address, l1Provider)
+    const arbitrumBridgeErc20L1Address = await bridger.getL1ERC20Address(erc20L2Address, l2Provider)
 
     if (!isAddressEqual(getAddress(arbitrumBridgeErc20L1Address), getAddress(erc20L1Address))) {
       return Err(

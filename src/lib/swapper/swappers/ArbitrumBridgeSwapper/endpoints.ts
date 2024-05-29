@@ -1,15 +1,8 @@
-import {
-  type L1ToL2MessageReaderClassic,
-  L1ToL2MessageStatus,
-  L1TransactionReceipt,
-} from '@arbitrum/sdk'
-import type {
-  EthDepositMessage,
-  L1ToL2MessageReader,
-} from '@arbitrum/sdk/dist/lib/message/L1ToL2Message'
+import type { L1ToL2MessageReader, L1ToL2MessageReaderClassic } from '@arbitrum/sdk'
+import { L1ToL2MessageStatus, L1TransactionReceipt } from '@arbitrum/sdk'
 import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type {
   EvmTransactionRequest,
@@ -29,38 +22,35 @@ import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchArbitrumBridgeSwap } from './utils/fetchArbitrumBridgeSwap'
+import { assertValidTrade } from './utils/helpers'
 
 const tradeQuoteMetadata: Map<string, { sellAssetId: AssetId; chainId: EvmChainId }> = new Map()
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/deposits/helpers.ts#L268
 export const getL1ToL2MessageDataFromL1TxHash = async ({
   depositTxId,
-  isEthDeposit,
   l1Provider,
   l2Provider,
   isClassic, // optional: if we already know if tx is classic (eg. through subgraph) then no need to re-check in this fn
 }: {
   depositTxId: string
   l1Provider: Provider
-  isEthDeposit: boolean
   l2Provider: Provider
   isClassic?: boolean
 }): Promise<
   | {
       isClassic?: boolean
-      l1ToL2Msg?: L1ToL2MessageReaderClassic | EthDepositMessage | L1ToL2MessageReader
+      l1ToL2Msg?: L1ToL2MessageReaderClassic | L1ToL2MessageReader
     }
   | undefined
 > => {
   // fetch L1 transaction receipt
   const depositTxReceipt = await l1Provider.getTransactionReceipt(depositTxId)
-
-  if (!depositTxReceipt) {
-    return undefined
-  }
+  if (!depositTxReceipt) return
 
   const l1TxReceipt = new L1TransactionReceipt(depositTxReceipt)
 
+  // classic (pre-nitro) handling
   const getClassicDepositMessage = async () => {
     const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2MessagesClassic(l2Provider)
     return {
@@ -69,18 +59,8 @@ export const getL1ToL2MessageDataFromL1TxHash = async ({
     }
   }
 
+  // post-nitro handling
   const getNitroDepositMessage = async () => {
-    // post-nitro handling
-    if (isEthDeposit) {
-      // nitro eth deposit
-      const [ethDepositMessage] = await l1TxReceipt.getEthDeposits(l2Provider)
-      return {
-        isClassic: false,
-        l1ToL2Msg: ethDepositMessage,
-      }
-    }
-
-    // Else, nitro token deposit
     const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2Messages(l2Provider)
     return {
       isClassic: false,
@@ -88,7 +68,8 @@ export const getL1ToL2MessageDataFromL1TxHash = async ({
     }
   }
 
-  const safeIsClassic = isClassic ?? (await l1TxReceipt.isClassic(l2Provider)) // if it is unknown whether the transaction isClassic or not, fetch the result
+  // if it is unknown whether the transaction isClassic or not, fetch the result
+  const safeIsClassic = isClassic ?? (await l1TxReceipt.isClassic(l2Provider))
 
   if (safeIsClassic) {
     // classic (pre-nitro) deposit - both eth + token
@@ -124,12 +105,13 @@ export const arbitrumBridgeApi: SwapperApi = {
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const step = getHopByIndex(tradeQuote, stepIndex)
-
     if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
 
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
-
     const { receiveAddress } = tradeQuote
+
+    const assertion = await assertValidTrade({ buyAsset, sellAsset })
+    if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 
     const swap = await fetchArbitrumBridgeSwap({
       chainId,
@@ -171,13 +153,11 @@ export const arbitrumBridgeApi: SwapperApi = {
   checkTradeStatus: async ({
     txHash,
     chainId,
-    quoteId,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
     message: string | undefined
   }> => {
-    const sellAssetId = tradeQuoteMetadata.get(quoteId)?.sellAssetId ?? ''
     const swapTxStatus = await checkEvmSwapStatus({ txHash, chainId })
     const isWithdraw = chainId === arbitrumChainId
 
@@ -203,23 +183,26 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
     const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
-    const isEthDeposit = sellAssetId === ethAssetId
     const maybeL1ToL2MessageData = await getL1ToL2MessageDataFromL1TxHash({
       depositTxId: txHash,
-      isEthDeposit,
       l1Provider,
       l2Provider,
     })
     const maybeL1ToL2Msg = maybeL1ToL2MessageData?.l1ToL2Msg
     const maybeBuyTxHash = await (async () => {
-      if (isEthDeposit) return (maybeL1ToL2Msg as EthDepositMessage | undefined)?.l2DepositTxHash
-      const successfulRedeem = await (
-        maybeL1ToL2Msg as L1ToL2MessageReader | undefined
-      )?.getSuccessfulRedeem()
+      if (!maybeL1ToL2Msg) return
 
-      return successfulRedeem?.status === L1ToL2MessageStatus.REDEEMED
-        ? successfulRedeem.l2TxReceipt.transactionHash
-        : undefined
+      if (maybeL1ToL2MessageData?.isClassic) {
+        const msg = maybeL1ToL2Msg as L1ToL2MessageReaderClassic
+        const receipt = await msg.getRetryableCreationReceipt()
+        if (receipt?.status !== L1ToL2MessageStatus.REDEEMED) return
+        return receipt.transactionHash
+      } else {
+        const msg = maybeL1ToL2Msg as L1ToL2MessageReader
+        const successfulRedeem = await msg.getSuccessfulRedeem()
+        if (successfulRedeem.status !== L1ToL2MessageStatus.REDEEMED) return
+        return successfulRedeem.l2TxReceipt.transactionHash
+      }
     })()
 
     if (!maybeBuyTxHash) {

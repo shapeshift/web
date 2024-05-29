@@ -14,7 +14,6 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
 
 import { BRIDGE_TYPE } from '../types'
-import { assertValidTrade } from './helpers'
 
 export type FetchArbitrumBridgeSwapInput = {
   supportsEIP1559: boolean
@@ -26,11 +25,10 @@ export type FetchArbitrumBridgeSwapInput = {
   sendAddress: string
 }
 
-const fetchTokenFallbackGasEstimates = () =>
-  // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
-  // Use hardcoded gas estimate values
-  // Values set by looking at a couple of different ERC-20 deposits
-  bn(240_000)
+// https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
+// Use hardcoded gas estimate values
+// Values set by looking at a couple of different ERC-20 deposits
+const fallbackTokenGasLimit = bn(240_000)
 
 export const fetchArbitrumBridgeSwap = async ({
   chainId,
@@ -45,14 +43,12 @@ export const fetchArbitrumBridgeSwap = async ({
   allowanceContract: string
   networkFeeCryptoBaseUnit: string
 }> => {
-  const assertion = await assertValidTrade({ buyAsset, sellAsset })
-  if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
-
   const adapter = assertGetEvmChainAdapter(chainId)
 
   const l2Network = await getL2Network(arbitrum.id)
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
+
   const bridgeType = (() => {
     if (isDeposit) {
       return isEthBridge ? BRIDGE_TYPE.ETH_DEPOSIT : BRIDGE_TYPE.ERC20_DEPOSIT
@@ -72,21 +68,17 @@ export const fetchArbitrumBridgeSwap = async ({
         l2Provider,
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         from: sendAddress ?? '',
-        destinationAddress: receiveAddress ?? '',
+        destinationAddress: receiveAddress,
       })
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        const feeData = await getFees({
-          adapter,
-          data: request.txRequest.data.toString(),
-          to: request.txRequest.to,
-          value: request.txRequest.value.toString(),
-          from: request.txRequest.from,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      })()
+      const { networkFeeCryptoBaseUnit } = await getFees({
+        adapter,
+        data: request.txRequest.data.toString(),
+        to: request.txRequest.to,
+        value: request.txRequest.value.toString(),
+        from: request.txRequest.from,
+        supportsEIP1559,
+      })
 
       return { request, allowanceContract: '0x0', networkFeeCryptoBaseUnit }
     }
@@ -95,39 +87,34 @@ export const fetchArbitrumBridgeSwap = async ({
 
       const request = await bridger.getWithdrawalRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        destinationAddress: receiveAddress ?? '',
         from: sendAddress ?? '',
+        destinationAddress: receiveAddress,
       })
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        const feeData = await getFees({
-          adapter,
-          data: request.txRequest.data.toString(),
-          to: request.txRequest.to,
-          value: request.txRequest.value.toString(),
-          from: request.txRequest.from,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      })()
+      const { networkFeeCryptoBaseUnit } = await getFees({
+        adapter,
+        data: request.txRequest.data.toString(),
+        to: request.txRequest.to,
+        value: request.txRequest.value.toString(),
+        from: request.txRequest.from,
+        supportsEIP1559,
+      })
 
       return { request, allowanceContract: '0x0', networkFeeCryptoBaseUnit }
     }
     case BRIDGE_TYPE.ERC20_DEPOSIT: {
       const bridger = new Erc20Bridger(l2Network)
-
       const erc20L1Address = fromAssetId(sellAsset.assetId).assetReference
-
       const allowanceContract = await bridger.getL1GatewayAddress(erc20L1Address, l1Provider)
+
       const maybeRequest = await bridger
         .getDepositRequest({
           amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
           l1Provider,
           l2Provider,
           erc20L1Address,
-          destinationAddress: receiveAddress ?? '',
           from: sendAddress ?? '',
+          destinationAddress: receiveAddress,
           retryableGasOverrides: {
             // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L159
             // the gas limit may vary by about 20k due to SSTORE (zero vs nonzero)
@@ -136,17 +123,25 @@ export const fetchArbitrumBridgeSwap = async ({
           },
         })
         .catch(e => {
-          console.error('Error getting withdrawal request', e)
+          console.error('Error getting deposit request', e)
           return undefined
         })
 
       const networkFeeCryptoBaseUnit = await (async () => {
         // Fallback fees
         if (!maybeRequest) {
-          const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
           const { average } = await adapter.getGasFeeData()
-          return estimatedParentChainGas.times(average.gasPrice).toString()
+          const { gasPrice, maxFeePerGas } = average
+
+          // eip1559 fees
+          if (supportsEIP1559 && maxFeePerGas) {
+            return fallbackTokenGasLimit.times(maxFeePerGas).toFixed()
+          }
+
+          // legacy fees
+          return fallbackTokenGasLimit.times(gasPrice).toFixed()
         }
+
         // Actual fees
         const feeData = await getFees({
           adapter,
@@ -160,37 +155,28 @@ export const fetchArbitrumBridgeSwap = async ({
         return feeData.networkFeeCryptoBaseUnit
       })()
 
-      return {
-        request: maybeRequest,
-        networkFeeCryptoBaseUnit,
-        allowanceContract,
-      }
+      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract }
     }
     case BRIDGE_TYPE.ERC20_WITHDRAWAL: {
       const bridger = new Erc20Bridger(l2Network)
-
       const erc20L1Address = fromAssetId(buyAsset.assetId).assetReference
 
       const request = await bridger.getWithdrawalRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
         erc20l1Address: erc20L1Address,
-        destinationAddress: receiveAddress ?? '',
         from: sendAddress ?? '',
+        destinationAddress: receiveAddress,
       })
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        const feeData = await getFees({
-          adapter,
-          data: request.txRequest.data.toString(),
-          to: request.txRequest.to,
-          value: request.txRequest.value.toString(),
-          from: request.txRequest.from,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      })()
+      const { networkFeeCryptoBaseUnit } = await getFees({
+        adapter,
+        data: request.txRequest.data.toString(),
+        to: request.txRequest.to,
+        value: request.txRequest.value.toString(),
+        from: request.txRequest.from,
+        supportsEIP1559,
+      })
 
       return { request, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
     }

@@ -16,10 +16,13 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { BigNumber } from 'ethers5'
+import { reactQueries } from 'react-queries'
+import { selectAllowanceCryptoBaseUnit } from 'react-queries/hooks/selectors'
 import { v4 as uuid } from 'uuid'
 import { arbitrum } from 'viem/chains'
 import { usdcAssetId } from 'components/Modals/FiatRamps/config'
-import { bn } from 'lib/bignumber/bignumber'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFees } from 'lib/utils/evm'
@@ -144,10 +147,48 @@ export async function getTradeQuote(
         // Also, make fetchArbitrumBridgeSwap do the whole check allowance and return either request, or fallback fees in addition to the request
         // which means we'll be able to nuke most of this logic and just consume it here, same as the BRIDGE_TYPE.ETH: case above
         if (isDeposit) {
-          const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
           const allowanceContract = await bridger.getL1GatewayAddress(erc20L1Address, l1Provider)
+          const allowanceCryptoBaseUnitResult = await queryClient.fetchQuery({
+            ...reactQueries.common.allowanceCryptoBaseUnit(
+              sellAsset.assetId,
+              allowanceContract,
+              sendAddress,
+            ),
+          })
+          const allowanceCryptoBaseUnit = selectAllowanceCryptoBaseUnit(
+            allowanceCryptoBaseUnitResult,
+          )
+          const isApprovalNeeded = bnOrZero(allowanceCryptoBaseUnit).lt(
+            bn(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+          )
 
-          const { fast } = await adapter.getGasFeeData()
+          const networkFeeCryptoBaseUnit = await (async () => {
+            // Fallback fees
+            if (isApprovalNeeded) {
+              const estimatedParentChainGas = fetchTokenFallbackGasEstimates()
+              const { fast } = await adapter.getGasFeeData()
+              return estimatedParentChainGas.times(fast.gasPrice).toString()
+            }
+            // Actual fees
+            const request = await bridger.getWithdrawalRequest({
+              amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+              // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
+              erc20l1Address: erc20L1Address,
+              destinationAddress: receiveAddress ?? '',
+              from: sendAddress ?? '',
+            })
+
+            const feeData = await getFees({
+              adapter,
+              data: request.txRequest.data.toString(),
+              to: request.txRequest.to,
+              value: request.txRequest.value.toString(),
+              from: request.txRequest.from,
+              supportsEIP1559,
+            })
+
+            return feeData.networkFeeCryptoBaseUnit
+          })()
 
           return Ok({
             id: uuid(),
@@ -173,7 +214,7 @@ export async function getTradeQuote(
                 sellAmountIncludingProtocolFeesCryptoBaseUnit,
                 feeData: {
                   protocolFees: {},
-                  networkFeeCryptoBaseUnit: estimatedParentChainGas.times(fast.gasPrice).toString(),
+                  networkFeeCryptoBaseUnit,
                 },
                 source: SwapperName.ArbitrumBridge,
               },

@@ -34,11 +34,11 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
   children,
 }) => {
   const isNft = useMemo(() => {
-    return (
+    return Boolean(
       transfersByType &&
-      Object.values(transfersByType)
-        .flat()
-        .some(transfer => !!transfer.id)
+        Object.values(transfersByType)
+          .flat()
+          .some(transfer => !!transfer.id),
     )
   }, [transfersByType])
   const WebIcon = useMemo(() => <LuGlobe />, [])

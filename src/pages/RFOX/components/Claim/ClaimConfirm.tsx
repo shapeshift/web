@@ -103,7 +103,7 @@ export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({
                 <Row.Value>
                   <Skeleton isLoaded={true}>
                     <Row.Value>
-                      <Amount.Fiat value={'1.23' ?? '0.0'} />
+                      <Amount.Fiat value={'1.23'} />
                     </Row.Value>
                   </Skeleton>
                 </Row.Value>

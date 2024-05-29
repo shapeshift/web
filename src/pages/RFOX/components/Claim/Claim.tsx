@@ -45,33 +45,37 @@ export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
 export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
-  const [claimQuote, setClaimQuote] = useState<RfoxClaimQuote | undefined>()
+  const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
   const renderClaimSelect = useCallback(() => {
-    return <ClaimSelect headerComponent={headerComponent} setClaimQuote={setClaimQuote} />
+    return <ClaimSelect headerComponent={headerComponent} setConfirmedQuote={setConfirmedQuote} />
   }, [headerComponent])
 
   const renderClaimConfirm = useCallback(() => {
-    if (!claimQuote) return null
+    if (!confirmedQuote) return null
 
     return (
       <ClaimConfirm
-        claimQuote={claimQuote}
+        claimQuote={confirmedQuote}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
       />
     )
-  }, [claimQuote, headerComponent])
+  }, [confirmedQuote, headerComponent])
 
   const renderClaimStatus = useCallback(() => {
     if (!claimTxid) return null
-    if (!claimQuote) return null
+    if (!confirmedQuote) return null
 
     return (
-      <ClaimStatus txId={claimTxid} headerComponent={headerComponent} confirmedQuote={claimQuote} />
+      <ClaimStatus
+        txId={claimTxid}
+        headerComponent={headerComponent}
+        confirmedQuote={confirmedQuote}
+      />
     )
-  }, [claimQuote, claimTxid, headerComponent])
+  }, [confirmedQuote, claimTxid, headerComponent])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

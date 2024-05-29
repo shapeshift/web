@@ -18,40 +18,48 @@ import type { RfoxClaimQuote } from './types'
 import { ClaimRoutePaths, type ClaimRouteProps } from './types'
 
 type ClaimRowProps = {
-  assetId: AssetId
-  amount: string
+  stakingAssetId: AssetId
+  amountCryptoPrecision: string
   status: string
-  setClaimQuote: (quote: RfoxClaimQuote) => void
+  setConfirmedQuote: (quote: RfoxClaimQuote) => void
 }
 
 const hoverProps = { bg: 'gray.700' }
 
-const ClaimRow: FC<ClaimRowProps> = ({ assetId, amount, status, setClaimQuote }) => {
+const ClaimRow: FC<ClaimRowProps> = ({
+  stakingAssetId: assetId,
+  amountCryptoPrecision,
+  status,
+  setConfirmedQuote,
+}) => {
   const translate = useTranslate()
   const history = useHistory()
 
-  const claimAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const assetSymbol = claimAsset?.symbol
-  const claimAmountCryptoBaseUnit = toBaseUnit(bnOrZero(amount), claimAsset?.precision ?? 0)
+  const stakingAsset = useAppSelector(state => selectAssetById(state, assetId))
+  const stakingAssetSymbol = stakingAsset?.symbol
+  const stakingAmountCryptoBaseUnit = toBaseUnit(
+    bnOrZero(amountCryptoPrecision),
+    stakingAsset?.precision ?? 0,
+  )
 
   // TODO(apotheosis): make this programmatic when we implement multi-account
-  const claimAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, claimAsset?.chainId ?? ''),
+  const stakingAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
   const claimQuote: RfoxClaimQuote = useMemo(
     () => ({
-      claimAssetAccountId: claimAssetAccountId ?? '',
+      claimAssetAccountId: stakingAssetAccountId ?? '',
       claimAssetId: assetId,
-      claimAmountCryptoBaseUnit,
+      claimAmountCryptoBaseUnit: stakingAmountCryptoBaseUnit,
     }),
-    [assetId, claimAmountCryptoBaseUnit, claimAssetAccountId],
+    [assetId, stakingAmountCryptoBaseUnit, stakingAssetAccountId],
   )
 
   const handleClick = useCallback(() => {
-    setClaimQuote(claimQuote)
+    setConfirmedQuote(claimQuote)
     history.push(ClaimRoutePaths.Confirm)
-  }, [claimQuote, history, setClaimQuote])
+  }, [claimQuote, history, setConfirmedQuote])
 
   return (
     <Flex
@@ -71,10 +79,10 @@ const ClaimRow: FC<ClaimRowProps> = ({ assetId, amount, status, setClaimQuote })
       </Box>
       <Box mr={4}>
         <RawText fontSize='sm' color='gray.400' align={'start'}>
-          {translate('RFOX.unstakeFrom', { assetSymbol })}
+          {translate('RFOX.unstakeFrom', { assetSymbol: stakingAssetSymbol })}
         </RawText>
         <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
-          {assetSymbol}
+          {stakingAssetSymbol}
         </RawText>
       </Box>
       <Box flex='1' alignItems={'end'}>
@@ -82,7 +90,7 @@ const ClaimRow: FC<ClaimRowProps> = ({ assetId, amount, status, setClaimQuote })
           {status}
         </RawText>
         <RawText fontSize='xl' fontWeight='bold' color='white' align={'end'}>
-          <Amount.Crypto value={amount} symbol={assetSymbol ?? ''} />
+          <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />
         </RawText>
       </Box>
     </Flex>
@@ -90,12 +98,12 @@ const ClaimRow: FC<ClaimRowProps> = ({ assetId, amount, status, setClaimQuote })
 }
 
 type ClaimSelectProps = {
-  setClaimQuote: (quote: RfoxClaimQuote) => void
+  setConfirmedQuote: (quote: RfoxClaimQuote) => void
 }
 
 export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   headerComponent,
-  setClaimQuote,
+  setConfirmedQuote,
 }) => {
   return (
     <SlideTransition>
@@ -103,16 +111,16 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       <CardBody py={12}>
         <Flex flexDir='column' gap={4}>
           <ClaimRow
-            assetId={foxAssetId}
-            amount={'1500'}
+            stakingAssetId={foxAssetId}
+            amountCryptoPrecision={'1500'}
             status={'Available'}
-            setClaimQuote={setClaimQuote}
+            setConfirmedQuote={setConfirmedQuote}
           />
           <ClaimRow
-            assetId={foxAssetId}
-            amount={'200'}
+            stakingAssetId={foxAssetId}
+            amountCryptoPrecision={'200'}
             status={'Available'}
-            setClaimQuote={setClaimQuote}
+            setConfirmedQuote={setConfirmedQuote}
           />
         </Flex>
       </CardBody>

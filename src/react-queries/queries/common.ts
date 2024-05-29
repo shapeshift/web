@@ -32,6 +32,11 @@ export const common = createQueryKeys('common', {
 
       const { chainId, assetReference } = fromAssetId(assetId)
 
+      // 0x0 is used as a placeholder for the special case of token swaps that do not require an approval, as the network automagically handles the transfer at chain-level
+      // e.g Arbitrum Bridge token withdraws, or Gnosis bridge swaps out of Gnosis chains are examples of chains with such magic
+      if (spender === '0x0') {
+        return Err(GetAllowanceErr.ZeroAddress)
+      }
       if (!evmChainIds.includes(chainId as EvmChainId)) {
         return Err(GetAllowanceErr.NotEVMChain)
       }

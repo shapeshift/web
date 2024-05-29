@@ -164,8 +164,6 @@ export const handleSend = async ({
           contractAddress,
           gasLimit,
           ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-          l1GasPrice: fees.chainSpecific.l1GasPrice,
-          l1GasLimit: fees.chainSpecific.l1GasLimit,
         },
         sendMax: sendInput.sendMax,
         customNonce: sendInput.customNonce,

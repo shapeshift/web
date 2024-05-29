@@ -73,6 +73,7 @@ export const validateTradeQuote = async (
         case SwapperTradeQuoteError.NoRouteFound:
         case SwapperTradeQuoteError.TradingHalted:
         case SwapperTradeQuoteError.SellAmountBelowTradeFee:
+        case SwapperTradeQuoteError.RateLimitExceeded:
           // no metadata associated with this error
           return { error: errorCode }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {

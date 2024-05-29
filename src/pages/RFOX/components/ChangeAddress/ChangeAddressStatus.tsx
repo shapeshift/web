@@ -1,21 +1,16 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { SlideTransition } from 'components/SlideTransition'
-import { SlideTransitionY } from 'components/SlideTransitionY'
-import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getTxLink } from 'lib/getTxLink'
 import { selectAssetById, selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import { SharedStatus } from '../Shared/SharedStatus'
 import type { RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
@@ -38,7 +33,6 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
   onTxConfirmed: handleTxConfirmed,
 }) => {
   const history = useHistory()
-  const translate = useTranslate()
 
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
@@ -97,31 +91,5 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
     }
   }, [tx?.status])
 
-  return (
-    <SlideTransition>
-      {bodyContent && (
-        <AnimatePresence mode='wait'>
-          <SlideTransitionY key={bodyContent.key}>
-            <CardBody py={12}>
-              <Center flexDir='column' gap={4}>
-                {bodyContent.element}
-                <Stack spacing={0} alignItems='center'>
-                  <Heading as='h4'>{translate(bodyContent.title)}</Heading>
-                  <Text translation={bodyContent.body} textAlign='center' mt={2} />
-                </Stack>
-              </Center>
-            </CardBody>
-          </SlideTransitionY>
-        </AnimatePresence>
-      )}
-      <CardFooter flexDir='column' gap={2}>
-        <Button as={Link} href={txLink} size='lg' variant='ghost' isExternal>
-          {translate('trade.viewTransaction')}
-        </Button>
-        <Button size='lg' colorScheme='blue' onClick={handleGoBack}>
-          {translate('common.goBack')}
-        </Button>
-      </CardFooter>
-    </SlideTransition>
-  )
+  return <SharedStatus onBack={handleGoBack} txLink={txLink} body={bodyContent} />
 }

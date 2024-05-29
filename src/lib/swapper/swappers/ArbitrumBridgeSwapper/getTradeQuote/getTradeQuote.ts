@@ -1,4 +1,4 @@
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import type {
   GetEvmTradeQuoteInput,
   SingleHopTradeQuoteSteps,
@@ -14,13 +14,9 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { v4 as uuid } from 'uuid'
-import { usdcAssetId } from 'components/Modals/FiatRamps/config'
 
-import { BRIDGE_TYPE } from '../types'
 import { fetchArbitrumBridgeSwap } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
-
-const usdcOnArbitrumAssetId = 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -40,8 +36,6 @@ export async function getTradeQuote(
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const isDeposit = sellAsset.chainId === ethChainId
-  const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
-  const bridgeType = isEthBridge ? BRIDGE_TYPE.ETH : BRIDGE_TYPE.ERC20
 
   const estimatedExecutionTimeMs = isDeposit
     ? // 15 minutes for deposits, 7 days for withdrawals
@@ -64,14 +58,6 @@ export async function getTradeQuote(
 
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
     const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
-
-    if (
-      bridgeType === BRIDGE_TYPE.ERC20 &&
-      (sellAsset.assetId === usdcAssetId || sellAsset.assetId === usdcOnArbitrumAssetId)
-    ) {
-      // https://www.circle.com/en/cross-chain-transfer-protocol
-      throw new Error('cctp not implemented')
-    }
 
     return Ok({
       id: uuid(),

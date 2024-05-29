@@ -1,9 +1,7 @@
-import { InfoIcon } from '@chakra-ui/icons'
 import {
   Button,
   Flex,
   HStack,
-  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -34,7 +32,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-const infoIcon = <InfoIcon />
 const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 const ConnectedChain = ({
@@ -79,10 +76,6 @@ export const ManageAccountsModal = () => {
     onClose: handleDrawerClose,
   } = useDisclosure()
   const wallet = useWallet().state.wallet
-
-  const handleInfoClick = useCallback(() => {
-    console.log('info clicked')
-  }, [])
 
   const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
@@ -132,16 +125,19 @@ export const ManageAccountsModal = () => {
                 : translate('accountManagement.manageAccounts.description')}
             </RawText>
           </ModalHeader>
-          <IconButton
-            aria-label='Info'
-            icon={infoIcon}
-            variant='ghost'
-            position='absolute'
-            top={3}
-            left={3}
-            size='sm'
-            onClick={handleInfoClick}
-          />
+          {/* 
+            Hidden until there is content to display
+            <IconButton
+              aria-label='Info'
+              icon={infoIcon}
+              variant='ghost'
+              position='absolute'
+              top={3}
+              left={3}
+              size='sm'
+              onClick={handleInfoClick}
+            /> 
+          */}
           <ModalCloseButton position='absolute' top={3} right={3} />
           {walletConnectedChainIdsSorted.length > 0 && (
             <ModalBody maxH='400px' overflowY='auto'>

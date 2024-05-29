@@ -6,6 +6,8 @@ import type { ChainId } from '../../chainId/chainId'
 import {
   avalancheAssetId,
   avalancheChainId,
+  baseAssetId,
+  baseChainId,
   bscChainId,
   btcAssetId,
   btcChainId,
@@ -36,6 +38,7 @@ const AssetIdToBanxaTickerMap = {
   [optimismAssetId]: 'eth',
   [polygonAssetId]: 'matic',
   [thorchainAssetId]: 'rune',
+  [baseAssetId]: 'eth',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',
@@ -63,6 +66,8 @@ const AssetIdToBanxaTickerMap = {
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': 'usdt',
   'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': 'wbtc',
   'eip155:1/erc20:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e': 'yfi',
+  'eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913': 'usdc',
+  'eip155:8453/erc20:0x50c5725949a6f0c72e6c4a641f24049a917db0cb': 'dai',
 } as Record<AssetId, string>
 
 export const getSupportedBanxaAssets = () =>
@@ -91,6 +96,7 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
   [avalancheChainId]: 'AVAX-C', // note - the AVAX-C chain is not the same as the AVAX "ticker" on the banxa side
   [optimismChainId]: 'OPTIMISM',
   [polygonChainId]: 'MATIC',
+  [baseChainId]: 'BASE',
   [thorchainChainId]: 'THORCHAIN',
 } as const
 

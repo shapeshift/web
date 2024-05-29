@@ -7,8 +7,22 @@ export const foxStakingV1Abi = [
   {
     type: 'function',
     inputs: [],
+    name: 'REWARD_RATE',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'UPGRADE_INTERFACE_VERSION',
     outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'WAD',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -27,9 +41,9 @@ export const foxStakingV1Abi = [
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'foxToken',
-    outputs: [{ name: '', internalType: 'contract IERC20', type: 'address' }],
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'earned',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -38,11 +52,11 @@ export const foxStakingV1Abi = [
       { name: 'account', internalType: 'address', type: 'address' },
       { name: 'index', internalType: 'uint256', type: 'uint256' },
     ],
-    name: 'getUnstakingInfo',
+    name: 'getUnstakingRequest',
     outputs: [
       {
         name: '',
-        internalType: 'struct UnstakingInfo',
+        internalType: 'struct UnstakingRequest',
         type: 'tuple',
         components: [
           {
@@ -59,16 +73,23 @@ export const foxStakingV1Abi = [
   {
     type: 'function',
     inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
-    name: 'getUnstakingInfoCount',
+    name: 'getUnstakingRequestCount',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [{ name: 'foxTokenAddress', internalType: 'address', type: 'address' }],
+    inputs: [{ name: 'stakingTokenAddress', internalType: 'address', type: 'address' }],
     name: 'initialize',
     outputs: [],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lastUpdateTimestamp',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -128,6 +149,20 @@ export const foxStakingV1Abi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'rewardPerToken',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'rewardPerTokenStored',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'newCooldownPeriod', internalType: 'uint256', type: 'uint256' }],
     name: 'setCooldownPeriod',
     outputs: [],
@@ -157,6 +192,12 @@ export const foxStakingV1Abi = [
     outputs: [
       { name: 'stakingBalance', internalType: 'uint256', type: 'uint256' },
       { name: 'unstakingBalance', internalType: 'uint256', type: 'uint256' },
+      { name: 'earnedRewards', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'rewardPerTokenStored',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
       { name: 'runeAddress', internalType: 'string', type: 'string' },
     ],
     stateMutability: 'view',
@@ -166,6 +207,27 @@ export const foxStakingV1Abi = [
     inputs: [],
     name: 'stakingPaused',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'stakingToken',
+    outputs: [{ name: '', internalType: 'contract IERC20', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalCoolingDown',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalStaked',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -464,6 +526,7 @@ export const foxStakingV1Abi = [
     inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
     name: 'OwnableUnauthorizedAccount',
   },
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
   {
     type: 'error',
     inputs: [{ name: 'token', internalType: 'address', type: 'address' }],

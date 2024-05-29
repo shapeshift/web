@@ -132,6 +132,8 @@ export const arbitrumBridgeApi: SwapperApi = {
     const { receiveAddress } = tradeQuote
 
     const swap = await fetchArbitrumBridgeSwap({
+      chainId,
+      supportsEIP1559,
       buyAsset,
       receiveAddress,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -139,9 +141,13 @@ export const arbitrumBridgeApi: SwapperApi = {
       sendAddress: from,
     })
 
+    const { request } = swap
+
+    if (!request) throw new Error('No request data found')
+
     const {
       txRequest: { data, value, to },
-    } = swap
+    } = request
 
     const feeData = await getFees({
       adapter: assertGetEvmChainAdapter(chainId),

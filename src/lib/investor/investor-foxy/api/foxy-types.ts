@@ -145,3 +145,10 @@ export type CanClaimWithdrawParams = {
   contractAddress: string
   userAddress: string
 }
+
+export type Epoch = {
+  length: BigInt
+  number: BigInt
+  endBlock: BigInt
+  distribute: BigInt
+}

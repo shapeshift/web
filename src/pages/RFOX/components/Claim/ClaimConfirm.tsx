@@ -10,6 +10,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -19,6 +20,7 @@ import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { fromBaseUnit } from 'lib/math'
+import { firstFourLastFour } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -78,6 +80,11 @@ export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({
     history.push(ClaimRoutePaths.Status)
   }, [history, setClaimTxid])
 
+  const claimAssetAccountAddress = useMemo(
+    () => fromAccountId(claimQuote.claimAssetAccountId).account,
+    [claimQuote.claimAssetAccountId],
+  )
+
   return (
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
@@ -94,7 +101,7 @@ export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.claimReceiveAddress')}</Row.Label>
-                <Row.Value>0xSomething</Row.Value>
+                <Row.Value>{firstFourLastFour(claimAssetAccountAddress)}</Row.Value>
               </CustomRow>
             </TimelineItem>
             <TimelineItem>

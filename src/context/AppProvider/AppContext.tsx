@@ -98,8 +98,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
   }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet])
 
+  // Initial account and portfolio fetch for non-ledger wallets
   useEffect(() => {
-    if (!wallet || isLedger(wallet)) return
+    // Skip if wallet is ledger, or if wallet is already connected to accounts - prevents this overriding user selection in account management
+    if (!wallet || isLedger(wallet) || requestedAccountIds.length > 0) return
     ;(async () => {
       let chainIds = Array.from(supportedChains).filter(chainId => {
         return walletDeviceSupportsChain({ chainId, wallet, isSnapInstalled })
@@ -183,7 +185,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(portfolio.actions.enableAccountId(accountId))
       }
     })()
-  }, [dispatch, wallet, supportedChains, isSnapInstalled])
+  }, [dispatch, wallet, supportedChains, isSnapInstalled, requestedAccountIds.length])
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return

@@ -105,6 +105,9 @@ export const ManageAccountsModal = () => {
 
   const disableAddChain = walletConnectedChainIdsSorted.length >= availableChainIds.length
 
+  // don't allow users to close the modal until at least one chain is connected
+  const disableClose = walletConnectedChainIdsSorted.length === 0
+
   return (
     <>
       <ManageAccountsDrawer
@@ -112,7 +115,14 @@ export const ManageAccountsModal = () => {
         onClose={handleDrawerClose}
         chainId={selectedChainId}
       />
-      <Modal isOpen={isOpen} onClose={close} isCentered size='md'>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={close}
+        isCentered
+        size='md'
+        closeOnOverlayClick={!disableClose}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader textAlign='left' pt={14}>
@@ -138,7 +148,7 @@ export const ManageAccountsModal = () => {
               onClick={handleInfoClick}
             /> 
           */}
-          <ModalCloseButton position='absolute' top={3} right={3} />
+          <ModalCloseButton position='absolute' top={3} right={3} isDisabled={disableClose} />
           {walletConnectedChainIdsSorted.length > 0 && (
             <ModalBody maxH='400px' overflowY='auto'>
               <VStack spacing={2} width='full'>
@@ -165,7 +175,8 @@ export const ManageAccountsModal = () => {
                 size='lg'
                 colorScheme='gray'
                 onClick={close}
-                isDisabled={isDrawerOpen}
+                // don't allow users to close the modal until at least one chain is connected
+                isDisabled={isDrawerOpen || disableClose}
                 width='full'
               >
                 {translate('common.done')}

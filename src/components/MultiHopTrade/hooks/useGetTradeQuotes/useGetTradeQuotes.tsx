@@ -3,8 +3,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useEffect, useMemo, useState } from 'react'
-import { getTradeQuoteArgs } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteArgs'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -14,11 +14,12 @@ import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
 import { isThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isSome } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper'
-import { GET_TRADE_QUOTE_POLLING_INTERVAL, swapperApi } from 'state/apis/swapper/swapperApi'
+import { swapperApi } from 'state/apis/swapper/swapperApi'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -38,7 +39,7 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import type { SwapperTradeQuoteCommonArgs } from './hooks.tsx/useGetSwapperTradeQuote'
+import type { UseGetSwapperTradeQuoteArgs } from './hooks.tsx/useGetSwapperTradeQuote'
 import { useGetSwapperTradeQuote } from './hooks.tsx/useGetSwapperTradeQuote'
 
 type MixPanelQuoteMeta = {
@@ -218,7 +219,7 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteArgs({
+      const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
         sellAsset,
         sellAccountNumber,
         receiveAccountNumber,
@@ -254,20 +255,25 @@ export const useGetTradeQuotes = () => {
     isBuyAssetChainSupported,
   ])
 
-  const commonTradeQuoteArgs: SwapperTradeQuoteCommonArgs = useMemo(() => {
-    return {
-      tradeQuoteInput,
-      skip: !shouldRefetchTradeQuotes,
-      pollingInterval: GET_TRADE_QUOTE_POLLING_INTERVAL,
-    }
-  }, [shouldRefetchTradeQuotes, tradeQuoteInput])
+  const getTradeQuoteArgs = useCallback(
+    (swapperName: SwapperName): UseGetSwapperTradeQuoteArgs => {
+      return {
+        swapperName,
+        tradeQuoteInput,
+        skip: !shouldRefetchTradeQuotes,
+        pollingInterval:
+          swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+      }
+    },
+    [shouldRefetchTradeQuotes, tradeQuoteInput],
+  )
 
-  useGetSwapperTradeQuote(SwapperName.CowSwap, commonTradeQuoteArgs)
-  useGetSwapperTradeQuote(SwapperName.OneInch, commonTradeQuoteArgs)
-  useGetSwapperTradeQuote(SwapperName.ArbitrumBridge, commonTradeQuoteArgs)
-  useGetSwapperTradeQuote(SwapperName.LIFI, commonTradeQuoteArgs)
-  useGetSwapperTradeQuote(SwapperName.Thorchain, commonTradeQuoteArgs)
-  useGetSwapperTradeQuote(SwapperName.Zrx, commonTradeQuoteArgs)
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.OneInch))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

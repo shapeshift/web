@@ -1,5 +1,4 @@
 import assert from 'assert'
-import { toBaseUnit } from 'lib/math'
 import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 
 import { MEMO_PART_DELIMITER } from './constants'
@@ -12,22 +11,6 @@ export const AGGREGATOR_EXPONENT_LENGTH = 2
 // THORChain uses `big.ParseFloat` with `0` as a precision, resulting in a precision of 18 without the integer part
 // https://gitlab.com/thorchain/thornode/-/blob/v1.131.0/x/thorchain/memo/memo_parser.go#L190
 export const THORCHAIN_PARSER_MAXIMUM_PRECISION = 18
-
-// Allows us to convert a THORChain parser value back to its base unit
-// for testing purposes
-export const thorchainParserToBaseUnit = (thorchainParserValue: string) => {
-  if (thorchainParserValue.length < 3) {
-    throw new Error('Number too short to contain an exponent.')
-  }
-
-  const exponent = parseInt(thorchainParserValue.slice(-2), 10)
-
-  const baseNumber = thorchainParserValue.slice(0, -2)
-
-  const fullNumber = toBaseUnit(baseNumber, exponent === 1 ? 0 : exponent)
-
-  return fullNumber
-}
 
 export const makeMemoWithShortenedFinalAssetAmount = ({
   maxMemoSize,
@@ -56,10 +39,18 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
   const shortenedMinAmountOutLength =
     finalAssetLimitWithManualSlippage.length + AGGREGATOR_EXPONENT_LENGTH - excessBytesToTrim
 
-  // THORChain parser uses big.ParseFloat with `0` as a precision, resulting in a precision of 18 + the integer part, so we can't more than 19 characters
+  // THORChain parser uses big.ParseFloat with `0` as a precision, resulting in a precision of 18 + the integer part, so we can't have more than 19 characters
   // https://gitlab.com/thorchain/thornode/-/blob/v1.131.0/x/thorchain/memo/memo_parser.go#L190
   if (shortenedMinAmountOutLength > THORCHAIN_PARSER_MAXIMUM_PRECISION + 1) {
     excessBytesToTrim += shortenedMinAmountOutLength - (THORCHAIN_PARSER_MAXIMUM_PRECISION + 1)
+  } else if (
+    shortenedMinAmountOutLength <= THORCHAIN_PARSER_MAXIMUM_PRECISION + 1 &&
+    // Only add one byte if we don't trim for another reason before
+    !excessBytesToTrim
+  ) {
+    // If the length is less than the maximum precision, we need to remove one byte to the final asset amount because we absolutely need to add an exponent
+    // or the aggregator will multiply the number by 10 and then it will revert due to an higher expected amount than we can receive
+    excessBytesToTrim += 1
   }
 
   const shortenedAmountOut = finalAssetLimitWithManualSlippage.substring(
@@ -77,23 +68,21 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
     ? `0${excessBytesToTrim > 0 ? excessBytesToTrim : '1'}`
     : excessBytesToTrim.toString()
 
-  console.log(thorAggregatorExponential, 'thorAggregatorExponential yolo')
-
-  assert(thorAggregatorExponential.length === 2, 'expected exponent to be 2 numbers')
+  assert(thorAggregatorExponential.length === 2, 'expected exponent to be 2 digits')
 
   // The THORChain aggregators expects this amount to be an exponent, we need to add two numbers at the end which are used at exponents in the contract
-  const finalAssetLimitWithTwoLastNumbersAsExponent = `${shortenedAmountOut}${thorAggregatorExponential}`
+  const shortenedAmountOutWithTwoLastNumbersAsExponent = `${shortenedAmountOut}${thorAggregatorExponential}`
 
   // Thorchain memo format:
   // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
   // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
   const potentialMemo = [
     ...memoArrayWithoutMinAmountOut,
-    finalAssetLimitWithTwoLastNumbersAsExponent,
+    shortenedAmountOutWithTwoLastNumbersAsExponent,
   ].join(MEMO_PART_DELIMITER)
 
   assert(
-    finalAssetLimitWithTwoLastNumbersAsExponent.length <= THORCHAIN_PARSER_MAXIMUM_PRECISION + 1,
+    shortenedAmountOutWithTwoLastNumbersAsExponent.length <= THORCHAIN_PARSER_MAXIMUM_PRECISION + 1,
     'expected shortenedAmountOut length to be less than thorchain maximum precision',
   )
 

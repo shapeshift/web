@@ -1,4 +1,4 @@
-import { btcChainId, dogeChainId, ethChainId } from '@shapeshiftoss/caip'
+import { btcChainId, dogeChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { getMaxBytesLengthByChainId } from '../constants'
@@ -9,13 +9,19 @@ const BIG_ADDRESS = '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb632DBc9Cf9E8FbCebE
 const REALLY_BIG_ADDRESS =
   '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb632DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb632DBc9Cf9E8Fb1bE1e0a2ecF05Ed86Ca3096Cb632DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb632DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6'
 
-const FINAL_ASSET_CONTRACT_ADDRESS = '0x8a65ac0E23F31979db06Ec62Af62b132a6dF4741'
-const COLLIDING_FINAL_ASSET_CONTRACT_ADDRESS = '0xa0b86991c6218b36c1d19d4a2e9eb0ce36dF4741'
+const COLLIDING_FINAL_ASSETID = toAssetId({
+  chainId: ethChainId,
+  assetReference: '0xa0b86991c6218b36c1d19d4a2e9eb0ce36dF4741',
+  assetNamespace: 'erc20',
+})
 
-const FINAL_ASSETID = `eip155:1/erc20:${FINAL_ASSET_CONTRACT_ADDRESS}`
-const COLLIDING_FINAL_ASSETID = `eip155:1/erc20:${COLLIDING_FINAL_ASSET_CONTRACT_ADDRESS}`
+const FINAL_ASSET_CONTRACT_ASSETID = toAssetId({
+  chainId: ethChainId,
+  assetReference: '0x8a65ac0E23F31979db06Ec62Af62b432a6dF4741',
+  assetNamespace: 'erc20',
+})
 
-const THORCHAIN_ASSETIDS_ONE_COLLISION = [FINAL_ASSETID, COLLIDING_FINAL_ASSETID]
+const THORCHAIN_ASSETIDS_ONE_COLLISION = [FINAL_ASSET_CONTRACT_ASSETID, COLLIDING_FINAL_ASSETID]
 
 const slippageBps = 100 // 1%
 
@@ -28,15 +34,15 @@ describe('addL1ToLongtailPartsToMemo', () => {
       sellChainId: ethChainId,
       quotedMemo,
       aggregator: AGGREGATOR_ADDRESS,
-      finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ADDRESS,
+      finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
       finalAssetAmountOut,
       slippageBps,
       longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
     })
 
     expect(modifiedMemo).toBe(
-      // The aggregator will turn the finalAssetAmountOut from 941367142801 to 9413671428 using the last 2 bytes as exponents
-      `=:e:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:42:ss:100:d2:a6df4741:941367142801`,
+      // The aggregator will turn the finalAssetAmountOut from 94136714201 to 9413671420 using the last 2 bytes as exponents
+      `=:e:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:42:ss:100:d2:a6df4741:94136714201`,
     )
   })
 
@@ -51,12 +57,12 @@ describe('addL1ToLongtailPartsToMemo', () => {
         sellChainId: dogeChainId,
         quotedMemo: memoOver220Bytes,
         aggregator: AGGREGATOR_ADDRESS,
-        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ADDRESS,
+        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
       }),
-    ).toThrow('expected exponent to be 2 numbers')
+    ).toThrow('expected exponent to be 2 digits')
   })
 
   it('should throw if chainId is BTC and memo length is > 80', () => {
@@ -70,7 +76,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         sellChainId: btcChainId,
         quotedMemo: memoOver80Bytes,
         aggregator: AGGREGATOR_ADDRESS,
-        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ADDRESS,
+        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
@@ -90,7 +96,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         sellChainId: dogeChainId,
         quotedMemo: memoOver80Bytes,
         aggregator: AGGREGATOR_ADDRESS,
-        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ADDRESS,
+        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
@@ -108,7 +114,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
       sellChainId: dogeChainId,
       quotedMemo,
       aggregator: AGGREGATOR_ADDRESS,
-      finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ADDRESS,
+      finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
       finalAssetAmountOut,
       slippageBps,
       longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,

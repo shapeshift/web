@@ -1,4 +1,4 @@
-import { type AssetId, type ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, type ChainId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
@@ -74,13 +74,14 @@ export const addL1ToLongtailPartsToMemo = ({
     finalAssetContractAddressShortened,
   ].join(MEMO_PART_DELIMITER)
 
-  const memoWithShortenedMinAmountOut = makeMemoWithShortenedFinalAssetAmount({
+  const memoWithShortenedFinalAssetAmountOut = makeMemoWithShortenedFinalAssetAmount({
     maxMemoSize,
     memoWithoutFinalAssetAmountOut,
     finalAssetLimitWithManualSlippage,
   })
 
-  assert(memoWithShortenedMinAmountOut.length <= maxMemoSize, 'memo is too long')
+  assert(memoWithShortenedFinalAssetAmountOut.length <= maxMemoSize, 'memo is too long')
+  console.log(memoWithShortenedFinalAssetAmountOut)
 
-  return assertAndProcessMemo(memoWithShortenedMinAmountOut)
+  return assertAndProcessMemo(memoWithShortenedFinalAssetAmountOut)
 }

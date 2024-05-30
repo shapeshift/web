@@ -49,7 +49,7 @@ export const selectEvmAccountIds = createDeepEqualOutputSelector(
   accountIds => accountIds.filter(accountId => isEvmChainId(fromAccountId(accountId).chainId)),
 )
 
-export const selectWalletChainIds = createDeepEqualOutputSelector(
+export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   accountIds => {
     const chainIds = accountIds.reduce<ChainId[]>((acc, accountId) => {
@@ -213,7 +213,7 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
 )
 
 export const selectHighestMarketCapFeeAsset = createSelector(
-  selectWalletChainIds,
+  selectWalletConnectedChainIds,
   selectMarketDataUsd,
   selectAssets,
   (walletChainIds, marketDataUsd, assetsById): Asset | undefined => {

@@ -91,7 +91,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   useEffect(() => {
-    if (!wallet || isLedger(wallet)) return
+    if (!wallet) return
     const walletSupportedChainIds = knownChainIds.filter(chainId => {
       return walletDeviceSupportsChain({ chainId, wallet, isSnapInstalled })
     })

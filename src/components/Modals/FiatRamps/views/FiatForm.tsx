@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -12,9 +12,12 @@ import { parseAddressInputWithChainId } from 'lib/address/address'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceAndName,
+  selectHighestMarketCapFeeAsset,
   selectPortfolioAccountMetadata,
   selectWalletAccountIds,
+  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { FiatRampAction } from '../FiatRampsCommon'
 import { Overview } from './Overview'
@@ -22,7 +25,7 @@ import { Overview } from './Overview'
 type AddressesByAccountId = PartialRecord<AccountId, Partial<ParseAddressInputReturn>>
 
 type FiatFormProps = {
-  assetId: AssetId
+  assetId?: AssetId
   fiatRampAction: FiatRampAction
   accountId?: AccountId
 }
@@ -38,6 +41,18 @@ export const FiatForm: React.FC<FiatFormProps> = ({
   const [accountId, setAccountId] = useState<AccountId | undefined>(selectedAccountId)
   const [addressByAccountId, setAddressByAccountId] = useState<AddressesByAccountId>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
+
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
+
+  // If the user disconnects the chain for the currently selected asset, switch to the default asset
+  useEffect(() => {
+    if (!selectedAssetId) return
+    const { chainId } = fromAssetId(selectedAssetId)
+    if (!walletConnectedChainIds.includes(chainId)) {
+      setSelectedAssetId(defaultAsset?.assetId)
+    }
+  }, [defaultAsset?.assetId, selectedAssetId, walletConnectedChainIds])
 
   const {
     state: { wallet, isDemoWallet },
@@ -141,7 +156,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
 
   return (
     <Overview
-      assetId={selectedAssetId ?? assetId}
+      assetId={selectedAssetId ?? assetId ?? defaultAsset?.assetId ?? ethAssetId}
       handleIsSelectingAsset={handleIsSelectingAsset}
       defaultAction={fiatRampAction}
       address={address}

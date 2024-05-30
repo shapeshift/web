@@ -59,11 +59,13 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
   selectHasUserEnteredAmount,
+  selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
   selectInputSellAsset,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
+  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -208,6 +210,18 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     () => dispatch(tradeInput.actions.switchAssets()),
     [dispatch],
   )
+
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
+
+  // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
+  useEffect(() => {
+    if (!defaultAsset) return
+
+    if (!walletConnectedChainIds.includes(sellAsset.chainId)) {
+      setSellAsset(defaultAsset)
+    }
+  }, [defaultAsset, sellAsset, setSellAsset, walletConnectedChainIds])
 
   useEffect(() => {
     // WARNING: do not remove.

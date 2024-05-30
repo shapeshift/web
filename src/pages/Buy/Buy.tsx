@@ -1,7 +1,6 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Card, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,7 +18,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { selectFiatRampChainCount } from 'state/apis/fiatRamps/selectors'
-import { selectHighestMarketCapFeeAsset } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 import { PageContainer } from './components/PageContainer'
@@ -50,7 +48,7 @@ export const Buy = () => {
 
   const { chainId, assetSubId } = useParams<MatchParams>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
-  const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
+
   const {
     dispatch,
     state: { isConnected, isDemoWallet },
@@ -120,10 +118,7 @@ export const Buy = () => {
             </Flex>
             <Box flexBasis='400px'>
               <Card bg='background.surface.base' mx={cardMxOffsetBase}>
-                <FiatForm
-                  assetId={selectedAssetId ?? defaultAsset?.assetId ?? ethAssetId}
-                  fiatRampAction={FiatRampAction.Buy}
-                />
+                <FiatForm assetId={selectedAssetId} fiatRampAction={FiatRampAction.Buy} />
               </Card>
             </Box>
           </Flex>

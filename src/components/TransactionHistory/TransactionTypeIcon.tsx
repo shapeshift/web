@@ -13,7 +13,7 @@ const IconWrapper: React.FC<CenterProps> = props => (
   <Center borderRadius='full' boxSize='100%' {...props} />
 )
 
-export const TransactionTypeIcon = ({ type, status }: { type: string; status: TxStatus }) => {
+export const TransactionTypeIcon = ({ type, status }: { type?: string; status?: TxStatus }) => {
   if (status === TxStatus.Pending) {
     return (
       <IconWrapper bg='border.base'>

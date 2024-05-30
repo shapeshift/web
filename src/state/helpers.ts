@@ -10,7 +10,9 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
+    case SwapperName.ArbitrumBridge:
     case SwapperName.Test:
+      // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
     default:
       assertUnreachable(swapperName)

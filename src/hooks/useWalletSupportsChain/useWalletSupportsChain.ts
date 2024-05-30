@@ -39,25 +39,26 @@ import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/sel
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
-type WalletSupportsChainArgs = {
+type WalletDeviceSupportsChainArgs = {
   isSnapInstalled: boolean | null
-  chainAccountIds: AccountId[] // allows dynamic chain-support detection for Ledger
   chainId: ChainId
   wallet: HDWallet | null
 }
 
+type WalletSupportsChainArgs = {
+  chainAccountIds: AccountId[] // allows dynamic chain-support detection for Ledger
+} & WalletDeviceSupportsChainArgs
+
 // use outside react
-export const walletSupportsChain = ({
+export const walletDeviceSupportsChain = ({
   chainId,
-  chainAccountIds,
   wallet,
   isSnapInstalled,
-}: WalletSupportsChainArgs): boolean | null => {
+}: WalletDeviceSupportsChainArgs): boolean | null => {
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed, or a wallet without connected chain account ids (meaning the user didn't connect said chain's accounts)
   const hasRuntimeSupport = (() => {
-    if (!chainAccountIds.length) return false
     // Non-EVM ChainIds are only supported with the MM multichain snap installed
     if (isMetaMask(wallet) && !isSnapInstalled && !isEvmChainId(chainId)) return false
 
@@ -104,6 +105,22 @@ export const walletSupportsChain = ({
       return false
     }
   }
+}
+
+export const walletSupportsChain = ({
+  chainId,
+  chainAccountIds,
+  wallet,
+  isSnapInstalled,
+}: WalletSupportsChainArgs): boolean | null => {
+  // If the user has no connected chain account ids, the user can't use it to interact with the chain
+  if (!chainAccountIds.length) return false
+
+  return walletDeviceSupportsChain({
+    chainId,
+    wallet,
+    isSnapInstalled,
+  })
 }
 
 export const useWalletSupportsChain = (

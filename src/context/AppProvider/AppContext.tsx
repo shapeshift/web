@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -17,7 +18,7 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { walletDeviceSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
@@ -33,7 +34,6 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
-  selectAccountIdsByChainIdFilter,
   selectAssetIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -42,7 +42,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -91,21 +91,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   useEffect(() => {
-    if (!wallet) return
+    if (!wallet || isLedger(wallet)) return
     const walletSupportedChainIds = knownChainIds.filter(chainId => {
-      const chainAccountIds = accountIdsByChainId[chainId] ?? []
-      return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+      return walletDeviceSupportsChain({ chainId, wallet, isSnapInstalled })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
   }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet])
 
   useEffect(() => {
-    if (!wallet) return
+    if (!wallet || isLedger(wallet)) return
     ;(async () => {
       let chainIds = Array.from(supportedChains).filter(chainId => {
-        // Note, in this particular case, we are *not* reactive on accountIdsByChainId to avoid extremely costly re-runs of this effect
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId }) ?? []
-        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+        return walletDeviceSupportsChain({ chainId, wallet, isSnapInstalled })
       })
 
       const accountMetadataByAccountId: AccountMetadataById = {}

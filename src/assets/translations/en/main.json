@@ -117,7 +117,7 @@
     "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
     "gasFee": "Gas Fee",
-    "approvalFee" : "Approval Fee",
+    "approvalFee": "Approval Fee",
     "consolidationFee": "Consolidation Fee",
     "fees": "Fees",
     "alternative": "Alternative",
@@ -1814,7 +1814,8 @@
     "importAccounts": {
       "title": "Import %{chainNamespaceDisplayName} Accounts",
       "description": "Select the accounts you would like to import from the list below.",
-      "import": "Import"
+      "import": "Import",
+      "loadMoreDisabled": "This wallet does not support multiple accounts for this chain."
     },
     "ledgerOpenApp": {
       "title": "Open the %{appName} App",

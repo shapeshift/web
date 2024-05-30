@@ -969,26 +969,41 @@ export class FoxyApi {
     } catch (e) {
       throw new Error(`Failed to get coolDowninfo: ${e}`)
     }
-    let epoch
-    try {
-      epoch = await stakingContract.epoch()
-    } catch (e) {
-      throw new Error(`Failed to get epoch: ${e}`)
-    }
+    const epoch: {
+      length?: BigInt
+      number?: BigInt
+      endBlock?: BigInt
+      distribute?: BigInt
+    } = await (() => {
+      try {
+        return stakingContract.epoch()
+      } catch (e) {
+        console.error(e, 'failed to get epoch')
+        return {}
+      }
+    })()
+
     let currentBlock
     try {
       currentBlock = await this.provider.getBlockNumber()
     } catch (e) {
       throw new Error(`Failed to get block number: ${e}`)
     }
-    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString()) // epochs left until can claim
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(
+      epoch?.number?.toString() ?? '0',
+    ) // epochs left until can claim
     const blocksLeftInCurrentEpoch =
-      epochsLeft.gt(0) && epoch.endBlock.gt(currentBlock)
-        ? epoch.endBlock.sub(currentBlock).toString()
-        : '0' // calculate time remaining in current epoch
+      epochsLeft.gt(0) && bnOrZero(epoch.endBlock?.toString()).gt(currentBlock)
+        ? bnOrZero(epoch.endBlock?.toString())
+            .minus(currentBlock)
+            .toNumber()
+        : 0 // calculate time remaining in current epoch
     const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
-      ? epochsLeft.minus(1).times(epoch.length).toString()
-      : '0' // don't count current epoch
+      ? epochsLeft
+          .minus(1)
+          .times(epoch.length?.toString() ?? '0')
+          .toNumber()
+      : 0 // don't count current epoch
     const blocksUntilClaimable = bnOrZero(blocksLeftInCurrentEpoch).plus(blocksLeftInFutureEpochs) // total blocks left until can claim
     const secondsUntilClaimable = blocksUntilClaimable.times(13) // average block time is 13 seconds to get total seconds
     const currentDate = new Date()

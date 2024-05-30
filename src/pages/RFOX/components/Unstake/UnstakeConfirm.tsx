@@ -94,6 +94,18 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     [confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
+  const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
+  )
+
+  const unstakingAmountUserCurrency = useMemo(
+    () =>
+      bnOrZero(unstakingAmountCryptoPrecision)
+        .times(stakingAssetMarketDataUserCurrency.price)
+        .toFixed(),
+    [stakingAssetMarketDataUserCurrency.price, unstakingAmountCryptoPrecision],
+  )
+
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
@@ -119,11 +131,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
         <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
           <Amount.Crypto value={unstakingAmountCryptoPrecision} symbol={stakingAsset?.symbol} />
-          <Amount.Fiat fontSize='sm' color='text.subtle' value='0.0' />
+          <Amount.Fiat fontSize='sm' color='text.subtle' value={unstakingAmountUserCurrency} />
         </Stack>
       </Card>
     )
-  }, [stakingAsset, unstakingAmountCryptoPrecision])
+  }, [stakingAsset, unstakingAmountCryptoPrecision, unstakingAmountUserCurrency])
 
   const callData = useMemo(() => {
     if (!stakingAsset) return

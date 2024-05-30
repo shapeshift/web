@@ -1,10 +1,21 @@
-import { Box, Button, CardBody, Center, Flex, Stack } from '@chakra-ui/react'
-import { type AssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { Box, Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import {
+  type AssetId,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+} from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import type { Address } from 'viem'
+import { getAddress } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useReadContract, useReadContracts } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
@@ -131,31 +142,94 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
-  const hasClaims = false // Just a placeholder for now
+  const stakingAssetId = foxOnArbitrumOneAssetId
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
+  // TODO(gomes): make this programmatic when we implement multi-account
+  const stakingAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
+  )
+
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
+
+  const {
+    data: unstakingRequestCountResponse,
+    isSuccess: isUnstakingRequestCountSuccess,
+    isLoading: isUnstakingRequestCountLoading,
+  } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'getUnstakingRequestCount',
+    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)], // actually defined, see enabled below
+    chainId: arbitrum.id,
+    query: {
+      enabled: Boolean(stakingAssetAccountAddress),
+    },
+  })
+
+  const hasClaims = useMemo(
+    () =>
+      isUnstakingRequestCountSuccess &&
+      unstakingRequestCountResponse &&
+      unstakingRequestCountResponse > 0n,
+    [isUnstakingRequestCountSuccess, unstakingRequestCountResponse],
+  )
+
+  const contracts = Array.from(
+    { length: Number(unstakingRequestCountResponse) },
+    (_, index) =>
+      ({
+        abi: foxStakingV1Abi,
+        address: RFOX_PROXY_CONTRACT_ADDRESS,
+        functionName: 'getUnstakingRequest',
+        args: [
+          stakingAssetAccountAddress
+            ? getAddress(stakingAssetAccountAddress)
+            : ('' as Address, BigInt(index)),
+        ],
+        chainId: arbitrum.id,
+      }) as const,
+  )
+
+  const {
+    data: unstakingRequestResponse,
+    isSuccess: isUnstakingRequestSuccess,
+    isLoading: isUnstakingRequestLoading,
+  } = useReadContracts({
+    contracts,
+    allowFailure: false,
+  })
+
+  if (!stakingAssetAccountAddress) return null
+
   return (
     <SlideTransition>
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
-        <Flex flexDir='column' gap={4}>
-          {hasClaims ? (
-            <>
-              <ClaimRow
-                stakingAssetId={foxAssetId}
-                amountCryptoPrecision={'1500'}
-                status={'Available'}
-                setConfirmedQuote={setConfirmedQuote}
-              />
-              <ClaimRow
-                stakingAssetId={foxAssetId}
-                amountCryptoPrecision={'200'}
-                status={'Available'}
-                setConfirmedQuote={setConfirmedQuote}
-              />
-            </>
-          ) : (
-            <NoClaimsAvailable setStepIndex={setStepIndex} />
-          )}
-        </Flex>
+        <Skeleton isLoaded={!isUnstakingRequestCountLoading && !isUnstakingRequestLoading}>
+          <Flex flexDir='column' gap={4}>
+            {hasClaims ? (
+              unstakingRequestResponse?.map(unstakingRequest => {
+                const amountCryptoPrecision = unstakingRequest.unstakingBalance
+                const status = 'Available'
+                return (
+                  <ClaimRow
+                    key={unstakingRequest.cooldownExpiry.toString()}
+                    stakingAssetId={foxAssetId}
+                    amountCryptoPrecision={amountCryptoPrecision.toString()}
+                    status={status}
+                    setConfirmedQuote={setConfirmedQuote}
+                  />
+                )
+              })
+            ) : (
+              <NoClaimsAvailable setStepIndex={setStepIndex} />
+            )}
+          </Flex>
+        </Skeleton>
       </CardBody>
     </SlideTransition>
   )

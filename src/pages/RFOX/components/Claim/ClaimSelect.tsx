@@ -1,4 +1,4 @@
-import { Box, Button, CardBody, Flex, Stack } from '@chakra-ui/react'
+import { Box, Button, CardBody, Center, Flex, Stack } from '@chakra-ui/react'
 import { type AssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
@@ -6,11 +6,13 @@ import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { AssetIcon } from 'components/AssetIcon'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import { toBaseUnit } from 'lib/math'
+import { TabIndex } from 'pages/RFOX/RFOX'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -101,27 +103,58 @@ type ClaimSelectProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
 }
 
+type NoClaimsAvailableProps = {
+  setStepIndex: (index: number) => void
+}
+
+const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
+  const translate = useTranslate()
+
+  const handleClick = useCallback(() => {
+    setStepIndex(TabIndex.Unstake)
+  }, [setStepIndex])
+
+  return (
+    <Center flexDir={'column'}>
+      <AssetIcon size='lg' assetId={foxAssetId} showNetworkIcon={false} mb={4} />
+      <Text translation='RFOX.noClaimsAvailable' fontSize='xl' fontWeight={'bold'} />
+      <Text translation='RFOX.noClaimsAvailableDescription' fontSize='md' color='gray.400' mb={4} />
+      <Button colorScheme='blue' onClick={handleClick}>
+        {translate('RFOX.unstakeNow')}
+      </Button>
+    </Center>
+  )
+}
+
 export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   headerComponent,
   setConfirmedQuote,
+  setStepIndex,
 }) => {
+  const hasClaims = false // Just a placeholder for now
   return (
     <SlideTransition>
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
         <Flex flexDir='column' gap={4}>
-          <ClaimRow
-            stakingAssetId={foxAssetId}
-            amountCryptoPrecision={'1500'}
-            status={'Available'}
-            setConfirmedQuote={setConfirmedQuote}
-          />
-          <ClaimRow
-            stakingAssetId={foxAssetId}
-            amountCryptoPrecision={'200'}
-            status={'Available'}
-            setConfirmedQuote={setConfirmedQuote}
-          />
+          {hasClaims ? (
+            <>
+              <ClaimRow
+                stakingAssetId={foxAssetId}
+                amountCryptoPrecision={'1500'}
+                status={'Available'}
+                setConfirmedQuote={setConfirmedQuote}
+              />
+              <ClaimRow
+                stakingAssetId={foxAssetId}
+                amountCryptoPrecision={'200'}
+                status={'Available'}
+                setConfirmedQuote={setConfirmedQuote}
+              />
+            </>
+          ) : (
+            <NoClaimsAvailable setStepIndex={setStepIndex} />
+          )}
         </Flex>
       </CardBody>
     </SlideTransition>

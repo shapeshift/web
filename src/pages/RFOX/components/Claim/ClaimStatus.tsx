@@ -27,7 +27,7 @@ type ClaimStatusProps = {
   txId: string
 }
 
-export const ClaimStatus: React.FC<ClaimRouteProps & ClaimStatusProps> = ({
+export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimStatusProps> = ({
   confirmedQuote,
   txId,
 }) => {

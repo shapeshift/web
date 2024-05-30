@@ -35,7 +35,7 @@ const backIcon = <ArrowBackIcon />
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 
-export const ClaimConfirm: FC<ClaimRouteProps & ClaimConfirmProps> = ({
+export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimConfirmProps> = ({
   claimQuote,
   setClaimTxid,
 }) => {

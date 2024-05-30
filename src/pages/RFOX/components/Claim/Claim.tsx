@@ -34,23 +34,29 @@ const ClaimStatus = makeSuspenseful(
 
 const ClaimEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
-export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
+export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   return (
     <MemoryRouter initialEntries={ClaimEntries} initialIndex={0}>
-      <ClaimRoutes headerComponent={headerComponent} />
+      <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
     </MemoryRouter>
   )
 }
 
-export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
+export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
   const location = useLocation()
 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote | undefined>()
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
 
   const renderClaimSelect = useCallback(() => {
-    return <ClaimSelect headerComponent={headerComponent} setConfirmedQuote={setConfirmedQuote} />
-  }, [headerComponent])
+    return (
+      <ClaimSelect
+        headerComponent={headerComponent}
+        setConfirmedQuote={setConfirmedQuote}
+        setStepIndex={setStepIndex}
+      />
+    )
+  }, [headerComponent, setStepIndex])
 
   const renderClaimConfirm = useCallback(() => {
     if (!confirmedQuote) return null

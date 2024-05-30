@@ -1,5 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -28,7 +28,7 @@ type FiatFormProps = {
 }
 
 export const FiatForm: React.FC<FiatFormProps> = ({
-  assetId = ethAssetId,
+  assetId,
   fiatRampAction,
   accountId: selectedAccountId,
 }) => {

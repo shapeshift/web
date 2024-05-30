@@ -5,6 +5,7 @@ import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
+import { createSelector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -13,6 +14,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
 import { selectAssets } from './assetsSlice/selectors'
+import { getFeeAssetByChainId } from './assetsSlice/utils'
 import { selectMarketDataUsd, selectMarketDataUserCurrency } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
@@ -207,5 +209,23 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
       })
       .filter(isSome)
       .filter(asset => !isNft(asset.assetId))
+  },
+)
+
+export const selectHighestMarketCapFeeAsset = createSelector(
+  selectWalletChainIds,
+  selectMarketDataUsd,
+  selectAssets,
+  (walletChainIds, marketDataUsd, assetsById): Asset | undefined => {
+    const feeAssets = walletChainIds.map(chainId => getFeeAssetByChainId(assetsById, chainId))
+    const getAssetMarketCap = (asset: Asset) =>
+      bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+    const sortedFeeAssets = orderBy(
+      Object.values(feeAssets).filter(isSome),
+      [getAssetMarketCap],
+      ['desc'],
+    )
+
+    return sortedFeeAssets[0]
   },
 )

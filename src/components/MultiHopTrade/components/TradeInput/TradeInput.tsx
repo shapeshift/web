@@ -18,7 +18,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { type Asset } from '@shapeshiftoss/types'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -119,7 +119,7 @@ const GetTradeQuotes = () => {
   return <></>
 }
 
-export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
+export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
@@ -736,4 +736,4 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       </MessageOverlay>
     </TradeSlideTransition>
   )
-})
+}

@@ -2452,7 +2452,9 @@
       "stakeAmount": "This is the amount of FOX you will stake",
       "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
-      "shareOfPool": "This is your percentage of the fees, you'll earn."
+      "shareOfPool": "This is your percentage of the fees, you'll earn.",
+      "unstakePendingCooldown": "Claim available %{cooldownPeriodHuman}",
+      "cooldownComplete": "Cooldown finished %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",

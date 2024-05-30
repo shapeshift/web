@@ -10,7 +10,13 @@ export const selectAllowanceCryptoBaseUnit = (data: Result<string, GetAllowanceE
     switch (error) {
       case GetAllowanceErr.IsFeeAsset:
       case GetAllowanceErr.NotEVMChain:
-        // No allowance for fee assets or non-EVM chains, this should not run, but just in case
+      case GetAllowanceErr.ZeroAddress:
+        // TODO(gomes): This was a pain to dig through and figure out what was going on. We should refactor this whole thing to be easier to grasp.
+        // i.e we should use errors to handle errors, not happy cases, and similarly, loading states to handle loading states, not undefined cases.
+        // No allowance for:
+        // - fee assets
+        // - non-EVM assets
+        // - magic chain-level transfers for which we use 0x0 as a placeholder
         return undefined
       default:
         assertUnreachable(error)

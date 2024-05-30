@@ -10,6 +10,8 @@ import {
   filterSameChainEvmBuyAssetsBySellAssetId,
 } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 
+export const LIFI_TRADE_POLL_INTERVAL_MILLISECONDS = 30_000
+
 export const lifiSwapper: Swapper = {
   executeEvmTransaction,
 

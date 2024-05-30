@@ -117,7 +117,7 @@
     "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
     "gasFee": "Gas Fee",
-    "approvalFee" : "Approval Fee",
+    "approvalFee": "Approval Fee",
     "consolidationFee": "Consolidation Fee",
     "fees": "Fees",
     "alternative": "Alternative",
@@ -865,7 +865,8 @@
       "tradeFailed": "Trade failed. Assets returned minus gas fee",
       "noQuotesAvailable": "No quotes available for this trade",
       "smartContractWalletNotSupported": "Smart contract wallet not supported",
-      "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds."
+      "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds.",
+      "rateLimitExceeded": "Rate limit exceeded, try again later"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
@@ -2435,6 +2436,7 @@
     "unstakeAmount": "Unstake Amount",
     "confirmAndStake": "Confirm & Stake",
     "confirmAndUnstake": "Confirm & Unstake",
+    "confirmAndClaim": "Confirm & Claim",
     "shapeShiftFee": "ShapeShift Fee",
     "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
@@ -2467,6 +2469,13 @@
     "stakeNow": "Stake Now",
     "noAddressFound": "No address found",
     "newAddressInfo": "This will update for the next reward cycle",
-    "confirmAndUpdateAddress": "Confirm & Update Address"
+    "confirmAndUpdateAddress": "Confirm & Update Address",
+    "unstakeFrom": "Unstake from r%{assetSymbol}",
+    "claimPending": "Requesting withdraw",
+    "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
+    "claimReceiveAddress": "Claim Receive Address",
+    "noClaimsAvailable": "No claims available",
+    "noClaimsAvailableDescription": "You don't have any available claims",
+    "unstakeNow": "Unstake Now"
   }
 }

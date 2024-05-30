@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, MultiHopTradeQuoteSteps } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -11,7 +11,6 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { isFulfilled, isRejected, isResolvedErr } from 'lib/utils'
 import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
@@ -19,7 +18,7 @@ import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSl
 
 import { ALLOWANCE_CONTRACT } from '../constants'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
-import { addAggregatorAndDestinationToMemo } from './addAggregatorAndDestinationToMemo'
+import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1quote } from './getL1quote'
 import type { AggregatorContract } from './longTailHelpers'
@@ -133,11 +132,11 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      const updatedMemo = addAggregatorAndDestinationToMemo({
+      const updatedMemo = addL1ToLongtailPartsToMemo({
         sellChainId,
         aggregator: bestAggregator,
-        finalAssetAddress: fromAssetId(buyAsset.assetId).assetReference as Address,
-        minAmountOut: quotedAmountOut.toString(),
+        finalAssetContractAssetId: buyAsset.assetId,
+        finalAssetAmountOut: quotedAmountOut.toString(),
         slippageBps: convertDecimalPercentageToBasisPoints(
           slippageTolerancePercentageDecimal ??
             getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),

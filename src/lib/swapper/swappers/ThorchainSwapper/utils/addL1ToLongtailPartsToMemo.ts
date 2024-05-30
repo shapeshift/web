@@ -1,25 +1,23 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { bchChainId } from '@shapeshiftoss/caip'
+import { type AssetId, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import assert from 'assert'
 import BigNumber from 'bignumber.js'
 import type { Address } from 'viem'
 import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
-import { isUtxoChainId } from 'lib/utils/utxo'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
-import { BCH_MAXIMUM_BYTES_LENGTH, UTXO_MAXIMUM_BYTES_LENGTH } from '../constants'
+import { getMaxBytesLengthByChainId } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
 import { getUniqueAddressSubstring } from './getUniqueAddressSubstring'
 import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
 import { makeMemoWithShortenedFinalAssetAmount } from './makeMemoWithShortenedFinalAssetAmount'
 
-export const addAggregatorAndDestinationToMemo = ({
+export const addL1ToLongtailPartsToMemo = ({
   sellChainId,
   quotedMemo,
   aggregator,
-  finalAssetAddress,
-  minAmountOut,
+  finalAssetContractAssetId,
+  finalAssetAmountOut,
   slippageBps,
   longtailTokens,
 }: {
@@ -27,8 +25,8 @@ export const addAggregatorAndDestinationToMemo = ({
   slippageBps: BigNumber.Value
   quotedMemo: string | undefined
   aggregator: Address
-  finalAssetAddress: Address
-  minAmountOut: string
+  finalAssetContractAssetId: AssetId
+  finalAssetAmountOut: string
   longtailTokens: AssetId[]
 }) => {
   if (!quotedMemo) throw new Error('no memo provided')
@@ -42,21 +40,20 @@ export const addAggregatorAndDestinationToMemo = ({
     affiliateBps,
   ] = quotedMemo.split(MEMO_PART_DELIMITER)
 
-  const maxMemoSize = (() => {
-    if (sellChainId === bchChainId) return BCH_MAXIMUM_BYTES_LENGTH
-    if (isUtxoChainId(sellChainId)) return UTXO_MAXIMUM_BYTES_LENGTH
-    return Infinity
-  })()
+  const maxMemoSize = getMaxBytesLengthByChainId(sellChainId)
 
   const finalAssetLimitWithManualSlippage = subtractBasisPointAmount(
-    bn(minAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
+    bn(finalAssetAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
     slippageBps,
     BigNumber.ROUND_DOWN,
   )
 
-  const finalAssetAddressShortened = getUniqueAddressSubstring(finalAssetAddress, longtailTokens)
+  const finalAssetContractAddressShortened = getUniqueAddressSubstring(
+    finalAssetContractAssetId,
+    longtailTokens,
+  )
 
-  // THORChain themselves uses 2 characters but it might collide at some points in the future (https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/aggregators/dex_mainnet_current.go)
+  // THORChain themselves use 2 characters but it might collide at some point in the future (https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/aggregators/dex_mainnet_current.go)
   const aggregatorLastTwoChars = aggregator.slice(aggregator.length - 2, aggregator.length)
 
   const shortenedNativeAssetName =
@@ -66,7 +63,7 @@ export const addAggregatorAndDestinationToMemo = ({
 
   assert(shortenedNativeAssetName, 'cannot find shortened native asset name')
 
-  const memoWithoutMinAmountOut = [
+  const memoWithoutFinalAssetAmountOut = [
     prefix,
     shortenedNativeAssetName,
     address,
@@ -74,17 +71,16 @@ export const addAggregatorAndDestinationToMemo = ({
     affiliate,
     affiliateBps,
     aggregatorLastTwoChars,
-    finalAssetAddressShortened,
+    finalAssetContractAddressShortened,
   ].join(MEMO_PART_DELIMITER)
 
   const memoWithShortenedMinAmountOut = makeMemoWithShortenedFinalAssetAmount({
     maxMemoSize,
-    memoWithoutMinAmountOut,
+    memoWithoutFinalAssetAmountOut,
     finalAssetLimitWithManualSlippage,
   })
 
   assert(memoWithShortenedMinAmountOut.length <= maxMemoSize, 'memo is too long')
-  console.log(memoWithShortenedMinAmountOut)
 
   return assertAndProcessMemo(memoWithShortenedMinAmountOut)
 }

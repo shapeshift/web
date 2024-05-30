@@ -18,6 +18,21 @@ function assertMemoHasDestAddr(
   if (!destAddr) throw new Error(`destination address is required in memo: ${memo}`)
 }
 
+function assertMemoHasAggregatorAddress(
+  aggregatorAddr: string | undefined,
+  memo: string,
+): asserts aggregatorAddr is string {
+  if (!aggregatorAddr) throw new Error(`aggregator address is required in memo: ${memo}`)
+}
+
+function assertMemoHasFinalAssetContractAddress(
+  finalAssetContractAddress: string | undefined,
+  memo: string,
+): asserts finalAssetContractAddress is string {
+  if (!finalAssetContractAddress)
+    throw new Error(`final asset contract address is required in memo: ${memo}`)
+}
+
 function assertMemoHasPairedAddr(
   pairedAddr: string | undefined,
   memo: string,
@@ -27,6 +42,13 @@ function assertMemoHasPairedAddr(
 
 function assertMemoHasLimit(limit: string | undefined, memo: string): asserts limit is string {
   if (!limit) throw new Error(`limit is required in memo: ${memo}`)
+}
+
+function assertMemoHasFinalAssetLimit(
+  finalAssetLimit: string | undefined,
+  memo: string,
+): asserts finalAssetLimit is string {
+  if (!finalAssetLimit) throw new Error(`final asset limit is required in memo: ${memo}`)
 }
 
 function assertMemoHasBasisPoints(
@@ -55,6 +77,18 @@ const assertIsValidLimit = (limit: string | undefined, memo: string) => {
   }
 
   if (!bn(limit).gt(0)) throw new Error(`positive limit is required in memo: ${memo}`)
+}
+
+const assertIsValidFinalAssetLimit = (finalAssetLimit: string | undefined, memo: string) => {
+  assertMemoHasFinalAssetLimit(finalAssetLimit, memo)
+  console.log(finalAssetLimit, 'finalAssetLimit yol')
+
+  if (!bn(finalAssetLimit).gt(0))
+    throw new Error(`positive final asset limit is required in memo: ${memo}`)
+  if (finalAssetLimit.length < 3)
+    throw new Error(`positive final asset limit length should be at least 3 in memo: ${memo}`)
+  if (finalAssetLimit.length > 19)
+    throw new Error(`positive final asset limit length should be maximum 19 in memo: ${memo}`)
 }
 
 function assertIsValidBasisPoints(
@@ -89,8 +123,8 @@ export const assertAndProcessMemo = (memo: string): string => {
         limit,
         ,
         fee,
-        aggregatorLastTwoChars,
-        finalAssetAddressShortened,
+        aggregatorAddress,
+        finalAssetAddress,
         finalAssetAmountOut,
       ] = memo.split(':')
 
@@ -98,9 +132,14 @@ export const assertAndProcessMemo = (memo: string): string => {
       assertMemoHasDestAddr(destAddr, memo)
       assertIsValidLimit(limit, memo)
 
-      const swapOutParts = (() => {
-        if (aggregatorLastTwoChars && finalAssetAddressShortened && finalAssetAmountOut) {
-          return `:${aggregatorLastTwoChars}:${finalAssetAddressShortened}:${finalAssetAmountOut}`
+      // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEXAggregatorAddr:FinalTokenAddr:MinAmountOut|
+      const maybeSwapOutParts = (() => {
+        if (aggregatorAddress || finalAssetAddress || finalAssetAmountOut) {
+          assertMemoHasAggregatorAddress(aggregatorAddress, memo)
+          assertMemoHasFinalAssetContractAddress(finalAssetAddress, memo)
+          assertIsValidFinalAssetLimit(finalAssetAmountOut, memo)
+
+          return `:${aggregatorAddress}:${finalAssetAddress}:${finalAssetAmountOut}`
         }
 
         return ''
@@ -108,7 +147,7 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       return `${_action}:${asset}:${destAddr}:${limit}:${THORCHAIN_AFFILIATE_NAME}:${
         fee || 0
-      }${swapOutParts}`
+      }${maybeSwapOutParts}`
     }
     case 'add':
     case '+':

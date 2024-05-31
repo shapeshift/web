@@ -57,7 +57,7 @@ export const walletDeviceSupportsChain = ({
 }: WalletDeviceSupportsChainArgs): boolean | null => {
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
-  // e.g MM without snaps installed, or a wallet without connected chain account ids (meaning the user didn't connect said chain's accounts)
+  // e.g MM without snaps installed
   const hasRuntimeSupport = (() => {
     // Non-EVM ChainIds are only supported with the MM multichain snap installed
     if (isMetaMask(wallet) && !isSnapInstalled && !isEvmChainId(chainId)) return false

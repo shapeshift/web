@@ -1471,7 +1471,7 @@
       "snapInstalledToast": "Snap ShapeShift MultiChain pour MetaMask installé",
       "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé",
       "dontAskAgain": "Ne plus demander",
-      "multiAccountUnsupported": "Le multi-compte n'est pas pris en charge pour cette chaîne en utilisant le Multichain Snap avec MetaMask"
+      "multiAccountUnsupported": "Le multi-compte n'est pas pris en charge pour cette chaîne en utilisant le Snap Multichain avec MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",

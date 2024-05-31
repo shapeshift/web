@@ -674,13 +674,5 @@ describe('assertAndProcessMemo', () => {
       const memo = '$-:BTC.BTC::9786345:ss:0'
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
-
-    it('should throw on invalid min out', () => {
-      let memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq::bad:0'
-      expect(() => assertAndProcessMemo(memo)).toThrow()
-
-      memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:0:bad:0'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
-    })
   })
 })

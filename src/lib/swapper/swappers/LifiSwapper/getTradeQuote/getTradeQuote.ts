@@ -1,5 +1,5 @@
-import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
-import { LifiErrorCode } from '@lifi/sdk'
+import type { ChainKey, RoutesRequest } from '@lifi/sdk'
+import { LifiError, LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type {
@@ -244,6 +244,26 @@ export async function getTradeQuote(
   )
 
   if (promises.every(isRejected)) {
+    for (const promise of promises) {
+      if (promise.reason instanceof LifiError) {
+        if (promise.reason.stack?.includes('Request failed with status code 429')) {
+          return Err(
+            makeSwapErrorRight({
+              message: `[LiFi: tradeQuote] - ${promise.reason.message}`,
+              code: TradeQuoteError.RateLimitExceeded,
+            }),
+          )
+        }
+
+        return Err(
+          makeSwapErrorRight({
+            message: `[LiFi: tradeQuote] - ${promise.reason.message}`,
+            code: TradeQuoteError.QueryFailed,
+          }),
+        )
+      }
+    }
+
     return Err(
       makeSwapErrorRight({
         message: '[LiFi: tradeQuote] - failed to get fee data',

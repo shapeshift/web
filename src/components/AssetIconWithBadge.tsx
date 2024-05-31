@@ -22,7 +22,7 @@ const StatusStyle = { svg: { transform: 'scale(0.8)' } }
 type AssetIconWithBadgeProps = {
   size?: AvatarProps['size']
   assetId?: AssetId
-  transfersByType: Record<TransferType, Transfer[]>
+  transfersByType?: Record<TransferType, Transfer[]>
   type?: string
 } & PropsWithChildren
 
@@ -34,13 +34,16 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
   children,
 }) => {
   const isNft = useMemo(() => {
-    return Object.values(transfersByType)
-      .flat()
-      .some(transfer => !!transfer.id)
+    return Boolean(
+      transfersByType &&
+        Object.values(transfersByType)
+          .flat()
+          .some(transfer => !!transfer.id),
+    )
   }, [transfersByType])
   const WebIcon = useMemo(() => <LuGlobe />, [])
   const transfers = useMemo(
-    () => uniqBy(Object.values(transfersByType).flat(), 'assetId'),
+    () => (transfersByType ? uniqBy(Object.values(transfersByType).flat(), 'assetId') : []),
     [transfersByType],
   )
 

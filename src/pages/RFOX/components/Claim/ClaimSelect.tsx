@@ -207,21 +207,25 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     [isUnstakingRequestCountSuccess, unstakingRequestCountResponse],
   )
 
-  const contracts = Array.from(
-    { length: Number(unstakingRequestCountResponse) },
-    (_, index) =>
-      ({
-        abi: foxStakingV1Abi,
-        address: RFOX_PROXY_CONTRACT_ADDRESS,
-        functionName: 'getUnstakingRequest',
-        args: [
-          stakingAssetAccountAddress
-            ? getAddress(stakingAssetAccountAddress)
-            : ('' as Address, BigInt(index)),
-          index,
-        ],
-        chainId: arbitrum.id,
-      }) as const,
+  const contracts = useMemo(
+    () =>
+      Array.from(
+        { length: Number(unstakingRequestCountResponse) },
+        (_, index) =>
+          ({
+            abi: foxStakingV1Abi,
+            address: RFOX_PROXY_CONTRACT_ADDRESS,
+            functionName: 'getUnstakingRequest',
+            args: [
+              stakingAssetAccountAddress
+                ? getAddress(stakingAssetAccountAddress)
+                : ('' as Address, BigInt(index)),
+              index,
+            ],
+            chainId: arbitrum.id,
+          }) as const,
+      ),
+    [stakingAssetAccountAddress, unstakingRequestCountResponse],
   )
 
   const {

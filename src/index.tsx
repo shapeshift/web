@@ -33,6 +33,7 @@ if (window.location.hostname !== 'localhost') {
     'juice',
     'wood',
     'gome',
+    'neo',
   ] as const
 
   const environment = (() => {

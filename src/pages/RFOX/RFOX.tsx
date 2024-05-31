@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
+import { Claim } from './components/Claim/Claim'
 import { Stake } from './components/Stake/Stake'
 import { Unstake } from './components/Unstake/Unstake'
 
@@ -15,6 +16,14 @@ type FormHeaderTabProps = {
 } & PropsWithChildren
 
 const activeStyle = { color: 'text.base' }
+
+export const TabIndex = {
+  Stake: 0,
+  Unstake: 1,
+  Claim: 2,
+  ChangeAddress: 3,
+}
+
 const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
   const handleClick = useCallback(() => {
     onClick(index)
@@ -45,13 +54,32 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
   )
   return (
     <Flex px={6} py={4} gap={4}>
-      <FormHeaderTab index={0} onClick={handleClick} isActive={activeIndex === 0}>
+      <FormHeaderTab
+        index={TabIndex.Stake}
+        onClick={handleClick}
+        isActive={activeIndex === TabIndex.Stake}
+      >
         {translate('RFOX.stake')}
       </FormHeaderTab>
-      <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1}>
+      <FormHeaderTab
+        index={TabIndex.Unstake}
+        onClick={handleClick}
+        isActive={activeIndex === TabIndex.Unstake}
+      >
         {translate('RFOX.unstake')}
       </FormHeaderTab>
-      <FormHeaderTab index={2} onClick={handleClick} isActive={activeIndex === 2}>
+      <FormHeaderTab
+        index={TabIndex.Claim}
+        onClick={handleClick}
+        isActive={activeIndex === TabIndex.Claim}
+      >
+        {translate('RFOX.claim')}
+      </FormHeaderTab>
+      <FormHeaderTab
+        index={TabIndex.ChangeAddress}
+        onClick={handleClick}
+        isActive={activeIndex === TabIndex.ChangeAddress}
+      >
         {translate('RFOX.changeAddress')}
       </FormHeaderTab>
     </Flex>
@@ -59,7 +87,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
 }
 
 export const RFOX: React.FC = () => {
-  const [stepIndex, setStepIndex] = useState(0)
+  const [stepIndex, setStepIndex] = useState(TabIndex.Stake)
 
   const TabHeader = useMemo(
     () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
@@ -76,6 +104,9 @@ export const RFOX: React.FC = () => {
               </TabPanel>
               <TabPanel px={0} py={0}>
                 <Unstake headerComponent={TabHeader} />
+              </TabPanel>
+              <TabPanel px={0} py={0}>
+                <Claim headerComponent={TabHeader} setStepIndex={setStepIndex} />
               </TabPanel>
               <TabPanel px={0} py={0}>
                 <ChangeAddress headerComponent={TabHeader} />

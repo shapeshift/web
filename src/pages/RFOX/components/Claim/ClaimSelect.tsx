@@ -231,6 +231,11 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   } = useReadContracts({
     contracts,
     allowFailure: false,
+    query: {
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      refetchInterval: 60000, // 1 minute
+    },
   })
 
   if (!stakingAssetAccountAddress) return null

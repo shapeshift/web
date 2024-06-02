@@ -135,19 +135,6 @@ export const ManageAccountsModal = () => {
                 : translate('accountManagement.manageAccounts.description')}
             </RawText>
           </ModalHeader>
-          {/* 
-            Hidden until there is content to display
-            <IconButton
-              aria-label='Info'
-              icon={infoIcon}
-              variant='ghost'
-              position='absolute'
-              top={3}
-              left={3}
-              size='sm'
-              onClick={handleInfoClick}
-            /> 
-          */}
           <ModalCloseButton position='absolute' top={3} right={3} isDisabled={disableClose} />
           {walletConnectedChainIdsSorted.length > 0 && (
             <ModalBody maxH='400px' overflowY='auto'>

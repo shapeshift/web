@@ -47,7 +47,7 @@ export const Buy = () => {
   useGetFiatRampsQuery()
 
   const { chainId, assetSubId } = useParams<MatchParams>()
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>()
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
 
   const {
     dispatch,

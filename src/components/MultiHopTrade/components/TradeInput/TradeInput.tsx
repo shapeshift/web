@@ -218,9 +218,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   useEffect(() => {
     if (!defaultSellAsset) return
 
-    if (!walletConnectedChainIds.includes(sellAsset.chainId)) {
-      setSellAsset(defaultSellAsset)
-    }
+    if (walletConnectedChainIds.includes(sellAsset.chainId)) return
+
+    setSellAsset(defaultSellAsset)
   }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
 
   useEffect(() => {

@@ -212,16 +212,16 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   )
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-  const defaultAsset = useAppSelector(selectHighestMarketCapFeeAsset)
+  const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
 
   // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
   useEffect(() => {
-    if (!defaultAsset) return
+    if (!defaultSellAsset) return
 
     if (!walletConnectedChainIds.includes(sellAsset.chainId)) {
-      setSellAsset(defaultAsset)
+      setSellAsset(defaultSellAsset)
     }
-  }, [defaultAsset, sellAsset, setSellAsset, walletConnectedChainIds])
+  }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
 
   useEffect(() => {
     // WARNING: do not remove.

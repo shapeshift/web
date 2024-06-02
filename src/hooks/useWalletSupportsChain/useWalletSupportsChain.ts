@@ -54,7 +54,7 @@ export const walletDeviceSupportsChain = ({
   chainId,
   wallet,
   isSnapInstalled,
-}: WalletDeviceSupportsChainArgs): boolean | null => {
+}: WalletDeviceSupportsChainArgs): boolean => {
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed
@@ -112,7 +112,7 @@ export const walletSupportsChain = ({
   chainAccountIds,
   wallet,
   isSnapInstalled,
-}: WalletSupportsChainArgs): boolean | null => {
+}: WalletSupportsChainArgs): boolean => {
   // If the user has no connected chain account ids, the user can't use it to interact with the chain
   if (!chainAccountIds.length) return false
 

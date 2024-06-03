@@ -15,13 +15,13 @@ const COLLIDING_FINAL_ASSETID = toAssetId({
   assetNamespace: 'erc20',
 })
 
-const FINAL_ASSET_CONTRACT_ASSETID = toAssetId({
+const FINAL_ASSET_ASSETID = toAssetId({
   chainId: ethChainId,
   assetReference: '0x8a65ac0E23F31979db06Ec62Af62b432a6dF4741',
   assetNamespace: 'erc20',
 })
 
-const THORCHAIN_ASSETIDS_ONE_COLLISION = [FINAL_ASSET_CONTRACT_ASSETID, COLLIDING_FINAL_ASSETID]
+const THORCHAIN_ASSETIDS_ONE_COLLISION = [FINAL_ASSET_ASSETID, COLLIDING_FINAL_ASSETID]
 
 const slippageBps = 100 // 1%
 
@@ -31,10 +31,10 @@ describe('addL1ToLongtailPartsToMemo', () => {
     const quotedMemo = `=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:42:ss:100`
 
     const modifiedMemo = addL1ToLongtailPartsToMemo({
-      sellChainId: ethChainId,
+      sellAssetChainId: ethChainId,
       quotedMemo,
       aggregator: AGGREGATOR_ADDRESS,
-      finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
+      finalAssetAssetId: FINAL_ASSET_ASSETID,
       finalAssetAmountOut,
       slippageBps,
       longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
@@ -54,10 +54,10 @@ describe('addL1ToLongtailPartsToMemo', () => {
 
     expect(() =>
       addL1ToLongtailPartsToMemo({
-        sellChainId: dogeChainId,
+        sellAssetChainId: dogeChainId,
         quotedMemo: memoOver220Bytes,
         aggregator: AGGREGATOR_ADDRESS,
-        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
+        finalAssetAssetId: FINAL_ASSET_ASSETID,
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
@@ -73,10 +73,10 @@ describe('addL1ToLongtailPartsToMemo', () => {
 
     expect(() =>
       addL1ToLongtailPartsToMemo({
-        sellChainId: btcChainId,
+        sellAssetChainId: btcChainId,
         quotedMemo: memoOver80Bytes,
         aggregator: AGGREGATOR_ADDRESS,
-        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
+        finalAssetAssetId: FINAL_ASSET_ASSETID,
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
@@ -93,10 +93,10 @@ describe('addL1ToLongtailPartsToMemo', () => {
     expect(memoOver80Bytes.length).toBe(81)
     expect(() =>
       addL1ToLongtailPartsToMemo({
-        sellChainId: dogeChainId,
+        sellAssetChainId: dogeChainId,
         quotedMemo: memoOver80Bytes,
         aggregator: AGGREGATOR_ADDRESS,
-        finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
+        finalAssetAssetId: FINAL_ASSET_ASSETID,
         finalAssetAmountOut,
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
@@ -111,10 +111,10 @@ describe('addL1ToLongtailPartsToMemo', () => {
     const quotedMemo = `=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:42:ss:100`
 
     const modifiedMemo = addL1ToLongtailPartsToMemo({
-      sellChainId: dogeChainId,
+      sellAssetChainId: dogeChainId,
       quotedMemo,
       aggregator: AGGREGATOR_ADDRESS,
-      finalAssetContractAssetId: FINAL_ASSET_CONTRACT_ASSETID,
+      finalAssetAssetId: FINAL_ASSET_ASSETID,
       finalAssetAmountOut,
       slippageBps,
       longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,

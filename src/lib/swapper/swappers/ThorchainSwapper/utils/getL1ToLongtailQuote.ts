@@ -43,9 +43,9 @@ export const getL1ToLongtailQuote = async (
   if (!longtailTokens.includes(buyAsset.assetId)) {
     return Err(
       makeSwapErrorRight({
-        message: `[getThorTradeQuote] - Unsupported assetId ${buyAsset.assetId}.`,
+        message: `[getThorTradeQuote] - Unsupported buyAssetId ${buyAsset.assetId}.`,
         code: TradeQuoteError.UnsupportedTradePair,
-        details: { buyAssetChainId: buyAsset.chainId },
+        details: { buyAsset, sellAsset },
       }),
     )
   }
@@ -64,10 +64,10 @@ export const getL1ToLongtailQuote = async (
   }
 
   const chainAdapterManager = getChainAdapterManager()
-  const sellChainId = sellAsset.chainId
+  const sellAssetChainId = sellAsset.chainId
   const buyChainId = buyAsset.chainId
 
-  const sellAssetFeeAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
+  const sellAssetFeeAssetId = chainAdapterManager.get(sellAssetChainId)?.getFeeAssetId()
   const sellAssetFeeAsset = sellAssetFeeAssetId ? assetsById[sellAssetFeeAssetId] : undefined
 
   const buyAssetFeeAssetId = chainAdapterManager.get(buyChainId)?.getFeeAssetId()
@@ -86,9 +86,9 @@ export const getL1ToLongtailQuote = async (
   if (!sellAssetFeeAsset) {
     return Err(
       makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No native buy asset found for ${sellChainId}.`,
+        message: `[getThorTradeQuote] - No native buy asset found for ${sellAssetChainId}.`,
         code: TradeQuoteError.InternalError,
-        details: { sellAssetChainId: sellChainId },
+        details: { sellAssetChainId },
       }),
     )
   }
@@ -133,9 +133,9 @@ export const getL1ToLongtailQuote = async (
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
       const updatedMemo = addL1ToLongtailPartsToMemo({
-        sellChainId,
+        sellAssetChainId,
         aggregator: bestAggregator,
-        finalAssetContractAssetId: buyAsset.assetId,
+        finalAssetAssetId: buyAsset.assetId,
         finalAssetAmountOut: quotedAmountOut.toString(),
         slippageBps: convertDecimalPercentageToBasisPoints(
           slippageTolerancePercentageDecimal ??

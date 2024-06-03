@@ -13,19 +13,19 @@ import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
 import { makeMemoWithShortenedFinalAssetAmount } from './makeMemoWithShortenedFinalAssetAmount'
 
 export const addL1ToLongtailPartsToMemo = ({
-  sellChainId,
+  sellAssetChainId,
   quotedMemo,
   aggregator,
-  finalAssetContractAssetId,
+  finalAssetAssetId,
   finalAssetAmountOut,
   slippageBps,
   longtailTokens,
 }: {
-  sellChainId: ChainId
+  sellAssetChainId: ChainId
   slippageBps: BigNumber.Value
-  quotedMemo: string | undefined
+  quotedMemo: string
   aggregator: Address
-  finalAssetContractAssetId: AssetId
+  finalAssetAssetId: AssetId
   finalAssetAmountOut: string
   longtailTokens: AssetId[]
 }) => {
@@ -40,7 +40,7 @@ export const addL1ToLongtailPartsToMemo = ({
     affiliateBps,
   ] = quotedMemo.split(MEMO_PART_DELIMITER)
 
-  const maxMemoSize = getMaxBytesLengthByChainId(sellChainId)
+  const maxMemoSize = getMaxBytesLengthByChainId(sellAssetChainId)
 
   const finalAssetLimitWithManualSlippage = subtractBasisPointAmount(
     bn(finalAssetAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
@@ -49,7 +49,7 @@ export const addL1ToLongtailPartsToMemo = ({
   )
 
   const finalAssetContractAddressShortened = getUniqueAddressSubstring(
-    finalAssetContractAssetId,
+    finalAssetAssetId,
     longtailTokens,
   )
 
@@ -81,7 +81,6 @@ export const addL1ToLongtailPartsToMemo = ({
   })
 
   assert(memoWithShortenedFinalAssetAmountOut.length <= maxMemoSize, 'memo is too long')
-  console.log(memoWithShortenedFinalAssetAmountOut)
 
   return assertAndProcessMemo(memoWithShortenedFinalAssetAmountOut)
 }

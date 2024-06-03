@@ -1,7 +1,7 @@
 import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AccountsManagementMenuItem } from 'components/Layout/Header/NavBar/AccountsManagementMenuItem'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
@@ -50,7 +50,7 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
   return isMetaMask ? (
     <>
       <MenuDivider />
-      {isSnapInstalled && <AccountsManagementMenuItem onClose={onClose} />}
+      {isSnapInstalled && <ManageAccountsMenuItem onClose={onClose} />}
       <MenuItem
         justifyContent='space-between'
         onClick={handleClick}

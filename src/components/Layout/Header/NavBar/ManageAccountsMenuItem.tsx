@@ -6,12 +6,12 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 
 const editIcon = <EditIcon />
-type AccountsManagementMenuItemProps = {
+type ManageAccountsMenuItemProps = {
   onClose?: () => void
   displayDivider?: boolean
 }
 
-export const AccountsManagementMenuItem: React.FC<AccountsManagementMenuItemProps> = ({
+export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
   onClose,
   displayDivider,
 }) => {

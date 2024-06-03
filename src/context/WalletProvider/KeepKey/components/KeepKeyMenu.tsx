@@ -1,4 +1,4 @@
-import { AccountsManagementMenuItem } from 'components/Layout/Header/NavBar/AccountsManagementMenuItem'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 
 type KeepKeyConnectedMenuItemsProps = {
   onClose?: () => void
@@ -9,7 +9,7 @@ export const KeepKeyConnectedMenuItems: React.FC<KeepKeyConnectedMenuItemsProps>
 }) => {
   return (
     <>
-      <AccountsManagementMenuItem displayDivider={true} onClose={onClose} />
+      <ManageAccountsMenuItem displayDivider={true} onClose={onClose} />
     </>
   )
 }

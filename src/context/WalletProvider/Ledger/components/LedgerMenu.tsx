@@ -1,7 +1,7 @@
 import { MenuDivider, MenuItem } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AccountsManagementMenuItem } from 'components/Layout/Header/NavBar/AccountsManagementMenuItem'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -55,7 +55,7 @@ export const LedgerMenu: React.FC<LedgerMenuProps> = ({ onClose }) => {
   return (
     <>
       <MenuDivider />
-      <AccountsManagementMenuItem onClose={onClose} />
+      <ManageAccountsMenuItem onClose={onClose} />
       {/* TODO: Remove the below menu item once the new flow is added, and before the feature flag is enabled */}
       {(!isAccountManagementEnabled || !isLedgerAccountManagementEnabled) && (
         <MenuItem justifyContent='space-between' onClick={handleChainsClick}>

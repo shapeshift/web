@@ -1,7 +1,7 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Button, MenuDivider, MenuItem } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
-import { AccountsManagementMenuItem } from 'components/Layout/Header/NavBar/AccountsManagementMenuItem'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
@@ -21,7 +21,7 @@ export const NativeMenu: React.FC<NativeMenuProps> = ({ onClose }) => {
   return (
     <>
       <MenuDivider />
-      <AccountsManagementMenuItem onClose={onClose} />
+      <ManageAccountsMenuItem onClose={onClose} />
       <MenuItem
         as={Button}
         variant='ghost'

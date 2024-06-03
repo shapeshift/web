@@ -113,14 +113,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown
   // If the active step is the same as the length of steps we can assume it is complete.
-  const isComplete = useMemo(
-    () => activeStepIndex === txAssets.length,
-    [activeStepIndex, txAssets.length],
-  )
+  const isComplete = activeStepIndex === txAssets.length
 
-  const isFailed = useMemo(() => txStatus === TxStatus.Failed, [txStatus])
+  const isFailed = txStatus === TxStatus.Failed
 
-  const isSubmitted = useMemo(() => txStatus === TxStatus.Pending, [txStatus])
+  const isSubmitted = txStatus === TxStatus.Pending
 
   useEffect(() => {
     // Prevent from firing multiple MixPanel events for the same outcome

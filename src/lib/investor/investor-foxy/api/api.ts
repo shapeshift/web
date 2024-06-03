@@ -33,6 +33,7 @@ import type {
   CanClaimWithdrawParams,
   ClaimWithdrawal,
   ContractAddressInput,
+  Epoch,
   EstimateApproveFeesInput,
   EstimateFeesTxInput,
   EstimateWithdrawFeesInput,
@@ -658,17 +659,11 @@ export class FoxyApi {
       }
     })()
 
-    const epoch: {
-      length?: BigInt
-      number?: BigInt
-      endBlock?: BigInt
-      distribute?: BigInt
-    } = await (() => {
+    const epoch: Epoch = await (async () => {
       try {
-        return stakingContract.epoch()
+        return (await stakingContract.epoch()).toObject()
       } catch (e) {
-        console.error(e, 'failed to get epoch')
-        return {}
+        throw new Error(`Failed to get epoch: ${e}`)
       }
     })()
 
@@ -703,7 +698,7 @@ export class FoxyApi {
 
     const currentBlock = await this.provider.getBlockNumber()
 
-    const epochExpired = bnOrZero(epoch.number?.toString()).gte(coolDownInfo.endEpoch.toString())
+    const epochExpired = bnOrZero(epoch.number.toString()).gte(coolDownInfo.endEpoch.toString())
     const coolDownValid =
       !bnOrZero(coolDownInfo.endEpoch).isZero() && !bnOrZero(coolDownInfo.amount).isZero()
 
@@ -718,20 +713,13 @@ export class FoxyApi {
       (pastTokeCycleIndex && stakingTokenAvailableWithTokemak.gte(coolDownInfo.amount)) ||
       stakingTokenAvailable
 
-    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(
-      epoch.number?.toString() ?? '0',
-    )
+    const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString())
     const blocksLeftInCurrentEpoch =
-      epochsLeft.gt(0) && bnOrZero(epoch.endBlock?.toString()).gt(currentBlock)
-        ? bnOrZero(epoch.endBlock?.toString())
-            .minus(currentBlock)
-            .toNumber()
+      epochsLeft.gt(0) && bnOrZero(epoch.endBlock.toString()).gt(currentBlock)
+        ? bnOrZero(epoch.endBlock.toString()).minus(currentBlock).toNumber()
         : 0 // calculate time remaining in current epoch
     const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
-      ? epochsLeft
-          .minus(1)
-          .times(epoch.length?.toString() ?? '0')
-          .toNumber()
+      ? epochsLeft.minus(1).times(epoch.length.toString()).toNumber()
       : 0
 
     return (
@@ -969,12 +957,15 @@ export class FoxyApi {
     } catch (e) {
       throw new Error(`Failed to get coolDowninfo: ${e}`)
     }
-    let epoch
-    try {
-      epoch = await stakingContract.epoch()
-    } catch (e) {
-      throw new Error(`Failed to get epoch: ${e}`)
-    }
+
+    const epoch: Epoch = await (async () => {
+      try {
+        return (await stakingContract.epoch()).toObject()
+      } catch (e) {
+        throw new Error(`Failed to get epoch: ${e}`)
+      }
+    })()
+
     let currentBlock
     try {
       currentBlock = await this.provider.getBlockNumber()
@@ -983,12 +974,12 @@ export class FoxyApi {
     }
     const epochsLeft = bnOrZero(coolDownInfo.endEpoch.toString()).minus(epoch.number.toString()) // epochs left until can claim
     const blocksLeftInCurrentEpoch =
-      epochsLeft.gt(0) && epoch.endBlock.gt(currentBlock)
-        ? epoch.endBlock.sub(currentBlock).toString()
-        : '0' // calculate time remaining in current epoch
+      epochsLeft.gt(0) && bnOrZero(epoch.endBlock.toString()).gt(currentBlock)
+        ? bnOrZero(epoch.endBlock.toString()).minus(currentBlock).toNumber()
+        : 0 // calculate time remaining in current epoch
     const blocksLeftInFutureEpochs = epochsLeft.minus(1).gt(0)
-      ? epochsLeft.minus(1).times(epoch.length).toString()
-      : '0' // don't count current epoch
+      ? epochsLeft.minus(1).times(epoch.length.toString()).toNumber()
+      : 0 // don't count current epoch
     const blocksUntilClaimable = bnOrZero(blocksLeftInCurrentEpoch).plus(blocksLeftInFutureEpochs) // total blocks left until can claim
     const secondsUntilClaimable = blocksUntilClaimable.times(13) // average block time is 13 seconds to get total seconds
     const currentDate = new Date()

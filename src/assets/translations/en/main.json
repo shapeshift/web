@@ -2437,6 +2437,7 @@
     "unstakeAmount": "Unstake Amount",
     "confirmAndStake": "Confirm & Stake",
     "confirmAndUnstake": "Confirm & Unstake",
+    "confirmAndClaim": "Confirm & Claim",
     "shapeShiftFee": "ShapeShift Fee",
     "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
@@ -2452,7 +2453,9 @@
       "stakeAmount": "This is the amount of FOX you will stake",
       "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
-      "shareOfPool": "This is your percentage of the fees, you'll earn."
+      "shareOfPool": "This is your percentage of the fees you'll earn.",
+      "unstakePendingCooldown": "Claim available %{cooldownPeriodHuman}",
+      "cooldownComplete": "Cooldown finished %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",
@@ -2469,6 +2472,13 @@
     "stakeNow": "Stake Now",
     "noAddressFound": "No address found",
     "newAddressInfo": "This will update for the next reward cycle",
-    "confirmAndUpdateAddress": "Confirm & Update Address"
+    "confirmAndUpdateAddress": "Confirm & Update Address",
+    "unstakeFrom": "Unstake from r%{assetSymbol}",
+    "claimPending": "Requesting withdraw",
+    "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
+    "claimReceiveAddress": "Claim Receive Address",
+    "noClaimsAvailable": "No claims available",
+    "noClaimsAvailableDescription": "You don't have any available claims",
+    "unstakeNow": "Unstake Now"
   }
 }

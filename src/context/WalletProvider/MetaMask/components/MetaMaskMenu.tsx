@@ -1,5 +1,6 @@
+import { EditIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import {
   checkIsMetaMaskDesktop,
@@ -9,10 +10,17 @@ import {
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const MetaMaskMenu = () => {
+const editIcon = <EditIcon />
+
+type MetaMaskMenuProps = {
+  onClose?: () => void
+}
+
+export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
   const isSnapInstalled = useIsSnapInstalled()
   const translate = useTranslate()
   const snapModal = useModal('snaps')
+  const accountManagementPopover = useModal('manageAccounts')
   const [isMetaMask, setIsMetaMask] = useState<null | boolean>(null)
 
   const {
@@ -34,6 +42,11 @@ export const MetaMaskMenu = () => {
     }
   }, [isSnapInstalled, snapModal])
 
+  const handleManageAccountsMenuItemClick = useCallback(() => {
+    onClose && onClose()
+    accountManagementPopover.open({})
+  }, [accountManagementPopover, onClose])
+
   const renderSnapStatus = useMemo(() => {
     if (isSnapInstalled === true) {
       return <Tag colorScheme='green'>{translate('walletProvider.metaMaskSnap.active')}</Tag>
@@ -45,6 +58,11 @@ export const MetaMaskMenu = () => {
   return isMetaMask ? (
     <>
       <MenuDivider />
+      {isSnapInstalled && (
+        <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
+          {translate('accountManagement.menuTitle')}
+        </MenuItem>
+      )}
       <MenuItem
         justifyContent='space-between'
         onClick={handleClick}

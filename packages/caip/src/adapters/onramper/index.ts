@@ -524,6 +524,9 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   'eip155:42161/erc20:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1': ['dai_arbitrum'],
   'eip155:42161/erc20:0xfa7f8980b0f1e64a2062791cc3b0871572f1f7f0': ['uni_arbitrum'],
   'eip155:42161/erc20:0x5979d7b546e38e414f7e9822514be443a4800529': ['wsteth_arbitrum'],
+  'eip155:8453/slip44:60': ['eth_base'],
+  'eip155:8453/erc20:0x50c5725949a6f0c72e6c4a641f24049a917db0cb': ['dai_base'],
+  'eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913': ['usdc_base'],
 }
 
 // explodes and inverts the assetId => tokenId[] map by creating a 1to1 token => assetId mapping

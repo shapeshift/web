@@ -236,6 +236,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (isRuneTx) {
       if (status === TxStatus.Unknown) {
         setStatus(TxStatus.Pending)
+        onComplete(TxStatus.Pending)
         ;(async () => await mutateAsync({ txId }))()
       }
       return
@@ -246,6 +247,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     // Track pending status
     if (tx.status === TxStatus.Pending) {
       setStatus(tx.status)
+      onComplete(TxStatus.Pending)
       return
     }
 

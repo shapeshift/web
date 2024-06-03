@@ -57,8 +57,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const mixpanel = getMixPanel()
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [canGoBack, setCanGoBack] = useState(true)
-  const [isFailed, setIsFailed] = useState(false)
   const hasTrackedStatus = useRef(false)
+  const [txStatus, setTxStatus] = useState<TxStatus>()
 
   const { opportunityId } = confirmedQuote
   const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
@@ -100,7 +100,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   const handleComplete = useCallback(
     (status: TxStatus) => {
-      if (status === TxStatus.Failed) return setIsFailed(true)
+      setTxStatus(status)
       if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
     },
     [activeStepIndex],
@@ -117,6 +117,10 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     () => activeStepIndex === txAssets.length,
     [activeStepIndex, txAssets.length],
   )
+
+  const isFailed = useMemo(() => txStatus === TxStatus.Failed, [txStatus])
+
+  const isSubmitted = useMemo(() => txStatus === TxStatus.Pending, [txStatus])
 
   useEffect(() => {
     // Prevent from firing multiple MixPanel events for the same outcome
@@ -148,6 +152,17 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const renderBody = useMemo(() => {
     if (!txAssets.length) return null
 
+    if (isSubmitted) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center boxSize='80px' borderRadius='full' color='text.success' fontSize='xl' my={8}>
+            <CircularProgress isIndeterminate />
+          </Center>
+          <Heading as='h4'>{translate('pools.transactionSubmitted')}</Heading>
+        </CardBody>
+      )
+    }
+
     if (isComplete) {
       return (
         <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
@@ -161,7 +176,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           >
             <FaCheck />
           </Center>
-          <Heading as='h4'>{translate('pools.transactionSubmitted')}</Heading>
+          <Heading as='h4'>{translate('common.success')}</Heading>
         </CardBody>
       )
     }
@@ -244,6 +259,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     stepProgress,
     activeStepIndex,
     translate,
+    isSubmitted,
     confirmedQuote,
     hStackDivider,
   ])

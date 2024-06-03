@@ -98,7 +98,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     }
   }, [poolAsset, baseAsset, opportunityType, isDeposit])
 
-  const handleComplete = useCallback(
+  const handleStatusUpdate = useCallback(
     (status: TxStatus) => {
       setTxStatus(status)
       if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
@@ -281,7 +281,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               poolAssetId={poolAssetId}
               amountCryptoPrecision={amountCryptoPrecision}
               onStart={handleStart}
-              onComplete={handleComplete}
+              onStatusChanged={handleStatusUpdate}
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
               opportunityType={opportunityType}
@@ -295,7 +295,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     confirmedQuote,
     poolAssetId,
     handleStart,
-    handleComplete,
+    handleStatusUpdate,
     activeStepIndex,
     isFailed,
     opportunityType,

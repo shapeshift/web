@@ -1,0 +1,23 @@
+import { Box, Tooltip, type TooltipProps } from '@chakra-ui/react'
+import { type PropsWithChildren, useCallback, useState } from 'react'
+
+type TooltipWithTouchProps = TooltipProps & PropsWithChildren
+
+export const TooltipWithTouch: React.FC<TooltipWithTouchProps> = ({
+  children,
+  ...restToolTipProps
+}) => {
+  const [isLabelOpen, setIsLabelOpen] = useState(false)
+
+  const handleMouseEnter = useCallback(() => setIsLabelOpen(true), [])
+  const handleMouseLeave = useCallback(() => setIsLabelOpen(false), [])
+  const handleClick = useCallback(() => setIsLabelOpen(true), [])
+
+  return (
+    <Tooltip isOpen={isLabelOpen} {...restToolTipProps}>
+      <Box onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={handleClick}>
+        {children}
+      </Box>
+    </Tooltip>
+  )
+}

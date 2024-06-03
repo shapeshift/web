@@ -254,7 +254,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     ].accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
     const isLastAccountInStore = existingAccountIdsForChain?.includes(
-      accounts.pages[accounts.pages.length - 1].accountIdWithActivityAndMetadata[0].accountId,
+      accounts.pages[accounts.pages.length - 1].accountIdWithActivityAndMetadata[0]?.accountId,
     )
 
     // Keep fetching until we find an account without activity

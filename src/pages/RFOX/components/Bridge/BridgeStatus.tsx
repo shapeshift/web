@@ -1,6 +1,7 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, type EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -161,7 +162,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
 
   useEffect(() => {
     if (!tradeStatus) return
-    if (tradeStatus.message === 'L2 Tx Pending') {
+    if (tradeStatus.message === 'L2 Tx Pending' || tradeStatus.status === TxStatus.Confirmed) {
       setL2TxHash(tradeStatus.buyTxHash)
     }
   }, [tradeStatus])
@@ -179,14 +180,14 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
         isActionable: true,
         onSignAndBroadcast: handleBridge,
         serializedTxIndex: serializedBridgeTxIndex,
-        txId: bridgeTxHash,
+        txHash: bridgeTxHash,
       },
       {
         asset: buyAsset,
         headerCopy: 'Bridge Funds',
         isActionable: false,
         serializedTxIndex: serializedL2TxIndex,
-        txId: l2TxHash,
+        txHash: l2TxHash,
       },
     ]
   }, [

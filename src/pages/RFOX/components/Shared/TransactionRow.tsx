@@ -34,8 +34,6 @@ type TransactionRowProps = {
   isActionable: boolean
   txId?: string
   serializedTxIndex: string | undefined
-  // TODO(gomes): remove me, dev only
-  onClick?: () => void
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
@@ -43,7 +41,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   headerCopy,
   onComplete,
   onStart,
-  onClick,
   isActive,
   isActionable,
   serializedTxIndex,
@@ -114,13 +111,18 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       )
     }
 
-    return <CircularProgress isIndeterminate={status === TxStatus.Pending} size='24px' />
-  }, [status])
+    return (
+      <CircularProgress
+        isIndeterminate={status === TxStatus.Pending || (!isActionable && isActive && !status)}
+        size='24px'
+      />
+    )
+  }, [isActionable, isActive, status])
 
   if (!asset || !feeAsset) return null
 
   return (
-    <Card onClick={onClick}>
+    <Card>
       <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
         <AssetIcon size='xs' assetId={asset.assetId} />
         <Text>{headerCopy}</Text>

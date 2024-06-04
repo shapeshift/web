@@ -59,7 +59,7 @@ export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) =>
     buyAssetId,
     sellAssetAccountId: sellAssetAccountId ?? '',
     buyAssetAccountId: buyAssetAccountId ?? '',
-    bridgeAmountCryptoBaseUnit: '1100000000000000000',
+    bridgeAmountCryptoBaseUnit: '1400000000000000000',
   }
   const [bridgeQuote] = useState<RfoxBridgeQuote | undefined>(dummyBridgeQuote)
 

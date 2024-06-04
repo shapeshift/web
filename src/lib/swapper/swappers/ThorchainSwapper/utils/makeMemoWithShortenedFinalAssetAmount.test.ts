@@ -110,6 +110,6 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
         memoWithoutFinalAssetAmountOut: quotedMemo,
         finalAssetLimitWithManualSlippage: '950875902132134123',
       }),
-    ).toThrow('expected exponent to be 2 digits')
+    ).toThrow('min amount chars length should be 3 or more')
   })
 })

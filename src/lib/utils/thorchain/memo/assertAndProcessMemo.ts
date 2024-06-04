@@ -81,7 +81,6 @@ const assertIsValidLimit = (limit: string | undefined, memo: string) => {
 
 const assertIsValidFinalAssetLimit = (finalAssetLimit: string | undefined, memo: string) => {
   assertMemoHasFinalAssetLimit(finalAssetLimit, memo)
-  console.log(finalAssetLimit, 'finalAssetLimit yol')
 
   if (!bn(finalAssetLimit).gt(0))
     throw new Error(`positive final asset limit is required in memo: ${memo}`)

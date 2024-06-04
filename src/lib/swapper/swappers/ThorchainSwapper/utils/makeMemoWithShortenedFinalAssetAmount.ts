@@ -21,6 +21,8 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
   memoWithoutFinalAssetAmountOut: string
   finalAssetLimitWithManualSlippage: string
 }) => {
+  // The min amount out should be at least 3 characters long (1 for the number and 2 for the exponent)
+  const MINIMUM_AMOUNT_OUT_LENGTH = 3
   const HYPOTHETICAL_EXPONENT = '01'
 
   const memoArrayWithoutMinAmountOut = memoWithoutFinalAssetAmountOut.split(MEMO_PART_DELIMITER)
@@ -38,6 +40,12 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
 
   const shortenedMinAmountOutLength =
     finalAssetLimitWithManualSlippage.length + AGGREGATOR_EXPONENT_LENGTH - excessBytesToTrim
+
+  // Paranoia check - can't shorten more than the initial min amount length
+  assert(
+    shortenedMinAmountOutLength >= MINIMUM_AMOUNT_OUT_LENGTH,
+    'min amount chars length should be 3 or more',
+  )
 
   // THORChain parser uses big.ParseFloat with `0` as a precision, resulting in a precision of 18 + the integer part, so we can't have more than 19 characters
   // https://gitlab.com/thorchain/thornode/-/blob/v1.131.0/x/thorchain/memo/memo_parser.go#L190

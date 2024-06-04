@@ -62,7 +62,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
       }),
-    ).toThrow('expected exponent to be 2 digits')
+    ).toThrow('min amount chars length should be 3 or more')
   })
 
   it('should throw if chainId is BTC and memo length is > 80', () => {
@@ -81,9 +81,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
       }),
-    ).toThrow(
-      'positive final asset limit length should be at least 3 in memo: =:e:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb632DBc9Cf9E8FbCebE1e:42:ss:100:d2:a6df4741:35',
-    )
+    ).toThrow('min amount chars length should be 3 or more')
   })
 
   it('should throw if chainId is DOGE and memo length is > 80', () => {
@@ -101,9 +99,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
       }),
-    ).toThrow(
-      'positive final asset limit length should be at least 3 in memo: =:e:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb632DBc9Cf9E8FbCebE1e:42:ss:100:d2:a6df4741:35',
-    )
+    ).toThrow('min amount chars length should be 3 or more')
   })
 
   it('should be successful if chainId is DOGE and memo length is < 80', () => {

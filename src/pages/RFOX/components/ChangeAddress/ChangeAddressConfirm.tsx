@@ -12,16 +12,14 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import { encodeFunctionData, getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
@@ -59,7 +57,6 @@ type ChangeAddressConfirmProps = {
 export const ChangeAddressConfirm: React.FC<
   ChangeAddressRouteProps & ChangeAddressConfirmProps
 > = ({ changeAddressTxid, setChangeAddressTxid, confirmedQuote }) => {
-  const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
@@ -167,22 +164,11 @@ export const ChangeAddressConfirm: React.FC<
     },
   })
 
-  const { queryKey: stakingInfoQueryKey } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-  })
-
   const handleSubmit = useCallback(async () => {
     await handleChangeAddress()
 
     history.push(ChangeAddressRoutePaths.Status)
-
-    // This isn't a mistake - we invalidate as a cleanup operation before unmount to avoid current subscribers refetching with wrong args, hence making invalidation useless
-    await queryClient.invalidateQueries({ queryKey: stakingInfoQueryKey })
-  }, [history, queryClient, handleChangeAddress, stakingInfoQueryKey])
+  }, [history, handleChangeAddress])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

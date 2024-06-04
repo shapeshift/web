@@ -1,18 +1,17 @@
+import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import dayjs from 'dayjs'
-import durationPlugin from 'dayjs/plugin/duration'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { selectSelectedLocale } from 'state/slices/selectors'
+import { store } from 'state/store'
+
+dayjs.extend(duration)
+dayjs.extend(relativeTime)
 
 export const formatSecondsToDuration = (seconds: number) => {
-  dayjs.extend(durationPlugin)
-  const duration = dayjs.duration(seconds, 'seconds')
-  const hours = duration.asHours()
-  const days = duration.asDays()
-  const months = duration.asMonths()
+  const selectedLocale = selectSelectedLocale(store.getState())
+  const locale = selectedLocale in LanguageTypeEnum ? selectedLocale : 'en'
+  require(`dayjs/locale/${locale}.js`)
 
-  if (hours < 24) {
-    return `${Math.floor(hours)} hour${Math.floor(hours) !== 1 ? 's' : ''}`
-  } else if (days < 31) {
-    return `${Math.floor(days)} day${Math.floor(days) !== 1 ? 's' : ''}`
-  } else {
-    return `${Math.floor(months)} month${Math.floor(months) !== 1 ? 's' : ''}`
-  }
+  return dayjs.duration(seconds, 'seconds').locale(locale).humanize()
 }

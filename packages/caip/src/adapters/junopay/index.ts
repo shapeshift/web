@@ -5,6 +5,7 @@ import toLower from 'lodash/toLower'
 import type { AssetId } from '../../assetId/assetId'
 import {
   avalancheAssetId,
+  baseAssetId,
   btcAssetId,
   cosmosAssetId,
   ethAssetId,
@@ -18,6 +19,7 @@ const assetIdToJunoPayTickerMap: Record<AssetId, string> = {
   [cosmosAssetId]: 'atom',
   [ethAssetId]: 'eth',
   [polygonAssetId]: 'matic',
+  [baseAssetId]: 'eth',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',

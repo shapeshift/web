@@ -1815,7 +1815,8 @@
     "importAccounts": {
       "title": "Import %{chainNamespaceDisplayName} Accounts",
       "description": "Select the accounts you would like to import from the list below.",
-      "import": "Import"
+      "import": "Import",
+      "loadMoreDisabled": "This wallet does not support multiple accounts for this chain."
     },
     "ledgerOpenApp": {
       "title": "Open the %{appName} App",
@@ -2455,7 +2456,9 @@
       "stakeAmount": "This is the amount of FOX you will stake",
       "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
-      "shareOfPool": "This is your percentage of the fees, you'll earn."
+      "shareOfPool": "This is your percentage of the fees you'll earn.",
+      "unstakePendingCooldown": "Claim available %{cooldownPeriodHuman}",
+      "cooldownComplete": "Cooldown finished %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",

@@ -1,10 +1,14 @@
 import { memo, useEffect } from 'react'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { useCountdown } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useCountdown'
-import { GET_TRADE_QUOTE_POLLING_INTERVAL } from 'state/apis/swapper/swapperApi'
 
-export const CountdownSpinner = memo(({ isLoading }: { isLoading: boolean }) => {
-  const { timeRemainingMs, reset, start } = useCountdown(GET_TRADE_QUOTE_POLLING_INTERVAL, false)
+type CountdownSpinnerArgs = {
+  isLoading: boolean
+  initialTimeMs: number
+}
+
+export const CountdownSpinner = memo(({ isLoading, initialTimeMs }: CountdownSpinnerArgs) => {
+  const { timeRemainingMs, reset, start } = useCountdown(initialTimeMs, false)
 
   // ensure the countdown ui resets when a quote was loaded
   useEffect(() => {
@@ -30,7 +34,7 @@ export const CountdownSpinner = memo(({ isLoading }: { isLoading: boolean }) => 
     <CircularProgress
       size='6'
       value={timeRemainingMs}
-      max={GET_TRADE_QUOTE_POLLING_INTERVAL}
+      max={initialTimeMs}
       isIndeterminate={isLoading}
     />
   )

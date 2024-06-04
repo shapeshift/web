@@ -21,7 +21,10 @@ import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import {
+  canAddMetaMaskAccount,
+  useIsSnapInstalled,
+} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -29,6 +32,7 @@ import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAccountIdsByChainId,
   selectFeeAssetByChainId,
   selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
@@ -205,9 +209,22 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     enabled: queryEnabled,
   })
 
+  const supportsMultiAccount = useMemo(() => {
+    if (!wallet?.supportsBip44Accounts()) return false
+    if (!accounts) return false
+    if (!isMetaMaskMultichainWallet) return true
+
+    return canAddMetaMaskAccount({
+      accountNumber: accounts.pages.length,
+      chainId,
+      wallet,
+      isSnapInstalled: !!isSnapInstalled,
+    })
+  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled])
+
   useEffect(() => {
     if (queryEnabled) return
-    if (isMetaMaskMultichainWallet && isSnapInstalled === null) return
+    if (isMetaMaskMultichainWallet && !isSnapInstalled) return
 
     if (!isLedgerWallet) {
       setAutoFetching(true)
@@ -224,6 +241,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     })
   }, [queryEnabled, isLedgerWallet, isMetaMaskMultichainWallet, isSnapInstalled, queryClient])
 
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const existingAccountIdsForChain = accountIdsByChainId[chainId]
+
   // Handle initial automatic loading
   useEffect(() => {
     if (isFetching || isLoading || !autoFetching || !accounts || !queryEnabled) return
@@ -233,14 +253,26 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       accounts.pages.length - 1
     ].accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
+    const isLastAccountInStore = existingAccountIdsForChain?.includes(
+      accounts.pages[accounts.pages.length - 1].accountIdWithActivityAndMetadata[0]?.accountId,
+    )
+
     // Keep fetching until we find an account without activity
-    if (isLastAccountActive) {
+    if (isLastAccountActive || isLastAccountInStore) {
       fetchNextPage()
     } else {
       // Stop auto-fetching and switch to manual mode
       setAutoFetching(false)
     }
-  }, [accounts, fetchNextPage, autoFetching, isFetching, isLoading, queryEnabled])
+  }, [
+    accounts,
+    fetchNextPage,
+    autoFetching,
+    isFetching,
+    isLoading,
+    queryEnabled,
+    existingAccountIdsForChain,
+  ])
 
   const handleLoadMore = useCallback(() => {
     if (isFetching || isLoading || autoFetching) return
@@ -381,14 +413,21 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
               </Tbody>
             </Table>
           </TableContainer>
-          <Button
-            colorScheme='gray'
-            onClick={handleLoadMore}
-            isDisabled={isFetching || isLoading || autoFetching || isSubmitting}
-            _disabled={disabledProps}
+          <Tooltip
+            label={translate('accountManagement.importAccounts.loadMoreDisabled')}
+            isDisabled={supportsMultiAccount}
           >
-            {translate('common.loadMore')}
-          </Button>
+            <Button
+              colorScheme='gray'
+              onClick={handleLoadMore}
+              isDisabled={
+                isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
+              }
+              _disabled={disabledProps}
+            >
+              {translate('common.loadMore')}
+            </Button>
+          </Tooltip>
         </>
       }
     />

@@ -1,7 +1,7 @@
 import { Box, Tooltip, type TooltipProps } from '@chakra-ui/react'
 import { type PropsWithChildren, useCallback, useState } from 'react'
 
-type TooltipWithTouchProps = TooltipProps & PropsWithChildren
+type TooltipWithTouchProps = Pick<TooltipProps, 'label'> & PropsWithChildren
 
 export const TooltipWithTouch: React.FC<TooltipWithTouchProps> = ({ children, label }) => {
   const [isLabelOpen, setIsLabelOpen] = useState(false)

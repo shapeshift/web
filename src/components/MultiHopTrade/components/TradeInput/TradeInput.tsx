@@ -48,6 +48,7 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
@@ -221,6 +222,11 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+
+  const pollingInterval = useMemo(() => {
+    if (!activeSwapperName) return DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
+    return swappers[activeSwapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
+  }, [activeSwapperName])
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
@@ -618,7 +624,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                       </Heading>
                       <Flex gap={2} alignItems='center'>
                         {activeQuote && (isCompact || isSmallerThanXl) && (
-                          <CountdownSpinner isLoading={isLoading || isRefetching} />
+                          <CountdownSpinner
+                            isLoading={isLoading || isRefetching}
+                            initialTimeMs={pollingInterval}
+                          />
                         )}
                         <SlippagePopover />
                       </Flex>

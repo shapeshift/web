@@ -1,7 +1,8 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useCallback, useMemo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -25,12 +26,15 @@ type BodyContent = {
 type UnstakeStatusProps = {
   confirmedQuote: RfoxUnstakingQuote
   txId: string
+  onTxConfirmed: () => Promise<void>
 }
 
 export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = ({
   confirmedQuote,
   txId,
+  onTxConfirmed: handleTxConfirmed,
 }) => {
+  const queryClient = useQueryClient()
   const history = useHistory()
 
   const handleGoBack = useCallback(() => {
@@ -54,6 +58,12 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
   }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, txId])
 
   const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+
+  useEffect(() => {
+    if (tx?.status !== TxStatus.Confirmed) return
+
+    handleTxConfirmed()
+  }, [handleTxConfirmed, queryClient, tx?.status])
 
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null

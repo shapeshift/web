@@ -1,7 +1,7 @@
-import { EditIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
@@ -9,8 +9,6 @@ import {
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-
-const editIcon = <EditIcon />
 
 type MetaMaskMenuProps = {
   onClose?: () => void
@@ -20,7 +18,6 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
   const isSnapInstalled = useIsSnapInstalled()
   const translate = useTranslate()
   const snapModal = useModal('snaps')
-  const accountManagementPopover = useModal('manageAccounts')
   const [isMetaMask, setIsMetaMask] = useState<null | boolean>(null)
 
   const {
@@ -42,11 +39,6 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
     }
   }, [isSnapInstalled, snapModal])
 
-  const handleManageAccountsMenuItemClick = useCallback(() => {
-    onClose && onClose()
-    accountManagementPopover.open({})
-  }, [accountManagementPopover, onClose])
-
   const renderSnapStatus = useMemo(() => {
     if (isSnapInstalled === true) {
       return <Tag colorScheme='green'>{translate('walletProvider.metaMaskSnap.active')}</Tag>
@@ -58,11 +50,7 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
   return isMetaMask ? (
     <>
       <MenuDivider />
-      {isSnapInstalled && (
-        <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-          {translate('accountManagement.menuTitle')}
-        </MenuItem>
-      )}
+      {isSnapInstalled && <ManageAccountsMenuItem onClose={onClose} />}
       <MenuItem
         justifyContent='space-between'
         onClick={handleClick}

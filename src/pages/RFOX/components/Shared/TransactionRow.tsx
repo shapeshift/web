@@ -27,7 +27,7 @@ type TransactionRowProps = {
   assetId: AssetId
   onComplete: (status: TxStatus) => void
   onStart: () => void
-  onSignAndBroadcast: () => Promise<void>
+  onSignAndBroadcast: (() => Promise<void>) | undefined
   headerCopy: string
   isActive?: boolean
   isLast?: boolean

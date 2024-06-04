@@ -51,8 +51,19 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
-  const steps: { asset: Asset; headerCopy: string; isActionable: boolean }[] = useMemo(() => {
+  const steps: {
+    asset: Asset
+    headerCopy: string
+    isActionable: boolean
+    onSignAndBroadcast?: (() => Promise<void>) | undefined
+  }[] = useMemo(() => {
     if (!(sellAsset && buyAsset)) return []
+
+    const handleSignAndBroadcast = async () => {
+      console.log('TODO: handleSignAndBroadcast')
+      await Promise.resolve()
+    }
+
     return [
       {
         asset: sellAsset,
@@ -61,8 +72,8 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
           amount: bridgeAmountCryptoPrecision,
           asset: sellAsset.symbol,
         }),
-        // TODO(gomes): find a clean way to pass onSignAndBroadcast per step, *if* actionable
         isActionable: true,
+        onSignAndBroadcast: handleSignAndBroadcast,
       },
       { asset: buyAsset, headerCopy: 'Bridge Funds', isActionable: false },
     ]
@@ -167,35 +178,36 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
   ])
 
   const assetCards = useMemo(() => {
-    const handleSignAndBroadcast = async () => {
-      console.log('TODO: handleSignAndBroadcast')
-      await Promise.resolve()
-    }
     return (
       <Stack mt={4}>
-        {steps.map(({ asset, headerCopy, isActionable }, index) => {
-          const onClick = () => {
-            // TODO(gomes): remove me - this is for dev only so we can test the final step completing
-            // by clicking on it, since we're not dispatching an actual Tx for now
-            if (index === steps.length - 1) {
-              handleComplete(TxStatus.Confirmed)
+        {steps.map(
+          (
+            { asset, headerCopy, isActionable, onSignAndBroadcast: handleSignAndBroadcast },
+            index,
+          ) => {
+            const onClick = () => {
+              // TODO(gomes): remove me - this is for dev only so we can test the final step completing
+              // by clicking on it, since we're not dispatching an actual Tx for now
+              if (index === steps.length - 1) {
+                handleComplete(TxStatus.Confirmed)
+              }
             }
-          }
-          return (
-            <TransactionRow
-              key={asset.assetId}
-              assetId={asset.assetId}
-              headerCopy={headerCopy}
-              onStart={handleStart}
-              onSignAndBroadcast={handleSignAndBroadcast}
-              onComplete={handleComplete}
-              // TODO(gomes): once again, don't forget to remove me
-              onClick={onClick}
-              isActive={index === activeStepIndex && !isFailed}
-              isActionable={isActionable}
-            />
-          )
-        })}
+            return (
+              <TransactionRow
+                key={asset.assetId}
+                assetId={asset.assetId}
+                headerCopy={headerCopy}
+                onStart={handleStart}
+                onSignAndBroadcast={handleSignAndBroadcast}
+                onComplete={handleComplete}
+                // TODO(gomes): once again, don't forget to remove me
+                onClick={onClick}
+                isActive={index === activeStepIndex && !isFailed}
+                isActionable={isActionable}
+              />
+            )
+          },
+        )}
       </Stack>
     )
   }, [steps, handleStart, handleComplete, activeStepIndex, isFailed])

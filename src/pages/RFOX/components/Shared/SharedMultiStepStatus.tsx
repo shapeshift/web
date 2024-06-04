@@ -57,13 +57,16 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
       {
         asset: sellAsset,
         // TODO(gomes): copy
-        headerCopy: `Send ${bridgeAmountCryptoPrecision} ${sellAsset.symbol}`,
+        headerCopy: translate('common.sendAmountAsset', {
+          amount: bridgeAmountCryptoPrecision,
+          asset: sellAsset.symbol,
+        }),
         // TODO(gomes): find a clean way to pass onSignAndBroadcast per step, *if* actionable
         isActionable: true,
       },
       { asset: buyAsset, headerCopy: 'Bridge Funds', isActionable: false },
     ]
-  }, [bridgeAmountCryptoPrecision, buyAsset, sellAsset])
+  }, [bridgeAmountCryptoPrecision, buyAsset, sellAsset, translate])
 
   // TODO(gomes): handle L2 complete
   const handleComplete = useCallback(
@@ -86,8 +89,7 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
     [activeStepIndex, steps.length],
   )
 
-  // TODO(gomes): implement progress
-  const progress = useMemo(() => 1, [])
+  const progress = useMemo(() => activeStepIndex / numSteps, [activeStepIndex])
   const progressPercentage = useMemo(
     () => `${activeStepIndex + 1}/${numSteps}`,
     [activeStepIndex, numSteps],
@@ -174,6 +176,7 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
         {steps.map(({ asset, headerCopy, isActionable }, index) => {
           const onClick = () => {
             // TODO(gomes): remove me - this is for dev only so we can test the final step completing
+            // by clicking on it, since we're not dispatching an actual Tx for now
             if (index === steps.length - 1) {
               handleComplete(TxStatus.Confirmed)
             }

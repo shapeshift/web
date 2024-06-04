@@ -23,6 +23,7 @@ export const TabIndex = {
   Unstake: 1,
   Claim: 2,
   ChangeAddress: 3,
+  Bridge: 4,
 }
 
 const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
@@ -83,7 +84,11 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
       >
         {translate('RFOX.changeAddress')}
       </FormHeaderTab>
-      <FormHeaderTab index={3} onClick={handleClick} isActive={activeIndex === 2}>
+      <FormHeaderTab
+        index={TabIndex.Bridge}
+        onClick={handleClick}
+        isActive={activeIndex === TabIndex.Bridge}
+      >
         {translate('RFOX.bridge')}
       </FormHeaderTab>
     </Flex>

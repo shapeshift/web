@@ -1,7 +1,15 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { useQueryClient } from '@tanstack/react-query'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import type { Address } from 'viem'
+import { getAddress } from 'viem'
+import { arbitrum } from 'viem/chains'
+import { useReadContract } from 'wagmi'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
@@ -48,9 +56,27 @@ export const ChangeAddress: React.FC<ChangeAddressRouteProps> = ({ headerCompone
 
 export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
+  const queryClient = useQueryClient()
 
   const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
+
+  const { queryKey: stakingInfoQueryKey } = useReadContract({
+    abi: foxStakingV1Abi,
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'stakingInfo',
+    args: [
+      // actually defined by the time we actually consume the queryKey
+      confirmedQuote
+        ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+        : ('' as Address),
+    ],
+    chainId: arbitrum.id,
+  })
+
+  const handleTxConfirmed = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: stakingInfoQueryKey })
+  }, [queryClient, stakingInfoQueryKey])
 
   const renderChangeAddressInput = useCallback(() => {
     return (
@@ -79,10 +105,11 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
       <ChangeAddressStatus
         txId={changeAddressTxid}
         confirmedQuote={confirmedQuote}
+        onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}
       />
     )
-  }, [changeAddressTxid, confirmedQuote, headerComponent])
+  }, [changeAddressTxid, confirmedQuote, handleTxConfirmed, headerComponent])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

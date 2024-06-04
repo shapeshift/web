@@ -10,6 +10,9 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { useQuery } from '@tanstack/react-query'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -20,7 +23,12 @@ import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { getTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { RfoxBridgeQuote } from './types'
@@ -64,6 +72,45 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({
       bnOrZero(bridgeAmountCryptoPrecision).times(sellAssetMarketDataUserCurrency.price).toFixed(),
     [bridgeAmountCryptoPrecision, sellAssetMarketDataUserCurrency.price],
   )
+
+  const accountNumberFilter = useMemo(
+    () => ({ assetId: bridgeQuote.sellAssetId, accountId: bridgeQuote.sellAssetAccountId }),
+    [bridgeQuote.sellAssetAccountId, bridgeQuote.sellAssetId],
+  )
+  const accountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, accountNumberFilter),
+  )
+
+  // TODO(gomes): react-queries
+  const {
+    data: quote,
+    isLoading: isBridgeQuoteLoading,
+    isSuccess: isBridgeQuoteSuccess,
+  } = useQuery({
+    queryKey: ['rfoxBridgeQuote', bridgeQuote],
+    queryFn: async () => {
+      return getTradeQuote({
+        sellAsset: sellAsset!,
+        buyAsset: buyAsset!,
+        chainId: sellAsset!.chainId as EvmChainId,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: bridgeQuote.bridgeAmountCryptoBaseUnit,
+        affiliateBps: '0',
+        potentialAffiliateBps: '0',
+        allowMultiHop: true,
+        receiveAddress: fromAccountId(bridgeQuote.buyAssetAccountId).account,
+        sendAddress: fromAccountId(bridgeQuote.sellAssetAccountId).account,
+        accountNumber,
+      })
+    },
+  })
+
+  const networkFeeCryptoPrecision = useMemo(() => {
+    if (!quote || quote.isErr()) return null
+    return fromBaseUnit(
+      bnOrZero(quote.unwrap().steps[0].feeData.networkFeeCryptoBaseUnit),
+      sellAsset?.precision ?? 0,
+    )
+  }, [quote, sellAsset])
 
   const bridgeCard = useMemo(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -131,9 +178,9 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
-                  <Skeleton isLoaded={true}>
+                  <Skeleton isLoaded={!!networkFeeCryptoPrecision}>
                     <Row.Value>
-                      <Amount.Fiat value={'1.23' ?? '0.0'} />
+                      <Amount.Fiat value={networkFeeCryptoPrecision ?? '0'} />
                     </Row.Value>
                   </Skeleton>
                 </Row.Value>

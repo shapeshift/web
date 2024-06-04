@@ -152,10 +152,19 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     if (isSubmitted) {
       return (
         <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
-          <Center boxSize='80px' borderRadius='full' color='text.success' fontSize='xl' my={8}>
-            <CircularProgress isIndeterminate />
+          <Center boxSize='80px' borderRadius='full' fontSize='xl' my={8}>
+            <CircularProgress
+              size='100px'
+              thickness={4}
+              isIndeterminate
+              trackColor='background.surface.raised.base'
+            >
+              <CircularProgressLabel fontSize='md'>
+                {activeStepIndex + 1} / {txAssets.length}
+              </CircularProgressLabel>
+            </CircularProgress>
           </Center>
-          <Heading as='h4'>{translate('pools.transactionSubmitted')}</Heading>
+          <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
         </CardBody>
       )
     }
@@ -237,7 +246,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
             </CircularProgressLabel>
           </CircularProgress>
         </Center>
-        <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
+        <Heading as='h4'>{translate('common.signTransaction')}</Heading>
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
           <RawText>
             {translate(

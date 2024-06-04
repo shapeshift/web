@@ -33,7 +33,7 @@ type TransactionRowProps = {
   isLast?: boolean
   isActionable: boolean
   txId?: string
-  serializedTxIndex?: string
+  serializedTxIndex: string | undefined
   // TODO(gomes): remove me, dev only
   onClick?: () => void
 }
@@ -74,7 +74,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const handleSignTx = useCallback(async () => {
     setIsSubmitting(true)
 
-    await onSignAndBroadcast()
+    await onSignAndBroadcast?.()
     // TODO: pass down a signAndBroadcast function to handle the transaction signing
     // It shouldn't be this component's responsibility to handle this, since it may differ from step to step, and some steps may actually be hops that don't require signing altogether
     // e.g Arbitrum L2 outbound which is automagical

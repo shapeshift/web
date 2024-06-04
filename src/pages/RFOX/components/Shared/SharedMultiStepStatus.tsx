@@ -12,7 +12,7 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { PropsWithChildren } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
@@ -20,21 +20,30 @@ import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButt
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { RfoxBridgeQuote } from '../Bridge/types'
 import { TransactionRow } from './TransactionRow'
 
-type ReusableLpStatusProps = {
+type SharedMultiStepStatusProps = {
   onBack: () => void
   confirmedQuote: RfoxBridgeQuote
+  serializedTxIndex?: string
+  steps: {
+    asset: Asset
+    headerCopy: string
+    isActionable: boolean
+    onSignAndBroadcast?: (() => Promise<string>) | undefined
+  }[]
 } & PropsWithChildren
 
-export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
+export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   confirmedQuote,
   onBack: handleBack,
   children,
+  serializedTxIndex,
+  steps,
 }) => {
   const translate = useTranslate()
   // TODO(gomes): programmatic, this works for Arbitrum Bridge but we need to find a better way
@@ -51,33 +60,9 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
-  const steps: {
-    asset: Asset
-    headerCopy: string
-    isActionable: boolean
-    onSignAndBroadcast?: (() => Promise<void>) | undefined
-  }[] = useMemo(() => {
-    if (!(sellAsset && buyAsset)) return []
-
-    const handleSignAndBroadcast = async () => {
-      console.log('TODO: handleSignAndBroadcast')
-      await Promise.resolve()
-    }
-
-    return [
-      {
-        asset: sellAsset,
-        // TODO(gomes): copy
-        headerCopy: translate('common.sendAmountAsset', {
-          amount: bridgeAmountCryptoPrecision,
-          asset: sellAsset.symbol,
-        }),
-        isActionable: true,
-        onSignAndBroadcast: handleSignAndBroadcast,
-      },
-      { asset: buyAsset, headerCopy: 'Bridge Funds', isActionable: false },
-    ]
-  }, [bridgeAmountCryptoPrecision, buyAsset, sellAsset, translate])
+  const [serializedTxIndexByStep, setSerializedTxIndexByStep] = useState<
+    Record<number, string | undefined>
+  >({})
 
   // TODO(gomes): handle L2 complete
   const handleComplete = useCallback(
@@ -87,6 +72,14 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
     },
     [activeStepIndex],
   )
+
+  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex ?? ''))
+
+  useEffect(() => {
+    if (tx?.status && tx?.status !== TxStatus.Pending) {
+      handleComplete(tx.status)
+    }
+  }, [tx?.status, handleComplete])
 
   const handleStart = useCallback(() => {
     setCanGoBack(false)
@@ -202,6 +195,7 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
                 onComplete={handleComplete}
                 // TODO(gomes): once again, don't forget to remove me
                 onClick={onClick}
+                serializedTxIndex={serializedTxIndexByStep[index]}
                 isActive={index === activeStepIndex && !isFailed}
                 isActionable={isActionable}
               />
@@ -210,7 +204,7 @@ export const ShareMultiStepStatus: React.FC<ReusableLpStatusProps> = ({
         )}
       </Stack>
     )
-  }, [steps, handleStart, handleComplete, activeStepIndex, isFailed])
+  }, [steps, handleStart, handleComplete, serializedTxIndexByStep, activeStepIndex, isFailed])
 
   if (!(sellAsset && buyAsset)) return null
 

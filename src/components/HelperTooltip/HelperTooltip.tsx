@@ -10,9 +10,9 @@ export type HelperTooltipProps = {
   iconProps?: IconProps
 }
 
-export const HelperTooltip = ({ children, flexProps, iconProps, ...rest }: HelperTooltipProps) => {
+export const HelperTooltip = ({ children, flexProps, iconProps, label }: HelperTooltipProps) => {
   return (
-    <TooltipWithTouch {...rest}>
+    <TooltipWithTouch label={label}>
       <Flex alignItems='center' columnGap={2} {...flexProps}>
         {children}
         <QuestionIcon color='text.subtle' {...iconProps} />

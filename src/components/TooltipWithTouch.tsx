@@ -3,10 +3,7 @@ import { type PropsWithChildren, useCallback, useState } from 'react'
 
 type TooltipWithTouchProps = TooltipProps & PropsWithChildren
 
-export const TooltipWithTouch: React.FC<TooltipWithTouchProps> = ({
-  children,
-  ...restToolTipProps
-}) => {
+export const TooltipWithTouch: React.FC<TooltipWithTouchProps> = ({ children, label }) => {
   const [isLabelOpen, setIsLabelOpen] = useState(false)
 
   const handleMouseEnter = useCallback(() => setIsLabelOpen(true), [])
@@ -14,7 +11,7 @@ export const TooltipWithTouch: React.FC<TooltipWithTouchProps> = ({
   const handleClick = useCallback(() => setIsLabelOpen(true), [])
 
   return (
-    <Tooltip isOpen={isLabelOpen} {...restToolTipProps}>
+    <Tooltip isOpen={isLabelOpen} label={label}>
       <Box onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={handleClick}>
         {children}
       </Box>

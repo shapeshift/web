@@ -149,42 +149,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const renderBody = useMemo(() => {
     if (!txAssets.length) return null
 
-    if (isComplete) {
-      return (
-        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
-          <Center
-            bg='background.success'
-            boxSize='80px'
-            borderRadius='full'
-            color='text.success'
-            fontSize='xl'
-            my={8}
-          >
-            <FaCheck />
-          </Center>
-          <Heading as='h4'>{translate('common.success')}</Heading>
-        </CardBody>
-      )
-    }
-
-    if (isFailed) {
-      return (
-        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
-          <Center
-            bg='background.error'
-            boxSize='80px'
-            borderRadius='full'
-            color='text.error'
-            fontSize='xl'
-            my={8}
-          >
-            <FaX />
-          </Center>
-          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
-        </CardBody>
-      )
-    }
-
     const supplyAssets = poolAssets.map((asset, i) => {
       const amountCryptoPrecision =
         asset.assetId === thorchainAssetId
@@ -223,6 +187,44 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
         <HStack divider={hStackDivider}>{supplyAssets}</HStack>
       </Flex>
     )
+
+    if (isComplete) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center
+            bg='background.success'
+            boxSize='80px'
+            borderRadius='full'
+            color='text.success'
+            fontSize='xl'
+            my={8}
+          >
+            <FaCheck />
+          </Center>
+          <Heading as='h4'>{translate('common.success')}</Heading>
+          <AssetAmounts />
+        </CardBody>
+      )
+    }
+
+    if (isFailed) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center
+            bg='background.error'
+            boxSize='80px'
+            borderRadius='full'
+            color='text.error'
+            fontSize='xl'
+            my={8}
+          >
+            <FaX />
+          </Center>
+          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
+          <AssetAmounts />
+        </CardBody>
+      )
+    }
 
     if (isSubmitted) {
       return (

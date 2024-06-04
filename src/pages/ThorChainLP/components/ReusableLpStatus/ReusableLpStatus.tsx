@@ -149,26 +149,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const renderBody = useMemo(() => {
     if (!txAssets.length) return null
 
-    if (isSubmitted) {
-      return (
-        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
-          <Center boxSize='80px' borderRadius='full' fontSize='xl' my={8}>
-            <CircularProgress
-              size='100px'
-              thickness={4}
-              isIndeterminate
-              trackColor='background.surface.raised.base'
-            >
-              <CircularProgressLabel fontSize='md'>
-                {activeStepIndex + 1} / {txAssets.length}
-              </CircularProgressLabel>
-            </CircularProgress>
-          </Center>
-          <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
-        </CardBody>
-      )
-    }
-
     if (isComplete) {
       return (
         <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
@@ -214,6 +194,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           : isLpConfirmedDepositQuote(confirmedQuote)
           ? confirmedQuote.assetDepositAmountCryptoPrecision
           : confirmedQuote.assetWithdrawAmountCryptoPrecision
+
       return (
         <Fragment key={`amount-${asset.assetId}`}>
           <Amount.Crypto
@@ -232,6 +213,38 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       )
     })
 
+    const AssetAmounts = () => (
+      <Flex gap={1} justifyContent='center' fontWeight='medium'>
+        <RawText>
+          {translate(
+            isLpConfirmedDepositQuote(confirmedQuote) ? 'pools.supplying' : 'pools.withdrawing',
+          )}
+        </RawText>
+        <HStack divider={hStackDivider}>{supplyAssets}</HStack>
+      </Flex>
+    )
+
+    if (isSubmitted) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center boxSize='80px' borderRadius='full' fontSize='xl' my={8}>
+            <CircularProgress
+              size='100px'
+              thickness={4}
+              isIndeterminate
+              trackColor='background.surface.raised.base'
+            >
+              <CircularProgressLabel fontSize='md'>
+                {activeStepIndex + 1} / {txAssets.length}
+              </CircularProgressLabel>
+            </CircularProgress>
+          </Center>
+          <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
+          <AssetAmounts />
+        </CardBody>
+      )
+    }
+
     return (
       <CardBody textAlign='center'>
         <Center my={8}>
@@ -247,14 +260,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           </CircularProgress>
         </Center>
         <Heading as='h4'>{translate('common.signTransaction')}</Heading>
-        <Flex gap={1} justifyContent='center' fontWeight='medium'>
-          <RawText>
-            {translate(
-              isLpConfirmedDepositQuote(confirmedQuote) ? 'pools.supplying' : 'pools.withdrawing',
-            )}
-          </RawText>
-          <HStack divider={hStackDivider}>{supplyAssets}</HStack>
-        </Flex>
+        <AssetAmounts />
       </CardBody>
     )
   }, [

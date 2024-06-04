@@ -1,7 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQueryClient } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -33,7 +32,6 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   txId,
   onTxConfirmed: handleTxConfirmed,
 }) => {
-  const queryClient = useQueryClient()
   const history = useHistory()
 
   const handleGoBack = useCallback(() => {
@@ -62,7 +60,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     if (tx?.status !== TxStatus.Confirmed) return
 
     handleTxConfirmed()
-  }, [handleTxConfirmed, queryClient, tx?.status])
+  }, [handleTxConfirmed, tx?.status])
 
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null

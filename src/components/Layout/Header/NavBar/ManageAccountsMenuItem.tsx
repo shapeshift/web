@@ -9,15 +9,16 @@ const editIcon = <EditIcon />
 type ManageAccountsMenuItemProps = {
   onClose?: () => void
   displayDivider?: boolean
+  onClick?: () => void
 }
 
 export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
   onClose,
   displayDivider,
+  onClick,
 }) => {
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
-
   const accountManagementPopover = useModal('manageAccounts')
 
   const handleManageAccountsMenuItemClick = useCallback(() => {
@@ -29,7 +30,7 @@ export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
     <>
       {displayDivider && <MenuDivider />}
       {isAccountManagementEnabled && (
-        <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
+        <MenuItem icon={editIcon} onClick={onClick ?? handleManageAccountsMenuItemClick}>
           {translate('accountManagement.menuTitle')}
         </MenuItem>
       )}

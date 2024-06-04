@@ -290,7 +290,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               poolAssetId={poolAssetId}
               amountCryptoPrecision={amountCryptoPrecision}
               onStart={handleStart}
-              onStatusChanged={handleStatusUpdate}
+              onStatusUpdate={handleStatusUpdate}
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
               opportunityType={opportunityType}

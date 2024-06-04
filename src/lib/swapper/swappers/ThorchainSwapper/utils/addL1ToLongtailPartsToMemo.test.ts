@@ -46,7 +46,7 @@ describe('addL1ToLongtailPartsToMemo', () => {
     )
   })
 
-  it('should throw if chainId is BCH and memo length is > 220', () => {
+  it('should throw if chainId is BCH and initial memo length is > 220', () => {
     const finalAssetAmountOut = '2083854765519275828179229'
     const memoOver220Bytes = `=:ETH.ETH:${REALLY_BIG_ADDRESS}:42:ss:100`
 
@@ -62,10 +62,10 @@ describe('addL1ToLongtailPartsToMemo', () => {
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
       }),
-    ).toThrow('min amount chars length should be 3 or more')
+    ).toThrow('memo is too long')
   })
 
-  it('should throw if chainId is BTC and memo length is > 80', () => {
+  it('should throw if chainId is BTC and initial memo length is > 80', () => {
     const finalAssetAmountOut = '2083854765519275828179229'
     const memoOver80Bytes = `=:ETH.ETH:${BIG_ADDRESS}:42:ss:100`
 
@@ -81,10 +81,10 @@ describe('addL1ToLongtailPartsToMemo', () => {
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
       }),
-    ).toThrow('min amount chars length should be 3 or more')
+    ).toThrow('memo is too long')
   })
 
-  it('should throw if chainId is DOGE and memo length is > 80', () => {
+  it('should throw if chainId is DOGE and initial memo length is > 80', () => {
     const finalAssetAmountOut = '2083854765519275828179229'
     const memoOver80Bytes = `=:ETH.ETH:${BIG_ADDRESS}:42:ss:100`
 
@@ -99,7 +99,25 @@ describe('addL1ToLongtailPartsToMemo', () => {
         slippageBps,
         longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
       }),
-    ).toThrow('min amount chars length should be 3 or more')
+    ).toThrow('memo is too long')
+  })
+
+  it('should throw if chainId is DOGE and initial memo length is under 80 but aggregator addition is making it over 80', () => {
+    const finalAssetAmountOut = '2083854765519275828179229'
+    const memoOver80Bytes = `=:ETH.ETH:${BIG_ADDRESS}:42:ss:1`
+
+    expect(memoOver80Bytes.length).toBe(79)
+    expect(() =>
+      addL1ToLongtailPartsToMemo({
+        sellAssetChainId: dogeChainId,
+        quotedMemo: memoOver80Bytes,
+        aggregator: AGGREGATOR_ADDRESS,
+        finalAssetAssetId: FINAL_ASSET_ASSETID,
+        finalAssetAmountOut,
+        slippageBps,
+        longtailTokens: THORCHAIN_ASSETIDS_ONE_COLLISION,
+      }),
+    ).toThrow('memo is too long')
   })
 
   it('should be successful if chainId is DOGE and memo length is < 80', () => {

@@ -42,6 +42,9 @@ export const addL1ToLongtailPartsToMemo = ({
 
   const maxMemoSize = getMaxBytesLengthByChainId(sellAssetChainId)
 
+  // Paranonia - If memo without final asset amount out and aggregator is already too long, we can't do anything
+  assert(quotedMemo.length <= maxMemoSize, 'memo is too long')
+
   const finalAssetLimitWithManualSlippage = subtractBasisPointAmount(
     bn(finalAssetAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
     slippageBps,
@@ -73,6 +76,9 @@ export const addL1ToLongtailPartsToMemo = ({
     aggregatorLastTwoChars,
     finalAssetContractAddressShortened,
   ].join(MEMO_PART_DELIMITER)
+
+  // Paranonia - If memo without final asset amount out is already too long, we can't do anything
+  assert(memoWithoutFinalAssetAmountOut.length <= maxMemoSize, 'memo is too long')
 
   const memoWithShortenedFinalAssetAmountOut = makeMemoWithShortenedFinalAssetAmount({
     maxMemoSize,

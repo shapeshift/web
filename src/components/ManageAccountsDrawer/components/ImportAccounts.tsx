@@ -162,7 +162,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
-  const { wallet, deviceId: walletDeviceId, isDemoWallet } = useWallet().state
+  const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const isSnapInstalled = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
@@ -210,7 +210,6 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   })
 
   const supportsMultiAccount = useMemo(() => {
-    if (isDemoWallet) return false
     if (!wallet?.supportsBip44Accounts()) return false
     if (!accounts) return false
     if (!isMetaMaskMultichainWallet) return true
@@ -221,7 +220,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       wallet,
       isSnapInstalled: !!isSnapInstalled,
     })
-  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled, isDemoWallet])
+  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled])
 
   useEffect(() => {
     if (queryEnabled) return

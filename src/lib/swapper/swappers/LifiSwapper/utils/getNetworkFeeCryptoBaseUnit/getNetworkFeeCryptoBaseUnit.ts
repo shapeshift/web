@@ -23,17 +23,17 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const lifi = getLifi()
   const adapter = assertGetEvmChainAdapter(chainId)
 
-  const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
-  const { data, gasLimit } = transactionRequest ?? {}
-
-  if (!data || !gasLimit) {
-    throw new Error('getStepTransaction failed')
-  }
-
   const { average } = await adapter.getGasFeeData()
 
   const l1GasLimit = await (async () => {
     if (!L1_FEE_CHAIN_IDS.includes(chainId as KnownChainIds)) return
+
+    const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
+    const { data, gasLimit } = transactionRequest ?? {}
+
+    if (!data || !gasLimit) {
+      throw new Error('getStepTransaction failed')
+    }
 
     const provider = getEthersProvider(chainId as EvmChainId)
 
@@ -64,10 +64,12 @@ export const getNetworkFeeCryptoBaseUnit = async ({
     undefined,
   )
 
+  if (!estimatedGasLimit) throw new Error('failed to get estimated gas limit')
+
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
     ...average,
     supportsEIP1559,
-    gasLimit: estimatedGasLimit?.toString() ?? gasLimit?.toString(),
+    gasLimit: estimatedGasLimit.toString(),
     l1GasLimit,
   })
 

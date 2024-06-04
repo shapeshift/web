@@ -60,7 +60,7 @@ import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { assertUnreachable, isSome, isToken } from 'lib/utils'
+import { assertUnreachable, chainIdToChainDisplayName, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -1196,15 +1196,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!poolAsset || !runeAsset) return null
 
     const translation = (() => {
+      const poolAssetNetworkName =
+        poolAsset.networkName ?? chainIdToChainDisplayName(poolAsset.chainId)
+      const runeAssetNetworkName =
+        runeAsset.networkName ?? chainIdToChainDisplayName(runeAsset.chainId)
+
       if (!walletSupportsRune && !walletSupportsAsset)
         return translate('pools.unsupportedNetworksExplainer', {
-          network1: poolAsset.networkName,
-          network2: runeAsset.networkName,
+          network1: poolAssetNetworkName,
+          network2: runeAssetNetworkName,
         })
       if (!walletSupportsRune)
-        return translate('pools.unsupportedNetworkExplainer', { network: runeAsset.networkName })
+        return translate('pools.unsupportedNetworkExplainer', { network: runeAssetNetworkName })
       if (!walletSupportsAsset)
-        return translate('pools.unsupportedNetworkExplainer', { network: poolAsset.networkName })
+        return translate('pools.unsupportedNetworkExplainer', { network: poolAssetNetworkName })
     })()
 
     return (

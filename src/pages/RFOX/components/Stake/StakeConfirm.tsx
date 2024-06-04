@@ -122,7 +122,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   const {
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
-    queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey,
   } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
@@ -138,7 +137,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   const {
     data: newContractBalanceOfCryptoBaseUnit,
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
-    queryKey: newContractBalanceOfCryptoBaseUnitQueryKey,
   } = useReadContract({
     abi: erc20ABI,
     address: getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference),
@@ -436,20 +434,9 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   const handleSubmit = useCallback(async () => {
     if (isApprovalRequired) return handleApprove()
 
-    await handleStake() // This isn't a mistake - we invalidate as a cleanup operation before unmount to avoid current subscribers refetching with wrong args, hence making invalidation useless
+    await handleStake()
     history.push(StakeRoutePaths.Status)
-
-    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
-  }, [
-    handleApprove,
-    handleStake,
-    history,
-    isApprovalRequired,
-    newContractBalanceOfCryptoBaseUnitQueryKey,
-    queryClient,
-    userStakingBalanceOfCryptoBaseUnitQueryKey,
-  ])
+  }, [handleApprove, handleStake, history, isApprovalRequired])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null

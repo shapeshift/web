@@ -10,7 +10,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { type FC, useCallback, useMemo } from 'react'
@@ -27,6 +27,7 @@ import { getTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTra
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -36,17 +37,13 @@ import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
 type BridgeConfirmProps = {
   bridgeQuote: RfoxBridgeQuote
-  setBridgeTxid: (txId: string) => void
 }
 
 const backIcon = <ArrowBackIcon />
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 
-export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({
-  bridgeQuote,
-  setBridgeTxid,
-}) => {
+export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridgeQuote }) => {
   const history = useHistory()
   const translate = useTranslate()
 
@@ -57,6 +54,14 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({
 
   const sellAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.sellAssetId))
   const buyAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.buyAssetId))
+
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(bridgeQuote.sellAssetId).chainId),
+  )
+
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
 
   const bridgeAmountCryptoPrecision = useMemo(
     () => fromBaseUnit(bridgeQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
@@ -112,6 +117,11 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({
     )
   }, [quote, sellAsset])
 
+  const networkFeeUserCurrency = useMemo(() => {
+    if (!networkFeeCryptoPrecision) return null
+    return bnOrZero(networkFeeCryptoPrecision).times(feeAssetMarketData.price).toFixed()
+  }, [feeAssetMarketData.price, networkFeeCryptoPrecision])
+
   const bridgeCard = useMemo(() => {
     if (!(sellAsset && buyAsset)) return null
     return (
@@ -145,9 +155,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({
   }, [sellAsset, buyAsset, bridgeAmountCryptoPrecision, bridgeAmountUserCurrency])
 
   const handleSubmit = useCallback(() => {
-    setBridgeTxid('1234')
     history.push(BridgeRoutePaths.Status)
-  }, [history, setBridgeTxid])
+  }, [history])
 
   return (
     <SlideTransition>
@@ -178,9 +187,9 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
-                  <Skeleton isLoaded={!!networkFeeCryptoPrecision}>
+                  <Skeleton isLoaded={!!networkFeeUserCurrency}>
                     <Row.Value>
-                      <Amount.Fiat value={networkFeeCryptoPrecision ?? '0'} />
+                      <Amount.Fiat value={networkFeeUserCurrency ?? '0'} />
                     </Row.Value>
                   </Skeleton>
                 </Row.Value>

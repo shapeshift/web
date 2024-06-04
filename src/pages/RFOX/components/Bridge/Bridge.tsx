@@ -44,8 +44,8 @@ export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) =>
   // we really won't need to setBridgeQuote anymore, as we will just instantiate this component with the bridge quote already
   // i.e when pushing to bridge, we will push with query args and use react-router to consume these here
   //
-  const sellAssetId = foxOnArbitrumOneAssetId
-  const buyAssetId = foxAssetId
+  const sellAssetId = foxAssetId
+  const buyAssetId = foxOnArbitrumOneAssetId
   const sellAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, fromAssetId(sellAssetId).chainId),
   )
@@ -56,25 +56,17 @@ export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) =>
   const dummyBridgeQuote: RfoxBridgeQuote = {
     // Just to keep things cheap while devving this, TODO invert sell and buy assets
     sellAssetId,
+    buyAssetId,
     sellAssetAccountId: sellAssetAccountId ?? '',
     buyAssetAccountId: buyAssetAccountId ?? '',
-    buyAssetId,
     bridgeAmountCryptoBaseUnit: '420000000000000000',
   }
-  const [bridgeQuote, setBridgeQuote] = useState<RfoxBridgeQuote | undefined>(dummyBridgeQuote)
-  // TODO(gomes): bridge status
-  const [bridgeTxid, setBridgeTxid] = useState<string | undefined>()
+  const [bridgeQuote] = useState<RfoxBridgeQuote | undefined>(dummyBridgeQuote)
 
   const renderBridgeConfirm = useCallback(() => {
     if (!bridgeQuote) return null
 
-    return (
-      <BridgeConfirm
-        bridgeQuote={bridgeQuote}
-        setBridgeTxid={setBridgeTxid}
-        headerComponent={headerComponent}
-      />
-    )
+    return <BridgeConfirm bridgeQuote={bridgeQuote} headerComponent={headerComponent} />
   }, [bridgeQuote, headerComponent])
 
   const renderBridgeStatus = useCallback(() => {

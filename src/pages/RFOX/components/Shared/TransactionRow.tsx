@@ -64,24 +64,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const txIdLink = useMemo(
     () =>
       getTxLink({
-        defaultExplorerBaseUrl: 'TODO',
+        defaultExplorerBaseUrl: asset?.explorerTxLink ?? '',
         tradeId: txId ?? '',
         name: SwapperName.ArbitrumBridge,
       }),
-    [txId],
+    [asset?.explorerTxLink, txId],
   )
 
   const handleSignTx = useCallback(async () => {
     setIsSubmitting(true)
 
     await onSignAndBroadcast?.()
-    // TODO: pass down a signAndBroadcast function to handle the transaction signing
-    // It shouldn't be this component's responsibility to handle this, since it may differ from step to step, and some steps may actually be hops that don't require signing altogether
-    // e.g Arbitrum L2 outbound which is automagical
 
     onStart()
 
-    // TODO: handle complete, this should live in an effect instead and react on TxStatus.Confirmed on the passed serializedTxIndex
     onComplete(TxStatus.Confirmed)
   }, [onComplete, onSignAndBroadcast, onStart])
 

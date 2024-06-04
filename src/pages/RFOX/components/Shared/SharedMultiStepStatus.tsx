@@ -29,12 +29,13 @@ import { TransactionRow } from './TransactionRow'
 type SharedMultiStepStatusProps = {
   onBack: () => void
   confirmedQuote: RfoxBridgeQuote
-  serializedTxIndex?: string
   steps: {
     asset: Asset
     headerCopy: string
     isActionable: boolean
     onSignAndBroadcast?: (() => Promise<string>) | undefined
+    serializedTxIndex: string | undefined
+    txHash: string | undefined
   }[]
 } & PropsWithChildren
 
@@ -42,7 +43,6 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   confirmedQuote,
   onBack: handleBack,
   children,
-  serializedTxIndex,
   steps,
 }) => {
   const translate = useTranslate()
@@ -60,12 +60,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
-  const [serializedTxIndexByStep, setSerializedTxIndexByStep] = useState<
-    Record<number, string | undefined>
-  >({})
-
-  // TODO(gomes): handle L2 complete
-  const handleComplete = useCallback(
+  const handleTxStatusUpdate = useCallback(
     (status: TxStatus) => {
       if (status === TxStatus.Failed) return setIsFailed(true)
       if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
@@ -73,13 +68,15 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
     [activeStepIndex],
   )
 
-  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex ?? ''))
+  const tx = useAppSelector(state =>
+    selectTxById(state, steps[activeStepIndex]?.serializedTxIndex ?? ''),
+  )
 
   useEffect(() => {
     if (tx?.status && tx?.status !== TxStatus.Pending) {
-      handleComplete(tx.status)
+      handleTxStatusUpdate(tx.status)
     }
-  }, [tx?.status, handleComplete])
+  }, [tx?.status, handleTxStatusUpdate])
 
   const handleStart = useCallback(() => {
     setCanGoBack(false)
@@ -175,16 +172,16 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
       <Stack mt={4}>
         {steps.map(
           (
-            { asset, headerCopy, isActionable, onSignAndBroadcast: handleSignAndBroadcast },
+            {
+              asset,
+              headerCopy,
+              isActionable,
+              serializedTxIndex,
+              txHash,
+              onSignAndBroadcast: handleSignAndBroadcast,
+            },
             index,
           ) => {
-            const onClick = () => {
-              // TODO(gomes): remove me - this is for dev only so we can test the final step completing
-              // by clicking on it, since we're not dispatching an actual Tx for now
-              if (index === steps.length - 1) {
-                handleComplete(TxStatus.Confirmed)
-              }
-            }
             return (
               <TransactionRow
                 key={asset.assetId}
@@ -192,10 +189,9 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
                 headerCopy={headerCopy}
                 onStart={handleStart}
                 onSignAndBroadcast={handleSignAndBroadcast}
-                onComplete={handleComplete}
-                // TODO(gomes): once again, don't forget to remove me
-                onClick={onClick}
-                serializedTxIndex={serializedTxIndexByStep[index]}
+                onComplete={handleTxStatusUpdate}
+                serializedTxIndex={serializedTxIndex}
+                txId={txHash}
                 isActive={index === activeStepIndex && !isFailed}
                 isActionable={isActionable}
               />
@@ -204,7 +200,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
         )}
       </Stack>
     )
-  }, [steps, handleStart, handleComplete, serializedTxIndexByStep, activeStepIndex, isFailed])
+  }, [steps, handleStart, handleTxStatusUpdate, activeStepIndex, isFailed])
 
   if (!(sellAsset && buyAsset)) return null
 

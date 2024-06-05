@@ -19,6 +19,7 @@ import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/se
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import type { MultiStepStatusStep } from '../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../Shared/SharedMultiStepStatus'
 import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
@@ -147,7 +148,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     }
   }, [tradeStatus])
 
-  const steps = useMemo(() => {
+  const steps: MultiStepStatusStep[] = useMemo(() => {
     if (!(sellAsset && buyAsset)) return []
 
     return [

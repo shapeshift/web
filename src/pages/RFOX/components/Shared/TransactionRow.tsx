@@ -26,14 +26,15 @@ import { useAppSelector } from 'state/store'
 type TransactionRowProps = {
   assetId: AssetId
   onStart: () => void
-  onSignAndBroadcast: (() => Promise<string | undefined>) | undefined
   headerCopy: string
   isActive?: boolean
   isLast?: boolean
-  isActionable: boolean
   txId?: string
   serializedTxIndex: string | undefined
-}
+} & (
+  | { isActionable: true; onSignAndBroadcast: () => Promise<string | undefined> }
+  | { isActionable: false; onSignAndBroadcast?: never }
+)
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
@@ -67,12 +68,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   )
 
   const handleSignTx = useCallback(async () => {
+    if (!isActionable) return
+
     setIsSubmitting(true)
 
-    await onSignAndBroadcast?.()
+    await onSignAndBroadcast()
 
     onStart()
-  }, [onSignAndBroadcast, onStart])
+  }, [isActionable, onSignAndBroadcast, onStart])
 
   const confirmTranslation = useMemo(() => {
     return translate('common.signTransaction')

@@ -26,17 +26,20 @@ import { useAppSelector } from 'state/store'
 import type { RfoxBridgeQuote } from '../Bridge/types'
 import { TransactionRow } from './TransactionRow'
 
+export type MultiStepStatusStep = {
+  asset: Asset
+  headerCopy: string
+  serializedTxIndex: string | undefined
+  txHash: string | undefined
+} & (
+  | { isActionable: true; onSignAndBroadcast: () => Promise<string | undefined> }
+  | { isActionable: false; onSignAndBroadcast?: never }
+)
+
 type SharedMultiStepStatusProps = {
   onBack: () => void
   confirmedQuote: RfoxBridgeQuote
-  steps: {
-    asset: Asset
-    headerCopy: string
-    isActionable: boolean
-    onSignAndBroadcast?: (() => Promise<string | undefined>) | undefined
-    serializedTxIndex: string | undefined
-    txHash: string | undefined
-  }[]
+  steps: MultiStepStatusStep[]
 } & PropsWithChildren
 
 export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
@@ -86,9 +89,9 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   const isComplete = activeStepIndex === steps.length
   const isFailed = txStatus === TxStatus.Failed
   const isSubmitted =
-    // If this is an actionable step, we're in pending step once the Tx is pending
+    // If this is an actionable step, we're in pending state once the Tx is pending
     (steps[activeStepIndex]?.isActionable && txStatus === TxStatus.Pending) ||
-    // Else if this isn't an actionable step, we're in pending step as soon as the step kicks in, and stay into it so long as the Tx is pending
+    // Else if this isn't an actionable step, we're in pending state as soon as the step kicks in, and stay into it so long as the Tx is pending
     (!steps[activeStepIndex]?.isActionable && (!txStatus || txStatus === TxStatus.Pending))
 
   const progress = useMemo(() => activeStepIndex / numSteps, [activeStepIndex])

@@ -1,7 +1,6 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Card, Flex, Heading, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -48,7 +47,8 @@ export const Buy = () => {
   useGetFiatRampsQuery()
 
   const { chainId, assetSubId } = useParams<MatchParams>()
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(ethAssetId)
+  const [selectedAssetId, setSelectedAssetId] = useState<AssetId | undefined>()
+
   const {
     dispatch,
     state: { isConnected, isDemoWallet },

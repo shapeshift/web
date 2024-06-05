@@ -45,7 +45,7 @@ import {
   sortTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/helpers'
 
-import { selectIsWalletConnected, selectWalletSupportedChainIds } from '../common-selectors'
+import { selectIsWalletConnected, selectWalletConnectedChainIds } from '../common-selectors'
 import {
   selectMarketDataUsd,
   selectMarketDataUserCurrency,
@@ -117,7 +117,7 @@ const selectIsSwapperQuoteAvailable = createSelector(
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectIsWalletConnected,
-  selectWalletSupportedChainIds,
+  selectWalletConnectedChainIds,
   selectManualReceiveAddress,
   selectSellAssetBalanceCryptoBaseUnit,
   selectInputSellAsset,
@@ -125,7 +125,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   (
     inputSellAmountCryptoBaseUnit,
     isWalletConnected,
-    walletSupportedChainIds,
+    walletConnectedChainIds,
     manualReceiveAddress,
     sellAssetBalanceCryptoBaseUnit,
     sellAsset,
@@ -136,7 +136,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
 
     const topLevelValidationErrors = validateQuoteRequest({
       isWalletConnected,
-      walletSupportedChainIds,
+      walletConnectedChainIds,
       manualReceiveAddress,
       sellAssetBalanceCryptoBaseUnit,
       sellAmountCryptoBaseUnit: inputSellAmountCryptoBaseUnit,

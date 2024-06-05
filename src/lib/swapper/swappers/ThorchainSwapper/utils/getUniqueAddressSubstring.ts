@@ -1,33 +1,16 @@
 import { type AssetId } from '@shapeshiftoss/caip'
 
+const MINIMUM_UNIQUE_SUBSTRING = 2
+
 export const getUniqueAddressSubstring = (
   destinationAssetId: AssetId,
   longTailAssetIds: AssetId[],
 ) => {
-  const MINIMUM_UNIQUE_SUBSTRING = 2
-  let maybeShortenedDestinationAddress = destinationAssetId
-
-  const substringsCount: Record<string, number> = {}
-
-  for (let length = MINIMUM_UNIQUE_SUBSTRING; length <= destinationAssetId.length - 2; length++) {
-    const currentSubstring = destinationAssetId.slice(-length)
-    substringsCount[currentSubstring] = 0
+  for (let length = MINIMUM_UNIQUE_SUBSTRING; length <= destinationAssetId.length; length++) {
+    const suffix = destinationAssetId.slice(-length)
+    const matches = longTailAssetIds.filter(assetId => assetId.slice(-length) === suffix)
+    if (matches.length === 1) return suffix
   }
 
-  longTailAssetIds.forEach(assetId => {
-    Object.keys(substringsCount).forEach(substring => {
-      if (assetId.includes(substring)) {
-        substringsCount[substring] += 1
-      }
-    })
-  })
-
-  for (const [substring, count] of Object.entries(substringsCount)) {
-    if (count === 1) {
-      maybeShortenedDestinationAddress = substring
-      break
-    }
-  }
-
-  return maybeShortenedDestinationAddress
+  return destinationAssetId
 }

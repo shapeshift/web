@@ -108,6 +108,7 @@
     "search": "Suchen",
     "searchAsset": "Vermögenswert suchen",
     "enterAmount": "Betrag eingeben",
+    "enterAddress": "Adresse eingeben",
     "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
     "buySell": "Kaufen/Verkaufen",
     "all": "Alle",
@@ -116,6 +117,7 @@
     "feesPlusSlippage": "Gebühren + Marktabweichung",
     "best": "Beste",
     "gasFee": "Gasgebühr",
+    "approvalFee": "Genehmigungsgebühr",
     "consolidationFee": "Konsolidierungsgebühr",
     "fees": "Gebühren",
     "alternative": "Alternative",
@@ -609,7 +611,8 @@
         "title": "QR-Code scannen",
         "body": "Einfaches Scannen zum Senden oder Empfangen von Kryptowährungen"
       }
-    }
+    },
+    "rFOX": "rFOX"
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -877,6 +880,7 @@
     "addressPlaceholder": "%{chainName} Adresse",
     "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?",
     "enableMetaMaskSnap": "Verwenden Sie den Multichain Snap",
+    "connectChain": "verbinde %{chainName}",
     "approvalGasFee": "Genehmigungsgasgebühr %{fee}",
     "approvalFailed": "Bei der Genehmigung ist ein Problem aufgetreten",
     "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
@@ -1416,8 +1420,10 @@
       },
       "connect": {
         "header": "Ledger koppeln",
-        "body": "Klicken Sie auf „Koppeln“ und wählen Sie dann Ihren Ledger aus dem Popup-Fenster aus",
-        "button": "Koppeln"
+        "pairNewDeviceBody": "Klicken Sie auf „Neues Gerät koppeln“, um zu beginnen",
+        "pairNewDeviceButton": "Neues Gerät koppeln",
+        "pairExistingDeviceButton": "Vorhandenes Gerät koppeln",
+        "pairExistingDeviceBody": "Sie möchten ein anderes Ledger Gerät verbinden? Klicken Sie auf „Neues Gerät koppeln“, um neu zu beginnen."
       },
       "failure": {
         "header": "Fehler",
@@ -1464,7 +1470,8 @@
       "andMore": "...und mehr",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap installiert",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap deinstalliert",
-      "dontAskAgain": "Nicht nochmals fragen"
+      "dontAskAgain": "Nicht nochmals fragen",
+      "multiAccountUnsupported": "Für diese Kette werden mehrere Konten mit dem Multichain Snap auf MetaMask nicht unterstützt."
     },
     "metaMaskSnapConfirm": {
       "title": "Installieren Sie Multichain Snap",
@@ -1939,6 +1946,10 @@
       }
     },
     "walletConnectToDapps": {
+      "errors": {
+        "errorConnectingToDapp": "Fehler beim Verbinden mit dApp",
+        "pairingAlreadyExists": "Für diese URL wurde bereits eine Kopplung durchgeführt. Bitte versuchen Sie es mit einer anderen WalletConnect-URL."
+      },
       "header": {
         "connectDapp": "dApp verbinden",
         "connectAnotherDapp": "Verbinden Sie eine andere dApp",
@@ -2412,5 +2423,50 @@
       "title": "Ausleihen",
       "body": "Nehmen Sie einen Kredit auf Ihr Vermögen auf."
     }
+  },
+  "RFOX": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "claim": "Beanspruchen",
+    "changeAddress": "Adresse ändern",
+    "sameAddressNotAllowed": "Dieselbe Adresse ist nicht zulässig",
+    "stakingDetails": "Staking Details",
+    "stakeAmount": "Stake Betrag",
+    "unstakeAmount": "Unstake Betrag",
+    "confirmAndStake": "Bestätigen und Stake",
+    "confirmAndUnstake": "Bestätigen & Unstake",
+    "shapeShiftFee": "ShapeShift Gebühr",
+    "approvalFee": "Genehmigungsgebühr",
+    "lockupPeriod": "Sperrfrist",
+    "shareOfPool": "Anteil am Pool",
+    "networkFee": "Netzwerkgebühr",
+    "thorchainRewardAddress": "THORChain Belohnungsadresse",
+    "rewardAddressHelper": "Hierhin werden die Belohnungen geschickt",
+    "useWalletAddress": "Wallet Adresse verwenden",
+    "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
+    "stakeWarning": "Wenn Sie Ihre FOX Token einsetzen, beachten Sie bitte, dass es eine Sperrfrist von %{cooldownPeriod} gibt. Das bedeutet, dass Sie, wenn Sie sich entscheiden Ihre Token nicht einzusetzen, %{cooldownPeriod} warten müssen, bevor Sie Ihr Geld einfordern können.",
+    "unstakeWarning": "Bevor Sie Ihren FOX beanspruchen können, gibt es eine Abkühlphase von %{cooldownPeriod}. Nach Ablauf dieser Zeit können Sie Ihren nicht eingesetzten Betrag beanspruchen.",
+    "tooltips": {
+      "stakeAmount": "Dies ist der Betrag an FOX, den Sie Staken werden",
+      "unstakeAmount": "Dies ist der Betrag an FOX, den Sie Unstaken werden",
+      "lockupPeriod": "So lange müssen Sie nach dem Unstaking warten, um Ihren FOX zu beanspruchen",
+      "shareOfPool": "Dies ist Ihr Prozentsatz der Gebühren, die Sie verdienen."
+    },
+    "stakeSuccess": "Sie haben erfolgreich %{amount} %{symbol} gestaked",
+    "stakePending": "Staking %{amount} %{symbol}...",
+    "addressUpdated": "Adresse aktualisiert",
+    "changeRewardAddressPending": "Belohnungsadresse ändern …",
+    "changeRewardAddressSuccess": "Sie haben Ihre THORCHAin Belohnungsadresse erfolgreich geändert.",
+    "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
+    "unstakeSuccess": "Sobald die %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
+    "currentRewardAddress": "Aktuelle Belohnungsadresse",
+    "newRewardAddress": "Neue Belohnungsadresse",
+    "rewardCycleExplainer": "Dies wird für den nächsten Belohnungszyklus aktualisiert.",
+    "noPositionTitle": "Keine aktive Position",
+    "noPositionBody": "Sobald Sie eine aktive Position haben, können Sie Ihre Belohnungsadresse hier ändern.",
+    "stakeNow": "Stake jetzt",
+    "noAddressFound": "Keine Adresse gefunden",
+    "newAddressInfo": "Dies wird für den nächsten Belohnungszyklus aktualisiert",
+    "confirmAndUpdateAddress": "Adresse bestätigen und aktualisieren"
   }
 }

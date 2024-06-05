@@ -13,7 +13,7 @@ import { useHistory } from 'react-router'
 import { ChainList } from 'components/TradeAssetSearch/Chains/ChainList'
 import { filterAssetsBySearchTerm } from 'components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { sortChainIdsByDisplayName } from 'lib/utils'
-import { selectWalletSupportedChainIds } from 'state/slices/selectors'
+import { selectWalletConnectedChainIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetList } from './components/AssetList'
@@ -35,7 +35,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const translate = useTranslate()
   const history = useHistory()
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const supportedAssets = useMemo(() => {
     const fungibleAssets = assets.filter(asset => !isNft(asset.assetId))
@@ -43,8 +43,8 @@ export const AssetSearch: FC<AssetSearchProps> = ({
       return fungibleAssets
     }
 
-    return fungibleAssets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
-  }, [allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
+    return fungibleAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+  }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
 
   /**
    * assets filtered by selected chain ids
@@ -89,10 +89,10 @@ export const AssetSearch: FC<AssetSearchProps> = ({
     const unsortedChainIds = uniq(assets.map(asset => asset.chainId))
     const filteredChainIds = allowWalletUnsupportedAssets
       ? unsortedChainIds
-      : unsortedChainIds.filter(chainId => walletSupportedChainIds.includes(chainId))
+      : unsortedChainIds.filter(chainId => walletConnectedChainIds.includes(chainId))
     const sortedChainIds = sortChainIdsByDisplayName(filteredChainIds)
     return sortedChainIds
-  }, [allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
+  }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
 
   const inputProps: InputProps = useMemo(
     () => ({

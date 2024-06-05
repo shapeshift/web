@@ -23,7 +23,7 @@ import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { RfoxBridgeQuote } from '../Bridge/types'
+import type { RfoxBridgeQuote } from '../Stake/Bridge/types'
 import { TransactionRow } from './TransactionRow'
 
 export type MultiStepStatusStep = {

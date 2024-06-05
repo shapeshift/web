@@ -67,8 +67,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const handleGoBack = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
-  }, [history])
+    history.push({ pathname: StakeRoutePaths.Input, state: bridgeQuote })
+  }, [bridgeQuote, history])
 
   const sellAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.sellAssetId))
   const buyAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.buyAssetId))

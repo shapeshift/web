@@ -1,143 +1,25 @@
-import { Box, Button, CardBody, Center, Flex, Skeleton, Stack, Tooltip } from '@chakra-ui/react'
-import {
-  type AssetId,
-  foxAssetId,
-  foxOnArbitrumOneAssetId,
-  fromAccountId,
-} from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { TransferType } from '@shapeshiftoss/unchained-client'
+import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { foxAssetId, foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { formatDistanceToNow } from 'date-fns'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { useReadContract, useReadContracts } from 'wagmi'
-import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { Text } from 'components/Text'
+import { fromBaseUnit } from 'lib/math'
 import { TabIndex } from 'pages/RFOX/RFOX'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ClaimRow } from './ClaimRow'
 import type { RfoxClaimQuote } from './types'
-import { ClaimRoutePaths, type ClaimRouteProps } from './types'
-
-enum ClaimStatus {
-  Available = 'Available',
-  CoolingDown = 'Cooling down',
-}
-
-type ClaimRowProps = {
-  stakingAssetId: AssetId
-  amountCryptoPrecision: string
-  status: ClaimStatus
-  setConfirmedQuote: (quote: RfoxClaimQuote) => void
-  cooldownPeriodHuman: string
-}
-
-const hoverProps = { bg: 'gray.700' }
-
-const ClaimRow: FC<ClaimRowProps> = ({
-  stakingAssetId: assetId,
-  amountCryptoPrecision,
-  status,
-  setConfirmedQuote,
-  cooldownPeriodHuman,
-}) => {
-  const translate = useTranslate()
-  const history = useHistory()
-
-  const stakingAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const stakingAssetSymbol = stakingAsset?.symbol
-  const stakingAmountCryptoBaseUnit = toBaseUnit(
-    bnOrZero(amountCryptoPrecision),
-    stakingAsset?.precision ?? 0,
-  )
-
-  // TODO(apotheosis): make this programmatic when we implement multi-account
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
-  )
-
-  const claimQuote: RfoxClaimQuote = useMemo(
-    () => ({
-      claimAssetAccountId: stakingAssetAccountId ?? '',
-      claimAssetId: assetId,
-      claimAmountCryptoBaseUnit: stakingAmountCryptoBaseUnit,
-    }),
-    [assetId, stakingAmountCryptoBaseUnit, stakingAssetAccountId],
-  )
-
-  const handleClick = useCallback(() => {
-    setConfirmedQuote(claimQuote)
-    history.push(ClaimRoutePaths.Confirm)
-  }, [claimQuote, history, setConfirmedQuote])
-
-  return (
-    <Tooltip
-      label={translate(
-        status === ClaimStatus.Available
-          ? 'RFOX.tooltips.cooldownComplete'
-          : 'RFOX.tooltips.unstakePendingCooldown',
-        { cooldownPeriodHuman },
-      )}
-    >
-      <Flex
-        as={Button}
-        justifyContent={'space-between'}
-        mt={2}
-        align='center'
-        variant='unstyled'
-        p={8}
-        borderRadius='md'
-        width='100%'
-        onClick={handleClick}
-        isDisabled={status !== ClaimStatus.Available}
-        _hover={hoverProps}
-      >
-        <Flex>
-          <Box mr={4}>
-            <AssetIconWithBadge assetId={foxAssetId}>
-              <TransactionTypeIcon type={TransferType.Receive} />
-            </AssetIconWithBadge>
-          </Box>
-          <Box mr={4}>
-            <RawText fontSize='sm' color='gray.400' align={'start'}>
-              {translate('RFOX.unstakeFrom', { assetSymbol: stakingAssetSymbol })}
-            </RawText>
-            <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
-              {stakingAssetSymbol}
-            </RawText>
-          </Box>
-        </Flex>
-        <Flex justifyContent={'flex-end'}>
-          <Box flexGrow={1} alignItems={'end'}>
-            <RawText
-              fontSize='sm'
-              fontWeight='bold'
-              color={status === ClaimStatus.Available ? 'green.300' : 'yellow.300'}
-              align={'end'}
-            >
-              {status}
-            </RawText>
-            <RawText fontSize='xl' fontWeight='bold' color='white' align={'end'}>
-              <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />
-            </RawText>
-          </Box>
-        </Flex>
-      </Flex>
-    </Tooltip>
-  )
-}
+import { type ClaimRouteProps, ClaimStatus } from './types'
 
 type ClaimSelectProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
@@ -150,7 +32,7 @@ type NoClaimsAvailableProps = {
 const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
   const translate = useTranslate()
 
-  const handleClick = useCallback(() => {
+  const handleUnstakeClick = useCallback(() => {
     setStepIndex(TabIndex.Unstake)
   }, [setStepIndex])
 
@@ -159,7 +41,7 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
       <AssetIcon size='lg' assetId={foxAssetId} showNetworkIcon={false} mb={4} />
       <Text translation='RFOX.noClaimsAvailable' fontSize='xl' fontWeight={'bold'} />
       <Text translation='RFOX.noClaimsAvailableDescription' fontSize='md' color='gray.400' mb={4} />
-      <Button colorScheme='blue' onClick={handleClick}>
+      <Button colorScheme='blue' onClick={handleUnstakeClick}>
         {translate('RFOX.unstakeNow')}
       </Button>
     </Center>

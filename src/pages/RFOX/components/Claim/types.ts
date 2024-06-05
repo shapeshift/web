@@ -16,3 +16,8 @@ export type RfoxClaimQuote = {
   claimAssetId: AssetId
   claimAmountCryptoBaseUnit: string
 }
+
+export enum ClaimStatus {
+  Available = 'Available',
+  CoolingDown = 'Cooling down',
+}

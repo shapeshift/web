@@ -10,7 +10,6 @@ import { useHistory } from 'react-router'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { arbitrumBridgeApi } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/endpoints'
-import { getTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -96,7 +95,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
 
   const { mutateAsync: handleBridge } = useMutation({
     mutationFn: async () => {
-      if (!quote || quote.isErr() || !wallet) return
+      if (!(quote && quote.isOk() && wallet && sellAsset && accountNumber !== undefined)) return
       const tradeQuote = quote.unwrap()
 
       const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
@@ -138,14 +137,13 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   // TODO(gomes): react-queries
   const { data: tradeStatus } = useQuery({
     queryKey: ['rfoxBridgeStatus'],
-    queryFn: async () => {
-      return arbitrumBridgeApi.checkTradeStatus({
+    queryFn: () =>
+      arbitrumBridgeApi.checkTradeStatus({
         txHash: bridgeTxHash!,
         chainId: sellAsset!.chainId,
         quoteId: '',
         stepIndex: 0,
-      })
-    },
+      }),
     enabled: !!bridgeTxHash,
     refetchInterval: 1000,
   })

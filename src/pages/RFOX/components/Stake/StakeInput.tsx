@@ -372,7 +372,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     if (!(assetAccountId && stakingAssetAccountId && runeAddress && isValidStakingAmount)) return
 
     const _confirmedQuote = {
-      stakingAssetAccountId: assetAccountId,
+      stakingAssetAccountId,
       stakingAssetId,
       stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
       runeAddress,

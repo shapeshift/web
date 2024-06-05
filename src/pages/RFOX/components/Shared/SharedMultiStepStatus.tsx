@@ -73,9 +73,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   )
 
   useEffect(() => {
-    if (tx?.status && tx?.status !== TxStatus.Pending) {
-      handleTxStatusUpdate(tx.status)
-    }
+    handleTxStatusUpdate(tx?.status)
   }, [tx?.status, handleTxStatusUpdate])
 
   const handleStart = useCallback(() => {
@@ -87,6 +85,11 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   // If the active step is the same as the length of steps we can assume it is complete.
   const isComplete = activeStepIndex === steps.length
   const isFailed = txStatus === TxStatus.Failed
+  const isSubmitted =
+    // If this is an actionable step, we're in pending step once the Tx is pending
+    (steps[activeStepIndex]?.isActionable && txStatus === TxStatus.Pending) ||
+    // Else if this isn't an actionable step, we're in pending step as soon as the step kicks in, and stay into it so long as the Tx is pending
+    (!steps[activeStepIndex]?.isActionable && (!txStatus || txStatus === TxStatus.Pending))
 
   const progress = useMemo(() => activeStepIndex / numSteps, [activeStepIndex])
   const progressPercentage = useMemo(
@@ -142,11 +145,14 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
             thickness={4}
             value={progress}
             trackColor='background.surface.raised.base'
+            isIndeterminate={isSubmitted}
           >
             <CircularProgressLabel fontSize='md'>{progressPercentage}</CircularProgressLabel>
           </CircularProgress>
         </Center>
-        <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
+        <Heading as='h4'>
+          {translate(isSubmitted ? 'pools.waitingForConfirmation' : 'common.signTransaction')}
+        </Heading>
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
           <RawText>{`${translate('Bridge')} ${bridgeAmountCryptoPrecision} ${
             sellAsset?.symbol ?? ''
@@ -161,6 +167,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
     progress,
     progressPercentage,
     translate,
+    isSubmitted,
     bridgeAmountCryptoPrecision,
     sellAsset?.symbol,
   ])

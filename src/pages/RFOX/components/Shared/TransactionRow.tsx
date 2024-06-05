@@ -23,6 +23,8 @@ import { getTxLink } from 'lib/getTxLink'
 import { selectAssetById, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import type { MultiStepStatusStep } from './SharedMultiStepStatus'
+
 type TransactionRowProps = {
   assetId: AssetId
   onStart: () => void
@@ -31,10 +33,7 @@ type TransactionRowProps = {
   isLast?: boolean
   txId?: string
   serializedTxIndex: string | undefined
-} & (
-  | { isActionable: true; onSignAndBroadcast: () => Promise<string | undefined> }
-  | { isActionable: false; onSignAndBroadcast?: never }
-)
+} & Pick<MultiStepStatusStep, 'isActionable' | 'onSignAndBroadcast'>
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
@@ -72,7 +71,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     setIsSubmitting(true)
 
-    await onSignAndBroadcast()
+    await onSignAndBroadcast!()
 
     onStart()
   }, [isActionable, onSignAndBroadcast, onStart])

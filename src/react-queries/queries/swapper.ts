@@ -5,7 +5,7 @@ import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import { arbitrumBridgeApi } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/endpoints'
 import { getTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 
-// Feature-agnostic, abstracts away THORNode endpoints
+// Only used for arbitrum bridge swapper use outside of swapper for now
 export const swapper = createQueryKeys('swapper', {
   arbitrumBridgeTradeQuote: (
     inputWithWallet: Omit<GetEvmTradeQuoteInput, 'supportsEIP1559'> & { wallet: HDWallet },

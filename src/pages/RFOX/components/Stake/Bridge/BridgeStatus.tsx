@@ -38,7 +38,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   const history = useHistory()
 
   const handleContinue = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
+    history.push(StakeRoutePaths.Confirm)
   }, [history])
 
   const serializedBridgeTxIndex = useMemo(() => {

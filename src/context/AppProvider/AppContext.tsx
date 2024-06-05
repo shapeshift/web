@@ -5,7 +5,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
-import { knownChainIds } from 'constants/chains'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import difference from 'lodash/difference'
@@ -92,11 +91,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   useEffect(() => {
     if (!wallet) return
-    const walletSupportedChainIds = knownChainIds.filter(chainId => {
+    const walletSupportedChainIds = supportedChains.filter(chainId => {
       return walletDeviceSupportsChain({ chainId, wallet, isSnapInstalled })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
-  }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet])
+  }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet, supportedChains])
 
   // Initial account and portfolio fetch for non-ledger wallets
   useEffect(() => {

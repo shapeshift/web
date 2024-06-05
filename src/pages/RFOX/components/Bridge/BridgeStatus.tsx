@@ -134,17 +134,9 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     },
   })
 
-  // TODO(gomes): react-queries
   const { data: tradeStatus } = useQuery({
-    queryKey: ['rfoxBridgeStatus'],
-    queryFn: () =>
-      arbitrumBridgeApi.checkTradeStatus({
-        txHash: bridgeTxHash!,
-        chainId: sellAsset!.chainId,
-        quoteId: '',
-        stepIndex: 0,
-      }),
-    enabled: !!bridgeTxHash,
+    ...reactQueries.swapper.arbitrumBridgeTradeStatus(bridgeTxHash ?? '', sellAsset?.chainId ?? ''),
+    enabled: Boolean(bridgeTxHash && sellAsset),
     refetchInterval: 1000,
   })
 

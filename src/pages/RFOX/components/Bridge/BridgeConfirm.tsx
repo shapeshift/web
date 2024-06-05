@@ -118,8 +118,6 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     enabled: Boolean(sellAsset && buyAsset && accountNumber !== undefined && wallet),
   })
 
-  console.log({ quote })
-
   const allowanceContract = useMemo(() => {
     if (!quote || quote.isErr()) return
 

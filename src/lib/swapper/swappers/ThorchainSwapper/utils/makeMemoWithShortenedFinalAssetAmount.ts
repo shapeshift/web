@@ -14,21 +14,21 @@ export const THORCHAIN_PARSER_MAXIMUM_PRECISION = 18
 
 export const makeMemoWithShortenedFinalAssetAmount = ({
   maxMemoSize,
-  memoWithoutFinalAssetAmountOut,
-  finalAssetLimitWithManualSlippage,
+  memoWithoutMinAmountOut,
+  finalAssetMinAmountOut,
 }: {
   maxMemoSize: number
-  memoWithoutFinalAssetAmountOut: string
-  finalAssetLimitWithManualSlippage: string
+  memoWithoutMinAmountOut: string
+  finalAssetMinAmountOut: string
 }) => {
   // The min amount out should be at least 3 characters long (1 for the number and 2 for the exponent)
   const MINIMUM_AMOUNT_OUT_LENGTH = 3
   const HYPOTHETICAL_EXPONENT = '01'
 
-  const memoArrayWithoutMinAmountOut = memoWithoutFinalAssetAmountOut.split(MEMO_PART_DELIMITER)
+  const memoArrayWithoutMinAmountOut = memoWithoutMinAmountOut.split(MEMO_PART_DELIMITER)
 
   // We need to construct the memo with the minAmountOut at the end so we can calculate his bytes size
-  const unshortenedMemo = `${memoWithoutFinalAssetAmountOut}:${finalAssetLimitWithManualSlippage}${HYPOTHETICAL_EXPONENT}`
+  const unshortenedMemo = `${memoWithoutMinAmountOut}:${finalAssetMinAmountOut}${HYPOTHETICAL_EXPONENT}`
 
   const memoSizeLeft = maxMemoSize - unshortenedMemo.length
 
@@ -39,7 +39,7 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
   }
 
   const shortenedMinAmountOutLength =
-    finalAssetLimitWithManualSlippage.length + AGGREGATOR_EXPONENT_LENGTH - excessBytesToTrim
+    finalAssetMinAmountOut.length + AGGREGATOR_EXPONENT_LENGTH - excessBytesToTrim
 
   // Paranoia check - can't shorten more than the initial min amount length
   assert(
@@ -61,9 +61,9 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
     excessBytesToTrim += 1
   }
 
-  const shortenedAmountOut = finalAssetLimitWithManualSlippage.substring(
+  const shortenedAmountOut = finalAssetMinAmountOut.substring(
     0,
-    finalAssetLimitWithManualSlippage.length - excessBytesToTrim,
+    finalAssetMinAmountOut.length - excessBytesToTrim,
   )
 
   // Paranoia check - we should never have a 0 amount out

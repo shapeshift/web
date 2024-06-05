@@ -22,8 +22,8 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
 
     const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
       maxMemoSize: 80,
-      memoWithoutFinalAssetAmountOut: quotedMemo,
-      finalAssetLimitWithManualSlippage: '950875902132134123',
+      memoWithoutMinAmountOut: quotedMemo,
+      finalAssetMinAmountOut: '950875902132134123',
     })
 
     expect(modifiedMemo.length).toBe(80)
@@ -40,8 +40,8 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
 
     const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
       maxMemoSize: Infinity,
-      memoWithoutFinalAssetAmountOut: quotedMemo,
-      finalAssetLimitWithManualSlippage: '95087590213213412',
+      memoWithoutMinAmountOut: quotedMemo,
+      finalAssetMinAmountOut: '95087590213213412',
     })
 
     // 950875902132134101 will be turned to 95087590213213410 using the last 2 bytes as exponents by the aggregator
@@ -57,8 +57,8 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
 
     const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
       maxMemoSize: Infinity,
-      memoWithoutFinalAssetAmountOut: quotedMemo,
-      finalAssetLimitWithManualSlippage: '950875902132134122',
+      memoWithoutMinAmountOut: quotedMemo,
+      finalAssetMinAmountOut: '950875902132134122',
     })
 
     // 9508759021321341201 will be turned to 950875902132134120 using the last 2 bytes as exponents by the aggregator
@@ -74,8 +74,8 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
 
     const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
       maxMemoSize: Infinity,
-      memoWithoutFinalAssetAmountOut: quotedMemo,
-      finalAssetLimitWithManualSlippage: '9508759021321341223',
+      memoWithoutMinAmountOut: quotedMemo,
+      finalAssetMinAmountOut: '9508759021321341223',
     })
 
     // 9508759021321341202 will be turned to 9508759021321341200 using the last 2 bytes as exponents by the aggregator
@@ -90,8 +90,8 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
 
     const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
       maxMemoSize: 220,
-      memoWithoutFinalAssetAmountOut: quotedMemo,
-      finalAssetLimitWithManualSlippage: '950875902132134123',
+      memoWithoutMinAmountOut: quotedMemo,
+      finalAssetMinAmountOut: '950875902132134123',
     })
 
     expect(modifiedMemo.length).toBeLessThanOrEqual(220)
@@ -107,8 +107,8 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
     expect(() =>
       makeMemoWithShortenedFinalAssetAmount({
         maxMemoSize: 220,
-        memoWithoutFinalAssetAmountOut: quotedMemo,
-        finalAssetLimitWithManualSlippage: '950875902132134123',
+        memoWithoutMinAmountOut: quotedMemo,
+        finalAssetMinAmountOut: '950875902132134123',
       }),
     ).toThrow('min amount chars length should be 3 or more')
   })

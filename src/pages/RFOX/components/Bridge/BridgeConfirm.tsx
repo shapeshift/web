@@ -246,7 +246,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     [approvalTx?.status],
   )
 
-  // The approval Tx may be confirmed, but that's not enough to know we're ready to stake
+  // The approval Tx may be confirmed, but that's not enough to know we're ready to bridge
   // Allowance then needs to be succesfully refetched - failure to wait for it will result in jumpy states between
   // the time the Tx is confirmed, and the time the allowance is succesfully refetched
   // This allows us to detect such transition state

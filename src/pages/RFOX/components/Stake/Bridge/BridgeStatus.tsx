@@ -37,6 +37,10 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   const translate = useTranslate()
   const history = useHistory()
 
+  const handleContinue = useCallback(() => {
+    history.push(StakeRoutePaths.Input)
+  }, [history])
+
   const serializedBridgeTxIndex = useMemo(() => {
     if (!bridgeTxHash) return undefined
 
@@ -184,6 +188,11 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   ])
 
   return (
-    <SharedMultiStepStatus onBack={handleGoBack} confirmedQuote={confirmedQuote} steps={steps} />
+    <SharedMultiStepStatus
+      onBack={handleGoBack}
+      confirmedQuote={confirmedQuote}
+      onContinue={handleContinue}
+      steps={steps}
+    />
   )
 }

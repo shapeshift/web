@@ -1,4 +1,5 @@
 import {
+  Button,
   CardBody,
   CardFooter,
   CardHeader,
@@ -38,6 +39,7 @@ export type MultiStepStatusStep = {
 
 type SharedMultiStepStatusProps = {
   onBack: () => void
+  onContinue: () => void
   confirmedQuote: RfoxBridgeQuote
   steps: MultiStepStatusStep[]
 } & PropsWithChildren
@@ -45,7 +47,7 @@ type SharedMultiStepStatusProps = {
 export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   confirmedQuote,
   onBack: handleBack,
-  children,
+  onContinue: handleContinue,
   steps,
 }) => {
   const translate = useTranslate()
@@ -224,11 +226,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
       <CardFooter flexDir='column' px={4}>
         {assetCards}
       </CardFooter>
-      {children && (
-        <CardFooter flexDir='column' px={4}>
-          {children}
-        </CardFooter>
-      )}
+      {isComplete && <Button onClick={handleContinue}>{translate('common.continue')}</Button>})
     </SlideTransition>
   )
 }

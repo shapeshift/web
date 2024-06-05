@@ -33,7 +33,7 @@ type SharedMultiStepStatusProps = {
     asset: Asset
     headerCopy: string
     isActionable: boolean
-    onSignAndBroadcast?: (() => Promise<string>) | undefined
+    onSignAndBroadcast?: (() => Promise<string | undefined>) | undefined
     serializedTxIndex: string | undefined
     txHash: string | undefined
   }[]

@@ -26,7 +26,7 @@ import { useAppSelector } from 'state/store'
 type TransactionRowProps = {
   assetId: AssetId
   onStart: () => void
-  onSignAndBroadcast: (() => Promise<void>) | undefined
+  onSignAndBroadcast: (() => Promise<string | undefined>) | undefined
   headerCopy: string
   isActive?: boolean
   isLast?: boolean

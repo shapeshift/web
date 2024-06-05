@@ -507,9 +507,19 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         cooldownPeriod,
       })
 
-    // TODO(gomes) programmatic copy
-    return `You selected FOX on ETH mainnet, but you'll need FOX on Arbitrum to stake. We can help you bridge your to Arbitrum. Would you like us to guide you through the process?`
-  }, [cooldownPeriod, isBridgeRequired, translate])
+    return translate('RFOX.bridgeCta', {
+      assetSymbol: asset?.symbol,
+      originNetwork: feeAsset?.networkName,
+      destinationNetwork: stakingAssetFeeAsset?.networkName,
+    })
+  }, [
+    asset?.symbol,
+    cooldownPeriod,
+    feeAsset?.networkName,
+    isBridgeRequired,
+    stakingAssetFeeAsset?.networkName,
+    translate,
+  ])
 
   if (!asset) return null
 

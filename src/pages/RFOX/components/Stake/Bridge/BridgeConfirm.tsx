@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
@@ -26,17 +27,19 @@ import { useHistory } from 'react-router'
 import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -295,6 +298,34 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     return bnOrZero(networkFeeCryptoPrecision).times(feeAssetMarketData.price).toFixed()
   }, [feeAssetMarketData.price, networkFeeCryptoPrecision])
 
+  const feeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: bridgeQuote.sellAssetAccountId,
+      assetId: feeAsset?.assetId,
+    }),
+    [bridgeQuote.sellAssetAccountId, feeAsset?.assetId],
+  )
+  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, feeAssetBalanceFilter),
+  )
+
+  const hasEnoughFeeBalance = useMemo(() => {
+    if (bnOrZero(feeAssetBalanceCryptoPrecision).isZero()) return false
+
+    const fees = (() => {
+      if (approvalFees) return approvalFees
+      if (quote?.isOk()) return quote?.unwrap().steps[0].feeData
+    })()
+
+    const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
+      toBaseUnit(feeAssetBalanceCryptoPrecision, feeAsset?.precision ?? 0),
+    )
+
+    if (!hasEnoughFeeBalance) return false
+
+    return true
+  }, [feeAssetBalanceCryptoPrecision, feeAsset?.precision, approvalFees, quote])
+
   const bridgeCard = useMemo(() => {
     if (!(sellAsset && buyAsset)) return null
     return (
@@ -326,6 +357,20 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
       </>
     )
   }, [sellAsset, buyAsset, bridgeAmountCryptoPrecision, bridgeAmountUserCurrency])
+
+  const errorCopy = useMemo(() => {
+    if (!hasEnoughFeeBalance)
+      return translate('common.insufficientAmountForGas', {
+        assetSymbol: feeAsset?.symbol,
+        chainSymbol: getChainShortName(feeAsset?.chainId as KnownChainIds),
+      })
+  }, [feeAsset?.chainId, feeAsset?.symbol, hasEnoughFeeBalance, translate])
+
+  const submitCopy = useMemo(() => {
+    if (errorCopy) return errorCopy
+
+    return translate(isApprovalRequired ? 'common.approve' : 'RFOX.bridgeAndConfirm')
+  }, [errorCopy, isApprovalRequired, translate])
 
   const handleSubmit = useCallback(() => {
     history.push(BridgeRoutePaths.Status)
@@ -396,7 +441,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
         <Button
           size='lg'
           mx={-2}
-          colorScheme='blue'
+          colorScheme={errorCopy ? 'red' : 'blue'}
           isLoading={
             isAllowanceDataLoading ||
             isGetApprovalFeesLoading ||
@@ -404,10 +449,10 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
             isTransitioning ||
             isBridgeQuoteLoading
           }
-          disabled={isAllowanceDataLoading || isBridgeQuoteLoading}
+          isDisabled={!hasEnoughFeeBalance || isAllowanceDataLoading || isBridgeQuoteLoading}
           onClick={isApprovalRequired ? handleApprove : handleSubmit}
         >
-          {translate(isApprovalRequired ? 'common.approve' : 'RFOX.bridgeAndConfirm')}
+          {submitCopy}
         </Button>
       </CardFooter>
     </SlideTransition>

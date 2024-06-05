@@ -350,16 +350,18 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
                 <Row.Value>{bridgeAmountCryptoPrecision}</Row.Value>
               </CustomRow>
             </TimelineItem>
-            <TimelineItem>
-              <CustomRow>
-                <Row.Label>{translate('common.approvalFee')}</Row.Label>
-                <Skeleton isLoaded={!!networkFeeUserCurrency}>
-                  <Row.Value>
-                    <Amount.Fiat value={approvalFees?.txFeeFiat ?? '0'} />
-                  </Row.Value>
-                </Skeleton>
-              </CustomRow>
-            </TimelineItem>
+            {isGetApprovalFeesEnabled && (
+              <TimelineItem>
+                <CustomRow>
+                  <Row.Label>{translate('common.approvalFee')}</Row.Label>
+                  <Skeleton isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}>
+                    <Row.Value>
+                      <Amount.Fiat value={approvalFees?.txFeeFiat ?? '0'} />
+                    </Row.Value>
+                  </Skeleton>
+                </CustomRow>
+              </TimelineItem>
+            )}
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>

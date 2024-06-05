@@ -140,11 +140,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
               colorScheme={status === TxStatus.Failed ? 'red' : 'blue'}
               onClick={handleSignTx}
               isDisabled={status === TxStatus.Failed}
-              isLoading={
-                // TODO(gomes): implement proper loading state
-                // !Boolean(txFeeCryptoPrecision) ||
-                isSubmitting
-              }
+              isLoading={isSubmitting}
             >
               {confirmTranslation}
             </Button>

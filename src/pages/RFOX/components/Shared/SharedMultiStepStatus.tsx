@@ -46,7 +46,6 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   steps,
 }) => {
   const translate = useTranslate()
-  // TODO(gomes): programmatic, this works for Arbitrum Bridge but we need to find a better way
   const numSteps = 2
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [canGoBack, setCanGoBack] = useState(true)

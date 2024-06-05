@@ -295,12 +295,12 @@ export const MobileConnect = () => {
         ) : (
           <SlideTransitionY key='content'>
             <Stack
-              position={'absolute'}
+              position='absolute'
               // Account for iOS UI elements such as the Notch or Dynamic Island for top positioning
-              top={'calc(var(--chakra-space-6) + env(safe-area-inset-top))'}
+              top='calc(var(--chakra-space-6) + env(safe-area-inset-top))'
               right={6}
             >
-              <LanguageSelector size={'sm'} />
+              <LanguageSelector size='sm' />
             </Stack>
 
             <Stack px={6} spacing={6} position='relative' zIndex='4'>

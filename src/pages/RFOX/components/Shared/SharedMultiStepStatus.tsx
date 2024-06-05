@@ -49,7 +49,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   const numSteps = 2
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [canGoBack, setCanGoBack] = useState(true)
-  const [isFailed, setIsFailed] = useState(false)
+  const [txStatus, setTxStatus] = useState<TxStatus>()
 
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))
@@ -61,7 +61,8 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
 
   const handleTxStatusUpdate = useCallback(
     (status: TxStatus) => {
-      if (status === TxStatus.Failed) return setIsFailed(true)
+      setTxStatus(status)
+
       if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
     },
     [activeStepIndex],
@@ -84,10 +85,8 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown
   // If the active step is the same as the length of steps we can assume it is complete.
-  const isComplete = useMemo(
-    () => activeStepIndex === steps.length,
-    [activeStepIndex, steps.length],
-  )
+  const isComplete = activeStepIndex === steps.length
+  const isFailed = txStatus === TxStatus.Failed
 
   const progress = useMemo(() => activeStepIndex / numSteps, [activeStepIndex])
   const progressPercentage = useMemo(

@@ -226,7 +226,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
       <CardFooter flexDir='column' px={4}>
         {assetCards}
       </CardFooter>
-      {isComplete && <Button onClick={handleContinue}>{translate('common.continue')}</Button>})
+      {isComplete && <Button onClick={handleContinue}>{translate('common.continue')}</Button>}
     </SlideTransition>
   )
 }

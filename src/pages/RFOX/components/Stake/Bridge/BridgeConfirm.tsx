@@ -67,8 +67,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const handleGoBack = useCallback(() => {
-    history.push({ pathname: StakeRoutePaths.Input, state: bridgeQuote })
-  }, [bridgeQuote, history])
+    history.push(StakeRoutePaths.Input)
+  }, [history])
 
   const sellAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.sellAssetId))
   const buyAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.buyAssetId))
@@ -373,8 +373,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   }, [errorCopy, isApprovalRequired, translate])
 
   const handleSubmit = useCallback(() => {
-    history.push(BridgeRoutePaths.Status)
-  }, [history])
+    history.push({ pathname: BridgeRoutePaths.Status, state: bridgeQuote })
+  }, [bridgeQuote, history])
 
   return (
     <SlideTransition>

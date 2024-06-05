@@ -391,7 +391,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
     buyAssetSearch.open({
       onAssetClick: asset => setAssetId(asset.assetId),
-      title: 'TODO copy',
+      title: 'common.selectAsset',
       assets: [stakingAsset, l1Asset],
     })
   }, [stakingAsset, l1Asset, buyAssetSearch])

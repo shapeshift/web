@@ -6,6 +6,7 @@ import {
   fromAccountId,
   fromAssetId,
 } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
@@ -22,6 +23,7 @@ import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FormDivider } from 'components/FormDivider'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -485,12 +487,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           validateHasEnoughBalance(input) || translate('common.insufficientFunds'),
         hasEnoughFeeBalance: (input: string) =>
           validateHasEnoughStakingAssetFeeBalance(input) ||
-          translate('modals.send.errors.notEnoughNativeToken', {
-            asset: stakingAssetFeeAsset?.symbol,
+          translate('common.insufficientAmountForGas', {
+            assetSymbol: stakingAssetFeeAsset?.symbol,
+            chainSymbol: getChainShortName(stakingAssetFeeAsset?.chainId as KnownChainIds),
           }),
       },
     }
   }, [
+    stakingAssetFeeAsset?.chainId,
     stakingAssetFeeAsset?.symbol,
     translate,
     validateHasEnoughBalance,

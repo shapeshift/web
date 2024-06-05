@@ -16,7 +16,7 @@ import { isSome } from 'lib/utils'
 import {
   selectAccountIdsByChainId,
   selectAssetById,
-  selectWalletChainIds,
+  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -44,7 +44,7 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     [accountIdsByChainId, isSnapInstalled, wallet],
   )
 
-  const walletChainIds = useSelector(selectWalletChainIds)
+  const walletChainIds = useSelector(selectWalletConnectedChainIds)
 
   const selectSupportedAssets = useCallback(
     (data: ThornodePoolResponse[] | undefined) => {

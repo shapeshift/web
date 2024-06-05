@@ -58,7 +58,7 @@ type TransactionRowProps = {
   assetId: AssetId
   poolAssetId: AssetId
   amountCryptoPrecision: string
-  onComplete: (status: TxStatus) => void
+  onStatusUpdate: (status: TxStatus) => void
   onStart: () => void
   isActive?: boolean
   isLast?: boolean
@@ -70,7 +70,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
   poolAssetId,
   amountCryptoPrecision,
-  onComplete,
+  onStatusUpdate,
   onStart,
   isActive,
   confirmedQuote,
@@ -206,7 +206,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       })
 
       setStatus(TxStatus.Confirmed)
-      onComplete(TxStatus.Confirmed)
+      onStatusUpdate(TxStatus.Confirmed)
       setIsSubmitting(false)
     },
   })
@@ -221,8 +221,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (positionStatus.incomplete.asset.assetId === assetId) return
 
     setStatus(TxStatus.Confirmed)
-    onComplete(TxStatus.Confirmed)
-  }, [assetId, confirmedQuote, onComplete, positionStatus?.incomplete, status])
+    onStatusUpdate(TxStatus.Confirmed)
+  }, [assetId, confirmedQuote, onStatusUpdate, positionStatus?.incomplete, status])
 
   useEffect(() => {
     if (!txId) return
@@ -236,6 +236,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (isRuneTx) {
       if (status === TxStatus.Unknown) {
         setStatus(TxStatus.Pending)
+        onStatusUpdate(TxStatus.Pending)
         ;(async () => await mutateAsync({ txId }))()
       }
       return
@@ -246,13 +247,14 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     // Track pending status
     if (tx.status === TxStatus.Pending) {
       setStatus(tx.status)
+      onStatusUpdate(TxStatus.Pending)
       return
     }
 
     // Track failed status, reset isSubmitting (tx failed and won't be picked up by thorchain), and handle onComplete
     if (tx.status === TxStatus.Failed) {
       setStatus(tx.status)
-      onComplete(TxStatus.Failed)
+      onStatusUpdate(TxStatus.Failed)
       setIsSubmitting(false)
       return
     }
@@ -260,7 +262,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (tx.status === TxStatus.Confirmed) {
       ;(async () => await mutateAsync({ txId }))()
     }
-  }, [mutateAsync, status, tx, txId, isRuneTx, onComplete])
+  }, [mutateAsync, status, tx, txId, isRuneTx, onStatusUpdate])
 
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),

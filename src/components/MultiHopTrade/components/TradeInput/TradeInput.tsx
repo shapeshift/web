@@ -18,7 +18,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { type Asset } from '@shapeshiftoss/types'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -59,11 +59,13 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
   selectHasUserEnteredAmount,
+  selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
   selectInputSellAsset,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
+  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -117,7 +119,7 @@ const GetTradeQuotes = () => {
   return <></>
 }
 
-export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
+export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
@@ -208,6 +210,18 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     () => dispatch(tradeInput.actions.switchAssets()),
     [dispatch],
   )
+
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
+
+  // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
+  useEffect(() => {
+    if (!defaultSellAsset) return
+
+    if (walletConnectedChainIds.includes(sellAsset.chainId)) return
+
+    setSellAsset(defaultSellAsset)
+  }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
 
   useEffect(() => {
     // WARNING: do not remove.
@@ -722,4 +736,4 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       </MessageOverlay>
     </TradeSlideTransition>
   )
-})
+}

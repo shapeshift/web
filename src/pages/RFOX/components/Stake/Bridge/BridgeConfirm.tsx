@@ -310,6 +310,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   )
 
   const hasEnoughFeeBalance = useMemo(() => {
+    // Fees loading, we don't know what we don't know
+    if (isBridgeQuoteLoading || isGetApprovalFeesLoading) return true
     if (bnOrZero(feeAssetBalanceCryptoPrecision).isZero()) return false
 
     const fees = (() => {
@@ -324,7 +326,14 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     if (!hasEnoughFeeBalance) return false
 
     return true
-  }, [feeAssetBalanceCryptoPrecision, feeAsset?.precision, approvalFees, quote])
+  }, [
+    isBridgeQuoteLoading,
+    isGetApprovalFeesLoading,
+    feeAssetBalanceCryptoPrecision,
+    feeAsset?.precision,
+    approvalFees,
+    quote,
+  ])
 
   const bridgeCard = useMemo(() => {
     if (!(sellAsset && buyAsset)) return null

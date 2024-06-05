@@ -62,8 +62,8 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   }, [confirmedQuote.buyAssetAccountId, l2TxHash])
 
   const handleGoBack = useCallback(() => {
-    history.push(BridgeRoutePaths.Confirm)
-  }, [history])
+    history.push({ pathname: BridgeRoutePaths.Confirm, state: confirmedQuote })
+  }, [confirmedQuote, history])
 
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))

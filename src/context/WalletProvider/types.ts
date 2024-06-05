@@ -23,6 +23,20 @@ export type AdaptersByKeyManager = {
   [KeyManager.XDefi]: XDEFIAdapter
 }
 
+export enum NativeWalletRoutes {
+  Connect = '/native/connect',
+  Load = '/native/load',
+  Password = '/native/password',
+  Rename = '/native/rename',
+  Import = '/native/import',
+  Create = '/native/create',
+  CreateTest = '/native/create-test',
+  Success = '/native/success',
+  EnterPassword = '/native/enter-password',
+  LegacyLogin = '/native/legacy/login',
+  LegacyLoginSuccess = '/native/legacy/login/success',
+}
+
 export type GetAdapter = <K extends keyof AdaptersByKeyManager>(
   keyManager: K,
   index?: K extends KeyManager.KeepKey ? 0 | 1 : 0, // only used for keepkey

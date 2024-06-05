@@ -32,7 +32,6 @@ import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { getTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -102,24 +101,24 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     selectAccountNumberByAccountId(state, accountNumberFilter),
   )
 
-  // TODO(gomes): react-queries
   const { data: quote, isLoading: isBridgeQuoteLoading } = useQuery({
-    queryKey: ['rfoxBridgeQuote', bridgeQuote],
-    queryFn: async () => {
-      return getTradeQuote({
-        sellAsset: sellAsset!,
-        buyAsset: buyAsset!,
-        chainId: sellAsset!.chainId as EvmChainId,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: bridgeQuote.bridgeAmountCryptoBaseUnit,
-        affiliateBps: '0',
-        potentialAffiliateBps: '0',
-        allowMultiHop: true,
-        receiveAddress: fromAccountId(bridgeQuote.buyAssetAccountId).account,
-        sendAddress: fromAccountId(bridgeQuote.sellAssetAccountId).account,
-        accountNumber,
-      })
-    },
+    ...reactQueries.swapper.arbitrumBridgeTradeQuote({
+      sellAsset: sellAsset!,
+      buyAsset: buyAsset!,
+      chainId: sellAsset!.chainId as EvmChainId,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: bridgeQuote.bridgeAmountCryptoBaseUnit,
+      affiliateBps: '0',
+      potentialAffiliateBps: '0',
+      allowMultiHop: true,
+      receiveAddress: fromAccountId(bridgeQuote.buyAssetAccountId).account,
+      sendAddress: fromAccountId(bridgeQuote.sellAssetAccountId).account,
+      accountNumber: accountNumber!,
+      wallet: wallet!,
+    }),
+    enabled: Boolean(sellAsset && buyAsset && accountNumber !== undefined && wallet),
   })
+
+  console.log({ quote })
 
   const allowanceContract = useMemo(() => {
     if (!quote || quote.isErr()) return

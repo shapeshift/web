@@ -5,6 +5,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -76,35 +77,24 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     selectAccountNumberByAccountId(state, accountNumberFilter),
   )
 
-  // TODO(gomes): react-queries
-  const {
-    data: quote,
-    isLoading: isBridgeQuoteLoading,
-    isSuccess: isBridgeQuoteSuccess,
-  } = useQuery({
-    queryKey: ['rfoxBridgeQuote', confirmedQuote],
-    queryFn: async () => {
-      return getTradeQuote({
-        sellAsset: sellAsset!,
-        buyAsset: buyAsset!,
-        chainId: sellAsset!.chainId as EvmChainId,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
-        affiliateBps: '0',
-        potentialAffiliateBps: '0',
-        allowMultiHop: true,
-        receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
-        sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-        accountNumber,
-      })
-    },
+  const { data: quote } = useQuery({
+    ...reactQueries.swapper.arbitrumBridgeTradeQuote({
+      sellAsset: sellAsset!,
+      buyAsset: buyAsset!,
+      chainId: (sellAsset?.chainId ?? '') as EvmChainId,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
+      affiliateBps: '0',
+      potentialAffiliateBps: '0',
+      allowMultiHop: true,
+      receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
+      sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+      accountNumber: accountNumber!,
+      wallet: wallet!,
+    }),
+    enabled: Boolean(sellAsset && buyAsset && accountNumber !== undefined && wallet),
   })
 
-  const {
-    mutateAsync: handleBridge,
-    isPending: isBridgePending,
-    isSuccess: isBridgeSuccess,
-    isIdle: isStakeMutationIdle,
-  } = useMutation({
+  const { mutateAsync: handleBridge } = useMutation({
     mutationFn: async () => {
       if (!quote || quote.isErr() || !wallet) return
       const tradeQuote = quote.unwrap()

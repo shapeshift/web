@@ -72,9 +72,6 @@ export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) =>
   const renderBridgeStatus = useCallback(() => {
     if (!bridgeQuote) return null
 
-    // TODO(gomes): remove txId - we won't need it, and broadcasting won't be the responsbility of confirm here.
-    // Bridge won't do the same logic as all others (staking/unstaking/change address) and we will need to implement a reusable
-    // multi-step broadcast + status component of sorts, similar to what THROCHain LP's doing
     return <BridgeStatus confirmedQuote={bridgeQuote} headerComponent={headerComponent} />
   }, [bridgeQuote, headerComponent])
 

@@ -2484,6 +2484,6 @@
     "noClaimsAvailable": "No claims available",
     "noClaimsAvailableDescription": "You don't have any available claims",
     "unstakeNow": "Unstake Now",
-    "confirmAndBridge": "Confirm & Bridge"
+    "bridgeAndConfirm": "Bridge & Confirm"
   }
 }

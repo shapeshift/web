@@ -21,6 +21,7 @@ import { useAppSelector } from 'state/store'
 
 import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
+import { StakeRoutePaths } from '../types'
 import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
@@ -57,7 +58,6 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   }, [confirmedQuote.buyAssetAccountId, l2TxHash])
 
   const handleGoBack = useCallback(() => {
-    // TODO(gomes): route back to stake
     history.push(BridgeRoutePaths.Confirm)
   }, [history])
 

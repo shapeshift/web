@@ -42,6 +42,7 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import { StakeRoutePaths } from '../types'
 import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
@@ -63,9 +64,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const handleGoBack = useCallback(() => {
-    // TODO(gomes): implement me, but this should route back to stake, not bridge as there's no select route here
-    // history.push(BridgeRoutePaths.Select)
-  }, [])
+    history.push(StakeRoutePaths.Input)
+  }, [history])
 
   const sellAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.sellAssetId))
   const buyAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.buyAssetId))
@@ -405,10 +405,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
           disabled={isAllowanceDataLoading || isBridgeQuoteLoading}
           onClick={isApprovalRequired ? handleApprove : handleSubmit}
         >
-          {/* TODO(gomes): this should be bridge & confirm, along with a cancel button once we wire this up in stake 
-              Currently as the part 1 of this, this is implemented as a standalone flow and decoupled from staking
-          */}
-          {translate(isApprovalRequired ? 'common.approve' : 'RFOX.confirmAndBridge')}
+          {translate(isApprovalRequired ? 'common.approve' : 'RFOX.bridgeAndConfirm')}
         </Button>
       </CardFooter>
     </SlideTransition>

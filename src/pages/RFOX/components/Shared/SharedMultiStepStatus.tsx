@@ -188,7 +188,6 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
                 headerCopy={headerCopy}
                 onStart={handleStart}
                 onSignAndBroadcast={handleSignAndBroadcast}
-                onComplete={handleTxStatusUpdate}
                 serializedTxIndex={serializedTxIndex}
                 txId={txHash}
                 isActive={index === activeStepIndex && !isFailed}
@@ -199,7 +198,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
         )}
       </Stack>
     )
-  }, [steps, handleStart, handleTxStatusUpdate, activeStepIndex, isFailed])
+  }, [steps, handleStart, activeStepIndex, isFailed])
 
   if (!(sellAsset && buyAsset)) return null
 

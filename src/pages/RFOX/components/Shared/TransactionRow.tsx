@@ -25,7 +25,6 @@ import { useAppSelector } from 'state/store'
 
 type TransactionRowProps = {
   assetId: AssetId
-  onComplete: (status: TxStatus) => void
   onStart: () => void
   onSignAndBroadcast: (() => Promise<void>) | undefined
   headerCopy: string
@@ -39,7 +38,6 @@ type TransactionRowProps = {
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
   headerCopy,
-  onComplete,
   onStart,
   isActive,
   isActionable,
@@ -74,9 +72,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     await onSignAndBroadcast?.()
 
     onStart()
-
-    onComplete(TxStatus.Confirmed)
-  }, [onComplete, onSignAndBroadcast, onStart])
+  }, [onSignAndBroadcast, onStart])
 
   const confirmTranslation = useMemo(() => {
     return translate('common.signTransaction')

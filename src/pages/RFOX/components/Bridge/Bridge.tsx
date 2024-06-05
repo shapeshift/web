@@ -41,9 +41,9 @@ export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) =>
   const location = useLocation()
 
   // TODO(gomes): remove dummy quote, and actually setBridgeQuote once we consume this as part of the staking flow -
-  // we really won't need to setBridgeQuote anymore, as we will just instantiate this component with the bridge quote already
+  // or maybe not even and just capture in closure, as we will just instantiate this component with the bridge quote already
   // i.e when pushing to bridge, we will push with query args and use react-router to consume these here
-  //
+
   const sellAssetId = foxAssetId
   const buyAssetId = foxOnArbitrumOneAssetId
   const sellAssetAccountId = useAppSelector(state =>
@@ -54,7 +54,6 @@ export const BridgeRoutes: React.FC<BridgeRouteProps> = ({ headerComponent }) =>
   )
 
   const dummyBridgeQuote: RfoxBridgeQuote = {
-    // Just to keep things cheap while devving this, TODO invert sell and buy assets
     sellAssetId,
     buyAssetId,
     sellAssetAccountId: sellAssetAccountId ?? '',

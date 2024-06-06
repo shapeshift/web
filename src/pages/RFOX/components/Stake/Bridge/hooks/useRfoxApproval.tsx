@@ -32,7 +32,6 @@ type UseRfoxApproval = (props: UseRfoxApprovalProps) => {
     },
     Error
   >
-  serializedApprovalTxIndex: string | undefined
   isApprovalTxPending: boolean
   isApprovalTxSuccess: boolean
   handleApprove: () => Promise<string>
@@ -112,21 +111,13 @@ export const useRfoxApproval: UseRfoxApproval = ({ confirmedQuote }) => {
   const isGetApprovalFeesEnabled = useMemo(
     () =>
       Boolean(
-        approvalMutation.isIdle &&
-          isApprovalRequired &&
+        isApprovalRequired &&
           feeAsset &&
           feeAssetMarketData &&
           wallet &&
           sellAssetAccountNumber !== undefined,
       ),
-    [
-      approvalMutation.isIdle,
-      feeAsset,
-      feeAssetMarketData,
-      isApprovalRequired,
-      sellAssetAccountNumber,
-      wallet,
-    ],
+    [feeAsset, feeAssetMarketData, isApprovalRequired, sellAssetAccountNumber, wallet],
   )
 
   const approvalFeesQuery = useQuery({
@@ -205,7 +196,6 @@ export const useRfoxApproval: UseRfoxApproval = ({ confirmedQuote }) => {
     allowanceQuery,
     isGetApprovalFeesEnabled,
     approvalFeesQuery,
-    serializedApprovalTxIndex,
     isApprovalTxPending,
     isApprovalTxSuccess,
     handleApprove,

@@ -142,7 +142,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   const { data: tradeStatus } = useQuery({
     ...reactQueries.swapper.arbitrumBridgeTradeStatus(l1TxHash ?? '', sellAsset?.chainId ?? ''),
     enabled: Boolean(l1TxHash && sellAsset),
-    refetchInterval: 1000,
+    refetchInterval: 60_000,
   })
 
   useEffect(() => {

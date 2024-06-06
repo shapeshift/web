@@ -20,6 +20,7 @@ import { store } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { SelectModal } from './SelectModal'
+import { NativeWalletRoutes } from './types'
 
 const arrowBackIcon = <ArrowBackIcon />
 
@@ -88,7 +89,8 @@ export const WalletViewsSwitch = () => {
     history.goBack()
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
-    if (history.location.pathname === INITIAL_WALLET_MODAL_ROUTE) {
+    const { pathname } = history.location
+    if ([INITIAL_WALLET_MODAL_ROUTE, NativeWalletRoutes.Load].includes(pathname)) {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
     await cancelWalletRequests()

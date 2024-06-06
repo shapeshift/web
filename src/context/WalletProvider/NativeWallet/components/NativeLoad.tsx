@@ -21,6 +21,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
+import { NativeWalletRoutes } from 'context/WalletProvider/types'
 import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -138,7 +139,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
   )
 
   const handleRename = useCallback(
-    (wallet: VaultInfo) => history.push('/native/rename', { vault: wallet }),
+    (wallet: VaultInfo) => history.push(NativeWalletRoutes.Rename, { vault: wallet }),
     [history],
   )
 

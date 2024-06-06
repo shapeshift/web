@@ -7,7 +7,10 @@ import type { ReduxState } from 'state/reducer'
 import { selectOnlyConnectedChainsParamFromFilter } from 'state/selectors'
 
 import { selectAssetByFilter } from './assetsSlice/selectors'
-import { selectPortfolioUserCurrencyBalances, selectWalletChainIds } from './common-selectors'
+import {
+  selectPortfolioUserCurrencyBalances,
+  selectWalletConnectedChainIds,
+} from './common-selectors'
 
 /**
  * Selects all related assetIds, inclusive of the asset being queried.
@@ -17,7 +20,7 @@ import { selectPortfolioUserCurrencyBalances, selectWalletChainIds } from './com
 export const selectRelatedAssetIdsInclusive = createCachedSelector(
   (state: ReduxState) => state.assets.relatedAssetIndex,
   selectAssetByFilter,
-  selectWalletChainIds,
+  selectWalletConnectedChainIds,
   selectOnlyConnectedChainsParamFromFilter,
   (relatedAssetIndex, asset, walletConnectedChainIds, onlyConnectedChains): AssetId[] => {
     if (!asset) return []

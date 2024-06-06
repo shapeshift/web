@@ -149,12 +149,12 @@ export async function getTradeQuote(
 
           // for the rate to be valid, both amounts must be converted to the same precision
           const estimateRate = convertPrecision({
-            value: selectedLifiRoute.toAmountMin,
+            value: lifiStep.estimate.toAmount,
             inputExponent: stepBuyAsset.precision,
             outputExponent: stepSellAsset.precision,
           })
-            .dividedBy(bn(selectedLifiRoute.fromAmount))
-            .toString()
+            .dividedBy(bn(lifiStep.estimate.fromAmount))
+            .toFixed()
 
           const protocolFees = transformLifiStepFeeData({
             chainId: stepChainId,
@@ -185,7 +185,7 @@ export async function getTradeQuote(
           const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
             .plus(sellSideProtocolFeeBuyAssetBaseUnit)
             .plus(buySideProtocolFeeCryptoBaseUnit)
-            .toString()
+            .toFixed(0)
 
           const sellAmountIncludingProtocolFeesCryptoBaseUnit = lifiStep.action.fromAmount
 
@@ -210,8 +210,6 @@ export async function getTradeQuote(
               protocolFees,
               networkFeeCryptoBaseUnit,
             },
-            // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
-            // might be better replaced by inputOutputRatio downstream
             rate: estimateRate,
             sellAmountIncludingProtocolFeesCryptoBaseUnit,
             sellAsset: stepSellAsset,

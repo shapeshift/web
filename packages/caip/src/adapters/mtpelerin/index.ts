@@ -6,6 +6,8 @@ import {
   arbitrumChainId,
   avalancheAssetId,
   avalancheChainId,
+  baseAssetId,
+  baseChainId,
   btcAssetId,
   btcChainId,
   ethAssetId,
@@ -22,7 +24,7 @@ import {
  * provided from https://api.mtPelerin.com/currencies/tokens
  */
 const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
-  ETH: [ethAssetId, optimismAssetId, arbitrumAssetId],
+  ETH: [ethAssetId, optimismAssetId, arbitrumAssetId, baseAssetId],
   MATIC: [polygonAssetId],
   XDAI: [gnosisAssetId],
   BTC: [btcAssetId],
@@ -41,6 +43,7 @@ const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
     'eip155:100/erc20:0xddafbb505ad214d7b80b1f830fccc89b60fb7a83',
     'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
     'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
+    'eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
   ],
   jEUR: [
     'eip155:1/erc20:0x0f17bc9a994b87b5225cfb6a2cd4d667adb4f20b',
@@ -107,6 +110,7 @@ const chainIdToMtPelerinNetworkCodeMap: Record<ChainId, string> = {
   [polygonChainId]: 'matic_mainnet',
   [gnosisChainId]: 'xdai_mainnet',
   [arbitrumChainId]: 'arbitrum_mainnet',
+  [baseChainId]: 'base_mainnet',
 } as const
 
 /**

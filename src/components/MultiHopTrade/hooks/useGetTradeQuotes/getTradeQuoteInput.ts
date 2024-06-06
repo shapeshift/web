@@ -31,7 +31,7 @@ export type GetTradeQuoteInputArgs = {
   pubKey?: string | undefined
 }
 
-export const getTradeQuoteArgs = async ({
+export const getTradeQuoteInput = async ({
   sellAsset,
   buyAsset,
   sellAccountNumber,

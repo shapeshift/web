@@ -27,6 +27,7 @@ import { MetaMaskConfig } from './MetaMask/config'
 import { MobileConfig } from './MobileWallet/config'
 import { NativeConfig } from './NativeWallet/config'
 import { KeepKeyRoutes } from './routes'
+import { NativeWalletRoutes } from './types'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 import { XDEFIConfig } from './XDEFI/config'
@@ -347,17 +348,17 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.Native]: {
     ...NativeConfig,
     routes: [
-      { path: '/native/connect', component: NativeStart },
-      { path: '/native/load', component: NativeLoad },
-      { path: '/native/password', component: NativePassword },
-      { path: '/native/rename', component: NativeRename },
-      { path: '/native/import', component: NativeImport },
-      { path: '/native/create', component: NativeCreate },
-      { path: '/native/create-test', component: NativeTestPhrase },
-      { path: '/native/success', component: NativeSuccess },
-      { path: '/native/enter-password', component: EnterPassword },
-      { path: '/native/legacy/login', component: NativeLegacyLogin },
-      { path: '/native/legacy/login/success', component: NativeLegacySuccess },
+      { path: NativeWalletRoutes.Connect, component: NativeStart },
+      { path: NativeWalletRoutes.Load, component: NativeLoad },
+      { path: NativeWalletRoutes.Password, component: NativePassword },
+      { path: NativeWalletRoutes.Rename, component: NativeRename },
+      { path: NativeWalletRoutes.Import, component: NativeImport },
+      { path: NativeWalletRoutes.Create, component: NativeCreate },
+      { path: NativeWalletRoutes.CreateTest, component: NativeTestPhrase },
+      { path: NativeWalletRoutes.Success, component: NativeSuccess },
+      { path: NativeWalletRoutes.EnterPassword, component: EnterPassword },
+      { path: NativeWalletRoutes.LegacyLogin, component: NativeLegacyLogin },
+      { path: NativeWalletRoutes.LegacyLoginSuccess, component: NativeLegacySuccess },
     ],
     connectedMenuComponent: NativeMenu,
   },

@@ -50,14 +50,14 @@ import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
 type BridgeConfirmProps = {
-  bridgeQuote: RfoxBridgeQuote
+  confirmedQuote: RfoxBridgeQuote
 }
 
 const backIcon = <ArrowBackIcon />
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 
-export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridgeQuote }) => {
+export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confirmedQuote }) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
@@ -70,11 +70,11 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     history.push(StakeRoutePaths.Input)
   }, [history])
 
-  const sellAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.sellAssetId))
-  const buyAsset = useAppSelector(state => selectAssetById(state, bridgeQuote.buyAssetId))
+  const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
+  const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))
 
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(bridgeQuote.sellAssetId).chainId),
+    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.sellAssetId).chainId),
   )
 
   const feeAssetMarketData = useAppSelector(state =>
@@ -82,12 +82,12 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   )
 
   const bridgeAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(bridgeQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
-    [bridgeQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
+    () => fromBaseUnit(confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
+    [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
   const sellAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, bridgeQuote.sellAssetId),
+    selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.sellAssetId),
   )
 
   const bridgeAmountUserCurrency = useMemo(
@@ -97,8 +97,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   )
 
   const accountNumberFilter = useMemo(
-    () => ({ assetId: bridgeQuote.sellAssetId, accountId: bridgeQuote.sellAssetAccountId }),
-    [bridgeQuote.sellAssetAccountId, bridgeQuote.sellAssetId],
+    () => ({ assetId: confirmedQuote.sellAssetId, accountId: confirmedQuote.sellAssetAccountId }),
+    [confirmedQuote.sellAssetAccountId, confirmedQuote.sellAssetId],
   )
   const accountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, accountNumberFilter),
@@ -109,12 +109,12 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
       sellAsset: sellAsset!,
       buyAsset: buyAsset!,
       chainId: sellAsset!.chainId as EvmChainId,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: bridgeQuote.bridgeAmountCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       allowMultiHop: true,
-      receiveAddress: fromAccountId(bridgeQuote.buyAssetAccountId).account,
-      sendAddress: fromAccountId(bridgeQuote.sellAssetAccountId).account,
+      receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
+      sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: accountNumber!,
       wallet: wallet!,
     }),
@@ -130,14 +130,14 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   }, [quote])
 
   const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
-    assetId: bridgeQuote.sellAssetId,
+    assetId: confirmedQuote.sellAssetId,
     spender: allowanceContract,
-    from: fromAccountId(bridgeQuote.sellAssetAccountId).account,
+    from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
   })
 
   const isApprovalRequired = useMemo(
-    () => bnOrZero(allowanceData).lt(bridgeQuote.bridgeAmountCryptoBaseUnit),
-    [allowanceData, bridgeQuote.bridgeAmountCryptoBaseUnit],
+    () => bnOrZero(allowanceData).lt(confirmedQuote.bridgeAmountCryptoBaseUnit),
+    [allowanceData, confirmedQuote.bridgeAmountCryptoBaseUnit],
   )
 
   const approvalCallData = useMemo(() => {
@@ -146,9 +146,9 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     return encodeFunctionData({
       abi: erc20ABI,
       functionName: 'approve',
-      args: [getAddress(allowanceContract), BigInt(bridgeQuote.bridgeAmountCryptoBaseUnit)],
+      args: [getAddress(allowanceContract), BigInt(confirmedQuote.bridgeAmountCryptoBaseUnit)],
     })
-  }, [allowanceContract, bridgeQuote.bridgeAmountCryptoBaseUnit])
+  }, [allowanceContract, confirmedQuote.bridgeAmountCryptoBaseUnit])
 
   const {
     mutate: sendApprovalTx,
@@ -157,10 +157,10 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     isIdle: isApprovalMutationIdle,
   } = useMutation({
     ...reactQueries.mutations.approve({
-      assetId: bridgeQuote.sellAssetId,
+      assetId: confirmedQuote.sellAssetId,
       spender: allowanceContract!,
-      from: fromAccountId(bridgeQuote.sellAssetAccountId).account,
-      amount: bridgeQuote.bridgeAmountCryptoBaseUnit,
+      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+      amount: confirmedQuote.bridgeAmountCryptoBaseUnit,
       wallet,
       accountNumber,
     }),
@@ -211,8 +211,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
       accountNumber: accountNumber!, // see isGetApprovalFeesEnabled
       feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
       feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(bridgeQuote.sellAssetId).assetReference,
-      from: fromAccountId(bridgeQuote.sellAssetAccountId).account,
+      to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
+      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       data: approvalCallData!,
       wallet: wallet!, // see isGetApprovalFeesEnabled
     }),
@@ -227,11 +227,11 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   const serializedApprovalTxIndex = useMemo(() => {
     if (!approvalTxHash) return ''
     return serializeTxIndex(
-      bridgeQuote.sellAssetAccountId,
+      confirmedQuote.sellAssetAccountId,
       approvalTxHash,
-      fromAccountId(bridgeQuote.sellAssetAccountId).account,
+      fromAccountId(confirmedQuote.sellAssetAccountId).account,
     )
-  }, [approvalTxHash, bridgeQuote.sellAssetAccountId])
+  }, [approvalTxHash, confirmedQuote.sellAssetAccountId])
 
   const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
 
@@ -270,9 +270,9 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     ;(async () => {
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
-          bridgeQuote.sellAssetId,
+          confirmedQuote.sellAssetId,
           allowanceContract,
-          fromAccountId(bridgeQuote.sellAssetAccountId).account,
+          fromAccountId(confirmedQuote.sellAssetAccountId).account,
         ),
       )
     })()
@@ -281,8 +281,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
     isApprovalTxPending,
     queryClient,
     allowanceContract,
-    bridgeQuote.sellAssetId,
-    bridgeQuote.sellAssetAccountId,
+    confirmedQuote.sellAssetId,
+    confirmedQuote.sellAssetAccountId,
   ])
 
   const networkFeeCryptoPrecision = useMemo(() => {
@@ -300,10 +300,10 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
 
   const feeAssetBalanceFilter = useMemo(
     () => ({
-      accountId: bridgeQuote.sellAssetAccountId,
+      accountId: confirmedQuote.sellAssetAccountId,
       assetId: feeAsset?.assetId,
     }),
-    [bridgeQuote.sellAssetAccountId, feeAsset?.assetId],
+    [confirmedQuote.sellAssetAccountId, feeAsset?.assetId],
   )
   const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoPrecisionBalanceByFilter(state, feeAssetBalanceFilter),
@@ -382,8 +382,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ bridg
   }, [errorCopy, isApprovalRequired, translate])
 
   const handleSubmit = useCallback(() => {
-    history.push({ pathname: BridgeRoutePaths.Status, state: bridgeQuote })
-  }, [bridgeQuote, history])
+    history.push({ pathname: BridgeRoutePaths.Status, state: confirmedQuote })
+  }, [confirmedQuote, history])
 
   return (
     <SlideTransition>

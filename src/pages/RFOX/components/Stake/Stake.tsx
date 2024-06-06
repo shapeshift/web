@@ -152,7 +152,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const renderBridgeConfirm = useCallback(() => {
     if (!maybeBridgeQuote) return null
 
-    return <BridgeConfirm bridgeQuote={maybeBridgeQuote} headerComponent={headerComponent} />
+    return <BridgeConfirm confirmedQuote={maybeBridgeQuote} headerComponent={headerComponent} />
   }, [maybeBridgeQuote, headerComponent])
 
   const renderBridgeStatus = useCallback(() => {

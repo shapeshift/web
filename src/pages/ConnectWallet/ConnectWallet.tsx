@@ -218,7 +218,7 @@ export const ConnectWallet = () => {
                   </Stack>
                   <Button
                     width='full'
-                    size='lg'
+                    size='lg-multiline'
                     onClick={handleMetaMaskConnect}
                     leftIcon={metamaskIcon}
                   >
@@ -247,7 +247,7 @@ export const ConnectWallet = () => {
               </Stack>
             )}
             <Button
-              size='lg'
+              size='lg-multiline'
               zIndex={1}
               colorScheme='blue'
               width='full'

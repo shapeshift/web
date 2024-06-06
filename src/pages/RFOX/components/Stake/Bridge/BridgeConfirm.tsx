@@ -26,8 +26,8 @@ import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/sele
 import { useAppSelector } from 'state/store'
 
 import { StakeRoutePaths } from '../types'
-import { useRfoxApproval } from './hooks/useRfoxApproval'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
+import { useRfoxBridgeApproval } from './hooks/useRfoxBridgeApproval'
 import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
@@ -61,7 +61,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     isApprovalTxPending,
     isTransitioning,
     handleApprove,
-  } = useRfoxApproval({
+  } = useRfoxBridgeApproval({
     confirmedQuote,
   })
 

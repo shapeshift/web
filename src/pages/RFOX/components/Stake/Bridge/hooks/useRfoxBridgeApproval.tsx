@@ -19,8 +19,8 @@ import { useAppSelector } from 'state/store'
 import type { RfoxBridgeQuote } from '../types'
 import { useRfoxBridge } from './useRfoxBridge'
 
-type UseRfoxApprovalProps = { confirmedQuote: RfoxBridgeQuote }
-type UseRfoxApproval = (props: UseRfoxApprovalProps) => {
+type UseRfoxBridgeApprovalProps = { confirmedQuote: RfoxBridgeQuote }
+type UseRfoxBridgeApproval = (props: UseRfoxBridgeApprovalProps) => {
   isApprovalRequired: boolean
   allowanceQuery: UseQueryResult<string | undefined, Error>
   isGetApprovalFeesEnabled: boolean
@@ -38,7 +38,7 @@ type UseRfoxApproval = (props: UseRfoxApprovalProps) => {
   isTransitioning: boolean
 }
 
-export const useRfoxApproval: UseRfoxApproval = ({ confirmedQuote }) => {
+export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote }) => {
   const queryClient = useQueryClient()
   const toast = useToast()
   const translate = useTranslate()

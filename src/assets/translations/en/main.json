@@ -2430,6 +2430,7 @@
   },
   "RFOX": {
     "bridge": "Bridge",
+    "bridgeFunds": "Bridge Funds",
     "bridgeSuccess": "Your funds have been successfully bridged. You can now continue to staking.",
     "stake": "Stake",
     "unstake": "Unstake",

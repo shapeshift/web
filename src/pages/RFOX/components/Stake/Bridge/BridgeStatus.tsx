@@ -169,7 +169,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
       },
       {
         asset: buyAsset,
-        headerCopy: 'Bridge Funds',
+        headerCopy: translate('RFOX.bridgeFunds'),
         isActionable: false,
         serializedTxIndex: serializedL2TxIndex,
         txHash: l2TxHash,

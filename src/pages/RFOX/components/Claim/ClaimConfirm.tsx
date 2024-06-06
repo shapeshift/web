@@ -25,6 +25,7 @@ import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { firstFourLastFour } from 'lib/utils'
 import {
@@ -58,7 +59,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     selectFeeAssetByChainId(state, fromAssetId(claimQuote.claimAssetId).chainId),
   )
 
-  const feeAssetMarketData = useAppSelector(state =>
+  const feeAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
@@ -67,6 +68,10 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   }, [history])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.claimAssetId))
+
+  const claimAssetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
+  )
 
   const stakingAmountCryptoPrecision = useMemo(
     () => fromBaseUnit(claimQuote.claimAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
@@ -89,6 +94,14 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
   )
 
+  const claimAmountUserCurrency = useMemo(
+    () =>
+      bnOrZero(stakingAmountCryptoPrecision)
+        .times(claimAssetMarketDataUserCurrency.price)
+        .toFixed(),
+    [claimAssetMarketDataUserCurrency.price, stakingAmountCryptoPrecision],
+  )
+
   const callData = useMemo(() => {
     if (!stakingAsset) return
 
@@ -108,7 +121,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
           stakingAsset &&
           callData &&
           feeAsset &&
-          feeAssetMarketData,
+          feeAssetMarketDataUserCurrency,
       ),
     [
       // isUnstakeMutationIdle,
@@ -117,7 +130,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
       stakingAsset,
       callData,
       feeAsset,
-      feeAssetMarketData,
+      feeAssetMarketDataUserCurrency,
     ],
   )
 
@@ -134,7 +147,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
       value: '0', // contract call
       wallet: wallet!, // see isGetStakeFeesEnabled
       feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+      feeAssetMarketData: feeAssetMarketDataUserCurrency!, // see isGetStakeFeesEnabled
     }),
     staleTime: 30_000,
     enabled: isGetClaimFeesEnabled,
@@ -161,11 +174,11 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
           <Amount.Crypto value={stakingAmountCryptoPrecision} symbol={stakingAsset?.symbol} />
-          <Amount.Fiat fontSize='sm' color='text.subtle' value='10.22' />
+          <Amount.Fiat fontSize='sm' color='text.subtle' value={claimAmountUserCurrency} />
         </Stack>
       </Card>
     )
-  }, [stakingAsset, stakingAmountCryptoPrecision])
+  }, [stakingAsset, stakingAmountCryptoPrecision, claimAmountUserCurrency])
 
   const handleSubmit = useCallback(() => {
     setClaimTxid('1234')

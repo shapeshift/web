@@ -76,7 +76,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     expiry: 1713710808,
     steps: [
       {
-        estimatedExecutionTimeMs: undefined,
+        estimatedExecutionTimeMs: 1600000,
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
         buyAmountBeforeFeesCryptoBaseUnit: '5442880880000000000',
@@ -115,7 +115,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     expiry: 1713710808,
     steps: [
       {
-        estimatedExecutionTimeMs: undefined,
+        estimatedExecutionTimeMs: 1600000,
         allowanceContract: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
         sellAmountIncludingProtocolFeesCryptoBaseUnit: '713014679420',
         buyAmountBeforeFeesCryptoBaseUnit: '5452880880000000000',

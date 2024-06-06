@@ -34,10 +34,7 @@ type UseRfoxBridge = (props: UseRfoxBridgeProps) => {
   sellAsset: Asset | undefined
   buyAsset: Asset | undefined
   feeAsset: Asset | undefined
-  // TODO(gomes): as we keep the refactor ongoing, we may realize we don't need this
-  sellAssetMarketDataUserCurrency: MarketData
   feeAssetMarketData: MarketData
-  // TODO(gomes): as we keep the refactor ongoing, we may realize we don't need this
   sellAssetAccountNumber: number | undefined
   tradeQuoteQuery: UseQueryResult<Result<TradeQuote, SwapErrorRight>, Error>
   allowanceContract: string | undefined
@@ -211,7 +208,6 @@ export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
     sellAsset,
     buyAsset,
     feeAsset,
-    sellAssetMarketDataUserCurrency,
     feeAssetMarketData,
     sellAssetAccountNumber,
     tradeQuoteQuery,

@@ -21,6 +21,7 @@ import GreenFox from 'assets/green-fox.svg'
 import OrangeFox from 'assets/orange-fox.svg'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FadeTransition } from 'components/FadeTransition'
+import { LanguageSelector } from 'components/LanguageSelector'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -293,6 +294,15 @@ export const MobileConnect = () => {
           </FadeTransition>
         ) : (
           <SlideTransitionY key='content'>
+            <Stack
+              position='absolute'
+              // Account for iOS UI elements such as the Notch or Dynamic Island for top positioning
+              top='calc(var(--chakra-space-6) + env(safe-area-inset-top))'
+              right={6}
+            >
+              <LanguageSelector size='sm' />
+            </Stack>
+
             <Stack px={6} spacing={6} position='relative' zIndex='4'>
               <AnimatePresence mode='wait' initial={false}>
                 <motion.div

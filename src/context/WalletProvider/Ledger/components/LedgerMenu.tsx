@@ -1,7 +1,7 @@
-import { EditIcon } from '@chakra-ui/icons'
 import { MenuDivider, MenuItem } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from 'context/WalletProvider/config'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -9,9 +9,11 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-const editIcon = <EditIcon />
+type LedgerMenuProps = {
+  onClose?: () => void
+}
 
-export const LedgerMenu = () => {
+export const LedgerMenu: React.FC<LedgerMenuProps> = ({ onClose }) => {
   const { dispatch, state } = useWallet()
   const translate = useTranslate()
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
@@ -50,19 +52,10 @@ export const LedgerMenu = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
-  const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({}),
-    [accountManagementPopover],
-  )
-
   return (
     <>
       <MenuDivider />
-      {isAccountManagementEnabled && (
-        <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-          {translate('accountManagement.menuTitle')}
-        </MenuItem>
-      )}
+      <ManageAccountsMenuItem onClose={onClose} />
       {/* TODO: Remove the below menu item once the new flow is added, and before the feature flag is enabled */}
       {(!isAccountManagementEnabled || !isLedgerAccountManagementEnabled) && (
         <MenuItem justifyContent='space-between' onClick={handleChainsClick}>

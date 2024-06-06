@@ -108,6 +108,7 @@
     "search": "Поиск",
     "searchAsset": "Поиск актива",
     "enterAmount": "Ввести сумму",
+    "enterAddress": "Введите адрес",
     "pageNotFound": "Страница, которую вы ищете, не найдена",
     "buySell": "Купить/Продать",
     "all": "Все",
@@ -116,6 +117,7 @@
     "feesPlusSlippage": "Комиссии + проскальзывание",
     "best": "Лучшая",
     "gasFee": "Плата за газ",
+    "approvalFee": "Плата за разрешение",
     "consolidationFee": "Комиссия за консолидацию",
     "fees": "Комиссия",
     "alternative": "Альтернатива",
@@ -609,7 +611,8 @@
         "title": "Сканировать QR-код",
         "body": "Простое сканирование для отправки или получения криптовалюты"
       }
-    }
+    },
+    "rFOX": "rFOX"
   },
   "transactionRow": {
     "send": "Отправлено",
@@ -877,6 +880,7 @@
     "addressPlaceholder": "%{chainName} адрес",
     "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?",
     "enableMetaMaskSnap": "используйте multichain snap",
+    "connectChain": "подключить %{chainName}",
     "approvalGasFee": "Размер платы за газ %{fee}",
     "approvalFailed": "Возникла проблема при утверждении разрешения",
     "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
@@ -1416,8 +1420,10 @@
       },
       "connect": {
         "header": "Pair Ledger",
-        "body": "Нажмите кнопку Pair и выберите во всплывающем окне свою бухгалтерскую книгу",
-        "button": "Pair"
+        "pairNewDeviceBody": " Нажмите \" Подключить новое устройство\", чтобы начать работу.",
+        "pairNewDeviceButton": "Подключить новое устройство",
+        "pairExistingDeviceButton": "Подключить имеющееся устройство",
+        "pairExistingDeviceBody": "Подключаете другое устройство Ledger? Нажмите \" Подключить новое устройство\", чтобы начать с чистого листа."
       },
       "failure": {
         "header": "Ошибка",
@@ -1464,7 +1470,8 @@
       "andMore": "...и многое другое",
       "snapInstalledToast": "Установлена привязка ShapeShift Multichain MetaMask",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap не установлен",
-      "dontAskAgain": "Больше не спрашивайте"
+      "dontAskAgain": "Больше не спрашивайте",
+      "multiAccountUnsupported": "Мультиаккаунт не поддерживается для этой цепочки при использовании привязки Multichain к MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Установить Multichain Snap",
@@ -1939,6 +1946,10 @@
       }
     },
     "walletConnectToDapps": {
+      "errors": {
+        "errorConnectingToDapp": "Ошибка при подключении к dApp",
+        "pairingAlreadyExists": "Для этого URL уже было выполнено подключение. Попробуйте использовать другой URL-адрес WalletConnect."
+      },
       "header": {
         "connectDapp": "Подключить dApp",
         "connectAnotherDapp": "Подключить другой dApp",
@@ -2412,5 +2423,50 @@
       "title": "Кредитование",
       "body": "Займите под залог своих активов."
     }
+  },
+  "RFOX": {
+    "stake": "Стейкинг",
+    "unstake": "Вывести стейкинг",
+    "claim": "Клейм",
+    "changeAddress": "Изменить адрес",
+    "sameAddressNotAllowed": "Не разрешается использовать один и тот же адрес",
+    "stakingDetails": "Информация о стейкинге",
+    "stakeAmount": "Застейкать активы",
+    "unstakeAmount": "Снять со стейкинга ",
+    "confirmAndStake": "Подтвердить и Застейкать",
+    "confirmAndUnstake": "Подтвердить и Снять со стейкинга",
+    "shapeShiftFee": "Комиссия ShapeShift",
+    "approvalFee": "Комиссия за разрешение",
+    "lockupPeriod": "Период блокировки",
+    "shareOfPool": "Доля в пуле",
+    "networkFee": "Комиссия за пользование сетью",
+    "thorchainRewardAddress": "Адрес для вознаграждения THORChain",
+    "rewardAddressHelper": "Сюда будут отправляться вознаграждения",
+    "useWalletAddress": "Используйте адрес кошелька",
+    "useCustomAddress": "Использование пользовательского адреса",
+    "stakeWarning": "Когда вы стейкаете свои токены FOX, пожалуйста, имейте в виду, что существует период блокировки %{cooldownPeriod}. Это означает, что если вы решите снять токены, вам придется подождать %{cooldownPeriod}, прежде чем вы сможете получить свои средства.",
+    "unstakeWarning": "Прежде чем вы сможете потребовать свой FOX, наступает период %{cooldownPeriod} блокировки. По истечении этого времени вы сможете потребовать свою незастейканую сумму.",
+    "tooltips": {
+      "stakeAmount": "Это сумма FOX, которую вы будете стейкать.",
+      "unstakeAmount": "Это количество FOX, которое вы разблокируете.",
+      "lockupPeriod": "Вот сколько времени вам придется ждать после снятия с стейкинга, чтобы заклеймить свои FOX",
+      "shareOfPool": "Это ваш процент от вознаграждения, которое вы заработаете."
+    },
+    "stakeSuccess": "Вы успешно застейкали %{amount} %{symbol}",
+    "stakePending": "Стейкинг %{amount} %{symbol}...",
+    "addressUpdated": "Адрес обновлен",
+    "changeRewardAddressPending": "Изменение адреса вознаграждения...",
+    "changeRewardAddressSuccess": "Вы успешно изменили свой адрес вознаграждения THORCHain.",
+    "unstakePending": "Запрос на снятие %{amount} %{symbol}",
+    "unstakeSuccess": "По истечении %{cooldownPeriod} вы сможете забрать свои %{amount} %{symbol}",
+    "currentRewardAddress": "Текущий адрес для получения вознаграждения",
+    "newRewardAddress": "Новый адрес вознаграждения",
+    "rewardCycleExplainer": "Это будет обновлено для следующего цикла вознаграждений.",
+    "noPositionTitle": "Нет активной позиции",
+    "noPositionBody": "Вы сможете изменить свой адрес вознаграждения здесь, как только займете активную позицию.",
+    "stakeNow": "Застейкать сейчас",
+    "noAddressFound": "Адрес не найден",
+    "newAddressInfo": "Это будет обновлено для следующего цикла вознаграждения",
+    "confirmAndUpdateAddress": "Подтвердить и обновить адрес"
   }
 }

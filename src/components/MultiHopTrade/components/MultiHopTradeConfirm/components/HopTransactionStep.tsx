@@ -142,7 +142,7 @@ export const HopTransactionStep = ({
       tradeQuoteStep.sellAsset.precision,
     )
     const buyAmountCryptoPrecision = fromBaseUnit(
-      tradeQuoteStep.buyAmountBeforeFeesCryptoBaseUnit,
+      tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit,
       tradeQuoteStep.buyAsset.precision,
     )
     const sellAmountCryptoFormatted = toCrypto(
@@ -185,7 +185,7 @@ export const HopTransactionStep = ({
     isError,
     message,
     toCrypto,
-    tradeQuoteStep.buyAmountBeforeFeesCryptoBaseUnit,
+    tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit,
     tradeQuoteStep.buyAsset.chainId,
     tradeQuoteStep.buyAsset.precision,
     tradeQuoteStep.buyAsset.symbol,

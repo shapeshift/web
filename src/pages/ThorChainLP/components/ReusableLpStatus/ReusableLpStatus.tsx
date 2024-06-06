@@ -57,8 +57,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const mixpanel = getMixPanel()
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [canGoBack, setCanGoBack] = useState(true)
-  const [isFailed, setIsFailed] = useState(false)
   const hasTrackedStatus = useRef(false)
+  const [txStatus, setTxStatus] = useState<TxStatus>()
 
   const { opportunityId } = confirmedQuote
   const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
@@ -98,9 +98,9 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     }
   }, [poolAsset, baseAsset, opportunityType, isDeposit])
 
-  const handleComplete = useCallback(
+  const handleStatusUpdate = useCallback(
     (status: TxStatus) => {
-      if (status === TxStatus.Failed) return setIsFailed(true)
+      setTxStatus(status)
       if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)
     },
     [activeStepIndex],
@@ -113,10 +113,11 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   // This allows us to either do a single step or multiple steps
   // Once a step is complete the next step is shown
   // If the active step is the same as the length of steps we can assume it is complete.
-  const isComplete = useMemo(
-    () => activeStepIndex === txAssets.length,
-    [activeStepIndex, txAssets.length],
-  )
+  const isComplete = activeStepIndex === txAssets.length
+
+  const isFailed = txStatus === TxStatus.Failed
+
+  const isSubmitted = txStatus === TxStatus.Pending
 
   useEffect(() => {
     // Prevent from firing multiple MixPanel events for the same outcome
@@ -148,42 +149,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const renderBody = useMemo(() => {
     if (!txAssets.length) return null
 
-    if (isComplete) {
-      return (
-        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
-          <Center
-            bg='background.success'
-            boxSize='80px'
-            borderRadius='full'
-            color='text.success'
-            fontSize='xl'
-            my={8}
-          >
-            <FaCheck />
-          </Center>
-          <Heading as='h4'>{translate('pools.transactionSubmitted')}</Heading>
-        </CardBody>
-      )
-    }
-
-    if (isFailed) {
-      return (
-        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
-          <Center
-            bg='background.error'
-            boxSize='80px'
-            borderRadius='full'
-            color='text.error'
-            fontSize='xl'
-            my={8}
-          >
-            <FaX />
-          </Center>
-          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
-        </CardBody>
-      )
-    }
-
     const supplyAssets = poolAssets.map((asset, i) => {
       const amountCryptoPrecision =
         asset.assetId === thorchainAssetId
@@ -193,6 +158,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
           : isLpConfirmedDepositQuote(confirmedQuote)
           ? confirmedQuote.assetDepositAmountCryptoPrecision
           : confirmedQuote.assetWithdrawAmountCryptoPrecision
+
       return (
         <Fragment key={`amount-${asset.assetId}`}>
           <Amount.Crypto
@@ -211,6 +177,76 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       )
     })
 
+    const AssetAmounts = () => (
+      <Flex gap={1} justifyContent='center' fontWeight='medium'>
+        <RawText>
+          {translate(
+            isLpConfirmedDepositQuote(confirmedQuote) ? 'pools.supplying' : 'pools.withdrawing',
+          )}
+        </RawText>
+        <HStack divider={hStackDivider}>{supplyAssets}</HStack>
+      </Flex>
+    )
+
+    if (isComplete) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center
+            bg='background.success'
+            boxSize='80px'
+            borderRadius='full'
+            color='text.success'
+            fontSize='xl'
+            my={8}
+          >
+            <FaCheck />
+          </Center>
+          <Heading as='h4'>{translate('common.success')}</Heading>
+          <AssetAmounts />
+        </CardBody>
+      )
+    }
+
+    if (isFailed) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center
+            bg='background.error'
+            boxSize='80px'
+            borderRadius='full'
+            color='text.error'
+            fontSize='xl'
+            my={8}
+          >
+            <FaX />
+          </Center>
+          <Heading as='h4'>{translate('common.transactionFailed')}</Heading>
+          <AssetAmounts />
+        </CardBody>
+      )
+    }
+
+    if (isSubmitted) {
+      return (
+        <CardBody display='flex' flexDir='column' alignItems='center' justifyContent='center'>
+          <Center boxSize='80px' borderRadius='full' fontSize='xl' my={8}>
+            <CircularProgress
+              size='100px'
+              thickness={4}
+              isIndeterminate
+              trackColor='background.surface.raised.base'
+            >
+              <CircularProgressLabel fontSize='md'>
+                {activeStepIndex + 1} / {txAssets.length}
+              </CircularProgressLabel>
+            </CircularProgress>
+          </Center>
+          <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
+          <AssetAmounts />
+        </CardBody>
+      )
+    }
+
     return (
       <CardBody textAlign='center'>
         <Center my={8}>
@@ -225,15 +261,8 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
             </CircularProgressLabel>
           </CircularProgress>
         </Center>
-        <Heading as='h4'>{translate('pools.waitingForConfirmation')}</Heading>
-        <Flex gap={1} justifyContent='center' fontWeight='medium'>
-          <RawText>
-            {translate(
-              isLpConfirmedDepositQuote(confirmedQuote) ? 'pools.supplying' : 'pools.withdrawing',
-            )}
-          </RawText>
-          <HStack divider={hStackDivider}>{supplyAssets}</HStack>
-        </Flex>
+        <Heading as='h4'>{translate('common.signTransaction')}</Heading>
+        <AssetAmounts />
       </CardBody>
     )
   }, [
@@ -244,6 +273,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     stepProgress,
     activeStepIndex,
     translate,
+    isSubmitted,
     confirmedQuote,
     hStackDivider,
   ])
@@ -268,7 +298,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               poolAssetId={poolAssetId}
               amountCryptoPrecision={amountCryptoPrecision}
               onStart={handleStart}
-              onComplete={handleComplete}
+              onStatusUpdate={handleStatusUpdate}
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
               opportunityType={opportunityType}
@@ -282,7 +312,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     confirmedQuote,
     poolAssetId,
     handleStart,
-    handleComplete,
+    handleStatusUpdate,
     activeStepIndex,
     isFailed,
     opportunityType,

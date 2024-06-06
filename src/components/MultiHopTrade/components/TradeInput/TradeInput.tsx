@@ -18,7 +18,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { type Asset } from '@shapeshiftoss/types'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -48,6 +48,7 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
@@ -58,11 +59,13 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
   selectHasUserEnteredAmount,
+  selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
   selectInputSellAsset,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
+  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -116,7 +119,7 @@ const GetTradeQuotes = () => {
   return <></>
 }
 
-export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
+export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
@@ -208,6 +211,18 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
     [dispatch],
   )
 
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
+
+  // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
+  useEffect(() => {
+    if (!defaultSellAsset) return
+
+    if (walletConnectedChainIds.includes(sellAsset.chainId)) return
+
+    setSellAsset(defaultSellAsset)
+  }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
+
   useEffect(() => {
     // WARNING: do not remove.
     // clear the confirmed quote on mount to prevent stale data affecting the selectors
@@ -221,6 +236,11 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+
+  const pollingInterval = useMemo(() => {
+    if (!activeSwapperName) return DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
+    return swappers[activeSwapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
+  }, [activeSwapperName])
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
@@ -618,7 +638,10 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
                       </Heading>
                       <Flex gap={2} alignItems='center'>
                         {activeQuote && (isCompact || isSmallerThanXl) && (
-                          <CountdownSpinner isLoading={isLoading || isRefetching} />
+                          <CountdownSpinner
+                            isLoading={isLoading || isRefetching}
+                            initialTimeMs={pollingInterval}
+                          />
                         )}
                         <SlippagePopover />
                       </Flex>
@@ -713,4 +736,4 @@ export const TradeInput = memo(({ isCompact }: TradeInputProps) => {
       </MessageOverlay>
     </TradeSlideTransition>
   )
-})
+}

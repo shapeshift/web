@@ -108,6 +108,7 @@
     "search": "Ara",
     "searchAsset": "Varlıklarda Ara",
     "enterAmount": "Miktarı Girin",
+    "enterAddress": "Adresi Girin",
     "pageNotFound": "Aradığınız sayfa bulunamadı",
     "buySell": "Al/Sat",
     "all": "Hepsi",
@@ -116,6 +117,7 @@
     "feesPlusSlippage": "Ücretler + Kayma",
     "best": "En iyi",
     "gasFee": "Gaz Ücreti",
+    "approvalFee": "Onay Ücreti",
     "consolidationFee": "Konsolidasyon Ücreti",
     "fees": "Ücretler",
     "alternative": "Alternatif",
@@ -609,7 +611,8 @@
         "title": "QR Kodunu Tara",
         "body": "Kripto göndermek veya almak için kolayca tarayın"
       }
-    }
+    },
+    "rFOX": "rFOX"
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -877,6 +880,7 @@
     "addressPlaceholder": "%{chainName} adresi",
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
     "enableMetaMaskSnap": "Multichain snap'i kullan",
+    "connectChain": "%{chainName}'i bağla",
     "approvalGasFee": "Gaz ücreti onayı %{fee}",
     "approvalFailed": "Ödenek onayı sırasında bir sorun oluştu",
     "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
@@ -1416,8 +1420,10 @@
       },
       "connect": {
         "header": "Ledger'i Eşleştir",
-        "body": "Eşleştir'e tıklayın ve açılır pencereden Ledger'i seçin",
-        "button": "Eşleştir"
+        "pairNewDeviceBody": " Başlamak için 'Yeni cihazı eşleştir'e tıklayın",
+        "pairNewDeviceButton": "Yeni cihazı eşleştir",
+        "pairExistingDeviceButton": "Mevcut cihazı eşleştir",
+        "pairExistingDeviceBody": "Farklı bir Ledger cihazı mı bağlanıyorsunuz? Yeni bir başlangıç ​​yapmak için 'Yeni cihazı eşleştir'e tıklayın."
       },
       "failure": {
         "header": "Hata",
@@ -1464,7 +1470,8 @@
       "andMore": "...ve dahası",
       "snapInstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Yüklendi",
       "snapUninstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Kaldırıldı",
-      "dontAskAgain": "Bir daha sorma"
+      "dontAskAgain": "Bir daha sorma",
+      "multiAccountUnsupported": "MetaMask'ta Çoklu Zincir Snap kullanan bu zincirde çoklu hesap desteklenmiyor"
     },
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
@@ -1939,6 +1946,10 @@
       }
     },
     "walletConnectToDapps": {
+      "errors": {
+        "errorConnectingToDapp": "dApp'e bağlanırken hata oluştu",
+        "pairingAlreadyExists": "Bu URL için zaten bir eşleştirme yapıldı. Lütfen farklı bir WalletConnect URL'i deneyin."
+      },
       "header": {
         "connectDapp": "dApp'e Bağlanın",
         "connectAnotherDapp": "Başka bir dApp bağlayın",
@@ -2412,5 +2423,50 @@
       "title": "Borç Verme",
       "body": "Varlıklarınıza karşılık borç alın."
     }
+  },
+  "RFOX": {
+    "stake": "Stake",
+    "unstake": "Stake Kaldır",
+    "claim": "Topla",
+    "changeAddress": "Adres değiştir",
+    "sameAddressNotAllowed": "Aynı adrese izin verilmiyor",
+    "stakingDetails": "Stake Detayları",
+    "stakeAmount": "Stake Tutarı",
+    "unstakeAmount": "Kaldırılan Stake Tutarı",
+    "confirmAndStake": "Onayla ve Stake Et",
+    "confirmAndUnstake": "Onayla ve Stake'i Kaldır",
+    "shapeShiftFee": "ShapeShift Ücreti",
+    "approvalFee": "Onay Ücreti",
+    "lockupPeriod": "Kilitleme Süresi",
+    "shareOfPool": "Havuz Payı",
+    "networkFee": "Ağ Ücreti",
+    "thorchainRewardAddress": "THORChain Ödül Adresi",
+    "rewardAddressHelper": "Ödüllerin gönderileceği yer burasıdır",
+    "useWalletAddress": "Cüzdan adresini kullan",
+    "useCustomAddress": "Özel adres kullan",
+    "stakeWarning": "FOX tokenlarınızı stake ettiğinizde lütfen %{cooldownPeriod} kilitlenme süresi olduğunu unutmayın. Bu, tokenlarınızı geri almaya karar verirseniz, paranızı talep etmeden önce %{cooldownPeriod} beklemeniz gerekeceği anlamına gelir.",
+    "unstakeWarning": "FOX'unuzu alabilmeniz için %{cooldownPeriod} bekleme süresi vardır. Bu süre geçtikten sonra, stake edilmemiş tutarınızı talep edebileceksiniz.",
+    "tooltips": {
+      "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
+      "unstakeAmount": "Bu, kaldıracağınız FOX miktarıdır",
+      "lockupPeriod": "FOX'unuzu talep etmek için bahisi kaldırdıktan sonra bu kadar beklemeniz gerekecek",
+      "shareOfPool": "Bu, kazanacağınız ücretlerin yüzdesidir."
+    },
+    "stakeSuccess": "Başarıyla %{amount} %{symbol} stake ettiniz",
+    "stakePending": "%{amount} %{symbol} stake ediliyor...",
+    "addressUpdated": "Adres güncellendi",
+    "changeRewardAddressPending": "Ödül Adresi Değiştiriliyor...",
+    "changeRewardAddressSuccess": "THORChain Ödül Adresinizi başarıyla değiştirdiniz.",
+    "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
+    "unstakeSuccess": "%{cooldownPeriod} süresi dolduğunda, %{amount} %{symbol} miktarınızı talep edebileceksiniz",
+    "currentRewardAddress": "Güncel Ödül Adresi",
+    "newRewardAddress": "Yeni Ödül Adresi",
+    "rewardCycleExplainer": "Bu, bir sonraki ödül döngüsü için güncellenecektir.",
+    "noPositionTitle": "Aktif Pozisyon Yok",
+    "noPositionBody": "Aktif bir pozisyonunuz olduğunda ödül adresinizi buradan değiştirebileceksiniz.",
+    "stakeNow": "Şimdi Stake Edin",
+    "noAddressFound": "Adres bulunamadı",
+    "newAddressInfo": "Bu, bir sonraki ödül döngüsü için güncellenecektir",
+    "confirmAndUpdateAddress": "Adresi Onayla ve Güncelle"
   }
 }

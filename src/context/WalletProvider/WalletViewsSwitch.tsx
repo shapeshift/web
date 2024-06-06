@@ -20,8 +20,11 @@ import { store } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { SelectModal } from './SelectModal'
+import { NativeWalletRoutes } from './types'
 
 const arrowBackIcon = <ArrowBackIcon />
+
+const INITIAL_WALLET_MODAL_ROUTE = '/'
 
 export const WalletViewsSwitch = () => {
   const history = useHistory()
@@ -62,7 +65,7 @@ export const WalletViewsSwitch = () => {
       store.dispatch(localWalletSlice.actions.clearLocalWallet())
       dispatch({ type: WalletActions.OPEN_KEEPKEY_DISCONNECT })
     } else {
-      history.replace('/')
+      history.replace(INITIAL_WALLET_MODAL_ROUTE)
       if (disconnectOnCloseModal) {
         disconnect()
         dispatch({ type: WalletActions.RESET_STATE })
@@ -86,7 +89,8 @@ export const WalletViewsSwitch = () => {
     history.goBack()
     // If we're back at the select wallet modal, remove the initial route
     // otherwise clicking the button for the same wallet doesn't do anything
-    if (history.location.pathname === '/select') {
+    const { pathname } = history.location
+    if ([INITIAL_WALLET_MODAL_ROUTE, NativeWalletRoutes.Load].includes(pathname)) {
       dispatch({ type: WalletActions.SET_INITIAL_ROUTE, payload: '' })
     }
     await cancelWalletRequests()
@@ -152,7 +156,7 @@ export const WalletViewsSwitch = () => {
             <SlideTransition key={location.key}>
               <Switch key={location.pathname} location={location}>
                 {walletRoutesList}
-                <Route path={'/'} children={renderSelectModal} />
+                <Route path={INITIAL_WALLET_MODAL_ROUTE} children={renderSelectModal} />
               </Switch>
             </SlideTransition>
           </AnimatePresence>

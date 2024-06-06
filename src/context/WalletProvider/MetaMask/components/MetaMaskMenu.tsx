@@ -1,6 +1,7 @@
 import { MenuDivider, MenuItem, Skeleton, Tag } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
@@ -9,7 +10,11 @@ import {
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const MetaMaskMenu = () => {
+type MetaMaskMenuProps = {
+  onClose?: () => void
+}
+
+export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
   const isSnapInstalled = useIsSnapInstalled()
   const translate = useTranslate()
   const snapModal = useModal('snaps')
@@ -45,6 +50,7 @@ export const MetaMaskMenu = () => {
   return isMetaMask ? (
     <>
       <MenuDivider />
+      {isSnapInstalled && <ManageAccountsMenuItem onClose={onClose} />}
       <MenuItem
         justifyContent='space-between'
         onClick={handleClick}

@@ -174,10 +174,10 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileWelcomeBody')}</BodyText>
           </Stack>
           <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
-            <Button colorScheme='blue' size='lg' onClick={handleCreate}>
+            <Button colorScheme='blue' size='lg-multiline' onClick={handleCreate}>
               {translate('connectWalletPage.createANewWallet')}
             </Button>
-            <Button variant='outline' size='lg' onClick={handleImport}>
+            <Button variant='outline' size='lg-multiline' onClick={handleImport}>
               {translate('connectWalletPage.importExisting')}
             </Button>
 
@@ -188,7 +188,7 @@ export const MobileConnect = () => {
                   <RawText>{translate('common.or')}</RawText>
                   <Divider borderColor='border.base' />
                 </Flex>
-                <Button variant='outline' size='lg' onClick={handleToggleWallets}>
+                <Button variant='outline' size='lg-multiline' onClick={handleToggleWallets}>
                   {translate('connectWalletPage.viewSavedWallets')}
                 </Button>
               </>
@@ -218,7 +218,7 @@ export const MobileConnect = () => {
                 onClick={handleWalletSelect}
               />
             ))}
-            <Button size='lg' variant='outline' onClick={handleToggleWallets}>
+            <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
               {translate('connectWalletPage.createOrImport')}
             </Button>
             {error && (

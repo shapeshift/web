@@ -1,6 +1,7 @@
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useCallback } from 'react'
 import { useHistory } from 'react-router-dom'
+import { NativeWalletRoutes } from 'context/WalletProvider/types'
 import { decryptNativeWallet } from 'lib/cryptography/login'
 
 import type { OnLoginSuccess } from './LegacyMigration/LegacyLogin'
@@ -16,7 +17,7 @@ export const NativeLegacyLogin = () => {
       const vault = await Vault.create(undefined, false)
       vault.meta.set('createdAt', Date.now())
       vault.set('#mnemonic', await decryptNativeWallet(email, password, encryptedWallet))
-      history.push('/native/legacy/login/success', { vault })
+      history.push(NativeWalletRoutes.LegacyLoginSuccess, { vault })
     },
     [history],
   )

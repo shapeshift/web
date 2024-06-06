@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -64,7 +64,6 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   unstakeTxid,
   setUnstakeTxid,
 }) => {
-  const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
@@ -95,6 +94,18 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     [confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
+  const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
+  )
+
+  const unstakingAmountUserCurrency = useMemo(
+    () =>
+      bnOrZero(unstakingAmountCryptoPrecision)
+        .times(stakingAssetMarketDataUserCurrency.price)
+        .toFixed(),
+    [stakingAssetMarketDataUserCurrency.price, unstakingAmountCryptoPrecision],
+  )
+
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
@@ -120,11 +131,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
         <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
           <Amount.Crypto value={unstakingAmountCryptoPrecision} symbol={stakingAsset?.symbol} />
-          <Amount.Fiat fontSize='sm' color='text.subtle' value='0.0' />
+          <Amount.Fiat fontSize='sm' color='text.subtle' value={unstakingAmountUserCurrency} />
         </Stack>
       </Card>
     )
-  }, [stakingAsset, unstakingAmountCryptoPrecision])
+  }, [stakingAsset, unstakingAmountCryptoPrecision, unstakingAmountUserCurrency])
 
   const callData = useMemo(() => {
     if (!stakingAsset) return
@@ -229,7 +240,6 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   const {
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
-    queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey,
   } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
@@ -245,7 +255,6 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   const {
     data: newContractBalanceOfCryptoBaseUnit,
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
-    queryKey: newContractBalanceOfCryptoBaseUnitQueryKey,
   } = useReadContract({
     abi: erc20ABI,
     address: getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference),
@@ -273,18 +282,8 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   const handleSubmit = useCallback(async () => {
     await handleUnstake()
 
-    // This isn't a mistake - we invalidate as a cleanup operation before unmount to avoid current subscribers refetching with wrong args, hence making invalidation useless
     history.push(UnstakeRoutePaths.Status)
-
-    await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
-    await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
-  }, [
-    handleUnstake,
-    history,
-    newContractBalanceOfCryptoBaseUnitQueryKey,
-    queryClient,
-    userStakingBalanceOfCryptoBaseUnitQueryKey,
-  ])
+  }, [handleUnstake, history])
 
   const unstakeTx = useAppSelector(gs => selectTxById(gs, serializedUnstakeTxIndex))
   const isUnstakeTxPending = useMemo(

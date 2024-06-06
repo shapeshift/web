@@ -11,7 +11,8 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useMemo } from 'react'
@@ -29,11 +30,18 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { firstFourLastFour } from 'lib/utils'
 import {
+  assertGetEvmChainAdapter,
+  buildAndBroadcast,
+  createBuildCustomTxInput,
+} from 'lib/utils/evm'
+import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectTxById,
 } from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { ClaimRoutePaths, type ClaimRouteProps, type RfoxClaimQuote } from './types'
@@ -41,6 +49,7 @@ import { ClaimRoutePaths, type ClaimRouteProps, type RfoxClaimQuote } from './ty
 type ClaimConfirmProps = {
   claimQuote: RfoxClaimQuote
   setClaimTxid: (txId: string) => void
+  claimTxid: string | undefined
 }
 
 const backIcon = <ArrowBackIcon />
@@ -49,6 +58,7 @@ const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='me
 
 export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimConfirmProps> = ({
   claimQuote,
+  claimTxid,
   setClaimTxid,
 }) => {
   const history = useHistory()
@@ -112,11 +122,46 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     })
   }, [stakingAsset, claimQuote.index])
 
+  const {
+    mutateAsync: handleClaim,
+    isIdle: isClaimMutationIdle,
+    isPending: isClaimMutationPending,
+    isSuccess: isClaimMutationSuccess,
+  } = useMutation({
+    mutationFn: async () => {
+      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset || !callData) return
+
+      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+
+      const buildCustomTxInput = await createBuildCustomTxInput({
+        accountNumber: stakingAssetAccountNumber,
+        adapter,
+        data: callData,
+        value: '0',
+        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        wallet,
+      })
+
+      const txId = await buildAndBroadcast({
+        adapter,
+        buildCustomTxInput,
+        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+      })
+
+      return txId
+    },
+    onSuccess: (txId: string | undefined) => {
+      if (!txId) return
+
+      setClaimTxid(txId)
+    },
+  })
+
   const isGetClaimFeesEnabled = useMemo(
     () =>
       Boolean(
-        // isUnstakeMutationIdle &&
-        stakingAssetAccountNumber !== undefined &&
+        isClaimMutationIdle &&
+          stakingAssetAccountNumber !== undefined &&
           wallet &&
           stakingAsset &&
           callData &&
@@ -124,7 +169,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
           feeAssetMarketDataUserCurrency,
       ),
     [
-      // isUnstakeMutationIdle,
+      isClaimMutationIdle,
       stakingAssetAccountNumber,
       wallet,
       stakingAsset,
@@ -157,6 +202,11 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     refetchInterval: isGetClaimFeesEnabled ? 15_000 : false,
   })
 
+  const serializedClaimTxIndex = useMemo(() => {
+    if (!(claimTxid && stakingAssetAccountAddress && claimQuote.claimAssetAccountId)) return ''
+    return serializeTxIndex(claimQuote.claimAssetAccountId, claimTxid, stakingAssetAccountAddress)
+  }, [claimQuote.claimAssetAccountId, claimTxid, stakingAssetAccountAddress])
+
   const claimCard = useMemo(() => {
     if (!stakingAsset) return null
     return (
@@ -180,10 +230,16 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     )
   }, [stakingAsset, stakingAmountCryptoPrecision, claimAmountUserCurrency])
 
-  const handleSubmit = useCallback(() => {
-    setClaimTxid('1234')
+  const handleSubmit = useCallback(async () => {
+    await handleClaim()
     history.push(ClaimRoutePaths.Status)
-  }, [history, setClaimTxid])
+  }, [handleClaim, history])
+
+  const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
+  const isClaimTxPending = useMemo(
+    () => isClaimMutationPending || (isClaimMutationSuccess && !claimTx),
+    [claimTx, isClaimMutationPending, isClaimMutationSuccess],
+  )
 
   return (
     <SlideTransition>
@@ -233,8 +289,8 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
           size='lg'
           mx={-2}
           colorScheme='blue'
-          isLoading={isClaimFeesLoading}
-          disabled={!isClaimFeesSuccess}
+          isLoading={isClaimFeesLoading || isClaimTxPending}
+          disabled={!isClaimFeesSuccess || isClaimTxPending}
           onClick={handleSubmit}
         >
           {translate('RFOX.confirmAndClaim')}

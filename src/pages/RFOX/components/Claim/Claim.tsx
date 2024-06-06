@@ -66,9 +66,10 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
         claimQuote={confirmedQuote}
         setClaimTxid={setClaimTxid}
         headerComponent={headerComponent}
+        claimTxid={claimTxid}
       />
     )
-  }, [confirmedQuote, headerComponent])
+  }, [claimTxid, confirmedQuote, headerComponent])
 
   const renderClaimStatus = useCallback(() => {
     if (!claimTxid) return null

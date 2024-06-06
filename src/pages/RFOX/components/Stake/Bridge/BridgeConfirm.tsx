@@ -151,7 +151,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
   }, [allowanceContract, confirmedQuote.bridgeAmountCryptoBaseUnit])
 
   const {
-    mutate: sendApprovalTx,
+    mutateAsync: sendApprovalTx,
     isPending: isApprovalMutationPending,
     isSuccess: isApprovalMutationSuccess,
     isIdle: isApprovalMutationIdle,
@@ -235,7 +235,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
 
   const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
 
-  const handleApprove = useCallback(() => sendApprovalTx(undefined), [sendApprovalTx])
+  const handleApprove = useCallback(() => sendApprovalTx(), [sendApprovalTx])
 
   const isApprovalTxPending = useMemo(
     () =>

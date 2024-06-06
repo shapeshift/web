@@ -10,18 +10,29 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
+import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
+import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { firstFourLastFour } from 'lib/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimRoutePaths, type ClaimRouteProps, type RfoxClaimQuote } from './types'
@@ -41,19 +52,100 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 }) => {
   const history = useHistory()
   const translate = useTranslate()
+  const wallet = useWallet().state.wallet
+
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(claimQuote.claimAssetId).chainId),
+  )
+
+  const feeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  )
 
   const handleGoBack = useCallback(() => {
     history.push(ClaimRoutePaths.Select)
   }, [history])
 
-  const claimAsset = useAppSelector(state => selectAssetById(state, claimQuote.claimAssetId))
-  const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(claimQuote.claimAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
-    [claimQuote.claimAmountCryptoBaseUnit, claimAsset?.precision],
+  const stakingAsset = useAppSelector(state => selectAssetById(state, claimQuote.claimAssetId))
+
+  const stakingAmountCryptoPrecision = useMemo(
+    () => fromBaseUnit(claimQuote.claimAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+    [claimQuote.claimAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(claimQuote.claimAssetAccountId).account,
+    [claimQuote.claimAssetAccountId],
+  )
+
+  const stakingAssetAccountNumberFilter = useMemo(() => {
+    return {
+      assetId: claimQuote.claimAssetId,
+      accountId: claimQuote.claimAssetAccountId,
+    }
+  }, [claimQuote.claimAssetAccountId, claimQuote.claimAssetId])
+
+  const stakingAssetAccountNumber = useAppSelector(state =>
+    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
+  )
+
+  const callData = useMemo(() => {
+    if (!stakingAsset) return
+
+    return encodeFunctionData({
+      abi: foxStakingV1Abi,
+      functionName: 'withdraw',
+      args: [BigInt(claimQuote.index)],
+    })
+  }, [stakingAsset, claimQuote.index])
+
+  const isGetClaimFeesEnabled = useMemo(
+    () =>
+      Boolean(
+        // isUnstakeMutationIdle &&
+        stakingAssetAccountNumber !== undefined &&
+          wallet &&
+          stakingAsset &&
+          callData &&
+          feeAsset &&
+          feeAssetMarketData,
+      ),
+    [
+      // isUnstakeMutationIdle,
+      stakingAssetAccountNumber,
+      wallet,
+      stakingAsset,
+      callData,
+      feeAsset,
+      feeAssetMarketData,
+    ],
+  )
+
+  const {
+    data: claimFees,
+    isLoading: isClaimFeesLoading,
+    isSuccess: isClaimFeesSuccess,
+  } = useQuery({
+    ...reactQueries.common.evmFees({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress,
+      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
+      data: callData!, // see isGetStakeFeesEnabled
+      value: '0', // contract call
+      wallet: wallet!, // see isGetStakeFeesEnabled
+      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
+      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
+    }),
+    staleTime: 30_000,
+    enabled: isGetClaimFeesEnabled,
+    // Ensures fees are refetched at an interval, including when the app is in the background
+    refetchIntervalInBackground: true,
+    // Yeah this is arbitrary but come on, Arb is cheap
+    refetchInterval: isGetClaimFeesEnabled ? 15_000 : false,
+  })
+
   const claimCard = useMemo(() => {
-    if (!claimAsset) return null
+    if (!stakingAsset) return null
     return (
       <Card
         display='flex'
@@ -66,24 +158,19 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         flex={1}
         mx={-2}
       >
-        <AssetIcon size='sm' assetId={claimAsset?.assetId} />
+        <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value={claimAmountCryptoPrecision} symbol={claimAsset?.symbol} />
+          <Amount.Crypto value={stakingAmountCryptoPrecision} symbol={stakingAsset?.symbol} />
           <Amount.Fiat fontSize='sm' color='text.subtle' value='10.22' />
         </Stack>
       </Card>
     )
-  }, [claimAsset, claimAmountCryptoPrecision])
+  }, [stakingAsset, stakingAmountCryptoPrecision])
 
   const handleSubmit = useCallback(() => {
     setClaimTxid('1234')
     history.push(ClaimRoutePaths.Status)
   }, [history, setClaimTxid])
-
-  const claimAssetAccountAddress = useMemo(
-    () => fromAccountId(claimQuote.claimAssetAccountId).account,
-    [claimQuote.claimAssetAccountId],
-  )
 
   return (
     <SlideTransition>
@@ -101,16 +188,16 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.claimReceiveAddress')}</Row.Label>
-                <Row.Value>{firstFourLastFour(claimAssetAccountAddress)}</Row.Value>
+                <Row.Value>{firstFourLastFour(stakingAssetAccountAddress)}</Row.Value>
               </CustomRow>
             </TimelineItem>
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
                 <Row.Value>
-                  <Skeleton isLoaded={true}>
+                  <Skeleton isLoaded={!isClaimFeesLoading}>
                     <Row.Value>
-                      <Amount.Fiat value={'1.23'} />
+                      <Amount.Fiat value={claimFees?.txFeeFiat || '0.00'} />
                     </Row.Value>
                   </Skeleton>
                 </Row.Value>
@@ -133,8 +220,8 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
           size='lg'
           mx={-2}
           colorScheme='blue'
-          isLoading={false}
-          disabled={false}
+          isLoading={isClaimFeesLoading}
+          disabled={!isClaimFeesSuccess}
           onClick={handleSubmit}
         >
           {translate('RFOX.confirmAndClaim')}

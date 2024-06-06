@@ -21,6 +21,7 @@ type ClaimRowProps = {
   status: ClaimStatus
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
+  index: number
 }
 
 const hoverProps = { bg: 'gray.700' }
@@ -31,6 +32,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   status,
   setConfirmedQuote,
   cooldownPeriodHuman,
+  index,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
@@ -52,8 +54,9 @@ export const ClaimRow: FC<ClaimRowProps> = ({
       claimAssetAccountId: stakingAssetAccountId ?? '',
       claimAssetId: assetId,
       claimAmountCryptoBaseUnit: stakingAmountCryptoBaseUnit,
+      index,
     }),
-    [assetId, stakingAmountCryptoBaseUnit, stakingAssetAccountId],
+    [assetId, index, stakingAmountCryptoBaseUnit, stakingAssetAccountId],
   )
 
   const handleClaimClick = useCallback(() => {

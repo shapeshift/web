@@ -91,22 +91,19 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const contracts = useMemo(
     () =>
-      Array.from(
-        { length: Number(unstakingRequestCountResponse) },
-        (_, index) =>
-          ({
-            abi: foxStakingV1Abi,
-            address: RFOX_PROXY_CONTRACT_ADDRESS,
-            functionName: 'getUnstakingRequest',
-            args: [
-              stakingAssetAccountAddress
-                ? getAddress(stakingAssetAccountAddress)
-                : ('' as Address, BigInt(index)),
-              index,
-            ],
-            chainId: arbitrum.id,
-          }) as const,
-      ),
+      stakingAssetAccountAddress
+        ? Array.from(
+            { length: Number(unstakingRequestCountResponse) },
+            (_, index) =>
+              ({
+                abi: foxStakingV1Abi,
+                address: RFOX_PROXY_CONTRACT_ADDRESS,
+                functionName: 'getUnstakingRequest',
+                args: [getAddress(stakingAssetAccountAddress), index],
+                chainId: arbitrum.id,
+              }) as const,
+          )
+        : [],
     [stakingAssetAccountAddress, unstakingRequestCountResponse],
   )
 
@@ -133,7 +130,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
         <Skeleton isLoaded={!isUnstakingRequestCountLoading && !isUnstakingRequestLoading}>
           <Flex flexDir='column' gap={4}>
             {hasClaims && isUnstakingRequestSuccess ? (
-              unstakingRequestResponse?.map(unstakingRequest => {
+              unstakingRequestResponse?.map((unstakingRequest, index) => {
                 const amountCryptoPrecision = fromBaseUnit(
                   unstakingRequest.unstakingBalance.toString() ?? '',
                   stakingAsset?.precision ?? 0,
@@ -154,6 +151,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
                     status={status}
                     setConfirmedQuote={setConfirmedQuote}
                     cooldownPeriodHuman={cooldownPeriodHuman}
+                    index={index}
                   />
                 )
               })

@@ -3,6 +3,7 @@ import {
   arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
+  baseChainId,
   bscChainId,
   ethChainId,
   gnosisChainId,
@@ -22,6 +23,7 @@ export const ZERION_CHAINS = [
   'polygon',
   'arbitrum',
   'xdai',
+  'base',
   // not yet
   // 'aurora',
   // 'fantom',
@@ -38,6 +40,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   polygon: polygonChainId,
   arbitrum: arbitrumChainId,
   xdai: gnosisChainId,
+  base: baseChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

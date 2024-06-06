@@ -6,6 +6,7 @@ import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router'
 import { Text } from 'components/Text'
+import { NativeWalletRoutes } from 'context/WalletProvider/types'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useStateIfMounted } from 'hooks/useStateIfMounted/useStateIfMounted'
 
@@ -31,10 +32,10 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
     })()
   }, [setHasLocalWallet])
 
-  const handleLoad = useCallback(() => history.push('/native/load'), [history])
-  const handleCreate = useCallback(() => history.push('/native/create'), [history])
-  const handleImport = useCallback(() => history.push('/native/import'), [history])
-  const handleLogin = useCallback(() => history.push('/native/legacy/login'), [history])
+  const handleLoad = useCallback(() => history.push(NativeWalletRoutes.Load), [history])
+  const handleCreate = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
+  const handleImport = useCallback(() => history.push(NativeWalletRoutes.Import), [history])
+  const handleLogin = useCallback(() => history.push(NativeWalletRoutes.LegacyLogin), [history])
 
   return (
     <>

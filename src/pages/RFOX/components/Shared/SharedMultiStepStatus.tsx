@@ -31,7 +31,6 @@ export type MultiStepStatusStep = {
   asset: Asset
   headerCopy: string
   serializedTxIndex: string | undefined
-  txHash: string | undefined
 } & (
   | { isActionable: true; onSignAndBroadcast: () => Promise<string | undefined> }
   | { isActionable: false; onSignAndBroadcast?: never }
@@ -187,7 +186,6 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
               headerCopy,
               isActionable,
               serializedTxIndex,
-              txHash,
               onSignAndBroadcast: handleSignAndBroadcast,
             },
             index,
@@ -200,7 +198,6 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
                 onStart={handleStart}
                 onSignAndBroadcast={handleSignAndBroadcast}
                 serializedTxIndex={serializedTxIndex}
-                txId={txHash}
                 isActive={index === activeStepIndex && !isFailed}
                 isActionable={isActionable}
               />

@@ -1,8 +1,9 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import { bchChainId, type ChainId } from '@shapeshiftoss/caip'
 import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { SupportedChainIds } from 'lib/swapper/types'
+import { isUtxoChainId } from 'lib/utils/utxo'
 
 export const sellSupportedChainIds: Record<ChainId, boolean> = {
   [KnownChainIds.EthereumMainnet]: true,
@@ -47,5 +48,11 @@ export const UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS =
   '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 export const ALLOWANCE_CONTRACT = '0xF892Fef9dA200d9E84c9b0647ecFF0F34633aBe8' // TSAggregatorTokenTransferProxy
 
-export const UTXO_MAXIMUM_BYTES_LENGTH = 80
+export const BTC_MAXIMUM_BYTES_LENGTH = 80
 export const BCH_MAXIMUM_BYTES_LENGTH = 220
+
+export const getMaxBytesLengthByChainId = (chainId: ChainId) => {
+  if (chainId === bchChainId) return BCH_MAXIMUM_BYTES_LENGTH
+  if (isUtxoChainId(chainId)) return BTC_MAXIMUM_BYTES_LENGTH
+  return Infinity
+}

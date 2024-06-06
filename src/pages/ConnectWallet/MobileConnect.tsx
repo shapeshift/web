@@ -21,6 +21,7 @@ import GreenFox from 'assets/green-fox.svg'
 import OrangeFox from 'assets/orange-fox.svg'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FadeTransition } from 'components/FadeTransition'
+import { LanguageSelector } from 'components/LanguageSelector'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -174,10 +175,10 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileWelcomeBody')}</BodyText>
           </Stack>
           <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
-            <Button colorScheme='blue' size='lg' onClick={handleCreate}>
+            <Button colorScheme='blue' size='lg-multiline' onClick={handleCreate}>
               {translate('connectWalletPage.createANewWallet')}
             </Button>
-            <Button variant='outline' size='lg' onClick={handleImport}>
+            <Button variant='outline' size='lg-multiline' onClick={handleImport}>
               {translate('connectWalletPage.importExisting')}
             </Button>
 
@@ -188,7 +189,7 @@ export const MobileConnect = () => {
                   <RawText>{translate('common.or')}</RawText>
                   <Divider borderColor='border.base' />
                 </Flex>
-                <Button variant='outline' size='lg' onClick={handleToggleWallets}>
+                <Button variant='outline' size='lg-multiline' onClick={handleToggleWallets}>
                   {translate('connectWalletPage.viewSavedWallets')}
                 </Button>
               </>
@@ -218,7 +219,7 @@ export const MobileConnect = () => {
                 onClick={handleWalletSelect}
               />
             ))}
-            <Button size='lg' variant='outline' onClick={handleToggleWallets}>
+            <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
               {translate('connectWalletPage.createOrImport')}
             </Button>
             {error && (
@@ -293,6 +294,15 @@ export const MobileConnect = () => {
           </FadeTransition>
         ) : (
           <SlideTransitionY key='content'>
+            <Stack
+              position='absolute'
+              // Account for iOS UI elements such as the Notch or Dynamic Island for top positioning
+              top='calc(var(--chakra-space-6) + env(safe-area-inset-top))'
+              right={6}
+            >
+              <LanguageSelector size='sm' />
+            </Stack>
+
             <Stack px={6} spacing={6} position='relative' zIndex='4'>
               <AnimatePresence mode='wait' initial={false}>
                 <motion.div

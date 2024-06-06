@@ -65,20 +65,20 @@ export const getL1ToLongtailQuote = async (
 
   const chainAdapterManager = getChainAdapterManager()
   const sellAssetChainId = sellAsset.chainId
-  const buyChainId = buyAsset.chainId
+  const buyAssetChainId = buyAsset.chainId
 
   const sellAssetFeeAssetId = chainAdapterManager.get(sellAssetChainId)?.getFeeAssetId()
   const sellAssetFeeAsset = sellAssetFeeAssetId ? assetsById[sellAssetFeeAssetId] : undefined
 
-  const buyAssetFeeAssetId = chainAdapterManager.get(buyChainId)?.getFeeAssetId()
+  const buyAssetFeeAssetId = chainAdapterManager.get(buyAssetChainId)?.getFeeAssetId()
   const buyAssetFeeAsset = buyAssetFeeAssetId ? assetsById[buyAssetFeeAssetId] : undefined
 
   if (!buyAssetFeeAsset) {
     return Err(
       makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No native buy asset found for ${buyChainId}.`,
+        message: `[getThorTradeQuote] - No native buy asset found for ${buyAssetChainId}.`,
         code: TradeQuoteError.InternalError,
-        details: { buyAssetChainId: buyChainId },
+        details: { buyAssetChainId },
       }),
     )
   }

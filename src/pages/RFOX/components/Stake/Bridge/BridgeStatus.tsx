@@ -31,7 +31,7 @@ type BridgeStatusProps = {
 export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   confirmedQuote,
 }) => {
-  const [bridgeTxHash, setBridgeTxHash] = useState<string>()
+  const [l1TxHash, setL1TxHash] = useState<string>()
   const [l2TxHash, setL2TxHash] = useState<string>()
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
@@ -42,14 +42,14 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   }, [history])
 
   const serializedBridgeTxIndex = useMemo(() => {
-    if (!bridgeTxHash) return undefined
+    if (!l1TxHash) return undefined
 
     return serializeTxIndex(
       confirmedQuote.sellAssetAccountId,
-      bridgeTxHash,
+      l1TxHash,
       fromAccountId(confirmedQuote.sellAssetAccountId).account,
     )
-  }, [bridgeTxHash, confirmedQuote.sellAssetAccountId])
+  }, [l1TxHash, confirmedQuote.sellAssetAccountId])
 
   const serializedL2TxIndex = useMemo(() => {
     if (!l2TxHash) return undefined
@@ -135,13 +135,13 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     },
     onSuccess: (txHash: string | undefined) => {
       if (!txHash) return
-      setBridgeTxHash(txHash)
+      setL1TxHash(txHash)
     },
   })
 
   const { data: tradeStatus } = useQuery({
-    ...reactQueries.swapper.arbitrumBridgeTradeStatus(bridgeTxHash ?? '', sellAsset?.chainId ?? ''),
-    enabled: Boolean(bridgeTxHash && sellAsset),
+    ...reactQueries.swapper.arbitrumBridgeTradeStatus(l1TxHash ?? '', sellAsset?.chainId ?? ''),
+    enabled: Boolean(l1TxHash && sellAsset),
     refetchInterval: 1000,
   })
 
@@ -165,7 +165,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
         isActionable: true,
         onSignAndBroadcast: handleBridge,
         serializedTxIndex: serializedBridgeTxIndex,
-        txHash: bridgeTxHash,
+        txHash: l1TxHash,
       },
       {
         asset: buyAsset,
@@ -177,7 +177,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     ]
   }, [
     bridgeAmountCryptoPrecision,
-    bridgeTxHash,
+    l1TxHash,
     buyAsset,
     handleBridge,
     l2TxHash,

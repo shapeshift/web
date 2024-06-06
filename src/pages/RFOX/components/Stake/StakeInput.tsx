@@ -62,6 +62,7 @@ const formControlProps = {
 
 type StakeInputProps = {
   stakingAssetId?: AssetId
+  l1AssetId?: AssetId
   onRuneAddressChange: (address: string | undefined) => void
   runeAddress: string | undefined
   setConfirmedQuote: (quote: RfoxStakingQuote | undefined) => void
@@ -74,21 +75,15 @@ const defaultFormValues = {
   manualRuneAddress: '',
 }
 
-// The staking Asset on L2, and its matching L1 asset to be used for bridging
-// Ideally, we'd like to use related assets to get the original L1 implementation of the asset but
-// 1. we don't have FOX on Arb as a related asset on any list just yet and most importantly
-// 2. this assumes that the only possible flow is a token on L2 and its original implementation on L1
-// Given the facts that this may not hold true, we may never have this flow generalized like so, and this adds complexity,
-// this is hardcoded for the sake of simplicity
-const assetIds: [AssetId, AssetId] = [foxOnArbitrumOneAssetId, foxAssetId]
-
 export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   stakingAssetId = foxOnArbitrumOneAssetId,
+  l1AssetId = foxAssetId,
   headerComponent,
   onRuneAddressChange,
   runeAddress,
   setConfirmedQuote,
 }) => {
+  const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
   const [assetId, setAssetId] = useState<AssetId>(stakingAssetId)
   const isBridgeRequired = stakingAssetId !== assetId
   const wallet = useWallet().state.wallet
@@ -109,13 +104,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   } = methods
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const stakingAsset = useAppSelector(state => selectAssetById(state, assetIds[0]))
-  const l1Asset = useAppSelector(state => selectAssetById(state, assetIds[1]))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const l1Asset = useAppSelector(state => selectAssetById(state, l1AssetId))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
   )
   const stakingAssetFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(assetIds[0]).chainId),
+    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
   )
 
   // TODO(gomes): make this programmatic when we implement multi-account
@@ -435,7 +430,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         onlyConnectedChains={true}
       />
     )
-  }, [handleStakingAssetClick, asset?.assetId])
+  }, [asset?.assetId, handleStakingAssetClick, assetIds])
 
   const stakingAssetFeeAssetBalanceFilter = useMemo(
     () => ({

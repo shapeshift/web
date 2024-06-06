@@ -36,7 +36,7 @@ import { KeyManager } from './KeyManager'
 import { useLedgerEventHandler } from './Ledger/hooks/useLedgerEventHandler'
 import { useLocalWallet } from './local-wallet'
 import { useNativeEventHandler } from './NativeWallet/hooks/useNativeEventHandler'
-import type { AdaptersByKeyManager, GetAdapter } from './types'
+import { type AdaptersByKeyManager, type GetAdapter, NativeWalletRoutes } from './types'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
 import { WalletViewsRouter } from './WalletViewsRouter'
@@ -264,7 +264,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         modalType: KeyManager.Native,
         showBackButton: !state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
-        initialRoute: '/native/enter-password',
+        initialRoute: NativeWalletRoutes.EnterPassword,
       }
     case WalletActions.OPEN_KEEPKEY_PIN: {
       const { showBackButton, deviceId, pinRequestType } = action.payload

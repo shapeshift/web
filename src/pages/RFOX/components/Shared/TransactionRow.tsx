@@ -30,7 +30,6 @@ type TransactionRowProps = {
   onStart: () => void
   headerCopy: string
   isActive?: boolean
-  isLast?: boolean
   txId?: string
   serializedTxIndex: string | undefined
 } & Pick<MultiStepStatusStep, 'isActionable' | 'onSignAndBroadcast'>

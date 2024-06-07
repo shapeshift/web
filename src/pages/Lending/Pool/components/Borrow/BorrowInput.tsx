@@ -50,7 +50,6 @@ import {
   selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -130,7 +129,6 @@ export const BorrowInput = ({
   const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   useEffect(() => {
     if (!(collateralAsset && borrowAssets)) return
@@ -138,15 +136,6 @@ export const BorrowInput = ({
 
     if (!borrowAsset) setBorrowAsset(collateralAsset)
   }, [borrowAsset, borrowAssets, collateralAsset, setBorrowAsset])
-
-  // If the user disconnects the chain for the currently selected borrow asset, default to the collateral asset
-  useEffect(() => {
-    if (!collateralAsset || !borrowAsset) return
-
-    if (!walletConnectedChainIds.includes(borrowAsset.chainId)) {
-      setBorrowAsset(collateralAsset)
-    }
-  }, [collateralAsset, borrowAsset, setBorrowAsset, walletConnectedChainIds])
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 

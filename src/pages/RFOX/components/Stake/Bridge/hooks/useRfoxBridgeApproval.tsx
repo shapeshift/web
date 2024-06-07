@@ -173,15 +173,14 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
     if (!allowanceContract) return
     if (!approvalTx) return
     if (isApprovalTxPending) return
-    ;(async () => {
-      await queryClient.invalidateQueries(
-        reactQueries.common.allowanceCryptoBaseUnit(
-          confirmedQuote.sellAssetId,
-          allowanceContract,
-          fromAccountId(confirmedQuote.sellAssetAccountId).account,
-        ),
-      )
-    })()
+
+    queryClient.invalidateQueries(
+      reactQueries.common.allowanceCryptoBaseUnit(
+        confirmedQuote.sellAssetId,
+        allowanceContract,
+        fromAccountId(confirmedQuote.sellAssetAccountId).account,
+      ),
+    )
   }, [
     approvalTx,
     isApprovalTxPending,

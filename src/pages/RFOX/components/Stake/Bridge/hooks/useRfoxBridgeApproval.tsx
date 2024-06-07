@@ -112,12 +112,20 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
     () =>
       Boolean(
         isApprovalRequired &&
+          approvalCallData &&
           feeAsset &&
           feeAssetMarketData &&
           wallet &&
           sellAssetAccountNumber !== undefined,
       ),
-    [feeAsset, feeAssetMarketData, isApprovalRequired, sellAssetAccountNumber, wallet],
+    [
+      approvalCallData,
+      feeAsset,
+      feeAssetMarketData,
+      isApprovalRequired,
+      sellAssetAccountNumber,
+      wallet,
+    ],
   )
 
   const approvalFeesQuery = useQuery({
@@ -128,7 +136,7 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
       feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
       to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-      data: approvalCallData!,
+      data: approvalCallData!, // see isGetApprovalFeesEnabled
       wallet: wallet!, // see isGetApprovalFeesEnabled
     }),
     staleTime: 30_000,

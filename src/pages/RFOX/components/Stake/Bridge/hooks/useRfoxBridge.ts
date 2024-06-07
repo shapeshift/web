@@ -1,18 +1,24 @@
+import type { HDWallet } from '@keepkey/hdwallet-core'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { bnOrZero, CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { bnOrZero, CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
+import type { ArbitrumBridgeTradeQuoteInput } from 'react-queries/queries/swapper'
+import { swapper } from 'react-queries/queries/swapper'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { arbitrumBridgeApi } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/endpoints'
+import {
+  type GetEvmTradeQuoteInputWithWallet,
+  getTradeQuoteWithWallet,
+} from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -46,6 +52,17 @@ type UseRfoxBridge = (props: UseRfoxBridgeProps) => {
   serializedL2TxIndex: string | undefined
 }
 
+const isTradeQuoteQueryEnabled = (
+  input: ArbitrumBridgeTradeQuoteInput & { wallet: HDWallet | null },
+): input is GetEvmTradeQuoteInputWithWallet =>
+  Boolean(
+    input.sellAsset &&
+      input.buyAsset &&
+      input.chainId &&
+      input.accountNumber !== undefined &&
+      input.wallet,
+  )
+
 export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
   const [l1TxHash, setL1TxHash] = useState<string>()
   const [l2TxHash, setL2TxHash] = useState<string>()
@@ -72,6 +89,10 @@ export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
 
   const wallet = useWallet().state.wallet
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
+  const chainId = useMemo(
+    () => (sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined),
+    [sellAsset],
+  )
   const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.sellAssetId).chainId),
@@ -103,25 +124,45 @@ export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
     selectAccountNumberByAccountId(state, sellAssetAccountNumberFilter),
   )
 
-  const isTradeQuoteQueryEnabled = Boolean(
-    sellAsset && buyAsset && sellAssetAccountNumber !== undefined && wallet,
-  )
-
-  const tradeQuoteQuery = useQuery({
-    ...reactQueries.swapper.arbitrumBridgeTradeQuote({
-      sellAsset: sellAsset!, // see isTradeQuoteQueryEnabled
-      buyAsset: buyAsset!, // see isTradeQuoteQueryEnabled
-      chainId: sellAsset!.chainId as EvmChainId, // see isTradeQuoteQueryEnabled
+  const tradeQuoteInput = useMemo(
+    () => ({
+      sellAsset,
+      buyAsset,
+      chainId,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       allowMultiHop: true,
       receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-      accountNumber: sellAssetAccountNumber!,
-      wallet: wallet!,
+      accountNumber: sellAssetAccountNumber,
     }),
-    enabled: isTradeQuoteQueryEnabled,
+    [
+      buyAsset,
+      chainId,
+      confirmedQuote.bridgeAmountCryptoBaseUnit,
+      confirmedQuote.buyAssetAccountId,
+      confirmedQuote.sellAssetAccountId,
+      sellAsset,
+      sellAssetAccountNumber,
+    ],
+  )
+
+  const { queryKey: tradeQuoteQueryKey } = useMemo(
+    () => swapper.arbitrumBridgeTradeQuote(tradeQuoteInput),
+    [tradeQuoteInput],
+  )
+
+  const tradeQuoteInputWithWallet = useMemo(
+    () => ({ ...tradeQuoteInput, wallet }),
+    [tradeQuoteInput, wallet],
+  )
+
+  const tradeQuoteQuery = useQuery({
+    queryKey: tradeQuoteQueryKey,
+    queryFn: isTradeQuoteQueryEnabled(tradeQuoteInputWithWallet)
+      ? () => getTradeQuoteWithWallet(tradeQuoteInputWithWallet)
+      : skipToken,
   })
 
   const allowanceContract = useMemo(() => {

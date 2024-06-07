@@ -477,6 +477,7 @@
     "earnBalance": "Earn Balance",
     "rewardsBalance": "Rewards Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
+    "noAccountsOpportunities": "You have no accounts for this asset, so staking opportunities are currently unavailable.",
     "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "myPositions": "My Positions",

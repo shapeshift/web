@@ -1,9 +1,10 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Box, Button, Card, CardBody, CardHeader, Heading, HStack } from '@chakra-ui/react'
+import { Box, Button, Card, CardBody, CardHeader, Heading, HStack, Tooltip } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -15,6 +16,7 @@ import {
   selectAggregatedEarnUserLpOpportunities,
   selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   selectAssetById,
+  selectAssetEquityItemsByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,6 +32,7 @@ type EarnOpportunitiesProps = {
 const arrowForwardIcon = <ArrowForwardIcon />
 
 export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps) => {
+  const translate = useTranslate()
   const history = useHistory()
   const location = useLocation()
   const {
@@ -52,6 +55,16 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     }
   }, [setFarmingAccountId, accountId])
 
+  const filter = useMemo(() => {
+    return {
+      assetId,
+      ...(accountId ? { accountId } : {}),
+    }
+  }, [accountId, assetId])
+
+  const equityRows = useAppSelector(state => selectAssetEquityItemsByFilter(state, filter))
+  const shouldEnableOpportunities = useMemo(() => equityRows.length > 0, [equityRows.length])
+
   const allRows = useMemo(
     () =>
       !asset
@@ -70,6 +83,8 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
     (opportunity: EarnOpportunityType) => {
       const { isReadOnly, type, provider, contractAddress, chainId, assetId, rewardAddress } =
         opportunity
+
+      if (!shouldEnableOpportunities) return
 
       if (isReadOnly) {
         const url = getMetadataForProvider(opportunity.provider)?.url
@@ -98,7 +113,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         state: { background: location },
       })
     },
-    [dispatch, history, isConnected, location],
+    [dispatch, history, isConnected, location, shouldEnableOpportunities],
   )
 
   if (!asset) return null
@@ -106,7 +121,11 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   return (
     <Card variant='dashboard'>
-      <CardHeader flexDir='row' display='flex'>
+      <CardHeader
+        flexDir='row'
+        display='flex'
+        borderBottom={!Boolean(allRows?.length) ? 'none' : undefined}
+      >
         <HStack gap={6} width='full'>
           <Box>
             <Heading as='h5'>
@@ -130,9 +149,28 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
         </HStack>
       </CardHeader>
       {Boolean(allRows?.length) && (
-        <CardBody pt={0} px={4}>
-          <StakingTable data={allRows} onClick={handleClick} />
-        </CardBody>
+        <Tooltip
+          label={translate('defi.noAccountsOpportunities')}
+          isDisabled={shouldEnableOpportunities}
+        >
+          <CardBody
+            sx={
+              !shouldEnableOpportunities
+                ? {
+                    cursor: 'not-allowed',
+                    opacity: 0.2,
+                    filter: 'grayscale(1)',
+                  }
+                : undefined
+            }
+            pt={0}
+            px={4}
+          >
+            <Box pointerEvents={shouldEnableOpportunities ? 'all' : 'none'}>
+              <StakingTable data={allRows} onClick={handleClick} />
+            </Box>
+          </CardBody>
+        </Tooltip>
       )}
     </Card>
   )

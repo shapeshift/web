@@ -57,6 +57,11 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const totalEquityBalance = useAppSelector(state => selectEquityTotalBalance(state, filter))
   const equityRows = useAppSelector(state => selectAssetEquityItemsByFilter(state, filter))
 
+  const shouldDisplayEquityRows = useMemo(
+    () => equityRows.length > 0 || portfolioLoading,
+    [equityRows.length, portfolioLoading],
+  )
+
   const { amountCryptoPrecision: totalCryptoHumanBalance, fiatAmount: totalFiatBalance } =
     totalEquityBalance
 
@@ -141,7 +146,12 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
 
   return (
     <Card variant='dashboard'>
-      <CardHeader display='flex' gap={4} alignItems='center'>
+      <CardHeader
+        display='flex'
+        gap={4}
+        alignItems='center'
+        borderBottom={!shouldDisplayEquityRows ? 'none' : undefined}
+      >
         <Flex flexDir='column' flex={1}>
           <Heading as='h5'>{translate('common.yourBalance')}</Heading>
           <Flex flexDir='column' gap={1}>
@@ -160,11 +170,13 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           {renderUnderlyingAssets}
         </Flex>
       </CardHeader>
-      <CardBody pt={0} pb={2}>
-        <Stack spacing={0} mt={2} mx={-4} divider={stackDivider}>
-          {renderEquityRows}
-        </Stack>
-      </CardBody>
+      {shouldDisplayEquityRows && (
+        <CardBody pt={0} pb={2}>
+          <Stack spacing={0} mt={2} mx={-4} divider={stackDivider}>
+            {renderEquityRows}
+          </Stack>
+        </CardBody>
+      )}
     </Card>
   )
 }

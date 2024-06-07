@@ -230,7 +230,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     if (!allowanceDataCryptoBaseUnit) return
     if (!asset) return
 
-    return fromBaseUnit(allowanceDataCryptoBaseUnit, asset?.precision)
+    return fromBaseUnit(allowanceDataCryptoBaseUnit, asset.precision)
   }, [allowanceDataCryptoBaseUnit, asset])
 
   const isApprovalRequired = useMemo(

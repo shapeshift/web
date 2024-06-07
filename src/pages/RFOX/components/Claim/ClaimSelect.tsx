@@ -3,7 +3,7 @@ import { foxAssetId, foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshifto
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { formatDistanceToNow } from 'date-fns'
-import { type FC, useCallback, useMemo } from 'react'
+import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
@@ -111,6 +111,8 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     data: unstakingRequestResponse,
     isSuccess: isUnstakingRequestSuccess,
     isLoading: isUnstakingRequestLoading,
+    refetch: refetchUnstakingRequest,
+    isRefetching: isUnstakingRequestRefetching,
   } = useReadContracts({
     contracts,
     allowFailure: false,
@@ -121,13 +123,24 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     },
   })
 
+  useEffect(() => {
+    // Refetch available claims whenever we re-open the Claim tab (this component)
+    refetchUnstakingRequest()
+  }, [refetchUnstakingRequest])
+
   if (!stakingAssetAccountAddress) return null
 
   return (
     <SlideTransition>
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
-        <Skeleton isLoaded={!isUnstakingRequestCountLoading && !isUnstakingRequestLoading}>
+        <Skeleton
+          isLoaded={
+            !isUnstakingRequestCountLoading &&
+            !isUnstakingRequestLoading &&
+            !isUnstakingRequestRefetching
+          }
+        >
           <Flex flexDir='column' gap={4}>
             {hasClaims && isUnstakingRequestSuccess ? (
               unstakingRequestResponse?.map((unstakingRequest, index) => {

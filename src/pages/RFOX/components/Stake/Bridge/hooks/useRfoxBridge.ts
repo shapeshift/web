@@ -159,7 +159,7 @@ export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
 
       const unsignedTx = await arbitrumBridgeApi.getUnsignedEvmTransaction!({
         tradeQuote,
-        chainId: sellAsset!.chainId as EvmChainId,
+        chainId: sellAsset.chainId,
         from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
         stepIndex: 0,
         supportsEIP1559,

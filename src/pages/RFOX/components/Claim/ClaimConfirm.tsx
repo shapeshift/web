@@ -187,12 +187,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     ...reactQueries.common.evmFees({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
       from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
+      accountNumber: stakingAssetAccountNumber!, // see isGetClaimFeesEnabled
+      data: callData!, // see isGetClaimFeesEnabled
       value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketDataUserCurrency!, // see isGetStakeFeesEnabled
+      wallet: wallet!, // see isGetClaimFeesEnabled
+      feeAsset: feeAsset!, // see isGetClaimFeesEnabled
+      feeAssetMarketData: feeAssetMarketDataUserCurrency!, // see isGetClaimFeesEnabled
     }),
     staleTime: 30_000,
     enabled: isGetClaimFeesEnabled,

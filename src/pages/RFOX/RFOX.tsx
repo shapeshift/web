@@ -82,16 +82,6 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
       >
         {translate('RFOX.changeAddress')}
       </FormHeaderTab>
-<<<<<<< HEAD
-      <FormHeaderTab
-        index={RfoxTabIndex.Bridge}
-        onClick={handleClick}
-        isActive={activeIndex === RfoxTabIndex.Bridge}
-      >
-        {translate('RFOX.bridge')}
-      </FormHeaderTab>
-=======
->>>>>>> 1a8381debe (feat: remove dummy brige quote and wire-up from stake)
     </Flex>
   )
 }

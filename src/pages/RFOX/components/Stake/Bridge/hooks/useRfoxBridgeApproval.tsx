@@ -72,7 +72,7 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: confirmedQuote.sellAssetId,
-      spender: allowanceContract!,
+      spender: allowanceContract!, // see handleApprove below
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       amount: confirmedQuote.bridgeAmountCryptoBaseUnit,
       wallet,
@@ -175,7 +175,11 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
     return false
   }, [isApprovalRequired, isApprovalTxSuccess])
 
-  const handleApprove = useCallback(() => approvalMutation.mutateAsync(), [approvalMutation])
+  const handleApprove = useCallback(() => {
+    if (!allowanceContract) return
+
+    approvalMutation.mutateAsync()
+  }, [allowanceContract, approvalMutation])
 
   useEffect(() => {
     if (!allowanceContract) return

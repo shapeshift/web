@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
-import { type AssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { type FC, useCallback, useMemo } from 'react'
@@ -16,7 +16,6 @@ import { useAppSelector } from 'state/store'
 import { ClaimRoutePaths, ClaimStatus, type RfoxClaimQuote } from './types'
 
 type ClaimRowProps = {
-  stakingAssetId: AssetId
   amountCryptoPrecision: string
   status: ClaimStatus
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
@@ -27,7 +26,6 @@ type ClaimRowProps = {
 const hoverProps = { bg: 'gray.700' }
 
 export const ClaimRow: FC<ClaimRowProps> = ({
-  stakingAssetId: assetId,
   amountCryptoPrecision,
   status,
   setConfirmedQuote,
@@ -37,7 +35,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, assetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
   const stakingAssetSymbol = stakingAsset?.symbol
   const stakingAmountCryptoBaseUnit = toBaseUnit(
     bnOrZero(amountCryptoPrecision),
@@ -52,11 +50,11 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const claimQuote: RfoxClaimQuote = useMemo(
     () => ({
       claimAssetAccountId: stakingAssetAccountId ?? '',
-      claimAssetId: assetId,
+      claimAssetId: foxOnArbitrumOneAssetId,
       claimAmountCryptoBaseUnit: stakingAmountCryptoBaseUnit,
       index,
     }),
-    [assetId, index, stakingAmountCryptoBaseUnit, stakingAssetAccountId],
+    [index, stakingAmountCryptoBaseUnit, stakingAssetAccountId],
   )
 
   const handleClaimClick = useCallback(() => {

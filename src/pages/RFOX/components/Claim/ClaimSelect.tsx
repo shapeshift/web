@@ -146,7 +146,6 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
                 return (
                   <ClaimRow
                     key={unstakingRequest.cooldownExpiry.toString()}
-                    stakingAssetId={foxAssetId}
                     amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
                     status={status}
                     setConfirmedQuote={setConfirmedQuote}

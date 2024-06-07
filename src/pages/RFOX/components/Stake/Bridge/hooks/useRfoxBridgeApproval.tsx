@@ -176,9 +176,9 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
   }, [isApprovalRequired, isApprovalTxSuccess])
 
   const handleApprove = useCallback(() => {
-    if (!allowanceContract) return
+    if (!allowanceContract) return Promise.reject('allowanceContract is required')
 
-    approvalMutation.mutateAsync()
+    return approvalMutation.mutateAsync()
   }, [allowanceContract, approvalMutation])
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
-import { type AssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { type FC, useCallback, useMemo } from 'react'

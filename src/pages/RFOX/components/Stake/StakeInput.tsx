@@ -437,7 +437,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         onAssetClick={handleStakingAssetClick}
         // eslint-disable-next-line react-memo/require-usememo
         onAssetChange={asset => setSelectedAssetId(asset.assetId)}
-        // eslint-disable-next-line react-memo/require-usememo
         assetIds={assetIds}
         onlyConnectedChains={true}
       />

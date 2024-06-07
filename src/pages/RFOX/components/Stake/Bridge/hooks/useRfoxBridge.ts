@@ -103,11 +103,15 @@ export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
     selectAccountNumberByAccountId(state, sellAssetAccountNumberFilter),
   )
 
+  const isTradeQuoteQueryEnabled = Boolean(
+    sellAsset && buyAsset && sellAssetAccountNumber !== undefined && wallet,
+  )
+
   const tradeQuoteQuery = useQuery({
     ...reactQueries.swapper.arbitrumBridgeTradeQuote({
-      sellAsset: sellAsset!,
-      buyAsset: buyAsset!,
-      chainId: sellAsset!.chainId as EvmChainId,
+      sellAsset: sellAsset!, // see isTradeQuoteQueryEnabled
+      buyAsset: buyAsset!, // see isTradeQuoteQueryEnabled
+      chainId: sellAsset!.chainId as EvmChainId, // see isTradeQuoteQueryEnabled
       sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
@@ -117,7 +121,7 @@ export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
       accountNumber: sellAssetAccountNumber!,
       wallet: wallet!,
     }),
-    enabled: Boolean(sellAsset && buyAsset && sellAssetAccountNumber !== undefined && wallet),
+    enabled: isTradeQuoteQueryEnabled,
   })
 
   const allowanceContract = useMemo(() => {

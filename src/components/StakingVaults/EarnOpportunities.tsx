@@ -121,11 +121,7 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
 
   return (
     <Card variant='dashboard'>
-      <CardHeader
-        flexDir='row'
-        display='flex'
-        borderBottom={!Boolean(allRows?.length) ? 'none' : undefined}
-      >
+      <CardHeader flexDir='row' display='flex'>
         <HStack gap={6} width='full'>
           <Box>
             <Heading as='h5'>

@@ -318,7 +318,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           wallet &&
           stakingAssetFeeAsset &&
           stakingAssetFeAssetMarketData &&
-          !Boolean(errors.amountFieldInput || errors.manualRuneAddress),
+          !Boolean(errors.manualRuneAddress),
       ),
     [
       approvalCallData,
@@ -328,7 +328,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       wallet,
       stakingAssetFeeAsset,
       stakingAssetFeAssetMarketData,
-      errors.amountFieldInput,
       errors.manualRuneAddress,
     ],
   )

@@ -7,14 +7,12 @@ import {
   fromAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
@@ -28,11 +26,18 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
+import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  type GetFeesWithWalletArgs,
+  isGetFeesWithWalletArgs,
+} from 'lib/utils/evm'
 import { formatSecondsToDuration } from 'lib/utils/time'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -113,6 +118,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
   )
 
+  const stakingAssetAdapter = useMemo(
+    () =>
+      stakingAssetFeeAsset
+        ? assertGetEvmChainAdapter(fromAssetId(stakingAssetId).chainId)
+        : undefined,
+    [stakingAssetFeeAsset, stakingAssetId],
+  )
+
   // TODO(gomes): make this programmatic when we implement multi-account
   const selectedAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, selectedAsset?.chainId ?? ''),
@@ -130,9 +143,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
   )
 
-  const stakingAssetFeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, stakingAssetFeeAsset?.assetId ?? ''),
-  )
   const selectedAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, selectedAsset?.assetId ?? ''),
   )
@@ -238,56 +248,60 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [allowanceCryptoPrecision, amountCryptoPrecision, isAllowanceDataSuccess],
   )
 
-  const isGetStakeFeesEnabled = useMemo(
-    () =>
+  const isGetStakeFeesEnabled = useCallback(
+    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
       Boolean(
-        hasEnoughBalance &&
-          stakingAssetAccountId &&
-          stakingAssetAccountNumber !== undefined &&
+        isGetFeesWithWalletArgs(input) &&
+          hasEnoughBalance &&
           isValidStakingAmount &&
-          wallet &&
           runeAddress &&
-          callData &&
-          stakingAssetFeeAsset &&
-          stakingAssetFeAssetMarketData &&
           !Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
           isAllowanceDataSuccess &&
           !isApprovalRequired,
       ),
     [
-      hasEnoughBalance,
-      stakingAssetAccountId,
-      stakingAssetAccountNumber,
-      isValidStakingAmount,
-      wallet,
-      runeAddress,
-      callData,
-      stakingAssetFeeAsset,
-      stakingAssetFeAssetMarketData,
       errors.amountFieldInput,
       errors.manualRuneAddress,
+      hasEnoughBalance,
       isAllowanceDataSuccess,
       isApprovalRequired,
+      isValidStakingAmount,
+      runeAddress,
     ],
+  )
+
+  const stakeFeesQueryInput = useMemo(
+    () => ({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
+      accountNumber: stakingAssetAccountNumber,
+      data: callData,
+      value: '0',
+      chainId: fromAssetId(stakingAssetId).chainId,
+    }),
+    [callData, stakingAssetAccountId, stakingAssetAccountNumber, stakingAssetId],
+  )
+
+  const getStakeFeesWithWalletInput = useMemo(
+    () => ({ ...stakeFeesQueryInput, adapter: stakingAssetAdapter, wallet }),
+    [stakeFeesQueryInput, stakingAssetAdapter, wallet],
   )
 
   const {
     data: stakeFees,
     isLoading: isStakeFeesLoading,
     isSuccess: isStakeFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetStakeFeesEnabled
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: stakingAssetFeeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: stakingAssetFeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
+  } = useEvmFees({
+    ...stakeFeesQueryInput,
+    enabled: Boolean(
+      hasEnoughBalance &&
+        isValidStakingAmount &&
+        runeAddress &&
+        !Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
+        isAllowanceDataSuccess &&
+        !isApprovalRequired,
+    ),
     staleTime: 30_000,
-    enabled: isGetStakeFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -307,48 +321,37 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     })
   }, [amountCryptoPrecision, stakingAsset])
 
-  const isGetApprovalFeesEnabled = useMemo(
-    () =>
+  const isGetApprovalFeesEnabled = useCallback(
+    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
       Boolean(
-        approvalCallData &&
-          hasEnoughBalance &&
-          stakingAssetAccountId &&
+        hasEnoughBalance &&
           isApprovalRequired &&
-          stakingAssetAccountId &&
-          wallet &&
-          stakingAssetFeeAsset &&
-          stakingAssetFeAssetMarketData &&
-          !Boolean(errors.manualRuneAddress),
+          !Boolean(errors.manualRuneAddress) &&
+          isGetFeesWithWalletArgs(input),
       ),
-    [
-      approvalCallData,
-      hasEnoughBalance,
-      stakingAssetAccountId,
-      isApprovalRequired,
-      wallet,
-      stakingAssetFeeAsset,
-      stakingAssetFeAssetMarketData,
-      errors.manualRuneAddress,
-    ],
+    [errors.manualRuneAddress, hasEnoughBalance, isApprovalRequired],
+  )
+
+  const approvalFeesQueryInput = useMemo(
+    () => ({
+      value: '0',
+      accountNumber: stakingAssetAccountNumber,
+      to: fromAssetId(stakingAssetId).assetReference,
+      from: selectedAssetAccountId ? fromAccountId(selectedAssetAccountId).account : '',
+      data: approvalCallData!,
+      chainId: fromAssetId(stakingAssetId).chainId,
+    }),
+    [approvalCallData, selectedAssetAccountId, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const {
     data: approvalFees,
     isLoading: isGetApprovalFeesLoading,
     isSuccess: isGetApprovalFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      value: '0',
-      accountNumber: stakingAssetAccountNumber!, // see isGetApprovalFeesEnabled
-      feeAsset: stakingAssetFeeAsset!, // see isGetApprovalFeesEnabled
-      feeAssetMarketData: stakingAssetFeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(foxOnArbitrumOneAssetId).assetReference,
-      from: selectedAssetAccountId ? fromAccountId(selectedAssetAccountId).account : '', // see isGetApprovalFeesEnabled
-      data: approvalCallData!, // see isGetApprovalFeesEnabled
-      wallet: wallet!, // see isGetApprovalFeesEnabled
-    }),
+  } = useEvmFees({
+    ...approvalFeesQueryInput,
+    enabled: Boolean(hasEnoughBalance && isApprovalRequired && !Boolean(errors.manualRuneAddress)),
     staleTime: 30_000,
-    enabled: isGetApprovalFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -581,7 +584,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                 py={4}
                 bg='background.surface.raised.accent'
               >
-                {isGetApprovalFeesEnabled && (
+                {isGetApprovalFeesEnabled(getStakeFeesWithWalletInput) && (
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.approvalFee')}</Row.Label>
                     <Row.Value>
@@ -591,7 +594,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
                     </Row.Value>
                   </Row>
                 )}
-                {isGetStakeFeesEnabled && (
+                {isGetStakeFeesEnabled(getStakeFeesWithWalletInput) && (
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.gasFee')}</Row.Label>
                     <Row.Value>

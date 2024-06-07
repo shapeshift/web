@@ -81,7 +81,16 @@ type GetFeesArgs = GetFeesCommonArgs & {
   supportsEIP1559: boolean
 }
 
-type GetFeesWithWalletArgs = GetFeesCommonArgs & {
+export type MaybeGetFeesWithWalletArgs = {
+  adapter: EvmChainAdapter | undefined
+  data: string | undefined
+  wallet: HDWallet | null
+  to: string
+  value: string
+  accountNumber: number | undefined
+}
+
+export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
   accountNumber: number
   wallet: HDWallet
 }
@@ -90,6 +99,11 @@ export type Fees = evm.Fees & {
   gasLimit: string
   networkFeeCryptoBaseUnit: string
 }
+
+export const isGetFeesWithWalletArgs = (
+  input: MaybeGetFeesWithWalletArgs,
+): input is GetFeesWithWalletArgs =>
+  Boolean(input.adapter && input.accountNumber !== undefined && input.wallet && input.data)
 
 export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fees> => {
   const { accountNumber, adapter, wallet, ...rest } = args

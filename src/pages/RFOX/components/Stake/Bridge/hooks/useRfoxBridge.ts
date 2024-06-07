@@ -237,8 +237,17 @@ export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
   })
 
   const { data: tradeStatus } = useQuery({
-    ...reactQueries.swapper.arbitrumBridgeTradeStatus(l1TxHash ?? '', sellAsset?.chainId ?? ''),
-    enabled: Boolean(l1TxHash && sellAsset),
+    queryKey: reactQueries.swapper.arbitrumBridgeTradeStatus(l1TxHash, sellAsset?.chainId).queryKey,
+    queryFn:
+      l1TxHash && sellAsset?.chainId
+        ? () =>
+            arbitrumBridgeApi.checkTradeStatus({
+              txHash: l1TxHash,
+              chainId: sellAsset.chainId,
+              quoteId: '',
+              stepIndex: 0,
+            })
+        : skipToken,
     refetchInterval: 60_000,
   })
 

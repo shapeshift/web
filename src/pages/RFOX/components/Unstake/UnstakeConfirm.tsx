@@ -12,13 +12,12 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { encodeFunctionData, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
@@ -29,13 +28,16 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
+  isGetFeesWithWalletArgs,
 } from 'lib/utils/evm'
 import {
   selectAccountNumberByAccountId,
@@ -75,6 +77,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
   )
 
+  const adapter = useMemo(
+    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
+    [feeAsset],
+  )
+
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
     [confirmedQuote.stakingAssetAccountId],
@@ -104,10 +111,6 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
         .times(stakingAssetMarketDataUserCurrency.price)
         .toFixed(),
     [stakingAssetMarketDataUserCurrency.price, unstakingAmountCryptoPrecision],
-  )
-
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
   const handleGoBack = useCallback(() => {
@@ -154,9 +157,14 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     isSuccess: isUnstakeMutationSuccess,
   } = useMutation({
     mutationFn: async () => {
-      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset || !callData) return
-
-      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+      if (
+        !wallet ||
+        stakingAssetAccountNumber === undefined ||
+        !stakingAsset ||
+        !callData ||
+        !adapter
+      )
+        return
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
@@ -182,49 +190,46 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     },
   })
 
-  const isGetUnstakeFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        isUnstakeMutationIdle &&
-          stakingAssetAccountNumber !== undefined &&
-          wallet &&
-          stakingAsset &&
-          callData &&
-          feeAsset &&
-          feeAssetMarketData,
-      ),
+  const isGetUnstakeFeesEnabled = useCallback(
+    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
+      Boolean(isUnstakeMutationIdle && isGetFeesWithWalletArgs(input)),
+    [isUnstakeMutationIdle],
+  )
+
+  const unstakeFeesQueryInput = useMemo(
+    () => ({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress,
+      accountNumber: stakingAssetAccountNumber,
+      data: callData,
+      value: '0',
+      chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
+    }),
     [
-      isUnstakeMutationIdle,
-      stakingAssetAccountNumber,
-      wallet,
-      stakingAsset,
       callData,
-      feeAsset,
-      feeAssetMarketData,
+      confirmedQuote.stakingAssetId,
+      stakingAssetAccountAddress,
+      stakingAssetAccountNumber,
     ],
+  )
+
+  const getFeesWithWalletInput = useMemo(
+    () => ({ ...unstakeFeesQueryInput, adapter, wallet }),
+    [adapter, unstakeFeesQueryInput, wallet],
   )
 
   const {
     data: unstakeFees,
     isLoading: isUnstakeFeesLoading,
     isSuccess: isUnstakeFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
+  } = useEvmFees({
+    ...unstakeFeesQueryInput,
+    enabled: isUnstakeMutationIdle,
     staleTime: 30_000,
-    enabled: isGetUnstakeFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: isGetUnstakeFeesEnabled ? 15_000 : false,
+    refetchInterval: isGetUnstakeFeesEnabled(getFeesWithWalletInput) ? 15_000 : false,
   })
 
   const serializedUnstakeTxIndex = useMemo(() => {

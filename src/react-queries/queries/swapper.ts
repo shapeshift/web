@@ -2,7 +2,6 @@ import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { arbitrumBridgeApi } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/endpoints'
 
 export type ArbitrumBridgeTradeQuoteInput = Omit<
   GetEvmTradeQuoteInput,
@@ -21,14 +20,7 @@ export const swapper = createQueryKeys('swapper', {
       queryKey: [input],
     }
   },
-  arbitrumBridgeTradeStatus: (txHash: string, chainId: ChainId) => ({
+  arbitrumBridgeTradeStatus: (txHash: string | undefined, chainId: ChainId | undefined) => ({
     queryKey: [txHash, chainId],
-    queryFn: () =>
-      arbitrumBridgeApi.checkTradeStatus({
-        txHash,
-        chainId,
-        quoteId: '',
-        stepIndex: 0,
-      }),
   }),
 })

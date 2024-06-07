@@ -2,16 +2,18 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
+import { useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData, getAddress } from 'viem'
+import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { Fees } from 'lib/utils/evm'
+import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, type Fees, isGetFeesWithWalletArgs } from 'lib/utils/evm'
 import { selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -44,8 +46,11 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
-  const { sellAssetAccountNumber, feeAsset, feeAssetMarketData, allowanceContract } = useRfoxBridge(
-    { confirmedQuote },
+  const { sellAssetAccountNumber, feeAsset, allowanceContract } = useRfoxBridge({ confirmedQuote })
+
+  const adapter = useMemo(
+    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
+    [feeAsset],
   )
 
   const allowanceQuery = useAllowance({
@@ -108,43 +113,41 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
     )
   }, [approvalTxHash, confirmedQuote.sellAssetAccountId])
 
-  const isGetApprovalFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        isApprovalRequired &&
-          approvalCallData &&
-          feeAsset &&
-          feeAssetMarketData &&
-          wallet &&
-          sellAssetAccountNumber !== undefined,
-      ),
+  const isGetApprovalFeesEnabled = useCallback(
+    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
+      Boolean(isApprovalRequired && isGetFeesWithWalletArgs(input)),
+    [isApprovalRequired],
+  )
+
+  const approvalFeesQueryInput = useMemo(
+    () => ({
+      value: '0',
+      accountNumber: sellAssetAccountNumber,
+      to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
+      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+      data: approvalCallData,
+      chainId: fromAssetId(confirmedQuote.sellAssetId).chainId,
+    }),
     [
       approvalCallData,
-      feeAsset,
-      feeAssetMarketData,
-      isApprovalRequired,
+      confirmedQuote.sellAssetAccountId,
+      confirmedQuote.sellAssetId,
       sellAssetAccountNumber,
-      wallet,
     ],
   )
 
-  const approvalFeesQuery = useQuery({
-    ...reactQueries.common.evmFees({
-      value: '0',
-      accountNumber: sellAssetAccountNumber!, // see isGetApprovalFeesEnabled
-      feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
-      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-      data: approvalCallData!, // see isGetApprovalFeesEnabled
-      wallet: wallet!, // see isGetApprovalFeesEnabled
-    }),
+  const getFeesWithWalletInput = useMemo(
+    () => ({ ...approvalFeesQueryInput, adapter, wallet }),
+    [adapter, approvalFeesQueryInput, wallet],
+  )
+  const approvalFeesQuery = useEvmFees({
+    ...approvalFeesQueryInput,
+    enabled: isGetApprovalFeesEnabled(getFeesWithWalletInput),
     staleTime: 30_000,
-    enabled: isGetApprovalFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: isGetApprovalFeesEnabled ? 15_000 : false,
+    refetchInterval: isGetApprovalFeesEnabled(getFeesWithWalletInput) ? 15_000 : false,
   })
 
   const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex ?? ''))
@@ -205,7 +208,7 @@ export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote })
   return {
     isApprovalRequired,
     allowanceQuery,
-    isGetApprovalFeesEnabled,
+    isGetApprovalFeesEnabled: isGetApprovalFeesEnabled(getFeesWithWalletInput),
     approvalFeesQuery,
     isApprovalTxPending,
     isApprovalTxSuccess,

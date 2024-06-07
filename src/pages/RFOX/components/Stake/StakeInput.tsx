@@ -6,7 +6,7 @@ import {
   fromAccountId,
   fromAssetId,
 } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
@@ -430,18 +430,19 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     })
   }, [stakingAsset, l1Asset, buyAssetSearch])
 
+  const handleAssetChange = useCallback((asset: Asset) => setSelectedAssetId(asset.assetId), [])
+
   const assetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={selectedAsset?.assetId}
         onAssetClick={handleStakingAssetClick}
-        // eslint-disable-next-line react-memo/require-usememo
-        onAssetChange={asset => setSelectedAssetId(asset.assetId)}
+        onAssetChange={handleAssetChange}
         assetIds={assetIds}
         onlyConnectedChains={true}
       />
     )
-  }, [selectedAsset?.assetId, handleStakingAssetClick, assetIds])
+  }, [selectedAsset?.assetId, handleStakingAssetClick, handleAssetChange, assetIds])
 
   const stakingAssetFeeAssetBalanceFilter = useMemo(
     () => ({

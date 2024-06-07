@@ -70,6 +70,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     data: unstakingRequestCountResponse,
     isSuccess: isUnstakingRequestCountSuccess,
     isLoading: isUnstakingRequestCountLoading,
+    refetch: refetchUnstakingRequestCount,
   } = useReadContract({
     abi: foxStakingV1Abi,
     address: RFOX_PROXY_CONTRACT_ADDRESS,
@@ -125,8 +126,9 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   useEffect(() => {
     // Refetch available claims whenever we re-open the Claim tab (this component)
+    refetchUnstakingRequestCount()
     refetchUnstakingRequest()
-  }, [refetchUnstakingRequest])
+  }, [refetchUnstakingRequest, refetchUnstakingRequestCount])
 
   if (!stakingAssetAccountAddress) return null
 

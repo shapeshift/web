@@ -283,7 +283,7 @@ export const useRfoxStake: UseRfoxStake = ({
       assetId: stakingAssetId,
       spender: RFOX_PROXY_CONTRACT_ADDRESS,
       from: stakingAssetAccountAddress,
-      amount: amountCryptoPrecision,
+      amountCryptoBaseUnit,
       wallet,
       accountNumber: stakingAssetAccountNumber,
     }),

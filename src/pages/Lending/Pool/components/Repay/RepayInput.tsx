@@ -57,7 +57,6 @@ import {
   selectFeeAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectTxById,
-  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { store, useAppSelector } from 'state/store'
@@ -117,7 +116,6 @@ export const RepayInput = ({
     selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
   )
   const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
-  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const userAddress = useMemo(() => {
     if (!repaymentAccountId) return ''
@@ -333,15 +331,6 @@ export const RepayInput = ({
 
     setRepaymentAsset(collateralAsset)
   }, [collateralAsset, supportedRepaymentAssets, repaymentAsset, setRepaymentAsset])
-
-  // If the user disconnects the chain for the currently selected borrow asset, default to the collateral asset
-  useEffect(() => {
-    if (!collateralAsset || !repaymentAsset) return
-
-    if (!walletConnectedChainIds.includes(repaymentAsset.chainId)) {
-      setRepaymentAsset(collateralAsset)
-    }
-  }, [collateralAsset, repaymentAsset, setRepaymentAsset, walletConnectedChainIds])
 
   const buyAssetSearch = useModal('buyAssetSearch')
 

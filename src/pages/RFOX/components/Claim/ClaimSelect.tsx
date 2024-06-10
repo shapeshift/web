@@ -112,7 +112,7 @@ const ClaimRow: FC<ClaimRowProps> = ({
           </Box>
           <Box mr={4}>
             <RawText fontSize='sm' color='gray.400' align={'start'}>
-              {translate('RFOX.unstakeFrom', { assetSymbol: stakingAssetSymbol })}
+              {translate('RFOX.claim', { assetSymbol: stakingAssetSymbol })}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
               {stakingAssetSymbol}

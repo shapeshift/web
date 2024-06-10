@@ -17,10 +17,9 @@ import { useReadContract, useReadContracts } from 'wagmi'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import { chainIdToChainDisplayName } from 'lib/utils'
 import { RfoxTabIndex } from 'pages/RFOX/RFOX'
-import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -38,7 +37,7 @@ type NoClaimsAvailableProps = {
 
 const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
   const translate = useTranslate()
-  
+
   const handleUnstakeClick = useCallback(() => {
     setStepIndex(RfoxTabIndex.Unstake)
   }, [setStepIndex])

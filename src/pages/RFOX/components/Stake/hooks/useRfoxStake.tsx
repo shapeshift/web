@@ -1,6 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import type { UseMutationResult } from '@tanstack/react-query'
@@ -40,9 +40,9 @@ import type { StakeInputValues } from '../types'
 type UseRfoxStakeProps = {
   runeAddress: string | undefined
   stakingAssetId: AssetId
-  stakingAssetAccountId: string | undefined
+  stakingAssetAccountId: AccountId | undefined
   amountCryptoBaseUnit: string
-  methods: UseFormReturn<StakeInputValues, object> | undefined
+  methods: UseFormReturn<StakeInputValues> | undefined
   hasEnoughBalance: boolean
   setStakeTxid: ((txId: string) => void) | undefined
 }

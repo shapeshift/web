@@ -10,44 +10,21 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { useMutation } from '@tanstack/react-query'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-  isGetFeesWithWalletArgs,
-} from 'lib/utils/evm'
-import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import {
-  selectAccountNumberByAccountId,
-  selectAssetById,
-  selectFeeAssetByChainId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { fromBaseUnit } from 'lib/math'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote } from './types'
 import { UnstakeRoutePaths, type UnstakeRouteProps } from './types'
 
@@ -65,34 +42,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   unstakeTxid,
   setUnstakeTxid,
 }) => {
-  const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
-  )
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
-  )
-
-  const adapter = useMemo(
-    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
-    [feeAsset],
-  )
-
-  const stakingAssetAccountAddress = useMemo(
-    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
-    [confirmedQuote.stakingAssetAccountId],
-  )
-  const stakingAssetAccountNumberFilter = useMemo(() => {
-    return {
-      assetId: confirmedQuote.stakingAssetId,
-      accountId: confirmedQuote.stakingAssetAccountId,
-    }
-  }, [confirmedQuote.stakingAssetAccountId, confirmedQuote.stakingAssetId])
-  const stakingAssetAccountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
   )
 
   const unstakingAmountCryptoPrecision = useMemo(
@@ -111,6 +65,26 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
         .toFixed(),
     [stakingAssetMarketDataUserCurrency.price, unstakingAmountCryptoPrecision],
   )
+
+  const {
+    unstakeFeesQuery: {
+      data: unstakeFees,
+      isLoading: isUnstakeFeesLoading,
+      isSuccess: isUnstakeFeesSuccess,
+    },
+    isUnstakeTxPending,
+    unstakeMutation: { mutateAsync: handleUnstake },
+    newContractBalanceOfQuery: { isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess },
+    userStakingBalanceOfQuery: { isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess },
+    newShareOfPoolPercentage,
+  } = useRfoxUnstake({
+    stakingAssetId: confirmedQuote.stakingAssetId,
+    stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
+    amountCryptoBaseUnit: confirmedQuote.unstakingAmountCryptoBaseUnit,
+    methods: undefined,
+    unstakeTxid,
+    setUnstakeTxid,
+  })
 
   const handleGoBack = useCallback(() => {
     history.push(UnstakeRoutePaths.Input)
@@ -139,149 +113,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     )
   }, [stakingAsset, unstakingAmountCryptoPrecision, unstakingAmountUserCurrency])
 
-  const callData = useMemo(() => {
-    if (!stakingAsset) return
-
-    return encodeFunctionData({
-      abi: foxStakingV1Abi,
-      functionName: 'unstake',
-      args: [BigInt(toBaseUnit(unstakingAmountCryptoPrecision, stakingAsset.precision))],
-    })
-  }, [stakingAsset, unstakingAmountCryptoPrecision])
-
-  const {
-    mutateAsync: handleUnstake,
-    isIdle: isUnstakeMutationIdle,
-    isPending: isUnstakeMutationPending,
-    isSuccess: isUnstakeMutationSuccess,
-  } = useMutation({
-    mutationFn: async () => {
-      if (
-        !wallet ||
-        stakingAssetAccountNumber === undefined ||
-        !stakingAsset ||
-        !callData ||
-        !adapter
-      )
-        return
-
-      const buildCustomTxInput = await createBuildCustomTxInput({
-        accountNumber: stakingAssetAccountNumber,
-        adapter,
-        data: callData,
-        value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
-        wallet,
-      })
-
-      const txId = await buildAndBroadcast({
-        adapter,
-        buildCustomTxInput,
-        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-      })
-
-      return txId
-    },
-    onSuccess: (txId: string | undefined) => {
-      if (!txId) return
-
-      setUnstakeTxid(txId)
-    },
-  })
-
-  const isGetUnstakeFeesEnabled = useCallback(
-    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
-      Boolean(isUnstakeMutationIdle && isGetFeesWithWalletArgs(input)),
-    [isUnstakeMutationIdle],
-  )
-
-  const unstakeFeesQueryInput = useMemo(
-    () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber,
-      data: callData,
-      value: '0',
-      chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
-    }),
-    [
-      callData,
-      confirmedQuote.stakingAssetId,
-      stakingAssetAccountAddress,
-      stakingAssetAccountNumber,
-    ],
-  )
-
-  const getFeesWithWalletInput = useMemo(
-    () => ({ ...unstakeFeesQueryInput, adapter, wallet }),
-    [adapter, unstakeFeesQueryInput, wallet],
-  )
-
-  const {
-    data: unstakeFees,
-    isLoading: isUnstakeFeesLoading,
-    isSuccess: isUnstakeFeesSuccess,
-  } = useEvmFees({
-    ...unstakeFeesQueryInput,
-    enabled: isUnstakeMutationIdle,
-    staleTime: 30_000,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: isGetUnstakeFeesEnabled(getFeesWithWalletInput) ? 15_000 : false,
-  })
-
-  const serializedUnstakeTxIndex = useMemo(() => {
-    if (!(unstakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
-      return ''
-    return serializeTxIndex(
-      confirmedQuote.stakingAssetAccountId,
-      unstakeTxid,
-      stakingAssetAccountAddress,
-    )
-  }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, unstakeTxid])
-
-  const {
-    data: userStakingBalanceOfCryptoBaseUnit,
-    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
-  } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
-    select: ([stakingBalance]) => stakingBalance.toString(),
-  })
-
-  const {
-    data: newContractBalanceOfCryptoBaseUnit,
-    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
-  } = useStakingBalanceOfQuery({
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
-    stakingAssetId: confirmedQuote.stakingAssetId,
-    select: data => data.toString(),
-  })
-
-  const newShareOfPoolPercentage = useMemo(
-    () =>
-      bnOrZero(userStakingBalanceOfCryptoBaseUnit)
-        .minus(confirmedQuote.unstakingAmountCryptoBaseUnit)
-        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
-        .toFixed(4),
-    [
-      confirmedQuote.unstakingAmountCryptoBaseUnit,
-      newContractBalanceOfCryptoBaseUnit,
-      userStakingBalanceOfCryptoBaseUnit,
-    ],
-  )
-
   const handleSubmit = useCallback(async () => {
     await handleUnstake()
 
     history.push(UnstakeRoutePaths.Status)
   }, [handleUnstake, history])
-
-  const unstakeTx = useAppSelector(gs => selectTxById(gs, serializedUnstakeTxIndex))
-  const isUnstakeTxPending = useMemo(
-    () => isUnstakeMutationPending || (isUnstakeMutationSuccess && !unstakeTx),
-    [isUnstakeMutationPending, isUnstakeMutationSuccess, unstakeTx],
-  )
 
   return (
     <SlideTransition>

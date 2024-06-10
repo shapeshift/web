@@ -1,13 +1,10 @@
 import { Button, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
 import { FormDivider } from 'components/FormDivider'
@@ -15,18 +12,13 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
-import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, isGetFeesWithWalletArgs } from 'lib/utils/evm'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
 import {
-  selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
@@ -36,6 +28,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { UnstakeSummary } from './components/UnstakeSummary'
+import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeInputValues, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
 
@@ -64,7 +57,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   setConfirmedQuote,
   headerComponent,
 }) => {
-  const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
 
@@ -90,23 +82,23 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     name: 'amountUserCurrency',
   })
 
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const amountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    [amountCryptoPrecision, stakingAsset?.precision],
+  )
+
   const percentage = useWatch<UnstakeInputValues, 'percentage'>({
     control,
     name: 'percentage',
   })
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [], [])
   const [sliderValue, setSliderValue] = useState<number>(100)
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
-  )
-
-  const adapter = useMemo(
-    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
-    [feeAsset],
   )
 
   // TODO(gomes): make this programmatic when we implement multi-account
@@ -119,19 +111,26 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     [stakingAssetAccountId],
   )
 
-  const stakingAssetAccountNumberFilter = useMemo(() => {
-    return {
-      assetId: stakingAssetId,
-      accountId: stakingAssetAccountId,
-    }
-  }, [stakingAssetAccountId, stakingAssetId])
-  const stakingAssetAccountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
-  )
-
   const stakingAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
   )
+
+  const {
+    isGetUnstakeFeesEnabled,
+    unstakeFeesQuery: {
+      data: unstakeFees,
+      isLoading: isUnstakeFeesLoading,
+      isSuccess: isUnstakeFeesSuccess,
+    },
+  } = useRfoxUnstake({
+    stakingAssetId,
+    stakingAssetAccountId,
+    amountCryptoBaseUnit,
+    methods,
+    // Not required at this stage just yet, we're only estimating fees
+    unstakeTxid: undefined,
+    setUnstakeTxid: undefined,
+  })
 
   const {
     data: userStakingBalanceOfCryptoBaseUnit,
@@ -221,54 +220,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   }, [])
 
   const { data: cooldownPeriod } = useCooldownPeriodQuery()
-  const callData = useMemo(() => {
-    if (!hasEnteredValue) return
-
-    return encodeFunctionData({
-      abi: foxStakingV1Abi,
-      functionName: 'unstake',
-      args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0))],
-    })
-  }, [amountCryptoPrecision, hasEnteredValue, stakingAsset?.precision])
-
-  const unstakeFeesQueryInput = useMemo(
-    () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
-      accountNumber: stakingAssetAccountNumber,
-      data: callData,
-      value: '0',
-      chainId: fromAssetId(stakingAssetId).chainId,
-    }),
-    [callData, stakingAssetAccountId, stakingAssetAccountNumber, stakingAssetId],
-  )
-
-  const isGetUnstakeFeesEnabled = useCallback(
-    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
-      Boolean(
-        isGetFeesWithWalletArgs(input) && hasEnteredValue && !Boolean(errors.amountFieldInput),
-      ),
-    [errors.amountFieldInput, hasEnteredValue],
-  )
-
-  const getFeesWithWalletInput = useMemo(
-    () => ({ ...unstakeFeesQueryInput, adapter, wallet }),
-    [adapter, unstakeFeesQueryInput, wallet],
-  )
-
-  const {
-    data: unstakeFees,
-    isLoading: isUnstakeFeesLoading,
-    isSuccess: isUnstakeFeesSuccess,
-  } = useEvmFees({
-    ...unstakeFeesQueryInput,
-    enabled: Boolean(hasEnteredValue && !Boolean(errors.amountFieldInput)),
-    staleTime: 30_000,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: 15_000,
-  })
 
   const handleSubmit = useCallback(() => {
     if (!(stakingAssetAccountId && hasEnteredValue && stakingAsset && cooldownPeriod)) return
@@ -415,7 +366,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
                 py={4}
                 bg='background.surface.raised.accent'
               >
-                {isGetUnstakeFeesEnabled(getFeesWithWalletInput) && (
+                {isGetUnstakeFeesEnabled && (
                   <Row fontSize='sm' fontWeight='medium'>
                     <Row.Label>{translate('common.gasFee')}</Row.Label>
                     <Row.Value>

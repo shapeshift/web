@@ -24,7 +24,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { TabIndex } from 'pages/RFOX/RFOX'
+import { RfoxTabIndex } from 'pages/RFOX/RFOX'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -151,7 +151,7 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
   const translate = useTranslate()
 
   const handleClick = useCallback(() => {
-    setStepIndex(TabIndex.Unstake)
+    setStepIndex(RfoxTabIndex.Unstake)
   }, [setStepIndex])
 
   return (

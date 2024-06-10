@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "Transaction history degraded",
     "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
+    "happySuccess": "Success!",
     "retry": "Retry",
     "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
+    "sendAmountAsset": "Send %{amount} %{asset}",
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
@@ -2428,6 +2430,8 @@
     }
   },
   "RFOX": {
+    "bridge": "Bridge",
+    "bridgeSuccess": "Your funds have been successfully bridged. You can now continue to staking.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",
@@ -2480,6 +2484,7 @@
     "claimReceiveAddress": "Claim Receive Address",
     "noClaimsAvailable": "No claims available",
     "noClaimsAvailableDescription": "You don't have any available claims",
-    "unstakeNow": "Unstake Now"
+    "unstakeNow": "Unstake Now",
+    "confirmAndBridge": "Confirm & Bridge"
   }
 }

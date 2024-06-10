@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 
+import { Bridge } from './components/Bridge/Bridge'
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Claim } from './components/Claim/Claim'
 import { Stake } from './components/Stake/Stake'
@@ -17,11 +18,12 @@ type FormHeaderTabProps = {
 
 const activeStyle = { color: 'text.base' }
 
-export const TabIndex = {
+export const RfoxTabIndex = {
   Stake: 0,
   Unstake: 1,
   Claim: 2,
   ChangeAddress: 3,
+  Bridge: 4,
 }
 
 const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
@@ -55,39 +57,46 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
   return (
     <Flex px={6} py={4} gap={4}>
       <FormHeaderTab
-        index={TabIndex.Stake}
+        index={RfoxTabIndex.Stake}
         onClick={handleClick}
-        isActive={activeIndex === TabIndex.Stake}
+        isActive={activeIndex === RfoxTabIndex.Stake}
       >
         {translate('RFOX.stake')}
       </FormHeaderTab>
       <FormHeaderTab
-        index={TabIndex.Unstake}
+        index={RfoxTabIndex.Unstake}
         onClick={handleClick}
-        isActive={activeIndex === TabIndex.Unstake}
+        isActive={activeIndex === RfoxTabIndex.Unstake}
       >
         {translate('RFOX.unstake')}
       </FormHeaderTab>
       <FormHeaderTab
-        index={TabIndex.Claim}
+        index={RfoxTabIndex.Claim}
         onClick={handleClick}
-        isActive={activeIndex === TabIndex.Claim}
+        isActive={activeIndex === RfoxTabIndex.Claim}
       >
         {translate('RFOX.claim')}
       </FormHeaderTab>
       <FormHeaderTab
-        index={TabIndex.ChangeAddress}
+        index={RfoxTabIndex.ChangeAddress}
         onClick={handleClick}
-        isActive={activeIndex === TabIndex.ChangeAddress}
+        isActive={activeIndex === RfoxTabIndex.ChangeAddress}
       >
         {translate('RFOX.changeAddress')}
+      </FormHeaderTab>
+      <FormHeaderTab
+        index={RfoxTabIndex.Bridge}
+        onClick={handleClick}
+        isActive={activeIndex === RfoxTabIndex.Bridge}
+      >
+        {translate('RFOX.bridge')}
       </FormHeaderTab>
     </Flex>
   )
 }
 
 export const RFOX: React.FC = () => {
-  const [stepIndex, setStepIndex] = useState(TabIndex.Stake)
+  const [stepIndex, setStepIndex] = useState(RfoxTabIndex.Stake)
 
   const TabHeader = useMemo(
     () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
@@ -110,6 +119,9 @@ export const RFOX: React.FC = () => {
               </TabPanel>
               <TabPanel px={0} py={0}>
                 <ChangeAddress headerComponent={TabHeader} />
+              </TabPanel>
+              <TabPanel px={0} py={0}>
+                <Bridge headerComponent={TabHeader} />
               </TabPanel>
             </TabPanels>
           </Tabs>

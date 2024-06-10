@@ -208,6 +208,7 @@ describe('opportunitiesSlice', () => {
         const payload = {
           byId: {
             [userStakingId]: {
+              isLoaded: true,
               userStakingId,
               stakedAmountCryptoBaseUnit: '42000',
               rewardsCryptoBaseUnit: {
@@ -229,6 +230,7 @@ describe('opportunitiesSlice', () => {
         const insertPayloadOne = {
           byId: {
             [userStakingIdOne]: {
+              isLoaded: true,
               userStakingId: userStakingIdOne,
               stakedAmountCryptoBaseUnit: '42000',
               rewardsCryptoBaseUnit: {
@@ -251,6 +253,7 @@ describe('opportunitiesSlice', () => {
         const insertPayloadTwo = {
           byId: {
             [userStakingIdTwo]: {
+              isLoaded: true,
               userStakingId: userStakingIdTwo,
               stakedAmountCryptoBaseUnit: '42000',
               rewardsCryptoBaseUnit: {

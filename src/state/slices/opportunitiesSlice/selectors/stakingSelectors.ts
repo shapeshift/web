@@ -215,6 +215,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
           | [string],
         claimable: false,
       },
+      isLoaded: false,
       ...userOpportunity,
       ...opportunityMetadata,
       userStakingId,
@@ -592,7 +593,7 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
 
     const earnUserStakingOpportunity: StakingEarnOpportunityType = {
       ...userStakingOpportunity,
-      isLoaded: true,
+      isLoaded: userStakingOpportunity.isLoaded,
       chainId: fromAssetId(userStakingOpportunity.assetId).chainId,
       cryptoAmountBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       cryptoAmountPrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)

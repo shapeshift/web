@@ -92,6 +92,7 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
           rewardsCryptoBaseUnit: {
@@ -100,11 +101,13 @@ describe('opportunitiesSlice selectors', () => {
           },
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
           rewardsCryptoBaseUnit: { amounts: ['3000000000000000000'] as [string], claimable: true },
         },
         [serializeUserStakingId(fauxmesAccountId, mockStakingContractOne)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(fauxmesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '9000',
           rewardsCryptoBaseUnit: { amounts: ['1000000000000000000'] as [string], claimable: true },
@@ -205,6 +208,7 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
           rewardsCryptoBaseUnit: {
@@ -213,6 +217,7 @@ describe('opportunitiesSlice selectors', () => {
           },
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
           rewardsCryptoBaseUnit: { amounts: ['3000000000000000000'] as [string], claimable: true },
@@ -313,6 +318,7 @@ describe('opportunitiesSlice selectors', () => {
       ],
       byId: {
         [serializeUserStakingId(gomesAccountId, mockStakingContractTwo)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '1337',
           rewardsCryptoBaseUnit: {
@@ -321,11 +327,13 @@ describe('opportunitiesSlice selectors', () => {
           },
         },
         [serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(catpuccinoAccountId, mockStakingContractTwo),
           stakedAmountCryptoBaseUnit: '100',
           rewardsCryptoBaseUnit: { amounts: ['1000000000000000000'] as [string], claimable: true },
         },
         [serializeUserStakingId(gomesAccountId, mockStakingContractOne)]: {
+          isLoaded: true,
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
           stakedAmountCryptoBaseUnit: '4',
           rewardsCryptoBaseUnit: { amounts: ['3000000000000000000'] as [string], claimable: true },

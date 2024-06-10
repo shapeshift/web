@@ -179,6 +179,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
             const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
             return (
               <ClaimRow
+                stakingAssetId={stakingAssetId}
                 key={unstakingRequest.cooldownExpiry.toString()}
                 amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
                 status={status}
@@ -194,12 +195,14 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     })()
   }, [
     stakingAssetAccountAddress,
+    stakingAsset?.chainId,
+    stakingAsset?.precision,
     hasClaims,
     isUnstakingRequestSuccess,
     unstakingRequestResponse,
-    stakingAsset,
-    setConfirmedQuote,
     setStepIndex,
+    stakingAssetId,
+    setConfirmedQuote,
   ])
 
   return (

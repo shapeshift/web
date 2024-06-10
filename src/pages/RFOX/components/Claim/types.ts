@@ -12,9 +12,9 @@ export type ClaimRouteProps = {
 }
 
 export type RfoxClaimQuote = {
-  claimAssetAccountId: AccountId
-  claimAssetId: AssetId
-  claimAmountCryptoBaseUnit: string
+  stakingAssetAccountId: AccountId
+  stakingAssetId: AssetId
+  stakingAmountCryptoBaseUnit: string
   index: number
 }
 

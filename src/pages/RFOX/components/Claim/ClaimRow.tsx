@@ -1,8 +1,8 @@
 import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
-import { foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { type FC, useCallback, useMemo } from 'react'
+import { type FC, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -16,6 +16,7 @@ import { useAppSelector } from 'state/store'
 import { ClaimRoutePaths, ClaimStatus, type RfoxClaimQuote } from './types'
 
 type ClaimRowProps = {
+  stakingAssetId: AssetId
   amountCryptoPrecision: string
   status: ClaimStatus
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
@@ -26,6 +27,7 @@ type ClaimRowProps = {
 const hoverProps = { bg: 'gray.700' }
 
 export const ClaimRow: FC<ClaimRowProps> = ({
+  stakingAssetId,
   amountCryptoPrecision,
   status,
   setConfirmedQuote,
@@ -35,7 +37,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetSymbol = stakingAsset?.symbol
   const stakingAmountCryptoBaseUnit = toBaseUnit(
     bnOrZero(amountCryptoPrecision),
@@ -47,20 +49,17 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
-  const claimQuote: RfoxClaimQuote = useMemo(
-    () => ({
-      claimAssetAccountId: stakingAssetAccountId ?? '',
-      claimAssetId: foxOnArbitrumOneAssetId,
-      claimAmountCryptoBaseUnit: stakingAmountCryptoBaseUnit,
-      index,
-    }),
-    [index, stakingAmountCryptoBaseUnit, stakingAssetAccountId],
-  )
-
   const handleClaimClick = useCallback(() => {
+    if (!stakingAssetAccountId) return
+    const claimQuote: RfoxClaimQuote = {
+      stakingAssetAccountId,
+      stakingAssetId: foxOnArbitrumOneAssetId,
+      stakingAmountCryptoBaseUnit,
+      index,
+    }
     setConfirmedQuote(claimQuote)
     history.push(ClaimRoutePaths.Confirm)
-  }, [claimQuote, history, setConfirmedQuote])
+  }, [history, index, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
 
   return (
     <Tooltip

@@ -1,5 +1,5 @@
-import type { ChainKey, LifiError, RoutesRequest } from '@lifi/sdk'
-import { LifiErrorCode } from '@lifi/sdk'
+import type { ChainKey, RoutesRequest } from '@lifi/sdk'
+import { LifiError, LifiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type {
@@ -149,12 +149,12 @@ export async function getTradeQuote(
 
           // for the rate to be valid, both amounts must be converted to the same precision
           const estimateRate = convertPrecision({
-            value: selectedLifiRoute.toAmountMin,
+            value: lifiStep.estimate.toAmount,
             inputExponent: stepBuyAsset.precision,
             outputExponent: stepSellAsset.precision,
           })
-            .dividedBy(bn(selectedLifiRoute.fromAmount))
-            .toString()
+            .dividedBy(bn(lifiStep.estimate.fromAmount))
+            .toFixed()
 
           const protocolFees = transformLifiStepFeeData({
             chainId: stepChainId,
@@ -185,7 +185,7 @@ export async function getTradeQuote(
           const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
             .plus(sellSideProtocolFeeBuyAssetBaseUnit)
             .plus(buySideProtocolFeeCryptoBaseUnit)
-            .toString()
+            .toFixed(0)
 
           const sellAmountIncludingProtocolFeesCryptoBaseUnit = lifiStep.action.fromAmount
 
@@ -210,8 +210,6 @@ export async function getTradeQuote(
               protocolFees,
               networkFeeCryptoBaseUnit,
             },
-            // TODO(woodenfurniture):  this step-level key should be a step-level value, rather than the top-level rate.
-            // might be better replaced by inputOutputRatio downstream
             rate: estimateRate,
             sellAmountIncludingProtocolFeesCryptoBaseUnit,
             sellAsset: stepSellAsset,
@@ -244,6 +242,26 @@ export async function getTradeQuote(
   )
 
   if (promises.every(isRejected)) {
+    for (const promise of promises) {
+      if (promise.reason instanceof LifiError) {
+        if (promise.reason.stack?.includes('Request failed with status code 429')) {
+          return Err(
+            makeSwapErrorRight({
+              message: `[LiFi: tradeQuote] - ${promise.reason.message}`,
+              code: TradeQuoteError.RateLimitExceeded,
+            }),
+          )
+        }
+
+        return Err(
+          makeSwapErrorRight({
+            message: `[LiFi: tradeQuote] - ${promise.reason.message}`,
+            code: TradeQuoteError.QueryFailed,
+          }),
+        )
+      }
+    }
+
     return Err(
       makeSwapErrorRight({
         message: '[LiFi: tradeQuote] - failed to get fee data',

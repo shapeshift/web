@@ -14,7 +14,7 @@ import { AllChainMenu } from 'components/ChainMenu'
 import { sortChainIdsByDisplayName } from 'lib/utils'
 import {
   selectPortfolioFungibleAssetsSortedByBalance,
-  selectWalletSupportedChainIds,
+  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -55,7 +55,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const portfolioAssetsSortedByBalance = useAppSelector(
     selectPortfolioFungibleAssetsSortedByBalance,
   )
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const { data: popularAssetsByChainId, isLoading: isPopularAssetIdsLoading } =
     useGetPopularAssetsQuery()
@@ -98,8 +98,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
     if (allowWalletUnsupportedAssets) return unfilteredPopularAssets
-    return unfilteredPopularAssets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
-  }, [activeChainId, popularAssetsByChainId, walletSupportedChainIds, allowWalletUnsupportedAssets])
+    return unfilteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+  }, [activeChainId, popularAssetsByChainId, walletConnectedChainIds, allowWalletUnsupportedAssets])
 
   const quickAccessAssets = useMemo(() => {
     if (activeChainId !== 'All') {
@@ -138,13 +138,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
         return knownChainIds
       }
 
-      return walletSupportedChainIds
+      return walletConnectedChainIds
     })()
 
     const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds)
 
     return ['All', ...sortedChainIds]
-  }, [walletSupportedChainIds, allowWalletUnsupportedAssets])
+  }, [walletConnectedChainIds, allowWalletUnsupportedAssets])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {

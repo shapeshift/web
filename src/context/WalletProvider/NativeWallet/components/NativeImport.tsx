@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'components/Text'
+import { NativeWalletRoutes } from 'context/WalletProvider/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 
@@ -35,7 +36,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
         const vault = await Vault.create()
         vault.meta.set('createdAt', Date.now())
         vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
-        history.push('/native/password', { vault })
+        history.push(NativeWalletRoutes.Password, { vault })
         mixpanel?.track(MixPanelEvent.NativeImport)
       } catch (e) {
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })

@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import {
   selectAssetsSortedByName,
-  selectWalletSupportedChainIds,
+  selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
@@ -30,19 +30,19 @@ export const SearchTermAssetList = ({
     return [Boolean(isLoading)]
   }, [isLoading])
 
-  const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const assetsForChain = useMemo(() => {
     if (activeChainId === 'All') {
       if (allowWalletUnsupportedAssets) return assets
-      return assets.filter(asset => walletSupportedChainIds.includes(asset.chainId))
+      return assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
     }
 
     // Should never happen, but paranoia.
-    if (!allowWalletUnsupportedAssets && !walletSupportedChainIds.includes(activeChainId)) return []
+    if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
     return assets.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, allowWalletUnsupportedAssets, assets, walletSupportedChainIds])
+  }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
 
   const searchTermAssets = useMemo(() => {
     return filterAssetsBySearchTerm(searchString, assetsForChain)

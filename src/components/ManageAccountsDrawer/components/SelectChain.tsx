@@ -11,7 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from 'lib/utils'
 import {
   selectAssetById,
-  selectWalletChainIds,
+  selectWalletConnectedChainIds,
   selectWalletSupportedChainIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -59,7 +59,7 @@ export const SelectChain = ({ onSelectChainId, onClose }: SelectChainProps) => {
   const [searchQuery, setSearchQuery] = useState('')
   const wallet = useWallet().state.wallet
 
-  const walletConnectedChainIds = useAppSelector(selectWalletChainIds)
+  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const walletSupportedChainIds = useAppSelector(selectWalletSupportedChainIds)
 
   const availableChainIds = useMemo(() => {

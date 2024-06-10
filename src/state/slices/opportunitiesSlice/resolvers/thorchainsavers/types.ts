@@ -63,8 +63,6 @@ export type ThorchainSaversCommonQuoteResponseSuccess = {
   fees: QuoteFees
   inbound_address: string
   memo: string
-  /** @deprecated use fees.slippage_bps instead */
-  slippage_bps: number
   notes: string
   warning: string
 }
@@ -85,7 +83,6 @@ export type ThorchainSaversWithdrawQuoteResponseSuccess =
   ThorchainSaversCommonQuoteResponseSuccess & {
     outbound_delay_blocks: number
     outbound_delay_seconds: number
-    slippage_bps: number
     dust_amount: string
   }
 

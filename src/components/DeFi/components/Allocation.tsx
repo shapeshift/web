@@ -28,6 +28,7 @@ import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 import { colors } from 'theme/colors'
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
@@ -182,6 +183,7 @@ export const Allocation: React.FC<AllocationProps> = ({
                 prefix={isFiat ? localeParts.prefix : ''}
                 decimalSeparator={localeParts.decimal}
                 inputMode='decimal'
+                allowedDecimalSeparators={allowedDecimalSeparators}
                 thousandSeparator={localeParts.group}
                 value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
                 onValueChange={handleNumberFormatValueChange}

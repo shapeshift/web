@@ -7,10 +7,7 @@ import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import type { Address } from 'viem'
-import { encodeFunctionData, getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -24,6 +21,7 @@ import {
   type GetFeesWithWalletArgs,
   isGetFeesWithWalletArgs,
 } from 'lib/utils/evm'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -107,23 +105,16 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     data: currentRuneAddress,
     isLoading: isCurrentRuneAddressLoading,
     isSuccess: isCurrentRuneAddressSuccess,
-  } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(stakingAssetAccountAddress),
-      // Destructuring the result as a verbose way get the rune address
-      select: ([
-        _stakingBalance,
-        _unstakingBalance,
-        _earnedRewards,
-        _rewardPerTokenStored,
-        runeAddress,
-      ]) => runeAddress || undefined,
-    },
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    // Destructuring the result as a verbose way get the rune address
+    select: ([
+      _stakingBalance,
+      _unstakingBalance,
+      _earnedRewards,
+      _rewardPerTokenStored,
+      runeAddress,
+    ]) => runeAddress || undefined,
   })
 
   const callData = useMemo(() => {

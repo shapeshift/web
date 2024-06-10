@@ -1,0 +1,65 @@
+import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { skipToken } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import type { Address, ReadContractReturnType } from 'viem'
+import { erc20Abi, getAddress } from 'viem'
+import { readContract } from 'viem/actions'
+import { arbitrum } from 'viem/chains'
+import type { Config } from 'wagmi'
+import { type ReadContractQueryKey, useQuery } from 'wagmi/query'
+import { viemClientByNetworkId } from 'lib/viem-client'
+
+type StakingBalanceOfQueryKey = ReadContractQueryKey<
+  typeof erc20Abi,
+  'balanceOf',
+  readonly [Address],
+  Config
+>
+type StakingBalanceOf = ReadContractReturnType<typeof erc20Abi, 'balanceOf', readonly [Address]>
+type UseStakingBalanceOfQueryProps<SelectData = StakingBalanceOf> = {
+  stakingAssetAccountAddress: string | undefined
+  stakingAssetId: AssetId | undefined
+  select?: (stakingBalanceOf: StakingBalanceOf) => SelectData
+}
+const client = viemClientByNetworkId[arbitrum.id]
+
+export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+  select,
+}: UseStakingBalanceOfQueryProps<SelectData>) => {
+  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
+  const queryKey: StakingBalanceOfQueryKey = [
+    'readContract',
+    {
+      address: stakingAssetId
+        ? getAddress(fromAssetId(stakingAssetId).assetReference)
+        : ('' as Address),
+      functionName: 'balanceOf',
+      args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
+      chainId: arbitrum.id,
+    },
+  ]
+
+  const stakingBalanceOfQueryFn = useMemo(
+    () =>
+      stakingAssetAccountAddress && stakingAssetId
+        ? () =>
+            readContract(client, {
+              abi: erc20Abi,
+              address: getAddress(fromAssetId(stakingAssetId).assetReference),
+              functionName: 'balanceOf',
+              args: [getAddress(stakingAssetAccountAddress)],
+            })
+        : undefined,
+    [stakingAssetAccountAddress, stakingAssetId],
+  )
+
+  const stakingBalanceOfQuery = useQuery({
+    queryKey,
+    queryFn: stakingBalanceOfQueryFn ?? skipToken,
+    select,
+  })
+
+  return stakingBalanceOfQuery
+}

@@ -7,10 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import type { Address } from 'viem'
-import { encodeFunctionData, getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
 import { FormDivider } from 'components/FormDivider'
@@ -25,7 +22,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
 import { assertGetEvmChainAdapter, isGetFeesWithWalletArgs } from 'lib/utils/evm'
-import { formatSecondsToDuration } from 'lib/utils/time'
+import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
 import {
   selectAccountNumberByAccountId,
@@ -138,16 +136,9 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const {
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess,
-  } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(stakingAssetAccountAddress),
-      select: ([stakingBalance]) => stakingBalance.toString(),
-    },
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    select: ([stakingBalance]) => stakingBalance.toString(),
   })
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
@@ -229,17 +220,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setSliderValue(percentage)
   }, [])
 
-  const { data: cooldownPeriod } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'cooldownPeriod',
-    chainId: arbitrum.id,
-    query: {
-      staleTime: Infinity,
-      select: data => formatSecondsToDuration(Number(data)),
-    },
-  })
-
+  const { data: cooldownPeriod } = useCooldownPeriodQuery()
   const callData = useMemo(() => {
     if (!hasEnteredValue) return
 

@@ -12,8 +12,8 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, type Fees, isGetFeesWithWalletArgs } from 'lib/utils/evm'
+import type { EvmFees, GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletArgs } from 'lib/utils/evm'
 import { selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -26,14 +26,7 @@ type UseRfoxBridgeApproval = (props: UseRfoxBridgeApprovalProps) => {
   isApprovalRequired: boolean
   allowanceQuery: UseQueryResult<string | undefined, Error>
   isGetApprovalFeesEnabled: boolean
-  approvalFeesQuery: UseQueryResult<
-    {
-      fees: Fees
-      txFeeFiat: string
-      networkFeeCryptoBaseUnit: string
-    },
-    Error
-  >
+  approvalFeesQuery: UseQueryResult<EvmFees, Error>
   isApprovalTxPending: boolean
   isApprovalTxSuccess: boolean
   handleApprove: () => Promise<string>

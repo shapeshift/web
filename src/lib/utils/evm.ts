@@ -100,6 +100,12 @@ export type Fees = evm.Fees & {
   networkFeeCryptoBaseUnit: string
 }
 
+export type EvmFees = {
+  fees: Fees
+  txFeeFiat: string
+  networkFeeCryptoBaseUnit: string
+}
+
 export const isGetFeesWithWalletArgs = (
   input: MaybeGetFeesWithWalletArgs,
 ): input is GetFeesWithWalletArgs =>

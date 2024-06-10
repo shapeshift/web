@@ -58,8 +58,8 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   const equityRows = useAppSelector(state => selectAssetEquityItemsByFilter(state, filter))
 
   const shouldDisplayEquityRows = useMemo(
-    () => equityRows.length > 0 || portfolioLoading,
-    [equityRows.length, portfolioLoading],
+    () => equityRows.length > 0 || isLoading,
+    [equityRows.length, isLoading],
   )
 
   const { amountCryptoPrecision: totalCryptoHumanBalance, fiatAmount: totalFiatBalance } =

@@ -375,16 +375,16 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0) && !hideEmptyState) {
-    return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
-  }
-
-  if (!earnOpportunityData || isTradingActiveLoading) {
+  if (isTradingActiveLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />
       </Center>
     )
+  }
+
+  if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0) && !hideEmptyState) {
+    return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
   }
 
   if (!(maybeAccountId && opportunityDataFilter)) return null

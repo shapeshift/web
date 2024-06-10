@@ -5,7 +5,10 @@ import { FaGreaterThanEqual } from 'react-icons/fa'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
+import {
+  allowedDecimalSeparators,
+  preferences,
+} from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectBalanceThreshold } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -44,6 +47,7 @@ export const BalanceThresholdInput = () => {
         thousandSeparator={localeParts.group}
         decimalSeparator={localeParts.decimal}
         customInput={InputComponent}
+        allowedDecimalSeparators={allowedDecimalSeparators}
         isNumericString={true}
         value={balanceThreshold}
         prefix={localeParts.prefix}

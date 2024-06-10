@@ -865,7 +865,8 @@
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant",
       "noQuotesAvailable": "Aucun devis disponible pour cet échange",
       "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge",
-      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds."
+      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds.",
+      "rateLimitExceeded": "Limite de tentatives dépassée, réessayer plus tard"
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
@@ -1813,7 +1814,8 @@
     "importAccounts": {
       "title": "Importer les comptes %{chainNamespaceDisplayName}",
       "description": "Sélectionnez les comptes que vous souhaitez importer dans la liste ci-dessous.",
-      "import": "Importer"
+      "import": "Importer",
+      "loadMoreDisabled": "Ce porte-monnaie ne prend pas en charge les comptes multiples pour cette chaîne."
     },
     "ledgerOpenApp": {
       "title": "Ouvrir l'app %{appName}",
@@ -2344,6 +2346,8 @@
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
+    "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
+    "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
     "shareOfPool": "Part du pool",
     "assetDepositAmount": "Montant du dépôt %{asset}",
     "totalLiquidity": "Liquidité totale",
@@ -2433,6 +2437,7 @@
     "unstakeAmount": "Montant à démiser",
     "confirmAndStake": "Confirmer et miser",
     "confirmAndUnstake": "Confirmer et démiser",
+    "confirmAndClaim": "Confirmer et réclamer",
     "shapeShiftFee": "Frais ShapeShift",
     "approvalFee": "Frais d'autorisation",
     "lockupPeriod": "Période de verrouillage",
@@ -2447,7 +2452,10 @@
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
-      "lockupPeriod": "C'est le temps que vous devrez attendre après avoir démisé pour réclamer vos FOX."
+      "lockupPeriod": "C'est le temps que vous devrez attendre après avoir démisé pour réclamer vos FOX.",
+      "shareOfPool": "Il s'agit du pourcentage des frais que vous gagnerez.",
+      "unstakePendingCooldown": "Réclamation disponible %{cooldownPeriodHuman}",
+      "cooldownComplete": "Temps de repos terminé %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Vous avez misé %{amount} %{symbol} avec succès",
     "stakePending": "Mise en cours de %{amount} %{symbol}...",
@@ -2455,13 +2463,22 @@
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
     "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORCHain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
+    "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",
+    "newRewardAddress": "Nouvelle adresse de récompenses",
     "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
     "noPositionTitle": "Aucune position active",
     "noPositionBody": "Vous pourrez modifier votre adresse de récompenses ici lorsque vous aurez une position active.",
     "stakeNow": "Misez maintenant",
     "noAddressFound": "Aucune adresse trouvée",
     "newAddressInfo": "Ceci sera mis à jour pour le prochain cycle de récompenses",
-    "confirmAndUpdateAddress": "Confirmer et mettre à jour l'adresse"
+    "confirmAndUpdateAddress": "Confirmer et mettre à jour l'adresse",
+    "unstakeFrom": "Démiser de r%{assetSymbol}",
+    "claimPending": "En demande de retrait",
+    "claimSuccess": "Vous avez réclamé %{amount} %{symbol} avec succès.",
+    "claimReceiveAddress": "Adresse de réception de réclamation",
+    "noClaimsAvailable": "Aucune réclamation disponible",
+    "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
+    "unstakeNow": "Démiser maintenant"
   }
 }

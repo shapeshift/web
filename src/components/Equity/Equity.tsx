@@ -79,7 +79,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
   )
 
   const renderEquityRows = useMemo(() => {
-    if (portfolioLoading)
+    if (isLoading)
       return Array.from({ length: 4 }).map((_, index) => (
         <EquityRowLoading key={`eq-row-loading-${index}`} />
       ))
@@ -121,7 +121,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
           return null
       }
     })
-  }, [accountId, assetId, equityRows, portfolioLoading, totalFiatBalance])
+  }, [accountId, assetId, equityRows, isLoading, totalFiatBalance])
 
   const renderUnderlyingAssets = useMemo(() => {
     if (!underlyingAssetsWithBalancesAndIcons?.length) return

@@ -18,6 +18,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 import { colors } from 'theme/colors'
 
 import { Balance } from './Balance'
@@ -170,6 +171,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               prefix={isFiat ? localeParts.prefix : ''}
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
+              allowedDecimalSeparators={allowedDecimalSeparators}
               thousandSeparator={localeParts.group}
               value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
               onValueChange={handleValueChange}

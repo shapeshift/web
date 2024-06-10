@@ -409,8 +409,6 @@ export const RepayInput = ({
     },
   )
 
-  console.log({ isEstimatedFeesDataLoading })
-
   const balanceFilter = useMemo(
     () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentAsset?.assetId, repaymentAccountId],
@@ -573,7 +571,6 @@ export const RepayInput = ({
       </Stack>
     )
   }
-
   return (
     <Stack spacing={0}>
       <TradeAssetInput

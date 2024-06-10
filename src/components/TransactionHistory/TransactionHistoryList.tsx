@@ -47,7 +47,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
           />
         )}
         {data.length > 0 && (
-          <Button mx={2} mb={2} onClick={next} isDisabled={!hasMore} rightIcon={loadMoreRightIcon}>
+          <Button mx={2} my={2} onClick={next} isDisabled={!hasMore} rightIcon={loadMoreRightIcon}>
             {translate('common.loadMore')}
           </Button>
         )}

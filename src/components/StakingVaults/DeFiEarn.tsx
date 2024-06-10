@@ -59,8 +59,10 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           {...rest}
         >
           <Flex flex={flexPropsMd1} width={widthBaseFull}>
-            <TabList m={0} width={widthMdAuto}>
-              <Tab flex={flexPropsMdAuto}>{translate('defi.byProvider')}</Tab>
+            <TabList m={0} width={widthMdAuto} pl='0'>
+              <Tab flex={flexPropsMdAuto} me={2}>
+                {translate('defi.byProvider')}
+              </Tab>
               <Tab flex={flexPropsMdAuto}>{translate('defi.byAsset')}</Tab>
             </TabList>
           </Flex>

@@ -216,6 +216,13 @@ export const RepayInput = ({
     }),
     onSuccess: (txId: string) => {
       setApprovalTxId(txId)
+      queryClient.invalidateQueries(
+        reactQueries.common.allowanceCryptoBaseUnit(
+          repaymentAsset?.assetId,
+          inboundAddressData?.router,
+          userAddress,
+        ),
+      )
     },
   })
 
@@ -398,8 +405,11 @@ export const RepayInput = ({
       // no explicit from address required for repayments
       fromAddress: '',
       action: 'repayLoan',
+      enableEstimateFees: isApprovalRequired === false,
     },
   )
+
+  console.log({ isEstimatedFeesDataLoading })
 
   const balanceFilter = useMemo(
     () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
@@ -563,6 +573,7 @@ export const RepayInput = ({
       </Stack>
     )
   }
+
   return (
     <Stack spacing={0}>
       <TradeAssetInput

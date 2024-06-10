@@ -2344,8 +2344,6 @@
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
-    "unsupportedNetworkExplainer": "Votre porte-monnaie ne prend pas en charge %{network}. Veuillez passer à un porte-monnaie prenant en charge ce réseau.",
-    "unsupportedNetworksExplainer": "Votre porte-monnaie ne prend pas en charge %{network1} et %{network2}. Veuillez passer à un porte-monnaie prenant en charge ces réseaux.",
     "shareOfPool": "Part du pool",
     "assetDepositAmount": "Montant du dépôt %{asset}",
     "totalLiquidity": "Liquidité totale",
@@ -2449,8 +2447,7 @@
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
-      "lockupPeriod": "C'est le temps que vous devrez attendre après avoir démisé pour réclamer vos FOX.",
-      "shareOfPool": "Il s'agit du pourcentage des frais que vous gagnerez."
+      "lockupPeriod": "C'est le temps que vous devrez attendre après avoir démisé pour réclamer vos FOX."
     },
     "stakeSuccess": "Vous avez misé %{amount} %{symbol} avec succès",
     "stakePending": "Mise en cours de %{amount} %{symbol}...",
@@ -2458,9 +2455,7 @@
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
     "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORCHain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
-    "unstakeSuccess": "Une fois les %{cooldownPeriod} écoulés, vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",
-    "newRewardAddress": "Nouvelle adresse de récompenses",
     "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
     "noPositionTitle": "Aucune position active",
     "noPositionBody": "Vous pourrez modifier votre adresse de récompenses ici lorsque vous aurez une position active.",

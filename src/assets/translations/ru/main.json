@@ -2344,8 +2344,6 @@
     "symAfterRuneAlert": "Симметричные депозиты невозможны после асимметричного депозита RUNE из-за особенностей работы сети THOR.",
     "incompletePositionDepositAlert": "Эта позиция не завершена, пожалуйста, внесите соответствующую сумму %{asset} чтобы завершить эту позицию.",
     "incompletePositionWithdrawAlert": "Эта позиция не завершена, пожалуйста, отмените ее, удалив 100% ликвидности. Вы также можете завершить позицию через \"Добавить ликвидность\".",
-    "unsupportedNetworkExplainer": "Ваш кошелек не поддерживает %{network}. Please switch to a wallet that supports this network.",
-    "unsupportedNetworksExplainer": "Ваш кошелек не поддерживает %{network1} и %{network2}. Пожалуйста, переключитесь на кошелек, поддерживающий эти сети.",
     "shareOfPool": "Доля пула",
     "assetDepositAmount": "Сумма депозита %{asset} ",
     "totalLiquidity": "Общая ликвидность",
@@ -2449,8 +2447,7 @@
     "tooltips": {
       "stakeAmount": "Это сумма FOX, которую вы будете стейкать.",
       "unstakeAmount": "Это количество FOX, которое вы разблокируете.",
-      "lockupPeriod": "Вот сколько времени вам придется ждать после снятия с стейкинга, чтобы заклеймить свои FOX",
-      "shareOfPool": "Это ваш процент от вознаграждения, которое вы заработаете."
+      "lockupPeriod": "Вот сколько времени вам придется ждать после снятия с стейкинга, чтобы заклеймить свои FOX"
     },
     "stakeSuccess": "Вы успешно застейкали %{amount} %{symbol}",
     "stakePending": "Стейкинг %{amount} %{symbol}...",
@@ -2458,9 +2455,7 @@
     "changeRewardAddressPending": "Изменение адреса вознаграждения...",
     "changeRewardAddressSuccess": "Вы успешно изменили свой адрес вознаграждения THORCHain.",
     "unstakePending": "Запрос на снятие %{amount} %{symbol}",
-    "unstakeSuccess": "По истечении %{cooldownPeriod} вы сможете забрать свои %{amount} %{symbol}",
     "currentRewardAddress": "Текущий адрес для получения вознаграждения",
-    "newRewardAddress": "Новый адрес вознаграждения",
     "rewardCycleExplainer": "Это будет обновлено для следующего цикла вознаграждений.",
     "noPositionTitle": "Нет активной позиции",
     "noPositionBody": "Вы сможете изменить свой адрес вознаграждения здесь, как только займете активную позицию.",

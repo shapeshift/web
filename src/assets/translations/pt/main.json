@@ -2344,8 +2344,6 @@
     "symAfterRuneAlert": "Depósitos simétricos não são possíveis após um depósito RUNE assimétrico devido à forma como a rede THOR funciona.",
     "incompletePositionDepositAlert": "Esta posição está incompleta, por favor deposite o valor correspondente de %{asset} para finalizar esta posição.",
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
-    "unsupportedNetworkExplainer": "Sua carteira não suporta %{network}. Mude para uma carteira que suporte esta rede.",
-    "unsupportedNetworksExplainer": "Sua carteira não suporta %{network1} e %{network2}. Mude para uma carteira que suporte essas redes.",
     "shareOfPool": "Participação na pool",
     "assetDepositAmount": "%{asset} Valor do depósito",
     "totalLiquidity": "Liquidez Total",
@@ -2449,8 +2447,7 @@
     "tooltips": {
       "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
       "unstakeAmount": "Esta é a quantidade de FOX que você não fará stake",
-      "lockupPeriod": "Este é o tempo que você terá que esperar depois de realizar o unstake para sacar seus FOX",
-      "shareOfPool": "Esta é a sua porcentagem das taxas que você ganhará."
+      "lockupPeriod": "Este é o tempo que você terá que esperar depois de realizar o unstake para sacar seus FOX"
     },
     "stakeSuccess": "Você fez o stake %{amount} %{symbol} com sucesso",
     "stakePending": "Staking %{amount} %{symbol}...",
@@ -2458,9 +2455,7 @@
     "changeRewardAddressPending": "Alterando endereço de recompensa...",
     "changeRewardAddressSuccess": "Você alterou com sucesso seu endereço de recompensa THORChain.",
     "unstakePending": "Solicitando saque de %{amount} %{symbol}",
-    "unstakeSuccess": "Assim que %{cooldownPeriod} tiver decorrido, você poderá resgatar seu %{amount} %{symbol}",
     "currentRewardAddress": "Endereço de recompensa atual",
-    "newRewardAddress": "Novo Endereço de Recompensa",
     "rewardCycleExplainer": "Isso será atualizado para o próximo ciclo de recompensa.",
     "noPositionTitle": "Sem posição ativa",
     "noPositionBody": "Você poderá alterar seu endereço de recompensa aqui assim que tiver uma posição ativa.",

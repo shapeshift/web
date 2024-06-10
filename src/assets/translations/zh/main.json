@@ -2333,8 +2333,6 @@
     "symAfterRuneAlert": "由于 THOR 网络的工作方式，非对称 RUNE 存款之后无法进行对称存款。",
     "incompletePositionDepositAlert": "此仓位尚未完成，请存入相应数量的 %{asset} 来完成此仓位。",
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
-    "unsupportedNetworkExplainer": "你的钱包不支持 %{network} 。请切换到支持该网络的钱包。",
-    "unsupportedNetworksExplainer": "你的钱包不支持 %{network1} 和 %{network2} 。请切换到支持这些网络的钱包。",
     "shareOfPool": "池份额",
     "assetDepositAmount": "%{asset} 充值数量",
     "totalLiquidity": "总流动性",

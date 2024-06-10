@@ -2344,8 +2344,6 @@
     "symAfterRuneAlert": "THOR ağının çalışma şekli nedeniyle asimetrik bir RUNE yatırma sonrasında simetrik yatırmalar mümkün değildir.",
     "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
-    "unsupportedNetworkExplainer": "Cüzdanınız %{network}'ı desteklemiyor. Lütfen bu ağı destekleyen bir cüzdana geçin.",
-    "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'yi desteklemiyor. Lütfen bu ağları destekleyen bir cüzdana geçin.",
     "shareOfPool": "Havuz Payı",
     "assetDepositAmount": "%{asset} Yatırma Tutarı",
     "totalLiquidity": "Toplam Likidite",
@@ -2449,8 +2447,7 @@
     "tooltips": {
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
       "unstakeAmount": "Bu, kaldıracağınız FOX miktarıdır",
-      "lockupPeriod": "FOX'unuzu talep etmek için bahisi kaldırdıktan sonra bu kadar beklemeniz gerekecek",
-      "shareOfPool": "Bu, kazanacağınız ücretlerin yüzdesidir."
+      "lockupPeriod": "FOX'unuzu talep etmek için bahisi kaldırdıktan sonra bu kadar beklemeniz gerekecek"
     },
     "stakeSuccess": "Başarıyla %{amount} %{symbol} stake ettiniz",
     "stakePending": "%{amount} %{symbol} stake ediliyor...",
@@ -2458,9 +2455,7 @@
     "changeRewardAddressPending": "Ödül Adresi Değiştiriliyor...",
     "changeRewardAddressSuccess": "THORChain Ödül Adresinizi başarıyla değiştirdiniz.",
     "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
-    "unstakeSuccess": "%{cooldownPeriod} süresi dolduğunda, %{amount} %{symbol} miktarınızı talep edebileceksiniz",
     "currentRewardAddress": "Güncel Ödül Adresi",
-    "newRewardAddress": "Yeni Ödül Adresi",
     "rewardCycleExplainer": "Bu, bir sonraki ödül döngüsü için güncellenecektir.",
     "noPositionTitle": "Aktif Pozisyon Yok",
     "noPositionBody": "Aktif bir pozisyonunuz olduğunda ödül adresinizi buradan değiştirebileceksiniz.",

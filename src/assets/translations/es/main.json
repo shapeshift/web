@@ -2344,8 +2344,6 @@
     "symAfterRuneAlert": "Depósitos simétricos no son posibles después de depósito RUNE asimétrico debido a como funciona la red THOR.",
     "incompletePositionDepositAlert": "Posición incompleta, deposite la cantidad correspondiente de %{asset} para finalizar esta posición.",
     "incompletePositionWithdrawAlert": "Posición incompleta, cancele la posición eliminando el 100% de la liquidez. También puede finalizar la posición a través de \"Agregar liquidez\".",
-    "unsupportedNetworkExplainer": "Su billetera no es compatible con %{network}. Por favor cambie a una billetera que admita esta red.",
-    "unsupportedNetworksExplainer": "Su billetera no admite %{network1} y %{network2}. Por favor cambie a una billetera que admita estas redes.",
     "shareOfPool": "Participación de Pool",
     "assetDepositAmount": "%{asset} Monto de Depósito",
     "totalLiquidity": "Liquidez Total",
@@ -2449,8 +2447,7 @@
     "tooltips": {
       "stakeAmount": "Esta es la cantidad de FOX que Stake",
       "unstakeAmount": "Cantidad de FOX a Unstake",
-      "lockupPeriod": "Tiempo que esperará después de Unstake para reclamar tu FOX",
-      "shareOfPool": "Porcentaje de tarifas que ganará."
+      "lockupPeriod": "Tiempo que esperará después de Unstake para reclamar tu FOX"
     },
     "stakeSuccess": "Has Stake con éxito %{amount} %{symbol}",
     "stakePending": "Stake %{amount} %{symbol}...",
@@ -2458,9 +2455,7 @@
     "changeRewardAddressPending": "Cambiando dirección de recompensa...",
     "changeRewardAddressSuccess": "Ha cambiado con éxito su dirección THORCHain para recompensas.",
     "unstakePending": "Solicitando retiro de %{amount} %{symbol}",
-    "unstakeSuccess": "Una vez transcurrido el %{cooldownPeriod}, podrás reclamar tu %{amount} %{symbol}",
     "currentRewardAddress": "Dirección de Recompensa Actual",
-    "newRewardAddress": "Nueva Dirección de Recompensa",
     "rewardCycleExplainer": "Esto se actualizará para el próximo ciclo de recompensas.",
     "noPositionTitle": "Sin posición activa",
     "noPositionBody": "Podrá cambiar su dirección de recompensa aquí una vez que tenga una posición activa.",

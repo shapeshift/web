@@ -2344,8 +2344,6 @@
     "symAfterRuneAlert": "Aufgrund der Funktionsweise des THOR-Netzwerks sind symmetrische Einzahlungen nach einer asymmetrischen RUNE-Einzahlung nicht möglich.",
     "incompletePositionDepositAlert": "Diese Position ist unvollständig. Bitte zahlen Sie den entsprechenden Betrag von %{asset} ein, um diese Position abzuschließen.",
     "incompletePositionWithdrawAlert": "Diese Position ist unvollständig. Bitte stornieren Sie die Position, indem Sie 100 % der Liquidität entfernen. Sie können die Position auch über „Liquidität hinzufügen“ abschließen.",
-    "unsupportedNetworkExplainer": "Ihre Wallet unterstützt %{network} nicht. Bitte wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
-    "unsupportedNetworksExplainer": "Ihre Wallet unterstützt %{network1} und %{network2} nicht. Bitte wechseln Sie zu einer Wallet, die diese Netzwerke unterstützt.",
     "shareOfPool": "Anteil am Pool",
     "assetDepositAmount": "%{asset} Einzahlungsbetrag",
     "totalLiquidity": "Gesamtliquidität",
@@ -2449,8 +2447,7 @@
     "tooltips": {
       "stakeAmount": "Dies ist der Betrag an FOX, den Sie Staken werden",
       "unstakeAmount": "Dies ist der Betrag an FOX, den Sie Unstaken werden",
-      "lockupPeriod": "So lange müssen Sie nach dem Unstaking warten, um Ihren FOX zu beanspruchen",
-      "shareOfPool": "Dies ist Ihr Prozentsatz der Gebühren, die Sie verdienen."
+      "lockupPeriod": "So lange müssen Sie nach dem Unstaking warten, um Ihren FOX zu beanspruchen"
     },
     "stakeSuccess": "Sie haben erfolgreich %{amount} %{symbol} gestaked",
     "stakePending": "Staking %{amount} %{symbol}...",
@@ -2458,9 +2455,7 @@
     "changeRewardAddressPending": "Belohnungsadresse ändern …",
     "changeRewardAddressSuccess": "Sie haben Ihre THORCHAin Belohnungsadresse erfolgreich geändert.",
     "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
-    "unstakeSuccess": "Sobald die %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
     "currentRewardAddress": "Aktuelle Belohnungsadresse",
-    "newRewardAddress": "Neue Belohnungsadresse",
     "rewardCycleExplainer": "Dies wird für den nächsten Belohnungszyklus aktualisiert.",
     "noPositionTitle": "Keine aktive Position",
     "noPositionBody": "Sobald Sie eine aktive Position haben, können Sie Ihre Belohnungsadresse hier ändern.",

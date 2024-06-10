@@ -73,6 +73,8 @@ export enum CurrencyFormats {
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
 
+export const allowedDecimalSeparators = ['.', ',']
+
 export enum HomeMarketView {
   TopAssets = 'TopAssets',
   Watchlist = 'Watchlist',

@@ -7,7 +7,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { formatDistanceToNow } from 'date-fns'
+import dayjs from 'dayjs'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Address } from 'viem'
@@ -173,9 +173,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
             const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
             const isAvailable = currentTimestampMs >= unstakingTimestampMs
             const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
-            const cooldownPeriodHuman = formatDistanceToNow(Date.now() + cooldownDeltaMs, {
-              addSuffix: true,
-            })
+            const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
             const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
             return (
               <ClaimRow

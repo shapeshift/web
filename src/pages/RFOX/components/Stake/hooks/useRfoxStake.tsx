@@ -46,7 +46,7 @@ type UseRfoxStakeProps = {
   hasEnoughBalance: boolean
   setStakeTxid: ((txId: string) => void) | undefined
 }
-type UseRfoxStake = (props: UseRfoxStakeProps) => {
+type UseRfoxStakeReturn = {
   allowanceQuery: UseQueryResult<string | undefined, Error>
   approvalFeesQuery: UseQueryResult<EvmFees, Error>
   stakeFeesQuery: UseQueryResult<EvmFees, Error>
@@ -59,7 +59,7 @@ type UseRfoxStake = (props: UseRfoxStakeProps) => {
   approvalTx: Tx | undefined
 }
 
-export const useRfoxStake: UseRfoxStake = ({
+export const useRfoxStake = ({
   amountCryptoBaseUnit,
   runeAddress,
   stakingAssetId,
@@ -67,7 +67,7 @@ export const useRfoxStake: UseRfoxStake = ({
   methods,
   hasEnoughBalance,
   setStakeTxid,
-}) => {
+}: UseRfoxStakeProps): UseRfoxStakeReturn => {
   const toast = useToast()
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
@@ -322,7 +322,6 @@ export const useRfoxStake: UseRfoxStake = ({
     allowanceQuery,
     approvalFeesQuery,
     isGetApprovalFeesEnabled,
-    allowanceCryptoPrecision,
     isApprovalRequired,
     stakeFeesQuery,
     isGetStakeFeesEnabled,

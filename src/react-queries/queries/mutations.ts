@@ -28,7 +28,7 @@ export const mutations = createMutationKeys('mutations', {
   }) => ({
     // note how we don't add the wallet here because of its non-serializable nature
     mutationKey: ['approve', { assetId, spender, amount, from }],
-    mutationFn: async () => {
+    mutationFn: async (_: void) => {
       if (!assetId) throw new Error('assetId is required')
       if (!spender) throw new Error('spender is required')
       if (!amount) throw new Error('amount is required')

@@ -184,7 +184,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   }, [confirmedQuote.stakingAmountCryptoBaseUnit])
 
   const {
-    mutate: sendApprovalTx,
+    mutateAsync: handleApprove,
     isPending: isApprovalMutationPending,
     isSuccess: isApprovalMutationSuccess,
     isIdle: isApprovalMutationIdle,
@@ -272,8 +272,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   }, [approvalTxId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
 
   const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
-
-  const handleApprove = useCallback(() => sendApprovalTx(undefined), [sendApprovalTx])
 
   const isApprovalTxPending = useMemo(
     () =>
@@ -436,7 +434,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
     await handleStake()
     history.push(StakeRoutePaths.Status)
-  }, [handleApprove, handleStake, history, isApprovalRequired])
+  }, [handleStake, history, isApprovalRequired, handleApprove])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null

@@ -19,8 +19,9 @@ import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/se
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import type { MultiStepStatusStep } from '../Shared/SharedMultiStepStatus'
-import { SharedMultiStepStatus } from '../Shared/SharedMultiStepStatus'
+import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
+import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
+import { StakeRoutePaths } from '../types'
 import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
@@ -30,21 +31,25 @@ type BridgeStatusProps = {
 export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   confirmedQuote,
 }) => {
-  const [bridgeTxHash, setBridgeTxHash] = useState<string>()
+  const [l1TxHash, setL1TxHash] = useState<string>()
   const [l2TxHash, setL2TxHash] = useState<string>()
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
 
+  const handleContinue = useCallback(() => {
+    history.push(StakeRoutePaths.Confirm)
+  }, [history])
+
   const serializedBridgeTxIndex = useMemo(() => {
-    if (!bridgeTxHash) return undefined
+    if (!l1TxHash) return undefined
 
     return serializeTxIndex(
       confirmedQuote.sellAssetAccountId,
-      bridgeTxHash,
+      l1TxHash,
       fromAccountId(confirmedQuote.sellAssetAccountId).account,
     )
-  }, [bridgeTxHash, confirmedQuote.sellAssetAccountId])
+  }, [l1TxHash, confirmedQuote.sellAssetAccountId])
 
   const serializedL2TxIndex = useMemo(() => {
     if (!l2TxHash) return undefined
@@ -57,9 +62,8 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   }, [confirmedQuote.buyAssetAccountId, l2TxHash])
 
   const handleGoBack = useCallback(() => {
-    // TODO(gomes): route back to stake
-    history.push(BridgeRoutePaths.Confirm)
-  }, [history])
+    history.push({ pathname: BridgeRoutePaths.Confirm, state: confirmedQuote })
+  }, [confirmedQuote, history])
 
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))
@@ -131,14 +135,14 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     },
     onSuccess: (txHash: string | undefined) => {
       if (!txHash) return
-      setBridgeTxHash(txHash)
+      setL1TxHash(txHash)
     },
   })
 
   const { data: tradeStatus } = useQuery({
-    ...reactQueries.swapper.arbitrumBridgeTradeStatus(bridgeTxHash ?? '', sellAsset?.chainId ?? ''),
-    enabled: Boolean(bridgeTxHash && sellAsset),
-    refetchInterval: 1000,
+    ...reactQueries.swapper.arbitrumBridgeTradeStatus(l1TxHash ?? '', sellAsset?.chainId ?? ''),
+    enabled: Boolean(l1TxHash && sellAsset),
+    refetchInterval: 60_000,
   })
 
   useEffect(() => {
@@ -161,11 +165,11 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
         isActionable: true,
         onSignAndBroadcast: handleBridge,
         serializedTxIndex: serializedBridgeTxIndex,
-        txHash: bridgeTxHash,
+        txHash: l1TxHash,
       },
       {
         asset: buyAsset,
-        headerCopy: 'Bridge Funds',
+        headerCopy: translate('RFOX.bridgeFunds'),
         isActionable: false,
         serializedTxIndex: serializedL2TxIndex,
         txHash: l2TxHash,
@@ -173,7 +177,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     ]
   }, [
     bridgeAmountCryptoPrecision,
-    bridgeTxHash,
+    l1TxHash,
     buyAsset,
     handleBridge,
     l2TxHash,
@@ -184,6 +188,11 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   ])
 
   return (
-    <SharedMultiStepStatus onBack={handleGoBack} confirmedQuote={confirmedQuote} steps={steps} />
+    <SharedMultiStepStatus
+      onBack={handleGoBack}
+      confirmedQuote={confirmedQuote}
+      onContinue={handleContinue}
+      steps={steps}
+    />
   )
 }

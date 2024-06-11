@@ -12,6 +12,7 @@ import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 
+import { BridgeRoutePaths, type RfoxBridgeQuote } from './Bridge/types'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
@@ -41,6 +42,22 @@ const StakeStatus = makeSuspenseful(
   ),
 )
 
+const BridgeConfirm = makeSuspenseful(
+  lazy(() =>
+    import('./Bridge/BridgeConfirm').then(({ BridgeConfirm }) => ({
+      default: BridgeConfirm,
+    })),
+  ),
+)
+
+const BridgeStatus = makeSuspenseful(
+  lazy(() =>
+    import('./Bridge/BridgeStatus').then(({ BridgeStatus }) => ({
+      default: BridgeStatus,
+    })),
+  ),
+)
+
 const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm, StakeRoutePaths.Status]
 
 export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
@@ -52,7 +69,8 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 }
 
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
-  const location = useLocation()
+  const location = useLocation<RfoxBridgeQuote | undefined>()
+  const { state: maybeBridgeQuote } = location
 
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
@@ -131,6 +149,18 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
     )
   }, [confirmedQuote, handleTxConfirmed, headerComponent, stakeTxid])
 
+  const renderBridgeConfirm = useCallback(() => {
+    if (!maybeBridgeQuote) return null
+
+    return <BridgeConfirm confirmedQuote={maybeBridgeQuote} headerComponent={headerComponent} />
+  }, [maybeBridgeQuote, headerComponent])
+
+  const renderBridgeStatus = useCallback(() => {
+    if (!maybeBridgeQuote) return null
+
+    return <BridgeStatus confirmedQuote={maybeBridgeQuote} headerComponent={headerComponent} />
+  }, [maybeBridgeQuote, headerComponent])
+
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Switch location={location}>
@@ -149,6 +179,16 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
             key={StakeRoutePaths.Status}
             path={StakeRoutePaths.Status}
             render={renderStakeStatus}
+          />
+          <Route
+            key={BridgeRoutePaths.Confirm}
+            path={BridgeRoutePaths.Confirm}
+            render={renderBridgeConfirm}
+          />
+          <Route
+            key={BridgeRoutePaths.Status}
+            path={BridgeRoutePaths.Status}
+            render={renderBridgeStatus}
           />
         </Suspense>
       </Switch>

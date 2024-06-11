@@ -1,8 +1,7 @@
-import { Button, Card, Center, Flex, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { Button, Card, Flex, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Main } from 'components/Layout/Main'
 
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Claim } from './components/Claim/Claim'
@@ -86,7 +85,7 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
   )
 }
 
-export const RFOX: React.FC = () => {
+export const Widget: React.FC = () => {
   const [stepIndex, setStepIndex] = useState(RfoxTabIndex.Stake)
 
   const TabHeader = useMemo(
@@ -94,27 +93,23 @@ export const RFOX: React.FC = () => {
     [stepIndex],
   )
   return (
-    <Main py={16}>
-      <Center>
-        <Card width='full' maxWidth='md'>
-          <Tabs variant='unstyled' index={stepIndex} isLazy>
-            <TabPanels>
-              <TabPanel px={0} py={0}>
-                <Stake headerComponent={TabHeader} />
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <Unstake headerComponent={TabHeader} />
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <Claim headerComponent={TabHeader} setStepIndex={setStepIndex} />
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <ChangeAddress headerComponent={TabHeader} />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Card>
-      </Center>
-    </Main>
+    <Card width='full' maxWidth='md'>
+      <Tabs variant='unstyled' index={stepIndex} isLazy>
+        <TabPanels>
+          <TabPanel px={0} py={0}>
+            <Stake headerComponent={TabHeader} />
+          </TabPanel>
+          <TabPanel px={0} py={0}>
+            <Unstake headerComponent={TabHeader} />
+          </TabPanel>
+          <TabPanel px={0} py={0}>
+            <Claim headerComponent={TabHeader} setStepIndex={setStepIndex} />
+          </TabPanel>
+          <TabPanel px={0} py={0}>
+            <ChangeAddress headerComponent={TabHeader} />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Card>
   )
 }

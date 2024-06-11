@@ -19,7 +19,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { chainIdToChainDisplayName } from 'lib/utils'
-import { RfoxTabIndex } from 'pages/RFOX/RFOX'
+import { RfoxTabIndex } from 'pages/RFOX/Widget'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

@@ -439,23 +439,23 @@ export const RepayInput = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
   const hasEnoughBalanceForTx = useMemo(() => {
-    if (!(repaymentFeeAsset && repaymentAsset)) return
+    if (!(repaymentFeeAsset && repaymentAsset && lendingQuoteCloseData)) return
 
-    return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
+    return bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision).lte(
       repaymentAssetAmountAvailableCryptoPrecision,
     )
   }, [
     repaymentFeeAsset,
     repaymentAsset,
-    lendingQuoteCloseData?.repaymentAmountCryptoPrecision,
+    lendingQuoteCloseData,
     repaymentAssetAmountAvailableCryptoPrecision,
   ])
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
-    if (!(repaymentFeeAsset && repaymentAsset)) return
+    if (!(repaymentFeeAsset && repaymentAsset && lendingQuoteCloseData)) return
 
     if (repaymentFeeAsset.assetId === repaymentAsset.assetId)
-      return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision)
+      return bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision)
         .plus(
           bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
             bn(10).pow(repaymentAsset.precision ?? '0'),
@@ -464,7 +464,7 @@ export const RepayInput = ({
         .lte(repaymentAssetAmountAvailableCryptoPrecision)
 
     return (
-      bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
+      bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision).lte(
         repaymentAssetAmountAvailableCryptoPrecision,
       ) && bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
     )
@@ -576,6 +576,29 @@ export const RepayInput = ({
       </Stack>
     )
   }
+
+  console.log({
+    repaymentAmountCryptoPrecision: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+    allowanceData,
+    isApprovalRequired,
+    approvalTx,
+    isApprovalMutationPending,
+    isApprovalTxPending,
+    isLendingPositionDataLoading,
+    isLendingQuoteCloseLoading,
+    isEstimatedFeesDataLoading,
+    isAddressByteCodeLoading,
+    isInboundAddressLoading,
+    isAllowanceDataLoading,
+    isLendingQuoteCloseRefetching,
+    isThorchainLendingRepayEnabled,
+    isEstimatedFeesDataError,
+    isLendingPositionDataError,
+    isLendingQuoteCloseError,
+    quoteErrorTranslation,
+    disableSmartContractRepayment,
+  })
+
   return (
     <Stack spacing={0}>
       <TradeAssetInput

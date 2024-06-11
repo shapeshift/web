@@ -25,8 +25,8 @@ type UseEvmFeesProps = Omit<
   chainId: ChainId
   enabled?: boolean
   staleTime?: number
-  refetchInterval?: number | false | undefined
-  refetchIntervalInBackground?: boolean
+  refetchInterval: number | false | undefined
+  refetchIntervalInBackground: boolean
 }
 
 export const useEvmFees = (props: UseEvmFeesProps) => {

@@ -424,9 +424,9 @@ export const RepayInput = ({
   }, [confirmedQuote])
 
   const hasEnoughBalanceForTx = useMemo(() => {
-    if (!(repaymentFeeAsset && repaymentAsset && lendingQuoteCloseData)) return
+    if (!(repaymentFeeAsset && repaymentAsset)) return
 
-    return bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision).lte(
+    return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
       repaymentAssetAmountAvailableCryptoPrecision,
     )
   }, [
@@ -453,10 +453,10 @@ export const RepayInput = ({
   )
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
-    if (!(repaymentFeeAsset && repaymentAsset && lendingQuoteCloseData)) return
+    if (!(repaymentFeeAsset && repaymentAsset)) return
 
     if (repaymentFeeAsset.assetId === repaymentAsset.assetId)
-      return bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision)
+      return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision)
         .plus(
           bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
             bn(10).pow(repaymentAsset.precision ?? '0'),
@@ -465,7 +465,7 @@ export const RepayInput = ({
         .lte(repaymentAssetAmountAvailableCryptoPrecision)
 
     return (
-      bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision).lte(
+      bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
         repaymentAssetAmountAvailableCryptoPrecision,
       ) && bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
     )

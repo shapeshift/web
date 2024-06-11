@@ -186,9 +186,8 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
-      from: stakingAssetAccountAddress,
     }),
-    [callData, claimQuote.stakingAssetId, stakingAssetAccountAddress, stakingAssetAccountNumber],
+    [callData, claimQuote.stakingAssetId, stakingAssetAccountNumber],
   )
 
   const {

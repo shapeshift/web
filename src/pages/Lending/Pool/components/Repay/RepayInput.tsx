@@ -576,29 +576,6 @@ export const RepayInput = ({
       </Stack>
     )
   }
-
-  console.log({
-    repaymentAmountCryptoPrecision: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-    allowanceData,
-    isApprovalRequired,
-    approvalTx,
-    isApprovalMutationPending,
-    isApprovalTxPending,
-    isLendingPositionDataLoading,
-    isLendingQuoteCloseLoading,
-    isEstimatedFeesDataLoading,
-    isAddressByteCodeLoading,
-    isInboundAddressLoading,
-    isAllowanceDataLoading,
-    isLendingQuoteCloseRefetching,
-    isThorchainLendingRepayEnabled,
-    isEstimatedFeesDataError,
-    isLendingPositionDataError,
-    isLendingQuoteCloseError,
-    quoteErrorTranslation,
-    disableSmartContractRepayment,
-  })
-
   return (
     <Stack spacing={0}>
       <TradeAssetInput

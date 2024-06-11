@@ -3,22 +3,27 @@ import { Heading, Stack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 
+import { Faq } from './components/Faq/Faq'
 import { Overview } from './components/Overview/Overview'
+import { RewardsAndClaims } from './components/RewardsAndClaims/RewardsAndClaims'
 import { Widget } from './Widget'
 
-const direction: StackDirection = { base: 'column', xl: 'row' }
+const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
+const paddingVerticalResponsiveProps = { base: 8, md: 16 }
 
 export const RfoxDashboard: React.FC = () => {
   const translate = useTranslate()
 
   return (
-    <Main py={16}>
+    <Main py={paddingVerticalResponsiveProps} px={2}>
       <Heading mb={8}>{translate('RFOX.staking')}</Heading>
 
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview />
+          <RewardsAndClaims />
+          <Faq />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={maxWidth} spacing={4}>
           <Widget />

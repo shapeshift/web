@@ -2437,6 +2437,8 @@
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",
+    "rewards": "Rewards",
+    "claims": "Claims",
     "changeAddress": "Change address",
     "sameAddressNotAllowed": "Same address not allowed",
     "stakingDetails": "Staking Details",
@@ -2491,6 +2493,31 @@
     "bridgeAndConfirm": "Bridge & Confirm",
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
-    "confirmAndBridge": "Confirm & Bridge"
+    "confirmAndBridge": "Confirm & Bridge",
+    "myRewardBalance": "My Reward Balance",
+    "pendingRewardBalance": "Pending Reward Balance",
+    "lifetimeRewards": "Lifetime Rewards",
+    "timeInPool": "Time in Pool",
+    "myPosition": "My Position",
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "What is rFOX?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "why": {
+        "title": "Why stake your FOX?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "cooldown": {
+        "title": "What is the cooldown period?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      }
+    },
+    "totals": "rFOX Totals",
+    "totalStaked": "Total FOX Staked",
+    "totalFeesCollected": "Total Fees Collected (This Epoch)",
+    "emissionsPool": "Emissions Pool (This Epoch)",
+    "foxBurnAmount": "FOX Burn Amount"
   }
 }

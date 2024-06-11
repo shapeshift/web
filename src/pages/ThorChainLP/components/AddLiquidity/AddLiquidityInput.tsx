@@ -556,7 +556,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId: poolAsset?.assetId,
       spender: poolAssetInboundAddress,
       from: poolAssetAccountAddress,
-      amount: toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset?.precision ?? 0),
+      amountCryptoBaseUnit: toBaseUnit(
+        actualAssetDepositAmountCryptoPrecision,
+        poolAsset?.precision ?? 0,
+      ),
       wallet,
       accountNumber: poolAssetAccountNumber,
     }),

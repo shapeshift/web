@@ -2431,6 +2431,7 @@
   },
   "RFOX": {
     "bridge": "Bridge",
+    "bridgeFunds": "Bridge Funds",
     "bridgeSuccess": "Your funds have been successfully bridged. You can now continue to staking.",
     "stake": "Stake",
     "unstake": "Unstake",
@@ -2453,6 +2454,7 @@
     "useWalletAddress": "Use wallet address",
     "useCustomAddress": "Use custom address",
     "stakeWarning": "When you stake your FOX tokens, please be aware that there is a %{cooldownPeriod} lock-up period. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
+    "bridgeCta": "You selected %{assetSymbol} on %{originNetwork}, but you'll need %{assetSymbol} on %{destinationNetwork} to stake. We can help you bridge your to %{destinationNetwork}. Would you like us to guide you through the process?",
     "unstakeWarning": "Before you can claim your FOX, there is a %{cooldownPeriod} cool down period. After that time has elapsed you will be able to claim your unstaked amount.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
@@ -2485,6 +2487,9 @@
     "noClaimsAvailable": "No claims available",
     "noClaimsAvailableDescription": "You don't have any available claims",
     "unstakeNow": "Unstake Now",
+    "bridgeAndConfirm": "Bridge & Confirm",
+    "noSupportedChains": "Chain not supported",
+    "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "confirmAndBridge": "Confirm & Bridge"
   }
 }

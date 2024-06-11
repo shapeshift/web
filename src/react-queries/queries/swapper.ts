@@ -1,33 +1,26 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type HDWallet, supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetEvmTradeQuoteInput } from '@shapeshiftoss/swapper'
-import { arbitrumBridgeApi } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/endpoints'
-import { getTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import type { Asset } from '@shapeshiftoss/types'
+
+export type ArbitrumBridgeTradeQuoteInput = Omit<
+  GetEvmTradeQuoteInput,
+  'supportsEIP1559' | 'sellAsset' | 'buyAsset' | 'accountNumber' | 'chainId'
+> & {
+  sellAsset: Asset | undefined
+  buyAsset: Asset | undefined
+  accountNumber: number | undefined
+  chainId: ChainId | undefined
+}
 
 // Only used for arbitrum bridge swapper use outside of swapper for now
 export const swapper = createQueryKeys('swapper', {
-  arbitrumBridgeTradeQuote: (
-    inputWithWallet: Omit<GetEvmTradeQuoteInput, 'supportsEIP1559'> & { wallet: HDWallet },
-  ) => {
-    const { wallet, ...input } = inputWithWallet
+  arbitrumBridgeTradeQuote: (input: ArbitrumBridgeTradeQuoteInput) => {
     return {
-      queryKey: ['arbitrumBridgeTradeQuote', input],
-      queryFn: async () => {
-        const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-
-        return getTradeQuote({ ...input, supportsEIP1559 })
-      },
+      queryKey: [input],
     }
   },
-  arbitrumBridgeTradeStatus: (txHash: string, chainId: ChainId) => ({
-    queryKey: ['arbitrumBridgeTradeStatus', txHash, chainId],
-    queryFn: () =>
-      arbitrumBridgeApi.checkTradeStatus({
-        txHash,
-        chainId,
-        quoteId: '',
-        stepIndex: 0,
-      }),
+  arbitrumBridgeTradeStatus: (txHash: string | undefined, chainId: ChainId | undefined) => ({
+    queryKey: [txHash, chainId],
   }),
 })

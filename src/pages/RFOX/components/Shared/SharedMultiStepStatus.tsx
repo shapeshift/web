@@ -1,4 +1,5 @@
 import {
+  Button,
   CardBody,
   CardFooter,
   CardHeader,
@@ -23,14 +24,13 @@ import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import type { RfoxBridgeQuote } from '../Bridge/types'
+import type { RfoxBridgeQuote } from '../Stake/Bridge/types'
 import { TransactionRow } from './TransactionRow'
 
 export type MultiStepStatusStep = {
   asset: Asset
   headerCopy: string
   serializedTxIndex: string | undefined
-  txHash: string | undefined
 } & (
   | { isActionable: true; onSignAndBroadcast: () => Promise<string | undefined> }
   | { isActionable: false; onSignAndBroadcast?: never }
@@ -38,6 +38,7 @@ export type MultiStepStatusStep = {
 
 type SharedMultiStepStatusProps = {
   onBack: () => void
+  onContinue: () => void
   confirmedQuote: RfoxBridgeQuote
   steps: MultiStepStatusStep[]
 } & PropsWithChildren
@@ -45,7 +46,7 @@ type SharedMultiStepStatusProps = {
 export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   confirmedQuote,
   onBack: handleBack,
-  children,
+  onContinue: handleContinue,
   steps,
 }) => {
   const translate = useTranslate()
@@ -185,7 +186,6 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
               headerCopy,
               isActionable,
               serializedTxIndex,
-              txHash,
               onSignAndBroadcast: handleSignAndBroadcast,
             },
             index,
@@ -198,7 +198,6 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
                 onStart={handleStart}
                 onSignAndBroadcast={handleSignAndBroadcast}
                 serializedTxIndex={serializedTxIndex}
-                txId={txHash}
                 isActive={index === activeStepIndex && !isFailed}
                 isActionable={isActionable}
               />
@@ -223,12 +222,8 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
       {renderBody}
       <CardFooter flexDir='column' px={4}>
         {assetCards}
+        {isComplete && <Button onClick={handleContinue}>{translate('common.continue')}</Button>}
       </CardFooter>
-      {children && (
-        <CardFooter flexDir='column' px={4}>
-          {children}
-        </CardFooter>
-      )}
     </SlideTransition>
   )
 }

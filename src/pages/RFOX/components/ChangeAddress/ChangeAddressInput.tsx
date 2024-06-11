@@ -1,30 +1,32 @@
 import { Box, Button, CardFooter, Collapse, Flex, Input, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import type { Address } from 'viem'
-import { encodeFunctionData, getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
+import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
+import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  type GetFeesWithWalletArgs,
+  isGetFeesWithWalletArgs,
+} from 'lib/utils/evm'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
-  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -51,6 +53,11 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
   )
 
+  const adapter = useMemo(
+    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
+    [feeAsset],
+  )
+
   // TODO(gomes): make this programmatic when we implement multi-account
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
@@ -68,10 +75,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   }, [stakingAssetAccountId, stakingAssetId])
   const stakingAssetAccountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
-  )
-
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
   const defaultFormValues = {
@@ -102,23 +105,16 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     data: currentRuneAddress,
     isLoading: isCurrentRuneAddressLoading,
     isSuccess: isCurrentRuneAddressSuccess,
-  } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(stakingAssetAccountAddress),
-      // Destructuring the result as a verbose way get the rune address
-      select: ([
-        _stakingBalance,
-        _unstakingBalance,
-        _earnedRewards,
-        _rewardPerTokenStored,
-        runeAddress,
-      ]) => runeAddress || undefined,
-    },
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    // Destructuring the result as a verbose way get the rune address
+    select: ([
+      _stakingBalance,
+      _unstakingBalance,
+      _earnedRewards,
+      _rewardPerTokenStored,
+      runeAddress,
+    ]) => runeAddress || undefined,
   })
 
   const callData = useMemo(() => {
@@ -131,50 +127,46 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     })
   }, [newRuneAddress])
 
-  const isGetChangeAddressFeesEnabled = useMemo(
-    () =>
+  const isGetChangeAddressFeesEnabled = useCallback(
+    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
       Boolean(
-        currentRuneAddress &&
-          stakingAssetAccountId &&
-          stakingAssetAccountAddress &&
-          wallet &&
+        isGetFeesWithWalletArgs(input) &&
+          currentRuneAddress &&
           newRuneAddress &&
-          callData &&
-          feeAsset &&
-          feeAssetMarketData &&
           !Boolean(errors.manualRuneAddress || errors.newRuneAddress),
       ),
-    [
-      currentRuneAddress,
-      stakingAssetAccountId,
-      stakingAssetAccountAddress,
-      wallet,
-      newRuneAddress,
-      callData,
-      feeAsset,
-      feeAssetMarketData,
-      errors.manualRuneAddress,
-      errors.newRuneAddress,
-    ],
+    [currentRuneAddress, errors.manualRuneAddress, errors.newRuneAddress, newRuneAddress],
+  )
+
+  const changeAddressFeesQueryInput = useMemo(
+    () => ({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      from: stakingAssetAccountAddress ?? '',
+      chainId: fromAssetId(stakingAssetId).chainId,
+      accountNumber: stakingAssetAccountNumber,
+      data: callData,
+      value: '0',
+    }),
+    [callData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
+  )
+
+  const getFeesWithWalletInput = useMemo(
+    () => ({ ...changeAddressFeesQueryInput, adapter, wallet }),
+    [adapter, changeAddressFeesQueryInput, wallet],
   )
 
   const {
     data: changeAddressFees,
     isLoading: isChangeAddressFeesLoading,
     isSuccess: isChangeAddressFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress!, // see isGetChangeAddressFeesEnabled
-      accountNumber: stakingAssetAccountNumber!, // see isGetChangeAddressFeesEnabled
-      data: callData!, // see isGetChangeAddressFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetChangeAddressFeesEnabled
-      feeAsset: feeAsset!, // see isGetChangeAddressFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetChangeAddressFeesEnabled
-    }),
+  } = useEvmFees({
+    ...changeAddressFeesQueryInput,
+    enabled: Boolean(
+      currentRuneAddress &&
+        newRuneAddress &&
+        !Boolean(errors.manualRuneAddress || errors.newRuneAddress),
+    ),
     staleTime: 30_000,
-    enabled: isGetChangeAddressFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -274,7 +266,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
             </Skeleton>
           </Box>
         </Stack>
-        <Collapse in={isGetChangeAddressFeesEnabled}>
+        <Collapse in={isGetChangeAddressFeesEnabled(getFeesWithWalletInput)}>
           <CardFooter
             borderTopWidth={1}
             borderColor='border.subtle'

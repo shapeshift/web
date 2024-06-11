@@ -21,6 +21,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { getTxLink } from 'lib/getTxLink'
 import { selectAssetById, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
+import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import type { MultiStepStatusStep } from './SharedMultiStepStatus'
@@ -30,7 +31,6 @@ type TransactionRowProps = {
   onStart: () => void
   headerCopy: string
   isActive?: boolean
-  txId?: string
   serializedTxIndex: string | undefined
 } & Pick<MultiStepStatusStep, 'isActionable' | 'onSignAndBroadcast'>
 
@@ -42,7 +42,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   isActionable,
   serializedTxIndex,
   onSignAndBroadcast,
-  txId,
 }) => {
   const translate = useTranslate()
 
@@ -55,15 +54,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
   )
 
-  const txIdLink = useMemo(
-    () =>
-      getTxLink({
-        defaultExplorerBaseUrl: asset?.explorerTxLink ?? '',
-        tradeId: txId ?? '',
-        name: SwapperName.ArbitrumBridge,
-      }),
-    [asset?.explorerTxLink, txId],
-  )
+  const txIdLink = useMemo(() => {
+    if (!(asset && serializedTxIndex)) return
+    const { txid } = deserializeTxIndex(serializedTxIndex)
+    return getTxLink({
+      defaultExplorerBaseUrl: asset.explorerTxLink,
+      tradeId: txid,
+      name: SwapperName.ArbitrumBridge,
+    })
+  }, [asset, serializedTxIndex])
 
   const handleSignTx = useCallback(async () => {
     if (!isActionable) return
@@ -124,7 +123,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         <AssetIcon size='xs' assetId={asset.assetId} />
         <Text>{headerCopy}</Text>
         <Flex ml='auto' alignItems='center' gap={2}>
-          {txId && (
+          {txIdLink && (
             <Button as={Link} isExternal href={txIdLink} size='xs'>
               {translate('common.seeDetails')}
             </Button>

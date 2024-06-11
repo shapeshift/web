@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 
-import { Bridge } from './components/Bridge/Bridge'
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Claim } from './components/Claim/Claim'
 import { Stake } from './components/Stake/Stake'
@@ -23,7 +22,6 @@ export const RfoxTabIndex = {
   Unstake: 1,
   Claim: 2,
   ChangeAddress: 3,
-  Bridge: 4,
 }
 
 const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
@@ -84,13 +82,6 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
       >
         {translate('RFOX.changeAddress')}
       </FormHeaderTab>
-      <FormHeaderTab
-        index={RfoxTabIndex.Bridge}
-        onClick={handleClick}
-        isActive={activeIndex === RfoxTabIndex.Bridge}
-      >
-        {translate('RFOX.bridge')}
-      </FormHeaderTab>
     </Flex>
   )
 }
@@ -119,9 +110,6 @@ export const RFOX: React.FC = () => {
               </TabPanel>
               <TabPanel px={0} py={0}>
                 <ChangeAddress headerComponent={TabHeader} />
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <Bridge headerComponent={TabHeader} />
               </TabPanel>
             </TabPanels>
           </Tabs>

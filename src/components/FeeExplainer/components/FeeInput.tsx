@@ -5,6 +5,7 @@ import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()
@@ -60,6 +61,7 @@ export const FeeInput: React.FC<FeeInputProps> = ({ isFiat, onChange, value }) =
       prefix={isFiat ? localeParts.prefix : ''}
       decimalSeparator={localeParts.decimal}
       inputMode='decimal'
+      allowedDecimalSeparators={allowedDecimalSeparators}
       thousandSeparator={localeParts.group}
       value={value}
       onValueChange={handleValueChange}

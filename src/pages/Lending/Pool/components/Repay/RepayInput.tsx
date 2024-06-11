@@ -206,7 +206,7 @@ export const RepayInput = ({
       assetId: repaymentAsset?.assetId,
       spender: inboundAddressData?.router,
       from: userAddress,
-      amount: toBaseUnit(
+      amountCryptoBaseUnit: toBaseUnit(
         // Add 5% buffer to the repayment allowance to avoid asset rates fluctuations ending up in more asset needed to repay
         confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
         repaymentAsset?.precision ?? 0,

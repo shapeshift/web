@@ -12,6 +12,7 @@ import { Controller } from 'react-hook-form'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const CryptoInput = (props: InputProps) => {
   const translate = useTranslate()
@@ -59,6 +60,7 @@ export function TokenRow<C extends FieldValues>({
           inputMode='decimal'
           thousandSeparator={localeParts.group}
           decimalSeparator={localeParts.decimal}
+          allowedDecimalSeparators={allowedDecimalSeparators}
           customInput={CryptoInput}
           isNumericString={true}
           value={value}

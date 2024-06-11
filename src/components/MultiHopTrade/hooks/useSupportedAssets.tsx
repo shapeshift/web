@@ -20,7 +20,12 @@ export const useSupportedAssets = () => {
     return {
       walletSupportedChainIds: knownChainIds.filter(chainId => {
         const chainAccountIds = accountIdsByChainId[chainId] ?? []
-        return walletSupportsChain({ chainId, wallet, isSnapInstalled, checkConnectedAccountIds: chainAccountIds })
+        return walletSupportsChain({
+          chainId,
+          wallet,
+          isSnapInstalled,
+          checkConnectedAccountIds: chainAccountIds,
+        })
       }),
       sortedAssetIds: sortedAssets.map(asset => asset.assetId),
     }

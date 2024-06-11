@@ -491,7 +491,7 @@ export const RepayInput = ({
   const quoteErrorTranslation = useMemo(() => {
     if (!isThorchainLendingRepayEnabled) return translate('lending.errors.repaymentsDisabled')
     if (_isSmartContractAddress) return translate('trade.errors.smartContractWalletNotSupported')
-    if (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx)
+    if (lendingQuoteCloseData && (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx))
       return translate('common.insufficientFunds')
     if (isLendingQuoteCloseError) {
       if (

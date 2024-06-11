@@ -240,6 +240,7 @@ describe('opportunitiesSlice selectors', () => {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractTwo),
         }),
       ).toEqual({
+        isLoaded: true,
         apy: '0.42',
         assetId: foxEthStakingAssetIdV5,
         id: foxEthStakingAssetIdV5,
@@ -264,6 +265,7 @@ describe('opportunitiesSlice selectors', () => {
           userStakingId: serializeUserStakingId(gomesAccountId, mockStakingContractOne),
         }),
       ).toEqual({
+        isLoaded: true,
         apy: '0.42',
         assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
         id: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
@@ -356,6 +358,7 @@ describe('opportunitiesSlice selectors', () => {
           stakingId: mockStakingContractTwo,
         })
         expect(result).toEqual({
+          isLoaded: true,
           apy: '1000',
           assetId: mockStakingContractTwo,
           id: mockStakingContractTwo,

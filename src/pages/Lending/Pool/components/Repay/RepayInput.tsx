@@ -56,6 +56,7 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -349,20 +350,33 @@ export const RepayInput = ({
     })
   }, [buyAssetSearch, supportedRepaymentAssets, setRepaymentAsset])
 
+  const handleRepaymentAssetChange = useCallback(
+    (asset: Asset) => {
+      setRepaymentAsset(asset)
+      setApprovalTxId(null)
+    },
+    [setRepaymentAsset],
+  )
+
   const repaymentAssetSelectComponent = useMemo(() => {
     return (
       <TradeAssetSelect
         assetId={repaymentAsset?.assetId ?? ''}
         assetIds={repaymentAssetIds}
         onAssetClick={handleRepaymentAssetClick}
-        onAssetChange={setRepaymentAsset}
+        onAssetChange={handleRepaymentAssetChange}
         // Users have the possibility to repay in any supported asset, not only their collateral/borrowed asset
         // https://docs.thorchain.org/thorchain-finance/lending#loan-repayment-closeflow
         isReadOnly={false}
         onlyConnectedChains={true}
       />
     )
-  }, [repaymentAsset?.assetId, repaymentAssetIds, handleRepaymentAssetClick, setRepaymentAsset])
+  }, [
+    repaymentAsset?.assetId,
+    repaymentAssetIds,
+    handleRepaymentAssetClick,
+    handleRepaymentAssetChange,
+  ])
 
   const collateralAssetSelectComponent = useMemo(() => {
     return (
@@ -409,13 +423,13 @@ export const RepayInput = ({
     },
   )
 
-  const balanceFilter = useMemo(
+  const repaymentAssetBalanceFilter = useMemo(
     () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentAsset?.assetId, repaymentAccountId],
   )
 
-  const repaymentAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+  const repaymentAssetAmountAvailableCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, repaymentAssetBalanceFilter),
   )
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
@@ -424,26 +438,17 @@ export const RepayInput = ({
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
-
-  const amountAvailableCryptoPrecision = useMemo(
-    () =>
-      bnOrZero(repaymentAssetBalanceCryptoBaseUnit).times(
-        bn(10).pow(collateralAsset?.precision ?? '0'),
-      ),
-    [repaymentAssetBalanceCryptoBaseUnit, collateralAsset?.precision],
-  )
-
   const hasEnoughBalanceForTx = useMemo(() => {
     if (!(repaymentFeeAsset && repaymentAsset)) return
 
     return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
-      amountAvailableCryptoPrecision,
+      repaymentAssetAmountAvailableCryptoPrecision,
     )
   }, [
     repaymentFeeAsset,
     repaymentAsset,
     lendingQuoteCloseData?.repaymentAmountCryptoPrecision,
-    amountAvailableCryptoPrecision,
+    repaymentAssetAmountAvailableCryptoPrecision,
   ])
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
@@ -456,19 +461,19 @@ export const RepayInput = ({
             bn(10).pow(repaymentAsset.precision ?? '0'),
           ),
         )
-        .lte(amountAvailableCryptoPrecision)
+        .lte(repaymentAssetAmountAvailableCryptoPrecision)
 
     return (
       bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision).lte(
-        amountAvailableCryptoPrecision,
+        repaymentAssetAmountAvailableCryptoPrecision,
       ) && bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).lte(feeAssetBalanceCryptoBaseUnit)
     )
   }, [
     repaymentFeeAsset,
     repaymentAsset,
+    lendingQuoteCloseData,
     estimatedFeesData?.txFeeCryptoBaseUnit,
-    amountAvailableCryptoPrecision,
-    lendingQuoteCloseData?.repaymentAmountCryptoPrecision,
+    repaymentAssetAmountAvailableCryptoPrecision,
     feeAssetBalanceCryptoBaseUnit,
   ])
 

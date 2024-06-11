@@ -29,17 +29,22 @@ export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
   select,
 }: UseStakingBalanceOfQueryProps<SelectData>) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
-  const queryKey: StakingBalanceOfQueryKey = [
-    'readContract',
-    {
-      address: stakingAssetId
-        ? getAddress(fromAssetId(stakingAssetId).assetReference)
-        : ('' as Address),
-      functionName: 'balanceOf',
-      args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
-      chainId: arbitrum.id,
-    },
-  ]
+  const queryKey: StakingBalanceOfQueryKey = useMemo(
+    () => [
+      'readContract',
+      {
+        address: stakingAssetId
+          ? getAddress(fromAssetId(stakingAssetId).assetReference)
+          : ('' as Address),
+        functionName: 'balanceOf',
+        args: [
+          stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
+        ],
+        chainId: arbitrum.id,
+      },
+    ],
+    [stakingAssetAccountAddress, stakingAssetId],
+  )
 
   const stakingBalanceOfQueryFn = useMemo(
     () =>

@@ -28,15 +28,20 @@ export const useStakingInfoQuery = <SelectData = StakingInfo>({
   select,
 }: UseStakingInfoQueryProps<SelectData>) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
-  const queryKey: StakingInfoQueryKey = [
-    'readContract',
-    {
-      address: RFOX_PROXY_CONTRACT_ADDRESS,
-      functionName: 'stakingInfo',
-      args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
-      chainId: arbitrum.id,
-    },
-  ]
+  const queryKey: StakingInfoQueryKey = useMemo(
+    () => [
+      'readContract',
+      {
+        address: RFOX_PROXY_CONTRACT_ADDRESS,
+        functionName: 'stakingInfo',
+        args: [
+          stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
+        ],
+        chainId: arbitrum.id,
+      },
+    ],
+    [stakingAssetAccountAddress],
+  )
 
   const stakingInfoQueryFn = useMemo(
     () =>

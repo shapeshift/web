@@ -317,7 +317,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       error?.message ===
       'The request failed and the interceptors did not return an alternative response'
     )
-      return setValue(SendFormFields.AmountFieldError, 'modals.send.getfeesError')
+      return setValue(SendFormFields.AmountFieldError, 'modals.send.getFeesError')
     setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')
   }, [error, hasEnteredPositiveAmount, setValue])
 

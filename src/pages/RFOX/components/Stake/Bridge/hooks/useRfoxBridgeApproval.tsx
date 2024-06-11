@@ -22,7 +22,7 @@ import type { RfoxBridgeQuote } from '../types'
 import { useRfoxBridge } from './useRfoxBridge'
 
 type UseRfoxBridgeApprovalProps = { confirmedQuote: RfoxBridgeQuote }
-type UseRfoxBridgeApproval = (props: UseRfoxBridgeApprovalProps) => {
+type UseRfoxBridgeApprovalReturn = {
   isApprovalRequired: boolean
   allowanceQuery: UseQueryResult<string | undefined, Error>
   isGetApprovalFeesEnabled: boolean
@@ -33,7 +33,9 @@ type UseRfoxBridgeApproval = (props: UseRfoxBridgeApprovalProps) => {
   isTransitioning: boolean
 }
 
-export const useRfoxBridgeApproval: UseRfoxBridgeApproval = ({ confirmedQuote }) => {
+export const useRfoxBridgeApproval = ({
+  confirmedQuote,
+}: UseRfoxBridgeApprovalProps): UseRfoxBridgeApprovalReturn => {
   const queryClient = useQueryClient()
   const toast = useToast()
   const translate = useTranslate()

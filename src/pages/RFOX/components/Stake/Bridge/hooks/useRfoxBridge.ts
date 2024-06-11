@@ -36,7 +36,7 @@ import { useAppSelector } from 'state/store'
 import type { RfoxBridgeQuote } from '../types'
 
 type UseRfoxBridgeProps = { confirmedQuote: RfoxBridgeQuote }
-type UseRfoxBridge = (props: UseRfoxBridgeProps) => {
+type UseRfoxBridgeReturn = {
   sellAsset: Asset | undefined
   buyAsset: Asset | undefined
   feeAsset: Asset | undefined
@@ -63,7 +63,7 @@ const isTradeQuoteQueryEnabled = (
       input.wallet,
   )
 
-export const useRfoxBridge: UseRfoxBridge = ({ confirmedQuote }) => {
+export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBridgeReturn => {
   const [l1TxHash, setL1TxHash] = useState<string>()
   const [l2TxHash, setL2TxHash] = useState<string>()
 

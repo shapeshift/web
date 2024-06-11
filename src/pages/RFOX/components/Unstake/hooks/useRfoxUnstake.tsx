@@ -40,7 +40,7 @@ type UseRfoxUnstakeProps = {
   setUnstakeTxid: ((txId: string) => void) | undefined
   unstakeTxid: string | undefined
 }
-type UseRfoxUnstake = (props: UseRfoxUnstakeProps) => {
+type UseRfoxUnstakeReturn = {
   unstakeFeesQuery: UseQueryResult<EvmFees, Error>
   unstakeMutation: UseMutationResult<string | undefined, Error, void, unknown>
   isUnstakeTxPending: boolean
@@ -50,14 +50,14 @@ type UseRfoxUnstake = (props: UseRfoxUnstakeProps) => {
   newShareOfPoolPercentage: string
 }
 
-export const useRfoxUnstake: UseRfoxUnstake = ({
+export const useRfoxUnstake = ({
   methods,
   stakingAssetId,
   stakingAssetAccountId,
   amountCryptoBaseUnit,
   setUnstakeTxid,
   unstakeTxid,
-}) => {
+}: UseRfoxUnstakeProps): UseRfoxUnstakeReturn => {
   const wallet = useWallet().state.wallet
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
 

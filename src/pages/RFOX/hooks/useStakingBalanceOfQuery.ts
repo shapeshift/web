@@ -56,13 +56,13 @@ export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
               functionName: 'balanceOf',
               args: [getAddress(stakingAssetAccountAddress)],
             })
-        : undefined,
+        : skipToken,
     [stakingAssetAccountAddress, stakingAssetId],
   )
 
   const stakingBalanceOfQuery = useQuery({
     queryKey,
-    queryFn: stakingBalanceOfQueryFn ?? skipToken,
+    queryFn: stakingBalanceOfQueryFn,
     select,
   })
 

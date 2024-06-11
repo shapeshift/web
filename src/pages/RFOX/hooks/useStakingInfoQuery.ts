@@ -53,13 +53,13 @@ export const useStakingInfoQuery = <SelectData = StakingInfo>({
               functionName: 'stakingInfo',
               args: [getAddress(stakingAssetAccountAddress)],
             })
-        : undefined,
+        : skipToken,
     [stakingAssetAccountAddress],
   )
 
   const stakingInfoQuery = useQuery({
     queryKey,
-    queryFn: stakingInfoQueryFn ?? skipToken,
+    queryFn: stakingInfoQueryFn,
     select,
   })
 

@@ -1,27 +1,11 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION, type EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { fromBaseUnit } from 'lib/math'
-import { arbitrumBridgeApi } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/endpoints'
-import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-} from 'lib/utils/evm'
-import { selectAccountNumberByAccountId, selectAssetById } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
-import { useAppSelector } from 'state/store'
 
 import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
 import { StakeRoutePaths } from '../types'
+import { useRfoxBridge } from './hooks/useRfoxBridge'
 import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
@@ -31,126 +15,25 @@ type BridgeStatusProps = {
 export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   confirmedQuote,
 }) => {
-  const [l1TxHash, setL1TxHash] = useState<string>()
-  const [l2TxHash, setL2TxHash] = useState<string>()
-  const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
+
+  const {
+    sellAsset,
+    buyAsset,
+    bridgeAmountCryptoPrecision,
+    handleBridge,
+    serializedL1TxIndex,
+    serializedL2TxIndex,
+  } = useRfoxBridge({ confirmedQuote })
 
   const handleContinue = useCallback(() => {
     history.push(StakeRoutePaths.Confirm)
   }, [history])
 
-  const serializedBridgeTxIndex = useMemo(() => {
-    if (!l1TxHash) return undefined
-
-    return serializeTxIndex(
-      confirmedQuote.sellAssetAccountId,
-      l1TxHash,
-      fromAccountId(confirmedQuote.sellAssetAccountId).account,
-    )
-  }, [l1TxHash, confirmedQuote.sellAssetAccountId])
-
-  const serializedL2TxIndex = useMemo(() => {
-    if (!l2TxHash) return undefined
-
-    return serializeTxIndex(
-      confirmedQuote.buyAssetAccountId,
-      l2TxHash,
-      fromAccountId(confirmedQuote.buyAssetAccountId).account,
-    )
-  }, [confirmedQuote.buyAssetAccountId, l2TxHash])
-
   const handleGoBack = useCallback(() => {
     history.push({ pathname: BridgeRoutePaths.Confirm, state: confirmedQuote })
   }, [confirmedQuote, history])
-
-  const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
-  const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))
-
-  const bridgeAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
-    [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
-  )
-
-  const accountNumberFilter = useMemo(
-    () => ({ assetId: confirmedQuote.sellAssetId, accountId: confirmedQuote.sellAssetAccountId }),
-    [confirmedQuote.sellAssetAccountId, confirmedQuote.sellAssetId],
-  )
-  const accountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, accountNumberFilter),
-  )
-
-  const { data: quote } = useQuery({
-    ...reactQueries.swapper.arbitrumBridgeTradeQuote({
-      sellAsset: sellAsset!,
-      buyAsset: buyAsset!,
-      chainId: (sellAsset?.chainId ?? '') as EvmChainId,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
-      affiliateBps: '0',
-      potentialAffiliateBps: '0',
-      allowMultiHop: true,
-      receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
-      sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-      accountNumber: accountNumber!,
-      wallet: wallet!,
-    }),
-    enabled: Boolean(sellAsset && buyAsset && accountNumber !== undefined && wallet),
-  })
-
-  const { mutateAsync: handleBridge } = useMutation({
-    mutationFn: async () => {
-      if (!(quote && quote.isOk() && wallet && sellAsset && accountNumber !== undefined)) return
-      const tradeQuote = quote.unwrap()
-
-      const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
-
-      const unsignedTx = await arbitrumBridgeApi.getUnsignedEvmTransaction!({
-        tradeQuote,
-        chainId: sellAsset!.chainId as EvmChainId,
-        from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-        stepIndex: 0,
-        supportsEIP1559,
-        slippageTolerancePercentageDecimal: '0',
-      })
-
-      const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-
-      const buildCustomTxInput = await createBuildCustomTxInput({
-        accountNumber,
-        adapter,
-        data: unsignedTx.data,
-        value: unsignedTx.value,
-        to: unsignedTx.to,
-        wallet,
-      })
-
-      const txId = await buildAndBroadcast({
-        adapter,
-        buildCustomTxInput,
-        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-      })
-
-      return txId
-    },
-    onSuccess: (txHash: string | undefined) => {
-      if (!txHash) return
-      setL1TxHash(txHash)
-    },
-  })
-
-  const { data: tradeStatus } = useQuery({
-    ...reactQueries.swapper.arbitrumBridgeTradeStatus(l1TxHash ?? '', sellAsset?.chainId ?? ''),
-    enabled: Boolean(l1TxHash && sellAsset),
-    refetchInterval: 60_000,
-  })
-
-  useEffect(() => {
-    if (!tradeStatus) return
-    if (tradeStatus.message === 'L2 Tx Pending' || tradeStatus.status === TxStatus.Confirmed) {
-      setL2TxHash(tradeStatus.buyTxHash)
-    }
-  }, [tradeStatus])
 
   const steps: MultiStepStatusStep[] = useMemo(() => {
     if (!(sellAsset && buyAsset)) return []
@@ -164,27 +47,23 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
         }),
         isActionable: true,
         onSignAndBroadcast: handleBridge,
-        serializedTxIndex: serializedBridgeTxIndex,
-        txHash: l1TxHash,
+        serializedTxIndex: serializedL1TxIndex,
       },
       {
         asset: buyAsset,
         headerCopy: translate('RFOX.bridgeFunds'),
         isActionable: false,
         serializedTxIndex: serializedL2TxIndex,
-        txHash: l2TxHash,
       },
     ]
   }, [
-    bridgeAmountCryptoPrecision,
-    l1TxHash,
-    buyAsset,
-    handleBridge,
-    l2TxHash,
     sellAsset,
-    serializedBridgeTxIndex,
-    serializedL2TxIndex,
+    buyAsset,
     translate,
+    bridgeAmountCryptoPrecision,
+    handleBridge,
+    serializedL1TxIndex,
+    serializedL2TxIndex,
   ])
 
   return (

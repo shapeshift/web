@@ -12,12 +12,11 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
@@ -25,6 +24,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -179,23 +179,25 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     ],
   )
 
+  const claimFeesQueryInput = useMemo(
+    () => ({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
+      accountNumber: stakingAssetAccountNumber,
+      data: callData,
+      value: '0',
+    }),
+    [callData, claimQuote.stakingAssetId, stakingAssetAccountNumber],
+  )
+
   const {
     data: claimFees,
     isLoading: isClaimFeesLoading,
     isSuccess: isClaimFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber!, // see isGetClaimFeesEnabled
-      data: callData!, // see isGetClaimFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetClaimFeesEnabled
-      feeAsset: feeAsset!, // see isGetClaimFeesEnabled
-      feeAssetMarketData: feeAssetMarketDataUserCurrency!, // see isGetClaimFeesEnabled
-    }),
-    staleTime: 30_000,
+  } = useEvmFees({
+    ...claimFeesQueryInput,
     enabled: isGetClaimFeesEnabled,
+    staleTime: 30_000,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -248,7 +250,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
           <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
-        <Flex flex={1}></Flex>
+        <Flex flex={1} />
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>

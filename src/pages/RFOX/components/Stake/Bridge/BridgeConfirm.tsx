@@ -1,4 +1,4 @@
-import { ArrowBackIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Button,
   Card,
@@ -7,45 +7,27 @@ import {
   CardHeader,
   Flex,
   IconButton,
-  Link,
   Skeleton,
   Stack,
-  Text,
-  useToast,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
-import { type FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
-import { encodeFunctionData, getAddress } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import {
-  selectAccountNumberByAccountId,
-  selectAssetById,
-  selectFeeAssetByChainId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectTxById,
-} from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { toBaseUnit } from 'lib/math'
+import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StakeRoutePaths } from '../types'
+import { useRfoxBridge } from './hooks/useRfoxBridge'
+import { useRfoxBridgeApproval } from './hooks/useRfoxBridgeApproval'
 import type { RfoxBridgeQuote } from './types'
 import { BridgeRoutePaths, type BridgeRouteProps } from './types'
 
@@ -58,245 +40,30 @@ const backIcon = <ArrowBackIcon />
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 
 export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confirmedQuote }) => {
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
 
-  const [approvalTxHash, setApprovalTxHash] = useState<string>()
-
-  const handleGoBack = useCallback(() => {
-    history.push(StakeRoutePaths.Input)
-  }, [history])
-
-  const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
-  const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))
-
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.sellAssetId).chainId),
-  )
-
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
-  )
-
-  const bridgeAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
-    [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
-  )
-
-  const sellAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.sellAssetId),
-  )
-
-  const bridgeAmountUserCurrency = useMemo(
-    () =>
-      bnOrZero(bridgeAmountCryptoPrecision).times(sellAssetMarketDataUserCurrency.price).toFixed(),
-    [bridgeAmountCryptoPrecision, sellAssetMarketDataUserCurrency.price],
-  )
-
-  const accountNumberFilter = useMemo(
-    () => ({ assetId: confirmedQuote.sellAssetId, accountId: confirmedQuote.sellAssetAccountId }),
-    [confirmedQuote.sellAssetAccountId, confirmedQuote.sellAssetId],
-  )
-  const accountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, accountNumberFilter),
-  )
-
-  const { data: quote, isLoading: isBridgeQuoteLoading } = useQuery({
-    ...reactQueries.swapper.arbitrumBridgeTradeQuote({
-      sellAsset: sellAsset!,
-      buyAsset: buyAsset!,
-      chainId: sellAsset!.chainId as EvmChainId,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
-      affiliateBps: '0',
-      potentialAffiliateBps: '0',
-      allowMultiHop: true,
-      receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
-      sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-      accountNumber: accountNumber!,
-      wallet: wallet!,
-    }),
-    enabled: Boolean(sellAsset && buyAsset && accountNumber !== undefined && wallet),
-  })
-
-  const allowanceContract = useMemo(() => {
-    if (!quote || quote.isErr()) return
-
-    const tradeQuote = quote.unwrap()
-
-    return tradeQuote.steps[0].allowanceContract
-  }, [quote])
-
-  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
-    assetId: confirmedQuote.sellAssetId,
-    spender: allowanceContract,
-    from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-  })
-
-  const isApprovalRequired = useMemo(
-    () => bnOrZero(allowanceData).lt(confirmedQuote.bridgeAmountCryptoBaseUnit),
-    [allowanceData, confirmedQuote.bridgeAmountCryptoBaseUnit],
-  )
-
-  const approvalCallData = useMemo(() => {
-    if (!allowanceContract) return
-
-    return encodeFunctionData({
-      abi: erc20ABI,
-      functionName: 'approve',
-      args: [getAddress(allowanceContract), BigInt(confirmedQuote.bridgeAmountCryptoBaseUnit)],
-    })
-  }, [allowanceContract, confirmedQuote.bridgeAmountCryptoBaseUnit])
+  const {
+    sellAsset,
+    buyAsset,
+    feeAsset,
+    networkFeeUserCurrency,
+    tradeQuoteQuery: { data: quote, isLoading: isQuoteLoading },
+    bridgeAmountCryptoPrecision,
+    bridgeAmountUserCurrency,
+  } = useRfoxBridge({ confirmedQuote })
 
   const {
-    mutateAsync: sendApprovalTx,
-    isPending: isApprovalMutationPending,
-    isSuccess: isApprovalMutationSuccess,
-    isIdle: isApprovalMutationIdle,
-  } = useMutation({
-    ...reactQueries.mutations.approve({
-      assetId: confirmedQuote.sellAssetId,
-      spender: allowanceContract!,
-      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-      amount: confirmedQuote.bridgeAmountCryptoBaseUnit,
-      wallet,
-      accountNumber,
-    }),
-    onSuccess: (txHash: string) => {
-      setApprovalTxHash(txHash)
-      toast({
-        title: translate('modals.send.transactionSent'),
-        description: (
-          <Text>
-            {feeAsset?.explorerTxLink && (
-              <Link href={`${feeAsset.explorerTxLink}${txHash}`} isExternal>
-                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-              </Link>
-            )}
-          </Text>
-        ),
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
-    },
-  })
-
-  const isGetApprovalFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        isApprovalMutationIdle &&
-          isApprovalRequired &&
-          feeAsset &&
-          feeAssetMarketData &&
-          wallet &&
-          accountNumber !== undefined,
-      ),
-    [
-      accountNumber,
-      feeAsset,
-      feeAssetMarketData,
-      isApprovalMutationIdle,
-      isApprovalRequired,
-      wallet,
-    ],
-  )
-
-  const { data: approvalFees, isLoading: isGetApprovalFeesLoading } = useQuery({
-    ...reactQueries.common.evmFees({
-      value: '0',
-      accountNumber: accountNumber!, // see isGetApprovalFeesEnabled
-      feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
-      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
-      data: approvalCallData!,
-      wallet: wallet!, // see isGetApprovalFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetApprovalFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: isGetApprovalFeesEnabled ? 15_000 : false,
-  })
-
-  const serializedApprovalTxIndex = useMemo(() => {
-    if (!approvalTxHash) return ''
-    return serializeTxIndex(
-      confirmedQuote.sellAssetAccountId,
-      approvalTxHash,
-      fromAccountId(confirmedQuote.sellAssetAccountId).account,
-    )
-  }, [approvalTxHash, confirmedQuote.sellAssetAccountId])
-
-  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
-
-  const handleApprove = useCallback(() => sendApprovalTx(), [sendApprovalTx])
-
-  const isApprovalTxPending = useMemo(
-    () =>
-      isApprovalMutationPending ||
-      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
-    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
-  )
-
-  const isApprovalTxSuccess = useMemo(
-    () => approvalTx?.status === TxStatus.Confirmed,
-    [approvalTx?.status],
-  )
-
-  // The approval Tx may be confirmed, but that's not enough to know we're ready to bridge
-  // Allowance then needs to be succesfully refetched - failure to wait for it will result in jumpy states between
-  // the time the Tx is confirmed, and the time the allowance is succesfully refetched
-  // This allows us to detect such transition state
-  const isTransitioning = useMemo(() => {
-    // If we don't have a success Tx, we know we're not transitioning
-    if (!isApprovalTxSuccess) return false
-    // We have a success approval Tx, but approval is still required, meaning we haven't re-rendered with the updated allowance just yet
-    if (isApprovalRequired) return true
-
-    // Allowance has been updated, we've finished transitioning
-    return false
-  }, [isApprovalRequired, isApprovalTxSuccess])
-
-  useEffect(() => {
-    if (!allowanceContract) return
-    if (!approvalTx) return
-    if (isApprovalTxPending) return
-    ;(async () => {
-      await queryClient.invalidateQueries(
-        reactQueries.common.allowanceCryptoBaseUnit(
-          confirmedQuote.sellAssetId,
-          allowanceContract,
-          fromAccountId(confirmedQuote.sellAssetAccountId).account,
-        ),
-      )
-    })()
-  }, [
-    approvalTx,
+    isApprovalRequired,
+    allowanceQuery: { isLoading: isAllowanceDataLoading },
+    isGetApprovalFeesEnabled,
+    approvalFeesQuery: { data: approvalFees, isLoading: isGetApprovalFeesLoading },
     isApprovalTxPending,
-    queryClient,
-    allowanceContract,
-    confirmedQuote.sellAssetId,
-    confirmedQuote.sellAssetAccountId,
-  ])
-
-  const networkFeeCryptoPrecision = useMemo(() => {
-    if (!quote || quote.isErr()) return null
-    return fromBaseUnit(
-      bnOrZero(quote.unwrap().steps[0].feeData.networkFeeCryptoBaseUnit),
-      sellAsset?.precision ?? 0,
-    )
-  }, [quote, sellAsset])
-
-  const networkFeeUserCurrency = useMemo(() => {
-    if (!networkFeeCryptoPrecision) return null
-    return bnOrZero(networkFeeCryptoPrecision).times(feeAssetMarketData.price).toFixed()
-  }, [feeAssetMarketData.price, networkFeeCryptoPrecision])
+    isTransitioning,
+    handleApprove,
+  } = useRfoxBridgeApproval({
+    confirmedQuote,
+  })
 
   const feeAssetBalanceFilter = useMemo(
     () => ({
@@ -311,7 +78,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
 
   const hasEnoughFeeBalance = useMemo(() => {
     // Fees loading, we don't know what we don't know
-    if (isBridgeQuoteLoading || isGetApprovalFeesLoading) return true
+    if (isQuoteLoading || isGetApprovalFeesLoading) return true
     if (bnOrZero(feeAssetBalanceCryptoPrecision).isZero()) return false
 
     const fees = (() => {
@@ -327,13 +94,21 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
 
     return true
   }, [
-    isBridgeQuoteLoading,
+    isQuoteLoading,
     isGetApprovalFeesLoading,
     feeAssetBalanceCryptoPrecision,
     feeAsset?.precision,
     approvalFees,
     quote,
   ])
+
+  const handleGoBack = useCallback(() => {
+    history.push(StakeRoutePaths.Input)
+  }, [history])
+
+  const handleSubmit = useCallback(() => {
+    history.push({ pathname: BridgeRoutePaths.Status, state: confirmedQuote })
+  }, [confirmedQuote, history])
 
   const bridgeCard = useMemo(() => {
     if (!(sellAsset && buyAsset)) return null
@@ -381,10 +156,6 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     return translate(isApprovalRequired ? 'common.approve' : 'RFOX.bridgeAndConfirm')
   }, [errorCopy, isApprovalRequired, translate])
 
-  const handleSubmit = useCallback(() => {
-    history.push({ pathname: BridgeRoutePaths.Status, state: confirmedQuote })
-  }, [confirmedQuote, history])
-
   return (
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
@@ -392,7 +163,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
           <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
-        <Flex flex={1}></Flex>
+        <Flex flex={1} />
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>
@@ -456,9 +227,9 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
             isGetApprovalFeesLoading ||
             isApprovalTxPending ||
             isTransitioning ||
-            isBridgeQuoteLoading
+            isQuoteLoading
           }
-          isDisabled={!hasEnoughFeeBalance || isAllowanceDataLoading || isBridgeQuoteLoading}
+          isDisabled={!hasEnoughFeeBalance || isAllowanceDataLoading || isQuoteLoading}
           onClick={isApprovalRequired ? handleApprove : handleSubmit}
         >
           {submitCopy}

@@ -1,25 +1,11 @@
 import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  foxAssetId,
-  foxOnArbitrumOneAssetId,
-  fromAccountId,
-  fromAssetId,
-} from '@shapeshiftoss/caip'
+import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
-import { encodeFunctionData } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FormDivider } from 'components/FormDivider'
@@ -30,13 +16,11 @@ import { SlideTransition } from 'components/SlideTransition'
 import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { formatSecondsToDuration } from 'lib/utils/time'
+import { toBaseUnit } from 'lib/math'
+import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
-  selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
@@ -49,6 +33,7 @@ import { AddressSelection } from '../AddressSelection'
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import { StakeSummary } from './components/StakeSummary'
+import { useRfoxStake } from './hooks/useRfoxStake'
 import type { RfoxStakingQuote, StakeInputValues } from './types'
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
@@ -86,7 +71,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
   const isBridgeRequired = stakingAssetId !== selectedAssetId
-  const wallet = useWallet().state.wallet
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
@@ -120,19 +104,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
-  const stakingAssetAccountNumberFilter = useMemo(() => {
-    return {
-      assetId: stakingAssetId,
-      accountId: stakingAssetAccountId,
-    }
-  }, [stakingAssetId, stakingAssetAccountId])
-  const stakingAssetAccountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
-  )
 
-  const stakingAssetFeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, stakingAssetFeeAsset?.assetId ?? ''),
-  )
   const selectedAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, selectedAsset?.assetId ?? ''),
   )
@@ -148,6 +120,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     control,
     name: 'amountUserCurrency',
   })
+
+  const amountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    [amountCryptoPrecision, stakingAsset?.precision],
+  )
 
   const [isFiat, handleToggleIsFiat] = useToggle(false)
 
@@ -199,162 +176,31 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [amountCryptoPrecision, amountUserCurrency, isFiat, validateHasEnoughBalance],
   )
 
-  const { data: cooldownPeriod } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'cooldownPeriod',
-    chainId: arbitrum.id,
-    query: {
-      staleTime: Infinity,
-      select: data => formatSecondsToDuration(Number(data)),
+  const {
+    isGetApprovalFeesEnabled,
+    isGetStakeFeesEnabled,
+    stakeFeesQuery: {
+      data: stakeFees,
+      isLoading: isStakeFeesLoading,
+      isSuccess: isStakeFeesSuccess,
     },
+    approvalFeesQuery: {
+      data: approvalFees,
+      isLoading: isGetApprovalFeesLoading,
+      isSuccess: isGetApprovalFeesSuccess,
+    },
+  } = useRfoxStake({
+    amountCryptoBaseUnit,
+    runeAddress,
+    stakingAssetId,
+    stakingAssetAccountId,
+    hasEnoughBalance,
+    // Not required at this stage just yet, we're only estimating fees
+    setStakeTxid: undefined,
+    methods,
   })
 
-  const callData = useMemo(() => {
-    if (!(isValidStakingAmount && runeAddress && stakingAsset)) return
-
-    return encodeFunctionData({
-      abi: foxStakingV1Abi,
-      functionName: 'stake',
-      args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset.precision)), runeAddress],
-    })
-  }, [amountCryptoPrecision, isValidStakingAmount, runeAddress, stakingAsset])
-
-  const { data: allowanceDataCryptoBaseUnit, isSuccess: isAllowanceDataSuccess } = useAllowance({
-    assetId: stakingAsset?.assetId,
-    spender: RFOX_PROXY_CONTRACT_ADDRESS,
-    from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
-  })
-
-  const allowanceCryptoPrecision = useMemo(() => {
-    if (!allowanceDataCryptoBaseUnit) return
-    if (!stakingAssetFeeAsset) return
-
-    return fromBaseUnit(allowanceDataCryptoBaseUnit, stakingAssetFeeAsset.precision)
-  }, [allowanceDataCryptoBaseUnit, stakingAssetFeeAsset])
-
-  const isApprovalRequired = useMemo(
-    () => isAllowanceDataSuccess && bnOrZero(allowanceCryptoPrecision).lt(amountCryptoPrecision),
-    [allowanceCryptoPrecision, amountCryptoPrecision, isAllowanceDataSuccess],
-  )
-
-  const isGetStakeFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        hasEnoughBalance &&
-          stakingAssetAccountId &&
-          stakingAssetAccountNumber !== undefined &&
-          isValidStakingAmount &&
-          wallet &&
-          runeAddress &&
-          callData &&
-          stakingAssetFeeAsset &&
-          stakingAssetFeAssetMarketData &&
-          !Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
-          isAllowanceDataSuccess &&
-          !isApprovalRequired,
-      ),
-    [
-      hasEnoughBalance,
-      stakingAssetAccountId,
-      stakingAssetAccountNumber,
-      isValidStakingAmount,
-      wallet,
-      runeAddress,
-      callData,
-      stakingAssetFeeAsset,
-      stakingAssetFeAssetMarketData,
-      errors.amountFieldInput,
-      errors.manualRuneAddress,
-      isAllowanceDataSuccess,
-      isApprovalRequired,
-    ],
-  )
-
-  const {
-    data: stakeFees,
-    isLoading: isStakeFeesLoading,
-    isSuccess: isStakeFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetStakeFeesEnabled
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: stakingAssetFeeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: stakingAssetFeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetStakeFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: 15_000,
-  })
-
-  const approvalCallData = useMemo(() => {
-    if (!stakingAsset) return
-
-    return encodeFunctionData({
-      abi: erc20ABI,
-      functionName: 'approve',
-      args: [
-        RFOX_PROXY_CONTRACT_ADDRESS,
-        BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset.precision)),
-      ],
-    })
-  }, [amountCryptoPrecision, stakingAsset])
-
-  const isGetApprovalFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        approvalCallData &&
-          hasEnoughBalance &&
-          stakingAssetAccountId &&
-          isApprovalRequired &&
-          stakingAssetAccountId &&
-          wallet &&
-          stakingAssetFeeAsset &&
-          stakingAssetFeAssetMarketData &&
-          !Boolean(errors.manualRuneAddress),
-      ),
-    [
-      approvalCallData,
-      hasEnoughBalance,
-      stakingAssetAccountId,
-      isApprovalRequired,
-      wallet,
-      stakingAssetFeeAsset,
-      stakingAssetFeAssetMarketData,
-      errors.manualRuneAddress,
-    ],
-  )
-
-  const {
-    data: approvalFees,
-    isLoading: isGetApprovalFeesLoading,
-    isSuccess: isGetApprovalFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      value: '0',
-      accountNumber: stakingAssetAccountNumber!, // see isGetApprovalFeesEnabled
-      feeAsset: stakingAssetFeeAsset!, // see isGetApprovalFeesEnabled
-      feeAssetMarketData: stakingAssetFeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(foxOnArbitrumOneAssetId).assetReference,
-      from: selectedAssetAccountId ? fromAccountId(selectedAssetAccountId).account : '', // see isGetApprovalFeesEnabled
-      data: approvalCallData!, // see isGetApprovalFeesEnabled
-      wallet: wallet!, // see isGetApprovalFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetApprovalFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: 15_000,
-  })
-
+  const { data: cooldownPeriod } = useCooldownPeriodQuery()
   // TODO(gomes): implement me when we have multi-account here
   const handleAccountIdChange = useCallback(() => {}, [])
 

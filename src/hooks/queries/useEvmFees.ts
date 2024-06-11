@@ -32,13 +32,27 @@ type UseEvmFeesProps = Omit<
 export const useEvmFees = (props: UseEvmFeesProps) => {
   const wallet = useWallet().state.wallet
 
-  const {
-    enabled = true,
-    staleTime,
-    refetchInterval,
-    refetchIntervalInBackground,
-    ...input
-  } = props
+  const { enabled, staleTime, refetchInterval, refetchIntervalInBackground, input } = useMemo(
+    () => {
+      const {
+        enabled = true,
+        staleTime,
+        refetchInterval,
+        refetchIntervalInBackground,
+        ...input
+      } = props
+
+      return {
+        enabled,
+        staleTime,
+        refetchInterval,
+        refetchIntervalInBackground,
+        input,
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    Object.values(props),
+  )
 
   const adapter = useMemo(() => assertGetEvmChainAdapter(input.chainId), [input.chainId])
 

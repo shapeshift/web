@@ -198,6 +198,22 @@ export const RepayInput = ({
   const repaymentAccountNumber = useAppSelector(state =>
     selectAccountNumberByAccountId(state, repaymentAccountNumberFilter),
   )
+
+  const repaymentAssetBalanceFilter = useMemo(
+    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
+    [repaymentAsset?.assetId, repaymentAccountId],
+  )
+
+  const repaymentAssetAmountAvailableCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, repaymentAssetBalanceFilter),
+  )
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
+    [repaymentFeeAsset?.assetId, repaymentAccountId],
+  )
+  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  )
   const {
     mutate,
     isPending: isApprovalMutationPending,
@@ -407,6 +423,19 @@ export const RepayInput = ({
     return assertAndProcessMemo(confirmedQuote.quoteMemo)
   }, [confirmedQuote])
 
+  const hasEnoughBalanceForTx = useMemo(() => {
+    if (!(repaymentFeeAsset && repaymentAsset && lendingQuoteCloseData)) return
+
+    return bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision).lte(
+      repaymentAssetAmountAvailableCryptoPrecision,
+    )
+  }, [
+    repaymentFeeAsset,
+    repaymentAsset,
+    lendingQuoteCloseData,
+    repaymentAssetAmountAvailableCryptoPrecision,
+  ])
+
   const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
     {
       assetId: repaymentAsset?.assetId ?? '',
@@ -422,34 +451,6 @@ export const RepayInput = ({
       enableEstimateFees: isApprovalRequired === false,
     },
   )
-
-  const repaymentAssetBalanceFilter = useMemo(
-    () => ({ assetId: repaymentAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
-    [repaymentAsset?.assetId, repaymentAccountId],
-  )
-
-  const repaymentAssetAmountAvailableCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, repaymentAssetBalanceFilter),
-  )
-  const feeAssetBalanceFilter = useMemo(
-    () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
-    [repaymentFeeAsset?.assetId, repaymentAccountId],
-  )
-  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
-  )
-  const hasEnoughBalanceForTx = useMemo(() => {
-    if (!(repaymentFeeAsset && repaymentAsset && lendingQuoteCloseData)) return
-
-    return bnOrZero(lendingQuoteCloseData.repaymentAmountCryptoPrecision).lte(
-      repaymentAssetAmountAvailableCryptoPrecision,
-    )
-  }, [
-    repaymentFeeAsset,
-    repaymentAsset,
-    lendingQuoteCloseData,
-    repaymentAssetAmountAvailableCryptoPrecision,
-  ])
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
     if (!(repaymentFeeAsset && repaymentAsset && lendingQuoteCloseData)) return
@@ -527,6 +528,7 @@ export const RepayInput = ({
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
     isThorchainLendingRepayEnabled,
+    lendingQuoteCloseData,
     lendingQuoteCloseError?.message,
     repaymentPercent,
     translate,
@@ -576,6 +578,7 @@ export const RepayInput = ({
       </Stack>
     )
   }
+
   return (
     <Stack spacing={0}>
       <TradeAssetInput

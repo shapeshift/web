@@ -18,6 +18,7 @@ import { ContractType } from 'contracts/types'
 import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { PartialFields } from 'lib/types'
 
 import { getSupportedChainIdsByChainNamespace } from '.'
 
@@ -81,18 +82,16 @@ type GetFeesArgs = GetFeesCommonArgs & {
   supportsEIP1559: boolean
 }
 
-export type MaybeGetFeesWithWalletArgs = {
-  adapter: EvmChainAdapter | undefined
-  data: string | undefined
-  wallet: HDWallet | null
-  to: string
-  value: string
-  accountNumber: number | undefined
-}
-
 export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
   accountNumber: number
   wallet: HDWallet
+}
+
+export type MaybeGetFeesWithWalletArgs = PartialFields<
+  Omit<GetFeesWithWalletArgs, 'wallet'>,
+  'adapter' | 'accountNumber' | 'data'
+> & {
+  wallet: HDWallet | null
 }
 
 export type Fees = evm.Fees & {

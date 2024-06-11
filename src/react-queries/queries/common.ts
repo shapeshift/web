@@ -7,6 +7,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { PartialFields } from 'lib/types'
 import { assertGetChainAdapter } from 'lib/utils'
 import type { GetFeesWithWalletArgs } from 'lib/utils/evm'
 import { getErc20Allowance } from 'lib/utils/evm'
@@ -93,9 +94,7 @@ export const common = createQueryKeys('common', {
     to,
     value,
     chainId,
-  }: Omit<GetFeesWithWalletArgs, 'wallet' | 'adapter' | 'accountNumber' | 'data'> & {
-    accountNumber: number | undefined
-    data: string | undefined
+  }: PartialFields<Omit<GetFeesWithWalletArgs, 'wallet' | 'adapter'>, 'accountNumber' | 'data'> & {
     chainId: ChainId
   }) => ({
     queryKey: ['evmFees', to, chainId, accountNumber, data, value],

@@ -92,7 +92,7 @@ export const VerifyAddresses = () => {
           chainId: buyAsset.chainId,
           wallet,
           isSnapInstalled: false,
-          chainAccountIds: buyAccountIds,
+          checkConnectedAccountIds: buyAccountIds,
         })),
     [
       maybeManualReceiveAddress,

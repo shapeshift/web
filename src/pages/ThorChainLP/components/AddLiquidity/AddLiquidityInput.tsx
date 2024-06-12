@@ -242,14 +242,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
       const walletSupportsRune = walletSupportsChain({
-        chainAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
+        checkConnectedAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
       })
 
       const walletSupportsAsset = walletSupportsChain({
-        chainAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
+        checkConnectedAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
         chainId: fromAssetId(assetId).chainId,
         wallet,
         isSnapInstalled,
@@ -289,7 +289,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
       const chainAccountIds = accountIdsByChainId[chainId] ?? []
-      return walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+      return walletSupportsChain({
+        checkConnectedAccountIds: chainAccountIds,
+        chainId,
+        wallet,
+        isSnapInstalled,
+      })
     })
 
     const opportunityType = getDefaultOpportunityType(
@@ -399,7 +404,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const walletSupportsRune = useMemo(() => {
     const chainId = thorchainChainId
     const chainAccountIds = accountIdsByChainId[chainId] ?? []
-    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
     return walletSupport && runeAccountIds.length > 0
   }, [accountIdsByChainId, isSnapInstalled, runeAccountIds.length, wallet])
 
@@ -407,7 +417,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!assetId) return false
     const chainId = fromAssetId(assetId).chainId
     const chainAccountIds = accountIdsByChainId[chainId] ?? []
-    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
     return walletSupport && poolAssetAccountIds.length > 0
   }, [assetId, accountIdsByChainId, wallet, isSnapInstalled, poolAssetAccountIds.length])
 

@@ -1,8 +1,8 @@
-import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
+import { Box, Button, Flex, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { type AssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { type FC, useCallback } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -12,6 +12,7 @@ import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTy
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { ClaimRoutePaths, ClaimStatus, type RfoxClaimQuote } from './types'
 
@@ -22,7 +23,16 @@ type ClaimRowProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
   index: number
-}
+} & (
+  | {
+      displayClaimButton: boolean
+      actionDescription: string
+    }
+  | {
+      displayClaimButton?: never
+      actionDescription?: never
+    }
+)
 
 const hoverProps = { bg: 'gray.700' }
 
@@ -33,9 +43,12 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   setConfirmedQuote,
   cooldownPeriodHuman,
   index,
+  displayClaimButton,
+  actionDescription,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetSymbol = stakingAsset?.symbol
@@ -61,6 +74,32 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     history.push(ClaimRoutePaths.Confirm)
   }, [history, index, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
 
+  const parentProps = useMemo(() => {
+    if (displayClaimButton) return {}
+
+    return {
+      variant: 'unstyled',
+      as: Button,
+      isDisabled: status !== ClaimStatus.Available,
+      onClick: handleClaimClick,
+      _hover: hoverProps,
+    }
+  }, [displayClaimButton, status, handleClaimClick])
+
+  const statusText = useMemo(() => {
+    if (displayClaimButton && status === ClaimStatus.CoolingDown)
+      return isLargerThanMd
+        ? translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
+        : cooldownPeriodHuman
+    return translate('RFOX.tooltips.cooldownComplete', { cooldownPeriodHuman })
+  }, [cooldownPeriodHuman, isLargerThanMd, displayClaimButton, status, translate])
+
+  const actionTranslation = useMemo(() => {
+    if (!stakingAssetSymbol) return
+
+    return [displayClaimButton ? actionDescription : 'RFOX.claim', { stakingAssetSymbol }]
+  }, [displayClaimButton, actionDescription, stakingAssetSymbol])
+
   return (
     <Tooltip
       label={translate(
@@ -69,36 +108,35 @@ export const ClaimRow: FC<ClaimRowProps> = ({
           : 'RFOX.tooltips.unstakePendingCooldown',
         { cooldownPeriodHuman },
       )}
+      isDisabled={displayClaimButton}
     >
       <Flex
-        as={Button}
         justifyContent={'space-between'}
-        mt={2}
         align='center'
-        variant='unstyled'
-        p={8}
+        p={2}
         borderRadius='md'
+        height='auto'
         width='100%'
-        onClick={handleClaimClick}
-        isDisabled={status !== ClaimStatus.Available}
-        _hover={hoverProps}
+        {...parentProps}
       >
         <Flex>
-          <Box mr={4}>
+          <Flex alignItems='center' mr={4}>
             <AssetIconWithBadge assetId={foxAssetId}>
               <TransactionTypeIcon type={TransferType.Receive} />
             </AssetIconWithBadge>
-          </Box>
+          </Flex>
           <Box mr={4}>
-            <RawText fontSize='sm' color='gray.400' align={'start'}>
-              {translate('RFOX.claim', { assetSymbol: stakingAssetSymbol })}
-            </RawText>
+            {actionTranslation && (
+              <RawText fontSize='sm' color='gray.400' align={'start'}>
+                {translate(...actionTranslation)}
+              </RawText>
+            )}
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
               {stakingAssetSymbol}
             </RawText>
           </Box>
         </Flex>
-        <Flex justifyContent={'flex-end'}>
+        <Flex justifyContent={'flex-end'} alignItems='center'>
           <Box flexGrow={1} alignItems={'end'}>
             <RawText
               fontSize='sm'
@@ -106,12 +144,21 @@ export const ClaimRow: FC<ClaimRowProps> = ({
               color={status === ClaimStatus.Available ? 'green.300' : 'yellow.300'}
               align={'end'}
             >
-              {status}
+              {statusText}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'end'}>
               <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />
             </RawText>
           </Box>
+          {displayClaimButton && (
+            <Button
+              colorScheme='green'
+              ml={4}
+              isDisabled={status === ClaimStatus.CoolingDown ? true : false}
+            >
+              {translate('RFOX.claim')}
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Tooltip>

@@ -806,7 +806,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
-        chainAccountIds: runeAccountIds,
+        checkConnectedAccountIds: runeAccountIds,
       }),
     [isSnapInstalled, runeAccountIds, wallet],
   )

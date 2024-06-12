@@ -125,7 +125,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                 chainId,
                 wallet,
                 isSnapInstalled: false,
-                chainAccountIds: accountIdsByChainId[chainId] ?? [],
+                checkConnectedAccountIds: accountIdsByChainId[chainId] ?? [],
               })
             }),
         ),
@@ -162,7 +162,12 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
               const isRequired = requiredNamespaces[key]?.chains?.includes(chainId)
               const isSupported =
                 knownChainIds.includes(chainId as KnownChainIds) &&
-                walletSupportsChain({ chainId, wallet, isSnapInstalled: false, chainAccountIds })
+                walletSupportsChain({
+                  chainId,
+                  wallet,
+                  isSnapInstalled: false,
+                  checkConnectedAccountIds: chainAccountIds,
+                })
               return !isRequired && isSupported
             })
 

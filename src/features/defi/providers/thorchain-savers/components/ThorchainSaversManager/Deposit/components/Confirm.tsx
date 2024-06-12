@@ -5,6 +5,7 @@ import {
   AlertTitle,
   Box,
   Flex,
+  Skeleton,
   Stack,
   useToast,
 } from '@chakra-ui/react'
@@ -166,11 +167,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [amountCryptoBaseUnit, asset, opportunity, state?.deposit.cryptoAmount],
   )
 
-  const { data: quoteData } = useGetThorchainSaversDepositQuoteQuery({
-    asset,
-    amountCryptoBaseUnit,
-    select: selectQuoteData,
-  })
+  const { data: quoteData, isLoading: isQuoteDataLoading } = useGetThorchainSaversDepositQuoteQuery(
+    {
+      asset,
+      amountCryptoBaseUnit,
+      select: selectQuoteData,
+    },
+  )
 
   const { data: fromAddress } = useQuery({
     ...reactQueries.common.thorchainFromAddress({
@@ -183,7 +186,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     enabled: Boolean(accountId && wallet && accountMetadata),
   })
 
-  const { executeTransaction, estimatedFeesData } = useSendThorTx({
+  const { executeTransaction, isEstimatedFeesDataLoading, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
@@ -395,10 +398,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         <Row variant='gutter'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
-            <Amount.Crypto
-              value={quoteData?.slippageCryptoAmountPrecision ?? ''}
-              symbol={asset.symbol}
-            />
+            <Skeleton isLoaded={!isQuoteDataLoading}>
+              <Amount.Crypto
+                value={quoteData?.slippageCryptoAmountPrecision ?? ''}
+                symbol={asset.symbol}
+              />
+            </Skeleton>
           </Row.Value>
         </Row>
         <Row variant='gutter'>
@@ -408,12 +413,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </HelperTooltip>
           </Row.Label>
           <Row.Value>
-            {translate(
-              `defi.modals.saversVaults.${
-                bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
-              }`,
-              { amount: quoteData?.daysToBreakEven ?? '0' },
-            )}
+            <Skeleton isLoaded={!isQuoteDataLoading}>
+              {translate(
+                `defi.modals.saversVaults.${
+                  bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
+                }`,
+                { amount: quoteData?.daysToBreakEven ?? '0' },
+              )}
+            </Skeleton>
           </Row.Value>
         </Row>
         <Row variant='gutter'>
@@ -423,19 +430,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </HelperTooltip>
           </Row.Label>
           <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat
-                fontWeight='bold'
-                value={bn(fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision))
-                  .times(marketData.price)
-                  .toFixed()}
-              />
-              <Amount.Crypto
-                color='text.subtle'
-                value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
-                symbol={asset.symbol}
-              />
-            </Box>
+            <Skeleton isLoaded={!isQuoteDataLoading}>
+              <Box textAlign='right'>
+                <Amount.Fiat
+                  fontWeight='bold'
+                  value={bn(
+                    fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
+                  )
+                    .times(marketData.price)
+                    .toFixed()}
+                />
+                <Amount.Crypto
+                  color='text.subtle'
+                  value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
+                  symbol={asset.symbol}
+                />
+              </Box>
+            </Skeleton>
           </Row.Value>
         </Row>
         <Row variant='gutter'>
@@ -445,17 +456,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </HelperTooltip>
           </Row.Label>
           <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat
-                fontWeight='bold'
-                value={bnOrZero(estimatedGasCryptoPrecision).times(feeMarketData.price).toFixed()}
-              />
-              <Amount.Crypto
-                color='text.subtle'
-                value={estimatedGasCryptoPrecision ?? '0'}
-                symbol={feeAsset.symbol}
-              />
-            </Box>
+            <Skeleton isLoaded={!isEstimatedFeesDataLoading}>
+              <Box textAlign='right'>
+                <Amount.Fiat
+                  fontWeight='bold'
+                  value={bnOrZero(estimatedGasCryptoPrecision).times(feeMarketData.price).toFixed()}
+                />
+                <Amount.Crypto
+                  color='text.subtle'
+                  value={estimatedGasCryptoPrecision ?? '0'}
+                  symbol={feeAsset.symbol}
+                />
+              </Box>
+            </Skeleton>
           </Row.Value>
         </Row>
       </Summary>

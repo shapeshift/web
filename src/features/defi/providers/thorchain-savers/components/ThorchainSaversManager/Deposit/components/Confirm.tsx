@@ -21,7 +21,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
@@ -43,10 +43,10 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import {
-  getMaybeThorchainSaversDepositQuote,
   getThorchainSaversPosition,
   makeDaysToBreakEven,
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -66,13 +66,7 @@ import { DepositContext } from '../DepositContext'
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
-  const [quote, setQuote] = useState<ThorchainSaversDepositQuoteResponseSuccess | null>(null)
-  const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
-  const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
-    null,
-  )
-  const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   // TODO: Allow user to set fee priority
@@ -123,65 +117,60 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoBalanceBaseUnitByFilter(s, feeAssetBalanceFilter),
   )
 
-  useEffect(() => {
-    ;(async () => {
-      if (!opportunity?.apy) return
-      if (!(accountId && state?.deposit.cryptoAmount && asset)) return
-      if (protocolFeeCryptoBaseUnit) return
+  const amountCryptoBaseUnit = useMemo(
+    () => bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision)),
+    [asset.precision, state?.deposit.cryptoAmount],
+  )
 
-      const amountCryptoBaseUnit = bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision))
-
-      if (amountCryptoBaseUnit.isZero()) return
-
+  const selectQuoteData = useCallback(
+    (quote: ThorchainSaversDepositQuoteResponseSuccess) => {
+      const {
+        fees: { slippage_bps },
+        expected_amount_deposit: expectedAmountOutThorBaseUnit,
+      } = quote
       const amountCryptoThorBaseUnit = toThorBaseUnit({
         valueCryptoBaseUnit: amountCryptoBaseUnit,
         asset,
       })
 
-      const maybeQuote = await getMaybeThorchainSaversDepositQuote({ asset, amountCryptoBaseUnit })
-
-      if (maybeQuote.isErr()) throw new Error(maybeQuote.unwrapErr())
-
-      const _quote = maybeQuote.unwrap()
-      setQuote(_quote)
-
-      const {
-        expected_amount_deposit: expectedAmountOutThorBaseUnit,
-        fees: { slippage_bps },
-      } = _quote
-
       // Total downside
-      const thorchainFeeCryptoPrecision = fromThorBaseUnit(
-        amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit),
-      )
+      const protocolFeeCryptoBaseUnit = (() => {
+        const thorchainFeeCryptoThorPrecision = fromThorBaseUnit(
+          amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit),
+        )
+        return toBaseUnit(thorchainFeeCryptoThorPrecision, asset.precision)
+      })()
 
-      setProtocolFeeCryptoBaseUnit(toBaseUnit(thorchainFeeCryptoPrecision, asset.precision))
+      const daysToBreakEven = opportunity
+        ? makeDaysToBreakEven({
+            amountCryptoBaseUnit,
+            asset,
+            apy: opportunity.apy,
+            expectedAmountOutThorBaseUnit,
+          })
+        : undefined
 
-      const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
+      const slippageCryptoAmountPrecision = (() => {
+        const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
-      // slippage going into position - e.g. 0.007 ETH for 5 ETH deposit
-      // This is NOT the same as the total THOR fees, which include the deposit fee in addition to the slippage
-      const cryptoSlippageAmountPrecision = bnOrZero(state?.deposit.cryptoAmount)
-        .times(slippagePercentage)
-        .div(100)
-      setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
+        // slippage going into position - e.g. 0.007 ETH for 5 ETH deposit
+        // This is NOT the same as the total THOR fees, which include the deposit fee in addition to the slippage
+        const cryptoSlippageAmountPrecision = bnOrZero(state?.deposit.cryptoAmount)
+          .times(slippagePercentage)
+          .div(100)
+        return cryptoSlippageAmountPrecision.toString()
+      })()
 
-      const daysToBreakEven = makeDaysToBreakEven({
-        amountCryptoBaseUnit,
-        asset,
-        apy: opportunity.apy,
-        expectedAmountOutThorBaseUnit,
-      })
-      setDaysToBreakEven(daysToBreakEven)
-    })()
-  }, [
-    accountId,
+      return { quote, slippageCryptoAmountPrecision, daysToBreakEven, protocolFeeCryptoBaseUnit }
+    },
+    [amountCryptoBaseUnit, asset, opportunity, state?.deposit.cryptoAmount],
+  )
+
+  const { data: quoteData } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    protocolFeeCryptoBaseUnit,
-    opportunity?.apy,
-    state?.deposit.cryptoAmount,
-    quote,
-  ])
+    amountCryptoBaseUnit,
+    select: selectQuoteData,
+  })
 
   const { data: fromAddress } = useQuery({
     ...reactQueries.common.thorchainFromAddress({
@@ -199,7 +188,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
     action: 'depositSavers',
-    memo: quote?.memo ?? null,
+    memo: quoteData?.quote.memo ?? null,
     fromAddress: fromAddress ?? null,
   })
 
@@ -238,7 +227,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           wallet &&
           supportsETH(wallet) &&
           opportunity &&
-          chainAdapter
+          chainAdapter &&
+          quoteData?.quote
         )
       )
         return
@@ -267,7 +257,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({
         type: ThorchainSaversDepositActionType.SET_DEPOSIT,
         payload: {
-          protocolFeeCryptoBaseUnit,
+          protocolFeeCryptoBaseUnit: quoteData?.protocolFeeCryptoBaseUnit,
           maybeFromUTXOAccountAddress: fromAddress,
         },
       })
@@ -303,12 +293,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     wallet,
     opportunity,
     chainAdapter,
+    quoteData?.quote,
+    quoteData?.protocolFeeCryptoBaseUnit,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
     isTradingActive,
     refetchIsTradingActive,
     executeTransaction,
-    protocolFeeCryptoBaseUnit,
     onNext,
     assets,
     toast,
@@ -404,7 +395,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         <Row variant='gutter'>
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
-            <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+            <Amount.Crypto
+              value={quoteData?.slippageCryptoAmountPrecision ?? ''}
+              symbol={asset.symbol}
+            />
           </Row.Value>
         </Row>
         <Row variant='gutter'>
@@ -415,8 +409,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row.Value>
             {translate(
-              `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-              { amount: daysToBreakEven ?? '0' },
+              `defi.modals.saversVaults.${
+                bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
+              }`,
+              { amount: quoteData?.daysToBreakEven ?? '0' },
             )}
           </Row.Value>
         </Row>
@@ -430,13 +426,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bn(fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision))
+                value={bn(fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision))
                   .times(marketData.price)
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision)}
+                value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
                 symbol={asset.symbol}
               />
             </Box>

@@ -15,8 +15,8 @@ import { store } from 'state/store'
 import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
 import {
+  fetchThorchainDepositQuote,
   type GetThorchainSaversDepositQuoteQueryKey,
-  queryFn as getThorchainSaversDepositQuoteQueryFn,
 } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import {
   fetchThorchainWithdrawQuote,
@@ -131,7 +131,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
         return await queryClient.fetchQuery({
           queryKey: thorchainSaversDepositQuoteQueryKey,
-          queryFn: getThorchainSaversDepositQuoteQueryFn,
+          queryFn: () => fetchThorchainDepositQuote({ asset, amountCryptoBaseUnit }),
           staleTime: 5000,
         })
       }

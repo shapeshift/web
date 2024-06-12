@@ -1044,7 +1044,7 @@
         "tooltip": "Send funds to a single address for THORChain compatibility.",
         "consolidateFunds": "Consolidate"
       },
-      "getBalanceError": "Error getting wallet balances",
+      "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "tokenAddress": "To Address",

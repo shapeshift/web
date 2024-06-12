@@ -83,6 +83,7 @@ export type OpportunityMetadata = OpportunityMetadataBase | ThorchainSaversStaki
 
 // User-specific values for this opportunity
 export type UserStakingOpportunityBase = {
+  isLoaded: boolean
   userStakingId: UserStakingId
   // The amount of farmed LP tokens
   stakedAmountCryptoBaseUnit: string

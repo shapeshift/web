@@ -34,10 +34,42 @@ export const Faq = () => {
           </AccordionItem>
           <AccordionItem px={0}>
             <AccordionButton px={0}>
+              <Text fontWeight='bold' translation='RFOX.faq.stake.title' />
+            </AccordionButton>
+            <AccordionPanel px={0}>
+              <Text color='text.subtle' translation='RFOX.faq.stake.body' />
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem px={0}>
+            <AccordionButton px={0}>
+              <Text fontWeight='bold' translation='RFOX.faq.unstake.title' />
+            </AccordionButton>
+            <AccordionPanel px={0}>
+              <Text color='text.subtle' translation='RFOX.faq.unstake.body' />
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem px={0}>
+            <AccordionButton px={0}>
               <Text fontWeight='bold' translation='RFOX.faq.cooldown.title' />
             </AccordionButton>
             <AccordionPanel px={0}>
               <Text color='text.subtle' translation='RFOX.faq.cooldown.body' />
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem px={0}>
+            <AccordionButton px={0}>
+              <Text fontWeight='bold' translation='RFOX.faq.multipleUnstaking.title' />
+            </AccordionButton>
+            <AccordionPanel px={0}>
+              <Text color='text.subtle' translation='RFOX.faq.multipleUnstaking.body' />
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem px={0}>
+            <AccordionButton px={0}>
+              <Text fontWeight='bold' translation='RFOX.faq.connect.title' />
+            </AccordionButton>
+            <AccordionPanel px={0}>
+              <Text color='text.subtle' translation='RFOX.faq.connect.body' />
             </AccordionPanel>
           </AccordionItem>
         </Accordion>

@@ -134,9 +134,7 @@ export const Header = memo(() => {
         title: translate('walletProvider.metaMaskSnap.snapUninstalledToast'),
         position: 'bottom',
       })
-      const walletId = currentWalletId
-      if (!walletId) return
-      appDispatch(portfolio.actions.clearWalletMetadata(walletId))
+
       snapModal.open({ isRemoved: true })
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {

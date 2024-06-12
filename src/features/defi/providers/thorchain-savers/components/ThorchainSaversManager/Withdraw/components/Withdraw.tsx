@@ -383,7 +383,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
         const isBelowWithdrawThreshold = bn(withdrawAmountCryptoBaseUnit)
           .minus(safeOutboundFeeInAssetCryptoBaseUnit)
-          .lt(0)
+          .lte(0)
 
         if (isBelowWithdrawThreshold) {
           const minLimitCryptoPrecision = fromBaseUnit(

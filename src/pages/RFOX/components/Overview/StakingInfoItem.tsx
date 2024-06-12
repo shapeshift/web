@@ -10,7 +10,7 @@ import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type StakingInformationItemProps = {
+type StakingInfoItemProps = {
   informationDescription: string
   helperTranslation?: string
   value?: string
@@ -25,13 +25,13 @@ type StakingInformationItemProps = {
     }
 )
 
-export const StakingInformationItem = ({
+export const StakingInfoItem = ({
   informationDescription,
   assetId,
   helperTranslation,
   value,
   amountCryptoBaseUnit,
-}: StakingInformationItemProps) => {
+}: StakingInfoItemProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 

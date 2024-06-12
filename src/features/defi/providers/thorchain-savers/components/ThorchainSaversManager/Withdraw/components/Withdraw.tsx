@@ -556,13 +556,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   if (!state) return null
 
-  console.log({
-    isEstimatedFeesDataLoading,
-    isSweepNeededLoading,
-    isThorchainSaversWithdrawQuoteLoading,
-    stateLoading: state.loading,
-  })
-
   return (
     <FormProvider {...methods}>
       <ReusableWithdraw

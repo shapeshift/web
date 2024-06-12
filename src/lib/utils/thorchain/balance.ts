@@ -19,7 +19,7 @@ import {
   queryFn as getThorchainSaversDepositQuoteQueryFn,
 } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import {
-  fetchThorchainWithdrawQuote as getThorchainSaversWithdrawQuoteQueryFn,
+  fetchThorchainWithdrawQuote,
   type GetThorchainSaversWithdrawQuoteQueryKey,
 } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 
@@ -113,7 +113,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
         return queryClient.fetchQuery({
           queryKey: thorchainSaversWithdrawQuoteQueryKey,
           queryFn: () =>
-            getThorchainSaversWithdrawQuoteQueryFn({
+            fetchThorchainWithdrawQuote({
               asset,
               accountId,
               amountCryptoBaseUnit: withdrawAmountCryptoBaseUnit,

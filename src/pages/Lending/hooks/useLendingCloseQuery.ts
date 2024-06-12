@@ -153,7 +153,7 @@ export const useLendingQuoteCloseQuery = ({
   repaymentAccountId: _repaymentAccountId,
   collateralAccountId: _collateralAccountId,
   enabled = true,
-}: UseLendingQuoteCloseQueryProps & QueryObserverOptions) => {
+}: UseLendingQuoteCloseQueryProps & Pick<QueryObserverOptions, 'enabled'>) => {
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: _collateralAssetId,
     accountId: _collateralAccountId,

@@ -1,21 +1,19 @@
-import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import type { Address } from 'viem'
-import { getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
+import { BridgeRoutePaths, type RfoxBridgeQuote } from './Bridge/types'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
+
+const stakingAssetId = foxOnArbitrumOneAssetId
 
 const StakeInput = makeSuspenseful(
   lazy(() =>
@@ -41,6 +39,22 @@ const StakeStatus = makeSuspenseful(
   ),
 )
 
+const BridgeConfirm = makeSuspenseful(
+  lazy(() =>
+    import('./Bridge/BridgeConfirm').then(({ BridgeConfirm }) => ({
+      default: BridgeConfirm,
+    })),
+  ),
+)
+
+const BridgeStatus = makeSuspenseful(
+  lazy(() =>
+    import('./Bridge/BridgeStatus').then(({ BridgeStatus }) => ({
+      default: BridgeStatus,
+    })),
+  ),
+)
+
 const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm, StakeRoutePaths.Status]
 
 export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
@@ -52,7 +66,8 @@ export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 }
 
 export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
-  const location = useLocation()
+  const location = useLocation<RfoxBridgeQuote | undefined>()
+  const { state: maybeBridgeQuote } = location
 
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
@@ -60,28 +75,17 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
 
   const queryClient = useQueryClient()
 
-  const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [
-      // actually defined by the time we actually consume the queryKey
-      confirmedQuote
-        ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-        : ('' as Address),
-    ],
-    chainId: arbitrum.id,
+  const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
+    stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+      : undefined,
   })
 
-  const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useReadContract({
-    abi: erc20ABI,
-    // actually defined by the time we actually consume the queryKey
-    address: confirmedQuote
-      ? getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference)
-      : ('' as Address),
-    functionName: 'balanceOf',
-    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
-    chainId: arbitrum.id,
+  const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+      : undefined,
+    stakingAssetId,
   })
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
@@ -95,7 +99,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const renderStakeInput = useCallback(() => {
     return (
       <StakeInput
-        stakingAssetId={foxOnArbitrumOneAssetId}
+        stakingAssetId={stakingAssetId}
         runeAddress={runeAddress}
         headerComponent={headerComponent}
         onRuneAddressChange={setRuneAddress}
@@ -131,6 +135,18 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
     )
   }, [confirmedQuote, handleTxConfirmed, headerComponent, stakeTxid])
 
+  const renderBridgeConfirm = useCallback(() => {
+    if (!maybeBridgeQuote) return null
+
+    return <BridgeConfirm confirmedQuote={maybeBridgeQuote} headerComponent={headerComponent} />
+  }, [maybeBridgeQuote, headerComponent])
+
+  const renderBridgeStatus = useCallback(() => {
+    if (!maybeBridgeQuote) return null
+
+    return <BridgeStatus confirmedQuote={maybeBridgeQuote} headerComponent={headerComponent} />
+  }, [maybeBridgeQuote, headerComponent])
+
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Switch location={location}>
@@ -149,6 +165,16 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
             key={StakeRoutePaths.Status}
             path={StakeRoutePaths.Status}
             render={renderStakeStatus}
+          />
+          <Route
+            key={BridgeRoutePaths.Confirm}
+            path={BridgeRoutePaths.Confirm}
+            render={renderBridgeConfirm}
+          />
+          <Route
+            key={BridgeRoutePaths.Status}
+            path={BridgeRoutePaths.Status}
+            render={renderBridgeStatus}
           />
         </Suspense>
       </Switch>

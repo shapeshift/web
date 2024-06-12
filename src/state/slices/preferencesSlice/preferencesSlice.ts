@@ -62,6 +62,7 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
+  RFOXRewardsTab: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -73,6 +74,8 @@ export enum CurrencyFormats {
   CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
+
+export const allowedDecimalSeparators = ['.', ',']
 
 export enum HomeMarketView {
   TopAssets = 'TopAssets',
@@ -147,6 +150,7 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
+    RFOXRewardsTab: getConfig().REACT_APP_FEATURE_RFOX_REWARDS_TAB,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

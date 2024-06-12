@@ -27,6 +27,7 @@ import { Balance } from 'components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOptionsButtonGroup'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
@@ -232,6 +233,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             prefix={isFiat ? localeParts.prefix : ''}
             decimalSeparator={localeParts.decimal}
             inputMode='decimal'
+            allowedDecimalSeparators={allowedDecimalSeparators}
             thousandSeparator={localeParts.group}
             value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
             // this is already within a useCallback, we don't need to memo this

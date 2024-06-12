@@ -375,7 +375,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (!earnOpportunityData || isTradingActiveLoading) {
+  if ((!earnOpportunityData?.isLoaded && maybeAccountId) || isTradingActiveLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />
@@ -383,13 +383,14 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     )
   }
 
-  if (!(maybeAccountId && opportunityDataFilter)) return null
-  if (!asset) return null
-  if (!underlyingAssetsWithBalancesAndIcons || !earnOpportunityData) return null
-
   if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0) && !hideEmptyState) {
     return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
   }
+
+  if (!(maybeAccountId && opportunityDataFilter)) return null
+  if (!asset) return null
+  if (!underlyingAssetsWithBalancesAndIcons) return null
+  if (!earnOpportunityData) return null
 
   return (
     <Overview

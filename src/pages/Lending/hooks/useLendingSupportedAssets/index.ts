@@ -39,7 +39,12 @@ export const useLendingSupportedAssets = ({ type }: { type: 'collateral' | 'borr
     () =>
       knownChainIds.filter(chainId => {
         const chainAccountIds = accountIdsByChainId[chainId] ?? []
-        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+        return walletSupportsChain({
+          chainId,
+          wallet,
+          isSnapInstalled,
+          checkConnectedAccountIds: chainAccountIds,
+        })
       }),
     [accountIdsByChainId, isSnapInstalled, wallet],
   )

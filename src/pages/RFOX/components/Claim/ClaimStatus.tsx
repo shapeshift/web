@@ -38,18 +38,18 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   }, [history])
 
   const claimAssetAccountAddress = useMemo(
-    () => fromAccountId(confirmedQuote.claimAssetAccountId).account,
-    [confirmedQuote.claimAssetAccountId],
+    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+    [confirmedQuote.stakingAssetAccountId],
   )
-  const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.claimAssetId))
+  const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.stakingAssetId))
   const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.claimAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
-    [confirmedQuote.claimAmountCryptoBaseUnit, claimAsset?.precision],
+    () => fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
+    [confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision],
   )
 
   const serializedTxIndex = useMemo(() => {
-    return serializeTxIndex(confirmedQuote.claimAssetAccountId, txId, claimAssetAccountAddress)
-  }, [confirmedQuote.claimAssetAccountId, claimAssetAccountAddress, txId])
+    return serializeTxIndex(confirmedQuote.stakingAssetAccountId, txId, claimAssetAccountAddress)
+  }, [confirmedQuote.stakingAssetAccountId, claimAssetAccountAddress, txId])
 
   const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
 

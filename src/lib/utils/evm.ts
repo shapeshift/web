@@ -18,6 +18,7 @@ import { ContractType } from 'contracts/types'
 import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import type { PartialFields } from 'lib/types'
 
 import { getSupportedChainIdsByChainNamespace } from '.'
 
@@ -81,15 +82,33 @@ type GetFeesArgs = GetFeesCommonArgs & {
   supportsEIP1559: boolean
 }
 
-type GetFeesWithWalletArgs = GetFeesCommonArgs & {
+export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
   accountNumber: number
   wallet: HDWallet
+}
+
+export type MaybeGetFeesWithWalletArgs = PartialFields<
+  Omit<GetFeesWithWalletArgs, 'wallet'>,
+  'adapter' | 'accountNumber' | 'data'
+> & {
+  wallet: HDWallet | null
 }
 
 export type Fees = evm.Fees & {
   gasLimit: string
   networkFeeCryptoBaseUnit: string
 }
+
+export type EvmFees = {
+  fees: Fees
+  txFeeFiat: string
+  networkFeeCryptoBaseUnit: string
+}
+
+export const isGetFeesWithWalletArgs = (
+  input: MaybeGetFeesWithWalletArgs,
+): input is GetFeesWithWalletArgs =>
+  Boolean(input.adapter && input.accountNumber !== undefined && input.wallet && input.data)
 
 export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fees> => {
   const { accountNumber, adapter, wallet, ...rest } = args

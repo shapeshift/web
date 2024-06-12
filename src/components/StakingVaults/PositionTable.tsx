@@ -102,7 +102,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       positions.filter(position => {
         const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
         return walletSupportsChain({
-          chainAccountIds,
+          checkConnectedAccountIds: chainAccountIds,
           chainId: fromAssetId(position.assetId).chainId,
           wallet,
           isSnapInstalled,

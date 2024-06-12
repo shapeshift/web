@@ -29,7 +29,6 @@ export const fetchThorchainDepositQuote = async ({
   return maybeQuote.unwrap()
 }
 
-// TODO(gomes): consume me everywhere instead of getMaybeThorchainSaversDepositQuote
 export const useGetThorchainSaversDepositQuoteQuery = <
   SelectData = ThorchainSaversDepositQuoteResponseSuccess,
 >({

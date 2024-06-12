@@ -109,6 +109,7 @@ export const Header = memo(() => {
 
     // We have just detected that the user doesn't have the snap installed currently
     // We need to check whether or not the user had previous non-EVM AccountIds and clear those
+    // TODO: set the UTXO accountIds to disabled instead of nuking the metadata
     if (hasUtxoAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
   }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
 

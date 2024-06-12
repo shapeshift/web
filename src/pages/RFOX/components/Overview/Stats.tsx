@@ -2,11 +2,11 @@ import { Box, Flex, SimpleGrid, Skeleton, Tag } from '@chakra-ui/react'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
-import { TotalItem } from './TotalItem'
+import { StatItem } from './StatItem'
 
 const gridColumns = { base: 1, md: 2 }
 
-export const Totals: React.FC = () => {
+export const Stats: React.FC = () => {
   return (
     <Box>
       <Flex alignItems='center' gap={2} mb={6} mt={2}>
@@ -20,10 +20,22 @@ export const Totals: React.FC = () => {
       </Flex>
 
       <SimpleGrid spacing={6} columns={gridColumns}>
-        <TotalItem translation='RFOX.totalStaked' valueChange={0.0209} amountFiat='23270000' />
-        <TotalItem translation='RFOX.totalFeesCollected' amountFiat='30600000' />
-        <TotalItem translation='RFOX.emissionsPool' valueChange={0.3445} amountFiat='42890000' />
-        <TotalItem translation='RFOX.foxBurnAmount' valueChange={0.3445} amountFiat='15820310' />
+        <StatItem
+          description='RFOX.totalStaked'
+          percentChangeDecimal={'0.0209'}
+          amountUserCurrency='23270000'
+        />
+        <StatItem description='RFOX.totalFeesCollected' amountUserCurrency='30600000' />
+        <StatItem
+          description='RFOX.emissionsPool'
+          percentChangeDecimal={'0.3445'}
+          amountUserCurrency='42890000'
+        />
+        <StatItem
+          description='RFOX.foxBurnAmount'
+          percentChangeDecimal={'0.3445'}
+          amountUserCurrency='15820310'
+        />
       </SimpleGrid>
     </Box>
   )

@@ -23,8 +23,8 @@ type ClaimRowProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
   index: number
-  displayButton?: boolean
-  text?: string
+  displayClaimButton?: boolean
+  actionDescription?: string
 }
 
 const hoverProps = { bg: 'gray.700' }
@@ -36,8 +36,8 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   setConfirmedQuote,
   cooldownPeriodHuman,
   index,
-  displayButton,
-  text,
+  displayClaimButton,
+  actionDescription,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
@@ -68,7 +68,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   }, [history, index, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
 
   const parentProps = useMemo(() => {
-    if (displayButton) return {}
+    if (displayClaimButton) return {}
 
     return {
       variant: 'unstyled',
@@ -77,15 +77,15 @@ export const ClaimRow: FC<ClaimRowProps> = ({
       onClick: handleClaimClick,
       _hover: hoverProps,
     }
-  }, [displayButton, status, handleClaimClick])
+  }, [displayClaimButton, status, handleClaimClick])
 
   const statusTest = useMemo(() => {
-    if (displayButton && status === ClaimStatus.CoolingDown && !isLargerThanMd)
-      return cooldownPeriodHuman
-    if (displayButton && status === ClaimStatus.CoolingDown)
-      return translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
+    if (displayClaimButton && status === ClaimStatus.CoolingDown)
+      return isLargerThanMd
+        ? translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
+        : cooldownPeriodHuman
     return status
-  }, [cooldownPeriodHuman, isLargerThanMd, displayButton, status, translate])
+  }, [cooldownPeriodHuman, isLargerThanMd, displayClaimButton, status, translate])
 
   return (
     <Tooltip
@@ -95,7 +95,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
           : 'RFOX.tooltips.unstakePendingCooldown',
         { cooldownPeriodHuman },
       )}
-      isDisabled={displayButton}
+      isDisabled={displayClaimButton}
     >
       <Flex
         justifyContent={'space-between'}
@@ -114,7 +114,9 @@ export const ClaimRow: FC<ClaimRowProps> = ({
           </Flex>
           <Box mr={4}>
             <RawText fontSize='sm' color='gray.400' align={'start'}>
-              {text ? text : translate('RFOX.claim', { assetSymbol: stakingAssetSymbol })}
+              {actionDescription
+                ? actionDescription
+                : translate('RFOX.claim', { assetSymbol: stakingAssetSymbol })}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
               {stakingAssetSymbol}
@@ -135,7 +137,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
               <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />
             </RawText>
           </Box>
-          {displayButton && (
+          {displayClaimButton && (
             <Button
               colorScheme='green'
               ml={4}

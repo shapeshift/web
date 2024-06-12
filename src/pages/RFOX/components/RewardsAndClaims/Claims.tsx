@@ -14,6 +14,9 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
   const translate = useTranslate()
   const setConfirmedQuote = useCallback(() => {}, [])
 
+  // @TODO: to be removed when wiring it up
+  const staticKey = '1'
+
   return (
     <CardBody>
       {headerComponent}
@@ -21,25 +24,25 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
       <Box>
         <ClaimRow
           stakingAssetId={foxAssetId}
-          key={'1'}
+          key={staticKey}
           amountCryptoPrecision={'1500'}
           status={ClaimStatus.CoolingDown}
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={'1 day'}
           index={1}
-          displayButton={true}
-          text={translate('RFOX.unstakeFrom', { assetSymbol: 'FOX' })}
+          actionDescription={translate('RFOX.unstakeFrom', { assetSymbol: 'FOX' })}
+          displayClaimButton
         />
         <ClaimRow
           stakingAssetId={foxAssetId}
-          key={'1'}
+          key={staticKey}
           amountCryptoPrecision={'1500'}
           status={ClaimStatus.Available}
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={'1 day'}
           index={1}
-          displayButton={true}
-          text={translate('RFOX.unstakeFrom', { assetSymbol: 'FOX' })}
+          actionDescription={translate('RFOX.unstakeFrom', { assetSymbol: 'FOX' })}
+          displayClaimButton
         />
       </Box>
     </CardBody>

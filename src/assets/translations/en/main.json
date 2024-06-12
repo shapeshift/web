@@ -2464,7 +2464,7 @@
       "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
       "shareOfPool": "This is your percentage of the fees you'll earn.",
-      "unstakePendingCooldown": "Claim available %{cooldownPeriodHuman}",
+      "unstakePendingCooldown": "Claim available in %{cooldownPeriodHuman}",
       "cooldownComplete": "Cooldown finished %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
@@ -2495,7 +2495,7 @@
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "confirmAndBridge": "Confirm & Bridge",
     "myRewardBalance": "My Reward Balance",
-    "pendingRewardBalance": "Pending Reward Balance",
+    "pendingRewardBalance": "Pending Rewards Balance",
     "lifetimeRewards": "Lifetime Rewards",
     "timeInPool": "Time in Pool",
     "myPosition": "My Position",

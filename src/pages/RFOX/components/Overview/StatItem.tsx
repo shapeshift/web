@@ -1,24 +1,25 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Flex, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 
-type PositionItemProps = {
-  translation: string
-  amountFiat?: string
-  valueChange?: number
+type StatItemProps = {
+  description: string
+  amountUserCurrency?: string
+  percentChangeDecimal?: string
 }
 
 type ChangeTagProps = {
-  value?: number
+  value?: string
 }
 
 // @TODO: This is used in both pool and here, make it reusable
 const ChangeTag: React.FC<ChangeTagProps> = ({ value }) => {
-  const icon = (value ?? 0) >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />
-  const color = (value ?? 0) >= 0 ? 'green.500' : 'red.500'
-  const colorScheme = (value ?? 0) >= 0 ? 'green' : 'red'
+  const icon = bnOrZero(value).isGreaterThanOrEqualTo(0) ? <ArrowUpIcon /> : <ArrowDownIcon />
+  const color = bnOrZero(value).isGreaterThanOrEqualTo(0) ? 'green.500' : 'red.500'
+  const colorScheme = bnOrZero(value).isGreaterThanOrEqualTo(0) ? 'green' : 'red'
   return (
     <Skeleton isLoaded={value !== undefined}>
       <Tag display='flex' colorScheme={colorScheme} size='sm' alignItems='center'>
@@ -29,22 +30,28 @@ const ChangeTag: React.FC<ChangeTagProps> = ({ value }) => {
   )
 }
 
-export const TotalItem = ({ translation, amountFiat, valueChange }: PositionItemProps) => {
+export const StatItem = ({
+  description,
+  amountUserCurrency,
+  percentChangeDecimal,
+}: StatItemProps) => {
   const valueChangeTag: JSX.Element | null = useMemo(() => {
-    if (!valueChange) return null
+    if (!percentChangeDecimal) return null
 
-    return <ChangeTag value={valueChange} />
-  }, [valueChange])
+    return <ChangeTag value={percentChangeDecimal} />
+  }, [percentChangeDecimal])
 
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
       <Skeleton isLoaded={true}>
         <Flex alignItems='center' gap={2}>
-          {amountFiat && <Amount.Fiat value={amountFiat} fontSize='xl' fontWeight='medium' />}
+          {amountUserCurrency && (
+            <Amount.Fiat value={amountUserCurrency} fontSize='xl' fontWeight='medium' />
+          )}
           {valueChangeTag}
         </Flex>
       </Skeleton>
-      <Text fontSize='sm' color='text.subtle' fontWeight='medium' translation={translation} />
+      <Text fontSize='sm' color='text.subtle' fontWeight='medium' translation={description} />
     </Stack>
   )
 }

@@ -13,7 +13,7 @@ type RewardsProps = {
 export const Rewards = ({ headerComponent }: RewardsProps) => {
   const filter = useMemo(() => ({ txStatus: TxStatus.Confirmed, assetIdFilter: rune.assetId }), [])
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
-  const limitTxIds = useMemo(() => {
+  const txIdsFilter = useMemo(() => {
     return txIds.slice(0, Number(5))
   }, [txIds])
 
@@ -22,7 +22,7 @@ export const Rewards = ({ headerComponent }: RewardsProps) => {
       {headerComponent}
 
       <Box mx={-6}>
-        <TransactionsGroupByDate txIds={limitTxIds} />
+        <TransactionsGroupByDate txIds={txIdsFilter} />
       </Box>
     </CardBody>
   )

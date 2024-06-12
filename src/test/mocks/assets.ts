@@ -13,7 +13,7 @@ import merge from 'lodash/merge'
 
 export const rune: Asset = {
   chainId: ethChainId,
-  assetId: 'eip155:1/erc20:0x3155ba85d5f96b2d030a4966af206230e46849cb',
+  assetId: 'cosmos:thorchain-mainnet-v1/slip44:931',
   name: 'THORChain  ERC20 ',
   precision: 18,
   color: '#FFFFFF',

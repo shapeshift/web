@@ -12,7 +12,7 @@ const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
 const paddingVerticalResponsiveProps = { base: 8, md: 16 }
 
-export const RfoxDashboard: React.FC = () => {
+export const RFOX: React.FC = () => {
   const translate = useTranslate()
 
   return (

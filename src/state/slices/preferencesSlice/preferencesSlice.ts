@@ -62,6 +62,7 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
+  RFOXRewardsTab: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -149,6 +150,7 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
+    RFOXRewardsTab: getConfig().REACT_APP_FEATURE_RFOX_REWARDS_TAB,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

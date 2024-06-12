@@ -96,7 +96,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         chainId,
         wallet,
         isSnapInstalled,
-        checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+        checkConnectedAccountIds: false, // don't check connected account ids, we're detecting initial runtime support for chains
       })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))

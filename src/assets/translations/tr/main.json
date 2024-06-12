@@ -865,7 +865,8 @@
       "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi",
       "noQuotesAvailable": "Bu işlem için teklif yok",
       "smartContractWalletNotSupported": "Akıllı sözleşme cüzdanı desteklenmiyor",
-      "unsafeQuote": "Bu miktar, bu çift için önerilen minimum tutarın altındadır (%{recommendedMin} %{symbol}). Bu, işleminizin başarısız olmasına veya fon kaybına neden olabilir."
+      "unsafeQuote": "Bu miktar, bu çift için önerilen minimum tutarın altındadır (%{recommendedMin} %{symbol}). Bu, işleminizin başarısız olmasına veya fon kaybına neden olabilir.",
+      "rateLimitExceeded": "Limit aşıldı, daha sonra tekrar deneyin"
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
@@ -1813,7 +1814,8 @@
     "importAccounts": {
       "title": "%{chainNamespaceDisplayName} Hesaplarını İçe Aktarın",
       "description": "Aşağıdaki listeden içe aktarmak istediğiniz hesapları seçin.",
-      "import": "İçe Aktar"
+      "import": "İçe Aktar",
+      "loadMoreDisabled": "Bu cüzdan, bu zincir için birden fazla hesabı desteklemiyor."
     },
     "ledgerOpenApp": {
       "title": "%{appName} Uygulamasını açın",
@@ -2344,8 +2346,8 @@
     "symAfterRuneAlert": "THOR ağının çalışma şekli nedeniyle asimetrik bir RUNE yatırma sonrasında simetrik yatırmalar mümkün değildir.",
     "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
-    "unsupportedNetworkExplainer": "Cüzdanınız %{network}'ı desteklemiyor. Lütfen bu ağı destekleyen bir cüzdana geçin.",
-    "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'yi desteklemiyor. Lütfen bu ağları destekleyen bir cüzdana geçin.",
+    "unsupportedNetworkExplainer": "Cüzdanınız %{network} ağına bağlı değil. Lütfen bu zinciri bağlayın veya bu ağı destekleyen bir cüzdana geçin.",
+    "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'ye bağlı değil. Lütfen bu zinciri bağlayın veya bu ağları destekleyen bir cüzdana geçin.",
     "shareOfPool": "Havuz Payı",
     "assetDepositAmount": "%{asset} Yatırma Tutarı",
     "totalLiquidity": "Toplam Likidite",
@@ -2435,6 +2437,7 @@
     "unstakeAmount": "Kaldırılan Stake Tutarı",
     "confirmAndStake": "Onayla ve Stake Et",
     "confirmAndUnstake": "Onayla ve Stake'i Kaldır",
+    "confirmAndClaim": "Onayla ve Talep Et",
     "shapeShiftFee": "ShapeShift Ücreti",
     "approvalFee": "Onay Ücreti",
     "lockupPeriod": "Kilitleme Süresi",
@@ -2450,7 +2453,9 @@
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
       "unstakeAmount": "Bu, kaldıracağınız FOX miktarıdır",
       "lockupPeriod": "FOX'unuzu talep etmek için bahisi kaldırdıktan sonra bu kadar beklemeniz gerekecek",
-      "shareOfPool": "Bu, kazanacağınız ücretlerin yüzdesidir."
+      "shareOfPool": "Bu, kazanacağınız ücretlerin yüzdesidir.",
+      "unstakePendingCooldown": "Talep edilebilir %{cooldownPeriodHuman} ",
+      "cooldownComplete": "Bekleme süresi bitti %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Başarıyla %{amount} %{symbol} stake ettiniz",
     "stakePending": "%{amount} %{symbol} stake ediliyor...",
@@ -2467,6 +2472,13 @@
     "stakeNow": "Şimdi Stake Edin",
     "noAddressFound": "Adres bulunamadı",
     "newAddressInfo": "Bu, bir sonraki ödül döngüsü için güncellenecektir",
-    "confirmAndUpdateAddress": "Adresi Onayla ve Güncelle"
+    "confirmAndUpdateAddress": "Adresi Onayla ve Güncelle",
+    "unstakeFrom": "r%{assetSymbol}'dan Stake Kaldır",
+    "claimPending": "Çekim isteği",
+    "claimSuccess": "Başarıyla %{amount} %{symbol} talebinde bulundunuz.",
+    "claimReceiveAddress": "Alıcı Adresi Talebi",
+    "noClaimsAvailable": "Talep edilebilir yok",
+    "noClaimsAvailableDescription": "Kullanılabilir talebiniz yok",
+    "unstakeNow": "Stake Kaldır"
   }
 }

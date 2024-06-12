@@ -865,7 +865,8 @@
       "tradeFailed": "El intercambio fracasó. Activos devueltos menos tarifa de gas",
       "noQuotesAvailable": "No hay cotizaciones disponibles para operar",
       "smartContractWalletNotSupported": "Billetera no soporta contrato inteligente",
-      "unsafeQuote": "Cantidad debajo del mínimo recomendado para este par (%{recommendedMin} %{symbol}). Esto podría provocar fracaso o pérdida de fondos."
+      "unsafeQuote": "Cantidad debajo del mínimo recomendado para este par (%{recommendedMin} %{symbol}). Esto podría provocar fracaso o pérdida de fondos.",
+      "rateLimitExceeded": "Se superó el límite de tarifa, intente más tarde"
     },
     "swappingComingSoonForWallet": "El intercambio por %{walletName} llegará pronto",
     "recentTrades": "Operaciones Recientes",
@@ -1813,7 +1814,8 @@
     "importAccounts": {
       "title": "Importar cuentas %{chainNamespaceDisplayName}",
       "description": "Seleccione las cuentas que desea importar de la lista a continuación.",
-      "import": "Importar"
+      "import": "Importar",
+      "loadMoreDisabled": "Esta billetera no admite múltiples cuentas para esta cadena."
     },
     "ledgerOpenApp": {
       "title": "Abra la app %{appName}",
@@ -2344,8 +2346,8 @@
     "symAfterRuneAlert": "Depósitos simétricos no son posibles después de depósito RUNE asimétrico debido a como funciona la red THOR.",
     "incompletePositionDepositAlert": "Posición incompleta, deposite la cantidad correspondiente de %{asset} para finalizar esta posición.",
     "incompletePositionWithdrawAlert": "Posición incompleta, cancele la posición eliminando el 100% de la liquidez. También puede finalizar la posición a través de \"Agregar liquidez\".",
-    "unsupportedNetworkExplainer": "Su billetera no es compatible con %{network}. Por favor cambie a una billetera que admita esta red.",
-    "unsupportedNetworksExplainer": "Su billetera no admite %{network1} y %{network2}. Por favor cambie a una billetera que admita estas redes.",
+    "unsupportedNetworkExplainer": "Tu billetera no está conectada a %{network}. Conecte esta cadena o cambie a una billetera que admita esta red.",
+    "unsupportedNetworksExplainer": "Tu billetera no está conectada a %{network1} y %{network2}. Conecte esta cadena o cambie a una billetera que admita estas redes.",
     "shareOfPool": "Participación de Pool",
     "assetDepositAmount": "%{asset} Monto de Depósito",
     "totalLiquidity": "Liquidez Total",
@@ -2435,6 +2437,7 @@
     "unstakeAmount": "Monto Unstake",
     "confirmAndStake": "Confirmar y Stake",
     "confirmAndUnstake": "Confirmar y Unstake",
+    "confirmAndClaim": "Confirmar y Reclamar",
     "shapeShiftFee": "Tarifa ShapeShift",
     "approvalFee": "Tarifa de Aprobación",
     "lockupPeriod": "Período de Bloqueo",
@@ -2450,7 +2453,9 @@
       "stakeAmount": "Esta es la cantidad de FOX que Stake",
       "unstakeAmount": "Cantidad de FOX a Unstake",
       "lockupPeriod": "Tiempo que esperará después de Unstake para reclamar tu FOX",
-      "shareOfPool": "Porcentaje de tarifas que ganará."
+      "shareOfPool": "Este es su porcentaje de las tarifas que ganará.",
+      "unstakePendingCooldown": "Reclamo disponible %{cooldownPeriodHuman}",
+      "cooldownComplete": "El tiempo de enfriamiento finalizó %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Has Stake con éxito %{amount} %{symbol}",
     "stakePending": "Stake %{amount} %{symbol}...",
@@ -2467,6 +2472,13 @@
     "stakeNow": "Stake Ahora",
     "noAddressFound": "Dirección no encontrada",
     "newAddressInfo": "Esto se actualizará para próximo ciclo de recompensas.",
-    "confirmAndUpdateAddress": "Confirme y Actualice Dirección"
+    "confirmAndUpdateAddress": "Confirme y Actualice Dirección",
+    "unstakeFrom": "Unstake para r%{assetSymbol}",
+    "claimPending": "Solicitando retiro",
+    "claimSuccess": "Has reclamado %{amount} %{symbol} con éxito.",
+    "claimReceiveAddress": "Dirección para Reclamar Recompensas",
+    "noClaimsAvailable": "No hay reclamaciones disponibles",
+    "noClaimsAvailableDescription": "No tienes ningún reclamo disponible",
+    "unstakeNow": "Retirar de Staking Ahora"
   }
 }

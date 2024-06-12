@@ -1,6 +1,7 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
-import { btcAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -13,7 +14,6 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioDegradedState,
@@ -70,6 +70,8 @@ export const Header = memo(() => {
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
   }, [scrollY])
+  const { close: closeManageAccountsModal, isOpen: isManageAccountsOpen } =
+    useModal('manageAccounts')
 
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
 
@@ -98,20 +100,31 @@ export const Header = memo(() => {
 
   const currentWalletId = useSelector(selectWalletId)
   const walletAccountIds = useSelector(selectWalletAccountIds)
-  const hasUtxoAccountIds = useMemo(
-    () => walletAccountIds.some(accountId => isUtxoAccountId(accountId)),
-    [walletAccountIds],
-  )
 
   useEffect(() => {
     const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
     if (!(currentWalletId && isMetaMaskMultichainWallet && isSnapInstalled === false)) return
 
-    // We have just detected that the user doesn't have the snap installed currently
-    // We need to check whether or not the user had previous non-EVM AccountIds and clear those
-    // TODO: set the UTXO accountIds to disabled instead of nuking the metadata
-    if (hasUtxoAccountIds) appDispatch(portfolio.actions.clearWalletMetadata(currentWalletId))
-  }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
+    const nonEvmAccountIds = walletAccountIds.filter(
+      accountId => !isEvmChainId(fromAccountId(accountId).chainId),
+    )
+
+    // We have just detected that the user doesn't have the snap installed currently, so disable all non-evm accounts
+    nonEvmAccountIds.forEach(accountId =>
+      appDispatch(portfolio.actions.disableAccountId(accountId)),
+    )
+
+    // close the account management model if it's open (since account management isn't enabled for non-snaps metamask)
+    if (isManageAccountsOpen) closeManageAccountsModal()
+  }, [
+    appDispatch,
+    closeManageAccountsModal,
+    currentWalletId,
+    isManageAccountsOpen,
+    isSnapInstalled,
+    wallet,
+    walletAccountIds,
+  ])
 
   useEffect(() => {
     if (previousSnapInstall === true && isSnapInstalled === false) {

@@ -150,6 +150,19 @@ export const portfolio = createSlice({
       enabledAccountIdsSet.add(accountId)
       draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
     },
+    /**
+     * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice
+     * during initial load, leading to all auto-detected accounts being disabled.
+     */
+    disableAccountId: (draftState, { payload: accountId }: { payload: AccountId }) => {
+      const walletId = draftState.connectedWallet?.id
+
+      if (!walletId) return
+
+      const enabledAccountIdsSet = new Set(draftState.enabledAccountIds[walletId])
+      enabledAccountIdsSet.delete(accountId)
+      draftState.enabledAccountIds[walletId] = Array.from(enabledAccountIdsSet)
+    },
     toggleAccountIdEnabled: (draftState, { payload: accountId }: { payload: AccountId }) => {
       const walletId = draftState.connectedWallet?.id
 

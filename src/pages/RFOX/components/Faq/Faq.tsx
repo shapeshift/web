@@ -65,7 +65,7 @@ export const Faq = () => {
             </AccordionPanel>
           </AccordionItem>
           <AccordionItem px={0}>
-            <AccordionButton px={0}>
+            <AccordionButton textAlign='left' px={0}>
               <Text fontWeight='bold' translation='RFOX.faq.connect.title' />
             </AccordionButton>
             <AccordionPanel px={0}>

@@ -25,7 +25,7 @@ type StakingInformationItemProps = {
     }
 )
 
-export const StakingInformationsItem = ({
+export const StakingInformationItem = ({
   informationDescription,
   assetId,
   helperTranslation,

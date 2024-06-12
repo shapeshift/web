@@ -2,7 +2,7 @@ import { Box, SimpleGrid } from '@chakra-ui/react'
 import { rune } from 'test/mocks/assets'
 import { Text } from 'components/Text'
 
-import { StakingInformationsItem } from './StakingInformationItem'
+import { StakingInformationItem } from './StakingInformationItem'
 
 const gridColumns = { base: 1, md: 2 }
 
@@ -14,25 +14,25 @@ export const StakingInformation: React.FC = () => {
       <Text mb={6} translation='RFOX.myPosition' />
 
       <SimpleGrid spacing={6} columns={gridColumns}>
-        <StakingInformationsItem
+        <StakingInformationItem
           informationDescription='RFOX.myRewardBalance'
           helperTranslation='RFOX.myRewardBalanceHelper'
           assetId={assetId}
           amountCryptoBaseUnit='100000000000'
         />
-        <StakingInformationsItem
+        <StakingInformationItem
           informationDescription='RFOX.pendingRewardsBalance'
           helperTranslation='RFOX.pendingRewardsBalanceHelper'
           assetId={assetId}
           amountCryptoBaseUnit='100000000000'
         />
-        <StakingInformationsItem
+        <StakingInformationItem
           informationDescription='RFOX.lifetimeRewards'
           helperTranslation='RFOX.lifetimeRewardsHelper'
           assetId={assetId}
           amountCryptoBaseUnit='100000000000'
         />
-        <StakingInformationsItem
+        <StakingInformationItem
           informationDescription='RFOX.timeInPool'
           helperTranslation='RFOX.timeInPoolHelper'
           value='30 days'

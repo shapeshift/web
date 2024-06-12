@@ -94,9 +94,11 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     return status
   }, [cooldownPeriodHuman, isLargerThanMd, displayClaimButton, status, translate])
 
-  const actionTranslationKey = useMemo(() => {
-    return displayClaimButton ? actionDescription : 'RFOX.claim'
-  }, [displayClaimButton, actionDescription])
+  const actionTranslation = useMemo(() => {
+    if (!stakingAssetSymbol) return
+
+    return [displayClaimButton ? actionDescription : 'RFOX.claim', { stakingAssetSymbol }]
+  }, [displayClaimButton, actionDescription, stakingAssetSymbol])
 
   return (
     <Tooltip
@@ -125,9 +127,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
           </Flex>
           <Box mr={4}>
             <RawText fontSize='sm' color='gray.400' align={'start'}>
-              {translate(actionTranslationKey, {
-                assetSymbol: stakingAssetSymbol ?? '',
-              })}
+              {translate(actionTranslation)}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
               {stakingAssetSymbol}

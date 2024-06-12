@@ -13,11 +13,12 @@ import {
 } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { knownChainIds } from 'constants/chains'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { enableShapeShiftSnap } from 'utils/snaps'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
@@ -32,11 +33,13 @@ type SnapConfirmProps = {
 
 export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   const [isInstalling, setIsInstalling] = useState(false)
+  const [isInstallationRequestComplete, setIsInstallationRequestComplete] = useState(false)
   const [hasAgreed, setHasAgreed] = useState(false)
   const [hasPinkySworeSeedPhraseIsBackedUp, setHasPinkySworeSeedPhraseIsBackedUp] = useState(false)
   const translate = useTranslate()
   const { state: walletState } = useWallet()
   const dispatch = useAppDispatch()
+  const isSnapInstalled = useIsSnapInstalled()
 
   const discoverNonEvmAccounts = useCallback(async () => {
     const { wallet, deviceId: walletDeviceId } = walletState
@@ -62,13 +65,23 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
     )
   }, [dispatch, walletState])
 
+  // We must wait for the snap installation to complete before we can discover non-evm accounts
+  // This resolves a race condition on RPC request permissions to metamask on non-evm chains
+  useEffect(() => {
+    if (isInstallationRequestComplete && isSnapInstalled) {
+      ;(async () => {
+        await discoverNonEvmAccounts()
+        onClose()
+      })()
+    }
+  }, [discoverNonEvmAccounts, isInstallationRequestComplete, isSnapInstalled, onClose])
+
   const handleAddSnap = useCallback(async () => {
     setIsInstalling(true)
     await enableShapeShiftSnap()
     getMixPanel()?.track(MixPanelEvent.SnapInstalled)
-    await discoverNonEvmAccounts()
-    onClose()
-  }, [discoverNonEvmAccounts, onClose])
+    setIsInstallationRequestComplete(true)
+  }, [])
 
   const handlePinkySwearSeedPhraseIsBackedUp = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) =>

@@ -37,7 +37,6 @@ import {
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
@@ -64,14 +63,6 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const history = useHistory()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
-
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(claimQuote.stakingAssetId).chainId),
-  )
-
-  const feeAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
-  )
 
   const handleGoBack = useCallback(() => {
     history.push(ClaimRoutePaths.Select)
@@ -157,27 +148,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     },
   })
 
-  const isGetClaimFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        isClaimMutationIdle &&
-          stakingAssetAccountNumber !== undefined &&
-          wallet &&
-          stakingAsset &&
-          callData &&
-          feeAsset &&
-          feeAssetMarketDataUserCurrency,
-      ),
-    [
-      isClaimMutationIdle,
-      stakingAssetAccountNumber,
-      wallet,
-      stakingAsset,
-      callData,
-      feeAsset,
-      feeAssetMarketDataUserCurrency,
-    ],
-  )
+  const isGetClaimFeesEnabled = useMemo(() => Boolean(isClaimMutationIdle), [isClaimMutationIdle])
 
   const claimFeesQueryInput = useMemo(
     () => ({

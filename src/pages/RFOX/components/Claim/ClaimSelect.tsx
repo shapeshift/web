@@ -10,16 +10,16 @@ import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import dayjs from 'dayjs'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { useReadContract, useReadContracts } from 'wagmi'
+import { useReadContracts } from 'wagmi'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { chainIdToChainDisplayName } from 'lib/utils'
-import { RfoxTabIndex } from 'pages/RFOX/RFOX'
+import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { RfoxTabIndex } from 'pages/RFOX/Widget'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -99,16 +99,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isSuccess: isUnstakingRequestCountSuccess,
     isLoading: isUnstakingRequestCountLoading,
     refetch: refetchUnstakingRequestCount,
-  } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'getUnstakingRequestCount',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(stakingAssetAccountAddress),
-    },
-  })
+  } = useGetUnstakingRequestCountQuery({ stakingAssetAccountAddress })
 
   const hasClaims = useMemo(
     () =>

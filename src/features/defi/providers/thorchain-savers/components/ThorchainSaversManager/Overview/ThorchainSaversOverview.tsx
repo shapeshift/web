@@ -375,7 +375,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if ((!earnOpportunityData && maybeAccountId) || isTradingActiveLoading) {
+  if ((!earnOpportunityData?.isLoaded && maybeAccountId) || isTradingActiveLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />

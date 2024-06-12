@@ -1044,7 +1044,7 @@
         "tooltip": "Send funds to a single address for THORChain compatibility.",
         "consolidateFunds": "Consolidate"
       },
-      "getBalanceError": "Error getting wallet balances",
+      "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "tokenAddress": "To Address",
@@ -2430,12 +2430,15 @@
     }
   },
   "RFOX": {
+    "staking": "rFOX Staking",
     "bridge": "Bridge",
     "bridgeFunds": "Bridge Funds",
     "bridgeSuccess": "Your funds have been successfully bridged. You can now continue to staking.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",
+    "rewards": "Rewards",
+    "claims": "Claims",
     "changeAddress": "Change address",
     "sameAddressNotAllowed": "Same address not allowed",
     "stakingDetails": "Staking Details",
@@ -2461,7 +2464,7 @@
       "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
       "shareOfPool": "This is your percentage of the fees you'll earn.",
-      "unstakePendingCooldown": "Claim available %{cooldownPeriodHuman}",
+      "unstakePendingCooldown": "Claim available in %{cooldownPeriodHuman}",
       "cooldownComplete": "Cooldown finished %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
@@ -2490,6 +2493,36 @@
     "bridgeAndConfirm": "Bridge & Confirm",
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
-    "confirmAndBridge": "Confirm & Bridge"
+    "confirmAndBridge": "Confirm & Bridge",
+    "myRewardBalance": "My Reward Balance",
+    "myRewardBalanceHelper": "My Reward Balance",
+    "pendingRewardsBalance": "Pending Rewards Balance",
+    "pendingRewardsBalanceHelper": "Pending Rewards Balance",
+    "lifetimeRewards": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "Lifetime Rewards",
+    "timeInPool": "Time in Pool",
+    "timeInPoolHelper": "Time in Pool",
+    "myPosition": "My Position",
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "What is rFOX?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "why": {
+        "title": "Why stake your FOX?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      },
+      "cooldown": {
+        "title": "What is the cooldown period?",
+        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      }
+    },
+    "totals": "rFOX Totals",
+    "totalStaked": "Total FOX Staked",
+    "totalFeesCollected": "Total Fees Collected (This Epoch)",
+    "emissionsPool": "Emissions Pool (This Epoch)",
+    "emissionsPoolHelper": "Emissions Pool (This Epoch)",
+    "foxBurnAmount": "FOX Burn Amount"
   }
 }

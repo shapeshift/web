@@ -83,7 +83,7 @@ export const Notifications = memo(() => {
         chainId: ethChainId,
         wallet,
         isSnapInstalled,
-        chainAccountIds: ethAccountIds,
+        checkConnectedAccountIds: ethAccountIds,
       }),
     [ethAccountIds, isSnapInstalled, wallet],
   )

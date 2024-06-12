@@ -2495,9 +2495,13 @@
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "confirmAndBridge": "Confirm & Bridge",
     "myRewardBalance": "My Reward Balance",
-    "pendingRewardBalance": "Pending Rewards Balance",
+    "myRewardBalanceHelper": "My Reward Balance",
+    "pendingRewardsBalance": "Pending Rewards Balance",
+    "pendingRewardsBalanceHelper": "Pending Rewards Balance",
     "lifetimeRewards": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "Lifetime Rewards",
     "timeInPool": "Time in Pool",
+    "timeInPoolHelper": "Time in Pool",
     "myPosition": "My Position",
     "faq": {
       "title": "FAQ",
@@ -2518,6 +2522,7 @@
     "totalStaked": "Total FOX Staked",
     "totalFeesCollected": "Total Fees Collected (This Epoch)",
     "emissionsPool": "Emissions Pool (This Epoch)",
+    "emissionsPoolHelper": "Emissions Pool (This Epoch)",
     "foxBurnAmount": "FOX Burn Amount"
   }
 }

@@ -23,9 +23,16 @@ type ClaimRowProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
   index: number
-  displayClaimButton?: boolean
-  actionDescription?: string
-}
+} & (
+  | {
+      displayClaimButton: boolean
+      actionDescription: string
+    }
+  | {
+      displayClaimButton?: never
+      actionDescription?: never
+    }
+)
 
 const hoverProps = { bg: 'gray.700' }
 
@@ -87,6 +94,10 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     return status
   }, [cooldownPeriodHuman, isLargerThanMd, displayClaimButton, status, translate])
 
+  const actionTranslationKey = useMemo(() => {
+    return displayClaimButton ? actionDescription : 'RFOX.claim'
+  }, [displayClaimButton, actionDescription])
+
   return (
     <Tooltip
       label={translate(
@@ -114,9 +125,9 @@ export const ClaimRow: FC<ClaimRowProps> = ({
           </Flex>
           <Box mr={4}>
             <RawText fontSize='sm' color='gray.400' align={'start'}>
-              {actionDescription
-                ? actionDescription
-                : translate('RFOX.claim', { assetSymbol: stakingAssetSymbol })}
+              {translate(actionTranslationKey, {
+                assetSymbol: stakingAssetSymbol ?? '',
+              })}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
               {stakingAssetSymbol}

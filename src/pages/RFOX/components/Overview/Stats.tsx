@@ -28,6 +28,7 @@ export const Stats: React.FC = () => {
         <StatItem description='RFOX.totalFeesCollected' amountUserCurrency='30600000' />
         <StatItem
           description='RFOX.emissionsPool'
+          helperTranslation='RFOX.emissionsPoolHelper'
           percentChangeDecimal={'0.3445'}
           amountUserCurrency='42890000'
         />

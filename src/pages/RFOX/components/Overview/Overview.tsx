@@ -3,7 +3,7 @@ import { foxAssetId } from '@shapeshiftoss/caip'
 import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 
-import { StakingInformations } from './StakingInformations'
+import { StakingInformation } from './StakingInformation'
 import { Stats } from './Stats'
 
 export const Overview: React.FC = () => {
@@ -25,7 +25,7 @@ export const Overview: React.FC = () => {
             </RawText>
           </Flex>
         </Flex>
-        <StakingInformations />
+        <StakingInformation />
       </CardHeader>
       <CardBody pb={6}>
         <Stats />

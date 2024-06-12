@@ -1,14 +1,17 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Flex, Skeleton, Stack, Tag } from '@chakra-ui/react'
+import { Skeleton, Stack, Tag } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 
 type StatItemProps = {
   description: string
   amountUserCurrency?: string
   percentChangeDecimal?: string
+  helperTranslation?: string
 }
 
 type ChangeTagProps = {
@@ -30,11 +33,23 @@ const ChangeTag: React.FC<ChangeTagProps> = ({ value }) => {
   )
 }
 
+const helperToolTipFlexProps = {
+  alignItems: 'center',
+  gap: 2,
+}
+
 export const StatItem = ({
+  helperTranslation,
   description,
   amountUserCurrency,
   percentChangeDecimal,
 }: StatItemProps) => {
+  const translate = useTranslate()
+
+  const helperIconProps = useMemo(() => {
+    return { boxSize: !helperTranslation ? 0 : undefined }
+  }, [helperTranslation])
+
   const valueChangeTag: JSX.Element | null = useMemo(() => {
     if (!percentChangeDecimal) return null
 
@@ -44,12 +59,16 @@ export const StatItem = ({
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
       <Skeleton isLoaded={true}>
-        <Flex alignItems='center' gap={2}>
+        <HelperTooltip
+          label={translate(helperTranslation)}
+          flexProps={helperToolTipFlexProps}
+          iconProps={helperIconProps}
+        >
           {amountUserCurrency && (
             <Amount.Fiat value={amountUserCurrency} fontSize='xl' fontWeight='medium' />
           )}
           {valueChangeTag}
-        </Flex>
+        </HelperTooltip>
       </Skeleton>
       <Text fontSize='sm' color='text.subtle' fontWeight='medium' translation={description} />
     </Stack>

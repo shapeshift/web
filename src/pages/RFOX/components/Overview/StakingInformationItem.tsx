@@ -2,14 +2,17 @@ import { Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type StakingInformationsItemProps = {
+type StakingInformationItemProps = {
   informationDescription: string
+  helperTranslation?: string
   value?: string
 } & (
   | {
@@ -25,9 +28,11 @@ type StakingInformationsItemProps = {
 export const StakingInformationsItem = ({
   informationDescription,
   assetId,
+  helperTranslation,
   value,
   amountCryptoBaseUnit,
-}: StakingInformationsItemProps) => {
+}: StakingInformationItemProps) => {
+  const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const marketDataUserCurrency = useAppSelector(state =>
@@ -44,14 +49,20 @@ export const StakingInformationsItem = ({
     [amountCryptoBaseUnit, marketDataUserCurrency, asset],
   )
 
+  const helperIconProps = useMemo(() => {
+    return { boxSize: !helperTranslation ? 0 : undefined }
+  }, [helperTranslation])
+
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
-      <Text
-        fontSize='sm'
-        color='text.subtle'
-        fontWeight='medium'
-        translation={informationDescription}
-      />
+      <HelperTooltip label={translate(helperTranslation)} iconProps={helperIconProps}>
+        <Text
+          fontSize='sm'
+          color='text.subtle'
+          fontWeight='medium'
+          translation={informationDescription}
+        />
+      </HelperTooltip>
       <Skeleton isLoaded={true}>
         <Flex alignItems='center' gap={2}>
           {asset && amountCryptoBaseUnit && (

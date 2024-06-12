@@ -14,6 +14,7 @@ export const Rewards = ({ headerComponent }: RewardsProps) => {
   const filter = useMemo(() => ({ txStatus: TxStatus.Confirmed, assetIdFilter: rune.assetId }), [])
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
   const txIdsFilter = useMemo(() => {
+    // @TODO: Remove this slice when we have pagination in place, if we ever need a pagination
     return txIds.slice(0, Number(5))
   }, [txIds])
 

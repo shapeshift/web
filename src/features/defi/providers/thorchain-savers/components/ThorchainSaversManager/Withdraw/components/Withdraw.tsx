@@ -13,7 +13,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import pDebounce from 'p-debounce'
 import { useCallback, useContext, useMemo, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -29,7 +29,7 @@ import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import type { GetThorchainSaversWithdrawQuoteQueryKey } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
 import {
-  queryFn as getThorchainSaversWithdrawQuoteQueryFn,
+  fetchThorchainWithdrawQuote,
   useGetThorchainSaversWithdrawQuoteQuery,
 } from 'lib/utils/thorchain/hooks/useGetThorchainSaversWithdrawQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -72,7 +72,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const { chainId, assetNamespace, assetReference } = query
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
-  const { getValues, setValue } = methods
+  const { control, setValue } = methods
+
+  const cryptoAmount = useWatch<WithdrawValues, Field.CryptoAmount>({
+    control,
+    name: Field.CryptoAmount,
+  })
 
   const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
@@ -168,11 +173,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     [],
   )
 
+  const hasEnoughStakingBalance = useMemo(
+    () => bnOrZero(cryptoAmount).lte(amountAvailableCryptoPrecision),
+    [amountAvailableCryptoPrecision, cryptoAmount],
+  )
   const { data: thorchainSaversWithdrawQuote, isLoading: isThorchainSaversWithdrawQuoteLoading } =
     useGetThorchainSaversWithdrawQuoteQuery({
       asset,
       accountId: accountId ?? '',
-      amountCryptoBaseUnit: toBaseUnit(getValues()?.cryptoAmount, asset.precision),
+      amountCryptoBaseUnit: toBaseUnit(cryptoAmount, asset.precision),
+      enabled: hasEnoughStakingBalance,
     })
 
   const {
@@ -320,6 +330,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const withdrawAmountCryptoBaseUnit = toBaseUnit(value, asset.precision)
         const amountCryptoBaseUnit = toBaseUnit(withdrawAmountCryptoPrecision, asset.precision)
 
+        if (withdrawAmountCryptoPrecision.gt(amountAvailableCryptoPrecision))
+          return 'common.insufficientFunds'
+
         setMissingFunds(null)
         setQuoteLoading(true)
 
@@ -332,7 +345,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           await queryClient
             .fetchQuery({
               queryKey: thorchainSaversWithdrawQuoteQueryKey,
-              queryFn: getThorchainSaversWithdrawQuoteQueryFn,
+              queryFn: () =>
+                fetchThorchainWithdrawQuote({ asset, accountId, amountCryptoBaseUnit }),
               staleTime: 5000,
             })
             // Re-wrapping into a Result<T, E> since react-query expects promises to reject and doesn't speak monads
@@ -460,15 +474,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(assetMarketData.price)
         const valueCryptoPrecision = bnOrZero(value)
 
-        const hasValidBalance = await (async () => {
+        const hasValidStakingBalance =
+          amountAvailableFiat.gt(0) && valueCryptoPrecision.gt(0) && amountAvailableFiat.gte(value)
+
+        const hasValidBalanceForTxPlusFees = await (async () => {
+          if (!hasValidStakingBalance) return false
           // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
-          if (!isUtxoChainId(chainId)) {
-            return (
-              amountAvailableFiat.gt(0) &&
-              valueCryptoPrecision.gt(0) &&
-              amountAvailableFiat.gte(value)
-            )
-          }
+          if (!isUtxoChainId(chainId)) return true
           const { hasEnoughBalance: hasEnoughBalanceForTxPlusFeesPlusSweep, missingFunds } =
             await fetchHasEnoughBalanceForTxPlusFeesPlusSweep({
               amountCryptoPrecision: withdrawAmountCryptoPrecision.toFixed(),
@@ -489,7 +501,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         })()
 
         if (valueCryptoPrecision.isEqualTo(0)) return ''
-        return hasValidBalance || 'common.insufficientFunds'
+        return hasValidBalanceForTxPlusFees || 'common.insufficientFunds'
       } catch (e) {
         return translate('trade.errors.amountTooSmallUnknownMinimum')
       } finally {
@@ -543,6 +555,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   )
 
   if (!state) return null
+
+  console.log({
+    isEstimatedFeesDataLoading,
+    isSweepNeededLoading,
+    isThorchainSaversWithdrawQuoteLoading,
+    stateLoading: state.loading,
+  })
 
   return (
     <FormProvider {...methods}>

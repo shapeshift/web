@@ -1,8 +1,9 @@
 import { type AccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { type BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import type { PartialFields } from 'lib/types'
 import {
   getThorchainSaversWithdrawQuote,
   getWithdrawBps,
@@ -11,29 +12,30 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import { selectEarnUserStakingOpportunityByUserStakingId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
+type FetchThorchainWithdrawQuoteInput = {
+  asset: Asset
+  accountId: AccountId
+} & (
+  | {
+      amountCryptoBaseUnit: BigNumber.Value | null | undefined
+      withdrawBps?: string
+    }
+  | {
+      amountCryptoBaseUnit?: never
+      withdrawBps: string
+    }
+)
+
 export type GetThorchainSaversWithdrawQuoteQueryKey = [
   'thorchainSaversWithdrawQuote',
-  {
-    asset: Asset
-    accountId: AccountId
-  } & (
-    | {
-        amountCryptoBaseUnit: BigNumber.Value | null | undefined
-        withdrawBps?: string
-      }
-    | {
-        amountCryptoBaseUnit?: never
-        withdrawBps: string
-      }
-  ),
+  PartialFields<FetchThorchainWithdrawQuoteInput, 'accountId'>,
 ]
-export const queryFn = async ({
-  queryKey,
-}: {
-  queryKey: GetThorchainSaversWithdrawQuoteQueryKey
-}) => {
-  const [, { asset, accountId, amountCryptoBaseUnit, withdrawBps }] = queryKey
-
+export const fetchThorchainWithdrawQuote = async ({
+  asset,
+  accountId,
+  amountCryptoBaseUnit,
+  withdrawBps,
+}: FetchThorchainWithdrawQuoteInput) => {
   const { chainId, assetNamespace, assetReference } = fromAssetId(asset.assetId)
   const opportunityId = toOpportunityId({ chainId, assetNamespace, assetReference })
   const opportunityData = selectEarnUserStakingOpportunityByUserStakingId(store.getState(), {
@@ -63,10 +65,12 @@ export const useGetThorchainSaversWithdrawQuoteQuery = ({
   asset,
   accountId,
   amountCryptoBaseUnit,
+  enabled = true,
 }: {
   asset: Asset
-  accountId: AccountId
+  accountId: AccountId | undefined
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
+  enabled?: boolean
 }) => {
   const withdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = useMemo(
     () => ['thorchainSaversWithdrawQuote', { asset, accountId, amountCryptoBaseUnit }],
@@ -75,8 +79,10 @@ export const useGetThorchainSaversWithdrawQuoteQuery = ({
 
   const withdrawQuoteQuery = useQuery({
     queryKey: withdrawQuoteQueryKey,
-    queryFn,
-    enabled: Boolean(accountId && bnOrZero(amountCryptoBaseUnit).gt(0)),
+    queryFn:
+      enabled && accountId && bnOrZero(amountCryptoBaseUnit).gt(0)
+        ? () => fetchThorchainWithdrawQuote({ asset, accountId, amountCryptoBaseUnit })
+        : skipToken,
     staleTime: 5000,
   })
 

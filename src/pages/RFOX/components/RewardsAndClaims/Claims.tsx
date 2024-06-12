@@ -39,7 +39,7 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
           amountCryptoPrecision={'1500'}
           status={ClaimStatus.Available}
           setConfirmedQuote={setConfirmedQuote}
-          cooldownPeriodHuman={'1 day'}
+          cooldownPeriodHuman={'1 day ago'}
           index={1}
           actionDescription={translate('RFOX.unstakeFrom', { assetSymbol: 'FOX' })}
           displayClaimButton

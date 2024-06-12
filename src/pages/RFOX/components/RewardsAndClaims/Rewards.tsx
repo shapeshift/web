@@ -1,7 +1,7 @@
 import { Box, CardBody } from '@chakra-ui/react'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
-import { rune } from 'test/mocks/assets'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { selectTxIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -11,7 +11,10 @@ type RewardsProps = {
 }
 
 export const Rewards = ({ headerComponent }: RewardsProps) => {
-  const filter = useMemo(() => ({ txStatus: TxStatus.Confirmed, assetIdFilter: rune.assetId }), [])
+  const filter = useMemo(
+    () => ({ txStatus: TxStatus.Confirmed, assetIdFilter: thorchainAssetId }),
+    [],
+  )
   const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
   const txIdsFilter = useMemo(() => {
     // @TODO: Remove this slice when we have pagination in place, if we ever need a pagination

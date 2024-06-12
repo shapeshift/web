@@ -15,7 +15,7 @@ type StatItemProps = {
 }
 
 type ChangeTagProps = {
-  value?: string
+  value: string
 }
 
 // @TODO: This is used in both pool and here, make it reusable

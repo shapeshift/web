@@ -1,5 +1,5 @@
 import { Box, SimpleGrid } from '@chakra-ui/react'
-import { rune } from 'test/mocks/assets'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 
 import { StakingInfoItem } from './StakingInfoItem'
@@ -7,7 +7,7 @@ import { StakingInfoItem } from './StakingInfoItem'
 const gridColumns = { base: 1, md: 2 }
 
 export const StakingInfo: React.FC = () => {
-  const assetId = rune.assetId
+  const assetId = thorchainAssetId
 
   return (
     <Box>

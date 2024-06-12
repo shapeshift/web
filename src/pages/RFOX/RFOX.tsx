@@ -16,7 +16,7 @@ export const RFOX: React.FC = () => {
   const translate = useTranslate()
 
   return (
-    <Main py={paddingVerticalResponsiveProps} px={2}>
+    <Main py={paddingVerticalResponsiveProps} px={4}>
       <Heading mb={8}>{translate('RFOX.staking')}</Heading>
 
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>

@@ -86,12 +86,12 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     }
   }, [displayClaimButton, status, handleClaimClick])
 
-  const statusTest = useMemo(() => {
+  const statusText = useMemo(() => {
     if (displayClaimButton && status === ClaimStatus.CoolingDown)
       return isLargerThanMd
         ? translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
         : cooldownPeriodHuman
-    return status
+    return translate('RFOX.tooltips.cooldownComplete', { cooldownPeriodHuman })
   }, [cooldownPeriodHuman, isLargerThanMd, displayClaimButton, status, translate])
 
   const actionTranslation = useMemo(() => {
@@ -126,9 +126,11 @@ export const ClaimRow: FC<ClaimRowProps> = ({
             </AssetIconWithBadge>
           </Flex>
           <Box mr={4}>
-            <RawText fontSize='sm' color='gray.400' align={'start'}>
-              {translate(actionTranslation)}
-            </RawText>
+            {actionTranslation && (
+              <RawText fontSize='sm' color='gray.400' align={'start'}>
+                {translate(...actionTranslation)}
+              </RawText>
+            )}
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'start'}>
               {stakingAssetSymbol}
             </RawText>
@@ -142,7 +144,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
               color={status === ClaimStatus.Available ? 'green.300' : 'yellow.300'}
               align={'end'}
             >
-              {statusTest}
+              {statusText}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'end'}>
               <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />

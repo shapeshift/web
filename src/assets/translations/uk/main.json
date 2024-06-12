@@ -865,7 +865,8 @@
       "tradeFailed": "Обмін не вдався. Активи повернуто за вирахуванням плати за газ",
       "noQuotesAvailable": "Для цієї угоди немає котирувань",
       "smartContractWalletNotSupported": "Гаманець смарт-контракту не підтримується",
-      "unsafeQuote": "Ця сума нижче рекомендованого мінімуму для цієї пари(%{recommendedMin} %{symbol}). Це може призвести до невдалої торгівлі або втрати коштів."
+      "unsafeQuote": "Ця сума нижче рекомендованого мінімуму для цієї пари(%{recommendedMin} %{symbol}). Це може призвести до невдалої торгівлі або втрати коштів.",
+      "rateLimitExceeded": "Перевищено ліміт швидкості, спробуйте пізніше"
     },
     "swappingComingSoonForWallet": "Зміна на %{walletName} незабаром",
     "recentTrades": "Нещодавні угоди",
@@ -1813,7 +1814,8 @@
     "importAccounts": {
       "title": "Імпорт %{chainNamespaceDisplayName} Облікових записів",
       "description": "Виберіть облікові записи, які ви хочете імпортувати, зі списку нижче.",
-      "import": "Імпортувати"
+      "import": "Імпортувати",
+      "loadMoreDisabled": "Цей гаманець не підтримує кілька акаунтів для одного ланцюжка."
     },
     "ledgerOpenApp": {
       "title": "Відкрити %{appName} додаток",
@@ -2344,6 +2346,8 @@
     "symAfterRuneAlert": "Симетричні депозити неможливі після асиметричного депозиту RUNE через те, як працює мережа THOR.",
     "incompletePositionDepositAlert": "Ця позиція є незавершеною, будь ласка, внесіть відповідну суму в %{asset} щоб завершити цю позицію.",
     "incompletePositionWithdrawAlert": "Ця позиція є незавершеною, будь ласка, скасуйте позицію, видаливши 100% ліквідності. Ви також можете завершити позицію через \"Додати ліквідність\".",
+    "unsupportedNetworkExplainer": "Ваш гаманець не підключено до %{network}. Будь ласка, підключіть цей ланцюжок або перейдіть на гаманець, який підтримує цю мережу.",
+    "unsupportedNetworksExplainer": "Ваш гаманець не підключено до %{network1} та %{network2}. Будь ласка, підключіть цей ланцюжок або перейдіть на гаманець, який підтримує ці мережі.",
     "shareOfPool": "Частка пулу",
     "assetDepositAmount": "Сума депозиту %{asset} ",
     "totalLiquidity": "Загальна ліквідність",
@@ -2433,6 +2437,7 @@
     "unstakeAmount": "Розстейкати активи",
     "confirmAndStake": "Підтвердити і Застейкати",
     "confirmAndUnstake": "Підтвердити і Розстейкати",
+    "confirmAndClaim": "Підтвердити та заклеймити",
     "shapeShiftFee": "Комісія ShapeShift",
     "approvalFee": "Комісія за схвалення",
     "lockupPeriod": "Період блокування",
@@ -2447,7 +2452,10 @@
     "tooltips": {
       "stakeAmount": "Це сума FOX, яку ви поставите на кін",
       "unstakeAmount": "Це кількість FOX, яку ви знімете зі стейкінгу",
-      "lockupPeriod": "Саме стільки часу вам доведеться чекати після зняття стейкінгу, щоб забрати свій FOX"
+      "lockupPeriod": "Саме стільки часу вам доведеться чекати після зняття стейкінгу, щоб забрати свій FOX",
+      "shareOfPool": "Це ваш відсоток від комісії, яку ви заробите.",
+      "unstakePendingCooldown": "Клейм доступний %{cooldownPeriodHuman}",
+      "cooldownComplete": "Час чекання закінчився %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Ви успішно застейкали %{amount} %{symbol}",
     "stakePending": "Стейкінг %{amount} %{symbol}...",
@@ -2455,13 +2463,22 @@
     "changeRewardAddressPending": "Зміна адреси отримання винагороди...",
     "changeRewardAddressSuccess": "Ви успішно змінили свою адресу винагороди THORCHain.",
     "unstakePending": "Запит на зняття %{amount} %{symbol}",
+    "unstakeSuccess": "Після закінчення %{cooldownPeriod} ви зможете отримати свої %{amount} %{symbol}.",
     "currentRewardAddress": "Поточна адреса для отримання винагороди",
+    "newRewardAddress": "Нова адреса для отримання винагороди",
     "rewardCycleExplainer": "Ця інформація буде оновлена для наступного циклу нагородження.",
     "noPositionTitle": "Немає активної позиції",
     "noPositionBody": "Ви зможете змінити свою адресу для отримання винагороди тут, як тільки у вас з'явиться активна позиція.",
     "stakeNow": "Застейкати зараз",
     "noAddressFound": "Адреса не знайдена",
     "newAddressInfo": "Ця інформація буде оновлена для наступного циклу нагородження",
-    "confirmAndUpdateAddress": "Підтвердити та оновити адресу"
+    "confirmAndUpdateAddress": "Підтвердити та оновити адресу",
+    "unstakeFrom": "Відстейкати від r%{assetSymbol}",
+    "claimPending": "Запит на виведення коштів",
+    "claimSuccess": "Ви успішно заклеймили %{amount} %{symbol}.",
+    "claimReceiveAddress": "Адреса отримання ",
+    "noClaimsAvailable": "Немає коштів для клейму",
+    "noClaimsAvailableDescription": "Ви не маєте жодних наявних клеймів",
+    "unstakeNow": "Відстейкати зараз"
   }
 }

@@ -84,7 +84,7 @@ export function TokenRow<C extends FieldValues>({
         />
       )
     },
-    [asset?.precision, disabled, localeParts.decimal, localeParts.group, onInputChange],
+    [asset?.precision, disabled, isFiat, localeParts.decimal, localeParts.group, onInputChange],
   )
 
   return (

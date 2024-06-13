@@ -441,7 +441,7 @@ export const RepayInput = ({
         )
         .lte(repaymentAssetAmountAvailableCryptoPrecision)
 
-    // Token - fees can either be network fees or Tx fees
+    // Token - fees can either be network fees or approval fees
     const txFeeCryptoBaseUnit =
       'txFeeCryptoBaseUnit' in fees ? fees.txFeeCryptoBaseUnit : fees.networkFeeCryptoBaseUnit
     return (

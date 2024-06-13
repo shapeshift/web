@@ -27,11 +27,11 @@ export const FormDivider: React.FC<FormDividerProps> = ({
   isDisabled,
   icon,
   orientation = 'horizontal',
-  ...props
+  ...flexProps
 }) => {
   const translate = useTranslate()
 
-  const containerProps = useMemo<FlexProps>(() => {
+  const orientationProps = useMemo<FlexProps>(() => {
     if (orientation === 'vertical') {
       return { flexDir: 'column', alignItems: 'center' }
     }
@@ -50,7 +50,7 @@ export const FormDivider: React.FC<FormDividerProps> = ({
   }, [orientation, icon])
 
   return (
-    <Flex justifyContent='center' my={-2} {...containerProps} {...props}>
+    <Flex justifyContent='center' my={-2} {...orientationProps} {...flexProps}>
       <Divider flexGrow='1' orientation={orientation} />
       <CircularProgress
         color='blue.500'

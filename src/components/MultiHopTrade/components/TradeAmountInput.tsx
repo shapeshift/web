@@ -28,7 +28,7 @@ import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOpt
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
@@ -78,7 +78,7 @@ export type TradeAmountInputProps = {
     'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
   >
   autoSelectHighestBalance?: boolean
-  assetId?: AssetId
+  assetId: AssetId
   accountId?: AccountId
   assetSymbol: string
   assetIcon: string
@@ -166,8 +166,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const focusBg = useColorModeValue('gray.50', 'gray.900')
     const focusBorder = useColorModeValue('blue.500', 'blue.400')
 
+    const asset = useAppSelector(state => selectAssetById(state, assetId))
     const assetMarketDataUserCurrency = useAppSelector(state =>
-      selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+      selectMarketDataByAssetIdUserCurrency(state, assetId),
     )
 
     // Local controller in case consumers don't have a form context, which is the case for all current consumers currently except RFOX
@@ -226,6 +227,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         return (
           <NumberFormat
             customInput={AmountInput}
+            decimalScale={isFiat ? undefined : asset?.precision}
             isNumericString={true}
             disabled={isReadOnly}
             _disabled={numberFormatDisabled}
@@ -265,6 +267,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         )
       },
       [
+        asset,
         assetMarketDataUserCurrency.price,
         fiatAmount,
         formattedCryptoAmount,
@@ -319,7 +322,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               </FormLabel>
             </Flex>
           )}
-          {balance && assetId && label && !isAccountSelectionHidden && (
+          {balance && label && !isAccountSelectionHidden && (
             <AccountDropdown
               defaultAccountId={accountId}
               assetId={assetId}
@@ -344,7 +347,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 rules={amountFieldInputRules}
               />
             </Skeleton>
-            {RightComponent && <RightComponent assetId={assetId ?? ''} />}
+            {RightComponent && <RightComponent assetId={assetId} />}
             {layout === 'inline' && showFiatAmount && !hideAmounts && (
               <Button
                 onClick={toggleIsFiat}
@@ -407,7 +410,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 onMaxClick={handleOnMaxClick}
                 onClick={onPercentOptionClick ?? noop}
               />
-              {balance && assetId && !label && !isAccountSelectionHidden && (
+              {balance && !label && !isAccountSelectionHidden && (
                 <AccountDropdown
                   defaultAccountId={accountId}
                   assetId={assetId}

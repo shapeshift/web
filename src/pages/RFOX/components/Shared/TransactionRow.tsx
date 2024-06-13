@@ -119,7 +119,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   return (
     <Card>
-      <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
+      <CardHeader gap={2} display='flex' flexDir='row' alignItems='center' flexWrap='wrap'>
         <AssetIcon size='xs' assetId={asset.assetId} />
         <Text>{headerCopy}</Text>
         <Flex ml='auto' alignItems='center' gap={2}>

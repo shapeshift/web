@@ -575,7 +575,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         actualAssetDepositAmountCryptoPrecision,
         poolAsset?.precision ?? 0,
       ),
-      wallet,
+      wallet: wallet ?? undefined,
       accountNumber: poolAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {

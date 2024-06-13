@@ -75,7 +75,7 @@ export const useRfoxBridgeApproval = ({
       spender: allowanceContract!, // see handleApprove below
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       amountCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
-      wallet,
+      wallet: wallet ?? undefined,
       accountNumber: sellAssetAccountNumber,
     }),
     onSuccess: (txHash: string) => {

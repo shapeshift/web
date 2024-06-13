@@ -89,7 +89,7 @@ export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
 
 export type MaybeGetFeesWithWalletArgs = PartialFields<
   Omit<GetFeesWithWalletArgs, 'wallet'>,
-  'adapter' | 'accountNumber' | 'data'
+  'adapter' | 'accountNumber' | 'data' | 'to'
 > & {
   wallet: HDWallet | null
 }
@@ -108,7 +108,9 @@ export type EvmFees = {
 export const isGetFeesWithWalletArgs = (
   input: MaybeGetFeesWithWalletArgs,
 ): input is GetFeesWithWalletArgs =>
-  Boolean(input.adapter && input.accountNumber !== undefined && input.wallet && input.data)
+  Boolean(
+    input.adapter && input.accountNumber !== undefined && input.wallet && input.data && input.to,
+  )
 
 export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fees> => {
   const { accountNumber, adapter, wallet, ...rest } = args

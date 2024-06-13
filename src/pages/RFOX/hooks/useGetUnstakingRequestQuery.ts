@@ -51,20 +51,7 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
   })
 
   const contracts = useMemo(
-    () =>
-      stakingAssetAccountAddress
-        ? Array.from(
-            { length: Number(unstakingRequestCountResponse) },
-            (_, index) =>
-              ({
-                abi: foxStakingV1Abi,
-                address: RFOX_PROXY_CONTRACT_ADDRESS,
-                functionName: 'getUnstakingRequest',
-                args: [getAddress(stakingAssetAccountAddress), index],
-                chainId: arbitrum.id,
-              }) as const,
-          )
-        : [],
+    () => getContracts(stakingAssetAccountAddress, unstakingRequestCountResponse ?? 0n),
     [stakingAssetAccountAddress, unstakingRequestCountResponse],
   )
 

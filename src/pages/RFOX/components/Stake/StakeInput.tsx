@@ -392,6 +392,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             <TradeAssetInput
               amountFieldInputRules={amountFieldInputRules}
               assetId={selectedAsset?.assetId}
+              accountId={selectedAssetAccountId}
               assetSymbol={selectedAsset?.symbol ?? ''}
               assetIcon={selectedAsset?.icon ?? ''}
               percentOptions={percentOptions}

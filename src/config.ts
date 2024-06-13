@@ -78,6 +78,7 @@ const validators = {
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP_GNOSIS: bool({ default: false }),
+  REACT_APP_FEATURE_COWSWAP_ARBITRUM: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),

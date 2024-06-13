@@ -6,7 +6,7 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { Amount } from 'components/Amount/Amount'
 
 export type ChangeTagProps = {
-  value?: string | number
+  value: string | number | undefined
   hasBackground?: boolean
 } & TagProps
 

@@ -118,7 +118,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
         <Card
           display='flex'
           alignItems='stretch'
-          justifyContent='space-around'
+          justifyContent='space-evenly'
           flexDir='row'
           gap={4}
           py={6}

@@ -1,19 +1,6 @@
 import { createMutationKeys } from '@lukemorales/query-key-factory'
-import { type AssetId } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { approve } from 'lib/utils/evm/approve'
-
-type ApproveInput = {
-  assetId: AssetId
-  spender: string
-  amountCryptoBaseUnit: string
-  from: string
-  accountNumber: number
-}
-export type MaybeApproveInput = Partial<ApproveInput>
-
-export type ApproveInputWithWallet = ApproveInput & { wallet: HDWallet }
-type MaybeApproveInputWithWallet = Partial<ApproveInputWithWallet>
+import type { MaybeApproveInputWithWallet } from 'lib/utils/evm/types'
 
 export const mutations = createMutationKeys('mutations', {
   approve: ({

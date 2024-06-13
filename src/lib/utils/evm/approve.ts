@@ -1,9 +1,9 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { ApproveInputWithWallet } from 'react-queries/queries/mutations'
 
 import { assertGetEvmChainAdapter, buildAndBroadcast, getApproveContractData, getFees } from '.'
+import type { ApproveInputWithWallet } from './types'
 
 export const approve = async ({
   assetId,

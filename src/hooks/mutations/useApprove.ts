@@ -5,12 +5,12 @@ import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import type { MaybeApproveInput } from 'react-queries/queries/mutations'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isToken } from 'lib/utils'
+import type { MaybeApproveInput } from 'lib/utils/evm/types'
 
 type UseApproveProps = MaybeApproveInput & {
   onSuccess?: (txHash: string) => void

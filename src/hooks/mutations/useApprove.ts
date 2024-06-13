@@ -13,14 +13,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isToken } from 'lib/utils'
 
 type UseApproveProps = MaybeApproveInput & {
-  onSuccess?: (txId: string) => void
+  onSuccess?: (txHash: string) => void
 }
 
 export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApproveProps) => {
   const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
 
-  const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
+  const [approvalTxHash, setApprovalTxHash] = useState<string | null>(null)
 
   const chainId = useMemo(
     () => (input.assetId ? fromAssetId(input.assetId).chainId : undefined),
@@ -80,8 +80,8 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
 
   const approveMutation = useMutation({
     ...reactQueries.mutations.approve(maybeInputWithWallet),
-    onSuccess: (txId: string) => {
-      handleSuccess?.(txId)
+    onSuccess: (txHash: string) => {
+      handleSuccess?.(txHash)
       if (!(input.assetId && input.spender && input.from)) return
 
       queryClient.invalidateQueries(
@@ -95,7 +95,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
     allowanceDataQuery,
     approveMutation,
     approvalFeesQuery,
-    approvalTxId,
-    setApprovalTxId,
+    approvalTxHash,
+    setApprovalTxHash,
   }
 }

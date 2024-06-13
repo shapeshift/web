@@ -138,8 +138,8 @@ export const RepayInput = ({
       isSuccess: isApprovalMutationSuccess,
     },
     approvalFeesQuery: { data: approvalFeesData, isLoading: isApprovalFeesDataLoading },
-    approvalTxId,
-    setApprovalTxId,
+    approvalTxHash,
+    setApprovalTxHash,
     isApprovalRequired,
     allowanceDataQuery: { isLoading: isAllowanceDataLoading },
   } = useApprove({
@@ -213,9 +213,9 @@ export const RepayInput = ({
   )
 
   const serializedApprovalTxIndex = useMemo(() => {
-    if (!(approvalTxId && userAddress && repaymentAccountId)) return ''
-    return serializeTxIndex(repaymentAccountId, approvalTxId, userAddress)
-  }, [approvalTxId, userAddress, repaymentAccountId])
+    if (!(approvalTxHash && userAddress && repaymentAccountId)) return ''
+    return serializeTxIndex(repaymentAccountId, approvalTxHash, userAddress)
+  }, [approvalTxHash, userAddress, repaymentAccountId])
   const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
   const isApprovalTxPending = useMemo(
     () =>
@@ -338,9 +338,9 @@ export const RepayInput = ({
   const handleRepaymentAssetChange = useCallback(
     (asset: Asset) => {
       setRepaymentAsset(asset)
-      setApprovalTxId(null)
+      setApprovalTxHash(null)
     },
-    [setApprovalTxId, setRepaymentAsset],
+    [setApprovalTxHash, setRepaymentAsset],
   )
 
   const repaymentAssetSelectComponent = useMemo(() => {

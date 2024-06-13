@@ -14,7 +14,7 @@ export const Stats: React.FC = () => {
         <Skeleton isLoaded={true} display='flex' alignItems='center'>
           <Tag colorScheme='green' size='sm' alignItems='center'>
             ~
-            <Amount.Percent value={1.67} fontWeight='medium' color='green.500' />
+            <Amount.Percent value={1.67} fontWeight='medium' />
           </Tag>
         </Skeleton>
       </Flex>

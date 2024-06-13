@@ -33,7 +33,7 @@ export const StatItem = ({
   const valueChangeTag: JSX.Element | null = useMemo(() => {
     if (!percentChangeDecimal) return null
 
-    return <ChangeTag hasBackground={true} value={percentChangeDecimal} />
+    return <ChangeTag hasBackground={true} percentChangeDecimal={percentChangeDecimal} />
   }, [percentChangeDecimal])
 
   return (

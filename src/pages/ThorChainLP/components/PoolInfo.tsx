@@ -55,15 +55,15 @@ export const PoolInfo = ({
   )
 
   const volumeChangeTag: JSX.Element = useMemo(() => {
-    return <ChangeTag size='md' value={volume24hChange} />
+    return <ChangeTag size='md' percentChangeDecimal={volume24hChange} />
   }, [volume24hChange])
 
   const feeChangeTag: JSX.Element = useMemo(() => {
-    return <ChangeTag size='md' value={fee24hChange} />
+    return <ChangeTag size='md' percentChangeDecimal={fee24hChange} />
   }, [fee24hChange])
 
   const tvlChangeTag: JSX.Element | null = useMemo(() => {
-    return <ChangeTag size='md' value={tvl24hChange} />
+    return <ChangeTag size='md' percentChangeDecimal={tvl24hChange} />
   }, [tvl24hChange])
 
   if (!(asset0 && asset1 && asset0MarketData && asset1MarketData)) {

@@ -6,16 +6,24 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { Amount } from 'components/Amount/Amount'
 
 export type ChangeTagProps = {
-  value: string | number | undefined
+  percentChangeDecimal: string | number | undefined
   hasBackground?: boolean
 } & TagProps
 
-export const ChangeTag: React.FC<ChangeTagProps> = ({ value, hasBackground = false, ...props }) => {
-  const icon = bnOrZero(value).isGreaterThanOrEqualTo(0) ? <ArrowUpIcon /> : <ArrowDownIcon />
-  const colorScheme = bnOrZero(value).isGreaterThanOrEqualTo(0) ? 'green' : 'red'
+export const ChangeTag: React.FC<ChangeTagProps> = ({
+  percentChangeDecimal,
+  hasBackground = false,
+  ...tagProps
+}) => {
+  const icon = bnOrZero(percentChangeDecimal).isGreaterThanOrEqualTo(0) ? (
+    <ArrowUpIcon />
+  ) : (
+    <ArrowDownIcon />
+  )
+  const colorScheme = bnOrZero(percentChangeDecimal).isGreaterThanOrEqualTo(0) ? 'green' : 'red'
 
   return (
-    <Skeleton isLoaded={value !== undefined}>
+    <Skeleton isLoaded={percentChangeDecimal !== undefined}>
       <Tag
         display='flex'
         colorScheme={colorScheme}
@@ -23,10 +31,10 @@ export const ChangeTag: React.FC<ChangeTagProps> = ({ value, hasBackground = fal
         background={!hasBackground ? 'none' : undefined}
         size='sm'
         alignItems='center'
-        {...props}
+        {...tagProps}
       >
         {icon}
-        <Amount.Percent value={value ?? ''} fontWeight='medium' />
+        <Amount.Percent value={percentChangeDecimal ?? ''} fontWeight='medium' />
       </Tag>
     </Skeleton>
   )

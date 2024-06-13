@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
+import { Box, Button, Flex, Tooltip, useMediaQuery } from '@chakra-ui/react'
 import { type AssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
@@ -12,6 +12,7 @@ import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTy
 import { toBaseUnit } from 'lib/math'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { ClaimRoutePaths, ClaimStatus, type RfoxClaimQuote } from './types'
 
@@ -47,6 +48,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetSymbol = stakingAsset?.symbol
@@ -85,10 +87,12 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   }, [displayClaimButton, status, handleClaimClick])
 
   const statusText = useMemo(() => {
+    if (!isLargerThanMd) return cooldownPeriodHuman
+
     if (status === ClaimStatus.CoolingDown)
       return translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
     return translate('RFOX.tooltips.cooldownComplete', { cooldownPeriodHuman })
-  }, [cooldownPeriodHuman, status, translate])
+  }, [cooldownPeriodHuman, isLargerThanMd, status, translate])
 
   const actionTranslation = useMemo(() => {
     if (!stakingAssetSymbol) return

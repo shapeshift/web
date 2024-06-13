@@ -12,6 +12,8 @@ import { viemClientByNetworkId } from 'lib/viem-client'
 
 import { useGetUnstakingRequestCountQuery } from './useGetUnstakingRequestCountQuery'
 
+type AllowFailure = false
+
 const getContracts = (stakingAssetAccountAddress: string | undefined, count: bigint) =>
   stakingAssetAccountAddress
     ? Array.from(
@@ -29,9 +31,9 @@ const getContracts = (stakingAssetAccountAddress: string | undefined, count: big
 
 type GetContractsReturnType = ReturnType<typeof getContracts>
 
-type GetUnstakingRequestQueryKey = ReadContractsQueryKey<[Address, bigint], false, Config>
+type GetUnstakingRequestQueryKey = ReadContractsQueryKey<[Address, bigint], AllowFailure, Config>
 
-type UnstakingRequest = MulticallReturnType<GetContractsReturnType, false>
+type UnstakingRequest = MulticallReturnType<GetContractsReturnType, AllowFailure>
 
 type UseGetUnstakingRequestQueryProps<SelectData = UnstakingRequest> = {
   stakingAssetAccountAddress: string | undefined

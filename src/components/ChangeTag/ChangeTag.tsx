@@ -12,7 +12,6 @@ export type ChangeTagProps = {
 
 export const ChangeTag: React.FC<ChangeTagProps> = ({ value, hasBackground = false, ...props }) => {
   const icon = bnOrZero(value).isGreaterThanOrEqualTo(0) ? <ArrowUpIcon /> : <ArrowDownIcon />
-  const color = bnOrZero(value).isGreaterThanOrEqualTo(0) ? 'green.500' : 'red.500'
   const colorScheme = bnOrZero(value).isGreaterThanOrEqualTo(0) ? 'green' : 'red'
 
   return (
@@ -22,13 +21,12 @@ export const ChangeTag: React.FC<ChangeTagProps> = ({ value, hasBackground = fal
         colorScheme={colorScheme}
         backgroundColor={!hasBackground ? 'none' : undefined}
         background={!hasBackground ? 'none' : undefined}
-        color={color}
         size='sm'
         alignItems='center'
         {...props}
       >
         {icon}
-        <Amount.Percent value={value ?? ''} fontWeight='medium' color={color} />
+        <Amount.Percent value={value ?? ''} fontWeight='medium' />
       </Tag>
     </Skeleton>
   )

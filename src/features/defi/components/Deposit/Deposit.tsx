@@ -107,12 +107,12 @@ export const Deposit = ({
   const handleMaxClick = useCallback(() => onMaxClick!(setValue), [onMaxClick, setValue])
 
   const values = useWatch({ control })
-  const { field: cryptoAmount } = useController({
+  const { field: cryptoAmount } = useController<DepositValues>({
     name: 'cryptoAmount',
     control,
     rules: cryptoInputValidation,
   })
-  const { field: fiatAmount } = useController({
+  const { field: fiatAmount } = useController<DepositValues>({
     name: 'fiatAmount',
     control,
     rules: fiatInputValidation,
@@ -120,6 +120,8 @@ export const Deposit = ({
   const cryptoError = get(errors, 'cryptoAmount.message', null)
   const fiatError = get(errors, 'fiatAmount.message', null)
   const fieldError = cryptoError || fiatError
+
+  console.log({ errors })
 
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {

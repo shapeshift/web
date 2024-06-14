@@ -417,7 +417,7 @@ export const Deposit: React.FC<DepositProps> = ({
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
   const _validateCryptoAmount = useCallback(
-    async (value: string) => {
+    async (value: string): Promise<string | boolean | undefined> => {
       if (!accountId) return
       if (state?.loading) return
 
@@ -488,9 +488,14 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!contextDispatch) return
 
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
-      return _validateCryptoAmount(value).finally(() => {
-        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-      })
+      return _validateCryptoAmount(value)
+        .then(x => {
+          debugger
+          return x
+        })
+        .finally(() => {
+          contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+        })
     },
     [_validateCryptoAmount, contextDispatch],
   )
@@ -501,7 +506,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const _validateFiatAmount = useCallback(
-    async (value: string) => {
+    async (value: string): Promise<string | boolean | undefined> => {
       if (!accountId) return
       if (state?.loading) return
       const valueCryptoPrecision = bnOrZero(value).div(assetMarketData.price)

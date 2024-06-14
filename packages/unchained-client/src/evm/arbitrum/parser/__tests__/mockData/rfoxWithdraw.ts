@@ -5,15 +5,15 @@ const tx: Tx = {
   blockHash: '0x34e3fdfac2e0780254ab3e1f10135bfd2097402c472862a00305b609d65cf4f5',
   blockHeight: 221510152,
   timestamp: 1718304113,
-  from: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  status: 1,
+  from: '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986',
   to: '0xd612B64A134f3D4830542B7463CE8ca8a29D7268',
-  confirmations: 265654,
+  confirmations: 309455,
   value: '0',
   fee: '41698790000000',
   gasLimit: '195355',
   gasUsed: '159460',
   gasPrice: '261500000',
-  status: 1,
   inputData: '0x2e1a7d4d0000000000000000000000000000000000000000000000000000000000000000',
   tokenTransfers: [
     {
@@ -27,6 +27,7 @@ const tx: Tx = {
       value: '4364832128906250000',
     },
   ],
+  internalTxs: [],
 }
 
 export default { tx }

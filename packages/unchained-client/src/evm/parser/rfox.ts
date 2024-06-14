@@ -11,6 +11,8 @@ export interface TxMetadata extends BaseTxMetadata {
   parser: 'rfox'
   assetId: AssetId
   value?: string
+  runeAddress?: string
+  claimIndex?: number
 }
 
 export interface ParserArgs {
@@ -20,8 +22,9 @@ export interface ParserArgs {
 
 export class Parser implements SubParser<Tx> {
   private readonly proxyContract
-  readonly abiInterface = new ethers.Interface(RFOX_ABI)
   private readonly stakingAssetId: AssetId
+
+  readonly abiInterface = new ethers.Interface(RFOX_ABI)
 
   readonly supportedFunctions = {
     stake: this.abiInterface.getFunction('stake')!.selector,
@@ -48,12 +51,27 @@ export class Parser implements SubParser<Tx> {
 
     if (!decoded) return
 
-    return await Promise.resolve({
-      data: {
-        method: decoded.name,
-        parser: 'rfox',
-        assetId: this.stakingAssetId,
-      },
-    })
+    const data: TxMetadata = {
+      method: decoded.name,
+      parser: 'rfox',
+      assetId: this.stakingAssetId,
+    }
+
+    switch (txSigHash) {
+      case this.supportedFunctions.unstake:
+        const amount = decoded.args.amount as BigInt
+        return await Promise.resolve({
+          data: { ...data, method: `${data.method}Request`, value: amount.toString() },
+        })
+      case this.supportedFunctions.stake:
+      case this.supportedFunctions.setRuneAddress:
+        const runeAddress = decoded.args.runeAddress as string
+        return await Promise.resolve({ data: { ...data, runeAddress } })
+      case this.supportedFunctions.withdrawClaim:
+        const index = decoded.args.index as BigInt
+        return await Promise.resolve({ data: { ...data, claimIndex: Number(index) } })
+      default:
+        return await Promise.resolve({ data })
+    }
   }
 }

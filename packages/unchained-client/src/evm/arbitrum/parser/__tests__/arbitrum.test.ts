@@ -6,7 +6,11 @@ import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
-import { TransactionParser, ZRX_ARBITRUM_PROXY_CONTRACT } from '../index'
+import {
+  RFOX_PROXY_CONTRACT_ADDRESS,
+  TransactionParser,
+  ZRX_ARBITRUM_PROXY_CONTRACT,
+} from '../index'
 import erc20Approve from './mockData/erc20Approve'
 import erc721 from './mockData/erc721'
 import erc1155 from './mockData/erc1155'
@@ -16,7 +20,7 @@ import rfoxSetRuneAddress from './mockData/rfoxSetRuneAddress'
 import rfoxStake from './mockData/rfoxStake'
 import rfoxUnstake from './mockData/rfoxUnstake'
 import rfoxWithdraw from './mockData/rfoxWithdraw'
-import { usdcToken } from './mockData/tokens'
+import { foxToken, usdcToken } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
 import zrxTradeEthToUsdc from './mockData/zrxTradeEthToUsdc'
@@ -882,10 +886,11 @@ describe('parseTx', () => {
       expect(actual).toEqual(expected)
     })
   })
+
   describe('rfox', () => {
     it('should be able to stake', async () => {
       const { tx } = rfoxStake
-      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -895,23 +900,38 @@ describe('parseTx', () => {
         address,
         chainId: arbitrumChainId,
         confirmations: tx.confirmations,
+        fee: {
+          assetId: arbitrumAssetId,
+          value: '3013123887600',
+        },
         data: {
           method: 'stake',
           parser: 'rfox',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+          runeAddress: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
         },
-
         status: TxStatus.Confirmed,
-        transfers: [],
-        trade: undefined,
+        transfers: [
+          {
+            assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+            components: [{ value: '1000000000000000000' }],
+            from: address,
+            to: RFOX_PROXY_CONTRACT_ADDRESS,
+            token: foxToken,
+            totalValue: '1000000000000000000',
+            type: TransferType.Send,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
+
       expect(actual).toEqual(expected)
     })
+
     it('should be able to unstake', async () => {
       const { tx } = rfoxUnstake
-      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -921,24 +941,28 @@ describe('parseTx', () => {
         address,
         chainId: arbitrumChainId,
         confirmations: tx.confirmations,
+        fee: {
+          assetId: arbitrumAssetId,
+          value: '44360779710690',
+        },
         data: {
-          method: 'unstake',
+          method: 'unstakeRequest',
           parser: 'rfox',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+          value: '3273624096679687500',
         },
-
         status: TxStatus.Confirmed,
         transfers: [],
-        trade: undefined,
       }
 
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
     })
-    it('should be able to withdraw', async () => {
+
+    it('should be able to withdraw claim', async () => {
       const { tx } = rfoxWithdraw
-      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -948,24 +972,38 @@ describe('parseTx', () => {
         address,
         chainId: arbitrumChainId,
         confirmations: tx.confirmations,
+        fee: {
+          assetId: arbitrumAssetId,
+          value: '41698790000000',
+        },
         data: {
           method: 'withdraw',
           parser: 'rfox',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+          claimIndex: 0,
         },
-
         status: TxStatus.Confirmed,
-        transfers: [],
-        trade: undefined,
+        transfers: [
+          {
+            assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+            components: [{ value: '4364832128906250000' }],
+            from: RFOX_PROXY_CONTRACT_ADDRESS,
+            to: address,
+            token: foxToken,
+            totalValue: '4364832128906250000',
+            type: TransferType.Receive,
+          },
+        ],
       }
 
       const actual = await txParser.parse(tx, address)
 
       expect(actual).toEqual(expected)
     })
+
     it('should be able to set RUNE address', async () => {
       const { tx } = rfoxSetRuneAddress
-      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -975,15 +1013,18 @@ describe('parseTx', () => {
         address,
         chainId: arbitrumChainId,
         confirmations: tx.confirmations,
+        fee: {
+          assetId: arbitrumAssetId,
+          value: '39355169490000',
+        },
         data: {
           method: 'setRuneAddress',
           parser: 'rfox',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+          runeAddress: 'thor1clpczglrkrvdq9xtcsmj9a8ayrjeet2llcqufl',
         },
-
         status: TxStatus.Confirmed,
         transfers: [],
-        trade: undefined,
       }
 
       const actual = await txParser.parse(tx, address)

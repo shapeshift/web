@@ -65,6 +65,8 @@ export const getCowswapNetwork = (chainId: ChainId): Result<CowNetwork, SwapErro
       return Ok(CowNetwork.Mainnet)
     case KnownChainIds.GnosisMainnet:
       return Ok(CowNetwork.Xdai)
+    case KnownChainIds.ArbitrumMainnet:
+      return Ok(CowNetwork.ArbitrumOne)
     default:
       return Err(
         makeSwapErrorRight({

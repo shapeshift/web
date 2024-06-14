@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { FormDivider } from 'components/FormDivider'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -116,8 +117,8 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
       <>
         <Card
           display='flex'
-          alignItems='center'
-          justifyContent='space-around'
+          alignItems='stretch'
+          justifyContent='space-evenly'
           flexDir='row'
           gap={4}
           py={6}
@@ -130,6 +131,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
               <Amount.Fiat fontSize='sm' color='text.subtle' value={bridgeAmountUserCurrency} />
             </Stack>
           </Stack>
+          <FormDivider my={-6} orientation='vertical' />
           <Stack alignItems='center'>
             <AssetIcon size='sm' assetId={buyAsset?.assetId} />
             <Stack textAlign='center' spacing={0}>

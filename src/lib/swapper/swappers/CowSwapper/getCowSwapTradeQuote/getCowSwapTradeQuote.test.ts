@@ -5,7 +5,15 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import { ETH, FOX_MAINNET, USDC_GNOSIS, WETH, XDAI } from '../../utils/test-data/assets'
+import {
+  ETH,
+  ETH_ARBITRUM,
+  FOX_MAINNET,
+  USDC_ARBITRUM,
+  USDC_GNOSIS,
+  WETH,
+  XDAI,
+} from '../../utils/test-data/assets'
 import type { CowSwapQuoteResponse } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -112,6 +120,20 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   validTo: 1656797787,
 }
 
+const expectedApiInputUsdcToEthArbitrum: CowSwapSellQuoteApiInput = {
+  appData:
+    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
+  appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+  buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+  from: '0x0000000000000000000000000000000000000000',
+  kind: 'sell',
+  partiallyFillable: false,
+  receiver: '0x0000000000000000000000000000000000000000',
+  sellAmountBeforeFee: '500000',
+  sellToken: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+  validTo: 1656797787,
+}
+
 const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
@@ -206,6 +228,39 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
       source: SwapperName.CowSwap,
       buyAsset: XDAI,
       sellAsset: USDC_GNOSIS,
+      accountNumber: 0,
+    },
+  ],
+}
+
+const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
+  id: '123',
+  receiveAddress: '0x0000000000000000000000000000000000000000',
+  affiliateBps: '0',
+  potentialAffiliateBps: '0',
+  rate: '0.00028787191526496171',
+  slippageTolerancePercentageDecimal: '0.005',
+  steps: [
+    {
+      allowanceContract: '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110',
+      rate: '0.00028787191526496171',
+      estimatedExecutionTimeMs: undefined,
+      feeData: {
+        networkFeeCryptoBaseUnit: '0',
+        protocolFees: {
+          [USDC_ARBITRUM.assetId]: {
+            amountCryptoBaseUnit: '7944',
+            requiresBalance: false,
+            asset: USDC_ARBITRUM,
+          },
+        },
+      },
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '500000',
+      buyAmountBeforeFeesCryptoBaseUnit: '143935957632481',
+      buyAmountAfterFeesCryptoBaseUnit: '141649103137616',
+      source: SwapperName.CowSwap,
+      buyAsset: ETH_ARBITRUM,
+      sellAsset: USDC_ARBITRUM,
       accountNumber: 0,
     },
   ],
@@ -400,6 +455,50 @@ describe('getCowTradeQuote', () => {
     expect(cowService.post).toHaveBeenCalledWith(
       'https://api.cow.fi/xdai/api/v1/quote/',
       expectedApiInputUsdcGnosisToXdai,
+    )
+  })
+
+  it('should call cowService with correct parameters, handle the fees and return the correct trade quote when buying ETH on Arbitrum', async () => {
+    const input: GetTradeQuoteInput = {
+      chainId: KnownChainIds.ArbitrumMainnet,
+      sellAsset: USDC_ARBITRUM,
+      buyAsset: ETH_ARBITRUM,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: '500000',
+      accountNumber: 0,
+      receiveAddress: DEFAULT_ADDRESS,
+      affiliateBps: '0',
+      potentialAffiliateBps: '0',
+      supportsEIP1559: false,
+      allowMultiHop: false,
+      slippageTolerancePercentageDecimal: '0.005', // 0.5%
+    }
+
+    mockedCowService.post.mockReturnValue(
+      Promise.resolve(
+        Ok({
+          data: {
+            id: 123,
+            quote: {
+              ...expectedApiInputUsdcToEthArbitrum,
+              sellAmountBeforeFee: undefined,
+              sellAmount: '492056',
+              buyAmount: '141649103137616',
+              feeAmount: '7944',
+              sellTokenBalance: ERC20_TOKEN_BALANCE,
+              buyTokenBalance: ERC20_TOKEN_BALANCE,
+            },
+          },
+        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+      ),
+    )
+
+    const maybeTradeQuote = await getCowSwapTradeQuote(input)
+
+    expect(maybeTradeQuote.isOk()).toBe(true)
+    expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToEthArbitrum)
+    expect(cowService.post).toHaveBeenCalledWith(
+      'https://api.cow.fi/arbitrum_one/api/v1/quote/',
+      expectedApiInputUsdcToEthArbitrum,
     )
   })
 

@@ -19,6 +19,8 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 import { Balance } from './Balance'
@@ -49,7 +51,7 @@ const CryptoInput = (props: InputProps) => {
 
 export type AssetInputProps = {
   accountId?: AccountId | undefined
-  assetId?: AssetId
+  assetId: AssetId
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
@@ -108,6 +110,8 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const handleBlur = useCallback(() => setIsFocused(false), [])
   const handleFocus = useCallback(() => setIsFocused(true), [])
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
   const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
@@ -164,6 +168,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         <Stack spacing={0} flex={1} alignItems='flex-end'>
           <Skeleton isLoaded={!showInputSkeleton} width='full'>
             <NumberFormat
+              decimalScale={isFiat ? undefined : asset?.precision}
               customInput={CryptoInput}
               isNumericString={true}
               disabled={isReadOnly}
@@ -224,7 +229,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           )}
         </Stack>
       )}
-      {handleAccountIdChange && assetId && (
+      {handleAccountIdChange && (
         <AccountDropdown
           {...(accountId ? { defaultAccountId: accountId } : {})}
           assetId={assetId}

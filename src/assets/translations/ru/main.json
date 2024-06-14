@@ -865,7 +865,8 @@
       "tradeFailed": "Торговля не удалась. Активы возвращены за вычетом платы за газ",
       "noQuotesAvailable": "Нет доступных котировок для данной сделки",
       "smartContractWalletNotSupported": "Кошелек смарт-контрактов не поддерживается",
-      "unsafeQuote": "Эта сумма ниже рекомендуемого минимума для данной пары (%{recommendedMin} %{symbol}). Это может привести к неудачной сделке или потере средств."
+      "unsafeQuote": "Эта сумма ниже рекомендуемого минимума для данной пары (%{recommendedMin} %{symbol}). Это может привести к неудачной сделке или потере средств.",
+      "rateLimitExceeded": "Превышен лимит скорости, повторите попытку позже"
     },
     "swappingComingSoonForWallet": "Обмен на %{walletName} скоро появится",
     "recentTrades": "Последние сделки",
@@ -1813,7 +1814,8 @@
     "importAccounts": {
       "title": "Импорт %{chainNamespaceDisplayName} учетных записей",
       "description": "Выберите счета, которые вы хотите импортировать, из списка ниже.",
-      "import": "Импорт"
+      "import": "Импорт",
+      "loadMoreDisabled": "Этот кошелек не поддерживает несколько аккаунтов для этой цепочки."
     },
     "ledgerOpenApp": {
       "title": "Открыть %{appName} апликацию",
@@ -2344,8 +2346,8 @@
     "symAfterRuneAlert": "Симметричные депозиты невозможны после асимметричного депозита RUNE из-за особенностей работы сети THOR.",
     "incompletePositionDepositAlert": "Эта позиция не завершена, пожалуйста, внесите соответствующую сумму %{asset} чтобы завершить эту позицию.",
     "incompletePositionWithdrawAlert": "Эта позиция не завершена, пожалуйста, отмените ее, удалив 100% ликвидности. Вы также можете завершить позицию через \"Добавить ликвидность\".",
-    "unsupportedNetworkExplainer": "Ваш кошелек не поддерживает %{network}. Please switch to a wallet that supports this network.",
-    "unsupportedNetworksExplainer": "Ваш кошелек не поддерживает %{network1} и %{network2}. Пожалуйста, переключитесь на кошелек, поддерживающий эти сети.",
+    "unsupportedNetworkExplainer": "Ваш кошелек не подключен к %{network}. Пожалуйста, подключите эту сеть или переключитесь на кошелек, поддерживающий эту сеть.",
+    "unsupportedNetworksExplainer": "Ваш кошелек не подключен к %{network1} и %{network2}. Пожалуйста, подключите эту цепочку или переключитесь на кошелек, поддерживающий эти сети.",
     "shareOfPool": "Доля пула",
     "assetDepositAmount": "Сумма депозита %{asset} ",
     "totalLiquidity": "Общая ликвидность",
@@ -2435,6 +2437,7 @@
     "unstakeAmount": "Снять со стейкинга ",
     "confirmAndStake": "Подтвердить и Застейкать",
     "confirmAndUnstake": "Подтвердить и Снять со стейкинга",
+    "confirmAndClaim": "Подтвердить и заклеймить",
     "shapeShiftFee": "Комиссия ShapeShift",
     "approvalFee": "Комиссия за разрешение",
     "lockupPeriod": "Период блокировки",
@@ -2450,7 +2453,9 @@
       "stakeAmount": "Это сумма FOX, которую вы будете стейкать.",
       "unstakeAmount": "Это количество FOX, которое вы разблокируете.",
       "lockupPeriod": "Вот сколько времени вам придется ждать после снятия с стейкинга, чтобы заклеймить свои FOX",
-      "shareOfPool": "Это ваш процент от вознаграждения, которое вы заработаете."
+      "shareOfPool": "Это ваш процент от заработанной комиссии.",
+      "unstakePendingCooldown": "Клейм доступный %{cooldownPeriodHuman}",
+      "cooldownComplete": "Время ожидания завершено %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Вы успешно застейкали %{amount} %{symbol}",
     "stakePending": "Стейкинг %{amount} %{symbol}...",
@@ -2458,15 +2463,22 @@
     "changeRewardAddressPending": "Изменение адреса вознаграждения...",
     "changeRewardAddressSuccess": "Вы успешно изменили свой адрес вознаграждения THORCHain.",
     "unstakePending": "Запрос на снятие %{amount} %{symbol}",
-    "unstakeSuccess": "По истечении %{cooldownPeriod} вы сможете забрать свои %{amount} %{symbol}",
+    "unstakeSuccess": "По истечении  %{cooldownPeriod} вы сможете забрать свою %{amount} %{symbol}",
     "currentRewardAddress": "Текущий адрес для получения вознаграждения",
-    "newRewardAddress": "Новый адрес вознаграждения",
+    "newRewardAddress": "Новый адрес для вознаграждений",
     "rewardCycleExplainer": "Это будет обновлено для следующего цикла вознаграждений.",
     "noPositionTitle": "Нет активной позиции",
     "noPositionBody": "Вы сможете изменить свой адрес вознаграждения здесь, как только займете активную позицию.",
     "stakeNow": "Застейкать сейчас",
     "noAddressFound": "Адрес не найден",
     "newAddressInfo": "Это будет обновлено для следующего цикла вознаграждения",
-    "confirmAndUpdateAddress": "Подтвердить и обновить адрес"
+    "confirmAndUpdateAddress": "Подтвердить и обновить адрес",
+    "unstakeFrom": "Отстейкать с r%{assetSymbol}",
+    "claimPending": "Запрос на вывод средств",
+    "claimSuccess": "Вы успешно заклеймили %{amount} %{symbol}.",
+    "claimReceiveAddress": "Адрес для получения клейма",
+    "noClaimsAvailable": "Нет доступного клейма",
+    "noClaimsAvailableDescription": "У вас нет ничего для клейма.",
+    "unstakeNow": "Снять со Стейкинга"
   }
 }

@@ -2464,14 +2464,14 @@
       "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
       "shareOfPool": "This is your percentage of the fees you'll earn.",
-      "unstakePendingCooldown": "Claim available in %{cooldownPeriodHuman}",
+      "unstakePendingCooldown": "Claim available %{cooldownPeriodHuman}",
       "cooldownComplete": "Cooldown finished %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
     "stakePending": "Staking %{amount} %{symbol}...",
     "addressUpdated": "Address updated",
     "changeRewardAddressPending": "Changing Reward Address...",
-    "changeRewardAddressSuccess": "You have successfully changed your THORCHain Reward Address.",
+    "changeRewardAddressSuccess": "You have successfully changed your THORChain Reward Address.",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
     "unstakeSuccess": "Once the %{cooldownPeriod} has elapsed, you will be able to claim your %{amount} %{symbol}",
     "currentRewardAddress": "Current Reward Address",
@@ -2507,15 +2507,31 @@
       "title": "FAQ",
       "what": {
         "title": "What is rFOX?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "rFOX is a term used to describe the benefits and rewards you receive when you stake your FOX tokens on Arbitrum. Currently, you lock and unlock vanilla FOX (on Arbitrum) tokens for staking emissions."
       },
       "why": {
         "title": "Why stake your FOX?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "body": "Staking your FOX allows you to earn regular RUNE payouts from the DAO's treasury, providing a steady stream of passive income in RUNE per epoch. Additionally, a portion of the RUNE received by the DAO is used to buy FOX from the open market and burn it, reducing the overall supply. Staking also supports the ShapeShift DAO's alignment with the THORChain ecosystem, contributing to their growth and success. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
+      },
+      "stake": {
+        "title": "How do I stake my FOX?",
+        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract. You will need to sign a message or transaction to assign the address where your RUNE rewards will be paid. Once staked, you start earning RUNE rewards per block as part of your staking benefits."
+      },
+      "unstake": {
+        "title": "What happens when I unstake?",
+        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive RUNE emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
       },
       "cooldown": {
-        "title": "What is the cooldown period?",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        "title": "How long is the cooldown period?",
+        "body": "The cooldown period for unstaking FOX tokens is 28 days. During this time, your tokens remain locked and cannot be transferred."
+      },
+      "multipleUnstaking": {
+        "title": "Can I have multiple unstaking amounts?",
+        "body": "Yes, you can have multiple unstaking amounts. Each unstaking action will have its own 28-day cooldown period."
+      },
+      "connect": {
+        "title": "How do total fees collected, total FOX staked, emissions pool, and FOX burn amount connect?",
+        "body": "The fees collected by the DAO are in native RUNE. A portion of this RUNE is distributed to FOX stakers as rewards, while another portion is used to buy FOX from the open market and burn it, reducing the overall FOX supply. The total FOX staked influences the distribution of RUNE rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned using the RUNE collected from fees."
       }
     },
     "totals": "rFOX Totals",

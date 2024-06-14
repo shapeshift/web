@@ -87,12 +87,12 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   }, [displayClaimButton, status, handleClaimClick])
 
   const statusText = useMemo(() => {
-    if (displayClaimButton && status === ClaimStatus.CoolingDown)
-      return isLargerThanMd
-        ? translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
-        : cooldownPeriodHuman
+    if (!isLargerThanMd) return cooldownPeriodHuman
+
+    if (status === ClaimStatus.CoolingDown)
+      return translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
     return translate('RFOX.tooltips.cooldownComplete', { cooldownPeriodHuman })
-  }, [cooldownPeriodHuman, isLargerThanMd, displayClaimButton, status, translate])
+  }, [cooldownPeriodHuman, isLargerThanMd, status, translate])
 
   const actionTranslation = useMemo(() => {
     if (!stakingAssetSymbol) return

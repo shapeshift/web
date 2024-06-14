@@ -5,20 +5,15 @@ import {
   foxOnArbitrumOneAssetId,
   fromAccountId,
 } from '@shapeshiftoss/caip'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import dayjs from 'dayjs'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContracts } from 'wagmi'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { chainIdToChainDisplayName } from 'lib/utils'
-import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { useGetUnstakingRequestQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestQuery'
 import { RfoxTabIndex } from 'pages/RFOX/Widget'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -95,66 +90,24 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   )
 
   const {
-    data: unstakingRequestCountResponse,
-    isSuccess: isUnstakingRequestCountSuccess,
-    isLoading: isUnstakingRequestCountLoading,
-    refetch: refetchUnstakingRequestCount,
-  } = useGetUnstakingRequestCountQuery({ stakingAssetAccountAddress })
-
-  const hasClaims = useMemo(
-    () =>
-      isUnstakingRequestCountSuccess &&
-      unstakingRequestCountResponse &&
-      unstakingRequestCountResponse > 0n,
-    [isUnstakingRequestCountSuccess, unstakingRequestCountResponse],
-  )
-
-  const contracts = useMemo(
-    () =>
-      stakingAssetAccountAddress
-        ? Array.from(
-            { length: Number(unstakingRequestCountResponse) },
-            (_, index) =>
-              ({
-                abi: foxStakingV1Abi,
-                address: RFOX_PROXY_CONTRACT_ADDRESS,
-                functionName: 'getUnstakingRequest',
-                args: [getAddress(stakingAssetAccountAddress), index],
-                chainId: arbitrum.id,
-              }) as const,
-          )
-        : [],
-    [stakingAssetAccountAddress, unstakingRequestCountResponse],
-  )
-
-  const {
     data: unstakingRequestResponse,
     isSuccess: isUnstakingRequestSuccess,
     isLoading: isUnstakingRequestLoading,
     refetch: refetchUnstakingRequest,
     isRefetching: isUnstakingRequestRefetching,
-  } = useReadContracts({
-    contracts,
-    allowFailure: false,
-    query: {
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
-      refetchInterval: 60000, // 1 minute
-    },
-  })
+  } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
 
   useEffect(() => {
     // Refetch available claims whenever we re-open the Claim tab (this component)
-    refetchUnstakingRequestCount()
     refetchUnstakingRequest()
-  }, [refetchUnstakingRequest, refetchUnstakingRequestCount])
+  }, [refetchUnstakingRequest])
 
   const claimBody = useMemo(() => {
     return (() => {
       switch (true) {
         case !stakingAssetAccountAddress:
           return <ChainNotSupported chainId={stakingAsset?.chainId} />
-        case hasClaims && isUnstakingRequestSuccess:
+        case isUnstakingRequestSuccess:
           return unstakingRequestResponse?.map((unstakingRequest, index) => {
             const amountCryptoPrecision = fromBaseUnit(
               unstakingRequest.unstakingBalance.toString() ?? '',
@@ -186,7 +139,6 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     stakingAssetAccountAddress,
     stakingAsset?.chainId,
     stakingAsset?.precision,
-    hasClaims,
     isUnstakingRequestSuccess,
     unstakingRequestResponse,
     setStepIndex,
@@ -198,13 +150,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     <SlideTransition>
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
-        <Skeleton
-          isLoaded={
-            !isUnstakingRequestCountLoading &&
-            !isUnstakingRequestLoading &&
-            !isUnstakingRequestRefetching
-          }
-        >
+        <Skeleton isLoaded={!isUnstakingRequestLoading && !isUnstakingRequestRefetching}>
           <Flex flexDir='column' gap={4}>
             {claimBody}
           </Flex>

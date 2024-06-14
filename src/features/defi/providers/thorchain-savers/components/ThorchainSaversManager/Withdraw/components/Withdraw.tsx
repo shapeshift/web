@@ -180,7 +180,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const { data: thorchainSaversWithdrawQuote, isLoading: isThorchainSaversWithdrawQuoteLoading } =
     useGetThorchainSaversWithdrawQuoteQuery({
       asset,
-      accountId: accountId ?? '',
+      accountId,
       amountCryptoBaseUnit: toBaseUnit(cryptoAmount, asset.precision),
       enabled: hasEnoughStakingBalance,
     })

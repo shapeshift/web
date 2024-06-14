@@ -15,16 +15,8 @@ import { store } from 'state/store'
 type FetchThorchainWithdrawQuoteInput = {
   asset: Asset
   accountId: AccountId
-} & (
-  | {
-      amountCryptoBaseUnit: BigNumber.Value | null | undefined
-      withdrawBps?: string
-    }
-  | {
-      amountCryptoBaseUnit?: never
-      withdrawBps: string
-    }
-)
+  amountCryptoBaseUnit: BigNumber.Value
+}
 
 export type GetThorchainSaversWithdrawQuoteQueryKey = [
   'thorchainSaversWithdrawQuote',
@@ -34,7 +26,6 @@ export const fetchThorchainWithdrawQuote = async ({
   asset,
   accountId,
   amountCryptoBaseUnit,
-  withdrawBps,
 }: FetchThorchainWithdrawQuoteInput) => {
   const { chainId, assetNamespace, assetReference } = fromAssetId(asset.assetId)
   const opportunityId = toOpportunityId({ chainId, assetNamespace, assetReference })
@@ -42,17 +33,15 @@ export const fetchThorchainWithdrawQuote = async ({
     userStakingId: serializeUserStakingId(accountId, opportunityId ?? ''),
   })
 
-  const _withdrawBps =
-    withdrawBps ||
-    getWithdrawBps({
-      withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit ?? 0,
-      stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-      rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-    })
+  const withdrawBps = getWithdrawBps({
+    withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit ?? 0,
+    stakedAmountCryptoBaseUnit: opportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+    rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+  })
 
   const maybeQuote = await getThorchainSaversWithdrawQuote({
     asset,
-    bps: _withdrawBps,
+    bps: withdrawBps,
     accountId,
   })
 
@@ -66,10 +55,7 @@ export const useGetThorchainSaversWithdrawQuoteQuery = ({
   accountId,
   amountCryptoBaseUnit,
   enabled = true,
-}: {
-  asset: Asset
-  accountId: AccountId | undefined
-  amountCryptoBaseUnit: BigNumber.Value | null | undefined
+}: PartialFields<FetchThorchainWithdrawQuoteInput, 'accountId'> & {
   enabled?: boolean
 }) => {
   const withdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = useMemo(

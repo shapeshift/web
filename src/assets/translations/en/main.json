@@ -643,7 +643,7 @@
       "rfox": {
         "stake": "Stake",
         "withdraw": "Withdraw",
-        "unstake": "Unstake",
+        "unstakeRequest": "Unstake Request",
         "setRuneAddress": "Set Rune Address"
 
       },

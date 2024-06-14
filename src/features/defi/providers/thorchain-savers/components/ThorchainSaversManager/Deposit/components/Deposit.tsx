@@ -417,7 +417,7 @@ export const Deposit: React.FC<DepositProps> = ({
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
   const _validateCryptoAmount = useCallback(
-    async (value: string): Promise<string | boolean | undefined> => {
+    async (value: string) => {
       if (!accountId) return
       if (state?.loading) return
 
@@ -501,7 +501,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const _validateFiatAmount = useCallback(
-    async (value: string): Promise<string | boolean | undefined> => {
+    async (value: string) => {
       if (!accountId) return
       if (state?.loading) return
       const valueCryptoPrecision = bnOrZero(value).div(assetMarketData.price)

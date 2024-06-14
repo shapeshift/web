@@ -9,6 +9,7 @@ import type { Tx } from './types'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'rfox'
+  assetId: AssetId
 }
 
 export interface ParserArgs {
@@ -43,6 +44,8 @@ export class Parser implements SubParser<Tx> {
     if (!Object.values(this.supportedFunctions).some(hash => hash === txSigHash)) return
 
     const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
+
+    console.log({ methodName: decoded?.name, tx })
 
     if (!decoded) return
 

@@ -12,6 +12,10 @@ import erc721 from './mockData/erc721'
 import erc1155 from './mockData/erc1155'
 import ethSelfSend from './mockData/ethSelfSend'
 import ethStandard from './mockData/ethStandard'
+import rfoxSetRuneAddress from './mockData/rfoxSetRuneAddress'
+import rfoxStake from './mockData/rfoxStake'
+import rfoxUnstake from './mockData/rfoxUnstake'
+import rfoxWithdraw from './mockData/rfoxWithdraw'
 import { usdcToken } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
@@ -875,6 +879,115 @@ describe('parseTx', () => {
         trade,
       }
       const actual = await txParser.parse(tx, address)
+      expect(actual).toEqual(expected)
+    })
+  })
+  describe('rfox', () => {
+    it('should be able to stake', async () => {
+      const { tx } = rfoxStake
+      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: arbitrumChainId,
+        confirmations: tx.confirmations,
+        data: {
+          method: 'stake',
+          parser: 'rfox',
+          assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+        },
+
+        status: TxStatus.Confirmed,
+        transfers: [],
+        trade: undefined,
+      }
+
+      const actual = await txParser.parse(tx, address)
+      expect(actual).toEqual(expected)
+    })
+    it('should be able to unstake', async () => {
+      const { tx } = rfoxUnstake
+      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: arbitrumChainId,
+        confirmations: tx.confirmations,
+        data: {
+          method: 'unstake',
+          parser: 'rfox',
+          assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+        },
+
+        status: TxStatus.Confirmed,
+        transfers: [],
+        trade: undefined,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+    it('should be able to withdraw', async () => {
+      const { tx } = rfoxWithdraw
+      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: arbitrumChainId,
+        confirmations: tx.confirmations,
+        data: {
+          method: 'withdraw',
+          parser: 'rfox',
+          assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+        },
+
+        status: TxStatus.Confirmed,
+        transfers: [],
+        trade: undefined,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+    it('should be able to set RUNE address', async () => {
+      const { tx } = rfoxSetRuneAddress
+      const address = '0xa684bAEfeE2D6595d330d1762A9e8AcA789e7098'
+
+      const expected: ParsedTx = {
+        txid: tx.txid,
+        blockHeight: tx.blockHeight,
+        blockTime: tx.timestamp,
+        blockHash: tx.blockHash,
+        address,
+        chainId: arbitrumChainId,
+        confirmations: tx.confirmations,
+        data: {
+          method: 'setRuneAddress',
+          parser: 'rfox',
+          assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+        },
+
+        status: TxStatus.Confirmed,
+        transfers: [],
+        trade: undefined,
+      }
+
+      const actual = await txParser.parse(tx, address)
+
       expect(actual).toEqual(expected)
     })
   })

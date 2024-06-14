@@ -45,8 +45,6 @@ export class Parser implements SubParser<Tx> {
 
     const decoded = this.abiInterface.parseTransaction({ data: tx.inputData })
 
-    console.log({ methodName: decoded?.name, tx })
-
     if (!decoded) return
 
     return await Promise.resolve({

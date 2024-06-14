@@ -112,6 +112,8 @@ export interface ParserArgs {
   midgardUrl: string
 }
 
+// TODO(gomes): obviously revert me and use actual memo from rewards
+const RFOX_REWARDS_MEMO = "beep boop I'm a memo"
 const streamingSwapRegex = /:(\d+|(\d+(?:e[+-]?\d+)?))\/\d+\/\d+:/
 
 const getLiquidityType = (pool: string): LiquidityType => (pool.includes('/') ? 'Savers' : 'LP')
@@ -128,6 +130,9 @@ export class Parser {
 
   async parse(memo: string): Promise<TxSpecific | undefined> {
     const [type] = memo.split(':')
+
+    if (memo.includes(RFOX_REWARDS_MEMO))
+      return { data: { parser: 'thorchain', memo, method: 'rfoxRewards' } }
 
     switch (type.toLowerCase()) {
       case 'swap':

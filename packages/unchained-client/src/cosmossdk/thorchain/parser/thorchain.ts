@@ -19,7 +19,7 @@ export class Parser implements SubParser<Tx> {
     const outboundMemoEvent = Object.values(tx.events).find(event => !!event['outbound']?.['memo'])
     const outboundMemo = outboundMemoEvent?.['outbound']?.['memo']
 
-    const memo = messageMemo || outboundMemo
+    const memo = messageMemo || outboundMemo || tx.memo
 
     if (!memo) return
 

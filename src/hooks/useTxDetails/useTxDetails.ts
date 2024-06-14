@@ -48,6 +48,7 @@ export enum Method {
   RecvPacket = 'recv_packet',
   Refund = 'refund',
   RemoveLiquidityEth = 'removeLiquidityETH',
+  RfoxRewards = 'rfoxRewards',
   Revoke = 'revoke',
   Stake = 'stake',
   SwapOut = 'swapOut',

@@ -7,6 +7,10 @@ type TransactionTagProps = {
   txDetails: TxDetails
   transfersByType: Record<TransferType, Transfer[]>
 }
+
+// TODO(gomes): obviously revert me and use actual memo from rewards
+const RFOX_REWARDS_MEMO = "beep boop I'm a memo"
+
 export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, transfersByType }) => {
   const txData = useMemo(() => txDetails?.tx.data, [txDetails?.tx.data])
   const isNft = useMemo(() => {
@@ -26,6 +30,14 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
     return (
       <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
         NFT
+      </Tag>
+    )
+  }
+
+  if (txData && txData.parser === 'thorchain' && txData.memo === RFOX_REWARDS_MEMO) {
+    return (
+      <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>
+        rFOX
       </Tag>
     )
   }

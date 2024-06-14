@@ -94,6 +94,7 @@ export const TransactionMethod = ({
       case Method.Unstake:
       case Method.WithdrawDelegatorReward:
       case Method.WithdrawOut:
+      case Method.RfoxRewards:
         return TransferType.Receive
       case Method.Approve:
       case Method.Revoke:

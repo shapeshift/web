@@ -684,7 +684,8 @@
         "swapRefund": "Swap Refund",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",
-        "withdrawOut": "Withdraw Received"
+        "withdrawOut": "Withdraw Received",
+        "rfoxRewards": "Rewards Received"
       },
       "foxy": {
         "stake": "Stake",

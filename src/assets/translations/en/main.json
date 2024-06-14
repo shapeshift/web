@@ -640,6 +640,13 @@
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
+      "rfox": {
+        "stake": "Stake",
+        "withdraw": "Withdraw",
+        "unstake": "Unstake",
+        "setRuneAddress": "Set Rune Address"
+
+      },
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",

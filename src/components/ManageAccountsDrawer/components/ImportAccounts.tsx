@@ -21,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
@@ -162,7 +163,10 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
-  const { wallet, deviceId: walletDeviceId } = useWallet().state
+  const {
+    state: { wallet, isDemoWallet, deviceId: walletDeviceId },
+    dispatch: walletDispatch,
+  } = useWallet()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const isSnapInstalled = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
@@ -276,8 +280,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   const handleLoadMore = useCallback(() => {
     if (isFetching || isLoading || autoFetching) return
+    if (isDemoWallet) return walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     fetchNextPage()
-  }, [autoFetching, isFetching, isLoading, fetchNextPage])
+  }, [autoFetching, isFetching, isLoading, fetchNextPage, walletDispatch, isDemoWallet])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledAccountIds(previousState => {

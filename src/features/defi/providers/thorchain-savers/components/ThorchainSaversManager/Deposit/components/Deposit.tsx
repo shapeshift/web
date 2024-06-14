@@ -488,14 +488,9 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!contextDispatch) return
 
       contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
-      return _validateCryptoAmount(value)
-        .then(x => {
-          debugger
-          return x
-        })
-        .finally(() => {
-          contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
-        })
+      return _validateCryptoAmount(value).finally(() => {
+        contextDispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
+      })
     },
     [_validateCryptoAmount, contextDispatch],
   )

@@ -121,8 +121,6 @@ export const Deposit = ({
   const fiatError = get(errors, 'fiatAmount.message', null)
   const fieldError = cryptoError || fiatError
 
-  console.log({ errors })
-
   const handleInputChange = useCallback(
     (value: string, isFiat?: boolean) => {
       if (isFiat) {

@@ -134,7 +134,6 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     // onChange will send us the formatted value
     // To get around this we need to get the value from the onChange using a ref
     // Now when the max buttons are clicked the onChange will not fire
-    debugger
     onChange(amountRef.current ?? '', isFiat)
   }, [isFiat, onChange])
 
@@ -142,7 +141,6 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     (values: NumberFormatValues) => {
       // This fires anytime value changes including setting it on max click
       // Store the value in a ref to send when we actually want the onChange to fire
-      debugger
       amountRef.current = values.value
       handleChange()
     },

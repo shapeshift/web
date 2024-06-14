@@ -10,6 +10,7 @@ import type { Tx } from './types'
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'rfox'
   assetId: AssetId
+  value?: string
 }
 
 export interface ParserArgs {

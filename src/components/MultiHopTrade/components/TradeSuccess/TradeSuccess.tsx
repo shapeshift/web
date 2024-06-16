@@ -20,7 +20,7 @@ import { TwirlyToggle } from '../TwirlyToggle'
 
 export type TradeSuccessProps = { handleBack: () => void; children: JSX.Element }
 
-export const TradeSuccessTemp = ({ handleBack, children }: TradeSuccessProps) => {
+export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
   const translate = useTranslate()
 
   const { isOpen, onToggle } = useDisclosure({

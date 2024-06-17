@@ -1,4 +1,4 @@
-import { Box, CardBody } from '@chakra-ui/react'
+import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
@@ -29,45 +29,54 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     [stakingAssetAccountId],
   )
 
-  const {
-    data: unstakingRequestResponse,
-    isSuccess: isUnstakingRequestSuccess,
-    isLoading: isUnstakingRequestLoading,
-  } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
+  const { data: unstakingRequestResponse, isLoading: isUnstakingRequestLoading } =
+    useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
+
+  const claims = useMemo(() => {
+    if (isUnstakingRequestLoading)
+      return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+
+    return (unstakingRequestResponse ?? []).map((unstakingRequest, index) => {
+      const amountCryptoPrecision = fromBaseUnit(
+        unstakingRequest.unstakingBalance.toString(),
+        stakingAsset?.precision ?? 0,
+      )
+      const currentTimestampMs: number = Date.now()
+      const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
+      const isAvailable = currentTimestampMs >= unstakingTimestampMs
+      const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
+      const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
+      return (
+        <ClaimRow
+          stakingAssetId={stakingAssetId}
+          key={unstakingRequest.cooldownExpiry.toString()}
+          amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
+          status={status}
+          setConfirmedQuote={setConfirmedQuote}
+          cooldownPeriodHuman={cooldownPeriodHuman}
+          index={index}
+          actionDescription={translate('RFOX.unstakeFrom', {
+            assetSymbol: stakingAsset.symbol,
+          })}
+        />
+      )
+    })
+  }, [
+    setConfirmedQuote,
+    stakingAsset?.precision,
+    stakingAsset.symbol,
+    stakingAssetId,
+    translate,
+    unstakingRequestResponse,
+  ])
 
   if (!stakingAsset) return null
 
   return (
     <CardBody>
       {headerComponent}
-      <Box>
-        {(unstakingRequestResponse ?? []).map((unstakingRequest, index) => {
-          const amountCryptoPrecision = fromBaseUnit(
-            unstakingRequest.unstakingBalance.toString(),
-            stakingAsset?.precision ?? 0,
-          )
-          const currentTimestampMs: number = Date.now()
-          const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
-          const isAvailable = currentTimestampMs >= unstakingTimestampMs
-          const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
-          const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-          const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
-          return (
-            <ClaimRow
-              stakingAssetId={stakingAssetId}
-              key={unstakingRequest.cooldownExpiry.toString()}
-              amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
-              status={status}
-              setConfirmedQuote={setConfirmedQuote}
-              cooldownPeriodHuman={cooldownPeriodHuman}
-              index={index}
-              actionDescription={translate('RFOX.unstakeFrom', {
-                assetSymbol: stakingAsset.symbol,
-              })}
-            />
-          )
-        })}
-      </Box>
+      <Box>{claims}</Box>
     </CardBody>
   )
 }

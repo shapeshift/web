@@ -6,7 +6,7 @@ type AddAggregatorAddressToMemoArgs = {
    */
   memo: string
   /**
-   * The aggregator address that will be shortened to two chars.
+   * The aggregator address.
    */
   aggregatorAddress: string
 }

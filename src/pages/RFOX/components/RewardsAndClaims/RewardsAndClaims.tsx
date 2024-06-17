@@ -103,11 +103,9 @@ export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
     <Card>
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
-          {isRFOXDashboardEnabled && (
-            <TabPanel px={0} py={0}>
-              <Rewards headerComponent={TabHeader} />
-            </TabPanel>
-          )}
+          <TabPanel px={0} py={0}>
+            <Rewards headerComponent={TabHeader} />
+          </TabPanel>
           <TabPanel px={0} py={0}>
             <Claims
               headerComponent={TabHeader}

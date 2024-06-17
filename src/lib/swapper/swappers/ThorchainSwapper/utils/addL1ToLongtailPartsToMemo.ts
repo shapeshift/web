@@ -107,7 +107,5 @@ export const addL1ToLongtailPartsToMemo = ({
 
   assert(memoWithShortenedFinalAssetAmountOut.length <= maxMemoSize, 'memo is too long')
 
-  console.log(memoWithShortenedFinalAssetAmountOut)
-
   return assertAndProcessMemo(memoWithShortenedFinalAssetAmountOut)
 }

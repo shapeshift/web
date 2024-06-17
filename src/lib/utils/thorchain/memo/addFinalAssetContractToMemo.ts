@@ -12,7 +12,7 @@ type AddLimitToMemoArgs = {
 }
 
 /**
- * A simple util that adds a final asset limit to a THORChain memo, if the memo doesn't already have one.
+ * A simple util that adds the final asset contract address to a THORChain memo, if the memo doesn't already have one.
  */
 export const addFinalAssetContractToMemo = ({ memo, finalAssetContract }: AddLimitToMemoArgs) => {
   const memoParts = memo.split(MEMO_PART_DELIMITER)

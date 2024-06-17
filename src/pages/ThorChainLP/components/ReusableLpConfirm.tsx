@@ -89,7 +89,6 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
-    enabled: !!poolAsset,
     swapperName: SwapperName.Thorchain,
   })
 

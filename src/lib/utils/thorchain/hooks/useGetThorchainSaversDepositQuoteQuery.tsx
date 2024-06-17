@@ -1,22 +1,24 @@
 import type { Asset } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { type BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
+import type { PartialFields } from 'lib/types'
+import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { getMaybeThorchainSaversDepositQuote } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+
+type FetchThorchainDepositQuoteInput = {
+  asset: Asset
+  amountCryptoBaseUnit: BigNumber.Value | null | undefined
+}
 
 export type GetThorchainSaversDepositQuoteQueryKey = [
   'thorchainSaversDepositQuote',
-  {
-    asset: Asset
-    amountCryptoBaseUnit: BigNumber.Value | null | undefined
-  },
+  PartialFields<FetchThorchainDepositQuoteInput, 'asset'>,
 ]
-export const queryFn = async ({
-  queryKey,
-}: {
-  queryKey: GetThorchainSaversDepositQuoteQueryKey
-}) => {
-  const [, { asset, amountCryptoBaseUnit }] = queryKey
+export const fetchThorchainDepositQuote = async ({
+  asset,
+  amountCryptoBaseUnit,
+}: FetchThorchainDepositQuoteInput) => {
   const maybeQuote = await getMaybeThorchainSaversDepositQuote({
     asset,
     amountCryptoBaseUnit,
@@ -27,13 +29,18 @@ export const queryFn = async ({
   return maybeQuote.unwrap()
 }
 
-// TODO(gomes): consume me everywhere instead of getMaybeThorchainSaversDepositQuote
-export const useGetThorchainSaversDepositQuoteQuery = ({
+export const useGetThorchainSaversDepositQuoteQuery = <
+  SelectData = ThorchainSaversDepositQuoteResponseSuccess,
+>({
   asset,
   amountCryptoBaseUnit,
+  enabled = true,
+  select,
 }: {
-  asset: Asset
+  asset: Asset | undefined
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
+  enabled?: boolean
+  select?: (stakingInfo: ThorchainSaversDepositQuoteResponseSuccess) => SelectData
 }) => {
   const depositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = useMemo(
     () => ['thorchainSaversDepositQuote', { asset, amountCryptoBaseUnit }],
@@ -42,9 +49,13 @@ export const useGetThorchainSaversDepositQuoteQuery = ({
 
   const depositQuoteQuery = useQuery({
     queryKey: depositQuoteQueryKey,
-    queryFn,
-    enabled: Boolean(bnOrZero(amountCryptoBaseUnit).gt(0)),
+    queryFn:
+      enabled && asset && Boolean(bnOrZero(amountCryptoBaseUnit).gt(0))
+        ? () => fetchThorchainDepositQuote({ asset, amountCryptoBaseUnit })
+        : skipToken,
     staleTime: 5000,
+    select,
+    retry: false,
   })
 
   return depositQuoteQuery

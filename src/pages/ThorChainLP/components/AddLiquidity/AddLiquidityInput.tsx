@@ -165,7 +165,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
-  const [isSweepNeeded, setIsSweepNeeded] = useState<boolean | undefined>()
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
   const previousOpportunityId = usePrevious(activeOpportunityId)
@@ -736,15 +735,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const {
-    data: _isSweepNeeded,
+    data: isSweepNeeded,
     isLoading: isSweepNeededLoading,
     isError: isSweepNeededError,
   } = useIsSweepNeededQuery(isSweepNeededArgs)
-
-  useEffect(() => {
-    if (_isSweepNeeded === undefined) return
-    setIsSweepNeeded(_isSweepNeeded)
-  }, [_isSweepNeeded])
 
   // Rune balance / gas data and checks
 

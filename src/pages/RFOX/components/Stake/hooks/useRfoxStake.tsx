@@ -284,7 +284,7 @@ export const useRfoxStake = ({
       spender: RFOX_PROXY_CONTRACT_ADDRESS,
       from: stakingAssetAccountAddress,
       amountCryptoBaseUnit,
-      wallet,
+      wallet: wallet ?? undefined,
       accountNumber: stakingAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {

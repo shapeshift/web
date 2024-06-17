@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { Claims } from './Claims'
 import { Rewards } from './Rewards'
@@ -56,15 +57,19 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
     [setStepIndex],
   )
 
+  const isRFOXDashboardEnabled = useFeatureFlag('RFOXDashboard')
+
   return (
     <Flex gap={4}>
-      <RewardsAndClaimsTab
-        index={RewardsAndClaimsTabIndex.Rewards}
-        onClick={handleClick}
-        isActive={activeIndex === RewardsAndClaimsTabIndex.Rewards}
-      >
-        {translate('RFOX.rewards')}
-      </RewardsAndClaimsTab>
+      {isRFOXDashboardEnabled && (
+        <RewardsAndClaimsTab
+          index={RewardsAndClaimsTabIndex.Rewards}
+          onClick={handleClick}
+          isActive={activeIndex === RewardsAndClaimsTabIndex.Rewards}
+        >
+          {translate('RFOX.rewards')}
+        </RewardsAndClaimsTab>
+      )}
       <RewardsAndClaimsTab
         index={RewardsAndClaimsTabIndex.Claims}
         onClick={handleClick}
@@ -85,7 +90,10 @@ export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
   stakingAssetId,
   stakingAssetAccountId,
 }) => {
-  const [stepIndex, setStepIndex] = useState(RewardsAndClaimsTabIndex.Rewards)
+  const isRFOXDashboardEnabled = useFeatureFlag('RFOXDashboard')
+  const [stepIndex, setStepIndex] = useState(
+    isRFOXDashboardEnabled ? RewardsAndClaimsTabIndex.Rewards : RewardsAndClaimsTabIndex.Claims,
+  )
 
   const TabHeader = useMemo(
     () => <RewardsAndClaimsHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
@@ -95,9 +103,11 @@ export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
     <Card>
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
-          <TabPanel px={0} py={0}>
-            <Rewards headerComponent={TabHeader} />
-          </TabPanel>
+          {isRFOXDashboardEnabled && (
+            <TabPanel px={0} py={0}>
+              <Rewards headerComponent={TabHeader} />
+            </TabPanel>
+          )}
           <TabPanel px={0} py={0}>
             <Claims
               headerComponent={TabHeader}

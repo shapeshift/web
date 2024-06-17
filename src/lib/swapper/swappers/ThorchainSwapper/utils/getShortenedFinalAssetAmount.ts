@@ -1,7 +1,4 @@
 import assert from 'assert'
-import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
-
-import { MEMO_PART_DELIMITER } from './constants'
 
 // The THORChain aggregators expects two numbers at the end which are used at exponents in the contract
 // see _parseAmountOutMin in https://dashboard.tenderly.co/tx/mainnet/0xe16c61c114c5815555ec4342af390a1695d1cce431a8ff479bcc7d63f3d0b46a?trace=0.2.10
@@ -12,7 +9,7 @@ export const AGGREGATOR_EXPONENT_LENGTH = 2
 // https://gitlab.com/thorchain/thornode/-/blob/v1.131.0/x/thorchain/memo/memo_parser.go#L190
 export const THORCHAIN_PARSER_MAXIMUM_PRECISION = 18
 
-export const makeMemoWithShortenedFinalAssetAmount = ({
+export const getShortenedFinalAssetAmount = ({
   maxMemoSize,
   memoWithoutFinalAssetAmountOut,
   finalAssetLimitWithManualSlippage,
@@ -24,8 +21,6 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
   // The min amount out should be at least 3 characters long (1 for the number and 2 for the exponent)
   const MINIMUM_AMOUNT_OUT_LENGTH = 3
   const HYPOTHETICAL_EXPONENT = '01'
-
-  const memoArrayWithoutMinAmountOut = memoWithoutFinalAssetAmountOut.split(MEMO_PART_DELIMITER)
 
   // We need to construct the memo with the minAmountOut at the end so we can calculate his bytes size
   const unshortenedMemo = `${memoWithoutFinalAssetAmountOut}:${finalAssetLimitWithManualSlippage}${HYPOTHETICAL_EXPONENT}`
@@ -81,18 +76,10 @@ export const makeMemoWithShortenedFinalAssetAmount = ({
   // The THORChain aggregators expects this amount to be an exponent, we need to add two numbers at the end which are used at exponents in the contract
   const shortenedAmountOutWithTwoLastNumbersAsExponent = `${shortenedAmountOut}${thorAggregatorExponential}`
 
-  // Thorchain memo format:
-  // SWAP:ASSET:DESTADDR:LIM:AFFILIATE:FEE:DEX Aggregator Addr:Final Asset Addr:MinAmountOut
-  // see https://gitlab.com/thorchain/thornode/-/merge_requests/2218 for reference
-  const potentialMemo = [
-    ...memoArrayWithoutMinAmountOut,
-    shortenedAmountOutWithTwoLastNumbersAsExponent,
-  ].join(MEMO_PART_DELIMITER)
-
   assert(
     shortenedAmountOutWithTwoLastNumbersAsExponent.length <= THORCHAIN_PARSER_MAXIMUM_PRECISION + 1,
     'expected shortenedAmountOut length to be less than thorchain maximum precision',
   )
 
-  return assertAndProcessMemo(potentialMemo)
+  return shortenedAmountOutWithTwoLastNumbersAsExponent
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { addFinalAssetLimitToMemo } from 'lib/utils/thorchain/memo/addFinalAssetLimitToMemo'
 
-import { makeMemoWithShortenedFinalAssetAmount } from './makeMemoWithShortenedFinalAssetAmount'
+import { getShortenedFinalAssetAmount } from './getShortenedFinalAssetAmount'
 
 const RECEIVE_ADDRESS = '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6'
 // 178 bytes
@@ -20,16 +21,21 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
   it('should be 80 bytes if maxMemoSize is 80', () => {
     const quotedMemo = `=:e:${RECEIVE_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}`
 
-    const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
+    const finalAssetAmount = getShortenedFinalAssetAmount({
       maxMemoSize: 80,
       memoWithoutFinalAssetAmountOut: quotedMemo,
       finalAssetLimitWithManualSlippage: '950875902132134123',
     })
 
-    expect(modifiedMemo.length).toBe(80)
-    expect(modifiedMemo).toBe(
+    const modifiedMemoWithFinalAssetAmountOut = addFinalAssetLimitToMemo({
+      memo: quotedMemo,
+      finalAssetAmountOut: finalAssetAmount,
+    })
+
+    expect(modifiedMemoWithFinalAssetAmountOut.length).toBe(80)
+    expect(finalAssetAmount).toBe(
       // 95087590209 will be turned to 950875902000000000 using the last 2 bytes as exponents by the aggregator
-      `=:e:${RECEIVE_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}:95087590209`,
+      `95087590209`,
     )
   })
 
@@ -38,16 +44,16 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
     const reallyL1BigAmount = '987234879539239282982983248234982348'
     const quotedMemo = `=:e:${RECEIVE_ADDRESS}:${reallyL1BigAmount}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}`
 
-    const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
+    const finalAssetAmount = getShortenedFinalAssetAmount({
       maxMemoSize: Infinity,
       memoWithoutFinalAssetAmountOut: quotedMemo,
       finalAssetLimitWithManualSlippage: '95087590213213412',
     })
 
     // 950875902132134101 will be turned to 95087590213213410 using the last 2 bytes as exponents by the aggregator
-    const expectedMemo = `=:e:${RECEIVE_ADDRESS}:${reallyL1BigAmount}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}:950875902132134101`
+    const expectedFinalAssetAmountOut = `950875902132134101`
 
-    expect(modifiedMemo).toBe(expectedMemo)
+    expect(finalAssetAmount).toBe(expectedFinalAssetAmountOut)
   })
 
   it('shortened final asset amount should be shortened by 1 if maxMemoSize is Infinity and final asset amount length equal to 18', () => {
@@ -55,16 +61,16 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
     const reallyL1BigAmount = '987234879539239282982983248234982348'
     const quotedMemo = `=:e:${RECEIVE_ADDRESS}:${reallyL1BigAmount}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}`
 
-    const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
+    const finalAssetAmount = getShortenedFinalAssetAmount({
       maxMemoSize: Infinity,
       memoWithoutFinalAssetAmountOut: quotedMemo,
       finalAssetLimitWithManualSlippage: '950875902132134122',
     })
 
     // 9508759021321341201 will be turned to 950875902132134120 using the last 2 bytes as exponents by the aggregator
-    const expectedMemo = `=:e:${RECEIVE_ADDRESS}:${reallyL1BigAmount}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}:9508759021321341201`
+    const expectedFinalAssetAmountOut = `9508759021321341201`
 
-    expect(modifiedMemo).toBe(expectedMemo)
+    expect(finalAssetAmount).toBe(expectedFinalAssetAmountOut)
   })
 
   it('shortened final asset amount should be shortened by 2 if maxMemoSize is Infinity and final asset amount length equal to 19', () => {
@@ -72,32 +78,37 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
     const reallyL1BigAmount = '987234879539239282982983248234982348'
     const quotedMemo = `=:e:${RECEIVE_ADDRESS}:${reallyL1BigAmount}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}`
 
-    const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
+    const finalAssetAmount = getShortenedFinalAssetAmount({
       maxMemoSize: Infinity,
       memoWithoutFinalAssetAmountOut: quotedMemo,
       finalAssetLimitWithManualSlippage: '9508759021321341223',
     })
 
     // 9508759021321341202 will be turned to 9508759021321341200 using the last 2 bytes as exponents by the aggregator
-    const expectedMemo = `=:e:${RECEIVE_ADDRESS}:${reallyL1BigAmount}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}:9508759021321341202`
+    const expectedFinalAssetAmountOut = `9508759021321341202`
 
-    expect(modifiedMemo).toBe(expectedMemo)
+    expect(finalAssetAmount).toBe(expectedFinalAssetAmountOut)
   })
 
   it('should be under or equal to 220 bytes if maxMemoSize is 220 and memo length is close to 220', () => {
     // 205 bytes
     const quotedMemo = `=:e:${BIG_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}`
 
-    const modifiedMemo = makeMemoWithShortenedFinalAssetAmount({
+    const finalAssetAmount = getShortenedFinalAssetAmount({
       maxMemoSize: 220,
       memoWithoutFinalAssetAmountOut: quotedMemo,
       finalAssetLimitWithManualSlippage: '950875902132134123',
     })
 
-    expect(modifiedMemo.length).toBeLessThanOrEqual(220)
-    expect(modifiedMemo).toBe(
+    const modifiedMemoWithFinalAssetAmountOut = addFinalAssetLimitToMemo({
+      memo: quotedMemo,
+      finalAssetAmountOut: finalAssetAmount,
+    })
+
+    expect(modifiedMemoWithFinalAssetAmountOut.length).toBeLessThanOrEqual(220)
+    expect(finalAssetAmount).toBe(
       // 950875902132105 will be turned to 950875902132100000 using the last 2 bytes as exponents by the aggregator
-      `=:e:${BIG_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}:950875902132105`,
+      `950875902132105`,
     )
   })
 
@@ -105,7 +116,7 @@ describe('makeMemoWithShortenedFinalAssetAmount', () => {
     const quotedMemo = `=:e:${REALLY_BIG_ADDRESS}:${expectedL1AmountOut}:ss:${affiliateBps}:${EXPECTED_AGGREGATOR_TWO_LAST_CHARS}:${SHORTENED_FINAL_ASSET_ADDRESS}`
 
     expect(() =>
-      makeMemoWithShortenedFinalAssetAmount({
+      getShortenedFinalAssetAmount({
         maxMemoSize: 220,
         memoWithoutFinalAssetAmountOut: quotedMemo,
         finalAssetLimitWithManualSlippage: '950875902132134123',

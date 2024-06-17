@@ -33,6 +33,8 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
+    if (!stakingAsset) return null
+
     if (isUnstakingRequestLoading)
       return new Array(2).fill(null).map(() => <Skeleton height={16} />)
 
@@ -63,9 +65,9 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
       )
     })
   }, [
+    isUnstakingRequestLoading,
     setConfirmedQuote,
-    stakingAsset?.precision,
-    stakingAsset.symbol,
+    stakingAsset,
     stakingAssetId,
     translate,
     unstakingRequestResponse,

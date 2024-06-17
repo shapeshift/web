@@ -1,13 +1,38 @@
-import { Card, CardBody, CardHeader, Flex } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { Card, CardBody, CardHeader, Flex, Skeleton } from '@chakra-ui/react'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { RawText } from 'components/Text'
+import { fromBaseUnit } from 'lib/math'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { StakingInfo } from './StakingInfo'
 import { Stats } from './Stats'
 
-export const Overview: React.FC = () => {
-  const stakingAssetId = foxAssetId
+type OverviewProps = {
+  stakingAssetId: AssetId
+  stakingAssetAccountId: AccountId | undefined
+}
+
+export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAssetAccountId }) => {
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
+
+  const {
+    data: userStakingBalanceOfCryptoPrecision,
+    isSuccess: isUserStakingBalanceOfCryptoPrecisionSuccess,
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    select: ([stakingBalance]) =>
+      fromBaseUnit(stakingBalance.toString(), stakingAsset?.precision ?? 0),
+  })
+
+  if (!stakingAsset) return null
 
   return (
     <Card>
@@ -20,9 +45,14 @@ export const Overview: React.FC = () => {
             showNetworkIcon={false}
           />
           <Flex flexDir='column'>
-            <RawText fontWeight='bold' fontSize='2xl'>
-              0.00 FOX
-            </RawText>
+            <Skeleton isLoaded={isUserStakingBalanceOfCryptoPrecisionSuccess}>
+              <Amount.Crypto
+                fontWeight='bold'
+                fontSize='2xl'
+                value={userStakingBalanceOfCryptoPrecision ?? '0'}
+                symbol={stakingAsset.symbol}
+              />
+            </Skeleton>
           </Flex>
         </Flex>
         <StakingInfo />

@@ -46,7 +46,6 @@ export const Claims = ({
 
   const claims = useMemo(() => {
     if (!stakingAsset) return null
-
     if (isUnstakingRequestLoading || isUnstakingRequestPending || isUnstakingRequestPaused)
       return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
 

@@ -70,7 +70,7 @@ const getAssetService = () => {
 }
 
 describe('resolvers/thorchainSavers/utils', () => {
-  describe('getThorchainSaversQuote', () => {
+  describe('getMaybeThorchainSaversDepositQuote', () => {
     it('gets a quote for a valid pool AssetId', async () => {
       mocks.get.mockImplementationOnce(() =>
         Promise.resolve({

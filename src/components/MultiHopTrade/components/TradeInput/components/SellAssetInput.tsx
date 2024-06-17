@@ -37,8 +37,10 @@ export const SellAssetInput = memo(
   }: SellAssetInputProps) => {
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
-    const [rawSellAmountCryptoPrecision, setRawSellAmountCryptoPrecision] = useState('')
-    const [rawSellAmountUserCurrency, setRawSellAmountUserCurrency] = useState('')
+    const [rawSellAmountCryptoPrecision, setRawSellAmountCryptoPrecision] =
+      useState(sellAmountCryptoPrecision)
+    const [rawSellAmountUserCurrency, setRawSellAmountUserCurrency] =
+      useState(sellAmountUserCurrency)
     const debouncedSellAmountCryptoPrecision = useDebounce(rawSellAmountCryptoPrecision, 500)
     const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
 
@@ -52,8 +54,7 @@ export const SellAssetInput = memo(
     useEffect(() => {
       setRawSellAmountCryptoPrecision(sellAmountCryptoPrecision)
       setRawSellAmountUserCurrency(sellAmountUserCurrency ?? '0')
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [sellAmountCryptoPrecision, sellAmountUserCurrency])
 
     // sync redux with local state
     useEffect(() => {
@@ -63,13 +64,6 @@ export const SellAssetInput = memo(
         ),
       )
     }, [debouncedSellAmountCryptoPrecision, dispatch])
-
-    // reset input value on asset change
-    useEffect(() => {
-      setRawSellAmountCryptoPrecision('0')
-      setRawSellAmountUserCurrency('0')
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [asset])
 
     const handleSellAssetInputChange = useCallback(
       (value: string, isFiat: boolean | undefined) => {

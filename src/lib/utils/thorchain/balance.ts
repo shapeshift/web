@@ -183,7 +183,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
   const isSweepNeededQueryArgs = {
     assetId: asset.assetId,
-    address: fromAddress ?? undefined,
+    address: fromAddress,
     txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
     amountCryptoBaseUnit,
   }

@@ -716,7 +716,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
-      address: poolAssetAccountAddress ?? undefined,
+      address: poolAssetAccountAddress,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,

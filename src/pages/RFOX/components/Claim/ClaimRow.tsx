@@ -171,6 +171,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
               colorScheme='green'
               ml={4}
               isDisabled={status === ClaimStatus.CoolingDown ? true : false}
+              onClick={handleClaimClick}
             >
               {translate('RFOX.claim')}
             </Button>

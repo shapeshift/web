@@ -2,7 +2,7 @@ import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
@@ -11,17 +11,23 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimRow } from '../Claim/ClaimRow'
+import type { RfoxClaimQuote } from '../Claim/types'
 import { ClaimStatus } from '../Claim/types'
 
 type ClaimsProps = {
   headerComponent: JSX.Element
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
+  setConfirmedQuote: (quote: RfoxClaimQuote) => void
 }
 
-export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId }: ClaimsProps) => {
+export const Claims = ({
+  setConfirmedQuote,
+  headerComponent,
+  stakingAssetId,
+  stakingAssetAccountId,
+}: ClaimsProps) => {
   const translate = useTranslate()
-  const setConfirmedQuote = useCallback(() => {}, [])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 

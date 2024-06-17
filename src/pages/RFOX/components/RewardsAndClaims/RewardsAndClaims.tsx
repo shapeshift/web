@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
+import type { RfoxClaimQuote } from '../Claim/types'
 import { Claims } from './Claims'
 import { Rewards } from './Rewards'
 
@@ -84,11 +85,13 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
 type RewardsAndClaimsProps = {
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
+  setConfirmedQuote: (quote: RfoxClaimQuote) => void
 }
 
 export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
   stakingAssetId,
   stakingAssetAccountId,
+  setConfirmedQuote,
 }) => {
   const isRFOXDashboardEnabled = useFeatureFlag('RFOXDashboard')
   const [stepIndex, setStepIndex] = useState(
@@ -111,6 +114,7 @@ export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
               headerComponent={TabHeader}
               stakingAssetId={stakingAssetId}
               stakingAssetAccountId={stakingAssetAccountId}
+              setConfirmedQuote={setConfirmedQuote}
             />
           </TabPanel>
         </TabPanels>

@@ -218,6 +218,8 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): Promise<ThorEvmTradeQuote> => {
+            if (!quote.memo) throw new Error('no memo provided')
+
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
@@ -227,23 +229,19 @@ export const getL1quote = async (
               slippageBps,
             })
 
-            if (!quote.memo) throw new Error('no memo provided')
-
-            let updatedMemo = quote.memo
-
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            if (!isStreaming) {
-              updatedMemo = addLimitToMemo({
-                memo: quote.memo,
-                limit: limitWithManualSlippage,
-              })
-            }
+            const memo = isStreaming
+              ? quote.memo
+              : addLimitToMemo({
+                  memo: quote.memo,
+                  limit: limitWithManualSlippage,
+                })
 
             const { data, router, vault } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
-              memo: updatedMemo,
+              memo,
               expiry: quote.expiry,
             })
 
@@ -255,7 +253,7 @@ export const getL1quote = async (
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
@@ -321,6 +319,8 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): Promise<ThorTradeUtxoOrCosmosQuote> => {
+            if (!quote.memo) throw new Error('no memo provided')
+
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
@@ -330,23 +330,19 @@ export const getL1quote = async (
               slippageBps,
             })
 
-            if (!quote.memo) throw new Error('no memo provided')
-
-            let updatedMemo = quote.memo
-
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            if (!isStreaming) {
-              updatedMemo = addLimitToMemo({
-                memo: quote.memo,
-                limit: limitWithManualSlippage,
-              })
-            }
+            const memo = isStreaming
+              ? quote.memo
+              : addLimitToMemo({
+                  memo: quote.memo,
+                  limit: limitWithManualSlippage,
+                })
 
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
-              memo: updatedMemo,
+              memo,
             })
 
             const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
@@ -367,7 +363,7 @@ export const getL1quote = async (
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
@@ -430,6 +426,8 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): ThorTradeUtxoOrCosmosQuote => {
+            if (!quote.memo) throw new Error('no memo provided')
+
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
@@ -445,22 +443,18 @@ export const getL1quote = async (
               slippageBps,
             })
 
-            if (!quote.memo) throw new Error('no memo provided')
-
-            let updatedMemo = quote.memo
-
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            if (!isStreaming) {
-              updatedMemo = addLimitToMemo({
-                memo: quote.memo,
-                limit: limitWithManualSlippage,
-              })
-            }
+            const memo = isStreaming
+              ? quote.memo
+              : addLimitToMemo({
+                  memo: quote.memo,
+                  limit: limitWithManualSlippage,
+                })
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               potentialAffiliateBps,

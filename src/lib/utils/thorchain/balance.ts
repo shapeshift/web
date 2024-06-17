@@ -19,8 +19,8 @@ import {
   queryFn as getThorchainSaversDepositQuoteQueryFn,
 } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import {
+  fetchThorchainWithdrawQuote,
   type GetThorchainSaversWithdrawQuoteQueryKey,
-  queryFn as getThorchainSaversWithdrawQuoteQueryFn,
 } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 
 // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
@@ -112,7 +112,12 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
         return queryClient.fetchQuery({
           queryKey: thorchainSaversWithdrawQuoteQueryKey,
-          queryFn: getThorchainSaversWithdrawQuoteQueryFn,
+          queryFn: () =>
+            fetchThorchainWithdrawQuote({
+              asset,
+              accountId,
+              amountCryptoBaseUnit: withdrawAmountCryptoBaseUnit,
+            }),
           staleTime: 5000,
         })
       }

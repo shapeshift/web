@@ -81,6 +81,7 @@ export const Claims = ({
           actionDescription={translate('RFOX.unstakeFrom', {
             assetSymbol: stakingAsset.symbol,
           })}
+          displayClaimButton={isAvailable}
         />
       )
     })

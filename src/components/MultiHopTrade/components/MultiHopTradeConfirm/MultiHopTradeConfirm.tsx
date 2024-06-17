@@ -46,10 +46,18 @@ export const MultiHopTradeConfirm = memo(() => {
     dispatch(tradeQuoteSlice.actions.setTradeInitialized())
   }, [dispatch, isLoading])
 
+  const isTradeComplete = useMemo(
+    () => tradeExecutionState === TradeExecutionState.TradeComplete,
+    [tradeExecutionState],
+  )
+
   const handleBack = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.clear())
+    if (isTradeComplete) {
+      dispatch(tradeQuoteSlice.actions.clear())
+    }
+
     history.push(TradeRoutePaths.Input)
-  }, [dispatch, history])
+  }, [dispatch, history, isTradeComplete])
 
   const { isOpen: isFirstHopOpen, onToggle: onToggleFirstHop } = useDisclosure(useDisclosureProps)
   const { isOpen: isSecondHopOpen, onToggle: onToggleSecondHop } = useDisclosure(useDisclosureProps)
@@ -71,11 +79,6 @@ export const MultiHopTradeConfirm = memo(() => {
     previousTradeExecutionState,
     tradeExecutionState,
   ])
-
-  const isTradeComplete = useMemo(
-    () => tradeExecutionState === TradeExecutionState.TradeComplete,
-    [tradeExecutionState],
-  )
 
   const handleTradeConfirm = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.confirmTrade())

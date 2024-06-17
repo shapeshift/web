@@ -113,22 +113,21 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
-  const cryptoAmountIntegerCount = useMemo(
-    () => bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true),
-    [cryptoAmount],
-  )
-  const formattedCryptoAmount = useMemo(
-    () =>
-      bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
-        ? cryptoAmount
-        : bnOrZero(cryptoAmount).toFixed(3),
-    [cryptoAmount, cryptoAmountIntegerCount],
-  )
+  const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
+  const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
+    ? cryptoAmount
+    : bnOrZero(cryptoAmount).toFixed(3)
 
   const formControlHover = useMemo(
     () => ({ bg: isReadOnly ? 'background.input.base' : 'background.input.hover' }),
     [isReadOnly],
   )
+
+  const handleValueChange = useCallback((values: NumberFormatValues) => {
+    // This fires anytime value changes including setting it on max click
+    // Store the value in a ref to send when we actually want the onChange to fire
+    amountRef.current = values.value
+  }, [])
 
   const handleChange = useCallback(() => {
     // onChange will send us the formatted value
@@ -136,16 +135,6 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     // Now when the max buttons are clicked the onChange will not fire
     onChange(amountRef.current ?? '', isFiat)
   }, [isFiat, onChange])
-
-  const handleValueChange = useCallback(
-    (values: NumberFormatValues) => {
-      // This fires anytime value changes including setting it on max click
-      // Store the value in a ref to send when we actually want the onChange to fire
-      amountRef.current = values.value
-      handleChange()
-    },
-    [handleChange],
-  )
 
   return (
     <FormControl

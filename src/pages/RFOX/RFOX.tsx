@@ -46,13 +46,11 @@ export const RFOX: React.FC = () => {
               stakingAssetAccountId={stakingAssetAccountId}
             />
           )}
-          {isRFOXDashboardEnabled && (
-            <RewardsAndClaims
-              stakingAssetId={stakingAssetId}
-              stakingAssetAccountId={stakingAssetAccountId}
-              setConfirmedQuote={setConfirmedQuote}
-            />
-          )}
+          <RewardsAndClaims
+            stakingAssetId={stakingAssetId}
+            stakingAssetAccountId={stakingAssetAccountId}
+            setConfirmedQuote={setConfirmedQuote}
+          />
           <Faq />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={maxWidth} spacing={4}>

@@ -6,7 +6,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
+import { getIsSweepNeeded, isGetSweepNeededInput } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
@@ -83,7 +83,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   fromAddress,
 }: {
   asset: Asset
-  fromAddress: string | null
+  fromAddress: string | undefined
   amountCryptoPrecision: string
   accountId: AccountId
   type: 'deposit' | 'withdraw'
@@ -183,20 +183,21 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
   const isSweepNeededQueryArgs = {
     assetId: asset.assetId,
-    address: fromAddress,
+    address: fromAddress ?? undefined,
     txFeeCryptoBaseUnit: _estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
     amountCryptoBaseUnit,
   }
 
   const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
 
-  const _isSweepNeeded = isSweepNeededQueryEnabled
-    ? await queryClient.fetchQuery({
-        queryKey: isSweepNeededQueryKey,
-        queryFn: isSweepNeededQueryFn,
-        staleTime: 60_000,
-      })
-    : undefined
+  const _isSweepNeeded =
+    isSweepNeededQueryEnabled && isGetSweepNeededInput(isSweepNeededQueryArgs)
+      ? await queryClient.fetchQuery({
+          queryKey: isSweepNeededQueryKey,
+          queryFn: () => getIsSweepNeeded(isSweepNeededQueryArgs),
+          staleTime: 60_000,
+        })
+      : undefined
 
   const isEstimateSweepFeesQueryEnabled = Boolean(_isSweepNeeded && accountId && isUtxoChain)
 

@@ -709,26 +709,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return Boolean(
       poolAsset &&
         bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
-        hasEnoughPoolAssetBalanceForTxPlusFees &&
-        poolAssetTxFeeCryptoBaseUnit,
+        hasEnoughPoolAssetBalanceForTxPlusFees,
     )
-  }, [
-    poolAsset,
-    actualAssetDepositAmountCryptoPrecision,
-    hasEnoughPoolAssetBalanceForTxPlusFees,
-    poolAssetTxFeeCryptoBaseUnit,
-  ])
+  }, [poolAsset, actualAssetDepositAmountCryptoPrecision, hasEnoughPoolAssetBalanceForTxPlusFees])
 
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
-      address: poolAssetAccountAddress ?? null,
+      address: poolAssetAccountAddress ?? undefined,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
       // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: isSweepNeededEnabled,

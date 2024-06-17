@@ -53,7 +53,7 @@ import { WithdrawContext } from '../WithdrawContext'
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined
-  fromAddress: string | null
+  fromAddress: string | undefined
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
@@ -196,14 +196,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     // withdraw savers will use dust amount
     amountCryptoBaseUnit: null,
     memo: thorchainSaversWithdrawQuote?.memo ?? null,
-    fromAddress,
+    fromAddress: fromAddress ?? null,
     action: 'withdrawSavers',
   })
 
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId,
-      address: fromAddress,
+      address: fromAddress ?? undefined,
       amountCryptoBaseUnit: dustAmountCryptoBaseUnit,
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
       // Don't fetch sweep needed if there isn't enough balance for the dust amount + fees, since adding in a sweep Tx would obviously fail too

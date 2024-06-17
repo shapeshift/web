@@ -721,7 +721,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         actualAssetDepositAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
-      // Effectively defined at runtime because of the enabled check below
       txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)

@@ -11,6 +11,7 @@ type StatItemProps = {
   amountUserCurrency?: string
   percentChangeDecimal?: string
   helperTranslation?: string
+  isLoading: boolean
 }
 
 const helperToolTipFlexProps = {
@@ -23,6 +24,7 @@ export const StatItem = ({
   description,
   amountUserCurrency,
   percentChangeDecimal,
+  isLoading,
 }: StatItemProps) => {
   const translate = useTranslate()
 
@@ -38,7 +40,7 @@ export const StatItem = ({
 
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
-      <Skeleton isLoaded={true}>
+      <Skeleton isLoaded={!isLoading}>
         <HelperTooltip
           label={translate(helperTranslation)}
           flexProps={helperToolTipFlexProps}

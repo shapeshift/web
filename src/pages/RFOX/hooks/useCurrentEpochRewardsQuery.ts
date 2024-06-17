@@ -5,18 +5,18 @@ import type { Block } from 'viem'
 
 import { useEarnedQuery } from './useEarnedQuery'
 
-type UseEpochEarningsQueryProps = {
+type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
   currentBlock: Block
   epochStartBlockNumber: bigint
   epochDistributionAmountRuneBaseUnit: bigint
 }
 
-export const useEpochEarningsQuery = ({
+export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
   epochStartBlockNumber,
   epochDistributionAmountRuneBaseUnit,
-}: UseEpochEarningsQueryProps) => {
+}: UseCurrentEpochRewardsQueryProps) => {
   const previousEpochEarnedQuery = useEarnedQuery({
     stakingAssetAccountAddress,
     blockNumber: epochStartBlockNumber,

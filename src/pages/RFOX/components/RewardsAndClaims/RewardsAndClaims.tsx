@@ -1,4 +1,5 @@
 import { Button, Card, Flex, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -75,7 +76,15 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
   )
 }
 
-export const RewardsAndClaims: React.FC = () => {
+type RewardsAndClaimsProps = {
+  stakingAssetId: AssetId
+  stakingAssetAccountId: AccountId | undefined
+}
+
+export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
+  stakingAssetId,
+  stakingAssetAccountId,
+}) => {
   const [stepIndex, setStepIndex] = useState(RewardsAndClaimsTabIndex.Rewards)
 
   const TabHeader = useMemo(
@@ -90,7 +99,11 @@ export const RewardsAndClaims: React.FC = () => {
             <Rewards headerComponent={TabHeader} />
           </TabPanel>
           <TabPanel px={0} py={0}>
-            <Claims headerComponent={TabHeader} />
+            <Claims
+              headerComponent={TabHeader}
+              stakingAssetId={stakingAssetId}
+              stakingAssetAccountId={stakingAssetAccountId}
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>

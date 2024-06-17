@@ -42,7 +42,12 @@ export const RFOX: React.FC = () => {
               stakingAssetAccountId={stakingAssetAccountId}
             />
           )}
-          {isRFOXDashboardEnabled && <RewardsAndClaims />}
+          {isRFOXDashboardEnabled && (
+            <RewardsAndClaims
+              stakingAssetId={stakingAssetId}
+              stakingAssetAccountId={stakingAssetAccountId}
+            />
+          )}
           <Faq />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={maxWidth} spacing={4}>

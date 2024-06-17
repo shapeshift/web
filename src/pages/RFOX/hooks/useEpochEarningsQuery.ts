@@ -1,4 +1,5 @@
-import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
+import { RFOX_EPOCH_DURATION_DAYS, RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
+import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import type { Block } from 'viem'
 
@@ -6,25 +7,24 @@ import { useEarnedQuery } from './useEarnedQuery'
 
 type UseEpochEarningsQueryProps = {
   stakingAssetAccountAddress: string | undefined
-  epochEndBlock: Block
-  epochStartBlock: Block
+  currentBlock: Block
+  epochStartBlockNumber: bigint
   epochDistributionAmountRuneBaseUnit: bigint
 }
 
 export const useEpochEarningsQuery = ({
   stakingAssetAccountAddress,
-  epochEndBlock,
-  epochStartBlock,
+  epochStartBlockNumber,
   epochDistributionAmountRuneBaseUnit,
 }: UseEpochEarningsQueryProps) => {
   const previousEpochEarnedQuery = useEarnedQuery({
     stakingAssetAccountAddress,
-    blockNumber: epochStartBlock.number ?? undefined,
+    blockNumber: epochStartBlockNumber,
   })
 
   const currentEpochEarnedQuery = useEarnedQuery({
     stakingAssetAccountAddress,
-    blockNumber: epochEndBlock.number ?? undefined,
+    blockNumber: undefined, // Use the latest block
   })
 
   const isLoading = useMemo(() => {
@@ -49,7 +49,12 @@ export const useEpochEarningsQuery = ({
     }
 
     const epochEarningsForAccount = currentEpochEarned - currentEpochEarned
-    const secondsInEpoch: bigint = epochEndBlock.timestamp - epochStartBlock.timestamp
+
+    // Use hardcoded epoch duration to calculate the total reward for the epoch since the epoch
+    // end block is in the future and we don't know its exact timestamp yet.
+    const secondsInEpoch: bigint = BigInt(
+      dayjs.duration(RFOX_EPOCH_DURATION_DAYS, 'days').asSeconds(),
+    )
 
     // NOTE: This is a simplified version of the calculation that is only accurate enough for
     // display purposes due to rounding differences between this approach and the internal
@@ -59,11 +64,9 @@ export const useEpochEarningsQuery = ({
   }, [
     epochDistributionAmountRuneBaseUnit,
     currentEpochEarnedQuery.data,
-    epochEndBlock.timestamp,
     isError,
     isLoading,
     previousEpochEarnedQuery.data,
-    epochStartBlock.timestamp,
   ])
 
   if (isLoading) {

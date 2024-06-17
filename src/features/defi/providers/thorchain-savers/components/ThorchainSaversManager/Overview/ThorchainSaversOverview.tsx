@@ -123,7 +123,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId,
-    enabled: !!assetId,
     swapperName: SwapperName.Thorchain,
   })
 

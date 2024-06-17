@@ -551,7 +551,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
-    enabled: Boolean(poolAsset?.assetId),
     swapperName: SwapperName.Thorchain,
   })
 

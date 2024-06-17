@@ -2,7 +2,6 @@ import { Button, Card, Flex, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { Claims } from './Claims'
 import { Rewards } from './Rewards'
@@ -48,7 +47,6 @@ type FormHeaderProps = {
 }
 
 const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) => {
-  const isRewardsTabEnabled = useFeatureFlag('RFOXRewardsTab')
   const translate = useTranslate()
   const handleClick = useCallback(
     (index: number) => {
@@ -56,7 +54,6 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
     },
     [setStepIndex],
   )
-  if (!isRewardsTabEnabled) return null
 
   return (
     <Flex gap={4}>
@@ -79,7 +76,6 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
 }
 
 export const RewardsAndClaims: React.FC = () => {
-  const isRewardsTabEnabled = useFeatureFlag('RFOXRewardsTab')
   const [stepIndex, setStepIndex] = useState(RewardsAndClaimsTabIndex.Rewards)
 
   const TabHeader = useMemo(
@@ -90,11 +86,9 @@ export const RewardsAndClaims: React.FC = () => {
     <Card>
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
-          {isRewardsTabEnabled && (
-            <TabPanel px={0} py={0}>
-              <Rewards headerComponent={TabHeader} />
-            </TabPanel>
-          )}
+          <TabPanel px={0} py={0}>
+            <Rewards headerComponent={TabHeader} />
+          </TabPanel>
           <TabPanel px={0} py={0}>
             <Claims headerComponent={TabHeader} />
           </TabPanel>

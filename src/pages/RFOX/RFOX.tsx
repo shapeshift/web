@@ -1,6 +1,6 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Heading, Stack } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
@@ -15,7 +15,7 @@ const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
 const paddingVerticalResponsiveProps = { base: 8, md: 16 }
 
-const stakingAssetId = foxAssetId
+const stakingAssetId = foxOnArbitrumOneAssetId
 
 export const RFOX: React.FC = () => {
   const translate = useTranslate()

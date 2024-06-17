@@ -38,12 +38,7 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
     <Card>
       <CardHeader pt={6} borderBottomWidth={1} borderColor='border.base'>
         <Flex alignItems='center' gap={2} mb={6}>
-          <AssetIcon
-            size='sm'
-            assetId={stakingAssetId}
-            key={stakingAssetId}
-            showNetworkIcon={false}
-          />
+          <AssetIcon size='sm' assetId={stakingAssetId} key={stakingAssetId} showNetworkIcon />
           <Flex flexDir='column'>
             <Skeleton isLoaded={isUserStakingBalanceOfCryptoPrecisionSuccess}>
               <Amount.Crypto

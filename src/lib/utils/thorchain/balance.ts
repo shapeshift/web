@@ -15,12 +15,12 @@ import { store } from 'state/store'
 import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
 import {
+  fetchThorchainDepositQuote,
   type GetThorchainSaversDepositQuoteQueryKey,
-  queryFn as getThorchainSaversDepositQuoteQueryFn,
 } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import {
+  fetchThorchainWithdrawQuote,
   type GetThorchainSaversWithdrawQuoteQueryKey,
-  queryFn as getThorchainSaversWithdrawQuoteQueryFn,
 } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 
 // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
@@ -112,7 +112,12 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
         return queryClient.fetchQuery({
           queryKey: thorchainSaversWithdrawQuoteQueryKey,
-          queryFn: getThorchainSaversWithdrawQuoteQueryFn,
+          queryFn: () =>
+            fetchThorchainWithdrawQuote({
+              asset,
+              accountId,
+              amountCryptoBaseUnit: withdrawAmountCryptoBaseUnit,
+            }),
           staleTime: 5000,
         })
       }
@@ -126,7 +131,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
         return await queryClient.fetchQuery({
           queryKey: thorchainSaversDepositQuoteQueryKey,
-          queryFn: getThorchainSaversDepositQuoteQueryFn,
+          queryFn: () => fetchThorchainDepositQuote({ asset, amountCryptoBaseUnit }),
           staleTime: 5000,
         })
       }

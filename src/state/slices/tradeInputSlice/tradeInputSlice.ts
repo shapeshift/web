@@ -46,14 +46,28 @@ export const tradeInput = createSlice({
     setBuyAsset: (state, action: PayloadAction<Asset>) => {
       const asset = action.payload
 
+      // Prevent doodling state when no change is made
+      if (asset.assetId === state.buyAsset.assetId) {
+        return
+      }
+
       // Handle the user selecting the same asset for both buy and sell
       const isSameAsSellAsset = asset.assetId === state.sellAsset.assetId
-      if (isSameAsSellAsset) state.sellAsset = state.buyAsset
+      if (isSameAsSellAsset) {
+        state.sellAsset = state.buyAsset
+        // clear the sell amount when switching assets
+        state.sellAmountCryptoPrecision = '0'
+      }
 
       state.buyAsset = asset
     },
     setSellAsset: (state, action: PayloadAction<Asset>) => {
       const asset = action.payload
+
+      // Prevent doodling state when no change is made
+      if (asset.assetId === state.sellAsset.assetId) {
+        return
+      }
 
       // Handle the user selecting the same asset for both buy and sell
       const isSameAsBuyAsset = asset.assetId === state.buyAsset.assetId

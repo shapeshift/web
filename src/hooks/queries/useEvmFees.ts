@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -18,11 +19,12 @@ import { useAppSelector } from 'state/store'
 
 type UseEvmFeesProps = Omit<
   GetFeesWithWalletArgs,
-  'wallet' | 'adapter' | 'accountNumber' | 'data'
+  'wallet' | 'adapter' | 'accountNumber' | 'data' | 'to'
 > & {
   accountNumber: number | undefined
   data: string | undefined
-  chainId: ChainId
+  to: string | undefined
+  chainId: ChainId | undefined
   enabled?: boolean
   staleTime?: number
   refetchInterval: number | false | undefined
@@ -54,9 +56,15 @@ export const useEvmFees = (props: UseEvmFeesProps) => {
     Object.values(props),
   )
 
-  const adapter = useMemo(() => assertGetEvmChainAdapter(input.chainId), [input.chainId])
+  const adapter = useMemo(
+    () =>
+      input.chainId && isEvmChainId(input.chainId)
+        ? assertGetEvmChainAdapter(input.chainId)
+        : undefined,
+    [input.chainId],
+  )
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, input.chainId))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, input.chainId ?? ''))
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )

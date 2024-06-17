@@ -5,13 +5,13 @@ import BigNumber from 'bignumber.js'
 import type { Address } from 'viem'
 import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { addAggregatorAddressToMemo } from 'lib/utils/thorchain/memo/addAggregatorAddressToMemo'
-import { addFinalAssetContractToMemo } from 'lib/utils/thorchain/memo/addFinalAssetContractToMemo'
+import { addFinalAssetAddressToMemo } from 'lib/utils/thorchain/memo/addFinalAssetAddressToMemo'
 import { addFinalAssetLimitToMemo } from 'lib/utils/thorchain/memo/addFinalAssetLimitToMemo'
 import { subtractBasisPointAmount } from 'state/slices/tradeQuoteSlice/utils'
 
 import { getMaxBytesLengthByChainId } from '../constants'
 import { MEMO_PART_DELIMITER } from './constants'
-import { getShortenedFinalAssetAmount } from './getShortenedFinalAssetAmount'
+import { getShortenedFinalAssetLimit } from './getShortenedFinalAssetLimit'
 import { getUniqueAddressSubstring } from './getUniqueAddressSubstring'
 import { shortenedNativeAssetNameByNativeAssetName } from './longTailHelpers'
 
@@ -39,6 +39,7 @@ export const addL1ToLongtailPartsToMemo = ({
   // Paranonia - If memo without final asset amount out and aggregator is already too long, we can't do anything
   assert(quotedMemo.length <= maxMemoSize, 'memo is too long')
 
+  // THORChain themselves use 2 characters but it might collide at some point in the future (https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/aggregators/dex_mainnet_current.go)
   const shortenedAggregatorAddress = aggregator.slice(aggregator.length - 2, aggregator.length)
 
   const quotedMemoWithAggregator = addAggregatorAddressToMemo({
@@ -51,9 +52,9 @@ export const addL1ToLongtailPartsToMemo = ({
     longtailTokens,
   )
 
-  const quotedMemoWithAggregatorAndFinalAssetContract = addFinalAssetContractToMemo({
+  const quotedMemoWithAggregatorAndFinalAssetContract = addFinalAssetAddressToMemo({
     memo: quotedMemoWithAggregator,
-    finalAssetContract: finalAssetContractAddressShortened,
+    finalAssetAddress: finalAssetContractAddressShortened,
   })
 
   const [
@@ -74,7 +75,7 @@ export const addL1ToLongtailPartsToMemo = ({
 
   assert(shortenedNativeAssetName, 'cannot find shortened native asset name')
 
-  const memoWithoutFinalAssetAmountOut = [
+  const memoWithoutFinalAssetLimit = [
     prefix,
     shortenedNativeAssetName,
     address,
@@ -86,7 +87,7 @@ export const addL1ToLongtailPartsToMemo = ({
   ].join(MEMO_PART_DELIMITER)
 
   // Paranonia - If memo without final asset amount out is already too long, we can't do anything
-  assert(memoWithoutFinalAssetAmountOut.length <= maxMemoSize, 'memo is too long')
+  assert(memoWithoutFinalAssetLimit.length <= maxMemoSize, 'memo is too long')
 
   const finalAssetLimitWithManualSlippage = subtractBasisPointAmount(
     bn(finalAssetAmountOut).toFixed(0, BigNumber.ROUND_DOWN),
@@ -94,15 +95,15 @@ export const addL1ToLongtailPartsToMemo = ({
     BigNumber.ROUND_DOWN,
   )
 
-  const shortenedFinalAssetAmount = getShortenedFinalAssetAmount({
+  const shortenedFinalAssetAmount = getShortenedFinalAssetLimit({
     maxMemoSize,
-    memoWithoutFinalAssetAmountOut,
+    memoWithoutFinalAssetLimit,
     finalAssetLimitWithManualSlippage,
   })
 
   const memoWithShortenedFinalAssetAmountOut = addFinalAssetLimitToMemo({
-    memo: memoWithoutFinalAssetAmountOut,
-    finalAssetAmountOut: shortenedFinalAssetAmount,
+    memo: memoWithoutFinalAssetLimit,
+    finalAssetLimit: shortenedFinalAssetAmount,
   })
 
   assert(memoWithShortenedFinalAssetAmountOut.length <= maxMemoSize, 'memo is too long')

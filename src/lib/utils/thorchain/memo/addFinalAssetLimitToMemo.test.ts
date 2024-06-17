@@ -8,7 +8,7 @@ describe('addFinalAssetLimitToMemo', () => {
       const memo1 = '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0:47:ec01'
       const modifiedMemo1 = addFinalAssetLimitToMemo({
         memo: memo1,
-        finalAssetAmountOut: '100001',
+        finalAssetLimit: '100001',
       })
       expect(modifiedMemo1).toBe(
         '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0:47:ec01:100001',
@@ -20,7 +20,7 @@ describe('addFinalAssetLimitToMemo', () => {
         '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0:47:ec01:100001'
       const modifiedMemo1 = addFinalAssetLimitToMemo({
         memo: memo1,
-        finalAssetAmountOut: '99992',
+        finalAssetLimit: '99992',
       })
       expect(modifiedMemo1).toBe(
         '=:ETH.ETH:0x782C14C79945caD46Fbea57bb73d796366e76147:1000000000:ss:0:47:ec01:100001',

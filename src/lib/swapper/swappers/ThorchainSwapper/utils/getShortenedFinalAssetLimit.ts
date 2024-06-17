@@ -9,13 +9,13 @@ export const AGGREGATOR_EXPONENT_LENGTH = 2
 // https://gitlab.com/thorchain/thornode/-/blob/v1.131.0/x/thorchain/memo/memo_parser.go#L190
 export const THORCHAIN_PARSER_MAXIMUM_PRECISION = 18
 
-export const getShortenedFinalAssetAmount = ({
+export const getShortenedFinalAssetLimit = ({
   maxMemoSize,
-  memoWithoutFinalAssetAmountOut,
+  memoWithoutFinalAssetLimit,
   finalAssetLimitWithManualSlippage,
 }: {
   maxMemoSize: number
-  memoWithoutFinalAssetAmountOut: string
+  memoWithoutFinalAssetLimit: string
   finalAssetLimitWithManualSlippage: string
 }) => {
   // The min amount out should be at least 3 characters long (1 for the number and 2 for the exponent)
@@ -23,7 +23,7 @@ export const getShortenedFinalAssetAmount = ({
   const HYPOTHETICAL_EXPONENT = '01'
 
   // We need to construct the memo with the minAmountOut at the end so we can calculate his bytes size
-  const unshortenedMemo = `${memoWithoutFinalAssetAmountOut}:${finalAssetLimitWithManualSlippage}${HYPOTHETICAL_EXPONENT}`
+  const unshortenedMemo = `${memoWithoutFinalAssetLimit}:${finalAssetLimitWithManualSlippage}${HYPOTHETICAL_EXPONENT}`
 
   const memoSizeLeft = maxMemoSize - unshortenedMemo.length
 

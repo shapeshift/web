@@ -1,6 +1,6 @@
 import { MEMO_PART_DELIMITER } from './constants'
 
-type AddShortenedAggregatorToMemoArgs = {
+type AddAggregatorAddressToMemoArgs = {
   /**
    * A THORChain memo, with or without aggregator address.
    */
@@ -11,11 +11,10 @@ type AddShortenedAggregatorToMemoArgs = {
   aggregatorAddress: string
 }
 
-// THORChain themselves use 2 characters but it might collide at some point in the future (https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/aggregators/dex_mainnet_current.go)
 export const addAggregatorAddressToMemo = ({
   memo,
   aggregatorAddress,
-}: AddShortenedAggregatorToMemoArgs) => {
+}: AddAggregatorAddressToMemoArgs) => {
   const memoParts = memo.split(MEMO_PART_DELIMITER)
   const [action] = memoParts
 
@@ -39,11 +38,11 @@ export const addAggregatorAddressToMemo = ({
     // No Aggregator for loans
     case '$+':
     case 'loan+':
-      break
+      throw new Error(`cannot add aggregator to loan memo: ${memo}`)
     // No Aggregator for loans
     case '$-':
     case 'loan-':
-      break
+      throw new Error(`cannot add aggregator to loan memo: ${memo}`)
     // No Aggregator for Add Liquidity / Withdraw Liquidity as of now
     case 'add':
     case '+':
@@ -51,7 +50,7 @@ export const addAggregatorAddressToMemo = ({
     case 'withdraw':
     case '-':
     case 'wd':
-      break
+      throw new Error(`cannot add aggregator to liquidity memo: ${memo}`)
     default:
       throw new Error(`unsupported memo: ${memo}`)
   }

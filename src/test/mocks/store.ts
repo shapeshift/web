@@ -115,7 +115,7 @@ export const mockStore: ReduxState = {
       AccountManagement: false,
       AccountManagementLedger: false,
       RFOX: false,
-      RFOXRewardsTab: false,
+      RFOXDashboard: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

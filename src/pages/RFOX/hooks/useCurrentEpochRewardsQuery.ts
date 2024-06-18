@@ -1,25 +1,21 @@
-import { RFOX_EPOCH_DURATION_DAYS, RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
-import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import type { Block } from 'viem'
 
+import type { EpochMetadata } from '../types'
+import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
 import { useEarnedQuery } from './useEarnedQuery'
 
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
-  currentBlock: Block
-  epochStartBlockNumber: bigint
-  epochDistributionAmountRuneBaseUnit: bigint
+  epochMetadata: EpochMetadata
 }
 
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
-  epochStartBlockNumber,
-  epochDistributionAmountRuneBaseUnit,
+  epochMetadata,
 }: UseCurrentEpochRewardsQueryProps) => {
   const previousEpochEarnedQuery = useEarnedQuery({
     stakingAssetAccountAddress,
-    blockNumber: epochStartBlockNumber,
+    blockNumber: epochMetadata.startBlockNumber,
   })
 
   const currentEpochEarnedQuery = useEarnedQuery({
@@ -50,19 +46,9 @@ export const useCurrentEpochRewardsQuery = ({
 
     const epochEarningsForAccount = currentEpochEarned - previousEpochEarned
 
-    // Use hardcoded epoch duration to calculate the total reward for the epoch since the epoch
-    // end block is in the future and we don't know its exact timestamp yet.
-    const secondsInEpoch: bigint = BigInt(
-      dayjs.duration(RFOX_EPOCH_DURATION_DAYS, 'days').asSeconds(),
-    )
-
-    // NOTE: This is a simplified version of the calculation that is only accurate enough for
-    // display purposes due to rounding differences between this approach and the internal
-    // accounting on-chain.
-    const totalEpochReward = (RFOX_REWARD_RATE / RFOX_WAD) * secondsInEpoch
-    return (epochEarningsForAccount / totalEpochReward) * epochDistributionAmountRuneBaseUnit
+    return calcEpochRewardForAccountRuneBaseUnit(epochEarningsForAccount, epochMetadata)
   }, [
-    epochDistributionAmountRuneBaseUnit,
+    epochMetadata,
     currentEpochEarnedQuery.data,
     isError,
     isLoading,

@@ -20,6 +20,7 @@ type UseStakingBalanceOfQueryProps<SelectData = StakingBalanceOf> = {
   stakingAssetAccountAddress: string | undefined
   stakingAssetId: AssetId | undefined
   select?: (stakingBalanceOf: StakingBalanceOf) => SelectData
+  enabled?: boolean
 }
 const client = viemClientByNetworkId[arbitrum.id]
 
@@ -27,6 +28,7 @@ export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
   stakingAssetAccountAddress,
   stakingAssetId,
   select,
+  enabled = true,
 }: UseStakingBalanceOfQueryProps<SelectData>) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey: StakingBalanceOfQueryKey = useMemo(
@@ -48,7 +50,7 @@ export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
 
   const stakingBalanceOfQueryFn = useMemo(
     () =>
-      stakingAssetAccountAddress && stakingAssetId
+      enabled && stakingAssetAccountAddress && stakingAssetId
         ? () =>
             readContract(client, {
               abi: erc20Abi,
@@ -57,7 +59,7 @@ export const useStakingBalanceOfQuery = <SelectData = StakingBalanceOf>({
               args: [getAddress(stakingAssetAccountAddress)],
             })
         : skipToken,
-    [stakingAssetAccountAddress, stakingAssetId],
+    [enabled, stakingAssetAccountAddress, stakingAssetId],
   )
 
   const stakingBalanceOfQuery = useQuery({

@@ -7,7 +7,7 @@ const tx: Tx = {
   timestamp: 1718305602,
   status: 1,
   from: '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986',
-  to: '0xd612B64A134f3D4830542B7463CE8ca8a29D7268',
+  to: '0xaC2a4fD70BCD8Bab0662960455c363735f0e2b56',
   confirmations: 303953,
   value: '0',
   fee: '39355169490000',

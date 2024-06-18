@@ -48,6 +48,10 @@ export const ClaimRow: FC<ClaimRowProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const isClaimWidget = useMemo(
+    () => history.location.pathname.includes('/claim/'),
+    [history.location.pathname],
+  )
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -71,8 +75,20 @@ export const ClaimRow: FC<ClaimRowProps> = ({
       index,
     }
     setConfirmedQuote(claimQuote)
+    // We use this component in two places:
+    // 1. In dashboard `<Claims />`, where there is no widget `<ClaimRoutes />` memory router
+    // 2. In `<ClaimRoutes />`, where there *is* a memory router
+    // Trying to history.push in the first case will result in an invalid route, since there is no ClaimRoutePaths context in <Claims />
+    if (!isClaimWidget) return
     history.push(ClaimRoutePaths.Confirm)
-  }, [history, index, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
+  }, [
+    history,
+    index,
+    isClaimWidget,
+    setConfirmedQuote,
+    stakingAmountCryptoBaseUnit,
+    stakingAssetAccountId,
+  ])
 
   const parentProps = useMemo(() => {
     if (displayClaimButton) return {}

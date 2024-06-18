@@ -2,6 +2,7 @@ import type { ComponentWithAs, IconProps, ThemeTypings } from '@chakra-ui/react'
 import { Box, Button } from '@chakra-ui/react'
 import type { AnimationDefinition, MotionStyle } from 'framer-motion'
 import { AnimatePresence, motion } from 'framer-motion'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { PropsWithChildren } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
@@ -84,7 +85,7 @@ type AcknowledgementProps = {
   shouldShowAcknowledgement: boolean
   setShouldShowAcknowledgement: (shouldShow: boolean) => void
   colorScheme?: ThemeTypings['colorSchemes']
-  buttonTranslation?: string
+  buttonTranslation?: string | [string, InterpolationOptions]
   icon?: ComponentWithAs<'svg', IconProps>
 }
 

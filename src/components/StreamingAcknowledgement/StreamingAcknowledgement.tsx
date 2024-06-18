@@ -2,8 +2,8 @@ import { Box, Button } from '@chakra-ui/react'
 import type { AnimationDefinition, MotionStyle } from 'framer-motion'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useCallback, useEffect, useState } from 'react'
-import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
+import { StreamIcon } from 'components/Icons/Stream'
 import { RawText, Text } from 'components/Text'
 import { WarningOverlay } from 'components/WarningOverlay/WarningOverlay'
 
@@ -46,36 +46,36 @@ const popoverStyle: MotionStyle = {
   paddingTop: '4rem',
 }
 
-type WarningAcknowledgementProps = {
+type StreamingAcknowledgementProps = {
   children: React.ReactNode
-  message: string
   onAcknowledge: () => void
-  shouldShowWarningAcknowledgement: boolean
-  setShouldShowWarningAcknowledgement: (shouldShow: boolean) => void
+  shouldShowStreamingAcknowledgement: boolean
+  setShouldShowStreamingAcknowledgement: (shouldShow: boolean) => void
+  estimatedTime: string
 }
 
 const cancelHoverProps = { bg: 'rgba(255, 255, 255, 0.2)' }
-const understandHoverProps = { bg: 'red.600' }
+const understandHoverProps = { bg: 'blue.600' }
 const boxBorderRadius = { base: 'none', md: 'xl' }
 
-export const WarningAcknowledgement = ({
+export const StreamingAcknowledgement = ({
   children,
-  message,
   onAcknowledge,
-  shouldShowWarningAcknowledgement,
-  setShouldShowWarningAcknowledgement,
-}: WarningAcknowledgementProps) => {
+  shouldShowStreamingAcknowledgement,
+  setShouldShowStreamingAcknowledgement,
+  estimatedTime,
+}: StreamingAcknowledgementProps) => {
   const translate = useTranslate()
   const [isShowing, setIsShowing] = useState(false)
 
   const handleAcknowledge = useCallback(() => {
-    setShouldShowWarningAcknowledgement(false)
+    setShouldShowStreamingAcknowledgement(false)
     onAcknowledge()
-  }, [onAcknowledge, setShouldShowWarningAcknowledgement])
+  }, [onAcknowledge, setShouldShowStreamingAcknowledgement])
 
   const handleCancel = useCallback(() => {
-    setShouldShowWarningAcknowledgement(false)
-  }, [setShouldShowWarningAcknowledgement])
+    setShouldShowStreamingAcknowledgement(false)
+  }, [setShouldShowStreamingAcknowledgement])
 
   const handleAnimationComplete = useCallback((def: AnimationDefinition) => {
     if (def === 'exit') {
@@ -86,10 +86,10 @@ export const WarningAcknowledgement = ({
   useEffect(() => {
     // enters with overflow: hidden
     // exit after animation complete return to overflow: visible
-    if (shouldShowWarningAcknowledgement) {
+    if (shouldShowStreamingAcknowledgement) {
       setIsShowing(true)
     }
-  }, [shouldShowWarningAcknowledgement])
+  }, [shouldShowStreamingAcknowledgement])
 
   return (
     <Box
@@ -99,7 +99,7 @@ export const WarningAcknowledgement = ({
       width={'100%'}
     >
       <AnimatePresence mode='wait' initial={false}>
-        {shouldShowWarningAcknowledgement && (
+        {shouldShowStreamingAcknowledgement && (
           <WarningOverlay>
             <motion.div
               layout
@@ -111,9 +111,9 @@ export const WarningAcknowledgement = ({
               style={popoverStyle}
               onAnimationComplete={handleAnimationComplete}
             >
-              <Box as={FiAlertTriangle} color='red.500' size='80px' mb={4} />
+              <StreamIcon color='blue.500' boxSize='80px' mb={4} />
               <Text
-                translation={'warningAcknowledgement.attention'}
+                translation={'streamingAcknowledgement.attention'}
                 fontWeight='semibold'
                 fontSize='2xl'
               />
@@ -124,17 +124,17 @@ export const WarningAcknowledgement = ({
                 fontWeight='medium'
                 color='text.subtle'
               >
-                {message}
+                {translate('streamingAcknowledgement.description', { estimatedTime })}
               </RawText>
               <Button
                 size='lg'
                 mb={2}
-                colorScheme='red'
+                colorScheme='blue'
                 width='full'
                 onClick={handleAcknowledge}
                 _hover={understandHoverProps}
               >
-                <Text translation='warningAcknowledgement.understand' />
+                <Text translation='common.continue' />
               </Button>
               <Button
                 size='lg'

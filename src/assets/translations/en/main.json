@@ -645,7 +645,6 @@
         "withdraw": "Withdraw",
         "unstakeRequest": "Unstake Request",
         "setRuneAddress": "Set Rune Address"
-
       },
       "weth": {
         "deposit": "Deposit",
@@ -2414,6 +2413,10 @@
     "highSlippageBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
     "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution."
+  },
+  "streamingAcknowledgement": {
+    "attention": "Attention!",
+    "description": "This is a streaming swap, while you get a  better price it can take up to %{estimatedTime}% to complete."
   },
   "watchlist": {
     "empty": {

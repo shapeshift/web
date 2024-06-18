@@ -1,11 +1,42 @@
+import type { ComponentWithAs, IconProps, ThemeTypings } from '@chakra-ui/react'
 import { Box, Button } from '@chakra-ui/react'
 import type { AnimationDefinition, MotionStyle } from 'framer-motion'
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useCallback, useEffect, useState } from 'react'
+import type { PropsWithChildren } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 import { StreamIcon } from 'components/Icons/Stream'
 import { RawText, Text } from 'components/Text'
-import { WarningOverlay } from 'components/WarningOverlay/WarningOverlay'
+
+const initialProps = { opacity: 0 }
+const animateProps = { opacity: 1 }
+const exitProps = { opacity: 0, transition: { duration: 0.5 } }
+const transitionProps = { delay: 0.2, duration: 0.1 }
+const motionStyle: MotionStyle = {
+  backgroundColor: 'var(--chakra-colors-blanket)',
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  zIndex: 4,
+}
+
+const AcknowledgementOverlay: React.FC<PropsWithChildren> = ({ children }) => {
+  return (
+    <motion.div
+      key='overlay'
+      style={motionStyle}
+      initial={initialProps}
+      animate={animateProps}
+      exit={exitProps}
+      transition={transitionProps}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
 const popoverVariants = {
   initial: {
@@ -46,36 +77,48 @@ const popoverStyle: MotionStyle = {
   paddingTop: '4rem',
 }
 
-type StreamingAcknowledgementProps = {
+type AcknowledgementProps = {
   children: React.ReactNode
+  message: string
   onAcknowledge: () => void
-  shouldShowStreamingAcknowledgement: boolean
-  setShouldShowStreamingAcknowledgement: (shouldShow: boolean) => void
+  shouldShowAcknowledgement: boolean
+  setShouldShowAcknowledgement: (shouldShow: boolean) => void
+  colorScheme?: ThemeTypings['colorSchemes']
+  buttonTranslation?: string
+  icon?: ComponentWithAs<'svg', IconProps>
+}
+
+type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
   estimatedTime: string
+  timeUnits?: string
 }
 
 const cancelHoverProps = { bg: 'rgba(255, 255, 255, 0.2)' }
-const understandHoverProps = { bg: 'blue.600' }
 const boxBorderRadius = { base: 'none', md: 'xl' }
 
-export const StreamingAcknowledgement = ({
+export const Acknowledgement = ({
   children,
+  message,
   onAcknowledge,
-  shouldShowStreamingAcknowledgement,
-  setShouldShowStreamingAcknowledgement,
-  estimatedTime,
-}: StreamingAcknowledgementProps) => {
+  shouldShowAcknowledgement,
+  setShouldShowAcknowledgement,
+  colorScheme = 'red',
+  buttonTranslation,
+  icon,
+}: AcknowledgementProps) => {
   const translate = useTranslate()
   const [isShowing, setIsShowing] = useState(false)
 
+  const understandHoverProps = useMemo(() => ({ bg: `${colorScheme}.600` }), [colorScheme])
+
   const handleAcknowledge = useCallback(() => {
-    setShouldShowStreamingAcknowledgement(false)
+    setShouldShowAcknowledgement(false)
     onAcknowledge()
-  }, [onAcknowledge, setShouldShowStreamingAcknowledgement])
+  }, [onAcknowledge, setShouldShowAcknowledgement])
 
   const handleCancel = useCallback(() => {
-    setShouldShowStreamingAcknowledgement(false)
-  }, [setShouldShowStreamingAcknowledgement])
+    setShouldShowAcknowledgement(false)
+  }, [setShouldShowAcknowledgement])
 
   const handleAnimationComplete = useCallback((def: AnimationDefinition) => {
     if (def === 'exit') {
@@ -86,10 +129,12 @@ export const StreamingAcknowledgement = ({
   useEffect(() => {
     // enters with overflow: hidden
     // exit after animation complete return to overflow: visible
-    if (shouldShowStreamingAcknowledgement) {
+    if (shouldShowAcknowledgement) {
       setIsShowing(true)
     }
-  }, [shouldShowStreamingAcknowledgement])
+  }, [shouldShowAcknowledgement])
+
+  const CustomIcon = useMemo(() => icon, [icon])
 
   return (
     <Box
@@ -99,8 +144,8 @@ export const StreamingAcknowledgement = ({
       width={'100%'}
     >
       <AnimatePresence mode='wait' initial={false}>
-        {shouldShowStreamingAcknowledgement && (
-          <WarningOverlay>
+        {shouldShowAcknowledgement && (
+          <AcknowledgementOverlay>
             <motion.div
               layout
               key='message'
@@ -111,9 +156,14 @@ export const StreamingAcknowledgement = ({
               style={popoverStyle}
               onAnimationComplete={handleAnimationComplete}
             >
-              <StreamIcon color='blue.500' boxSize='80px' mb={4} />
+              {CustomIcon ? (
+                <CustomIcon color={`${colorScheme}.500`} boxSize='80px' mb={4} />
+              ) : (
+                <Box as={FiAlertTriangle} color={`${colorScheme}.500`} size='80px' mb={4} />
+              )}
               <Text
-                translation={'streamingAcknowledgement.attention'}
+                colorScheme={colorScheme}
+                translation={'warningAcknowledgement.attention'}
                 fontWeight='semibold'
                 fontSize='2xl'
               />
@@ -124,17 +174,17 @@ export const StreamingAcknowledgement = ({
                 fontWeight='medium'
                 color='text.subtle'
               >
-                {translate('streamingAcknowledgement.description', { estimatedTime })}
+                {message}
               </RawText>
               <Button
                 size='lg'
                 mb={2}
-                colorScheme='blue'
+                colorScheme={colorScheme}
                 width='full'
                 onClick={handleAcknowledge}
                 _hover={understandHoverProps}
               >
-                <Text translation='common.continue' />
+                <Text translation={buttonTranslation ?? 'warningAcknowledgement.understand'} />
               </Button>
               <Button
                 size='lg'
@@ -146,11 +196,34 @@ export const StreamingAcknowledgement = ({
                 {translate('common.cancel')}
               </Button>
             </motion.div>
-          </WarningOverlay>
+          </AcknowledgementOverlay>
         )}
       </AnimatePresence>
 
       {children}
     </Box>
+  )
+}
+
+export const WarningAcknowledgement = (props: AcknowledgementProps) =>
+  Acknowledgement({ ...props, colorScheme: 'red' })
+
+export const StreamingAcknowledgement = ({
+  estimatedTime,
+  timeUnits,
+  ...restProps
+}: StreamingAcknowledgementProps) => {
+  const translate = useTranslate()
+
+  return (
+    <Acknowledgement
+      {...restProps}
+      colorScheme='blue'
+      buttonTranslation='common.continue'
+      message={translate('streamingAcknowledgement.description', {
+        estimatedTime: `${estimatedTime}${timeUnits ?? 's'}`,
+      })}
+      icon={StreamIcon}
+    />
   )
 }

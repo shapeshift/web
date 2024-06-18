@@ -22,6 +22,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import {
+  StreamingAcknowledgement,
+  WarningAcknowledgement,
+} from 'components/Acknowledgement/Acknowledgement'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
@@ -35,9 +39,7 @@ import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuo
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { StreamingAcknowledgement } from 'components/StreamingAcknowledgement/StreamingAcknowledgement'
 import { Text } from 'components/Text'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -640,8 +642,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
             >
               <StreamingAcknowledgement
                 onAcknowledge={handleFormSubmit}
-                shouldShowStreamingAcknowledgement={shouldShowStreamingAcknowledgement}
-                setShouldShowStreamingAcknowledgement={setShouldShowStreamingAcknowledgement}
+                shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+                setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
                 estimatedTime={
                   tradeQuoteStep?.estimatedExecutionTimeMs
                     ? `${tradeQuoteStep?.estimatedExecutionTimeMs / 1000}`
@@ -651,8 +653,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
                 <WarningAcknowledgement
                   message={warningAcknowledgementMessage}
                   onAcknowledge={handleWarningAcknowledgementSubmit}
-                  shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-                  setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+                  shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+                  setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
                 >
                   <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
                     <CardHeader px={6}>

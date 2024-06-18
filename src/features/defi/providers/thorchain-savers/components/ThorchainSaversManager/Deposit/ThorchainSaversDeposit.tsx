@@ -156,7 +156,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
           <Deposit
             {...ownProps}
             accountId={accountId}
-            fromAddress={fromAddress ?? null}
+            fromAddress={fromAddress}
             onAccountIdChange={handleAccountIdChange}
           />
         ),

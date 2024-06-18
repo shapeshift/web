@@ -662,21 +662,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
-      address: poolAssetAccountAddress ?? null,
+      address: poolAssetAccountAddress,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetWithdrawAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
-      // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: Boolean(
         // Symmetrical withdraws do not occur an asset Tx, only a RUNE Tx, hence will never occur a sweep step
-        !isSymWithdraw &&
-          !!poolAsset?.assetId &&
-          bnOrZero(actualAssetWithdrawAmountCryptoPrecision).gt(0) &&
-          estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
+        !isSymWithdraw && bnOrZero(actualAssetWithdrawAmountCryptoPrecision).gt(0),
       ),
     }),
     [

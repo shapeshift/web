@@ -2416,7 +2416,7 @@
   },
   "streamingAcknowledgement": {
     "attention": "Attention!",
-    "description": "This is a streaming swap, while you get a  better price it can take up to %{estimatedTime}% to complete."
+    "description": "This is a streaming swap, while you get a  better price it can take up to %{estimatedTime}s to complete."
   },
   "watchlist": {
     "empty": {

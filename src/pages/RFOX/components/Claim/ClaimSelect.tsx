@@ -27,7 +27,7 @@ type ClaimSelectProps = {
 }
 
 type NoClaimsAvailableProps = {
-  isError: boolean
+  isError?: boolean
   setStepIndex: (index: number) => void
 }
 
@@ -99,8 +99,9 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const {
     data: unstakingRequestResponse,
-    isSuccess: isUnstakingRequestSuccess,
     isLoading: isUnstakingRequestLoading,
+    isPending: isUnstakingRequestPending,
+    isPaused: isUnstakingRequestPaused,
     isError: isUnstakingRequestError,
     refetch: refetchUnstakingRequest,
     isRefetching: isUnstakingRequestRefetching,
@@ -112,43 +113,44 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   }, [refetchUnstakingRequest])
 
   const claimBody = useMemo(() => {
-    switch (true) {
-      case !stakingAssetAccountAddress:
-        return <ChainNotSupported chainId={stakingAsset?.chainId} />
-      case Boolean(isUnstakingRequestSuccess && unstakingRequestResponse?.length):
-        return unstakingRequestResponse?.map((unstakingRequest, index) => {
-          const amountCryptoPrecision = fromBaseUnit(
-            unstakingRequest.unstakingBalance.toString() ?? '',
-            stakingAsset?.precision ?? 0,
-          )
-          const currentTimestampMs: number = Date.now()
-          const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
-          const isAvailable = currentTimestampMs >= unstakingTimestampMs
-          const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
-          const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-          const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
-          return (
-            <ClaimRow
-              stakingAssetId={stakingAssetId}
-              key={unstakingRequest.cooldownExpiry.toString()}
-              amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
-              status={status}
-              setConfirmedQuote={setConfirmedQuote}
-              cooldownPeriodHuman={cooldownPeriodHuman}
-              index={index}
-            />
-          )
-        })
-      default:
-        return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
-    }
+    if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={stakingAsset?.chainId} />
+    if (isUnstakingRequestLoading || isUnstakingRequestPending || isUnstakingRequestPaused)
+      return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
+    if (isUnstakingRequestError || !unstakingRequestResponse.length)
+      return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
+
+    return unstakingRequestResponse.map((unstakingRequest, index) => {
+      const amountCryptoPrecision = fromBaseUnit(
+        unstakingRequest.unstakingBalance.toString() ?? '',
+        stakingAsset?.precision ?? 0,
+      )
+      const currentTimestampMs: number = Date.now()
+      const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
+      const isAvailable = currentTimestampMs >= unstakingTimestampMs
+      const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
+      const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
+      return (
+        <ClaimRow
+          stakingAssetId={stakingAssetId}
+          key={unstakingRequest.cooldownExpiry.toString()}
+          amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
+          status={status}
+          setConfirmedQuote={setConfirmedQuote}
+          cooldownPeriodHuman={cooldownPeriodHuman}
+          index={index}
+        />
+      )
+    })
   }, [
     stakingAssetAccountAddress,
     stakingAsset?.chainId,
     stakingAsset?.precision,
-    isUnstakingRequestSuccess,
-    unstakingRequestResponse,
+    isUnstakingRequestLoading,
+    isUnstakingRequestPending,
+    isUnstakingRequestPaused,
     isUnstakingRequestError,
+    unstakingRequestResponse,
     setStepIndex,
     stakingAssetId,
     setConfirmedQuote,

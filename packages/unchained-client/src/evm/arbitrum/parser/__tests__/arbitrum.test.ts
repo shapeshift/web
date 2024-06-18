@@ -6,11 +6,7 @@ import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
-import {
-  RFOX_PROXY_CONTRACT_ADDRESS,
-  TransactionParser,
-  ZRX_ARBITRUM_PROXY_CONTRACT,
-} from '../index'
+import { TransactionParser, ZRX_ARBITRUM_PROXY_CONTRACT } from '../index'
 import erc20Approve from './mockData/erc20Approve'
 import erc721 from './mockData/erc721'
 import erc1155 from './mockData/erc1155'
@@ -29,6 +25,7 @@ import zrxTradeUsdcToWbtc from './mockData/zrxTradeUsdcToWbtc'
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+  vi.stubEnv('RFOX_PROXY_CONTRACT_ADDRESS', '0xaC2a4fD70BCD8Bab0662960455c363735f0e2b56')
 })
 
 const mockedApi = vi.mocked(new V1Api())
@@ -916,7 +913,7 @@ describe('parseTx', () => {
             assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
             components: [{ value: '1000000000000000000' }],
             from: address,
-            to: RFOX_PROXY_CONTRACT_ADDRESS,
+            to: process.env.RFOX_PROXY_CONTRACT_ADDRESS!,
             token: foxToken,
             totalValue: '1000000000000000000',
             type: TransferType.Send,
@@ -987,7 +984,7 @@ describe('parseTx', () => {
           {
             assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
             components: [{ value: '4364832128906250000' }],
-            from: RFOX_PROXY_CONTRACT_ADDRESS,
+            from: process.env.RFOX_PROXY_CONTRACT_ADDRESS!,
             to: address,
             token: foxToken,
             totalValue: '4364832128906250000',

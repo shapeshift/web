@@ -413,6 +413,12 @@ export const RFOX_ABI: InterfaceAbi = [
   {
     type: 'event',
     anonymous: false,
+    inputs: [{ name: 'isPaused', internalType: 'bool', type: 'bool', indexed: false }],
+    name: 'StakingPausedChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
     inputs: [
       {
         name: 'account',
@@ -447,6 +453,12 @@ export const RFOX_ABI: InterfaceAbi = [
       },
     ],
     name: 'Unstake',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [{ name: 'isPaused', internalType: 'bool', type: 'bool', indexed: false }],
+    name: 'UnstakingPausedChanged',
   },
   {
     type: 'event',
@@ -492,6 +504,12 @@ export const RFOX_ABI: InterfaceAbi = [
       },
     ],
     name: 'Withdraw',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [{ name: 'isPaused', internalType: 'bool', type: 'bool', indexed: false }],
+    name: 'WithdrawalsPausedChanged',
   },
   {
     type: 'error',

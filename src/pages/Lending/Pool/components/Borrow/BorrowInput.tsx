@@ -244,17 +244,15 @@ export const BorrowInput = ({
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: collateralAssetId,
-      address: fromAddress ?? null,
+      address: fromAddress,
       amountCryptoBaseUnit: toBaseUnit(
         depositAmountCryptoPrecision ?? 0,
         collateralAsset?.precision ?? 0,
       ),
-      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', // actually defined at runtime, see "enabled" below
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
-        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
-          isEstimatedFeesDataSuccess &&
-          hasEnoughBalanceForTxPlusFees,
+        bnOrZero(depositAmountCryptoPrecision).gt(0) && hasEnoughBalanceForTxPlusFees,
       ),
     }),
     [
@@ -264,7 +262,6 @@ export const BorrowInput = ({
       estimatedFeesData?.txFeeCryptoBaseUnit,
       fromAddress,
       hasEnoughBalanceForTxPlusFees,
-      isEstimatedFeesDataSuccess,
     ],
   )
   const {

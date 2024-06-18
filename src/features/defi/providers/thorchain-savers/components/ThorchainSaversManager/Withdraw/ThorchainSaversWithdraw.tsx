@@ -142,7 +142,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
           asset: asset.symbol,
         }),
         component: ownProps => (
-          <Withdraw {...ownProps} accountId={accountId} fromAddress={fromAddress ?? null} />
+          <Withdraw {...ownProps} accountId={accountId} fromAddress={fromAddress} />
         ),
       },
       [DefiStep.Sweep]: {

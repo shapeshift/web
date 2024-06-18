@@ -24,39 +24,55 @@ type UseStakingInfoQueryProps = {
 
 const client = viemClientByNetworkId[arbitrum.id]
 
+export const getEarnedQueryKey = ({
+  stakingAssetAccountAddress,
+  blockNumber,
+}: UseStakingInfoQueryProps): StakingInfoQueryKey => [
+  'readContract',
+  {
+    address: RFOX_PROXY_CONTRACT_ADDRESS,
+    functionName: 'earned',
+    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
+    chainId: arbitrum.id,
+    blockNumber,
+  },
+]
+
+export const getEarnedQueryFn = ({
+  stakingAssetAccountAddress,
+  blockNumber,
+}: UseStakingInfoQueryProps) =>
+  stakingAssetAccountAddress
+    ? () =>
+        readContract(client, {
+          abi: foxStakingV1Abi,
+          address: RFOX_PROXY_CONTRACT_ADDRESS,
+          functionName: 'earned',
+          args: [getAddress(stakingAssetAccountAddress)],
+          blockNumber,
+        })
+    : skipToken
+
 export const useEarnedQuery = ({
   stakingAssetAccountAddress,
   blockNumber,
 }: UseStakingInfoQueryProps) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey: StakingInfoQueryKey = useMemo(
-    () => [
-      'readContract',
-      {
-        address: RFOX_PROXY_CONTRACT_ADDRESS,
-        functionName: 'earned',
-        args: [
-          stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
-        ],
-        chainId: arbitrum.id,
+    () =>
+      getEarnedQueryKey({
+        stakingAssetAccountAddress,
         blockNumber,
-      },
-    ],
+      }),
     [blockNumber, stakingAssetAccountAddress],
   )
 
   const stakingInfoQueryFn = useMemo(
     () =>
-      stakingAssetAccountAddress
-        ? () =>
-            readContract(client, {
-              abi: foxStakingV1Abi,
-              address: RFOX_PROXY_CONTRACT_ADDRESS,
-              functionName: 'earned',
-              args: [getAddress(stakingAssetAccountAddress)],
-              blockNumber,
-            })
-        : skipToken,
+      getEarnedQueryFn({
+        stakingAssetAccountAddress,
+        blockNumber,
+      }),
     [blockNumber, stakingAssetAccountAddress],
   )
 

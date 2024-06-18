@@ -48,7 +48,7 @@ export const useCurrentEpochRewardsQuery = ({
       return undefined
     }
 
-    const epochEarningsForAccount = currentEpochEarned - currentEpochEarned
+    const epochEarningsForAccount = currentEpochEarned - previousEpochEarned
 
     // Use hardcoded epoch duration to calculate the total reward for the epoch since the epoch
     // end block is in the future and we don't know its exact timestamp yet.

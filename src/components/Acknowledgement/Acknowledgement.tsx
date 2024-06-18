@@ -103,7 +103,7 @@ export const Acknowledgement = ({
   setShouldShowAcknowledgement,
   colorScheme = 'red',
   buttonTranslation,
-  icon,
+  icon: CustomIcon,
 }: AcknowledgementProps) => {
   const translate = useTranslate()
   const [isShowing, setIsShowing] = useState(false)
@@ -132,8 +132,6 @@ export const Acknowledgement = ({
       setIsShowing(true)
     }
   }, [shouldShowAcknowledgement])
-
-  const CustomIcon = useMemo(() => icon, [icon])
 
   return (
     <Box

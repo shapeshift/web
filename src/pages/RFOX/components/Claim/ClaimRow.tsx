@@ -91,7 +91,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   ])
 
   const parentProps = useMemo(() => {
-    if (displayClaimButton) return {}
+    if (!isClaimWidget) return {}
 
     return {
       variant: 'unstyled',
@@ -100,7 +100,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
       onClick: handleClaimClick,
       _hover: hoverProps,
     }
-  }, [displayClaimButton, status, handleClaimClick])
+  }, [isClaimWidget, status, handleClaimClick])
 
   const statusText = useMemo(() => {
     if (!isLargerThanMd) return cooldownPeriodHuman
@@ -124,7 +124,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
           : 'RFOX.tooltips.unstakePendingCooldown',
         { cooldownPeriodHuman },
       )}
-      isDisabled={displayClaimButton}
+      isDisabled={!isClaimWidget}
     >
       <Flex
         justifyContent={'space-between'}
@@ -166,7 +166,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
               <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />
             </RawText>
           </Box>
-          {displayClaimButton && (
+          {!isClaimWidget && displayClaimButton && (
             <Button
               colorScheme='green'
               ml={4}

@@ -24,7 +24,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
       new zrx.Parser({ proxyContract: ZRX_ARBITRUM_PROXY_CONTRACT }),
       new rfox.Parser({
-        proxyContract: RFOX_PROXY_CONTRACT_ADDRESS,
+        proxyContract: process.env.REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS ?? '',
         stakingAssetId: foxOnArbitrumOneAssetId,
       }),
     ])

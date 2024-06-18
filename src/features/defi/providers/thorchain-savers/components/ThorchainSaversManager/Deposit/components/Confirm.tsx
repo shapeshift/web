@@ -216,7 +216,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,
-    enabled: !!assetId,
     swapperName: SwapperName.Thorchain,
   })
 

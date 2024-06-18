@@ -27,10 +27,11 @@ type ClaimSelectProps = {
 }
 
 type NoClaimsAvailableProps = {
+  isError: boolean
   setStepIndex: (index: number) => void
 }
 
-const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
+const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError, setStepIndex }) => {
   const translate = useTranslate()
 
   const handleUnstakeClick = useCallback(() => {
@@ -41,10 +42,17 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
     <Center flexDir={'column'}>
       <AssetIcon size='lg' assetId={foxAssetId} showNetworkIcon={false} mb={4} />
       <Text translation='RFOX.noClaimsAvailable' fontSize='xl' fontWeight={'bold'} />
-      <Text translation='RFOX.noClaimsAvailableDescription' fontSize='md' color='gray.400' mb={4} />
-      <Button colorScheme='blue' onClick={handleUnstakeClick}>
-        {translate('RFOX.unstakeNow')}
-      </Button>
+      <Text
+        translation={isError ? 'RFOX.errorFetchingClaims' : 'RFOX.noClaimsAvailableDescription'}
+        fontSize='md'
+        color='gray.400'
+        mb={4}
+      />
+      {!isError && (
+        <Button colorScheme='blue' onClick={handleUnstakeClick}>
+          {translate('RFOX.unstakeNow')}
+        </Button>
+      )}
     </Center>
   )
 }
@@ -93,6 +101,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     data: unstakingRequestResponse,
     isSuccess: isUnstakingRequestSuccess,
     isLoading: isUnstakingRequestLoading,
+    isError: isUnstakingRequestError,
     refetch: refetchUnstakingRequest,
     isRefetching: isUnstakingRequestRefetching,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
@@ -103,44 +112,43 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   }, [refetchUnstakingRequest])
 
   const claimBody = useMemo(() => {
-    return (() => {
-      switch (true) {
-        case !stakingAssetAccountAddress:
-          return <ChainNotSupported chainId={stakingAsset?.chainId} />
-        case isUnstakingRequestSuccess:
-          return unstakingRequestResponse?.map((unstakingRequest, index) => {
-            const amountCryptoPrecision = fromBaseUnit(
-              unstakingRequest.unstakingBalance.toString() ?? '',
-              stakingAsset?.precision ?? 0,
-            )
-            const currentTimestampMs: number = Date.now()
-            const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
-            const isAvailable = currentTimestampMs >= unstakingTimestampMs
-            const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
-            const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-            const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
-            return (
-              <ClaimRow
-                stakingAssetId={stakingAssetId}
-                key={unstakingRequest.cooldownExpiry.toString()}
-                amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
-                status={status}
-                setConfirmedQuote={setConfirmedQuote}
-                cooldownPeriodHuman={cooldownPeriodHuman}
-                index={index}
-              />
-            )
-          })
-        default:
-          return <NoClaimsAvailable setStepIndex={setStepIndex} />
-      }
-    })()
+    switch (true) {
+      case !stakingAssetAccountAddress:
+        return <ChainNotSupported chainId={stakingAsset?.chainId} />
+      case Boolean(isUnstakingRequestSuccess && unstakingRequestResponse?.length):
+        return unstakingRequestResponse?.map((unstakingRequest, index) => {
+          const amountCryptoPrecision = fromBaseUnit(
+            unstakingRequest.unstakingBalance.toString() ?? '',
+            stakingAsset?.precision ?? 0,
+          )
+          const currentTimestampMs: number = Date.now()
+          const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
+          const isAvailable = currentTimestampMs >= unstakingTimestampMs
+          const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
+          const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
+          const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
+          return (
+            <ClaimRow
+              stakingAssetId={stakingAssetId}
+              key={unstakingRequest.cooldownExpiry.toString()}
+              amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
+              status={status}
+              setConfirmedQuote={setConfirmedQuote}
+              cooldownPeriodHuman={cooldownPeriodHuman}
+              index={index}
+            />
+          )
+        })
+      default:
+        return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
+    }
   }, [
     stakingAssetAccountAddress,
     stakingAsset?.chainId,
     stakingAsset?.precision,
     isUnstakingRequestSuccess,
     unstakingRequestResponse,
+    isUnstakingRequestError,
     setStepIndex,
     stakingAssetId,
     setConfirmedQuote,

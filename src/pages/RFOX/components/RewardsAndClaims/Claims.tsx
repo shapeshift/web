@@ -4,6 +4,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { useGetUnstakingRequestQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestQuery'
 import { selectAssetById } from 'state/slices/selectors'
@@ -29,14 +30,27 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     [stakingAssetAccountId],
   )
 
-  const { data: unstakingRequestResponse, isLoading: isUnstakingRequestLoading } =
-    useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
+  const {
+    data: unstakingRequestResponse,
+    isLoading: isUnstakingRequestLoading,
+    isPending: isUnstakingRequestPending,
+    isPaused: isUnstakingRequestPaused,
+    isSuccess: isUnstakingRequestSuccess,
+  } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
     if (!stakingAsset) return null
 
-    if (isUnstakingRequestLoading)
-      return new Array(2).fill(null).map(() => <Skeleton height={16} />)
+    if (isUnstakingRequestLoading || isUnstakingRequestPending || isUnstakingRequestPaused)
+      return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
+
+    if (!isUnstakingRequestSuccess) {
+      return <Text color='text.subtle' translation='RFOX.errorFetchingClaims' />
+    }
+
+    if (!unstakingRequestResponse.length) {
+      return <Text color='text.subtle' translation='RFOX.noClaimsAvailable' />
+    }
 
     return (unstakingRequestResponse ?? []).map((unstakingRequest, index) => {
       const amountCryptoPrecision = fromBaseUnit(
@@ -66,6 +80,9 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     })
   }, [
     isUnstakingRequestLoading,
+    isUnstakingRequestPaused,
+    isUnstakingRequestPending,
+    isUnstakingRequestSuccess,
     setConfirmedQuote,
     stakingAsset,
     stakingAssetId,

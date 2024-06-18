@@ -46,7 +46,13 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
   stakingAssetAccountAddress,
   select,
 }: UseGetUnstakingRequestQueryProps<SelectData>) => {
-  const { data: unstakingRequestCountResponse } = useGetUnstakingRequestCountQuery({
+  const {
+    data: unstakingRequestCountResponse,
+    isError: isUnstakingRequestCountError,
+    isLoading: isUnstakingRequestCountLoading,
+    isPending: isUnstakingRequestCountPending,
+    error: unstakingRequestCountError,
+  } = useGetUnstakingRequestCountQuery({
     stakingAssetAccountAddress,
   })
 
@@ -66,21 +72,29 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
     [contracts],
   )
 
-  const getUnstakingRequestQueryFn = useMemo(
-    () =>
-      unstakingRequestCountResponse && unstakingRequestCountResponse?.valueOf() > 0n
-        ? () =>
-            multicall(client, {
-              contracts,
-            }).then(r => r.map(response => response.result).filter(isSome))
-        : skipToken,
-    [contracts, unstakingRequestCountResponse],
-  )
+  const getUnstakingRequestQueryFn = useMemo(() => {
+    if (isUnstakingRequestCountLoading || isUnstakingRequestCountPending) return skipToken
+    if (isUnstakingRequestCountError) return () => Promise.reject(unstakingRequestCountError)
+    if (unstakingRequestCountResponse === 0n) return () => Promise.resolve([])
+
+    return () =>
+      multicall(client, {
+        contracts,
+      }).then(r => r.map(response => response.result).filter(isSome))
+  }, [
+    contracts,
+    isUnstakingRequestCountError,
+    isUnstakingRequestCountLoading,
+    isUnstakingRequestCountPending,
+    unstakingRequestCountError,
+    unstakingRequestCountResponse,
+  ])
 
   const unstakingRequestQuery = useQuery({
     queryKey,
     queryFn: getUnstakingRequestQueryFn,
     select,
+    retry: false,
   })
 
   return unstakingRequestQuery

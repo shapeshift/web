@@ -1,16 +1,18 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Heading, Stack } from '@chakra-ui/react'
 import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import type { RfoxClaimQuote } from './components/Claim/types'
 import { Faq } from './components/Faq/Faq'
 import { Overview } from './components/Overview/Overview'
 import { RewardsAndClaims } from './components/RewardsAndClaims/RewardsAndClaims'
-import { Widget } from './Widget'
+import { RfoxTabIndex, Widget } from './Widget'
 
 const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
 const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
@@ -27,6 +29,8 @@ export const RFOX: React.FC = () => {
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
+
+  const [confirmedQuote, setConfirmedQuote] = useState<RfoxClaimQuote>()
 
   if (!stakingAsset) return null
 
@@ -45,11 +49,15 @@ export const RFOX: React.FC = () => {
           <RewardsAndClaims
             stakingAssetId={stakingAssetId}
             stakingAssetAccountId={stakingAssetAccountId}
+            setConfirmedQuote={setConfirmedQuote}
           />
           <Faq />
         </Stack>
         <Stack flex='1 1 0%' width='full' maxWidth={maxWidth} spacing={4}>
-          <Widget />
+          <Widget
+            initialStepIndex={confirmedQuote ? RfoxTabIndex.Claim : RfoxTabIndex.Stake}
+            confirmedQuote={confirmedQuote}
+          />
         </Stack>
       </Stack>
     </Main>

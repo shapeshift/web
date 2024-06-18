@@ -1,10 +1,11 @@
-import { Button, Card, Flex, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { Button, Card, Flex, TabPanel, TabPanels, Tabs, usePrevious } from '@chakra-ui/react'
 import type { PropsWithChildren } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
 import { Claim } from './components/Claim/Claim'
+import type { RfoxClaimQuote } from './components/Claim/types'
 import { Stake } from './components/Stake/Stake'
 import { Unstake } from './components/Unstake/Unstake'
 
@@ -16,11 +17,11 @@ type FormHeaderTabProps = {
 
 const activeStyle = { color: 'text.base' }
 
-export const RfoxTabIndex = {
-  Stake: 0,
-  Unstake: 1,
-  Claim: 2,
-  ChangeAddress: 3,
+export enum RfoxTabIndex {
+  Stake,
+  Unstake,
+  Claim,
+  ChangeAddress,
 }
 
 const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
@@ -85,8 +86,20 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
   )
 }
 
-export const Widget: React.FC = () => {
-  const [stepIndex, setStepIndex] = useState(RfoxTabIndex.Stake)
+type WidgetProps = { confirmedQuote?: RfoxClaimQuote | undefined; initialStepIndex?: RfoxTabIndex }
+
+export const Widget: React.FC<WidgetProps> = ({
+  confirmedQuote,
+  initialStepIndex = RfoxTabIndex.Stake,
+}) => {
+  const [stepIndex, setStepIndex] = useState(initialStepIndex)
+
+  const previousInitialStepIndex = usePrevious(initialStepIndex)
+  useEffect(() => {
+    if (initialStepIndex !== previousInitialStepIndex) {
+      setStepIndex(initialStepIndex)
+    }
+  }, [initialStepIndex, previousInitialStepIndex])
 
   const TabHeader = useMemo(
     () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
@@ -103,7 +116,12 @@ export const Widget: React.FC = () => {
             <Unstake headerComponent={TabHeader} />
           </TabPanel>
           <TabPanel px={0} py={0}>
-            <Claim headerComponent={TabHeader} setStepIndex={setStepIndex} />
+            <Claim
+              confirmedQuote={confirmedQuote}
+              headerComponent={TabHeader}
+              setStepIndex={setStepIndex}
+              initialIndex={confirmedQuote ? 1 : 0}
+            />
           </TabPanel>
           <TabPanel px={0} py={0}>
             <ChangeAddress headerComponent={TabHeader} />

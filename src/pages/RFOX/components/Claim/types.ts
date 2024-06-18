@@ -9,6 +9,9 @@ export enum ClaimRoutePaths {
 export type ClaimRouteProps = {
   headerComponent?: JSX.Element
   setStepIndex: (index: number) => void
+  initialIndex?: number
+  confirmedQuote?: RfoxClaimQuote | undefined
+  setConfirmedQuote?: (quote: RfoxClaimQuote) => void
 }
 
 export type RfoxClaimQuote = {

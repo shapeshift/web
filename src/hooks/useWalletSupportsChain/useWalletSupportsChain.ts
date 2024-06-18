@@ -3,6 +3,7 @@ import {
   arbitrumChainId,
   arbitrumNovaChainId,
   avalancheChainId,
+  baseChainId,
   bchChainId,
   bscChainId,
   btcChainId,
@@ -21,6 +22,7 @@ import {
   supportsArbitrum,
   supportsArbitrumNova,
   supportsAvalanche,
+  supportsBase,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -30,7 +32,6 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -40,23 +41,27 @@ import { store, useAppSelector } from 'state/store'
 
 type WalletSupportsChainArgs = {
   isSnapInstalled: boolean | null
-  chainAccountIds: AccountId[] // allows dynamic chain-support detection for Ledger
   chainId: ChainId
   wallet: HDWallet | null
+  // The connected account ids to check against. If set to false, the currently connected account
+  // ids will not be checked (used for initial boot)
+  checkConnectedAccountIds: AccountId[] | false
 }
 
 // use outside react
 export const walletSupportsChain = ({
   chainId,
-  chainAccountIds,
   wallet,
   isSnapInstalled,
-}: WalletSupportsChainArgs): boolean | null => {
+  checkConnectedAccountIds,
+}: WalletSupportsChainArgs): boolean => {
+  // If the user has no connected chain account ids, the user can't use it to interact with the chain
+  if (checkConnectedAccountIds !== false && !checkConnectedAccountIds.length) return false
+
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
-  // e.g MM without snaps installed, or Ledger without chain account ids (meaning the user didn't connect said chain's accounts)
+  // e.g MM without snaps installed
   const hasRuntimeSupport = (() => {
-    if (Boolean(isLedger(wallet) && !chainAccountIds.length)) return false
     // Non-EVM ChainIds are only supported with the MM multichain snap installed
     if (isMetaMask(wallet) && !isSnapInstalled && !isEvmChainId(chainId)) return false
 
@@ -93,6 +98,8 @@ export const walletSupportsChain = ({
       return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
       return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
+    case baseChainId:
+      return supportsBase(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:
@@ -120,7 +127,12 @@ export const useWalletSupportsChain = (
   )
 
   const result = useMemo(() => {
-    return walletSupportsChain({ isSnapInstalled, chainId, wallet, chainAccountIds })
+    return walletSupportsChain({
+      isSnapInstalled,
+      chainId,
+      wallet,
+      checkConnectedAccountIds: chainAccountIds,
+    })
   }, [chainAccountIds, chainId, isSnapInstalled, wallet])
 
   return result

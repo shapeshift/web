@@ -108,6 +108,7 @@
     "search": "Rehercher",
     "searchAsset": "Rechercher un actif",
     "enterAmount": "Entrer le montant",
+    "enterAddress": "Entrer une adresse",
     "pageNotFound": "La page que vous recherchez est introuvable",
     "buySell": "Acheter/Vendre",
     "all": "Tout",
@@ -116,6 +117,7 @@
     "feesPlusSlippage": "Frais + Glissement/Slippage",
     "best": "Meilleur",
     "gasFee": "Frais de carburant",
+    "approvalFee": "Frais d'autorisation",
     "consolidationFee": "Frais de consolidation",
     "fees": "Frais",
     "alternative": "Alternatif",
@@ -609,7 +611,8 @@
         "title": "Scanner un code QR",
         "body": "Scannez facilement pour envoyer ou recevoir des cryptos"
       }
-    }
+    },
+    "rFOX": "rFOX"
   },
   "transactionRow": {
     "send": "Envoi",
@@ -862,7 +865,8 @@
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant",
       "noQuotesAvailable": "Aucun devis disponible pour cet échange",
       "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge",
-      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds."
+      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds.",
+      "rateLimitExceeded": "Limite de tentatives dépassée, réessayer plus tard"
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
@@ -877,6 +881,7 @@
     "addressPlaceholder": "Adresse %{chainName}",
     "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?",
     "enableMetaMaskSnap": "utilisez le Snap MultiChain",
+    "connectChain": "connectez %{chainName}",
     "approvalGasFee": "Frais d'autorisation de carburant %{fee}",
     "approvalFailed": "Un problème est survenu lors de l'autorisation de l'allocation",
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
@@ -1416,8 +1421,10 @@
       },
       "connect": {
         "header": "Appairer Ledger",
-        "body": "Cliquez sur Appairer puis sélectionnez votre Ledger dans la fenêtre popup",
-        "button": "Appairer"
+        "pairNewDeviceBody": "Cliquez sur « Appairer un nouvel appareil » pour commencer",
+        "pairNewDeviceButton": "Appairer un nouvel appareil",
+        "pairExistingDeviceButton": "Appairer un appareil existant",
+        "pairExistingDeviceBody": "Vous connectez un autre appareil Ledger ? Cliquez sur \"Appairer un nouvel appareil\" pour commencer à zéro."
       },
       "failure": {
         "header": "Erreur",
@@ -1464,7 +1471,8 @@
       "andMore": "... et plus",
       "snapInstalledToast": "Snap ShapeShift MultiChain pour MetaMask installé",
       "snapUninstalledToast": "Snap ShapeShift MultiChain pour MetaMask désinstallé",
-      "dontAskAgain": "Ne plus demander"
+      "dontAskAgain": "Ne plus demander",
+      "multiAccountUnsupported": "Le multi-compte n'est pas pris en charge pour cette chaîne en utilisant le Snap Multichain avec MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
@@ -1806,7 +1814,8 @@
     "importAccounts": {
       "title": "Importer les comptes %{chainNamespaceDisplayName}",
       "description": "Sélectionnez les comptes que vous souhaitez importer dans la liste ci-dessous.",
-      "import": "Importer"
+      "import": "Importer",
+      "loadMoreDisabled": "Ce porte-monnaie ne prend pas en charge les comptes multiples pour cette chaîne."
     },
     "ledgerOpenApp": {
       "title": "Ouvrir l'app %{appName}",
@@ -1939,6 +1948,10 @@
       }
     },
     "walletConnectToDapps": {
+      "errors": {
+        "errorConnectingToDapp": "Erreur de connexion à la dApp",
+        "pairingAlreadyExists": "Un appairage a déjà été effectué pour cette URL. Veuillez essayer une autre URL WalletConnect."
+      },
       "header": {
         "connectDapp": "Connecter la dApp",
         "connectAnotherDapp": "Connecter une autre dApp",
@@ -2333,8 +2346,8 @@
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
-    "unsupportedNetworkExplainer": "Votre porte-monnaie ne prend pas en charge %{network}. Veuillez passer à un porte-monnaie prenant en charge ce réseau.",
-    "unsupportedNetworksExplainer": "Votre porte-monnaie ne prend pas en charge %{network1} et %{network2}. Veuillez passer à un porte-monnaie prenant en charge ces réseaux.",
+    "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
+    "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
     "shareOfPool": "Part du pool",
     "assetDepositAmount": "Montant du dépôt %{asset}",
     "totalLiquidity": "Liquidité totale",
@@ -2412,5 +2425,60 @@
       "title": "Prêts",
       "body": "Empruntez grâce à vos actifs."
     }
+  },
+  "RFOX": {
+    "stake": "Miser",
+    "unstake": "Démiser",
+    "claim": "Réclamer",
+    "changeAddress": "Adresse de change",
+    "sameAddressNotAllowed": "Même adresse non autorisée",
+    "stakingDetails": "Détails de mise",
+    "stakeAmount": "Montant à miser",
+    "unstakeAmount": "Montant à démiser",
+    "confirmAndStake": "Confirmer et miser",
+    "confirmAndUnstake": "Confirmer et démiser",
+    "confirmAndClaim": "Confirmer et réclamer",
+    "shapeShiftFee": "Frais ShapeShift",
+    "approvalFee": "Frais d'autorisation",
+    "lockupPeriod": "Période de verrouillage",
+    "shareOfPool": "Part du pool",
+    "networkFee": "Frais de réseau",
+    "thorchainRewardAddress": "Adresse de récompenses THORChain",
+    "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
+    "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
+    "useCustomAddress": "Utiliser une adresse personnalisée",
+    "stakeWarning": "Lorsque vous misez vos jetons FOX, sachez qu'il y a une période de verrouillage de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
+    "unstakeWarning": "Avant de pouvoir réclamer vos FOX, il y a une période de repos de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
+    "tooltips": {
+      "stakeAmount": "C'est le montant en FOX que vous miserez",
+      "unstakeAmount": "C'est le montant en FOX que vous démiserez",
+      "lockupPeriod": "C'est le temps que vous devrez attendre après avoir démisé pour réclamer vos FOX.",
+      "shareOfPool": "Il s'agit du pourcentage des frais que vous gagnerez.",
+      "unstakePendingCooldown": "Réclamation disponible %{cooldownPeriodHuman}",
+      "cooldownComplete": "Temps de repos terminé %{cooldownPeriodHuman}"
+    },
+    "stakeSuccess": "Vous avez misé %{amount} %{symbol} avec succès",
+    "stakePending": "Mise en cours de %{amount} %{symbol}...",
+    "addressUpdated": "Adresse mise à jour",
+    "changeRewardAddressPending": "Changement d'adresse de récompenses...",
+    "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORCHain.",
+    "unstakePending": "Demande de retrait de %{amount} %{symbol}",
+    "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
+    "currentRewardAddress": "Adresse de récompenses actuelle",
+    "newRewardAddress": "Nouvelle adresse de récompenses",
+    "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
+    "noPositionTitle": "Aucune position active",
+    "noPositionBody": "Vous pourrez modifier votre adresse de récompenses ici lorsque vous aurez une position active.",
+    "stakeNow": "Misez maintenant",
+    "noAddressFound": "Aucune adresse trouvée",
+    "newAddressInfo": "Ceci sera mis à jour pour le prochain cycle de récompenses",
+    "confirmAndUpdateAddress": "Confirmer et mettre à jour l'adresse",
+    "unstakeFrom": "Démiser de r%{assetSymbol}",
+    "claimPending": "En demande de retrait",
+    "claimSuccess": "Vous avez réclamé %{amount} %{symbol} avec succès.",
+    "claimReceiveAddress": "Adresse de réception de réclamation",
+    "noClaimsAvailable": "Aucune réclamation disponible",
+    "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
+    "unstakeNow": "Démiser maintenant"
   }
 }

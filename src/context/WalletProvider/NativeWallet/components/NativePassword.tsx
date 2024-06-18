@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
+import { NativeWalletRoutes } from 'context/WalletProvider/types'
 
 import type { NativeSetupProps, NativeWalletValues } from '../types'
 
@@ -43,7 +44,7 @@ export const NativePassword = ({ history, location }: NativeSetupProps) => {
         vault.seal()
         await vault.setPassword(values.password)
         vault.meta.set('name', values.name)
-        history.push('/native/success', { vault })
+        history.push(NativeWalletRoutes.Success, { vault })
       } catch (e) {
         console.error(e)
         setError('password', {

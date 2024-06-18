@@ -12,6 +12,7 @@ import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/Tr
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
 import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper'
 import {
   selectFeeAssetByChainId,
@@ -70,12 +71,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
       assetId: buyAsset.assetId,
       swapperName,
-      enabled: true,
     })
     const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
       assetId: sellAsset.assetId,
       swapperName,
-      enabled: true,
     })
 
     const isTradingActive = Boolean(isTradingActiveOnBuyPool && isTradingActiveOnSellPool)
@@ -87,6 +86,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     )
 
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+
+    const pollingInterval = useMemo(() => {
+      return swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
+    }, [swapperName])
 
     // NOTE: don't pull this from the slice - we're not displaying the active quote here
     const networkFeeUserCurrencyPrecision = useMemo(() => {
@@ -285,10 +288,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       return (
         <Flex gap={2} alignItems='center'>
           <Skeleton isLoaded={!isLoading}>{tag}</Skeleton>
-          <CountdownSpinner isLoading={isLoading || isRefetching} />
+          <CountdownSpinner isLoading={isLoading || isRefetching} initialTimeMs={pollingInterval} />
         </Flex>
       )
-    }, [isLoading, isRefetching, tag])
+    }, [isLoading, isRefetching, pollingInterval, tag])
 
     const bodyContent = useMemo(() => {
       return quote ? (

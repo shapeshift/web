@@ -22,9 +22,14 @@ import { swappers } from './constants'
 
 export class TradeExecution {
   private emitter = new EventEmitter()
+  private pollInterval = TRADE_POLL_INTERVAL_MILLISECONDS
 
   on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {
     this.emitter.on(eventName, callback)
+  }
+
+  setPollInterval(ms: number): void {
+    this.pollInterval = ms
   }
 
   private async _execWalletAgnostic(
@@ -84,7 +89,7 @@ export class TradeExecution {
         validate: status => {
           return status === TxStatus.Confirmed || status === TxStatus.Failed
         },
-        interval: TRADE_POLL_INTERVAL_MILLISECONDS,
+        interval: this.pollInterval,
         maxAttempts: Infinity,
       })
 

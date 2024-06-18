@@ -3,6 +3,7 @@ import 'dotenv/config'
 import {
   avalancheAssetId,
   ethAssetId,
+  foxOnArbitrumOneAssetId,
   fromAssetId,
   gnosisAssetId,
   polygonAssetId,
@@ -17,6 +18,7 @@ import path from 'path'
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
+import * as base from './base'
 import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as cosmos from './cosmos'
@@ -38,6 +40,7 @@ const generateAssetData = async () => {
   const gnosisAssets = await gnosis.getAssets()
   const arbitrumAssets = await arbitrum.getAssets()
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
+  const baseAssets = await base.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -56,6 +59,7 @@ const generateAssetData = async () => {
     ...gnosisAssets,
     ...arbitrumAssets,
     ...arbitrumNovaAssets,
+    ...baseAssets,
   ]
 
   // remove blacklisted assets
@@ -73,6 +77,7 @@ const generateAssetData = async () => {
     [KnownChainIds.GnosisMainnet]: gnosisAssets.map(asset => asset.name),
     [KnownChainIds.ArbitrumMainnet]: arbitrumAssets.map(asset => asset.name),
     [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNovaAssets.map(asset => asset.name),
+    [KnownChainIds.BaseMainnet]: baseAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -144,6 +149,11 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Optimism`
     }
 
+    // mark any base assets that also exist on other evm chains
+    if (chainId === KnownChainIds.BaseMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Base`
+    }
+
     acc[asset.assetId] = asset
     return acc
   }, {})
@@ -156,6 +166,21 @@ const generateAssetData = async () => {
     },
     generatedAssetData,
   )
+
+  // Temporary workaround to circumvent the fact that no lists have that asset currently
+  const foxOnArbitrumOne = {
+    assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
+    chainId: 'eip155:42161',
+    name: 'FOX on Arbitrum One',
+    precision: 18,
+    color: '#3761F9',
+    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    symbol: 'FOX',
+    explorer: 'https://arbiscan.io',
+    explorerAddressLink: 'https://arbiscan.io/address/',
+    explorerTxLink: 'https://arbiscan.io/tx/',
+  }
+  assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 
   await fs.promises.writeFile(
     path.join(__dirname, '../../src/lib/asset-service/service/generatedAssetData.json'),

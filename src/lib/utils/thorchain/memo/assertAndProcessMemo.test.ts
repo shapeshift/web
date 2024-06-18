@@ -40,6 +40,31 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('processes with affiliate name and no fee bps and swapOut parameters', () => {
+      let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss::ae:kd:12345602'
+      let expected =
+        '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0:ae:kd:12345602'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:'
+      expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('processes with swapOut parameters and no affiliate name', () => {
+      const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345::50:ae:kd:12345602'
+      const expected =
+        '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50:ae:kd:12345602'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('processes with no affiliate name and no fee bps and swapOut parameters', () => {
+      let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:::ae:kd:12345602'
+      let expected =
+        '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0:ae:kd:12345602'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
     it('processes with no affiliate name and no fee bps', () => {
       let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345'
       let expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
@@ -582,8 +607,7 @@ describe('assertAndProcessMemo', () => {
       expect(() => assertAndProcessMemo(memo)).toThrow()
     })
 
-    // TODO(gomes): reimplement me when adding slippage functionality to lending, with a sane slippage to compensate
-    // for the worsened out from streaming -> non-streaming loan
+    // TODO(gomes): revert me back in https://github.com/shapeshift/web/pull/6753
     it.skip('should throw on invalid min out', () => {
       let memo =
         '$+:ETH.DAI-0X6B175474E89094C44DA98B954EEDEAC495271D0F:0x782C14C79945caD46Fbea57bb73d796366e76147::ss:50'
@@ -674,14 +698,6 @@ describe('assertAndProcessMemo', () => {
     it('should throw on invalid destination address', () => {
       const memo = '$-:BTC.BTC::9786345:ss:0'
       expect(() => assertAndProcessMemo(memo)).toThrow()
-    })
-
-    it('should throw on invalid min out', () => {
-      let memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq::bad:0'
-      expect(() => assertAndProcessMemo(memo)).toThrow()
-
-      memo = '$-:BTC.BTC:bc1q85pgumgwvaw26j47xqt6dup5l995a9ecte9sfq:0:bad:0'
-      expect(() => assertAndProcessMemo(memo)).not.toThrow()
     })
   })
 })

@@ -1,13 +1,14 @@
 import { Button, Center, Flex, Spinner, useToast } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
   avalancheChainId,
+  baseChainId,
   bchChainId,
   binanceChainId,
   bscChainId,
   btcChainId,
-  type ChainId,
   cosmosChainId,
   dogeChainId,
   ethAssetId,
@@ -66,6 +67,8 @@ const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
       return 'Arbitrum'
     case arbitrumNovaChainId:
       return 'ArbitrumNova'
+    case baseChainId:
+      return 'Base'
     // Cosmos chains
     case thorchainChainId:
       return 'Rune'

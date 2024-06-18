@@ -1,21 +1,75 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { toBaseUnit } from 'lib/math'
+import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type StakeSummaryProps = {
   isLoading?: boolean
-  assetId: AssetId
+  stakingAssetId: AssetId
+  stakingAmountCryptoPrecision: string
+  stakingAssetAccountId: AccountId
 }
 
-export const StakeSummary: React.FC<StakeSummaryProps> = ({ isLoading, assetId }) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+export const StakeSummary: React.FC<StakeSummaryProps> = ({
+  isLoading,
+  stakingAmountCryptoPrecision,
+  stakingAssetAccountId,
+  stakingAssetId,
+}) => {
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const translate = useTranslate()
+  const stakingAmountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(stakingAmountCryptoPrecision, stakingAsset?.precision ?? 0),
+    [stakingAmountCryptoPrecision, stakingAsset?.precision],
+  )
+
+  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useCooldownPeriodQuery()
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(stakingAssetAccountId).account,
+    [stakingAssetAccountId],
+  )
+
+  const {
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    select: ([stakingBalance]) => stakingBalance.toString(),
+  })
+
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+  } = useStakingBalanceOfQuery<string>({
+    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    stakingAssetId,
+    select: data => bnOrZero(data.toString()).plus(stakingAmountCryptoBaseUnit).toFixed(),
+  })
+
+  const newShareOfPoolPercentage = useMemo(
+    () =>
+      bnOrZero(stakingAmountCryptoBaseUnit)
+        .plus(userStakingBalanceOfCryptoBaseUnit ?? 0)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
+        .toFixed(4),
+    [
+      newContractBalanceOfCryptoBaseUnit,
+      stakingAmountCryptoBaseUnit,
+      userStakingBalanceOfCryptoBaseUnit,
+    ],
+  )
 
   const stakeAmountToolTip = useCallback(() => {
     return <Text color='text.subtle' translation='RFOX.tooltips.stakeAmount' />
@@ -29,7 +83,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({ isLoading, assetId }
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  if (!asset) return null
+  if (!stakingAsset) return null
   return (
     <Stack
       fontSize='sm'
@@ -46,21 +100,26 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({ isLoading, assetId }
         <Row.Label>{translate('RFOX.stakeAmount')}</Row.Label>
         <Row.Value>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto value='0' symbol={asset.symbol} />
+            <Amount.Crypto value={stakingAmountCryptoPrecision} symbol={stakingAsset.symbol} />
           </Skeleton>
         </Row.Value>
       </Row>
       <Row Tooltipbody={lockupPeriodToolTip}>
         <Row.Label>{translate('RFOX.lockupPeriod')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading}>28 days</Skeleton>
+          <Skeleton isLoaded={isCooldownPeriodSuccess}>{cooldownPeriod}</Skeleton>
         </Row.Value>
       </Row>
       <Row Tooltipbody={shareOfPoolToolTip}>
         <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
         <Row.Value>
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Percent value='0.02' />
+          <Skeleton
+            isLoaded={
+              isNewContractBalanceOfCryptoBaseUnitSuccess &&
+              isUserStakingBalanceOfCryptoBaseUnitSuccess
+            }
+          >
+            <Amount.Percent value={newShareOfPoolPercentage} />
           </Skeleton>
         </Row.Value>
       </Row>

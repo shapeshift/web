@@ -21,6 +21,8 @@ export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
       return 'https://0x.shapeshift.com/polygon/'
     case KnownChainIds.ArbitrumMainnet:
       return 'https://0x.shapeshift.com/arbitrum/'
+    case KnownChainIds.BaseMainnet:
+      return 'https://0x.shapeshift.com/base/'
     default:
       assertUnreachable(chainId)
   }

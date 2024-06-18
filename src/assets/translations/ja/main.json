@@ -108,6 +108,7 @@
     "search": "検索",
     "searchAsset": "アセットの検索",
     "enterAmount": "金額を入力",
+    "enterAddress": "アドレスを入力",
     "pageNotFound": "お探しのページが見つかりません",
     "buySell": "売買",
     "all": "全て",
@@ -116,6 +117,7 @@
     "feesPlusSlippage": "手数料+スリッページ",
     "best": "ベスト",
     "gasFee": "ガス料金",
+    "approvalFee": "手数料の承認",
     "consolidationFee": "統合手数料",
     "fees": "手数料",
     "alternative": "代替",
@@ -609,7 +611,8 @@
         "title": "QRコードをスキャンする",
         "body": "簡単にスキャンして暗号通貨を送受信する"
       }
-    }
+    },
+    "rFOX": "rFOX"
   },
   "transactionRow": {
     "send": "送信済み",
@@ -862,7 +865,8 @@
       "tradeFailed": "取引は失敗しました。ガス代を差し引いた額が返還されました",
       "noQuotesAvailable": "この取引には利用可能な見積もりがありません",
       "smartContractWalletNotSupported": "スマートコントラクトウォレットはサポートされていません",
-      "unsafeQuote": "この量は、このペアの推奨最小値 (%{recommendedMin} %{symbol}) を下回っています。これにより、取引が失敗したり、資金が損失したりする可能性があります。"
+      "unsafeQuote": "この量は、このペアの推奨最小値 (%{recommendedMin} %{symbol}) を下回っています。これにより、取引が失敗したり、資金が損失したりする可能性があります。",
+      "rateLimitExceeded": "レート制限を超えました。しばらくしてからもう一度お試しください"
     },
     "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
     "recentTrades": "最近の取引",
@@ -877,6 +881,7 @@
     "addressPlaceholder": "%{chainName} アドレス",
     "priceImpactWarning": "利用可能な流動性に比べてこの取引の規模が大きいため、この取引による予想される価格への影響は %{priceImpactPercentage}% です。本当に取引してもよろしいですか?",
     "enableMetaMaskSnap": "マルチチェーンスナップを使用する",
+    "connectChain": "%{chainName} を接続する",
     "approvalGasFee": "承認ガス手数料 %{fee}",
     "approvalFailed": "手当の承認中に問題が発生しました",
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
@@ -1416,8 +1421,10 @@
       },
       "connect": {
         "header": "Ledgerのペアリング",
-        "body": "「ペアリング」をクリックし、ポップアップウィンドウから「Ledger」を選択します。",
-        "button": "ペアリング"
+        "pairNewDeviceBody": "開始するには「新しいデバイスをペアリング」をクリックしてください",
+        "pairNewDeviceButton": "新しいデバイスをペアリングする",
+        "pairExistingDeviceButton": "既存のデバイスをペアリングする",
+        "pairExistingDeviceBody": "別の Ledger デバイスを接続しますか? 「新しいデバイスをペアリング」をクリックして最初からやり直してください。"
       },
       "failure": {
         "header": "エラー",
@@ -1464,7 +1471,8 @@
       "andMore": "など",
       "snapInstalledToast": "ShapeShiftマルチチェーンMetaMaskスナップがインストールされています",
       "snapUninstalledToast": "ShapeShiftマルチチェーンメタマスクスナップがアンインストールされました",
-      "dontAskAgain": "次回から表示しない"
+      "dontAskAgain": "次回から表示しない",
+      "multiAccountUnsupported": "MetaMaskのマルチチェーンスナップを使用したこのチェーンでは、マルチアカウントはサポートされていません。"
     },
     "metaMaskSnapConfirm": {
       "title": "マルチチェーンスナップをインストールする",
@@ -1806,7 +1814,8 @@
     "importAccounts": {
       "title": "%{chainNamespaceDisplayName} アカウントをインポートする",
       "description": "以下のリストからインポートするアカウントを選択してください。",
-      "import": "インポート"
+      "import": "インポート",
+      "loadMoreDisabled": "このウォレットは、このチェーンの複数のアカウントをサポートしていません。"
     },
     "ledgerOpenApp": {
       "title": "%{appName} アプリを開く",
@@ -1939,6 +1948,10 @@
       }
     },
     "walletConnectToDapps": {
+      "errors": {
+        "errorConnectingToDapp": "dAppへの接続エラー",
+        "pairingAlreadyExists": "この URL のペアリングはすでに行われています。別の WalletConnect URL を試してください。"
+      },
       "header": {
         "connectDapp": "dAppを接続する",
         "connectAnotherDapp": "別のdAppに接続する",
@@ -2333,8 +2346,8 @@
     "symAfterRuneAlert": "THOR ネットワークの仕組み上、等価値でない RUNEの 入金の後に、等価値の入金を行うことはできません。",
     "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
-    "unsupportedNetworkExplainer": "お使いのウォレットは %{network} をサポートしていません。このネットワークをサポートするウォレットに切り替えてください。",
-    "unsupportedNetworksExplainer": "使用しているウォレットは %{network1} と %{network2} をサポートしていません。これらのネットワークをサポートするウォレットに切り替えてください。",
+    "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
+    "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
     "shareOfPool": "プールのシェア",
     "assetDepositAmount": "%{asset} 入金額",
     "totalLiquidity": "総流動性",
@@ -2412,5 +2425,60 @@
       "title": "貸出",
       "body": "資産を担保に借り入れる"
     }
+  },
+  "RFOX": {
+    "stake": "ステーク",
+    "unstake": "ステーク解除",
+    "claim": "請求",
+    "changeAddress": "アドレスを変える",
+    "sameAddressNotAllowed": "同じアドレスは許可されていません",
+    "stakingDetails": "ステーキングの詳細",
+    "stakeAmount": "ステーク量",
+    "unstakeAmount": "ステーク解除量",
+    "confirmAndStake": "確認とステーク",
+    "confirmAndUnstake": "確認とステーク解除",
+    "confirmAndClaim": "確認して請求する",
+    "shapeShiftFee": "ShapeShift料金",
+    "approvalFee": "承認手数料",
+    "lockupPeriod": "ロックアップ期間",
+    "shareOfPool": "プールのシェア",
+    "networkFee": "ネットワーク料金",
+    "thorchainRewardAddress": "THORChain 報酬アドレス",
+    "rewardAddressHelper": "報酬はこちらに送られます",
+    "useWalletAddress": "ウォレットアドレスを使用する",
+    "useCustomAddress": "カスタムアドレスを使用する",
+    "stakeWarning": "FOX トークンをステークする場合、%{cooldownPeriod} のロックアップ期間があることにご注意ください。つまり、トークンのステークを解除することにした場合、資金を請求できるようになるまで %{cooldownPeriod} 待つ必要があります。",
+    "unstakeWarning": "FOX を請求できるようになる前に、%{cooldownPeriod} のクールダウン期間があります。その時間が経過すると、ステークされていない分の金額を請求できるようになります。",
+    "tooltips": {
+      "stakeAmount": "こちらがあなたがステークするFOXの量です",
+      "unstakeAmount": "こちらがあなたがステークを解除するFOXの量です",
+      "lockupPeriod": "こちらが、FOXを請求するためにステーキング解除後に待つ必要がある時間です。",
+      "shareOfPool": "これはあなたが受け取る手数料の割合です。",
+      "unstakePendingCooldown": " %{cooldownPeriodHuman}は請求可能です",
+      "cooldownComplete": " %{cooldownPeriodHuman}はクールダウンが終了しました"
+    },
+    "stakeSuccess": "%{amount} %{symbol} のステークに成功しました",
+    "stakePending": "%{amount} %{symbol} をステーキング中...",
+    "addressUpdated": "アドレスが更新されました",
+    "changeRewardAddressPending": "報酬アドレスを変更しています...",
+    "changeRewardAddressSuccess": "THORCHain 報酬アドレスの変更に成功しました。",
+    "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
+    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
+    "currentRewardAddress": "現在の報酬アドレス",
+    "newRewardAddress": "新しい報酬アドレス",
+    "rewardCycleExplainer": "これは次の報酬サイクルを通して更新されます。",
+    "noPositionTitle": "アクティブなポジションはありません",
+    "noPositionBody": "アクティブなポジションを取得すると、ここで報酬アドレスを変更できるようになります。",
+    "stakeNow": "今すぐステークする",
+    "noAddressFound": "アドレスが見つかりません",
+    "newAddressInfo": "これは次の報酬サイクルで更新されます",
+    "confirmAndUpdateAddress": "アドレスの確認と更新",
+    "unstakeFrom": "r%{assetSymbol} からステーク解除",
+    "claimPending": "引き出しをリクエスト",
+    "claimSuccess": "%{amount} %{symbol} の請求が完了しました。",
+    "claimReceiveAddress": "請求受取アドレス",
+    "noClaimsAvailable": "請求できません",
+    "noClaimsAvailableDescription": "利用可能な請求はありません",
+    "unstakeNow": "今すぐステーク解除"
   }
 }

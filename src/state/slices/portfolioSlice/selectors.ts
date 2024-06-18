@@ -10,6 +10,7 @@ import type {
 import cloneDeep from 'lodash/cloneDeep'
 import entries from 'lodash/entries'
 import keys from 'lodash/keys'
+import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
@@ -74,6 +75,7 @@ import type {
   AssetEquityItem,
   PortfolioAccountBalancesById,
   PortfolioAccounts,
+  WalletId,
 } from './portfolioSliceCommon'
 import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
@@ -273,7 +275,7 @@ export const selectPortfolioUserCurrencyBalanceByFilter = createCachedSelector(
     if (!assetId && accountId) {
       const accountBalances = portfolioAccountUserCurrencyBalances[accountId]
       const totalAccountBalances =
-        Object.values(accountBalances).reduce((totalBalance, userCurrencyBalance) => {
+        Object.values(accountBalances ?? {}).reduce((totalBalance, userCurrencyBalance) => {
           return bnOrZero(totalBalance).plus(bnOrZero(userCurrencyBalance)).toFixed(2)
         }, '0') ?? '0'
       return totalAccountBalances
@@ -407,7 +409,7 @@ export const selectPortfolioAssetAccountBalancesSortedUserCurrency = createDeepE
     return Object.entries(
       portfolioUserCurrencyAccountBalances,
     ).reduce<PortfolioAccountBalancesById>((acc, [accountId, assetBalanceObj]) => {
-      const sortedAssetsByUserCurrencyBalances = Object.entries(assetBalanceObj)
+      const sortedAssetsByUserCurrencyBalances = Object.entries(assetBalanceObj ?? {})
         .sort(([_, a], [__, b]) => (bnOrZero(a).gte(bnOrZero(b)) ? -1 : 1))
         .reduce<{ [k: AssetId]: string }>((acc, [assetId, assetUserCurrencyBalance]) => {
           if (bnOrZero(assetUserCurrencyBalance).lt(bnOrZero(balanceThreshold))) return acc
@@ -450,7 +452,7 @@ export const selectPortfolioAllocationPercentByFilter = createCachedSelector(
       [k: AccountId]: number
     }>((acc, [currentAccountId, assetAccountUserCurrencyBalance]) => {
       const allocation = bnOrZero(
-        bnOrZero(assetAccountUserCurrencyBalance[assetId])
+        bnOrZero(assetAccountUserCurrencyBalance?.[assetId])
           .div(totalAssetUserCurrencyBalance)
           .times(100),
       ).toNumber()
@@ -636,16 +638,6 @@ export const selectCryptoHumanBalanceIncludingStakingByFilter = createCachedSele
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
-export const selectPortfolioChainIdsSortedUserCurrency = createDeepEqualOutputSelector(
-  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
-  (userCurrencyAccountBalances): ChainId[] =>
-    Array.from(
-      new Set(
-        Object.keys(userCurrencyAccountBalances).map(accountId => fromAccountId(accountId).chainId),
-      ),
-    ),
-)
-
 export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   selectChainIdParamFromFilter,
@@ -795,7 +787,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
     const aboveThreshold = Object.entries(accountBalances).reduce<AccountId[]>(
       (acc, [accountId, balanceObj]) => {
         if (accounts.includes(accountId)) {
-          const totalAccountUserCurrencyBalance = Object.values(balanceObj).reduce(
+          const totalAccountUserCurrencyBalance = Object.values(balanceObj ?? {}).reduce(
             (totalBalance, currentBalance) => {
               return bnOrZero(bn(totalBalance).plus(bnOrZero(currentBalance)))
             },
@@ -997,7 +989,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     const asset = assets[assetId]
     const accounts = accountIds.map(accountId => {
       const userCurrencyAmount = bnOrZero(
-        portfolioUserCurrencyBalances[accountId][assetId],
+        portfolioUserCurrencyBalances?.[accountId]?.[assetId],
       ).toString()
       const cryptoAmountBaseUnit = bnOrZero(
         portfolioCryptoBalancesBaseUnit[accountId][assetId],
@@ -1087,5 +1079,53 @@ export const selectEquityTotalBalance = createDeepEqualOutputSelector(
       }),
       initial,
     )
+  },
+)
+
+export const selectPortfolioHasWalletId = createSelector(
+  (state: ReduxState) => state.portfolio.wallet.ids,
+  (_state: ReduxState, walletId: WalletId) => walletId,
+  (storeWalletIds, walletId): boolean => storeWalletIds.includes(walletId),
+)
+
+export const selectPortfolioUserCurrencyTotalBalancesIncludingStakingByChainId =
+  createDeepEqualOutputSelector(
+    selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+    portfolioAccountsUserCurrencyBalancesIncludingStaking => {
+      return Object.entries(portfolioAccountsUserCurrencyBalancesIncludingStaking).reduce(
+        (acc, [accountId, accountBalancesUserCurrencyByAssetId]) => {
+          const { chainId } = fromAccountId(accountId)
+          const totalBalanceUserCurrency = Object.values(
+            accountBalancesUserCurrencyByAssetId,
+          ).reduce((accountTotal, assetBalanceUserCurrency) => {
+            return accountTotal.plus(bnOrZero(assetBalanceUserCurrency))
+          }, bn(0))
+
+          acc[chainId] = bnOrZero(acc[chainId]).plus(totalBalanceUserCurrency).toString()
+          return acc
+        },
+        {} as Record<ChainId, string>,
+      )
+    },
+  )
+
+export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector(
+  selectPortfolioUserCurrencyTotalBalancesIncludingStakingByChainId,
+  portfolioTotalBalanceUserCurrencyByChainId => {
+    const chainAdapterManager = getChainAdapterManager()
+
+    return orderBy(
+      Object.entries(portfolioTotalBalanceUserCurrencyByChainId).map(
+        ([chainId, totalBalanceUserCurrency]) => {
+          return {
+            chainId,
+            totalBalanceUserCurrency: Number(totalBalanceUserCurrency),
+            chainName: chainAdapterManager.get(chainId)?.getDisplayName() ?? '',
+          }
+        },
+      ),
+      ['totalBalanceUserCurrency', 'chainName'],
+      ['desc', 'asc'],
+    ).map(({ chainId }) => chainId)
   },
 )

@@ -108,6 +108,7 @@
     "search": "Procurar",
     "searchAsset": "Procure para o ativo",
     "enterAmount": "Insira a quantia",
+    "enterAddress": "Insira o endereço",
     "pageNotFound": "A página que você está procurando não pode ser encontrada",
     "buySell": "Compre/Venda",
     "all": "Todos",
@@ -116,6 +117,7 @@
     "feesPlusSlippage": "Taxas + Slippage",
     "best": "Melhor",
     "gasFee": "Taxas",
+    "approvalFee": "Taxa de aprovação",
     "consolidationFee": "Taxa de Consolidação",
     "fees": "Taxas",
     "alternative": "Alternativa",
@@ -609,7 +611,8 @@
         "title": "Scaneie o código QR",
         "body": "Escaneie facilmente para enviar ou receber criptos"
       }
-    }
+    },
+    "rFOX": "rFOX"
   },
   "transactionRow": {
     "send": "Enviado",
@@ -862,7 +865,8 @@
       "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás",
       "noQuotesAvailable": "Nenhuma cotação disponível para esta negociação",
       "smartContractWalletNotSupported": "Contrato inteligente da carteira não suportada. ",
-      "unsafeQuote": "Este valor está abaixo do mínimo recomendado para este par (%{recommendedMin} %{symbol}). Isso pode causar falha na negociação ou perda dos fundos."
+      "unsafeQuote": "Este valor está abaixo do mínimo recomendado para este par (%{recommendedMin} %{symbol}). Isso pode causar falha na negociação ou perda dos fundos.",
+      "rateLimitExceeded": "Limite de taxa excedido. Tente novamente mais tarde"
     },
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
@@ -877,6 +881,7 @@
     "addressPlaceholder": "%{chainName} endereço",
     "priceImpactWarning": "Devido ao tamanho desta negociação em relação à liquidez disponível, o impacto esperado no preço desta negociação é %{priceImpactPercentage}%. Tem certeza que deseja negociar?",
     "enableMetaMaskSnap": "use o snap multichain",
+    "connectChain": "conectar %{chainName}",
     "approvalGasFee": "Taxa para aprovação %{fee}",
     "approvalFailed": "Um problema ocorreu durante a aprovação dos tokens",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
@@ -1416,8 +1421,10 @@
       },
       "connect": {
         "header": "Emparelhar a Ledger",
-        "body": "Clique em Emparelhar e selecione sua Ledger na janela pop-up",
-        "button": "Emparelhar"
+        "pairNewDeviceBody": " Clique em 'Parear novo dispositivo' para começar",
+        "pairNewDeviceButton": "Parear novo dispositivo",
+        "pairExistingDeviceButton": "Parear com dispositivo existente",
+        "pairExistingDeviceBody": "Conectando um dispositivo Ledger diferente? Clique em 'Parear novo dispositivo' para começar do zero."
       },
       "failure": {
         "header": "Erro",
@@ -1464,7 +1471,8 @@
       "andMore": "...e mais",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap instalado",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap desinstalado",
-      "dontAskAgain": "Não pergunte novamente"
+      "dontAskAgain": "Não pergunte novamente",
+      "multiAccountUnsupported": "Multi-contas não são suportadas para esta rede usando o Multichain Snap na MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Instale o Multichain Snap",
@@ -1806,7 +1814,8 @@
     "importAccounts": {
       "title": "Importar contas %{chainNamespaceDisplayName}",
       "description": "Selecione as contas que você gostaria de importar na lista abaixo.",
-      "import": "Importar"
+      "import": "Importar",
+      "loadMoreDisabled": "Esta carteira não suporta múltiplas contas para esta rede."
     },
     "ledgerOpenApp": {
       "title": "Abra o aplicativo %{appName}",
@@ -1939,6 +1948,10 @@
       }
     },
     "walletConnectToDapps": {
+      "errors": {
+        "errorConnectingToDapp": "Erro ao conectar ao dApp",
+        "pairingAlreadyExists": "Um pareamento já foi feito para este URL. Tente um URL WalletConnect diferente."
+      },
       "header": {
         "connectDapp": "Conecte ao dApp",
         "connectAnotherDapp": "Conecte outro dApp",
@@ -2333,8 +2346,8 @@
     "symAfterRuneAlert": "Depósitos simétricos não são possíveis após um depósito RUNE assimétrico devido à forma como a rede THOR funciona.",
     "incompletePositionDepositAlert": "Esta posição está incompleta, por favor deposite o valor correspondente de %{asset} para finalizar esta posição.",
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
-    "unsupportedNetworkExplainer": "Sua carteira não suporta %{network}. Mude para uma carteira que suporte esta rede.",
-    "unsupportedNetworksExplainer": "Sua carteira não suporta %{network1} e %{network2}. Mude para uma carteira que suporte essas redes.",
+    "unsupportedNetworkExplainer": "Sua carteira não está conectada a %{network}. Conecte esta rede ou mude para uma carteira que suporte esta rede.",
+    "unsupportedNetworksExplainer": "Sua carteira não está conectada a %{network1} e %{network2}. Conecte esta rede ou mude para uma carteira que suporte essas redes.",
     "shareOfPool": "Participação na pool",
     "assetDepositAmount": "%{asset} Valor do depósito",
     "totalLiquidity": "Liquidez Total",
@@ -2412,5 +2425,60 @@
       "title": "Lending",
       "body": "Empreste com seus ativos."
     }
+  },
+  "RFOX": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "claim": "Resgatar",
+    "changeAddress": "Mudar endereço",
+    "sameAddressNotAllowed": "Mesmo endereço não é permitido",
+    "stakingDetails": "Detalhes do Staking",
+    "stakeAmount": "Quantia em Stake",
+    "unstakeAmount": "Quantia para Unstake",
+    "confirmAndStake": "Confirme & Stake",
+    "confirmAndUnstake": "Confirme & Unstake",
+    "confirmAndClaim": "Confirmar & Resgatar",
+    "shapeShiftFee": "Taxa da ShapeShift",
+    "approvalFee": "Taxa de Aprovação",
+    "lockupPeriod": "Período de Bloqueio",
+    "shareOfPool": "Participação na pool",
+    "networkFee": "Taxa da Rede",
+    "thorchainRewardAddress": "Endereço de Recompensa THORChain",
+    "rewardAddressHelper": "É aqui que as recompensas serão enviadas",
+    "useWalletAddress": "Usar endereço de carteira",
+    "useCustomAddress": "Usar endereço personalizado",
+    "stakeWarning": "Ao realizar o stake dos seus tokens FOX, esteja ciente de que há um período de bloqueio de %{cooldownPeriod}. Isso significa que se você decidir retirar seus tokens, precisará esperar %{cooldownPeriod} antes de poder reivindicar seus fundos.",
+    "unstakeWarning": "Antes de você poder reivindicar seus FOX, há um período de espera de %{cooldownPeriod}. Após esse tempo, você poderá reivindicar o valor que não está em stake.",
+    "tooltips": {
+      "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
+      "unstakeAmount": "Esta é a quantidade de FOX que você não fará stake",
+      "lockupPeriod": "Este é o tempo que você terá que esperar depois de realizar o unstake para sacar seus FOX",
+      "shareOfPool": "Esta é a sua porcentagem das taxas que você ganhará.",
+      "unstakePendingCooldown": "Resgate disponível %{cooldownPeriodHuman}",
+      "cooldownComplete": "Período de espera finalizado %{cooldownPeriodHuman}"
+    },
+    "stakeSuccess": "Você fez o stake %{amount} %{symbol} com sucesso",
+    "stakePending": "Staking %{amount} %{symbol}...",
+    "addressUpdated": "Endereço atualizado",
+    "changeRewardAddressPending": "Alterando endereço de recompensa...",
+    "changeRewardAddressSuccess": "Você alterou com sucesso seu endereço de recompensa THORChain.",
+    "unstakePending": "Solicitando saque de %{amount} %{symbol}",
+    "unstakeSuccess": "Assim que %{cooldownPeriod} tiver decorrido, você poderá resgatar seu %{amount} %{symbol}",
+    "currentRewardAddress": "Endereço de recompensa atual",
+    "newRewardAddress": "Novo endereço de recompensa",
+    "rewardCycleExplainer": "Isso será atualizado para o próximo ciclo de recompensa.",
+    "noPositionTitle": "Sem posição ativa",
+    "noPositionBody": "Você poderá alterar seu endereço de recompensa aqui assim que tiver uma posição ativa.",
+    "stakeNow": "Faça Stake Agora",
+    "noAddressFound": "Nenhum endereço encontrado",
+    "newAddressInfo": "Isso será atualizado para o próximo ciclo de recompensa",
+    "confirmAndUpdateAddress": "Confirmar e atualizar endereço",
+    "unstakeFrom": "Unstake de r%{assetSymbol}",
+    "claimPending": "Solicitando saque",
+    "claimSuccess": "Você resgatou com sucesso %{amount} %{symbol}.",
+    "claimReceiveAddress": "Endereço Para Receber Resgate",
+    "noClaimsAvailable": "Nenhuma resgate disponível",
+    "noClaimsAvailableDescription": "Você não tem nenhum resgate disponível",
+    "unstakeNow": "Unstake agora"
   }
 }

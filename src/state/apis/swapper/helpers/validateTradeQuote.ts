@@ -17,7 +17,7 @@ import type { ReduxState } from 'state/reducer'
 import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectWalletSupportedChainIds,
+  selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
 import {
   selectAssets,
@@ -73,6 +73,7 @@ export const validateTradeQuote = async (
         case SwapperTradeQuoteError.NoRouteFound:
         case SwapperTradeQuoteError.TradingHalted:
         case SwapperTradeQuoteError.SellAmountBelowTradeFee:
+        case SwapperTradeQuoteError.RateLimitExceeded:
           // no metadata associated with this error
           return { error: errorCode }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {
@@ -124,7 +125,7 @@ export const validateTradeQuote = async (
   const isMultiHopTrade = isMultiHopTradeQuote(quote)
 
   const lastHop = (isMultiHopTrade ? secondHop : firstHop)!
-  const walletSupportedChainIds = selectWalletSupportedChainIds(state)
+  const walletConnectedChainIds = selectWalletConnectedChainIds(state)
   const sellAmountCryptoPrecision = selectInputSellAmountCryptoPrecision(state)
   const sellAmountCryptoBaseUnit = firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
   const buyAmountCryptoBaseUnit = lastHop.buyAmountBeforeFeesCryptoBaseUnit
@@ -178,7 +179,7 @@ export const validateTradeQuote = async (
       : bn(0).toFixed()
 
   const walletSupportsIntermediaryAssetChain =
-    !isMultiHopTrade || walletSupportedChainIds.includes(firstHop.buyAsset.chainId)
+    !isMultiHopTrade || walletConnectedChainIds.includes(firstHop.buyAsset.chainId)
 
   const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)

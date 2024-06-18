@@ -1,9 +1,6 @@
 import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
-import type {
-  SupportedTradeQuoteStepIndex,
-  SwapperName,
-  TradeQuoteStep,
-} from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -77,7 +74,7 @@ export const HopTransactionStep = ({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.buyAsset.explorerTxLink,
-          tradeId: buyTxHash,
+          txId: buyTxHash,
         }),
         txHash: buyTxHash,
       })
@@ -88,7 +85,13 @@ export const HopTransactionStep = ({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
-          tradeId: sellTxHash,
+          ...(tradeQuoteStep.source === SwapperName.CowSwap
+            ? {
+                tradeId: sellTxHash,
+              }
+            : {
+                txId: sellTxHash,
+              }),
         }),
         txHash: sellTxHash,
       })
@@ -142,7 +145,7 @@ export const HopTransactionStep = ({
       tradeQuoteStep.sellAsset.precision,
     )
     const buyAmountCryptoPrecision = fromBaseUnit(
-      tradeQuoteStep.buyAmountBeforeFeesCryptoBaseUnit,
+      tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit,
       tradeQuoteStep.buyAsset.precision,
     )
     const sellAmountCryptoFormatted = toCrypto(
@@ -185,7 +188,7 @@ export const HopTransactionStep = ({
     isError,
     message,
     toCrypto,
-    tradeQuoteStep.buyAmountBeforeFeesCryptoBaseUnit,
+    tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit,
     tradeQuoteStep.buyAsset.chainId,
     tradeQuoteStep.buyAsset.precision,
     tradeQuoteStep.buyAsset.symbol,

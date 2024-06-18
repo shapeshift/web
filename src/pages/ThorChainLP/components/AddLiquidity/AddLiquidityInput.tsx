@@ -60,7 +60,7 @@ import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { assertUnreachable, isSome, isToken } from 'lib/utils'
+import { assertUnreachable, chainIdToChainDisplayName, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -165,7 +165,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
-  const [isSweepNeeded, setIsSweepNeeded] = useState<boolean | undefined>()
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
   const previousOpportunityId = usePrevious(activeOpportunityId)
@@ -242,14 +241,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
       const walletSupportsRune = walletSupportsChain({
-        chainAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
+        checkConnectedAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
       })
 
       const walletSupportsAsset = walletSupportsChain({
-        chainAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
+        checkConnectedAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
         chainId: fromAssetId(assetId).chainId,
         wallet,
         isSnapInstalled,
@@ -289,7 +288,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
       const chainAccountIds = accountIdsByChainId[chainId] ?? []
-      return walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+      return walletSupportsChain({
+        checkConnectedAccountIds: chainAccountIds,
+        chainId,
+        wallet,
+        isSnapInstalled,
+      })
     })
 
     const opportunityType = getDefaultOpportunityType(
@@ -399,7 +403,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const walletSupportsRune = useMemo(() => {
     const chainId = thorchainChainId
     const chainAccountIds = accountIdsByChainId[chainId] ?? []
-    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
     return walletSupport && runeAccountIds.length > 0
   }, [accountIdsByChainId, isSnapInstalled, runeAccountIds.length, wallet])
 
@@ -407,7 +416,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!assetId) return false
     const chainId = fromAssetId(assetId).chainId
     const chainAccountIds = accountIdsByChainId[chainId] ?? []
-    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
     return walletSupport && poolAssetAccountIds.length > 0
   }, [assetId, accountIdsByChainId, wallet, isSnapInstalled, poolAssetAccountIds.length])
 
@@ -536,7 +550,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
-    enabled: Boolean(poolAsset?.assetId),
     swapperName: SwapperName.Thorchain,
   })
 
@@ -556,8 +569,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId: poolAsset?.assetId,
       spender: poolAssetInboundAddress,
       from: poolAssetAccountAddress,
-      amount: toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset?.precision ?? 0),
-      wallet,
+      amountCryptoBaseUnit: toBaseUnit(
+        actualAssetDepositAmountCryptoPrecision,
+        poolAsset?.precision ?? 0,
+      ),
+      wallet: wallet ?? undefined,
       accountNumber: poolAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {
@@ -692,26 +708,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return Boolean(
       poolAsset &&
         bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
-        hasEnoughPoolAssetBalanceForTxPlusFees &&
-        poolAssetTxFeeCryptoBaseUnit,
+        hasEnoughPoolAssetBalanceForTxPlusFees,
     )
-  }, [
-    poolAsset,
-    actualAssetDepositAmountCryptoPrecision,
-    hasEnoughPoolAssetBalanceForTxPlusFees,
-    poolAssetTxFeeCryptoBaseUnit,
-  ])
+  }, [poolAsset, actualAssetDepositAmountCryptoPrecision, hasEnoughPoolAssetBalanceForTxPlusFees])
 
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
-      address: poolAssetAccountAddress ?? null,
+      address: poolAssetAccountAddress,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
-      // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: isSweepNeededEnabled,
@@ -726,15 +735,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const {
-    data: _isSweepNeeded,
+    data: isSweepNeeded,
     isLoading: isSweepNeededLoading,
     isError: isSweepNeededError,
   } = useIsSweepNeededQuery(isSweepNeededArgs)
-
-  useEffect(() => {
-    if (_isSweepNeeded === undefined) return
-    setIsSweepNeeded(_isSweepNeeded)
-  }, [_isSweepNeeded])
 
   // Rune balance / gas data and checks
 
@@ -1196,15 +1200,20 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!poolAsset || !runeAsset) return null
 
     const translation = (() => {
+      const poolAssetNetworkName =
+        poolAsset.networkName ?? chainIdToChainDisplayName(poolAsset.chainId)
+      const runeAssetNetworkName =
+        runeAsset.networkName ?? chainIdToChainDisplayName(runeAsset.chainId)
+
       if (!walletSupportsRune && !walletSupportsAsset)
         return translate('pools.unsupportedNetworksExplainer', {
-          network1: poolAsset.networkName,
-          network2: runeAsset.networkName,
+          network1: poolAssetNetworkName,
+          network2: runeAssetNetworkName,
         })
       if (!walletSupportsRune)
-        return translate('pools.unsupportedNetworkExplainer', { network: runeAsset.networkName })
+        return translate('pools.unsupportedNetworkExplainer', { network: runeAssetNetworkName })
       if (!walletSupportsAsset)
-        return translate('pools.unsupportedNetworkExplainer', { network: poolAsset.networkName })
+        return translate('pools.unsupportedNetworkExplainer', { network: poolAssetNetworkName })
     })()
 
     return (

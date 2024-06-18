@@ -13,6 +13,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { Asset } from '@shapeshiftoss/types'
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -20,6 +21,10 @@ import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'
+import {
+  canAddMetaMaskAccount,
+  useIsSnapInstalled,
+} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -27,8 +32,8 @@ import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
+  selectAccountIdsByChainId,
   selectFeeAssetByChainId,
-  selectHighestAccountNumberForChainId,
   selectIsAccountIdEnabled,
   selectIsAnyAccountIdEnabled,
 } from 'state/slices/selectors'
@@ -36,10 +41,6 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { getAccountIdsWithActivityAndMetadata } from '../helpers'
 import { DrawerContentWrapper } from './DrawerContent'
-
-// The number of additional empty accounts to include in the initial fetch
-// Allows users to see more accounts without having to load more
-const NUM_ADDITIONAL_EMPTY_ACCOUNTS = 1
 
 export type ImportAccountsProps = {
   chainId: ChainId
@@ -132,22 +133,28 @@ const TableRow = forwardRef<TableRowProps, 'div'>(
   },
 )
 
-const LoadingRow = () => {
+const LoadingRow = ({ numRows }: { numRows: number }) => {
   return (
-    <Tr>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-      <Td>
-        <Skeleton height='24px' width='100%' />
-      </Td>
-    </Tr>
+    <>
+      {Array(numRows)
+        .fill(null)
+        .map((_, i) => (
+          <Tr key={i}>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+            <Td>
+              <Skeleton height='24px' width='100%' />
+            </Td>
+          </Tr>
+        ))}
+    </>
   )
 }
 
@@ -157,10 +164,11 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const queryClient = useQueryClient()
   const { wallet, deviceId: walletDeviceId } = useWallet().state
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const isSnapInstalled = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
-  const highestAccountNumberForChainIdFilter = useMemo(() => ({ chainId }), [chainId])
-  const highestAccountNumber = useAppSelector(state =>
-    selectHighestAccountNumberForChainId(state, highestAccountNumberForChainIdFilter),
+  const isMetaMaskMultichainWallet = useMemo(
+    () => wallet instanceof MetaMaskShapeShiftMultiChainHDWallet,
+    [wallet],
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''
   const [autoFetching, setAutoFetching] = useState(true)
@@ -179,6 +187,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     data: accounts,
     fetchNextPage,
     isLoading,
+    isFetching,
   } = useInfiniteQuery({
     queryKey: ['accountIdWithActivityAndMetadata', chainId, walletDeviceId, wallet !== null],
     queryFn: async ({ pageParam: accountNumber }) => {
@@ -188,6 +197,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           accountNumber,
           chainId,
           wallet,
+          Boolean(isSnapInstalled),
         ),
       }
     },
@@ -199,8 +209,22 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     enabled: queryEnabled,
   })
 
+  const supportsMultiAccount = useMemo(() => {
+    if (!wallet?.supportsBip44Accounts()) return false
+    if (!accounts) return false
+    if (!isMetaMaskMultichainWallet) return true
+
+    return canAddMetaMaskAccount({
+      accountNumber: accounts.pages.length,
+      chainId,
+      wallet,
+      isSnapInstalled: !!isSnapInstalled,
+    })
+  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled])
+
   useEffect(() => {
     if (queryEnabled) return
+    if (isMetaMaskMultichainWallet && !isSnapInstalled) return
 
     if (!isLedgerWallet) {
       setAutoFetching(true)
@@ -215,28 +239,45 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       setAutoFetching(true)
       setQueryEnabled(true)
     })
-  }, [queryEnabled, isLedgerWallet, queryClient])
+  }, [queryEnabled, isLedgerWallet, isMetaMaskMultichainWallet, isSnapInstalled, queryClient])
+
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const existingAccountIdsForChain = accountIdsByChainId[chainId]
 
   // Handle initial automatic loading
   useEffect(() => {
-    if (isLoading || !autoFetching || !accounts || !queryEnabled) return
+    if (isFetching || isLoading || !autoFetching || !accounts || !queryEnabled) return
 
-    // Account numbers are 0-indexed, so we need to add 1 to the highest account number.
-    // Add additional empty accounts to show more accounts without having to load more.
-    const numAccountsToLoad = highestAccountNumber + 1 + NUM_ADDITIONAL_EMPTY_ACCOUNTS
+    // Check if the most recently fetched account has activity
+    const isLastAccountActive = accounts.pages[
+      accounts.pages.length - 1
+    ].accountIdWithActivityAndMetadata.some(account => account.hasActivity)
 
-    if (accounts.pages.length < numAccountsToLoad) {
+    const isLastAccountInStore = existingAccountIdsForChain?.includes(
+      accounts.pages[accounts.pages.length - 1].accountIdWithActivityAndMetadata[0]?.accountId,
+    )
+
+    // Keep fetching until we find an account without activity
+    if (isLastAccountActive || isLastAccountInStore) {
       fetchNextPage()
     } else {
       // Stop auto-fetching and switch to manual mode
       setAutoFetching(false)
     }
-  }, [accounts, highestAccountNumber, fetchNextPage, autoFetching, isLoading, queryEnabled])
+  }, [
+    accounts,
+    fetchNextPage,
+    autoFetching,
+    isFetching,
+    isLoading,
+    queryEnabled,
+    existingAccountIdsForChain,
+  ])
 
   const handleLoadMore = useCallback(() => {
-    if (isLoading || autoFetching) return
+    if (isFetching || isLoading || autoFetching) return
     fetchNextPage()
-  }, [autoFetching, isLoading, fetchNextPage])
+  }, [autoFetching, isFetching, isLoading, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledAccountIds(previousState => {
@@ -348,7 +389,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
           <Button
             colorScheme='blue'
             onClick={handleDone}
-            isDisabled={isLoading || autoFetching || isSubmitting || !accounts}
+            isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
             _disabled={disabledProps}
           >
             {translate('common.done')}
@@ -361,18 +402,32 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             <Table variant='simple'>
               <Tbody>
                 {accountRows}
-                {(isLoading || autoFetching) && <LoadingRow />}
+                {(isFetching || isLoading || autoFetching) && (
+                  <LoadingRow
+                    numRows={
+                      accounts?.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
+                        .length ?? 0
+                    }
+                  />
+                )}
               </Tbody>
             </Table>
           </TableContainer>
-          <Button
-            colorScheme='gray'
-            onClick={handleLoadMore}
-            isDisabled={isLoading || autoFetching || isSubmitting}
-            _disabled={disabledProps}
+          <Tooltip
+            label={translate('accountManagement.importAccounts.loadMoreDisabled')}
+            isDisabled={supportsMultiAccount}
           >
-            {translate('common.loadMore')}
-          </Button>
+            <Button
+              colorScheme='gray'
+              onClick={handleLoadMore}
+              isDisabled={
+                isFetching || isLoading || autoFetching || isSubmitting || !supportsMultiAccount
+              }
+              _disabled={disabledProps}
+            >
+              {translate('common.loadMore')}
+            </Button>
+          </Tooltip>
         </>
       }
     />

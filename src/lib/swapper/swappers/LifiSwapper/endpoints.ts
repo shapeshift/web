@@ -90,11 +90,13 @@ export const lifiApi: SwapperApi = {
       throw Error('undefined transactionRequest')
     }
 
-    const { to, value, data } = transactionRequest
+    const { to, value, data, gasLimit } = transactionRequest
 
     // checking values individually to keep type checker happy
-    if (to === undefined || value === undefined || data === undefined) {
-      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
+    if (to === undefined || value === undefined || data === undefined || gasLimit === undefined) {
+      const undefinedRequiredValues = [to, value, data, gasLimit].filter(
+        value => value === undefined,
+      )
 
       throw Error('undefined required values in transactionRequest', {
         cause: {
@@ -118,7 +120,7 @@ export const lifiApi: SwapperApi = {
       value: value.toString(),
       data: data.toString(),
       chainId: Number(fromChainId(chainId).chainReference),
-      ...feeData,
+      ...{ ...feeData, gasLimit: gasLimit.toString() },
     }
   },
 

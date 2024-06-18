@@ -9,7 +9,7 @@ type DashboardDrawerProps = {
 
 export const DashboardDrawer: React.FC<DashboardDrawerProps> = memo(({ isOpen, onClose }) => {
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} placement='left'>
+    <Drawer isOpen={isOpen} onClose={onClose} blockScrollOnMount={false} placement='left'>
       <DrawerOverlay />
       <DrawerContent
         paddingTop='env(safe-area-inset-top)'

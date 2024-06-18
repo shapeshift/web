@@ -3,6 +3,7 @@ import {
   arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
+  baseChainId,
   bscChainId,
   ethChainId,
   gnosisChainId,
@@ -43,27 +44,21 @@ export enum SupportedZapperNetwork {
   Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
   Gnosis = 'gnosis',
   Arbitrum = 'arbitrum',
-  // Unsupported networks - uncomment as we implement them
-  // Fantom = 'fantom',
-  // Celo = 'celo',
-  // Harmony = 'harmony',
-  // Moonriver = 'moonriver',
-  // Bitcoin = 'bitcoin', // supposedly "supported" by zapper but actually not anymore
-  // Cronos = 'cronos',
-  // Aurora = 'aurora',
-  // Evmos = 'evmos',
+  Base = 'base',
 }
 
 export enum SupportedZapperNetworkIncludeUnsupported {
+  // Supported
   Avalanche = 'avalanche',
-  Base = 'base',
   BinanceSmartChain = 'binance-smart-chain',
   Ethereum = 'ethereum',
   Optimism = 'optimism',
   Polygon = 'polygon', // Technically supported by Zapper as far as Apps/Wallet goes, but no NFTs returned
   Gnosis = 'gnosis',
+  Arbitrum = 'arbitrum',
+  Base = 'base',
+  // Unsupported
   Fantom = 'fantom',
-  Artbitrum = 'arbitrum',
   Celo = 'celo',
   Harmony = 'harmony',
   Moonriver = 'moonriver',
@@ -83,6 +78,7 @@ export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, Cha
   [SupportedZapperNetwork.Polygon]: polygonChainId,
   [SupportedZapperNetwork.Gnosis]: gnosisChainId,
   [SupportedZapperNetwork.Arbitrum]: arbitrumChainId,
+  [SupportedZapperNetwork.Base]: baseChainId,
 } as const
 
 export const CHAIN_ID_TO_ZAPPER_NETWORK_MAP = invert(ZAPPER_NETWORKS_TO_CHAIN_ID_MAP) as Partial<
@@ -418,6 +414,15 @@ const userNftTokenSchema = z.object({
   items: z.array(userNftItemSchema).optional(),
 })
 
+const categorySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
 export type V2NftUserItem = Infer<typeof userNftItemSchema>
 
 export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
@@ -472,6 +477,8 @@ const V2AppGroupResponse = z.object({
 const V2AppResponse = z.object({
   id: z.string(),
   databaseId: z.number(),
+  categoryId: z.number().nullable(),
+  category: categorySchema.nullable(),
   slug: z.string(),
   name: z.string(),
   description: z.string(),

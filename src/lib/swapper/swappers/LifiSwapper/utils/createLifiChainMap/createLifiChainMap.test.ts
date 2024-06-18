@@ -34,13 +34,24 @@ describe('createLifiChainMap', () => {
       id: LifiChainId.OPT,
     }
 
+    const basLifiEvmChain = {
+      key: LifiChainKey.BAS,
+      id: LifiChainId.BAS,
+    }
+
     const expectation = new Map([
       [KnownChainIds.EthereumMainnet, ethLifiEvmChain.key],
       [KnownChainIds.OptimismMainnet, optLifiEvmChain.key],
       [KnownChainIds.AvalancheMainnet, avaLifiEvmChain.key],
+      [KnownChainIds.BaseMainnet, basLifiEvmChain.key],
     ])
 
-    const result = createLifiChainMap([ethLifiEvmChain, avaLifiEvmChain, optLifiEvmChain])
+    const result = createLifiChainMap([
+      ethLifiEvmChain,
+      avaLifiEvmChain,
+      optLifiEvmChain,
+      basLifiEvmChain,
+    ])
 
     expect(result).toEqual(expectation)
   })

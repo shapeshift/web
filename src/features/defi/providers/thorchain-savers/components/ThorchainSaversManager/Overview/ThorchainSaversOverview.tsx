@@ -38,11 +38,9 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
-import {
-  getMaybeThorchainSaversDepositQuote,
-  THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT,
-} from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
@@ -82,7 +80,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const [hideEmptyState, setHideEmptyState] = useState(false)
   const { chainId, assetReference, assetNamespace } = query
   const alertBg = useColorModeValue('gray.200', 'gray.900')
-  const [isHardCapReached, setIsHardCapReached] = useState(false)
 
   const assetId = toAssetId({
     chainId,
@@ -92,24 +89,18 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  useEffect(() => {
-    ;(async () => {
-      if (!(asset && assetId)) return
+  const { isLoading: isMockDepositQuoteLoading, error } = useGetThorchainSaversDepositQuoteQuery({
+    asset,
+    amountCryptoBaseUnit: BigNumber.max(
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+      toBaseUnit(1, asset?.precision ?? 0),
+    ),
+  })
 
-      const maybeQuote = await getMaybeThorchainSaversDepositQuote({
-        asset,
-        amountCryptoBaseUnit: BigNumber.max(
-          THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-          toBaseUnit(1, asset.precision),
-        ),
-      })
-      if (
-        maybeQuote.isErr() &&
-        maybeQuote.unwrapErr().includes('add liquidity rune is more than bond')
-      )
-        setIsHardCapReached(true)
-    })()
-  }, [asset, assetId])
+  const isHardCapReached = useMemo(
+    () => (error ? error.message.includes('add liquidity rune is more than bond') : false),
+    [error],
+  )
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
@@ -132,7 +123,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId,
-    enabled: !!assetId,
     swapperName: SwapperName.Thorchain,
   })
 
@@ -375,7 +365,11 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (!earnOpportunityData || isTradingActiveLoading) {
+  if (
+    (!earnOpportunityData?.isLoaded && maybeAccountId) ||
+    isTradingActiveLoading ||
+    isMockDepositQuoteLoading
+  ) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />
@@ -383,13 +377,14 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     )
   }
 
-  if (!(maybeAccountId && opportunityDataFilter)) return null
-  if (!asset) return null
-  if (!underlyingAssetsWithBalancesAndIcons || !earnOpportunityData) return null
-
   if (bnOrZero(underlyingAssetsFiatBalanceCryptoPrecision).eq(0) && !hideEmptyState) {
     return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
   }
+
+  if (!(maybeAccountId && opportunityDataFilter)) return null
+  if (!asset) return null
+  if (!underlyingAssetsWithBalancesAndIcons) return null
+  if (!earnOpportunityData) return null
 
   return (
     <Overview

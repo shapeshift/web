@@ -1,12 +1,12 @@
 import type { LifiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 
-import { OPTIMISM_GAS_ORACLE_ADDRESS } from '../constants'
+import { L1_FEE_CHAIN_IDS, L1_GAS_ORACLE_ADDRESS } from '../constants'
 import { getLifi } from '../getLifi'
 
 type GetNetworkFeeArgs = {
@@ -23,17 +23,17 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const lifi = getLifi()
   const adapter = assertGetEvmChainAdapter(chainId)
 
-  const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
-  const { value, to, data, gasLimit } = transactionRequest ?? {}
-
-  if (!value || !to || !data || !gasLimit) {
-    throw new Error('getStepTransaction failed')
-  }
-
   const { average } = await adapter.getGasFeeData()
 
   const l1GasLimit = await (async () => {
-    if (chainId !== KnownChainIds.OptimismMainnet) return
+    if (!L1_FEE_CHAIN_IDS.includes(chainId as KnownChainIds)) return
+
+    const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
+    const { data, gasLimit } = transactionRequest ?? {}
+
+    if (!data || !gasLimit) {
+      throw new Error('getStepTransaction failed')
+    }
 
     const provider = getEthersProvider(chainId as EvmChainId)
 
@@ -47,17 +47,29 @@ export const getNetworkFeeCryptoBaseUnit = async ({
       },
     ]
 
-    const contract = new ethers.Contract(OPTIMISM_GAS_ORACLE_ADDRESS, abi, provider)
+    const contract = new ethers.Contract(L1_GAS_ORACLE_ADDRESS, abi, provider)
 
     const l1GasUsed = (await contract.getL1GasUsed(data)) as BigInt
 
     return l1GasUsed.toString()
   })()
 
+  // aggregate all send gas estimations if available
+  const estimatedGasLimit = lifiStep.estimate.gasCosts?.reduce<bigint | undefined>(
+    (prev, gasCost) => {
+      if (gasCost.type !== 'SEND') return prev
+      if (prev === undefined) return BigInt(gasCost.estimate)
+      return prev + BigInt(gasCost.estimate)
+    },
+    undefined,
+  )
+
+  if (!estimatedGasLimit) throw new Error('failed to get estimated gas limit')
+
   const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
     ...average,
     supportsEIP1559,
-    gasLimit: gasLimit?.toString(),
+    gasLimit: estimatedGasLimit.toString(),
     l1GasLimit,
   })
 

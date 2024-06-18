@@ -118,6 +118,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
         assetIds={assetIds}
         onChangeAsset={handleAssetChange}
         isLoading={isLoading}
+        isDisabled={Boolean(isReadOnly)}
         buttonProps={combinedButtonProps}
         onlyConnectedChains={onlyConnectedChains}
       />

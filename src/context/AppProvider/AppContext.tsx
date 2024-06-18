@@ -1,9 +1,10 @@
-import { useToast } from '@chakra-ui/react'
+import { usePrevious, useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
-import { knownChainIds } from 'constants/chains'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import difference from 'lodash/difference'
@@ -32,7 +33,6 @@ import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSl
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
-  selectAccountIdsByChainIdFilter,
   selectAssetIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
@@ -41,7 +41,7 @@ import {
   selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -64,7 +64,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()
-  const isSnapInstalled = useIsSnapInstalled()
+  const isSnapInstalled = Boolean(useIsSnapInstalled())
+  const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   useNfts()
 
   // track anonymous portfolio
@@ -91,29 +92,53 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   useEffect(() => {
     if (!wallet) return
-    const walletSupportedChainIds = knownChainIds.filter(chainId => {
-      const chainAccountIds = accountIdsByChainId[chainId] ?? []
-      return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+    const walletSupportedChainIds = supportedChains.filter(chainId => {
+      return walletSupportsChain({
+        chainId,
+        wallet,
+        isSnapInstalled,
+        checkConnectedAccountIds: false, // don't check connected account ids, we're detecting initial runtime support for chains
+      })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
-  }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet])
+  }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet, supportedChains])
 
+  // Initial account and portfolio fetch for non-ledger wallets
   useEffect(() => {
-    if (!wallet) return
+    const hasManagedAccounts = (() => {
+      // MM without snap doesn't allow account management - if the user just installed the snap, we know they don't have managed accounts
+      if (!previousIsSnapInstalled && isSnapInstalled) return false
+      // We know snap wasn't just installed in this render - so if there are any requestedAccountIds, we assume the user has managed accounts
+      return requestedAccountIds.length > 0
+    })()
+
+    // Skip if wallet is ledger, or if wallet is already connected to accounts - prevents this overriding user selection in account management
+    if (!wallet || isLedger(wallet) || hasManagedAccounts) return
     ;(async () => {
-      let chainIds = Array.from(supportedChains).filter(chainId => {
-        // Note, in this particular case, we are *not* reactive on accountIdsByChainId to avoid extremely costly re-runs of this effect
-        const chainAccountIds = selectAccountIdsByChainIdFilter(store.getState(), { chainId }) ?? []
-        return walletSupportsChain({ chainId, wallet, isSnapInstalled, chainAccountIds })
+      let chainIds = supportedChains.filter(chainId => {
+        return walletSupportsChain({
+          chainId,
+          wallet,
+          isSnapInstalled,
+          checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+        })
       })
 
       const accountMetadataByAccountId: AccountMetadataById = {}
       const isMultiAccountWallet = wallet.supportsBip44Accounts()
+      const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
       for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
-        // only some wallets support multi account
-        if (accountNumber > 0 && !isMultiAccountWallet) break
+        if (
+          accountNumber > 0 &&
+          // only some wallets support multi account
+          (!isMultiAccountWallet ||
+            // MM without snaps does not support non-EVM chains, hence no multi-account
+            // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
+            (isMetaMaskMultichainWallet && !isSnapInstalled))
+        )
+          break
 
-        const input = { accountNumber, chainIds, wallet }
+        const input = { accountNumber, chainIds, wallet, isSnapInstalled }
         const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
         const accountIds = Object.keys(accountIdsAndMetadata)
 
@@ -177,7 +202,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(portfolio.actions.enableAccountId(accountId))
       }
     })()
-  }, [dispatch, wallet, supportedChains, isSnapInstalled])
+  }, [
+    dispatch,
+    wallet,
+    supportedChains,
+    isSnapInstalled,
+    requestedAccountIds.length,
+    previousIsSnapInstalled,
+    requestedAccountIds,
+  ])
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return

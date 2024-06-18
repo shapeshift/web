@@ -7,11 +7,16 @@ import {
   CardHeader,
   Flex,
   IconButton,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { useQueryClient } from '@tanstack/react-query'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -19,29 +24,208 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import {
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectTxById,
+} from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import { useRfoxStake } from './hooks/useRfoxStake'
+import type { RfoxStakingQuote } from './types'
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
-const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />
-export const StakeConfirm: React.FC<StakeRouteProps> = () => {
+
+const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
+
+type StakeConfirmProps = {
+  confirmedQuote: RfoxStakingQuote
+  stakeTxid: string | undefined
+  setStakeTxid: (txId: string) => void
+}
+export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
+  stakeTxid,
+  setStakeTxid,
+  confirmedQuote,
+}) => {
+  const queryClient = useQueryClient()
   const history = useHistory()
   const translate = useTranslate()
-  const asset = useAppSelector(state => selectAssetById(state, foxAssetId))
+
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote.stakingAssetId),
+  )
+  const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
+  )
+
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+    [confirmedQuote.stakingAssetAccountId],
+  )
+
+  const stakingAmountCryptoPrecision = useMemo(
+    () => fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+    [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
+  )
+
+  const stakeAmountUserCurrency = useMemo(
+    () =>
+      bnOrZero(stakingAmountCryptoPrecision)
+        .times(stakingAssetMarketDataUserCurrency.price)
+        .toFixed(),
+    [stakingAmountCryptoPrecision, stakingAssetMarketDataUserCurrency.price],
+  )
+
+  const {
+    approvalFeesQuery: {
+      data: approvalFees,
+      isLoading: isGetApprovalFeesLoading,
+      isSuccess: isGetApprovalFeesSuccess,
+    },
+    isApprovalRequired,
+    approvalMutation: {
+      mutateAsync: handleApprove,
+      isPending: isApprovalMutationPending,
+      isSuccess: isApprovalMutationSuccess,
+    },
+    allowanceQuery: { isLoading: isAllowanceDataLoading },
+    stakeFeesQuery: {
+      data: stakeFees,
+      isLoading: isStakeFeesLoading,
+      isSuccess: isStakeFeesSuccess,
+    },
+    approvalTx,
+    stakeMutation: {
+      mutateAsync: handleStake,
+      isPending: isStakeMutationPending,
+      isSuccess: isStakeMutationSuccess,
+    },
+  } = useRfoxStake({
+    amountCryptoBaseUnit: confirmedQuote.stakingAmountCryptoBaseUnit,
+    runeAddress: confirmedQuote.runeAddress,
+    stakingAssetId: confirmedQuote.stakingAssetId,
+    stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
+    // Assume true at confirm since already validated
+    hasEnoughBalance: true,
+    // We don't have access to form context anymore at this stage
+    methods: undefined,
+    setStakeTxid,
+  })
+
+  const {
+    data: userStakingBalanceOfCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    select: ([stakingBalance]) => stakingBalance.toString(),
+  })
+
+  const {
+    data: newContractBalanceOfCryptoBaseUnit,
+    isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
+  } = useStakingBalanceOfQuery<string>({
+    stakingAssetId: confirmedQuote.stakingAssetId,
+    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    select: data =>
+      bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
+  })
+
+  const newShareOfPoolPercentage = useMemo(
+    () =>
+      bnOrZero(confirmedQuote.stakingAmountCryptoBaseUnit)
+        .plus(userStakingBalanceOfCryptoBaseUnit ?? 0)
+        .div(newContractBalanceOfCryptoBaseUnit ?? 0)
+        .toFixed(4),
+    [
+      confirmedQuote.stakingAmountCryptoBaseUnit,
+      newContractBalanceOfCryptoBaseUnit,
+      userStakingBalanceOfCryptoBaseUnit,
+    ],
+  )
+
+  const isApprovalTxPending = useMemo(
+    () =>
+      isApprovalMutationPending ||
+      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
+    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
+  )
+
+  const isApprovalTxSuccess = useMemo(
+    () => approvalTx?.status === TxStatus.Confirmed,
+    [approvalTx?.status],
+  )
+
+  // The approval Tx may be confirmed, but that's not enough to know we're ready to stake
+  // Allowance then needs to be succesfully refetched - failure to wait for it will result in jumpy states between
+  // the time the Tx is confirmed, and the time the allowance is succesfully refetched
+  // This allows us to detect such transition state
+  const isTransitioning = useMemo(() => {
+    // If we don't have a success Tx, we know we're not transitioning
+    if (!isApprovalTxSuccess) return false
+    // We have a success approval Tx, but approval is still required, meaning we haven't re-rendered with the updated allowance just yet
+    if (isApprovalRequired) return true
+
+    // Allowance has been updated, we've finished transitioning
+    return false
+  }, [isApprovalRequired, isApprovalTxSuccess])
+
+  useEffect(() => {
+    if (!approvalTx) return
+    if (isApprovalTxPending) return
+    ;(async () => {
+      await queryClient.invalidateQueries(
+        reactQueries.common.allowanceCryptoBaseUnit(
+          stakingAsset?.assetId,
+          RFOX_PROXY_CONTRACT_ADDRESS,
+          stakingAssetAccountAddress,
+        ),
+      )
+    })()
+  }, [
+    approvalTx,
+    stakingAsset?.assetId,
+    isApprovalTxPending,
+    stakingAssetAccountAddress,
+    queryClient,
+  ])
+
+  const serializedStakeTxIndex = useMemo(() => {
+    if (!(stakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
+      return ''
+    return serializeTxIndex(
+      confirmedQuote.stakingAssetAccountId,
+      stakeTxid,
+      stakingAssetAccountAddress,
+    )
+  }, [confirmedQuote.stakingAssetAccountId, stakeTxid, stakingAssetAccountAddress])
+
+  const stakeTx = useAppSelector(gs => selectTxById(gs, serializedStakeTxIndex))
+  const isStakeTxPending = useMemo(
+    () => isStakeMutationPending || (isStakeMutationSuccess && !stakeTx),
+    [isStakeMutationPending, isStakeMutationSuccess, stakeTx],
+  )
 
   const handleGoBack = useCallback(() => {
     history.push(StakeRoutePaths.Input)
   }, [history])
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
+    if (isApprovalRequired) return handleApprove()
+
+    await handleStake()
     history.push(StakeRoutePaths.Status)
-  }, [history])
+  }, [handleStake, history, isApprovalRequired, handleApprove])
 
   const stakeCards = useMemo(() => {
-    if (!asset) return null
+    if (!stakingAsset) return null
     return (
       <Card
         display='flex'
@@ -54,14 +238,14 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
         flex={1}
         mx={-2}
       >
-        <AssetIcon size='sm' assetId={asset?.assetId} />
+        <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value='0.0' symbol={asset?.symbol} />
-          <Amount.Fiat fontSize='sm' color='text.subtle' value='0.0' />
+          <Amount.Crypto value={stakingAmountCryptoPrecision} symbol={stakingAsset?.symbol} />
+          <Amount.Fiat fontSize='sm' color='text.subtle' value={stakeAmountUserCurrency} />
         </Stack>
       </Card>
     )
-  }, [asset])
+  }, [stakeAmountUserCurrency, stakingAmountCryptoPrecision, stakingAsset])
 
   return (
     <SlideTransition>
@@ -70,40 +254,48 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
           <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
-        <Flex flex={1}></Flex>
+        <Flex flex={1} />
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>
           {stakeCards}
           <Timeline>
-            <TimelineItem>
-              <CustomRow>
-                <Row.Label>{translate('RFOX.shapeShiftFee')}</Row.Label>
-                <Row.Value>Free</Row.Value>
-              </CustomRow>
-            </TimelineItem>
-            <TimelineItem>
-              <CustomRow>
-                <Row.Label>{translate('RFOX.approvalFee')}</Row.Label>
-                <Row.Value>
-                  <Amount.Fiat value='0.0001' />
-                </Row.Value>
-              </CustomRow>
-            </TimelineItem>
-            <TimelineItem>
-              <CustomRow>
-                <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
-                <Row.Value>
-                  <Amount.Fiat value='0.0001' />
-                </Row.Value>
-              </CustomRow>
-            </TimelineItem>
+            {isApprovalRequired ? (
+              <TimelineItem>
+                <CustomRow>
+                  <Row.Label>{translate('common.approvalFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton isLoaded={!isGetApprovalFeesLoading}>
+                      <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
+                    </Skeleton>
+                  </Row.Value>
+                </CustomRow>
+              </TimelineItem>
+            ) : (
+              <TimelineItem>
+                <CustomRow>
+                  <Row.Label>{translate('RFOX.networkFee')}</Row.Label>
+                  <Skeleton isLoaded={!isStakeFeesLoading}>
+                    <Row.Value>
+                      <Amount.Fiat value={stakeFees?.txFeeFiat ?? '0.0'} />
+                    </Row.Value>
+                  </Skeleton>
+                </CustomRow>
+              </TimelineItem>
+            )}
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.shareOfPool')}</Row.Label>
-                <Row.Value>
-                  <Amount.Percent value='0.0' />
-                </Row.Value>
+                <Skeleton
+                  isLoaded={
+                    isNewContractBalanceOfCryptoBaseUnitSuccess &&
+                    isUserStakingBalanceOfCryptoBaseUnitSuccess
+                  }
+                >
+                  <Row.Value>
+                    <Amount.Percent value={newShareOfPoolPercentage} />
+                  </Row.Value>
+                </Skeleton>
               </CustomRow>
             </TimelineItem>
           </Timeline>
@@ -120,7 +312,7 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
       >
         <CustomRow>
           <Row.Label>{translate('RFOX.thorchainRewardAddress')}</Row.Label>
-          <Row.Value>{middleEllipsis('123455667765')}</Row.Value>
+          <Row.Value>{middleEllipsis(confirmedQuote.runeAddress)}</Row.Value>
         </CustomRow>
       </CardFooter>
       <CardFooter
@@ -132,8 +324,25 @@ export const StakeConfirm: React.FC<StakeRouteProps> = () => {
         bg='background.surface.raised.accent'
         borderBottomRadius='xl'
       >
-        <Button size='lg' mx={-2} colorScheme='blue' onClick={handleSubmit}>
-          {translate('RFOX.confirmAndStake')}
+        <Button
+          size='lg'
+          mx={-2}
+          disabled={Boolean(
+            !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+              isStakeTxPending ||
+              isAllowanceDataLoading,
+          )}
+          isLoading={
+            isAllowanceDataLoading ||
+            isApprovalTxPending ||
+            isTransitioning ||
+            isStakeFeesLoading ||
+            isStakeTxPending
+          }
+          colorScheme='blue'
+          onClick={handleSubmit}
+        >
+          {translate(isApprovalRequired ? 'common.approve' : 'RFOX.confirmAndStake')}
         </Button>
       </CardFooter>
     </SlideTransition>

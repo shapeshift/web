@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { Token } from '@uniswap/sdk-core'
 import type { FeeAmount } from '@uniswap/v3-sdk'
 import assert from 'assert'
-import type { Address, GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 import { viemClientByChainId } from 'lib/viem-client'
 
@@ -47,11 +47,11 @@ export const getBestAggregator = async (
     buyToken.address,
   )
 
-  const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, WalletClient> =
+  const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, Address> =
     getContract({
       abi: QuoterAbi,
       address: UNI_V3_ETHEREUM_QUOTER_ADDRESS,
-      publicClient,
+      client: publicClient,
     })
 
   const quotedAmountOutByPool = await getQuotedAmountOutByPool(

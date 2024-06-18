@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { useQuery } from 'hooks/useQuery/useQuery'
-import { selectPortfolioChainIdsSortedUserCurrency } from 'state/slices/selectors'
+import { selectWalletConnectedChainIdsSorted } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { GlobalFilter } from './GlobalFilter'
@@ -30,6 +30,7 @@ const flexPropsMdAuto = { base: 1, md: 'auto' }
 const widthBaseFull = { base: 'full' }
 const widthMdAuto = { base: 'full', md: 'auto' }
 const globalFilterFlexMaxWidth = { base: '100%', md: '300px' }
+const tabListPaddingLeft = { base: 6, md: 0 }
 
 export const DeFiEarn: React.FC<DefiEarnProps> = ({
   positionTableProps,
@@ -43,7 +44,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   const [searchQuery, setSearchQuery] = useState(q ?? '')
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
-  const portfolioChainIds = useAppSelector(selectPortfolioChainIdsSortedUserCurrency)
+  const portfolioChainIds = useAppSelector(selectWalletConnectedChainIdsSorted)
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
@@ -59,8 +60,10 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           {...rest}
         >
           <Flex flex={flexPropsMd1} width={widthBaseFull}>
-            <TabList m={0} width={widthMdAuto}>
-              <Tab flex={flexPropsMdAuto}>{translate('defi.byProvider')}</Tab>
+            <TabList m={0} width={widthMdAuto} pl={tabListPaddingLeft}>
+              <Tab flex={flexPropsMdAuto} me={2}>
+                {translate('defi.byProvider')}
+              </Tab>
               <Tab flex={flexPropsMdAuto}>{translate('defi.byAsset')}</Tab>
             </TabList>
           </Flex>

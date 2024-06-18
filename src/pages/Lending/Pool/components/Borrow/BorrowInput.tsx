@@ -9,14 +9,14 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
+import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
@@ -36,10 +36,8 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
-import { addLimitToMemo } from 'lib/utils/thorchain/memo/addLimitToMemo'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
@@ -73,7 +71,7 @@ type BorrowInputProps = {
   depositAmountCryptoPrecision: string | null
   fiatDepositAmount: string | null
   onDepositAmountChange: (value: string, isFiat?: boolean) => void
-  collateralAccountId: AccountId | null
+  collateralAccountId: AccountId
   borrowAccountId: AccountId
   onCollateralAccountIdChange: (accountId: AccountId) => void
   onBorrowAccountIdChange: (accountId: AccountId) => void
@@ -110,8 +108,16 @@ export const BorrowInput = ({
   const translate = useTranslate()
   const history = useHistory()
 
-  const { data: borrowAssets, isLoading: isLendingSupportedAssetsLoading } =
+  const { data: borrowAssets, isLoading: isSupportedBorrowAssetsLoading } =
     useLendingSupportedAssets({ type: 'borrow' })
+  const borrowAssetIds = useMemo(() => {
+    return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
+  }, [borrowAssets])
+  const { data: collateralAssets, isLoading: isSupportedCollateralAssetsLoading } =
+    useLendingSupportedAssets({ type: 'borrow' })
+  const collateralAssetIds = useMemo(() => {
+    return collateralAssets?.map(collateralAsset => collateralAsset.assetId) ?? []
+  }, [collateralAssets])
 
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: collateralAssetId }), [collateralAssetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
@@ -121,10 +127,6 @@ export const BorrowInput = ({
   }, [poolData])
 
   const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
-
-  const borrowAssetIds = useMemo(() => {
-    return borrowAssets?.map(borrowAsset => borrowAsset.assetId) ?? []
-  }, [borrowAssets])
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
 
@@ -155,7 +157,7 @@ export const BorrowInput = ({
   )
 
   const collateralAccountFilter = useMemo(
-    () => ({ accountId: collateralAccountId ?? '' }),
+    () => ({ accountId: collateralAccountId }),
     [collateralAccountId],
   )
   const collateralAccountMetadata = useAppSelector(state =>
@@ -164,43 +166,29 @@ export const BorrowInput = ({
 
   const { data: fromAddress } = useQuery({
     ...reactQueries.common.thorchainFromAddress({
-      accountId: collateralAccountId!,
+      accountId: collateralAccountId,
       assetId: collateralAssetId,
       getPosition: getThorchainLendingPosition,
       accountMetadata: collateralAccountMetadata!,
       wallet: wallet!,
     }),
-    enabled: Boolean(collateralAccountId && collateralAccountMetadata && wallet),
+    enabled: Boolean(collateralAccountMetadata && wallet),
   })
 
-  const memo = useMemo(() => {
-    if (!confirmedQuote) return null
-
-    // In theory, no need for slippage deduction here - quoteBorrowedAmountThorBaseUnit (expected_amount_out) already is quote.fees.slippage_bps deducted
-    // But things get weirder, see below.
-    // const minDebtAmount = confirmedQuote.quoteBorrowedAmountThorBaseUnit
-    // NOTE: We currently add a limit of '' (empty component) here, because loans are weird. There is some magical component in them using internal streaming swaps unless a limit
-    // is set. There is also no `expected_amount_out_streaming` field in the quote, only `expected_amount_out` (which assumes streaming).
-    // Meaning trying to use the `expected_amount_out` as a limit will yield a slightly worse rate, and result in a refund.
-    // TODO(gomes): after this PR goes in, we should add some slippage component here similar to swapper with a sane, default slippage.
-    // Said slippage should be high enough to account for the worsening of rate from streaming -> non-streaming, but low enough to not be a significant loss.
-    return addLimitToMemo({ memo: confirmedQuote.quoteMemo, limit: '' })
-  }, [confirmedQuote])
-
-  const { estimatedFeesData, isEstimatedFeesDataLoading } = useSendThorTx({
-    assetId: collateralAssetId,
-    accountId: collateralAccountId,
-    amountCryptoBaseUnit: toBaseUnit(
-      depositAmountCryptoPrecision ?? '0',
-      collateralAsset?.precision ?? 0,
-    ),
-    memo,
-    fromAddress: fromAddress ?? null,
-    action: 'openLoan',
+  const {
+    data: estimatedFeesData,
+    isLoading: isEstimatedFeesDataLoading,
+    isError: isEstimatedFeesDataError,
+    isSuccess: isEstimatedFeesDataSuccess,
+  } = useQuoteEstimatedFeesQuery({
+    collateralAssetId,
+    collateralAccountId,
+    depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
+    confirmedQuote,
   })
 
   const balanceFilter = useMemo(
-    () => ({ assetId: collateralAssetId, accountId: collateralAccountId ?? '' }),
+    () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
     [collateralAssetId, collateralAccountId],
   )
   const balanceCryptoBaseUnit = useAppSelector(state =>
@@ -212,7 +200,7 @@ export const BorrowInput = ({
   )
 
   const collateralFeeAssetBalanceFilter = useMemo(
-    () => ({ assetId: collateralFeeAsset?.assetId ?? '', accountId: collateralAccountId ?? '' }),
+    () => ({ assetId: collateralFeeAsset?.assetId ?? '', accountId: collateralAccountId }),
     [collateralAccountId, collateralFeeAsset?.assetId],
   )
   const collateralFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
@@ -230,7 +218,7 @@ export const BorrowInput = ({
   )
 
   const hasEnoughBalanceForTxPlusFees = useMemo(() => {
-    if (!(estimatedFeesData && collateralFeeAsset)) return false
+    if (!(isEstimatedFeesDataSuccess && collateralFeeAsset)) return false
 
     // This is a native asset, so we can deduct the fees from the value
     if (collateralFeeAsset.assetId === collateralAssetId)
@@ -243,36 +231,35 @@ export const BorrowInput = ({
       bnOrZero(estimatedFeesData.txFeeCryptoBaseUnit).lte(collateralFeeAssetBalanceCryptoBaseUnit)
     )
   }, [
-    estimatedFeesData,
-    collateralFeeAsset,
+    amountAvailableCryptoPrecision,
+    collateralAsset?.precision,
     collateralAssetId,
     depositAmountCryptoPrecision,
-    collateralAsset?.precision,
-    amountAvailableCryptoPrecision,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
+    collateralFeeAsset,
     collateralFeeAssetBalanceCryptoBaseUnit,
+    isEstimatedFeesDataSuccess,
   ])
 
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: collateralAssetId,
-      address: fromAddress ?? null,
+      address: fromAddress,
       amountCryptoBaseUnit: toBaseUnit(
         depositAmountCryptoPrecision ?? 0,
         collateralAsset?.precision ?? 0,
       ),
-      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', // actually defined at runtime, see "enabled" below
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
-        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
-          estimatedFeesData &&
-          hasEnoughBalanceForTxPlusFees,
+        bnOrZero(depositAmountCryptoPrecision).gt(0) && hasEnoughBalanceForTxPlusFees,
       ),
     }),
     [
       collateralAsset?.precision,
       collateralAssetId,
       depositAmountCryptoPrecision,
-      estimatedFeesData,
+      estimatedFeesData?.txFeeCryptoBaseUnit,
       fromAddress,
       hasEnoughBalanceForTxPlusFees,
     ],
@@ -293,13 +280,13 @@ export const BorrowInput = ({
     feeAssetId: collateralFeeAsset?.assetId!,
     to: fromAddress ?? '',
     sendMax: true,
-    accountId: collateralAccountId ?? '',
+    accountId: collateralAccountId,
     contractAddress: undefined,
     enabled: Boolean(collateralFeeAsset && isSweepNeededSuccess),
   })
 
   const hasEnoughBalanceForTxPlusSweep = useMemo(() => {
-    if (!(estimatedFeesData && isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData))
+    if (!(isEstimatedFeesDataSuccess && isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData))
       return false
 
     return bnOrZero(depositAmountCryptoPrecision)
@@ -312,15 +299,16 @@ export const BorrowInput = ({
     amountAvailableCryptoPrecision,
     collateralAsset?.precision,
     depositAmountCryptoPrecision,
-    estimatedFeesData,
+    estimatedFeesData?.txFeeCryptoBaseUnit,
     estimatedSweepFeesData,
+    isEstimatedFeesDataSuccess,
     isEstimatedSweepFeesDataSuccess,
   ])
 
   const useLendingQuoteQueryArgs = useMemo(
     () => ({
       collateralAssetId,
-      collateralAccountId: collateralAccountId ?? '',
+      collateralAccountId,
       borrowAccountId,
       borrowAssetId: borrowAsset?.assetId ?? '',
       depositAmountCryptoPrecision: depositAmountCryptoPrecision ?? '0',
@@ -334,7 +322,7 @@ export const BorrowInput = ({
     ],
   )
   const {
-    data: _lendingQuoteData,
+    data,
     isLoading: isLendingQuoteLoading,
     isRefetching: isLendingQuoteRefetching,
     isSuccess: isLendingQuoteSuccess,
@@ -342,7 +330,7 @@ export const BorrowInput = ({
     error: lendingQuoteError,
   } = useLendingQuoteOpenQuery(useLendingQuoteQueryArgs)
 
-  const lendingQuoteData = isLendingQuoteError ? null : _lendingQuoteData
+  const lendingQuoteData = isLendingQuoteError ? null : data
 
   const quoteSlippageDecimalPercentage = useMemo(() => {
     return lendingQuoteData
@@ -430,12 +418,13 @@ export const BorrowInput = ({
     return (
       <TradeAssetSelect
         assetId={collateralAssetId}
+        assetIds={collateralAssetIds}
         isReadOnly
-        isLoading={isLendingSupportedAssetsLoading}
+        isLoading={isSupportedCollateralAssetsLoading}
         onlyConnectedChains={true}
       />
     )
-  }, [collateralAssetId, isLendingSupportedAssetsLoading])
+  }, [collateralAssetId, collateralAssetIds, isSupportedCollateralAssetsLoading])
 
   const borrowAssetSelectComponent = useMemo(() => {
     return (
@@ -444,7 +433,7 @@ export const BorrowInput = ({
         assetIds={borrowAssetIds}
         onAssetClick={handleBorrowAssetClick}
         onAssetChange={setBorrowAsset}
-        isLoading={isLendingSupportedAssetsLoading}
+        isLoading={isSupportedBorrowAssetsLoading}
         onlyConnectedChains={true}
       />
     )
@@ -453,7 +442,7 @@ export const BorrowInput = ({
     borrowAssetIds,
     setBorrowAsset,
     handleBorrowAssetClick,
-    isLendingSupportedAssetsLoading,
+    isSupportedBorrowAssetsLoading,
   ])
 
   const quoteErrorTranslation = useMemo(() => {
@@ -463,7 +452,7 @@ export const BorrowInput = ({
     if (
       !hasEnoughBalanceForTx ||
       (isLendingQuoteSuccess &&
-        estimatedFeesData &&
+        isEstimatedFeesDataSuccess &&
         collateralAsset &&
         ((isUtxoChainId(collateralAsset.chainId) && !hasEnoughBalanceForTxPlusSweep) ||
           !hasEnoughBalanceForTxPlusFees))
@@ -482,10 +471,10 @@ export const BorrowInput = ({
   }, [
     _isSmartContractAddress,
     collateralAsset,
-    estimatedFeesData,
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     hasEnoughBalanceForTxPlusSweep,
+    isEstimatedFeesDataSuccess,
     isHardCapReached,
     isLendingQuoteError,
     isLendingQuoteSuccess,
@@ -515,7 +504,7 @@ export const BorrowInput = ({
       >
         <Stack spacing={0}>
           <TradeAssetInput
-            accountId={collateralAccountId ?? ''}
+            accountId={collateralAccountId}
             assetId={collateralAssetId}
             assetSymbol={collateralAsset.symbol}
             assetIcon={collateralAsset.icon}
@@ -573,7 +562,7 @@ export const BorrowInput = ({
               confirmedQuote={confirmedQuote}
               isLoading={isLendingQuoteLoading || isLendingQuoteRefetching}
               collateralAssetId={collateralAssetId}
-              collateralAccountId={collateralAccountId ?? ''}
+              collateralAccountId={collateralAccountId}
               debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
               depositAmountCryptoPrecision={depositAmountCryptoPrecision ?? '0'}
               borrowAssetId={borrowAsset?.assetId ?? ''}
@@ -604,7 +593,9 @@ export const BorrowInput = ({
                 <Row.Value>
                   <Skeleton
                     isLoaded={
-                      estimatedFeesData && isLendingQuoteSuccess && !isLendingQuoteRefetching
+                      isEstimatedFeesDataSuccess &&
+                      isLendingQuoteSuccess &&
+                      !isLendingQuoteRefetching
                     }
                   >
                     <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
@@ -678,7 +669,8 @@ export const BorrowInput = ({
                   isLendingQuoteLoading ||
                   isLendingQuoteRefetching ||
                   quoteErrorTranslation ||
-                  !estimatedFeesData ||
+                  isEstimatedFeesDataError ||
+                  isEstimatedFeesDataLoading ||
                   disableSmartContractDeposit,
               )}
             >

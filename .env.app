@@ -22,6 +22,8 @@ REACT_APP_UNCHAINED_ARBITRUM_HTTP_URL=https://api.arbitrum.shapeshift.com
 REACT_APP_UNCHAINED_ARBITRUM_WS_URL=wss://api.arbitrum.shapeshift.com
 REACT_APP_UNCHAINED_ARBITRUM_NOVA_HTTP_URL=https://api.arbitrum-nova.shapeshift.com
 REACT_APP_UNCHAINED_ARBITRUM_NOVA_WS_URL=wss://api.arbitrum-nova.shapeshift.com
+REACT_APP_UNCHAINED_BASE_HTTP_URL=https://api.base.shapeshift.com
+REACT_APP_UNCHAINED_BASE_WS_URL=wss://api.base.shapeshift.com
 REACT_APP_UNCHAINED_BITCOIN_HTTP_URL=https://api.bitcoin.shapeshift.com
 REACT_APP_UNCHAINED_BITCOIN_WS_URL=wss://api.bitcoin.shapeshift.com
 REACT_APP_UNCHAINED_DOGECOIN_WS_URL=wss://api.dogecoin.shapeshift.com
@@ -44,6 +46,7 @@ REACT_APP_POLYGON_NODE_URL=https://api.polygon.shapeshift.com/api/v1/jsonrpc
 REACT_APP_GNOSIS_NODE_URL=https://daemon.gnosis.shapeshift.com
 REACT_APP_ARBITRUM_NODE_URL=https://api.arbitrum.shapeshift.com/api/v1/jsonrpc
 REACT_APP_ARBITRUM_NOVA_NODE_URL=https://api.arbitrum-nova.shapeshift.com/api/v1/jsonrpc
+REACT_APP_BASE_NODE_URL=https://api.base.shapeshift.com/api/v1/jsonrpc
 REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
 
 # thorchain

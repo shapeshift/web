@@ -1,9 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
+import { createSelector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
@@ -12,6 +14,7 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
 import { selectAssets } from './assetsSlice/selectors'
+import { getFeeAssetByChainId } from './assetsSlice/utils'
 import { selectMarketDataUsd, selectMarketDataUserCurrency } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
@@ -41,7 +44,12 @@ export const selectWalletAccountIds = createDeepEqualOutputSelector(
   },
 )
 
-export const selectWalletChainIds = createDeepEqualOutputSelector(
+export const selectEvmAccountIds = createDeepEqualOutputSelector(
+  selectWalletAccountIds,
+  accountIds => accountIds.filter(accountId => isEvmChainId(fromAccountId(accountId).chainId)),
+)
+
+export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   accountIds => {
     const chainIds = accountIds.reduce<ChainId[]>((acc, accountId) => {
@@ -133,27 +141,26 @@ export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOut
   selectPortfolioAccountBalancesBaseUnit,
   selectMarketDataUserCurrency,
   (assetsById, accounts, marketData) => {
-    return Object.entries(accounts).reduce(
-      (acc, [accountId, balanceObj]) => {
-        acc[accountId] = Object.entries(balanceObj).reduce(
-          (acc, [assetId, cryptoBalance]) => {
-            const asset = assetsById[assetId]
-            if (!asset) return acc
-            const precision = asset.precision
-            const price = marketData[assetId]?.price ?? 0
-            const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
-            const userCurrencyBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
-            acc[assetId] = userCurrencyBalance
+    return Object.entries(accounts).reduce<
+      PartialRecord<AccountId, PartialRecord<AssetId, string>>
+    >((acc, [accountId, balanceObj]) => {
+      acc[accountId] = Object.entries(balanceObj).reduce<PartialRecord<AssetId, string>>(
+        (balanceByAssetId, [assetId, cryptoBalance]) => {
+          const asset = assetsById[assetId]
+          if (!asset) return balanceByAssetId
+          const precision = asset.precision
+          const price = marketData[assetId]?.price ?? 0
+          const cryptoValue = fromBaseUnit(bnOrZero(cryptoBalance), precision)
+          const userCurrencyBalance = bnOrZero(bn(cryptoValue).times(price)).toFixed(2)
+          balanceByAssetId[assetId] = userCurrencyBalance
 
-            return acc
-          },
-          { ...balanceObj },
-        )
+          return balanceByAssetId
+        },
+        {},
+      )
 
-        return acc
-      },
-      { ...accounts },
-    )
+      return acc
+    }, {})
   },
 )
 
@@ -202,5 +209,23 @@ export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutpu
       })
       .filter(isSome)
       .filter(asset => !isNft(asset.assetId))
+  },
+)
+
+export const selectHighestMarketCapFeeAsset = createSelector(
+  selectWalletConnectedChainIds,
+  selectMarketDataUsd,
+  selectAssets,
+  (walletChainIds, marketDataUsd, assetsById): Asset | undefined => {
+    const feeAssets = walletChainIds.map(chainId => getFeeAssetByChainId(assetsById, chainId))
+    const getAssetMarketCap = (asset: Asset) =>
+      bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+    const sortedFeeAssets = orderBy(
+      Object.values(feeAssets).filter(isSome),
+      [getAssetMarketCap],
+      ['desc'],
+    )
+
+    return sortedFeeAssets[0]
   },
 )

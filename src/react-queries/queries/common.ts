@@ -1,5 +1,5 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
@@ -7,7 +7,9 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { PartialFields } from 'lib/types'
 import { assertGetChainAdapter } from 'lib/utils'
+import type { GetFeesWithWalletArgs } from 'lib/utils/evm'
 import { getErc20Allowance } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import type { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
@@ -30,6 +32,11 @@ export const common = createQueryKeys('common', {
 
       const { chainId, assetReference } = fromAssetId(assetId)
 
+      // 0x0 is used as a placeholder for the special case of token swaps that do not require an approval, as the network automagically handles the transfer at chain-level
+      // e.g Arbitrum Bridge token withdraws, or Gnosis bridge swaps out of Gnosis chains are examples of chains with such magic
+      if (spender === '0x0') {
+        return Err(GetAllowanceErr.ZeroAddress)
+      }
       if (!evmChainIds.includes(chainId as EvmChainId)) {
         return Err(GetAllowanceErr.NotEVMChain)
       }
@@ -80,5 +87,19 @@ export const common = createQueryKeys('common', {
         accountMetadata,
         wallet,
       }),
+  }),
+  evmFees: ({
+    data,
+    accountNumber,
+    to,
+    value,
+    chainId,
+  }: PartialFields<
+    Omit<GetFeesWithWalletArgs, 'wallet' | 'adapter'>,
+    'accountNumber' | 'data' | 'to'
+  > & {
+    chainId: ChainId | undefined
+  }) => ({
+    queryKey: ['evmFees', to, chainId, accountNumber, data, value],
   }),
 })

@@ -19,6 +19,10 @@ import zrxTradeMaticToUsdc from './mockData/zrxTradeMaticToUsdc'
 import zrxTradeUsdcToMatic from './mockData/zrxTradeUsdcToMatic'
 import zrxTradeUsdcToUsdt from './mockData/zrxTradeUsdcToUsdt'
 
+vi.hoisted(() => {
+  vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
+})
+
 const mockedApi = vi.mocked(new V1Api())
 
 const tokenMetadata: evm.TokenMetadata = {

@@ -1,4 +1,4 @@
-import type { GetContractReturnType, PublicClient, WalletClient } from 'viem'
+import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'
 
 import type {
@@ -18,13 +18,13 @@ export enum ContractType {
 export type KnownContractByAddress<T extends KnownContractAddress> = GetContractReturnType<
   (typeof CONTRACT_ADDRESS_TO_ABI)[T],
   PublicClient,
-  WalletClient
+  Address
 >
 
 export type KnownContractByType<T extends ContractType> = GetContractReturnType<
   (typeof CONTRACT_TYPE_TO_ABI)[T],
   PublicClient,
-  WalletClient
+  Address
 >
 
 export type KnownContractAddress =

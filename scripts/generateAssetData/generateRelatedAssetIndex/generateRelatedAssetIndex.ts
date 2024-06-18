@@ -2,14 +2,16 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
   arbitrumNovaAssetId,
+  baseAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AssetsById } from '@shapeshiftoss/types'
-import assert from 'assert'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
@@ -27,11 +29,15 @@ const BATCH_SIZE = 100
 const axiosInstance = axios.create()
 axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
 
+const ZERION_API_KEY = process.env.ZERION_API_KEY
+if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
+
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [
     optimismAssetId,
     arbitrumAssetId,
     arbitrumNovaAssetId,
+    baseAssetId,
     // WETH on Ethereum
     'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     // WETH on Gnosis
@@ -49,6 +55,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     // WETH on Optimism
     'eip155:10/erc20:0x4200000000000000000000000000000000000006',
   ],
+  [foxAssetId]: [foxOnArbitrumOneAssetId],
 }
 
 export const getManualRelatedAssetIds = (
@@ -141,11 +148,7 @@ const getRelatedAssetIds = async (
   assetId: AssetId,
   assetData: AssetsById,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
-  assert(
-    process.env.ZERION_API_KEY !== undefined,
-    'Missing Zerion API key - see readme for instructions',
-  )
-  const basicAuth = 'Basic ' + Buffer.from(process.env.ZERION_API_KEY + ':').toString('base64')
+  const basicAuth = 'Basic ' + Buffer.from(ZERION_API_KEY + ':').toString('base64')
 
   const options = {
     method: 'GET' as const,
@@ -231,24 +234,30 @@ const processRelatedAssetIds = async (
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
   // ensure empty results get added so we can use this index to generate distinct asset list
-  const { relatedAssetIds, relatedAssetKey } = manualRelatedAssetsResult ??
-    relatedAssetsResult ?? {
-      relatedAssetIds: [],
-      relatedAssetKey: assetId,
-    }
+  const { relatedAssetIds: manualRelatedAssetIds } = manualRelatedAssetsResult ?? {
+    relatedAssetIds: [],
+  }
+
+  const relatedAssetKey =
+    manualRelatedAssetsResult?.relatedAssetKey || relatedAssetsResult?.relatedAssetKey || assetId
+
+  const zerionRelatedAssetIds = relatedAssetsResult?.relatedAssetIds ?? []
+  const mergedRelatedAssetIds = Array.from(
+    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds]),
+  )
 
   // Has zerion-provided related assets, or manually added ones
-  const hasRelatedAssets = relatedAssetIds.length > 0
+  const hasRelatedAssets = mergedRelatedAssetIds.length > 0
 
   // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
   if (hasRelatedAssets && assetData[relatedAssetKey] !== undefined) {
     assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
   }
 
-  for (const assetId of relatedAssetIds) {
+  for (const assetId of mergedRelatedAssetIds) {
     assetData[assetId].relatedAssetKey = relatedAssetKey
   }
-  relatedAssetIndex[relatedAssetKey] = relatedAssetIds
+  relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
   return
 }
 

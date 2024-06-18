@@ -33,7 +33,7 @@ export type BuildTxInput = {
   data?: string
   sendmax?: never
 } & Fees &
-  OptimismL1FeeData
+  L1FeeData
 
 export type EstimateFeeDataInput<T extends ChainId> = common.GetFeeDataInput<T> & {
   gasFeeData: GasFeeDataEstimate
@@ -46,8 +46,7 @@ export type EstimateGasRequest = {
   data: string
 }
 
-export type OptimismL1FeeData = {
-  // optimism l1 fees
+export type L1FeeData = {
   l1GasPrice?: string
   l1GasLimit?: string
 }
@@ -57,7 +56,7 @@ export type FeeData = {
   gasLimit: string
   maxFeePerGas?: string
   maxPriorityFeePerGas?: string
-} & OptimismL1FeeData
+} & L1FeeData
 
 export type Fees =
   | {

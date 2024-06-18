@@ -1,33 +1,15 @@
-import { EditIcon } from '@chakra-ui/icons'
-import { MenuDivider, MenuItem } from '@chakra-ui/react'
-import { useCallback } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useModal } from 'hooks/useModal/useModal'
+import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 
-const editIcon = <EditIcon />
+type KeepKeyConnectedMenuItemsProps = {
+  onClose?: () => void
+}
 
-export const KeepKeyConnectedMenuItems = () => {
-  const translate = useTranslate()
-  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
-
-  const accountManagementPopover = useModal('manageAccounts')
-
-  const handleManageAccountsMenuItemClick = useCallback(
-    () => accountManagementPopover.open({}),
-    [accountManagementPopover],
-  )
-
+export const KeepKeyConnectedMenuItems: React.FC<KeepKeyConnectedMenuItemsProps> = ({
+  onClose,
+}) => {
   return (
     <>
-      {isAccountManagementEnabled && (
-        <>
-          <MenuDivider />
-          <MenuItem icon={editIcon} onClick={handleManageAccountsMenuItemClick}>
-            {translate('accountManagement.menuTitle')}
-          </MenuItem>
-        </>
-      )}
+      <ManageAccountsMenuItem displayDivider={true} onClose={onClose} />
     </>
   )
 }

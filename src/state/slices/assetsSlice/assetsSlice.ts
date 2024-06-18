@@ -5,6 +5,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
+  baseChainId,
   bscChainId,
   fromAssetId,
   gnosisChainId,
@@ -138,6 +139,7 @@ export const assetApi = createApi({
             if (!flags.Gnosis && asset.chainId === gnosisChainId) return prev
             if (!flags.Arbitrum && asset.chainId === arbitrumChainId) return prev
             if (!flags.ArbitrumNova && asset.chainId === arbitrumNovaChainId) return prev
+            if (!flags.Base && asset.chainId === baseChainId) return prev
             prev[assetId] = asset
             return prev
           },

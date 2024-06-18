@@ -1,16 +1,18 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Center, Heading, Stack } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { AnimatePresence } from 'framer-motion'
-import React, { useCallback, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { SlideTransition } from 'components/SlideTransition'
-import { SlideTransitionY } from 'components/SlideTransitionY'
-import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { getTxLink } from 'lib/getTxLink'
+import { fromBaseUnit } from 'lib/math'
+import { selectAssetById, selectTxById } from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { useAppSelector } from 'state/store'
 
+import { SharedStatus } from '../Shared/SharedStatus'
+import type { RfoxStakingQuote } from './types'
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
 type BodyContent = {
@@ -20,72 +22,87 @@ type BodyContent = {
   element: JSX.Element
 }
 
-export const StakeStatus: React.FC<StakeRouteProps> = () => {
-  const [status, setStatus] = useState<TxStatus>(TxStatus.Pending)
+type StakeStatusProps = {
+  confirmedQuote: RfoxStakingQuote
+  txId: string
+  onTxConfirmed: () => Promise<void>
+}
+export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
+  confirmedQuote,
+  txId,
+  onTxConfirmed: handleTxConfirmed,
+}) => {
   const history = useHistory()
-  const translate = useTranslate()
 
   const handleGoBack = useCallback(() => {
     history.push(StakeRoutePaths.Input)
   }, [history])
 
-  const handleFakeStatus = useCallback(() => {
-    setStatus(TxStatus.Confirmed)
-  }, [])
+  const stakingAssetAccountAddress = useMemo(
+    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+    [confirmedQuote.stakingAssetAccountId],
+  )
+  const stakingAsset = useAppSelector(state =>
+    selectAssetById(state, confirmedQuote.stakingAssetId),
+  )
+  const stakingAmountCryptoPrecision = useMemo(
+    () => fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+    [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
+  )
+
+  const serializedTxIndex = useMemo(() => {
+    return serializeTxIndex(confirmedQuote.stakingAssetAccountId, txId, stakingAssetAccountAddress)
+  }, [txId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
+
+  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+
+  useEffect(() => {
+    if (tx?.status !== TxStatus.Confirmed) return
+
+    handleTxConfirmed()
+  }, [handleTxConfirmed, tx?.status])
 
   const bodyContent: BodyContent | null = useMemo(() => {
-    switch (status) {
+    if (!stakingAsset) return null
+
+    switch (tx?.status) {
+      case undefined:
       case TxStatus.Pending:
         return {
           key: TxStatus.Pending,
           title: 'pools.waitingForConfirmation',
-          body: ['RFOX.stakePending', { amount: '1,500', symbol: 'FOX' }],
+          body: [
+            'RFOX.stakePending',
+            { amount: stakingAmountCryptoPrecision, symbol: stakingAsset.symbol },
+          ],
           element: <CircularProgress size='75px' />,
         }
       case TxStatus.Confirmed:
         return {
           key: TxStatus.Confirmed,
           title: 'common.success',
-          body: ['RFOX.stakeSuccess', { amount: '1,500', symbol: 'FOX' }],
+          body: [
+            'RFOX.stakeSuccess',
+            { amount: stakingAmountCryptoPrecision, symbol: stakingAsset.symbol },
+          ],
           element: <CheckCircleIcon color='text.success' boxSize='75px' />,
         }
       case TxStatus.Failed:
         return {
           key: TxStatus.Failed,
           title: 'common.somethingWentWrong',
-          body: 'Show error message here',
+          body: 'common.somethingWentWrongBody',
           element: <WarningIcon color='text.error' boxSize='75px' />,
         }
       default:
         return null
     }
-  }, [status])
+  }, [tx?.status, stakingAmountCryptoPrecision, stakingAsset])
 
-  return (
-    <SlideTransition>
-      {bodyContent && (
-        <AnimatePresence mode='wait'>
-          <SlideTransitionY key={bodyContent.key}>
-            <CardBody py={12} onClick={handleFakeStatus}>
-              <Center flexDir='column' gap={4}>
-                {bodyContent.element}
-                <Stack spacing={0} alignItems='center'>
-                  <Heading as='h4'>{translate(bodyContent.title)}</Heading>
-                  <Text translation={bodyContent.body} />
-                </Stack>
-              </Center>
-            </CardBody>
-          </SlideTransitionY>
-        </AnimatePresence>
-      )}
-      <CardFooter flexDir='column' gap={2}>
-        <Button size='lg' variant='ghost'>
-          {translate('trade.viewTransaction')}
-        </Button>
-        <Button size='lg' colorScheme='blue' onClick={handleGoBack}>
-          {translate('common.goBack')}
-        </Button>
-      </CardFooter>
-    </SlideTransition>
+  const txLink = useMemo(
+    () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),
+    [stakingAsset?.explorerTxLink, txId],
   )
+
+  return <SharedStatus onBack={handleGoBack} txLink={txLink} body={bodyContent} />
 }

@@ -2,6 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Circle, Flex } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
+import type { PropsWithChildren } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link } from 'react-router-dom'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -14,7 +15,7 @@ type ResultsEmptyProp = {
   ctaHref?: string | null
   ctaText?: string
   buttonProps?: ButtonProps
-}
+} & PropsWithChildren
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
@@ -25,6 +26,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
   ctaHref,
   ctaText,
   buttonProps,
+  children,
 }) => {
   const bgColor = useColorModeValue('gray.100', 'gray.750')
   const translate = useTranslate()
@@ -50,6 +52,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
             {translate(ctaText)}
           </Button>
         )}
+        {children}
       </Flex>
     </Flex>
   )

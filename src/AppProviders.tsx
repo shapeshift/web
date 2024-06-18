@@ -14,6 +14,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
+import { WagmiConfig } from 'wagmi'
 import { ChatwootWidget } from 'components/ChatWoot'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -27,6 +28,7 @@ import { KeepKeyProvider } from 'context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from 'context/WalletProvider/WalletProvider'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { wagmiConfig } from 'lib/wagmi-config'
 import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
@@ -71,17 +73,19 @@ export function AppProviders({ children }: ProvidersProps) {
                       <WalletConnectV2Provider>
                         <KeepKeyProvider>
                           <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                            <QueryClientProvider>
-                              <ModalProvider>
-                                <TransactionsProvider>
-                                  <AppProvider>
-                                    <FoxEthProvider>
-                                      <DefiManagerProvider>{children}</DefiManagerProvider>
-                                    </FoxEthProvider>
-                                  </AppProvider>
-                                </TransactionsProvider>
-                              </ModalProvider>
-                            </QueryClientProvider>
+                            <WagmiConfig config={wagmiConfig}>
+                              <QueryClientProvider>
+                                <ModalProvider>
+                                  <TransactionsProvider>
+                                    <AppProvider>
+                                      <FoxEthProvider>
+                                        <DefiManagerProvider>{children}</DefiManagerProvider>
+                                      </FoxEthProvider>
+                                    </AppProvider>
+                                  </TransactionsProvider>
+                                </ModalProvider>
+                              </QueryClientProvider>
+                            </WagmiConfig>
                           </ErrorBoundary>
                         </KeepKeyProvider>
                       </WalletConnectV2Provider>

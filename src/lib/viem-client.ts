@@ -3,12 +3,13 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import { getConfig } from 'config'
-import type { PublicClient } from 'viem'
+import type { Chain, PublicClient, Transport } from 'viem'
 import { createPublicClient, http } from 'viem'
 import {
   arbitrum,
   arbitrumNova,
   avalanche,
+  base,
   bsc,
   gnosis,
   mainnet,
@@ -56,7 +57,12 @@ export const viemPolygonClient = createPublicClient({
   transport: http(getConfig().REACT_APP_POLYGON_NODE_URL),
 })
 
-export const viemClientByChainId: Record<EvmChainId, PublicClient> = {
+export const viemBaseClient = createPublicClient({
+  chain: base,
+  transport: http(getConfig().REACT_APP_BASE_NODE_URL),
+})
+
+export const viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
   [KnownChainIds.AvalancheMainnet]: viemAvalancheClient,
@@ -64,12 +70,27 @@ export const viemClientByChainId: Record<EvmChainId, PublicClient> = {
   [KnownChainIds.ArbitrumNovaMainnet]: viemArbitrumNovaClient,
   [KnownChainIds.GnosisMainnet]: viemGnosisClient,
   [KnownChainIds.PolygonMainnet]: viemPolygonClient,
-  // cast required due to typescript shenanigans
+  // cast required for these due to typescript shenanigans
   // https://github.com/wagmi-dev/viem/issues/1018
-  [KnownChainIds.OptimismMainnet]: viemOptimismClient as PublicClient,
+  [KnownChainIds.OptimismMainnet]: viemOptimismClient as PublicClient<Transport, Chain>,
+  [KnownChainIds.BaseMainnet]: viemBaseClient as PublicClient<Transport, Chain>,
 }
 
-export const assertGetViemClient = (chainId: ChainId): PublicClient => {
+export const viemClientByNetworkId: Record<number, PublicClient<Transport, Chain>> = {
+  [mainnet.id]: viemEthMainnetClient,
+  [bsc.id]: viemBscClient,
+  [avalanche.id]: viemAvalancheClient,
+  [arbitrum.id]: viemArbitrumClient,
+  [arbitrumNova.id]: viemArbitrumNovaClient,
+  [gnosis.id]: viemGnosisClient,
+  [polygon.id]: viemPolygonClient,
+  // cast required for these due to typescript shenanigans
+  // https://github.com/wagmi-dev/viem/issues/1018
+  [optimism.id]: viemOptimismClient as PublicClient<Transport, Chain>,
+  [base.id]: viemBaseClient as PublicClient<Transport, Chain>,
+}
+
+export const assertGetViemClient = (chainId: ChainId): PublicClient<Transport, Chain> => {
   const publicClient = viemClientByChainId[chainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
   return publicClient

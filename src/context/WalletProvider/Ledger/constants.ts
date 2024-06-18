@@ -11,6 +11,8 @@ import {
 import { uniq } from 'lodash'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 
+export const LEDGER_DEVICE_ID = '0001'
+
 /*
   The top-level fee assets supported by Ledger, which can be mapped to a specific Ledger app.
   The Ethereum app supports all EVM chains, so we don't need to list them all here.

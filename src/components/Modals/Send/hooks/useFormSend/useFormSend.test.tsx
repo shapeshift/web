@@ -79,6 +79,7 @@ const mockEvmChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.ArbitrumNovaMainnet,
+  KnownChainIds.BaseMainnet,
 ]
 vi.mock('lib/utils/evm', async () => {
   const actual = await vi.importActual('lib/utils/evm')

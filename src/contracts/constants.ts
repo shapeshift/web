@@ -1,3 +1,5 @@
+import { getConfig } from 'config'
+
 export const WETH_TOKEN_CONTRACT_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 export const FOX_TOKEN_CONTRACT_ADDRESS = '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
 
@@ -31,3 +33,6 @@ export const UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS =
 // Checksummed addresses - used to check against unchained Txs
 
 export const THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM = '0xd37bbe5744d730a1d98d8dc97c42f0ca46ad7146'
+
+// RFOX on Arbitrum ERC1967Proxy contract address
+export const RFOX_PROXY_CONTRACT_ADDRESS = getConfig().REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS

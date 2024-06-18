@@ -30,7 +30,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import { selectAssets, selectWalletChainIds } from 'state/slices/selectors'
+import { selectAssets, selectWalletConnectedChainIds } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { availableLedgerAppAssetIds, availableLedgerAppChainIds } from '../constants'
@@ -41,7 +41,7 @@ export const LedgerChains = () => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
-  const walletChainIds = useAppSelector(selectWalletChainIds)
+  const walletChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const availableAssets = useMemo(
     () => availableLedgerAppAssetIds.map(id => assets[id]).filter(isSome),
@@ -68,6 +68,7 @@ export const LedgerChains = () => {
           accountNumber: 0,
           chainIds,
           wallet: walletState.wallet,
+          isSnapInstalled: false,
         })
 
         const accountIds = Object.keys(accountMetadataByAccountId)

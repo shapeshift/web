@@ -2,6 +2,7 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
+import type { Address } from 'viem'
 
 import env from './env'
 
@@ -28,6 +29,8 @@ const validators = {
   REACT_APP_UNCHAINED_ARBITRUM_WS_URL: url(),
   REACT_APP_UNCHAINED_ARBITRUM_NOVA_HTTP_URL: url(),
   REACT_APP_UNCHAINED_ARBITRUM_NOVA_WS_URL: url(),
+  REACT_APP_UNCHAINED_BASE_HTTP_URL: url(),
+  REACT_APP_UNCHAINED_BASE_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_BITCOIN_WS_URL: url(),
   REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: url(),
@@ -49,6 +52,7 @@ const validators = {
   REACT_APP_GNOSIS_NODE_URL: url(),
   REACT_APP_ARBITRUM_NODE_URL: url(),
   REACT_APP_ARBITRUM_NOVA_NODE_URL: url(),
+  REACT_APP_BASE_NODE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_URL: url(),
   REACT_APP_KEEPKEY_VERSIONS_URL: url(),
   REACT_APP_WALLET_MIGRATION_URL: url(),
@@ -75,6 +79,7 @@ const validators = {
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP_GNOSIS: bool({ default: false }),
+  REACT_APP_FEATURE_COWSWAP_ARBITRUM: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
@@ -82,6 +87,7 @@ const validators = {
   REACT_APP_FEATURE_GNOSIS: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM_NOVA: bool({ default: false }),
+  REACT_APP_FEATURE_BASE: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: bool({ default: false }),
@@ -136,20 +142,24 @@ const validators = {
   REACT_APP_FEATURE_FOX_BOND_CTA: bool({ default: false }),
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
+  REACT_APP_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api-shapeshift.1inch.io/v5.0',
   }),
   REACT_APP_SENTRY_DSN_URL: url(),
+  REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS: str<Address>(),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY: str(),
+  REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_BASE_URL: url(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL: url(),
   REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL: url(),
+  REACT_APP_ALCHEMY_BASE_JAYPEGS_BASE_URL: url(),
   REACT_APP_CHATWOOT_TOKEN: str(),
   REACT_APP_CHATWOOT_URL: str(),
   REACT_APP_FEATURE_CHATWOOT: bool({ default: false }),
@@ -169,6 +179,7 @@ const validators = {
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   REACT_APP_FEATURE_RFOX: bool({ default: false }),
+  REACT_APP_FEATURE_RFOX_DASHBOARD: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

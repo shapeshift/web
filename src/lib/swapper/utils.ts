@@ -95,7 +95,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
 export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>
 
 export const getEnabledSwappers = (
-  { LifiSwap, ThorSwap, ZrxSwap, OneInch, Cowswap }: FeatureFlags,
+  { LifiSwap, ThorSwap, ZrxSwap, OneInch, ArbitrumBridge, Cowswap }: FeatureFlags,
   isCrossAccountTrade: boolean,
 ): Record<SwapperName, boolean> => {
   return {
@@ -109,6 +109,9 @@ export const getEnabledSwappers = (
       OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
     [SwapperName.CowSwap]:
       Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
+    [SwapperName.ArbitrumBridge]:
+      ArbitrumBridge &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ArbitrumBridge)),
     [SwapperName.Test]: false,
   }
 }

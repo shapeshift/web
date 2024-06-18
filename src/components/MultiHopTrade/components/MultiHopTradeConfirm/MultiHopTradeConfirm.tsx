@@ -17,7 +17,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { TradeSuccessTemp } from '../TradeSuccess/TradeSuccessTemp'
+import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
 import { Footer } from './components/Footer'
 import { Hops } from './components/Hops'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
@@ -46,10 +46,18 @@ export const MultiHopTradeConfirm = memo(() => {
     dispatch(tradeQuoteSlice.actions.setTradeInitialized())
   }, [dispatch, isLoading])
 
+  const isTradeComplete = useMemo(
+    () => tradeExecutionState === TradeExecutionState.TradeComplete,
+    [tradeExecutionState],
+  )
+
   const handleBack = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.clear())
+    if (isTradeComplete) {
+      dispatch(tradeQuoteSlice.actions.clear())
+    }
+
     history.push(TradeRoutePaths.Input)
-  }, [dispatch, history])
+  }, [dispatch, history, isTradeComplete])
 
   const { isOpen: isFirstHopOpen, onToggle: onToggleFirstHop } = useDisclosure(useDisclosureProps)
   const { isOpen: isSecondHopOpen, onToggle: onToggleSecondHop } = useDisclosure(useDisclosureProps)
@@ -71,11 +79,6 @@ export const MultiHopTradeConfirm = memo(() => {
     previousTradeExecutionState,
     tradeExecutionState,
   ])
-
-  const isTradeComplete = useMemo(
-    () => tradeExecutionState === TradeExecutionState.TradeComplete,
-    [tradeExecutionState],
-  )
 
   const handleTradeConfirm = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.confirmTrade())
@@ -122,9 +125,9 @@ export const MultiHopTradeConfirm = memo(() => {
             </WithBackButton>
           </CardHeader>
           {isTradeComplete ? (
-            <TradeSuccessTemp handleBack={handleBack}>
+            <TradeSuccess handleBack={handleBack}>
               <Hops isFirstHopOpen isSecondHopOpen />
-            </TradeSuccessTemp>
+            </TradeSuccess>
           ) : (
             <>
               <CardBody py={0} px={0}>

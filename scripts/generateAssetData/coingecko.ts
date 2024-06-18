@@ -5,6 +5,7 @@ import {
   arbitrumNovaChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
+  baseChainId,
   bscChainId,
   ethChainId,
   gnosisChainId,
@@ -19,6 +20,7 @@ import {
   arbitrum,
   arbitrumNova,
   avax,
+  base,
   bnbsmartchain,
   ethereum,
   gnosis,
@@ -109,6 +111,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: arbitrumNova.explorer,
           explorerAddressLink: arbitrumNova.explorerAddressLink,
           explorerTxLink: arbitrumNova.explorerTxLink,
+        }
+      case baseChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: base.explorer,
+          explorerAddressLink: base.explorerAddressLink,
+          explorerTxLink: base.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

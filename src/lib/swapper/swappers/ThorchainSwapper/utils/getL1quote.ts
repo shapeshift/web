@@ -25,6 +25,7 @@ import { assertUnreachable, isFulfilled, isRejected } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
+import { addLimitToMemo } from 'lib/utils/thorchain/memo/addLimitToMemo'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 
@@ -39,8 +40,8 @@ import type {
   ThorTradeUtxoOrCosmosQuote,
 } from '../getThorTradeQuote/getTradeQuote'
 import type { ThornodeQuoteResponseSuccess } from '../types'
-import { addSlippageToMemo } from './addSlippageToMemo'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
+import { getLimitWithManualSlippage } from './getLimitWithManualSlippage'
 import { getQuote } from './getQuote/getQuote'
 import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
@@ -134,11 +135,9 @@ export const getL1quote = async (
       // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
       // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
       slippageBps: isStreaming ? bn(0) : inputSlippageBps,
-      // TODO: this is off by about an hour in most cases, more work required to make it useable
-      // estimatedExecutionTimeMs: quote.total_swap_seconds
-      //   ? 1000 * quote.total_swap_seconds
-      //   : undefined,
-      estimatedExecutionTimeMs: undefined,
+      estimatedExecutionTimeMs: quote.total_swap_seconds
+        ? 1000 * quote.total_swap_seconds
+        : undefined,
     }
   }
 
@@ -219,22 +218,30 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): Promise<ThorEvmTradeQuote> => {
+            if (!quote.memo) throw new Error('no memo provided')
+
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
 
-            const updatedMemo = addSlippageToMemo({
+            const limitWithManualSlippage = getLimitWithManualSlippage({
               expectedAmountOutThorBaseUnit,
-              quotedMemo: quote.memo,
               slippageBps,
-              chainId: sellAsset.chainId,
-              affiliateBps,
-              isStreaming,
             })
+
+            // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
+            // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
+            const memo = isStreaming
+              ? quote.memo
+              : addLimitToMemo({
+                  memo: quote.memo,
+                  limit: limitWithManualSlippage,
+                })
+
             const { data, router, vault } = await getEvmThorTxInfo({
               sellAsset,
               sellAmountCryptoBaseUnit,
-              memo: updatedMemo,
+              memo,
               expiry: quote.expiry,
             })
 
@@ -246,7 +253,7 @@ export const getL1quote = async (
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
@@ -312,22 +319,30 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): Promise<ThorTradeUtxoOrCosmosQuote> => {
+            if (!quote.memo) throw new Error('no memo provided')
+
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
 
-            const updatedMemo = addSlippageToMemo({
+            const limitWithManualSlippage = getLimitWithManualSlippage({
               expectedAmountOutThorBaseUnit,
-              quotedMemo: quote.memo,
               slippageBps,
-              isStreaming,
-              chainId: sellAsset.chainId,
-              affiliateBps,
             })
+
+            // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
+            // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
+            const memo = isStreaming
+              ? quote.memo
+              : addLimitToMemo({
+                  memo: quote.memo,
+                  limit: limitWithManualSlippage,
+                })
+
             const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
               sellAsset,
               xpub: (input as GetUtxoTradeQuoteInput).xpub,
-              memo: updatedMemo,
+              memo,
             })
 
             const sellAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
@@ -348,7 +363,7 @@ export const getL1quote = async (
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
@@ -411,6 +426,8 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): ThorTradeUtxoOrCosmosQuote => {
+            if (!quote.memo) throw new Error('no memo provided')
+
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
@@ -421,18 +438,23 @@ export const getL1quote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
-            const updatedMemo = addSlippageToMemo({
+            const limitWithManualSlippage = getLimitWithManualSlippage({
               expectedAmountOutThorBaseUnit,
-              quotedMemo: quote.memo,
               slippageBps,
-              isStreaming,
-              chainId: sellAsset.chainId,
-              affiliateBps,
             })
+
+            // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
+            // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
+            const memo = isStreaming
+              ? quote.memo
+              : addLimitToMemo({
+                  memo: quote.memo,
+                  limit: limitWithManualSlippage,
+                })
 
             return {
               id: uuid(),
-              memo: updatedMemo,
+              memo,
               receiveAddress,
               affiliateBps,
               potentialAffiliateBps,

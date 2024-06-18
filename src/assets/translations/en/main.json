@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "Transaction history degraded",
     "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
+    "happySuccess": "Success!",
     "retry": "Retry",
     "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
+    "sendAmountAsset": "Send %{amount} %{asset}",
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
@@ -108,6 +110,7 @@
     "search": "Search",
     "searchAsset": "Search for asset",
     "enterAmount": "Enter Amount",
+    "enterAddress": "Enter Address",
     "pageNotFound": "The page you're looking for cannot be found",
     "buySell": "Buy/Sell",
     "all": "All",
@@ -116,6 +119,7 @@
     "feesPlusSlippage": "Fees + Slippage",
     "best": "Best",
     "gasFee": "Gas Fee",
+    "approvalFee": "Approval Fee",
     "consolidationFee": "Consolidation Fee",
     "fees": "Fees",
     "alternative": "Alternative",
@@ -475,6 +479,7 @@
     "earnBalance": "Earn Balance",
     "rewardsBalance": "Rewards Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
+    "noAccountsOpportunities": "You have no accounts for this asset, so staking opportunities are currently unavailable.",
     "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "myPositions": "My Positions",
@@ -635,6 +640,13 @@
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
+      "rfox": {
+        "stake": "Stake",
+        "withdraw": "Withdraw",
+        "unstakeRequest": "Unstake Request",
+        "setRuneAddress": "Set Rune Address"
+
+      },
       "weth": {
         "deposit": "Deposit",
         "approve": "Approve",
@@ -863,7 +875,8 @@
       "tradeFailed": "Trade failed. Assets returned minus gas fee",
       "noQuotesAvailable": "No quotes available for this trade",
       "smartContractWalletNotSupported": "Smart contract wallet not supported",
-      "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds."
+      "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds.",
+      "rateLimitExceeded": "Rate limit exceeded, try again later"
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
@@ -1038,7 +1051,7 @@
         "tooltip": "Send funds to a single address for THORChain compatibility.",
         "consolidateFunds": "Consolidate"
       },
-      "getBalanceError": "Error getting wallet balances",
+      "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
       "tokenAddress": "To Address",
@@ -1418,8 +1431,10 @@
       },
       "connect": {
         "header": "Pair Ledger",
-        "body": "Click Pair then select your Ledger from the popup window",
-        "button": "Pair"
+        "pairNewDeviceBody": " Click 'Pair new device' to get started",
+        "pairNewDeviceButton": "Pair new device",
+        "pairExistingDeviceButton": "Pair existing device",
+        "pairExistingDeviceBody": "Connecting a different Ledger device? Click 'Pair new device' to start fresh."
       },
       "failure": {
         "header": "Error",
@@ -1466,7 +1481,8 @@
       "andMore": "...and more",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled",
-      "dontAskAgain": "Don't ask again"
+      "dontAskAgain": "Don't ask again",
+      "multiAccountUnsupported": "Multi-account is unsupported for this chain using the Multichain Snap on MetaMask"
     },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",
@@ -1808,7 +1824,8 @@
     "importAccounts": {
       "title": "Import %{chainNamespaceDisplayName} Accounts",
       "description": "Select the accounts you would like to import from the list below.",
-      "import": "Import"
+      "import": "Import",
+      "loadMoreDisabled": "This wallet does not support multiple accounts for this chain."
     },
     "ledgerOpenApp": {
       "title": "Open the %{appName} App",
@@ -2339,8 +2356,8 @@
     "symAfterRuneAlert": "Symmetrical deposits are not possible following an asymmetric RUNE deposit due to the way the THOR network works.",
     "incompletePositionDepositAlert": "This position is incomplete, please deposit the corresponding amount of %{asset} to finalize this position.",
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
-    "unsupportedNetworkExplainer": "Your wallet does not support %{network}. Please switch to a wallet that supports this network.",
-    "unsupportedNetworksExplainer": "Your wallet does not support %{network1} and %{network2}. Please switch to a wallet that supports these networks.",
+    "unsupportedNetworkExplainer": "Your wallet isn't connected to %{network}. Please connect this chain or switch to a wallet that supports this network.",
+    "unsupportedNetworksExplainer": "Your wallet isn't connected to %{network1} and %{network2}. Please connect this chain or switch to a wallet that supports these networks.",
     "shareOfPool": "Share of Pool",
     "assetDepositAmount": "%{asset} Deposit Amount",
     "totalLiquidity": "Total Liquidity",
@@ -2420,13 +2437,23 @@
     }
   },
   "RFOX": {
+    "staking": "rFOX Staking",
+    "bridge": "Bridge",
+    "bridgeFunds": "Bridge Funds",
+    "bridgeSuccess": "Your funds have been successfully bridged. You can now continue to staking.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Claim",
+    "rewards": "Rewards",
+    "claims": "Claims",
     "changeAddress": "Change address",
+    "sameAddressNotAllowed": "Same address not allowed",
     "stakingDetails": "Staking Details",
     "stakeAmount": "Stake Amount",
+    "unstakeAmount": "Unstake Amount",
     "confirmAndStake": "Confirm & Stake",
+    "confirmAndUnstake": "Confirm & Unstake",
+    "confirmAndClaim": "Confirm & Claim",
     "shapeShiftFee": "ShapeShift Fee",
     "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
@@ -2436,13 +2463,89 @@
     "rewardAddressHelper": "This is where rewards will be sent",
     "useWalletAddress": "Use wallet address",
     "useCustomAddress": "Use custom address",
-    "stakeWarning": "When you stake your FOX tokens, please be aware that there is a %{cooldownPeriod} lock-up period. This means that if you decide to unstake your tokens, you will need to wait 28 days before you can claim your funds.",
+    "stakeWarning": "When you stake your FOX tokens, please be aware that there is a %{cooldownPeriod} lock-up period. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
+    "bridgeCta": "You selected %{assetSymbol} on %{originNetwork}, but you'll need %{assetSymbol} on %{destinationNetwork} to stake. We can help you bridge your to %{destinationNetwork}. Would you like us to guide you through the process?",
+    "unstakeWarning": "Before you can claim your FOX, there is a %{cooldownPeriod} cool down period. After that time has elapsed you will be able to claim your unstaked amount.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
+      "unstakeAmount": "This is amount of FOX you will unstake",
       "lockupPeriod": "This is how long you will have to wait after unstaking to claim your FOX",
-      "shareOfPool": "This is your percentage of the fees, you'll earn."
+      "shareOfPool": "This is your percentage of the fees you'll earn.",
+      "unstakePendingCooldown": "Claim available %{cooldownPeriodHuman}",
+      "cooldownComplete": "Cooldown finished %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "You have successfully staked %{amount} %{symbol}",
-    "stakePending": "Staking %{amount} %{symbol}..."
+    "stakePending": "Staking %{amount} %{symbol}...",
+    "addressUpdated": "Address updated",
+    "changeRewardAddressPending": "Changing Reward Address...",
+    "changeRewardAddressSuccess": "You have successfully changed your THORChain Reward Address.",
+    "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
+    "unstakeSuccess": "Once the %{cooldownPeriod} has elapsed, you will be able to claim your %{amount} %{symbol}",
+    "currentRewardAddress": "Current Reward Address",
+    "newRewardAddress": "New Reward Address",
+    "rewardCycleExplainer": "This will update for the next reward cycle.",
+    "noPositionTitle": "No Active Position",
+    "noPositionBody": "You will be able to change your reward address here once you have an active position.",
+    "stakeNow": "Stake Now",
+    "noAddressFound": "No address found",
+    "newAddressInfo": "This will update for the next reward cycle",
+    "confirmAndUpdateAddress": "Confirm & Update Address",
+    "unstakeFrom": "Unstake from r%{assetSymbol}",
+    "claimPending": "Requesting withdraw",
+    "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
+    "claimReceiveAddress": "Claim Receive Address",
+    "noClaimsAvailable": "No claims available",
+    "noClaimsAvailableDescription": "You don't have any available claims",
+    "unstakeNow": "Unstake Now",
+    "bridgeAndConfirm": "Bridge & Confirm",
+    "noSupportedChains": "Chain not supported",
+    "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
+    "confirmAndBridge": "Confirm & Bridge",
+    "myRewardBalance": "My Reward Balance",
+    "myRewardBalanceHelper": "My Reward Balance",
+    "pendingRewardsBalance": "Pending Rewards Balance",
+    "pendingRewardsBalanceHelper": "Pending Rewards Balance",
+    "lifetimeRewards": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "Lifetime Rewards",
+    "timeInPool": "Time in Pool",
+    "timeInPoolHelper": "Time in Pool",
+    "myPosition": "My Position",
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "What is rFOX?",
+        "body": "rFOX is a term used to describe the benefits and rewards you receive when you stake your FOX tokens on Arbitrum. Currently, you lock and unlock vanilla FOX (on Arbitrum) tokens for staking emissions."
+      },
+      "why": {
+        "title": "Why stake your FOX?",
+        "body": "Staking your FOX allows you to earn regular RUNE payouts from the DAO's treasury, providing a steady stream of passive income in RUNE per epoch. Additionally, a portion of the RUNE received by the DAO is used to buy FOX from the open market and burn it, reducing the overall supply. Staking also supports the ShapeShift DAO's alignment with the THORChain ecosystem, contributing to their growth and success. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
+      },
+      "stake": {
+        "title": "How do I stake my FOX?",
+        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract. You will need to sign a message or transaction to assign the address where your RUNE rewards will be paid. Once staked, you start earning RUNE rewards per block as part of your staking benefits."
+      },
+      "unstake": {
+        "title": "What happens when I unstake?",
+        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive RUNE emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
+      },
+      "cooldown": {
+        "title": "How long is the cooldown period?",
+        "body": "The cooldown period for unstaking FOX tokens is 28 days. During this time, your tokens remain locked and cannot be transferred."
+      },
+      "multipleUnstaking": {
+        "title": "Can I have multiple unstaking amounts?",
+        "body": "Yes, you can have multiple unstaking amounts. Each unstaking action will have its own 28-day cooldown period."
+      },
+      "connect": {
+        "title": "How do total fees collected, total FOX staked, emissions pool, and FOX burn amount connect?",
+        "body": "The fees collected by the DAO are in native RUNE. A portion of this RUNE is distributed to FOX stakers as rewards, while another portion is used to buy FOX from the open market and burn it, reducing the overall FOX supply. The total FOX staked influences the distribution of RUNE rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned using the RUNE collected from fees."
+      }
+    },
+    "totals": "rFOX Totals",
+    "totalStaked": "Total FOX Staked",
+    "totalFeesCollected": "Total Fees Collected (This Epoch)",
+    "emissionsPool": "Emissions Pool (This Epoch)",
+    "emissionsPoolHelper": "Emissions Pool (This Epoch)",
+    "foxBurnAmount": "FOX Burn Amount"
   }
 }

@@ -19,6 +19,7 @@ export enum SwapperName {
   Test = 'Test',
   LIFI = 'LI.FI',
   OneInch = '1INCH',
+  ArbitrumBridge = 'Arbitrum Bridge',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -48,6 +49,8 @@ export enum TradeQuoteError {
   SellAmountBelowMinimum = 'SellAmountBelowMinimum',
   // the fees exceed the sell amount
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',
+  // the swapper has exceeded its rate limit
+  RateLimitExceeded = 'RateLimitExceeded',
   // catch-all for XHRs that can fail
   QueryFailed = 'QueryFailed',
   // an assertion triggered, indicating a bug

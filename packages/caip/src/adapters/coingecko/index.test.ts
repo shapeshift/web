@@ -56,11 +56,18 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.ArbitrumNova,
       })
+      const ethOnBase = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BaseMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Base,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
         ethOnArbitrum,
         ethOnArbitrumNova,
+        ethOnBase,
       ])
     })
 
@@ -148,12 +155,19 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0xaf88d065e77c8cc2239327c5edb3a432268e5831',
       })
+      const usdcOnBase = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BaseMainnet,
+        assetNamespace,
+        assetReference: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
         usdcOnOptimism,
         usdcOnPolygon,
         usdcOnArbitrum,
+        usdcOnBase,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {

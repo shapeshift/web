@@ -1,5 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethChainId, optimismChainId, polygonChainId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  baseChainId,
+  ethChainId,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
 import { Alchemy, Network } from 'alchemy-sdk'
 import { getConfig } from 'config'
 
@@ -18,6 +24,8 @@ export const getAlchemyInstanceByChainId = (chainId: ChainId): Alchemy => {
         return getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY
       case arbitrumChainId:
         return getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY
+      case baseChainId:
+        return getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY
       default:
         return undefined
     }
@@ -33,6 +41,8 @@ export const getAlchemyInstanceByChainId = (chainId: ChainId): Alchemy => {
         return Network.OPT_MAINNET
       case arbitrumChainId:
         return Network.ARB_MAINNET
+      case baseChainId:
+        return Network.BASE_MAINNET
       default:
         return undefined
     }

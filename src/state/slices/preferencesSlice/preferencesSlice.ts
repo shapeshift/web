@@ -17,6 +17,7 @@ export type FeatureFlags = {
   Gnosis: boolean
   Arbitrum: boolean
   ArbitrumNova: boolean
+  Base: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
   Yat: boolean
@@ -32,6 +33,7 @@ export type FeatureFlags = {
   TradeRates: boolean
   Cowswap: boolean
   CowswapGnosis: boolean
+  CowswapArbitrum: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
@@ -40,6 +42,7 @@ export type FeatureFlags = {
   ReadOnlyAssets: boolean
   Jaypegz: boolean
   OneInch: boolean
+  ArbitrumBridge: boolean
   CovalentJaypegs: boolean
   Chatwoot: boolean
   CoinbaseWallet: boolean
@@ -60,6 +63,7 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
+  RFOXDashboard: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -71,6 +75,8 @@ export enum CurrencyFormats {
   CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
+
+export const allowedDecimalSeparators = ['.', ',']
 
 export enum HomeMarketView {
   TopAssets = 'TopAssets',
@@ -101,6 +107,7 @@ const initialState: Preferences = {
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     Arbitrum: getConfig().REACT_APP_FEATURE_ARBITRUM,
     ArbitrumNova: getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA,
+    Base: getConfig().REACT_APP_FEATURE_BASE,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,
     Yat: getConfig().REACT_APP_FEATURE_YAT,
@@ -116,6 +123,7 @@ const initialState: Preferences = {
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
+    CowswapArbitrum: getConfig().REACT_APP_FEATURE_COWSWAP_ARBITRUM,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
@@ -124,6 +132,7 @@ const initialState: Preferences = {
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
+    ArbitrumBridge: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
     AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
@@ -143,6 +152,7 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
+    RFOXDashboard: getConfig().REACT_APP_FEATURE_RFOX_DASHBOARD,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

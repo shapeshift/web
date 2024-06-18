@@ -30,11 +30,13 @@ export const getMaybeThorchainLendingOpenQuote = async ({
   collateralAmountCryptoBaseUnit,
   receiveAssetId,
   receiveAssetAddress,
+  affiliateBps,
 }: {
   collateralAssetId: AssetId
   collateralAmountCryptoBaseUnit: BigNumber.Value | null | undefined
   receiveAssetId: AssetId
   receiveAssetAddress: string
+  affiliateBps: string
 }): Promise<Result<LendingDepositQuoteResponseSuccess, string>> => {
   if (!collateralAmountCryptoBaseUnit) return Err('Amount is required')
   const collateralAsset = selectAssetById(store.getState(), collateralAssetId)
@@ -60,7 +62,8 @@ export const getMaybeThorchainLendingOpenQuote = async ({
     `?from_asset=${from_asset}` +
     `&amount=${amountCryptoThorBaseUnit.toString()}` +
     `&to_asset=${to_asset}` +
-    `&destination=${parsedReceiveAddress}`
+    `&destination=${parsedReceiveAddress}` +
+    `&affiliate_bps=${affiliateBps}`
 
   const { data } = await axios.get<LendingDepositQuoteResponse>(url)
   if (!data) return Err('Could not get quote data')

@@ -26,6 +26,7 @@ export const initialState: {
   votingPowerByModel: {
     SWAPPER: undefined,
     THORCHAIN_LP: undefined,
+    LENDING: undefined,
   },
   strategies: undefined,
 }

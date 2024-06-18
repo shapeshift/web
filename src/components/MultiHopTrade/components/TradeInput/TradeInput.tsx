@@ -556,8 +556,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   // If the warning acknowledgement is shown, we need to handle the submit differently because we might want to show the streaming acknowledgement
   const handleWarningAcknowledgementSubmit = useCallback(() => {
     if (activeQuote?.isStreaming) return setShouldShowStreamingAcknowledgement(true)
-    handleSubmit(onSubmit)
-  }, [handleSubmit, onSubmit, activeQuote?.isStreaming])
+    handleFormSubmit()
+  }, [handleFormSubmit, activeQuote?.isStreaming])
 
   const handleTradeQuoteConfirm = useCallback(() => {
     if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)

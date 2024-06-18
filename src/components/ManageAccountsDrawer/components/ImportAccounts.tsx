@@ -26,6 +26,7 @@ import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -179,6 +180,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const [queryEnabled, setQueryEnabled] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
+  const accountManagementPopover = useModal('manageAccounts')
 
   // reset component state when chainId changes
   useEffect(() => {
@@ -214,6 +216,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   })
 
   const supportsMultiAccount = useMemo(() => {
+    if (isDemoWallet) return false
     if (!wallet?.supportsBip44Accounts()) return false
     if (!accounts) return false
     if (!isMetaMaskMultichainWallet) return true
@@ -224,7 +227,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       wallet,
       isSnapInstalled: !!isSnapInstalled,
     })
-  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled])
+  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled, isDemoWallet])
 
   useEffect(() => {
     if (queryEnabled) return
@@ -280,9 +283,8 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
 
   const handleLoadMore = useCallback(() => {
     if (isFetching || isLoading || autoFetching) return
-    if (isDemoWallet) return walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     fetchNextPage()
-  }, [autoFetching, isFetching, isLoading, fetchNextPage, walletDispatch, isDemoWallet])
+  }, [autoFetching, isFetching, isLoading, fetchNextPage])
 
   const handleToggleAccountIds = useCallback((accountIds: AccountId[]) => {
     setToggledAccountIds(previousState => {
@@ -300,6 +302,13 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [])
 
   const handleDone = useCallback(async () => {
+    if (isDemoWallet) {
+      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      accountManagementPopover.close()
+      onClose()
+      return
+    }
+
     if (!accounts) {
       console.error('Missing accounts data')
       return
@@ -351,7 +360,16 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     setIsSubmitting(false)
 
     onClose()
-  }, [toggledAccountIds, accounts, dispatch, onClose, walletDeviceId])
+  }, [
+    toggledAccountIds,
+    accounts,
+    dispatch,
+    onClose,
+    walletDeviceId,
+    isDemoWallet,
+    walletDispatch,
+    accountManagementPopover,
+  ])
 
   const accountRows = useMemo(() => {
     if (!asset || !accounts) return null
@@ -397,7 +415,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
             _disabled={disabledProps}
           >
-            {translate('common.done')}
+            {isDemoWallet ? translate('common.connectWallet') : translate('common.done')}
           </Button>
         </>
       }

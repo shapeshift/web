@@ -1,79 +1,81 @@
+import { skipToken, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { useQuery } from 'wagmi/query'
 
 import type { EpochMetadata } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
-import { useEarnedQuery } from './useEarnedQuery'
+import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
 
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
   epochMetadata: EpochMetadata
 }
 
+/**
+ * Gets the rewards so far for the current epoch for a given account address.
+ */
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
   epochMetadata,
 }: UseCurrentEpochRewardsQueryProps) => {
-  const previousEpochEarnedQuery = useEarnedQuery({
-    stakingAssetAccountAddress,
-    blockNumber: epochMetadata.startBlockNumber,
+  const queryClient = useQueryClient()
+
+  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
+  const queryKey = useMemo(
+    () => [
+      'lifetimeRewards',
+      {
+        stakingAssetAccountAddress,
+      },
+    ],
+    [stakingAssetAccountAddress],
+  )
+
+  const queryFn = useMemo(
+    () =>
+      stakingAssetAccountAddress
+        ? async () => {
+            const [previousEpochEarned, currentEpochEarned] = await Promise.all([
+              queryClient.fetchQuery({
+                queryKey: getEarnedQueryKey({
+                  stakingAssetAccountAddress,
+                  blockNumber: epochMetadata.startBlockNumber - 1n,
+                }),
+                queryFn: getEarnedQueryFn({
+                  stakingAssetAccountAddress,
+                  blockNumber: epochMetadata.startBlockNumber - 1n,
+                }),
+              }),
+              queryClient.fetchQuery({
+                queryKey: getEarnedQueryKey({
+                  stakingAssetAccountAddress,
+                  blockNumber: undefined,
+                }),
+                queryFn: getEarnedQueryFn({
+                  stakingAssetAccountAddress,
+                  blockNumber: undefined,
+                }),
+              }),
+            ])
+
+            const epochEarningsForAccount =
+              (currentEpochEarned as bigint) - (previousEpochEarned as bigint)
+
+            const epochRewardRuneBaseUnit = calcEpochRewardForAccountRuneBaseUnit(
+              epochEarningsForAccount,
+              epochMetadata,
+            )
+
+            return epochRewardRuneBaseUnit
+          }
+        : skipToken,
+    [epochMetadata, queryClient, stakingAssetAccountAddress],
+  )
+
+  const epochEarnedHistoryQuery = useQuery({
+    queryKey,
+    queryFn,
   })
 
-  const currentEpochEarnedQuery = useEarnedQuery({
-    stakingAssetAccountAddress,
-    blockNumber: undefined, // Use the latest block
-  })
-
-  const isLoading = useMemo(() => {
-    return previousEpochEarnedQuery.isLoading || currentEpochEarnedQuery.isLoading
-  }, [previousEpochEarnedQuery.isLoading, currentEpochEarnedQuery.isLoading])
-
-  const isError = useMemo(() => {
-    return previousEpochEarnedQuery.isError || currentEpochEarnedQuery.isError
-  }, [previousEpochEarnedQuery.isError, currentEpochEarnedQuery.isError])
-
-  const currentEpochRewardForAccountRuneBaseUnit = useMemo(() => {
-    const previousEpochEarned = previousEpochEarnedQuery.data as bigint | undefined
-    const currentEpochEarned = currentEpochEarnedQuery.data as bigint | undefined
-
-    if (
-      isLoading ||
-      isError ||
-      previousEpochEarned === undefined ||
-      currentEpochEarned === undefined
-    ) {
-      return undefined
-    }
-
-    const epochEarningsForAccount = currentEpochEarned - previousEpochEarned
-
-    return calcEpochRewardForAccountRuneBaseUnit(epochEarningsForAccount, epochMetadata)
-  }, [
-    epochMetadata,
-    currentEpochEarnedQuery.data,
-    isError,
-    isLoading,
-    previousEpochEarnedQuery.data,
-  ])
-
-  if (isLoading) {
-    return {
-      isLoading,
-      error: null,
-      data: undefined,
-    }
-  }
-
-  if (isError) {
-    return {
-      isLoading: false,
-      error: previousEpochEarnedQuery.error || currentEpochEarnedQuery.error,
-      data: undefined,
-    }
-  }
-
-  return {
-    isLoading: false,
-    error: null,
-    data: currentEpochRewardForAccountRuneBaseUnit,
-  }
+  return epochEarnedHistoryQuery
 }

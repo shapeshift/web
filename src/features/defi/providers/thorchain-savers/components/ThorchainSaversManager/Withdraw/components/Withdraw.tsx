@@ -53,7 +53,7 @@ import { WithdrawContext } from '../WithdrawContext'
 
 type WithdrawProps = StepComponentProps & {
   accountId: AccountId | undefined
-  fromAddress: string | null
+  fromAddress: string | undefined
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
@@ -196,7 +196,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     // withdraw savers will use dust amount
     amountCryptoBaseUnit: null,
     memo: thorchainSaversWithdrawQuote?.memo ?? null,
-    fromAddress,
+    fromAddress: fromAddress ?? null,
     action: 'withdrawSavers',
   })
 

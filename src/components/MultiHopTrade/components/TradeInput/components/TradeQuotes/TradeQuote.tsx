@@ -71,12 +71,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
       assetId: buyAsset.assetId,
       swapperName,
-      enabled: true,
     })
     const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
       assetId: sellAsset.assetId,
       swapperName,
-      enabled: true,
     })
 
     const isTradingActive = Boolean(isTradingActiveOnBuyPool && isTradingActiveOnSellPool)

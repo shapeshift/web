@@ -165,7 +165,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
-  const [isSweepNeeded, setIsSweepNeeded] = useState<boolean | undefined>()
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
   const previousOpportunityId = usePrevious(activeOpportunityId)
@@ -551,7 +550,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
-    enabled: Boolean(poolAsset?.assetId),
     swapperName: SwapperName.Thorchain,
   })
 
@@ -710,26 +708,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return Boolean(
       poolAsset &&
         bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
-        hasEnoughPoolAssetBalanceForTxPlusFees &&
-        poolAssetTxFeeCryptoBaseUnit,
+        hasEnoughPoolAssetBalanceForTxPlusFees,
     )
-  }, [
-    poolAsset,
-    actualAssetDepositAmountCryptoPrecision,
-    hasEnoughPoolAssetBalanceForTxPlusFees,
-    poolAssetTxFeeCryptoBaseUnit,
-  ])
+  }, [poolAsset, actualAssetDepositAmountCryptoPrecision, hasEnoughPoolAssetBalanceForTxPlusFees])
 
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
-      address: poolAssetAccountAddress ?? null,
+      address: poolAssetAccountAddress,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
-      // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: isSweepNeededEnabled,
@@ -744,15 +735,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const {
-    data: _isSweepNeeded,
+    data: isSweepNeeded,
     isLoading: isSweepNeededLoading,
     isError: isSweepNeededError,
   } = useIsSweepNeededQuery(isSweepNeededArgs)
-
-  useEffect(() => {
-    if (_isSweepNeeded === undefined) return
-    setIsSweepNeeded(_isSweepNeeded)
-  }, [_isSweepNeeded])
 
   // Rune balance / gas data and checks
 

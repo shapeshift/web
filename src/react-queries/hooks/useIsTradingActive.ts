@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Result } from '@sniptt/monads'
-import { useQueries } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
@@ -11,43 +11,44 @@ import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 
 export const useIsTradingActive = ({
   assetId,
-  enabled,
+  enabled = true,
   swapperName,
 }: {
   assetId: AssetId | undefined
-  enabled: boolean
+  enabled?: boolean
   swapperName: SwapperName
 }) => {
-  const [
-    {
-      data: inboundAddressesData,
-      isLoading: isInboundAddressesDataLoading,
-      refetch: refetchInboundAddresses,
-    },
-    { data: mimir, isLoading: isMimirLoading, refetch: refetchMimir },
-  ] = useQueries({
-    queries: [
-      {
-        ...reactQueries.thornode.inboundAddresses(),
-        // Go stale instantly
-        staleTime: 0,
-        // Never store queries in cache since we always want fresh data
-        gcTime: 0,
-        ...(enabled
-          ? {
-              refetchInterval: 60_000,
-              refetchOnWindowFocus: true,
-              refetchOnMount: true,
-            }
-          : {}),
-        select: (data: Result<InboundAddressResponse[], SwapErrorRight>) =>
-          selectInboundAddressData(data, assetId),
-      },
-      {
-        ...reactQueries.thornode.mimir(),
-        staleTime: thorchainBlockTimeMs,
-      },
-    ],
+  const {
+    data: inboundAddressesData,
+    isLoading: isInboundAddressesDataLoading,
+    refetch: refetchInboundAddresses,
+  } = useQuery({
+    queryKey: reactQueries.thornode.inboundAddresses().queryKey,
+    queryFn: assetId ? reactQueries.thornode.inboundAddresses().queryFn : skipToken,
+    // Go stale instantly
+    staleTime: 0,
+    // Never store queries in cache since we always want fresh data
+    gcTime: 0,
+    ...(enabled && assetId
+      ? {
+          refetchInterval: 60_000,
+          refetchOnWindowFocus: true,
+          refetchOnMount: true,
+        }
+      : {}),
+    select: (data: Result<InboundAddressResponse[], SwapErrorRight>) =>
+      selectInboundAddressData(data, assetId),
+  })
+
+  const {
+    data: mimir,
+    isLoading: isMimirLoading,
+    refetch: refetchMimir,
+  } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    queryKey: reactQueries.thornode.mimir().queryKey,
+    queryFn: enabled && assetId ? reactQueries.thornode.mimir().queryFn : skipToken,
+    staleTime: thorchainBlockTimeMs,
   })
 
   const isTradingActive = useMemo(() => {
@@ -60,6 +61,8 @@ export const useIsTradingActive = ({
   }, [assetId, inboundAddressesData, mimir, swapperName])
 
   const refetch = useCallback(async () => {
+    if (!assetId) throw new Error('assetId is required')
+
     const { data: mimirResponse } = await refetchMimir()
     if (!mimirResponse) return false
 

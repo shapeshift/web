@@ -8,7 +8,7 @@ export const getSigHash = (inputData: string | undefined): string | undefined =>
 }
 
 export const txInteractsWithContract = (tx: { to: string }, contract: string) => {
-  return tx.to === contract
+  return tx.to.toLowerCase() === contract.toLowerCase()
 }
 
 export const getTxStatus = (tx: Tx) => {

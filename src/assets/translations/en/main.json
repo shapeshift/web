@@ -140,6 +140,7 @@
     "showLess": "Show Less",
     "yourBalance": "Your balance",
     "signTransaction": "Sign transaction",
+    "active": "Active",
     "halted": "Halted",
     "disabled": "Disabled",
     "staged": "Staged",
@@ -645,7 +646,6 @@
         "withdraw": "Withdraw",
         "unstakeRequest": "Unstake Request",
         "setRuneAddress": "Set Rune Address"
-
       },
       "weth": {
         "deposit": "Deposit",

@@ -12,7 +12,8 @@ import {
 } from '@chakra-ui/react'
 import { Tag, TagLeftIcon } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
+import { BiErrorCircle } from 'react-icons/bi'
 import { FaTwitter } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -75,6 +76,24 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
     [poolData?.totalBorrowers],
   )
 
+  const StatusTag = useCallback(() => {
+    if (poolData?.status === 'Available') {
+      return (
+        <Tag colorScheme='green'>
+          <TagLeftIcon as={CheckCircleIcon} />
+          {translate('common.active')}
+        </Tag>
+      )
+    }
+
+    return (
+      <Tag colorScheme='red'>
+        <TagLeftIcon as={BiErrorCircle} />
+        {translate('common.halted')}
+      </Tag>
+    )
+  }, [poolData?.status, translate])
+
   const renderVaultCap = useMemo(() => {
     if (!poolData || !asset) return null
 
@@ -133,10 +152,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
     <>
       <Flex gap={4} alignItems='center'>
         <Text translation='lending.poolInformation' fontWeight='medium' />
-        <Tag colorScheme='green'>
-          <TagLeftIcon as={CheckCircleIcon} />
-          {translate('lending.healthy')}
-        </Tag>
+        <StatusTag />
       </Flex>
       <Flex flexWrap='wrap' gap={4}>
         <DynamicComponent

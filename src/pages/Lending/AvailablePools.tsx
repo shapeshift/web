@@ -4,6 +4,7 @@ import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag, TagLeftIcon } from '@ch
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
+import { BiErrorCircle } from 'react-icons/bi'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useRouteMatch } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -52,6 +53,7 @@ type LendingPoolButtonProps = {
 const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
+  const translate = useTranslate()
 
   const { isLoading: isLendingPositionDataLoading } = useAllLendingPositionsData({
     assetId: asset.assetId,
@@ -67,18 +69,18 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
       return (
         <Tag colorScheme='green'>
           <TagLeftIcon as={CheckCircleIcon} />
-          Active
+          {translate('common.active')}
         </Tag>
       )
     }
 
     return (
-      <Tag colorScheme='green'>
-        <TagLeftIcon as={CheckCircleIcon} />
-        Halted
+      <Tag colorScheme='red'>
+        <TagLeftIcon as={BiErrorCircle} />
+        {translate('common.halted')}
       </Tag>
     )
-  }, [poolData?.status])
+  }, [poolData?.status, translate])
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)

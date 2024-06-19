@@ -4,9 +4,9 @@ import { useQuery } from 'wagmi/query'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import type { EpochMetadata } from '../types'
-import { affiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
+import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
 import {
-  blockNumberByTimestampQueryFn,
+  getBlockNumberByTimestampQueryFn,
   getBlockNumberByTimestampQueryKey,
 } from './useBlockNumberByTimestampQuery'
 
@@ -24,8 +24,8 @@ export const epochHistoryQueryFn = async (): Promise<EpochMetadata[]> => {
 
   // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
   let startBlockNumber = await queryClient.fetchQuery({
-    queryKey: getBlockNumberByTimestampQueryKey(startTimestamp),
-    queryFn: blockNumberByTimestampQueryFn,
+    queryKey: getBlockNumberByTimestampQueryKey({ targetTimestamp: startTimestamp }),
+    queryFn: getBlockNumberByTimestampQueryFn({ targetTimestamp: startTimestamp }),
   })
 
   const epochHistory = []
@@ -35,16 +35,16 @@ export const epochHistoryQueryFn = async (): Promise<EpochMetadata[]> => {
 
     // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
     const nextBlockNumber = await queryClient.fetchQuery({
-      queryKey: getBlockNumberByTimestampQueryKey(nextStartTimestamp),
-      queryFn: blockNumberByTimestampQueryFn,
+      queryKey: getBlockNumberByTimestampQueryKey({ targetTimestamp: nextStartTimestamp }),
+      queryFn: getBlockNumberByTimestampQueryFn({ targetTimestamp: nextStartTimestamp }),
     })
 
     const endTimestamp = nextStartTimestamp - 1n
 
     // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
     const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
-      queryKey: getAffiliateRevenueQueryKey(startTimestamp * 1000n, endTimestamp * 1000n),
-      queryFn: affiliateRevenueQueryFn,
+      queryKey: getAffiliateRevenueQueryKey({ startTimestamp, endTimestamp }),
+      queryFn: getAffiliateRevenueQueryFn({ startTimestamp, endTimestamp }),
     })
 
     const epochMetadata = {

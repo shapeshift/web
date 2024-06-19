@@ -6,7 +6,7 @@ import type { Address, ReadContractReturnType } from 'viem'
 import { getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import { type Config, serialize } from 'wagmi'
+import { type Config } from 'wagmi'
 import { type ReadContractQueryKey } from 'wagmi/query'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
@@ -35,14 +35,14 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
   const queryKey: GetUnstakingRequestCountQueryKey = useMemo(
     () => [
       'readContract',
-      serialize({
+      {
         address: RFOX_PROXY_CONTRACT_ADDRESS,
         functionName: 'getUnstakingRequestCount',
         args: [
           stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
         ],
         chainId: arbitrum.id,
-      }),
+      },
     ],
     [stakingAssetAccountAddress],
   )

@@ -105,12 +105,11 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isPending: isUnstakingRequestPending,
     isPaused: isUnstakingRequestPaused,
     isError: isUnstakingRequestError,
-    error,
+    isSuccess: isUnstakingRequestSuccess,
+    isEnabled: isUnstakingRequestEnabled,
     refetch: refetchUnstakingRequest,
     isRefetching: isUnstakingRequestRefetching,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
-
-  console.log({ error })
 
   useEffect(() => {
     // Refetch available claims whenever we re-open the Claim tab (this component)
@@ -121,12 +120,18 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const claimBody = useMemo(() => {
     if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={stakingAsset?.chainId} />
-    if (isUnstakingRequestLoading || isUnstakingRequestPending || isUnstakingRequestPaused)
+    if (
+      isUnstakingRequestLoading ||
+      isUnstakingRequestPending ||
+      isUnstakingRequestPaused ||
+      isUnstakingRequestRefetching ||
+      !isUnstakingRequestEnabled
+    )
       return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
-    if (isUnstakingRequestError || !unstakingRequestResponse.length)
+    if (isUnstakingRequestError || (isUnstakingRequestSuccess && !unstakingRequestResponse.length))
       return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
 
-    return unstakingRequestResponse.map((unstakingRequest, index) => {
+    return unstakingRequestResponse?.map((unstakingRequest, index) => {
       const amountCryptoPrecision = fromBaseUnit(
         unstakingRequest.unstakingBalance.toString() ?? '',
         stakingAsset?.precision ?? 0,
@@ -157,7 +162,10 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isUnstakingRequestLoading,
     isUnstakingRequestPending,
     isUnstakingRequestPaused,
+    isUnstakingRequestRefetching,
+    isUnstakingRequestEnabled,
     isUnstakingRequestError,
+    isUnstakingRequestSuccess,
     unstakingRequestResponse,
     setStepIndex,
     stakingAssetId,
@@ -169,11 +177,9 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     <SlideTransition>
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
-        <Skeleton isLoaded={!isUnstakingRequestLoading && !isUnstakingRequestRefetching}>
-          <Flex flexDir='column' gap={4}>
-            {claimBody}
-          </Flex>
-        </Skeleton>
+        <Flex flexDir='column' gap={4}>
+          {claimBody}
+        </Flex>
       </CardBody>
     </SlideTransition>
   )

@@ -24,7 +24,8 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     isPaused: isTimeInPoolHumanPaused,
   } = useTimeInPoolQuery({
     stakingAssetAccountAddress,
-    select: timeInPoolSeconds => formatSecondsToDuration(Number(timeInPoolSeconds)),
+    select: timeInPoolSeconds =>
+      timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
   return (

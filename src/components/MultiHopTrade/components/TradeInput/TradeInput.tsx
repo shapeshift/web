@@ -184,8 +184,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       case !!quoteResponseError:
         return getQuoteRequestErrorTranslation(quoteResponseError)
       case !!tradeQuoteError:
-        // this should never occur because users shouldn't be able to select an errored quote
-        // but just in case
         return getQuoteErrorTranslation(tradeQuoteError!)
       case !isConnected || isDemoWallet:
         // We got a happy path quote, but we may still be in the context of the demo wallet

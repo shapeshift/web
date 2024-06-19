@@ -7,7 +7,7 @@ import { getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import type { Config } from 'wagmi'
-import { type ReadContractQueryKey } from 'wagmi/query'
+import type { ReadContractQueryKey } from 'wagmi/query'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
 type GetUnstakingRequestCountQueryKey = ReadContractQueryKey<

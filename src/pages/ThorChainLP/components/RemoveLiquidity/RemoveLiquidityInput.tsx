@@ -143,16 +143,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [virtualRuneWithdrawAmountFiatUserCurrency, setVirtualRuneWithdrawAmountFiatUserCurrency] =
     useState<string | undefined>()
 
-  const { data: pool } = usePool(poolAssetId)
   const { data: userLpData } = useUserLpData({ assetId })
 
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
-  const poolAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, assetId),
-  )
+
   const poolAssetFeeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const poolAssetFeeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, poolAssetFeeAsset?.assetId ?? ''),
@@ -518,47 +515,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     )
   }, [backIcon, handleBackClick, headerComponent, translate])
 
-  const runePerAsset = useMemo(() => pool?.assetPrice, [pool])
-
-  const createHandleRemoveLiquidityInputChange = useCallback(
-    (marketData: MarketData, isRune: boolean) => {
-      return (value: string, isFiat?: boolean) => {
-        if (!poolAsset || !marketData) return
-
-        const amountCryptoPrecision = (() => {
-          if (!isFiat) return value
-          return bnOrZero(value)
-            .div(bn(marketData.price ?? '0'))
-            .toFixed()
-        })()
-
-        const amountFiatUserCurrency = (() => {
-          if (isFiat) return value
-          return bnOrZero(value)
-            .times(bn(marketData.price ?? '0'))
-            .toFixed()
-        })()
-
-        if (isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
-          setVirtualRuneWithdrawAmountCryptoPrecision(amountCryptoPrecision)
-          setVirtualRuneWithdrawAmountFiatUserCurrency(amountFiatUserCurrency)
-          setVirtualAssetWithdrawAmountFiatUserCurrency(amountFiatUserCurrency)
-          setVirtualAssetWithdrawAmountCryptoPrecision(
-            bnOrZero(amountCryptoPrecision).div(bnOrZero(runePerAsset)).toFixed(),
-          )
-        } else if (!isRune && bnOrZero(runePerAsset).isGreaterThan(0)) {
-          setVirtualAssetWithdrawAmountCryptoPrecision(amountCryptoPrecision)
-          setVirtualAssetWithdrawAmountFiatUserCurrency(amountFiatUserCurrency)
-          setVirtualRuneWithdrawAmountFiatUserCurrency(amountFiatUserCurrency)
-          setVirtualRuneWithdrawAmountCryptoPrecision(
-            bnOrZero(amountCryptoPrecision).times(bnOrZero(runePerAsset)).toFixed(),
-          )
-        }
-      }
-    },
-    [poolAsset, runePerAsset],
-  )
-
   useEffect(() => {
     ;(async () => {
       if (!position) return
@@ -720,11 +676,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       <Stack divider={pairDivider} spacing={0}>
         {assets.map(asset => {
           const isRune = asset.assetId === runeAsset.assetId
-          const marketData = isRune ? runeMarketData : poolAssetMarketData
-          const handleRemoveLiquidityInputChange = createHandleRemoveLiquidityInputChange(
-            marketData,
-            isRune,
-          )
+
           const cryptoAmount = bnOrZero(
             isRune
               ? virtualRuneWithdrawAmountCryptoPrecision
@@ -760,7 +712,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               key={asset.assetId}
               accountId={accountId}
               cryptoAmount={cryptoAmount}
-              onChange={handleRemoveLiquidityInputChange}
+              // onChange={handleRemoveLiquidityInputChange}
               fiatAmount={fiatAmount}
               showFiatAmount
               assetId={asset.assetId}
@@ -780,9 +732,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     poolAsset,
     runeAsset,
     pairDivider,
-    runeMarketData,
-    poolAssetMarketData,
-    createHandleRemoveLiquidityInputChange,
     virtualRuneWithdrawAmountCryptoPrecision,
     virtualAssetWithdrawAmountCryptoPrecision,
     virtualRuneWithdrawAmountFiatUserCurrency,

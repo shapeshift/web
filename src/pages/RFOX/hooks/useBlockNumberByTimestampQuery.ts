@@ -39,7 +39,6 @@ export const blockNumberByTimestampQueryFn = async ({
 export const useBlockNumberByTimestampQuery = ({
   targetTimestamp,
 }: UseBlockNumberByTimestampQueryProps) => {
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey: BlockNumberByTimestampQueryKey = useMemo(
     () => getBlockNumberByTimestampQueryKey(targetTimestamp),
     [targetTimestamp],

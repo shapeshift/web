@@ -47,7 +47,6 @@ export const useAffiliateRevenueQuery = ({
   startTimestamp,
   endTimestamp,
 }: UseAffiliateRevenueQueryProps) => {
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey: AffiliateRevenueQueryKey = useMemo(
     () => getAffiliateRevenueQueryKey(startTimestamp, endTimestamp),
     [startTimestamp, endTimestamp],

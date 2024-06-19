@@ -19,8 +19,10 @@ export const getQuoteErrorTranslation = (
       case SwapperTradeQuoteError.TradingHalted:
         return 'trade.errors.tradingNotActiveNoAssetSymbol'
       case TradeQuoteValidationError.TradingInactiveOnSellChain:
+      case SwapperTradeQuoteError.TradingInactiveOnSellChain:
         return 'trade.errors.tradingNotActiveForChain'
       case TradeQuoteValidationError.TradingInactiveOnBuyChain:
+      case SwapperTradeQuoteError.TradingInactiveOnBuyChain:
         return 'trade.errors.tradingNotActiveForChain'
       case TradeQuoteValidationError.SellAmountBelowTradeFee:
       case SwapperTradeQuoteError.SellAmountBelowTradeFee:

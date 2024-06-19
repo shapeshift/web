@@ -2,6 +2,7 @@ import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
+import noop from 'lodash/noop'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
@@ -75,6 +76,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
           actionDescription={translate('RFOX.unstakeFrom', {
             assetSymbol: stakingAsset.symbol,
           })}
+          onClaimButtonClick={noop}
         />
       )
     })

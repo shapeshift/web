@@ -8,6 +8,7 @@ import {
 import dayjs from 'dayjs'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -20,7 +21,7 @@ import { useAppSelector } from 'state/store'
 
 import { ClaimRow } from './ClaimRow'
 import type { RfoxClaimQuote } from './types'
-import { type ClaimRouteProps, ClaimStatus } from './types'
+import { ClaimRoutePaths, type ClaimRouteProps, ClaimStatus } from './types'
 
 type ClaimSelectProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
@@ -84,6 +85,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
+  const history = useHistory()
   const stakingAssetId = foxOnArbitrumOneAssetId
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -112,6 +114,8 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     refetchUnstakingRequest()
   }, [refetchUnstakingRequest])
 
+  const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
+
   const claimBody = useMemo(() => {
     if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={stakingAsset?.chainId} />
     if (isUnstakingRequestLoading || isUnstakingRequestPending || isUnstakingRequestPaused)
@@ -139,6 +143,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={index}
+          onClaimClick={handleClaimClick}
         />
       )
     })
@@ -154,6 +159,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     setStepIndex,
     stakingAssetId,
     setConfirmedQuote,
+    handleClaimClick,
   ])
 
   return (

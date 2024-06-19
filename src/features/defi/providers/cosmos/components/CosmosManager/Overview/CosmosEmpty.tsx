@@ -1,4 +1,4 @@
-import { Button, Skeleton, Stack, Text as CText, VStack } from '@chakra-ui/react'
+import { Button, Skeleton, Stack, VStack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
@@ -41,11 +41,9 @@ export const CosmosEmpty = ({ assets, apy, onStakeClick, onLearnMoreClick }: Cos
       <EmptyOverview assets={assets} footer={emptyOverviewFooter}>
         <Stack direction='row' spacing={1} justifyContent='center' mb={4}>
           <Text translation={getStartedHeaderTranslation} />
-          <CText color='green.500'>
-            <Skeleton isLoaded={Boolean(apy)}>
-              <Amount.Percent value={apy ?? ''} suffix='APR' />
-            </Skeleton>
-          </CText>
+          <Skeleton isLoaded={Boolean(apy)}>
+            <Amount.Percent color='green.500' value={apy ?? ''} suffix='APR' />
+          </Skeleton>
         </Stack>
         <Text color='text.subtle' translation='defi.modals.getStarted.body' />
         <Text color='text.subtle' translation='defi.modals.getStarted.userProtectionInfo' />

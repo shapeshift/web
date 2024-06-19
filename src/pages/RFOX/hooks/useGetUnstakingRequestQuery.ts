@@ -73,8 +73,14 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
   )
 
   const getUnstakingRequestQueryFn = useMemo(() => {
+    // Unstaking request count is actually loading/pending, fine not to fire a *query* for unstaking request here just yet and skipToken
+    // this query will be in pending state, which is correct.
     if (isUnstakingRequestCountLoading || isUnstakingRequestCountPending) return skipToken
+    // We have an error in unstaking request count- no point to fire a query for unstaking request, but we can't simply skipToken either - else this query would be in a perma-pending state
+    // until staleTime/gcTime elapses on the dependant query. Propagates the error instead.
     if (isUnstakingRequestCountError) return () => Promise.reject(unstakingRequestCountError)
+    // We have a successful response for unstaking request count, but it's a 0-count.
+    // We don't need to fire an *XHR* as we already know what the response would be (an empty array), but still need to fire a *query*, resolving immediately with said known response.
     if (unstakingRequestCountResponse === 0n) return () => Promise.resolve([])
 
     return () =>

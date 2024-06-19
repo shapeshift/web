@@ -1,7 +1,6 @@
 import type { BoxProps, StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
 import {
   Box,
-  Skeleton,
   SkeletonCircle,
   SkeletonText,
   Spacer,
@@ -13,11 +12,9 @@ import {
   Tag,
   useStyleConfig,
 } from '@chakra-ui/react'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { useMemo } from 'react'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { useWallet } from 'hooks/useWallet/useWallet'
+import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 const width = { width: '100%' }
 
@@ -35,23 +32,15 @@ export type StepperStepProps = {
 }
 
 const LastStepTag = () => {
-  const wallet = useWallet().state.wallet
-  const useReceiveAddressArgs = useMemo(
-    () => ({
-      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-    }),
-    [wallet],
-  )
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const receiveAddress = activeQuote?.receiveAddress
 
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+  if (!receiveAddress) return null
 
   return (
-    <Skeleton isLoaded={!!receiveAddress}>
-      <Tag size='md' colorScheme='blue'>
-        <MiddleEllipsis value={receiveAddress ?? ''} />
-      </Tag>
-    </Skeleton>
+    <Tag size='md' colorScheme='blue'>
+      <MiddleEllipsis value={receiveAddress} />
+    </Tag>
   )
 }
 export const StepperStep = ({

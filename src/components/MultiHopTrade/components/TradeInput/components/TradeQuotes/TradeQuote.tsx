@@ -68,16 +68,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const sellAsset = useAppSelector(selectInputSellAsset)
-    const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
-      assetId: buyAsset.assetId,
-      swapperName,
-    })
-    const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
-      assetId: sellAsset.assetId,
-      swapperName,
-    })
-
-    const isTradingActive = Boolean(isTradingActiveOnBuyPool && isTradingActiveOnSellPool)
 
     const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
@@ -332,7 +322,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         bodyContent={bodyContent}
         onClick={handleQuoteSelection}
         isActive={isActive}
-        isActionable={isTradingActive && hasAmountWithPositiveReceive && errors.length === 0}
+        isActionable={hasAmountWithPositiveReceive && errors.length === 0}
         isDisabled={isDisabled}
       />
     ) : null

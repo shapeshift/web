@@ -32,9 +32,9 @@ export const useLifetimeRewardsQuery = ({
     () =>
       stakingAssetAccountAddress
         ? async () => {
-            const { data: epochHistory } = await queryClient.fetchQuery({
+            const epochHistory = await queryClient.fetchQuery({
               queryKey: getEpochHistoryQueryKey(),
-              queryFn: getEpochHistoryQueryFn(),
+              queryFn: getEpochHistoryQueryFn(queryClient),
             })
 
             const earnedByEpoch = await Promise.all(

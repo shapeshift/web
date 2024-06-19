@@ -5,7 +5,6 @@ import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swappe
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'

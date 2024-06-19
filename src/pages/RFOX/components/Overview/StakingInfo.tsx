@@ -1,13 +1,31 @@
 import { Box, SimpleGrid } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
+import { formatSecondsToDuration } from 'lib/utils/time'
+import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
 
 import { StakingInfoItem } from './StakingInfoItem'
 
 const gridColumns = { base: 1, md: 2 }
 
-export const StakingInfo: React.FC = () => {
-  const assetId = thorchainAssetId
+type StakingInfoProps = {
+  stakingAssetId: AssetId
+  stakingAssetAccountAddress: string | undefined
+}
+
+export const StakingInfo: React.FC<StakingInfoProps> = ({
+  stakingAssetAccountAddress,
+  stakingAssetId,
+}) => {
+  const {
+    data: timeInPoolHuman,
+    isLoading: isTimeInPoolHumanLoading,
+    isPending: isTimeInPoolHumanPending,
+    isPaused: isTimeInPoolHumanPaused,
+  } = useTimeInPoolQuery({
+    stakingAssetAccountAddress,
+    select: timeInPoolSeconds => formatSecondsToDuration(Number(timeInPoolSeconds)),
+  })
 
   return (
     <Box>
@@ -17,25 +35,31 @@ export const StakingInfo: React.FC = () => {
         <StakingInfoItem
           informationDescription='RFOX.myRewardBalance'
           helperTranslation='RFOX.myRewardBalanceHelper'
-          assetId={assetId}
+          assetId={stakingAssetId}
           amountCryptoBaseUnit='100000000000'
+          isLoading={false}
         />
         <StakingInfoItem
           informationDescription='RFOX.pendingRewardsBalance'
           helperTranslation='RFOX.pendingRewardsBalanceHelper'
-          assetId={assetId}
+          assetId={stakingAssetId}
           amountCryptoBaseUnit='100000000000'
+          isLoading={false}
         />
         <StakingInfoItem
           informationDescription='RFOX.lifetimeRewards'
           helperTranslation='RFOX.lifetimeRewardsHelper'
-          assetId={assetId}
+          assetId={stakingAssetId}
           amountCryptoBaseUnit='100000000000'
+          isLoading={false}
         />
         <StakingInfoItem
           informationDescription='RFOX.timeInPool'
           helperTranslation='RFOX.timeInPoolHelper'
-          value='30 days'
+          value={timeInPoolHuman}
+          isLoading={
+            isTimeInPoolHumanLoading || isTimeInPoolHumanPaused || isTimeInPoolHumanPending
+          }
         />
       </SimpleGrid>
     </Box>

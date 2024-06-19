@@ -1,23 +1,24 @@
-import { skipToken } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { getAbiItem, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { useQuery } from 'wagmi/query'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
 const client = viemClientByNetworkId[arbitrum.id]
 
-type UseTimeInPoolProps = {
+type UseTimeInPoolProps<SelectData = bigint> = {
   stakingAssetAccountAddress: string | undefined
+  select?: (timeInPoolSeconds: bigint) => SelectData
 }
 
+export const RFOX_CONTRACT_CREATION_BLOCK_NUMBER = 222913582n
 /**
  * Calculates the time the account has most recently had a non-zero staking balance to now, in seconds
  */
-const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string) => {
+const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string): Promise<bigint> => {
   const stakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Stake' })
   const unstakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Unstake' })
 
@@ -25,6 +26,7 @@ const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string) => {
     client.createEventFilter({
       address: RFOX_PROXY_CONTRACT_ADDRESS,
       event: stakeEvent,
+      fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
       args: {
         account: getAddress(stakingAssetAccountAddress),
       },
@@ -32,6 +34,7 @@ const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string) => {
     client.createEventFilter({
       address: RFOX_PROXY_CONTRACT_ADDRESS,
       event: unstakeEvent,
+      fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
       args: {
         account: getAddress(stakingAssetAccountAddress),
       },
@@ -85,10 +88,13 @@ const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string) => {
   const now = dayjs().unix()
 
   // Return the time the account has most recently had a non-zero staking balance to now
-  return now - Number(earliestNonZeroStakingBalanceTimestamp)
+  return BigInt(now) - BigInt(earliestNonZeroStakingBalanceTimestamp)
 }
 
-export const useTimeInPoolQuery = ({ stakingAssetAccountAddress }: UseTimeInPoolProps) => {
+export const useTimeInPoolQuery = <SelectData = bigint>({
+  stakingAssetAccountAddress,
+  select,
+}: UseTimeInPoolProps<SelectData>) => {
   const queryKey = useMemo(
     () => ['timeInPool', stakingAssetAccountAddress],
     [stakingAssetAccountAddress],
@@ -104,6 +110,7 @@ export const useTimeInPoolQuery = ({ stakingAssetAccountAddress }: UseTimeInPool
   const timeInPoolQuery = useQuery({
     queryKey,
     queryFn,
+    select,
   })
 
   return timeInPoolQuery

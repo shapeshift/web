@@ -29,7 +29,7 @@ import {
 import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectSelectedLocale,
 } from 'state/slices/selectors'
@@ -68,7 +68,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     [assetId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
 
   const translate = useTranslate()

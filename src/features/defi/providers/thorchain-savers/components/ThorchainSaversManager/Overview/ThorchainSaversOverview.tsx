@@ -53,7 +53,7 @@ import {
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectOpportunitiesApiQueriesByFilter,
   selectStakingOpportunityByFilter,
@@ -113,7 +113,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     [opportunityId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const maybeAccountId = useMemo(

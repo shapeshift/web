@@ -49,7 +49,6 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   actionDescription,
 }) => {
   const translate = useTranslate()
-
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))

@@ -24,10 +24,10 @@ const queryKey = ['lendingSupportedAssets']
 
 export const useLendingSupportedAssets = ({
   type,
-  statusFilter = 'Available',
+  statusFilter = ['Available'],
 }: {
   type: 'collateral' | 'borrow'
-  statusFilter?: string
+  statusFilter?: string[]
 }) => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
@@ -37,7 +37,9 @@ export const useLendingSupportedAssets = ({
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // Infinity staleTime as we handle halted state JIT
     staleTime: Infinity,
-    select: pools => pools.filter(pool => pool.status === statusFilter),
+    select: statusFilter.length
+      ? pools => pools.filter(pool => statusFilter.includes(pool.status))
+      : undefined,
   })
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)

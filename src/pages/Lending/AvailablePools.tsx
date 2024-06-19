@@ -62,6 +62,24 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
     [isLendingPositionDataLoading, isPoolDataLoading],
   )
 
+  const StatusTag = useCallback(() => {
+    if (poolData?.status === 'Available') {
+      return (
+        <Tag colorScheme='green'>
+          <TagLeftIcon as={CheckCircleIcon} />
+          Active
+        </Tag>
+      )
+    }
+
+    return (
+      <Tag colorScheme='green'>
+        <TagLeftIcon as={CheckCircleIcon} />
+        Halted
+      </Tag>
+    )
+  }, [poolData?.status])
+
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)
   }, [asset.assetId, onPoolClick])
@@ -82,10 +100,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
       <AssetCell assetId={asset.assetId} />
       <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
         <Flex>
-          <Tag colorScheme='green'>
-            <TagLeftIcon as={CheckCircleIcon} />
-            Healthy
-          </Tag>
+          <StatusTag />
         </Flex>
       </Skeleton>
       <Skeleton isLoaded={isLoaded}>
@@ -118,7 +133,10 @@ export const AvailablePools = () => {
     [history, path],
   )
   const headerComponent = useMemo(() => <LendingHeader />, [])
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({
+    type: 'collateral',
+    statusFilter: [],
+  })
 
   const lendingRows = useMemo(() => {
     if (!lendingSupportedAssets)

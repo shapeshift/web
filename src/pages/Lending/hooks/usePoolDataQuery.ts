@@ -76,6 +76,8 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
         collateralizationRatioPercentDecimal,
         tvl,
         maxSupplyFiat,
+        // status: poolInfo.status,
+        status: 'Halted',
       }
     },
     enabled: true,

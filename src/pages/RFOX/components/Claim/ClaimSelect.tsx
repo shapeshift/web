@@ -105,9 +105,12 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isPending: isUnstakingRequestPending,
     isPaused: isUnstakingRequestPaused,
     isError: isUnstakingRequestError,
+    error,
     refetch: refetchUnstakingRequest,
     isRefetching: isUnstakingRequestRefetching,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
+
+  console.log({ error })
 
   useEffect(() => {
     // Refetch available claims whenever we re-open the Claim tab (this component)

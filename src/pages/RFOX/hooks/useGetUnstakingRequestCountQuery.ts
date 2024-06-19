@@ -1,4 +1,4 @@
-import { skipToken } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
@@ -6,8 +6,8 @@ import type { Address, ReadContractReturnType } from 'viem'
 import { getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import type { Config } from 'wagmi'
-import { type ReadContractQueryKey, useQuery } from 'wagmi/query'
+import { type Config, serialize } from 'wagmi'
+import { type ReadContractQueryKey } from 'wagmi/query'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
 type GetUnstakingRequestCountQueryKey = ReadContractQueryKey<
@@ -35,14 +35,14 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
   const queryKey: GetUnstakingRequestCountQueryKey = useMemo(
     () => [
       'readContract',
-      {
+      serialize({
         address: RFOX_PROXY_CONTRACT_ADDRESS,
         functionName: 'getUnstakingRequestCount',
         args: [
           stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
         ],
         chainId: arbitrum.id,
-      },
+      }),
     ],
     [stakingAssetAccountAddress],
   )

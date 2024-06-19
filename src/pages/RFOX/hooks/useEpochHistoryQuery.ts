@@ -2,9 +2,7 @@ import type { QueryClient } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import { arbitrum } from 'viem/chains'
 import { useQuery } from 'wagmi/query'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 import type { EpochMetadata } from '../types'
 import { affiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
@@ -16,8 +14,6 @@ import {
 type EpochHistoryQueryKey = ['epochHistory']
 
 const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
-
-const client = viemClientByNetworkId[arbitrum.id]
 
 // The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.
 // Instead we will rely on staleTime to refetch at a sensible interval.
@@ -45,25 +41,19 @@ export const getEpochHistoryQueryFn =
         queryFn: blockNumberByTimestampQueryFn,
       })
 
-      const endBlockNumber = nextBlockNumber - 1n
-
-      // fetch the blocks to get the *ackchyual* block timestamps
-      const [startBlock, endBlock] = await Promise.all([
-        client.getBlock({ blockNumber: startBlockNumber }),
-        client.getBlock({ blockNumber: endBlockNumber }),
-      ])
+      const endTimestamp = nextStartTimestamp - 1n
 
       // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
       const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
-        queryKey: getAffiliateRevenueQueryKey(startBlock.timestamp, endBlock.timestamp),
+        queryKey: getAffiliateRevenueQueryKey(startTimestamp * 1000n, endTimestamp * 1000n),
         queryFn: affiliateRevenueQueryFn,
       })
 
       const epochMetadata = {
         startBlockNumber,
-        endBlockNumber,
-        startTimestamp: startBlock.timestamp,
-        endTimestamp: endBlock.timestamp,
+        endBlockNumber: nextBlockNumber - 1n,
+        startTimestamp,
+        endTimestamp,
         distributionAmountRuneBaseUnit,
       }
 

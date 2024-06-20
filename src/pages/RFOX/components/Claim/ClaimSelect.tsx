@@ -105,7 +105,6 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isPending: isUnstakingRequestPending,
     isPaused: isUnstakingRequestPaused,
     isError: isUnstakingRequestError,
-    isSuccess: isUnstakingRequestSuccess,
     isRefetching: isUnstakingRequestRefetching,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
 
@@ -120,7 +119,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       isUnstakingRequestRefetching
     )
       return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
-    if (isUnstakingRequestError || (isUnstakingRequestSuccess && !unstakingRequestResponse.length))
+    if (isUnstakingRequestError || !unstakingRequestResponse.length)
       return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
     return unstakingRequestResponse.map((unstakingRequest, index) => {
       const amountCryptoPrecision = fromBaseUnit(
@@ -155,7 +154,6 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isUnstakingRequestPaused,
     isUnstakingRequestRefetching,
     isUnstakingRequestError,
-    isUnstakingRequestSuccess,
     unstakingRequestResponse,
     setStepIndex,
     stakingAssetId,

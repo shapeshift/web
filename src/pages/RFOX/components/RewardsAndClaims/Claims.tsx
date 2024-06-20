@@ -36,13 +36,19 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     isLoading: isUnstakingRequestLoading,
     isPending: isUnstakingRequestPending,
     isPaused: isUnstakingRequestPaused,
+    isRefetching: isUnstakingRequestRefetching,
     isSuccess: isUnstakingRequestSuccess,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
     if (!stakingAsset) return null
 
-    if (isUnstakingRequestLoading || isUnstakingRequestPending || isUnstakingRequestPaused)
+    if (
+      isUnstakingRequestLoading ||
+      isUnstakingRequestPending ||
+      isUnstakingRequestPaused ||
+      isUnstakingRequestRefetching
+    )
       return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
 
     if (!isUnstakingRequestSuccess) {
@@ -84,6 +90,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     isUnstakingRequestLoading,
     isUnstakingRequestPaused,
     isUnstakingRequestPending,
+    isUnstakingRequestRefetching,
     isUnstakingRequestSuccess,
     setConfirmedQuote,
     stakingAsset,

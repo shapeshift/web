@@ -11208,8 +11208,7 @@ __metadata:
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@sniptt/monads": ^0.5.10
-    "@tanstack/query-core": ^5.45.0
-    "@tanstack/react-query": ^5.45.0
+    "@tanstack/react-query": ^5.40.1
     "@testing-library/react": ^13.3.0
     "@types/bignumber.js": ^5.0.0
     "@types/bip21": ^2.0.0
@@ -11929,7 +11928,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.45.0, @tanstack/query-core@npm:^5.45.0":
+"@tanstack/query-core@npm:5.45.0":
   version: 5.45.0
   resolution: "@tanstack/query-core@npm:5.45.0"
   checksum: a3c13d90cfa12955d22fa754ebfddbea70081fc0128111083269bdd78ed0d25678f050007b753164a929a00fdef9ee5ebba945deb8e360120ae3cbae06e655a5
@@ -11984,7 +11983,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.45.0":
+"@tanstack/react-query@npm:^5.40.1":
   version: 5.45.1
   resolution: "@tanstack/react-query@npm:5.45.1"
   dependencies:

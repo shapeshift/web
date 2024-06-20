@@ -6,7 +6,7 @@ import {
   fromAccountId,
 } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { type FC, useCallback, useEffect, useMemo } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
@@ -105,20 +105,19 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isPending: isUnstakingRequestPending,
     isPaused: isUnstakingRequestPaused,
     isError: isUnstakingRequestError,
-    refetch: refetchUnstakingRequest,
     isRefetching: isUnstakingRequestRefetching,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
-
-  useEffect(() => {
-    // Refetch available claims whenever we re-open the Claim tab (this component)
-    refetchUnstakingRequest()
-  }, [refetchUnstakingRequest])
 
   const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
 
   const claimBody = useMemo(() => {
     if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={stakingAsset?.chainId} />
-    if (isUnstakingRequestLoading || isUnstakingRequestPending || isUnstakingRequestPaused)
+    if (
+      isUnstakingRequestLoading ||
+      isUnstakingRequestPending ||
+      isUnstakingRequestPaused ||
+      isUnstakingRequestRefetching
+    )
       return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
     if (isUnstakingRequestError || !unstakingRequestResponse.length)
       return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
@@ -154,6 +153,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isUnstakingRequestLoading,
     isUnstakingRequestPending,
     isUnstakingRequestPaused,
+    isUnstakingRequestRefetching,
     isUnstakingRequestError,
     unstakingRequestResponse,
     setStepIndex,
@@ -166,11 +166,9 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     <SlideTransition>
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
-        <Skeleton isLoaded={!isUnstakingRequestLoading && !isUnstakingRequestRefetching}>
-          <Flex flexDir='column' gap={4}>
-            {claimBody}
-          </Flex>
-        </Skeleton>
+        <Flex flexDir='column' gap={4}>
+          {claimBody}
+        </Flex>
       </CardBody>
     </SlideTransition>
   )

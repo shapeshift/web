@@ -1,7 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { useQuery } from 'wagmi/query'
 
 type AffiliateRevenueQueryKey = [
   'affiliateRevenue',

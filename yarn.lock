@@ -37988,7 +37988,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"wagmi@npm:^0.10.12":
+"wagmi@npm:^0.10.1":
   version: 0.10.15
   resolution: "wagmi@npm:0.10.15"
   dependencies:

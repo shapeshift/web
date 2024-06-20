@@ -20,7 +20,6 @@ export const useCurrentEpochRewardsQuery = ({
 }: UseCurrentEpochRewardsQueryProps) => {
   const queryClient = useQueryClient()
 
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey = useMemo(
     () => [
       'lifetimeRewards',

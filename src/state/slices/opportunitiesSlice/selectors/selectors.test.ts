@@ -23,7 +23,7 @@ import { initialState } from '../opportunitiesSlice'
 import {
   selectAggregatedUserStakingOpportunityByStakingId,
   selectHighestBalanceAccountIdByLpId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from '../selectors'
 import { serializeUserStakingId } from '../utils'
@@ -132,7 +132,7 @@ describe('opportunitiesSlice selectors', () => {
     }
     describe('selectHighestBalanceLpUserStakingIdByStakingId', () => {
       it('can get the highest balance AccountId for a given StakingId', () => {
-        const result = selectHighestBalanceAccountIdByStakingId(mockState, {
+        const result = selectHighestStakingBalanceAccountIdByStakingId(mockState, {
           stakingId: mockStakingContractOne,
         })
 

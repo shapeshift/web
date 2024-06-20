@@ -761,6 +761,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               accountId={accountId}
               cryptoAmount={cryptoAmount}
               onChange={handleRemoveLiquidityInputChange}
+              revalidateOnValueChange={false}
               fiatAmount={fiatAmount}
               showFiatAmount
               assetId={asset.assetId}

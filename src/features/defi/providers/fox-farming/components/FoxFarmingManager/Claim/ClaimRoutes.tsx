@@ -18,7 +18,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectAssets,
   selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectUserStakingOpportunityByUserStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -88,7 +88,7 @@ export const ClaimRoutes = ({
     [opportunityId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const maybeAccountId = useMemo(

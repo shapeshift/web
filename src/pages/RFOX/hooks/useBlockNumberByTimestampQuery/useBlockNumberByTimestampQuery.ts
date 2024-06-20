@@ -1,86 +1,96 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { arbitrum } from 'viem/chains'
+import { sleep } from 'lib/poll/poll'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
 type BlockNumberByTimestampQueryKey = ['blockNumberByTimestamp', { targetTimestamp: bigint }]
 
 /**
- * @param targetTimestamp The target timestamp in seconds - not required to be an actual block timestamp
+ * @param targetTimestamp The target timestamp in seconds - not an actual block timestamp
  */
-type UseBlockNumberByTimestampQueryProps = {
+type UseEarliestBlockNumberByTimestampQueryProps = {
   targetTimestamp: bigint
 }
 
-const AVERAGE_BLOCK_TIME_BLOCKS = 1000n
+const AVERAGE_BLOCK_TIME_BLOCK_DISTANCE = 10_000
 
 const client = viemClientByNetworkId[arbitrum.id]
 
-export const getBlockNumberByTimestampQueryKey = ({
+const calcNumberBlocksToMove = (timeDifferenceSeconds: bigint, averageBlockTimeSeconds: number) => {
+  const blocksToMove = BigInt(Math.ceil(Number(timeDifferenceSeconds) / averageBlockTimeSeconds))
+
+  return blocksToMove
+}
+
+export const getEarliestBlockNumberByTimestampQueryKey = ({
   targetTimestamp,
-}: UseBlockNumberByTimestampQueryProps): BlockNumberByTimestampQueryKey => [
+}: UseEarliestBlockNumberByTimestampQueryProps): BlockNumberByTimestampQueryKey => [
   'blockNumberByTimestamp',
   { targetTimestamp },
 ]
 
-export const getBlockNumberByTimestampQueryFn =
-  ({ targetTimestamp }: UseBlockNumberByTimestampQueryProps) =>
+export const getEarliestBlockNumberByTimestampQueryFn =
+  ({
+    targetTimestamp,
+    averageBlockTimeBlockDistance = AVERAGE_BLOCK_TIME_BLOCK_DISTANCE,
+  }: UseEarliestBlockNumberByTimestampQueryProps & { averageBlockTimeBlockDistance?: number }) =>
   async () => {
     const latestBlock = await client.getBlock()
 
     const historicalBlock = await client.getBlock({
-      blockNumber: latestBlock.number - AVERAGE_BLOCK_TIME_BLOCKS,
-    })
-
-    console.log('latestBlock', { number: latestBlock.number, timestamp: latestBlock.timestamp })
-    console.log('historicalBlock', {
-      number: historicalBlock.number,
-      timestamp: historicalBlock.timestamp,
+      blockNumber: latestBlock.number - BigInt(averageBlockTimeBlockDistance),
     })
 
     const averageBlockTimeSeconds =
-      (latestBlock.timestamp - historicalBlock.timestamp) / AVERAGE_BLOCK_TIME_BLOCKS
-
-    console.log(averageBlockTimeSeconds)
-
-    const delaySeconds = latestBlock.timestamp - targetTimestamp
-    const targetBlocksToMove = delaySeconds / averageBlockTimeSeconds
+      Number(latestBlock.timestamp - historicalBlock.timestamp) / averageBlockTimeBlockDistance
+    const durationSeconds = latestBlock.timestamp - targetTimestamp
+    const targetBlocksToMove = calcNumberBlocksToMove(durationSeconds, averageBlockTimeSeconds)
 
     let blockNumber = latestBlock.number - targetBlocksToMove
 
     while (true) {
       const block = await client.getBlock({ blockNumber })
 
-      const timeDifference = targetTimestamp - block.timestamp
+      await sleep(100)
+
+      const timeDifferenceSeconds = targetTimestamp - block.timestamp
 
       // Block is within 1 block before the target timestamp
-      if (timeDifference >= 0 && timeDifference <= averageBlockTimeSeconds) {
-        return blockNumber
+      if (timeDifferenceSeconds >= 0n && timeDifferenceSeconds <= averageBlockTimeSeconds) {
+        break
       }
 
-      // Calculate how many blocks to move based on time difference and average block time
-      const blocksToMove = BigInt(
-        Math.ceil(Math.abs(Number(timeDifference)) / Number(averageBlockTimeSeconds)),
-      )
+      const blocksToMove = calcNumberBlocksToMove(timeDifferenceSeconds, averageBlockTimeSeconds)
 
-      if (block.timestamp > targetTimestamp) {
-        blockNumber -= blocksToMove
-      } else {
-        blockNumber += blocksToMove
-      }
+      blockNumber += blocksToMove
     }
+
+    // We now have *a* block number that is sits at the target timestamp, but on arbitrum there are several.
+    // We must now walk backward to find the earliest one.
+    while (true) {
+      const block = await client.getBlock({ blockNumber: blockNumber - 1n })
+
+      if (block.timestamp !== targetTimestamp) {
+        break
+      }
+
+      blockNumber--
+    }
+
+    return blockNumber
   }
 
-export const useBlockNumberByTimestampQuery = ({
+export const useEarliestBlockNumberByTimestampQuery = ({
   targetTimestamp,
-}: UseBlockNumberByTimestampQueryProps) => {
+}: UseEarliestBlockNumberByTimestampQueryProps) => {
   const queryKey: BlockNumberByTimestampQueryKey = useMemo(
-    () => getBlockNumberByTimestampQueryKey({ targetTimestamp }),
+    () => getEarliestBlockNumberByTimestampQueryKey({ targetTimestamp }),
     [targetTimestamp],
   )
 
   const queryFn = useMemo(
-    () => getBlockNumberByTimestampQueryFn({ targetTimestamp }),
+    () => getEarliestBlockNumberByTimestampQueryFn({ targetTimestamp }),
     [targetTimestamp],
   )
 

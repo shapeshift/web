@@ -6,9 +6,9 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { EpochMetadata } from '../types'
 import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
 import {
-  getBlockNumberByTimestampQueryFn,
-  getBlockNumberByTimestampQueryKey,
-} from './useBlockNumberByTimestampQuery'
+  getEarliestBlockNumberByTimestampQueryFn,
+  getEarliestBlockNumberByTimestampQueryKey,
+} from './useBlockNumberByTimestampQuery/useBlockNumberByTimestampQuery'
 
 type EpochHistoryQueryKey = ['epochHistory']
 
@@ -24,8 +24,8 @@ export const epochHistoryQueryFn = async (): Promise<EpochMetadata[]> => {
 
   // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
   let startBlockNumber = await queryClient.fetchQuery({
-    queryKey: getBlockNumberByTimestampQueryKey({ targetTimestamp: startTimestamp }),
-    queryFn: getBlockNumberByTimestampQueryFn({ targetTimestamp: startTimestamp }),
+    queryKey: getEarliestBlockNumberByTimestampQueryKey({ targetTimestamp: startTimestamp }),
+    queryFn: getEarliestBlockNumberByTimestampQueryFn({ targetTimestamp: startTimestamp }),
   })
 
   const epochHistory = []
@@ -35,8 +35,8 @@ export const epochHistoryQueryFn = async (): Promise<EpochMetadata[]> => {
 
     // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
     const nextBlockNumber = await queryClient.fetchQuery({
-      queryKey: getBlockNumberByTimestampQueryKey({ targetTimestamp: nextStartTimestamp }),
-      queryFn: getBlockNumberByTimestampQueryFn({ targetTimestamp: nextStartTimestamp }),
+      queryKey: getEarliestBlockNumberByTimestampQueryKey({ targetTimestamp: nextStartTimestamp }),
+      queryFn: getEarliestBlockNumberByTimestampQueryFn({ targetTimestamp: nextStartTimestamp }),
     })
 
     const endTimestamp = nextStartTimestamp - 1n

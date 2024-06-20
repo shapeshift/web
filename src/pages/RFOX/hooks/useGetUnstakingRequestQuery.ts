@@ -104,7 +104,6 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
     refetchOnMount: true,
     select,
     retry: false,
-    throwOnError: true,
   })
 
   return unstakingRequestQuery

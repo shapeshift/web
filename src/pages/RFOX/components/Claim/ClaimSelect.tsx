@@ -6,7 +6,7 @@ import {
   fromAccountId,
 } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { type FC, useCallback, useEffect, useMemo } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
@@ -106,15 +106,8 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isPaused: isUnstakingRequestPaused,
     isError: isUnstakingRequestError,
     isSuccess: isUnstakingRequestSuccess,
-    isEnabled: isUnstakingRequestEnabled,
-    refetch: refetchUnstakingRequest,
     isRefetching: isUnstakingRequestRefetching,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
-
-  useEffect(() => {
-    // Refetch available claims whenever we re-open the Claim tab (this component)
-    refetchUnstakingRequest()
-  }, [refetchUnstakingRequest])
 
   const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
 
@@ -124,13 +117,12 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       isUnstakingRequestLoading ||
       isUnstakingRequestPending ||
       isUnstakingRequestPaused ||
-      isUnstakingRequestRefetching ||
-      !isUnstakingRequestEnabled
+      isUnstakingRequestRefetching
     )
       return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
     if (isUnstakingRequestError || (isUnstakingRequestSuccess && !unstakingRequestResponse.length))
       return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
-    return unstakingRequestResponse?.map((unstakingRequest, index) => {
+    return unstakingRequestResponse.map((unstakingRequest, index) => {
       const amountCryptoPrecision = fromBaseUnit(
         unstakingRequest.unstakingBalance.toString() ?? '',
         stakingAsset?.precision ?? 0,
@@ -162,7 +154,6 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isUnstakingRequestPending,
     isUnstakingRequestPaused,
     isUnstakingRequestRefetching,
-    isUnstakingRequestEnabled,
     isUnstakingRequestError,
     isUnstakingRequestSuccess,
     unstakingRequestResponse,

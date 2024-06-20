@@ -101,15 +101,10 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
   const unstakingRequestQuery = useQuery({
     queryKey,
     queryFn: getUnstakingRequestQueryFn,
+    refetchOnMount: true,
     select,
     retry: false,
   })
 
-  return {
-    ...unstakingRequestQuery,
-    isError: getUnstakingRequestQueryFn !== skipToken && unstakingRequestQuery.isError,
-    // Note, this isn't part of the usual react-query return type, but allows us to handle the weirdness of skipToken making the query in an error state
-    // until the *actual* queryFn invoked
-    isEnabled: getUnstakingRequestQueryFn !== skipToken,
-  }
+  return unstakingRequestQuery
 }

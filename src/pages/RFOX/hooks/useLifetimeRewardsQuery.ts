@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
-import { getEpochHistoryQueryFn, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
+import { epochHistoryQueryFn, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
 type UseLifetimeRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
@@ -17,7 +17,6 @@ export const useLifetimeRewardsQuery = ({
 }: UseLifetimeRewardsQueryProps) => {
   const queryClient = useQueryClient()
 
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey = useMemo(
     () => [
       'lifetimeRewards',
@@ -34,7 +33,7 @@ export const useLifetimeRewardsQuery = ({
         ? async () => {
             const epochHistory = await queryClient.fetchQuery({
               queryKey: getEpochHistoryQueryKey(),
-              queryFn: getEpochHistoryQueryFn(queryClient),
+              queryFn: epochHistoryQueryFn,
             })
 
             const earnedByEpoch = await Promise.all(

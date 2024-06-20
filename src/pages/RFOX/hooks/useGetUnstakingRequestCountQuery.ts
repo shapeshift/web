@@ -65,6 +65,7 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
     queryKey,
     queryFn: getUnstakingRequestCountQueryFn,
     select,
+    retry: false,
   })
 
   return unstakingRequestCountQuery

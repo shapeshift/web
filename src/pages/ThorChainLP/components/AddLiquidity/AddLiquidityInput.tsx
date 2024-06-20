@@ -1550,7 +1550,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               !hasEnoughAssetBalance ||
               !hasEnoughRuneBalance ||
               isApprovalTxPending ||
-              (isSweepNeededEnabled && isSweepNeeded === undefined) ||
+              (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
               isSweepNeededError ||
               isEstimatedPoolAssetFeesDataError ||
               isEstimatedRuneFeesDataError ||
@@ -1568,7 +1568,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isSmartContractAccountAddressLoading ||
               isAllowanceDataLoading ||
               isApprovalTxPending ||
-              (isSweepNeeded === undefined && isSweepNeededLoading) ||
+              (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
               (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
             }
             onClick={handleDepositSubmit}

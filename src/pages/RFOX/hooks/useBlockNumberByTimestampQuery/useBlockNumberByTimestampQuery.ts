@@ -32,8 +32,16 @@ export const getBlockNumberByTimestampQueryFn =
       blockNumber: latestBlock.number - AVERAGE_BLOCK_TIME_BLOCKS,
     })
 
+    console.log('latestBlock', { number: latestBlock.number, timestamp: latestBlock.timestamp })
+    console.log('historicalBlock', {
+      number: historicalBlock.number,
+      timestamp: historicalBlock.timestamp,
+    })
+
     const averageBlockTimeSeconds =
       (latestBlock.timestamp - historicalBlock.timestamp) / AVERAGE_BLOCK_TIME_BLOCKS
+
+    console.log(averageBlockTimeSeconds)
 
     const delaySeconds = latestBlock.timestamp - targetTimestamp
     const targetBlocksToMove = delaySeconds / averageBlockTimeSeconds

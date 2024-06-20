@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { getConfig } from 'config'
 import { useMemo } from 'react'
+import { arbitrum } from 'viem/chains'
+import { viemClientByNetworkId } from 'lib/viem-client'
 
 type BlockNumberByTimestampQueryKey = ['blockNumberByTimestamp', { targetTimestamp: bigint }]
 
@@ -11,6 +11,10 @@ type BlockNumberByTimestampQueryKey = ['blockNumberByTimestamp', { targetTimesta
 type UseBlockNumberByTimestampQueryProps = {
   targetTimestamp: bigint
 }
+
+const AVERAGE_BLOCK_TIME_BLOCKS = 1000n
+
+const client = viemClientByNetworkId[arbitrum.id]
 
 export const getBlockNumberByTimestampQueryKey = ({
   targetTimestamp,
@@ -22,20 +26,41 @@ export const getBlockNumberByTimestampQueryKey = ({
 export const getBlockNumberByTimestampQueryFn =
   ({ targetTimestamp }: UseBlockNumberByTimestampQueryProps) =>
   async () => {
-    const apiKey = getConfig().REACT_APP_ETHERSCAN_API_KEY
-    const url = `https://api.etherscan.io/api?module=block&action=getblocknobytime&timestamp=${targetTimestamp}&closest=before&apikey=${apiKey}`
-    const {
-      data: { status, message, result },
-    } = await axios.get<{ status: 0 | 1; message: string; result: string }>(url)
+    const latestBlock = await client.getBlock()
 
-    const parsedBlockNumber = parseInt(result)
+    const historicalBlock = await client.getBlock({
+      blockNumber: latestBlock.number - AVERAGE_BLOCK_TIME_BLOCKS,
+    })
 
-    if (isNaN(parsedBlockNumber)) {
-      console.error({ status, message, result })
-      throw Error('Error fetching from etherscan')
+    const averageBlockTimeSeconds =
+      (latestBlock.timestamp - historicalBlock.timestamp) / AVERAGE_BLOCK_TIME_BLOCKS
+
+    const delaySeconds = latestBlock.timestamp - targetTimestamp
+    const targetBlocksToMove = delaySeconds / averageBlockTimeSeconds
+
+    let blockNumber = latestBlock.number - targetBlocksToMove
+
+    while (true) {
+      const block = await client.getBlock({ blockNumber })
+
+      const timeDifference = targetTimestamp - block.timestamp
+
+      // Block is within 1 block before the target timestamp
+      if (timeDifference >= 0 && timeDifference <= averageBlockTimeSeconds) {
+        return blockNumber
+      }
+
+      // Calculate how many blocks to move based on time difference and average block time
+      const blocksToMove = BigInt(
+        Math.ceil(Math.abs(Number(timeDifference)) / Number(averageBlockTimeSeconds)),
+      )
+
+      if (block.timestamp > targetTimestamp) {
+        blockNumber -= blocksToMove
+      } else {
+        blockNumber += blocksToMove
+      }
     }
-
-    return BigInt(parsedBlockNumber)
   }
 
 export const useBlockNumberByTimestampQuery = ({

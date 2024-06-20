@@ -121,6 +121,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
     if (isUnstakingRequestError || !unstakingRequestResponse.length)
       return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
+
     return unstakingRequestResponse.map((unstakingRequest, index) => {
       const amountCryptoPrecision = fromBaseUnit(
         unstakingRequest.unstakingBalance.toString() ?? '',

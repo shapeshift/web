@@ -26,7 +26,7 @@ export const fromBaseUnit = (
 export const toBaseUnit = (
   amount: BigNumber.Value | undefined,
   precision: number,
-  roundingMode: BigNumber.RoundingMode | undefined,
+  roundingMode?: BigNumber.RoundingMode,
 ): string => {
   return bnOrZero(amount)
     .times(bn(10).exponentiatedBy(bnOrZero(precision)))

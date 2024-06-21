@@ -6,8 +6,9 @@ import {
   fromAccountId,
 } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { type FC, useCallback, useEffect, useMemo } from 'react'
+import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -20,17 +21,18 @@ import { useAppSelector } from 'state/store'
 
 import { ClaimRow } from './ClaimRow'
 import type { RfoxClaimQuote } from './types'
-import { type ClaimRouteProps, ClaimStatus } from './types'
+import { ClaimRoutePaths, type ClaimRouteProps, ClaimStatus } from './types'
 
 type ClaimSelectProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
 }
 
 type NoClaimsAvailableProps = {
+  isError?: boolean
   setStepIndex: (index: number) => void
 }
 
-const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
+const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ isError, setStepIndex }) => {
   const translate = useTranslate()
 
   const handleUnstakeClick = useCallback(() => {
@@ -41,10 +43,17 @@ const NoClaimsAvailable: FC<NoClaimsAvailableProps> = ({ setStepIndex }) => {
     <Center flexDir={'column'}>
       <AssetIcon size='lg' assetId={foxAssetId} showNetworkIcon={false} mb={4} />
       <Text translation='RFOX.noClaimsAvailable' fontSize='xl' fontWeight={'bold'} />
-      <Text translation='RFOX.noClaimsAvailableDescription' fontSize='md' color='gray.400' mb={4} />
-      <Button colorScheme='blue' onClick={handleUnstakeClick}>
-        {translate('RFOX.unstakeNow')}
-      </Button>
+      <Text
+        translation={isError ? 'RFOX.errorFetchingClaims' : 'RFOX.noClaimsAvailableDescription'}
+        fontSize='md'
+        color='gray.400'
+        mb={4}
+      />
+      {!isError && (
+        <Button colorScheme='blue' onClick={handleUnstakeClick}>
+          {translate('RFOX.unstakeNow')}
+        </Button>
+      )}
     </Center>
   )
 }
@@ -76,6 +85,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
+  const history = useHistory()
   const stakingAssetId = foxOnArbitrumOneAssetId
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -91,70 +101,74 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
 
   const {
     data: unstakingRequestResponse,
-    isSuccess: isUnstakingRequestSuccess,
     isLoading: isUnstakingRequestLoading,
-    refetch: refetchUnstakingRequest,
+    isPending: isUnstakingRequestPending,
+    isPaused: isUnstakingRequestPaused,
+    isError: isUnstakingRequestError,
     isRefetching: isUnstakingRequestRefetching,
   } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
 
-  useEffect(() => {
-    // Refetch available claims whenever we re-open the Claim tab (this component)
-    refetchUnstakingRequest()
-  }, [refetchUnstakingRequest])
+  const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
 
   const claimBody = useMemo(() => {
-    return (() => {
-      switch (true) {
-        case !stakingAssetAccountAddress:
-          return <ChainNotSupported chainId={stakingAsset?.chainId} />
-        case isUnstakingRequestSuccess:
-          return unstakingRequestResponse?.map((unstakingRequest, index) => {
-            const amountCryptoPrecision = fromBaseUnit(
-              unstakingRequest.unstakingBalance.toString() ?? '',
-              stakingAsset?.precision ?? 0,
-            )
-            const currentTimestampMs: number = Date.now()
-            const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
-            const isAvailable = currentTimestampMs >= unstakingTimestampMs
-            const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
-            const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-            const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
-            return (
-              <ClaimRow
-                stakingAssetId={stakingAssetId}
-                key={unstakingRequest.cooldownExpiry.toString()}
-                amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
-                status={status}
-                setConfirmedQuote={setConfirmedQuote}
-                cooldownPeriodHuman={cooldownPeriodHuman}
-                index={index}
-              />
-            )
-          })
-        default:
-          return <NoClaimsAvailable setStepIndex={setStepIndex} />
-      }
-    })()
+    if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={stakingAsset?.chainId} />
+    if (
+      isUnstakingRequestLoading ||
+      isUnstakingRequestPending ||
+      isUnstakingRequestPaused ||
+      isUnstakingRequestRefetching
+    )
+      return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
+    if (isUnstakingRequestError || !unstakingRequestResponse.length)
+      return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
+
+    return unstakingRequestResponse.map((unstakingRequest, index) => {
+      const amountCryptoPrecision = fromBaseUnit(
+        unstakingRequest.unstakingBalance.toString() ?? '',
+        stakingAsset?.precision ?? 0,
+      )
+      const currentTimestampMs: number = Date.now()
+      const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
+      const isAvailable = currentTimestampMs >= unstakingTimestampMs
+      const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
+      const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
+      return (
+        <ClaimRow
+          stakingAssetId={stakingAssetId}
+          key={unstakingRequest.cooldownExpiry.toString()}
+          amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
+          status={status}
+          setConfirmedQuote={setConfirmedQuote}
+          cooldownPeriodHuman={cooldownPeriodHuman}
+          index={index}
+          onClaimClick={handleClaimClick}
+        />
+      )
+    })
   }, [
     stakingAssetAccountAddress,
     stakingAsset?.chainId,
     stakingAsset?.precision,
-    isUnstakingRequestSuccess,
+    isUnstakingRequestLoading,
+    isUnstakingRequestPending,
+    isUnstakingRequestPaused,
+    isUnstakingRequestRefetching,
+    isUnstakingRequestError,
     unstakingRequestResponse,
     setStepIndex,
     stakingAssetId,
     setConfirmedQuote,
+    handleClaimClick,
   ])
 
   return (
     <SlideTransition>
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
-        <Skeleton isLoaded={!isUnstakingRequestLoading && !isUnstakingRequestRefetching}>
-          <Flex flexDir='column' gap={4}>
-            {claimBody}
-          </Flex>
-        </Skeleton>
+        <Flex flexDir='column' gap={4}>
+          {claimBody}
+        </Flex>
       </CardBody>
     </SlideTransition>
   )

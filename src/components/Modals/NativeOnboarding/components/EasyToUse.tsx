@@ -45,7 +45,7 @@ export const EasyToUse = () => {
     [closeModal, history],
   )
   const handleBuyCryptoClick = useCallback(() => handleClick('/buy-crypto'), [handleClick])
-  const handleDashboardClick = useCallback(() => handleClick('/dashboard'), [handleClick])
+  const handleDashboardClick = useCallback(() => handleClick('/wallet'), [handleClick])
   return (
     <SlideTransition>
       <Flex flexDir='column' gap={6}>

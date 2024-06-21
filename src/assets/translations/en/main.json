@@ -2416,6 +2416,9 @@
     "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
     "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution."
   },
+  "streamingAcknowledgement": {
+    "description": "This is a streaming swap, while you get a better price it can take up to %{estimatedTimeSeconds}s to complete."
+  },
   "watchlist": {
     "empty": {
       "title": "Start building your watchlist",
@@ -2496,6 +2499,7 @@
     "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
     "claimReceiveAddress": "Claim Receive Address",
     "noClaimsAvailable": "No claims available",
+    "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",
     "unstakeNow": "Unstake Now",
     "bridgeAndConfirm": "Bridge & Confirm",

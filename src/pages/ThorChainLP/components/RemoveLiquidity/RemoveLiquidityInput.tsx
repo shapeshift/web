@@ -32,12 +32,12 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -761,6 +761,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               accountId={accountId}
               cryptoAmount={cryptoAmount}
               onChange={handleRemoveLiquidityInputChange}
+              revalidateOnValueChange={false}
               fiatAmount={fiatAmount}
               showFiatAmount
               assetId={asset.assetId}
@@ -939,8 +940,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       <WarningAcknowledgement
         message={translate('defi.modals.saversVaults.dangerousWithdrawWarning')}
         onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       >
         {renderHeader}
         <Stack divider={divider} spacing={4} pb={4}>

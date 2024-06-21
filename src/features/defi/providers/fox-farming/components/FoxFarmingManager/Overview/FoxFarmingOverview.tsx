@@ -29,7 +29,7 @@ import {
   selectAssetById,
   selectAssets,
   selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataUserCurrency,
   selectUnderlyingStakingAssetsWithBalancesAndIcons,
   selectUserStakingOpportunityByUserStakingId,
@@ -67,7 +67,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     [opportunityId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
 
   const opportunityDataFilter = useMemo(

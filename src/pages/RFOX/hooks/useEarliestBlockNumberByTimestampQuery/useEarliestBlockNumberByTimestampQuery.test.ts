@@ -3,7 +3,7 @@ import { arbitrum } from 'viem/chains'
 import { describe, expect, it, vi } from 'vitest'
 
 import { blocks } from './test-data/blocks'
-import { getEarliestBlockNumberByTimestampQueryFn } from './useBlockNumberByTimestampQuery'
+import { getEarliestBlockNumberByTimestampQueryFn } from './useEarliestBlockNumberByTimestampQuery'
 
 const blocksByBlockNumber = blocks.reduce((acc, block) => {
   acc.set(block.number, block)

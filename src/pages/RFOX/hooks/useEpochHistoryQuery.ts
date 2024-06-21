@@ -8,7 +8,7 @@ import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAf
 import {
   getEarliestBlockNumberByTimestampQueryFn,
   getEarliestBlockNumberByTimestampQueryKey,
-} from './useBlockNumberByTimestampQuery/useBlockNumberByTimestampQuery'
+} from './useEarliestBlockNumberByTimestampQuery/useEarliestBlockNumberByTimestampQuery'
 
 type EpochHistoryQueryKey = ['epochHistory']
 

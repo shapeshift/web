@@ -25,18 +25,18 @@ describe('getTimeInPoolSeconds', () => {
   })
 
   it('calculates time correctly when there are only Stake events i.e balance never goes to zero', async () => {
-    const logs: GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'> = [
+    const logs = [
       {
         eventName: 'Stake',
         args: { amount: 1000000000000000000n },
         blockNumber: 100n,
-      } as any,
+      },
       {
         eventName: 'Stake',
         args: { amount: 2000000000000000000n },
         blockNumber: 150n,
-      } as any,
-    ]
+      },
+    ] as GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>
 
     vi.mocked(viemClientByNetworkId[arbitrum.id].getBlock).mockImplementationOnce(() => {
       return { timestamp: 1625097600 } as unknown as Promise<GetBlockReturnType>
@@ -53,18 +53,18 @@ describe('getTimeInPoolSeconds', () => {
         eventName: 'Stake',
         args: { amount: 1000000000000000000n },
         blockNumber: 100n,
-      } as any,
+      },
       {
         eventName: 'Unstake',
         args: { amount: 1000000000000000000n },
         blockNumber: 150n,
-      } as any,
+      },
       {
         eventName: 'Stake',
         args: { amount: 1000000000000000000n },
         blockNumber: 200n,
-      } as any,
-    ]
+      },
+    ] as GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>
 
     vi.mocked(viemClientByNetworkId[arbitrum.id].getBlock).mockImplementationOnce(() => {
       return { timestamp: 1625097600 } as unknown as Promise<GetBlockReturnType>
@@ -81,13 +81,13 @@ describe('getTimeInPoolSeconds', () => {
         eventName: 'Stake',
         args: { amount: 1000000000000000000n },
         blockNumber: 100n,
-      } as any,
+      },
       {
         eventName: 'Unstake',
         args: { amount: 1000000000000000000n },
         blockNumber: 150n,
-      } as any,
-    ]
+      },
+    ] as GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>
 
     vi.mocked(viemClientByNetworkId[arbitrum.id].getBlock).mockImplementationOnce(() => {
       return { timestamp: 1625097600 } as unknown as Promise<GetBlockReturnType>

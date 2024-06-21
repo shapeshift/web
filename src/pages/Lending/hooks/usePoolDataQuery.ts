@@ -1,6 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { getAllThorchainLendingPositions, getThorchainPoolInfo } from 'lib/utils/thorchain/lending'
@@ -19,6 +21,11 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
   const poolAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, poolAssetId),
   )
+
+  const { isTradingActive } = useIsTradingActive({
+    assetId: poolAssetId,
+    swapperName: SwapperName.Thorchain,
+  })
 
   const poolDataQuery = useQuery({
     // TODO(gomes): we may or may not want to change this, but this avoids spamming the API for the time being.
@@ -76,6 +83,9 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
         collateralizationRatioPercentDecimal,
         tvl,
         maxSupplyFiat,
+        isTradingActive,
+        isHardCapReached: bnOrZero(tvl).eq(maxSupplyFiat),
+        currentCapFillPercentage: bnOrZero(tvl).div(bnOrZero(maxSupplyFiat)).times(100).toNumber(),
       }
     },
     enabled: true,

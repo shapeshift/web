@@ -15,7 +15,16 @@ type UseTimeInPoolProps<SelectData = bigint> = {
   select?: (timeInPoolSeconds: bigint) => SelectData
 }
 
-export const RFOX_CONTRACT_CREATION_BLOCK_NUMBER = 222913582n
+export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {
+  switch (contractAddress) {
+    case '0x1094c4a99fce60e69ffe75849309408f1262d304':
+      return 222952418n
+    case '0xac2a4fd70bcd8bab0662960455c363735f0e2b56':
+      return 222913582n
+    default:
+      throw new Error(`Invalid RFOX proxy contract address`)
+  }
+}
 
 export const getTimeInPoolSeconds = async (
   sortedLogs: GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>,
@@ -74,6 +83,10 @@ export const getTimeInPoolSeconds = async (
 const fetchTimeInPoolSeconds = async (stakingAssetAccountAddress: string): Promise<bigint> => {
   const stakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Stake' })
   const unstakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Unstake' })
+
+  const RFOX_CONTRACT_CREATION_BLOCK_NUMBER = getRfoxContractCreationBlockNumber(
+    RFOX_PROXY_CONTRACT_ADDRESS,
+  )
 
   const [stakeFilter, unstakeFilter] = await Promise.all([
     client.createEventFilter({

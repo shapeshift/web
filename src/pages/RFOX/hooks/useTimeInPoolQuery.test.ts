@@ -47,7 +47,7 @@ describe('getTimeInPoolSeconds', () => {
     expect(result).toBe(BigInt(now) - BigInt(1625097600))
   })
 
-  it('calculates time correctly when balance goes to zero and stakes again', async () => {
+  it('calculates time correctly when Stake, balance goes to zero after Unstake, then Stake again', async () => {
     const logs: GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'> = [
       {
         eventName: 'Stake',

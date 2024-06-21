@@ -142,6 +142,7 @@
     "signTransaction": "Sign transaction",
     "active": "Active",
     "halted": "Halted",
+    "full": "Full",
     "disabled": "Disabled",
     "staged": "Staged",
     "poolHalted": "Pool Halted",

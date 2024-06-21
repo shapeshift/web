@@ -65,7 +65,16 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   )
 
   const StatusTag = useCallback(() => {
-    if (poolData?.status === 'Available') {
+    if (poolData?.isHardCapReached || poolData?.currentCapFillPercentage === 100) {
+      return (
+        <Tag colorScheme='yellow'>
+          <TagLeftIcon as={BiErrorCircle} />
+          {translate('common.full')}
+        </Tag>
+      )
+    }
+
+    if (poolData?.isTradingActive) {
       return (
         <Tag colorScheme='green'>
           <TagLeftIcon as={CheckCircleIcon} />
@@ -80,7 +89,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [poolData?.status, translate])
+  }, [poolData, translate])
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)
@@ -137,7 +146,7 @@ export const AvailablePools = () => {
   const headerComponent = useMemo(() => <LendingHeader />, [])
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({
     type: 'collateral',
-    statusFilter: [],
+    statusFilter: 'All',
   })
 
   const lendingRows = useMemo(() => {

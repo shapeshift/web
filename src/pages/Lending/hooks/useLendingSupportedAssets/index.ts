@@ -10,7 +10,10 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
+import type {
+  ThornodePoolResponse,
+  ThornodePoolStatuses,
+} from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import {
@@ -24,10 +27,10 @@ const queryKey = ['lendingSupportedAssets']
 
 export const useLendingSupportedAssets = ({
   type,
-  statusFilter = ['Available'],
+  statusFilter = 'Available',
 }: {
   type: 'collateral' | 'borrow'
-  statusFilter?: string[]
+  statusFilter?: ThornodePoolStatuses | 'All'
 }) => {
   const wallet = useWallet().state.wallet
   const isSnapInstalled = useIsSnapInstalled()
@@ -37,9 +40,10 @@ export const useLendingSupportedAssets = ({
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // Infinity staleTime as we handle halted state JIT
     staleTime: Infinity,
-    select: statusFilter.length
-      ? pools => pools.filter(pool => statusFilter.includes(pool.status))
-      : undefined,
+    select:
+      statusFilter !== 'All'
+        ? pools => pools.filter(pool => statusFilter.includes(pool.status))
+        : undefined,
   })
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)

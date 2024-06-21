@@ -8,6 +8,7 @@ import {
   Flex,
   Link,
   Progress,
+  Skeleton,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { Tag, TagLeftIcon } from '@chakra-ui/tag'
@@ -27,6 +28,10 @@ import { useAppSelector } from 'state/store'
 
 const labelProps = { fontSize: 'sm ' }
 const responsiveFlex = { base: 'auto', lg: 1 }
+const mobileDisplay = {
+  base: 'none',
+  lg: 'flex',
+}
 const faTwitterIcon = <FaTwitter />
 
 type PoolInfoProps = {
@@ -40,6 +45,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
 
   const usePoolDataArgs = useMemo(() => ({ poolAssetId }), [poolAssetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
+
   const totalCollateralComponent = useMemo(
     () => (
       <Amount.Crypto
@@ -77,7 +83,16 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
   )
 
   const StatusTag = useCallback(() => {
-    if (poolData?.status === 'Available') {
+    if (poolData?.isHardCapReached || poolData?.currentCapFillPercentage === 100) {
+      return (
+        <Tag colorScheme='yellow'>
+          <TagLeftIcon as={BiErrorCircle} />
+          {translate('common.full')}
+        </Tag>
+      )
+    }
+
+    if (poolData?.isTradingActive) {
       return (
         <Tag colorScheme='green'>
           <TagLeftIcon as={CheckCircleIcon} />
@@ -92,16 +107,10 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
         {translate('common.halted')}
       </Tag>
     )
-  }, [poolData?.status, translate])
+  }, [poolData, translate])
 
   const renderVaultCap = useMemo(() => {
     if (!poolData || !asset) return null
-
-    const isHardCapReached = bnOrZero(poolData.tvl).eq(poolData.maxSupplyFiat)
-    const currentCapFillPercentage = bnOrZero(poolData.tvl)
-      .div(bnOrZero(poolData.maxSupplyFiat))
-      .times(100)
-      .toNumber()
 
     return (
       <Flex flexWrap='wrap' direction='column' gap={4}>
@@ -114,7 +123,7 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
             <Amount.Fiat value={poolData?.maxSupplyFiat} prefix='/' color='text.subtle' />
           </Flex>
         </Flex>
-        {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (
+        {poolData.isHardCapReached || bnOrZero(poolData.currentCapFillPercentage).eq(100) ? (
           <Alert status='warning' flexDir='column' bg={alertBg} py={4}>
             <AlertIcon />
             <AlertTitle>{translate('defi.modals.saversVaults.haltedDepositTitle')}</AlertTitle>
@@ -136,10 +145,10 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
           </Alert>
         ) : (
           <Progress
-            value={currentCapFillPercentage}
+            value={poolData.currentCapFillPercentage}
             size='sm'
             borderRadius='md'
-            colorScheme={bnOrZero(currentCapFillPercentage).lt(100) ? 'green' : 'red'}
+            colorScheme={bnOrZero(poolData.currentCapFillPercentage).lt(100) ? 'green' : 'red'}
           />
         )}
       </Flex>
@@ -152,7 +161,10 @@ export const PoolInfo = ({ poolAssetId }: PoolInfoProps) => {
     <>
       <Flex gap={4} alignItems='center'>
         <Text translation='lending.poolInformation' fontWeight='medium' />
-        <StatusTag />
+
+        <Skeleton isLoaded={!isPoolDataLoading} display={mobileDisplay}>
+          <StatusTag />
+        </Skeleton>
       </Flex>
       <Flex flexWrap='wrap' gap={4}>
         <DynamicComponent

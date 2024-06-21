@@ -1,6 +1,6 @@
+import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
-import { useQuery } from 'wagmi/query'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import type { EpochMetadata } from '../types'

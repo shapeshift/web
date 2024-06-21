@@ -1,11 +1,10 @@
-import { skipToken } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { getAbiItem, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { useQuery } from 'wagmi/query'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
 const client = viemClientByNetworkId[arbitrum.id]

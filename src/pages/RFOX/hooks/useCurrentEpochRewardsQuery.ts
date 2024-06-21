@@ -1,6 +1,5 @@
-import { skipToken, useQueryClient } from '@tanstack/react-query'
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { useQuery } from 'wagmi/query'
 
 import type { EpochMetadata } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'

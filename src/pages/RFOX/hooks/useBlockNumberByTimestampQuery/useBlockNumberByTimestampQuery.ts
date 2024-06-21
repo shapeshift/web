@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
+import assert from 'assert'
 import { useMemo } from 'react'
 import { arbitrum } from 'viem/chains'
-import { sleep } from 'lib/poll/poll'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
 type BlockNumberByTimestampQueryKey = ['blockNumberByTimestamp', { targetTimestamp: bigint }]
@@ -38,6 +38,8 @@ export const getEarliestBlockNumberByTimestampQueryFn =
   async () => {
     const latestBlock = await client.getBlock()
 
+    assert(targetTimestamp <= latestBlock.timestamp, 'Target timestamp must not be in the future')
+
     const historicalBlock = await client.getBlock({
       blockNumber: latestBlock.number - BigInt(averageBlockTimeBlockDistance),
     })
@@ -50,10 +52,11 @@ export const getEarliestBlockNumberByTimestampQueryFn =
     let blockNumber = latestBlock.number - targetBlocksToMove
 
     while (true) {
+      if (blockNumber <= 0n) {
+        return 0n
+      }
+
       const block = await client.getBlock({ blockNumber })
-
-      await sleep(100)
-
       const timeDifferenceSeconds = targetTimestamp - block.timestamp
 
       // Block is within 1 block before the target timestamp
@@ -62,13 +65,16 @@ export const getEarliestBlockNumberByTimestampQueryFn =
       }
 
       const blocksToMove = calcNumberBlocksToMove(timeDifferenceSeconds, averageBlockTimeSeconds)
-
       blockNumber += blocksToMove
     }
 
     // We now have *a* block number that is sits at the target timestamp, but on arbitrum there are several.
     // We must now walk backward to find the earliest one.
     while (true) {
+      if (blockNumber <= 0n) {
+        return 0n
+      }
+
       const block = await client.getBlock({ blockNumber: blockNumber - 1n })
 
       if (block.timestamp !== targetTimestamp) {

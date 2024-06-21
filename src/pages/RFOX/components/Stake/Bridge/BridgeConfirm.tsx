@@ -221,7 +221,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
         borderBottomRadius='xl'
       >
         <Button
-          size='lg'
+          size='lg-multiline'
           mx={-2}
           colorScheme={errorCopy ? 'red' : 'blue'}
           isLoading={

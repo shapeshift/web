@@ -111,7 +111,7 @@ export const Dust: React.FC<DustProps> = () => {
               {translate('modals.confirm.cancel')}
             </Button>
             <Button
-              size='lg'
+              size='lg-multiline'
               width='full'
               colorScheme='blue'
               data-test='defi-modal-send-dust-confirm'

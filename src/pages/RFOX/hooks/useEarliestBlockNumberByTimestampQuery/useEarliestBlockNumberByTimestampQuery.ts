@@ -46,8 +46,11 @@ export const getEarliestBlockNumberByTimestampQueryFn =
 
     const averageBlockTimeSeconds =
       Number(latestBlock.timestamp - historicalBlock.timestamp) / averageBlockTimeBlockDistance
-    const durationSeconds = latestBlock.timestamp - targetTimestamp
-    const targetBlocksToMove = calcNumberBlocksToMove(durationSeconds, averageBlockTimeSeconds)
+    const timeDifferenceSeconds = latestBlock.timestamp - targetTimestamp
+    const targetBlocksToMove = calcNumberBlocksToMove(
+      timeDifferenceSeconds,
+      averageBlockTimeSeconds,
+    )
 
     let blockNumber = latestBlock.number - targetBlocksToMove
 

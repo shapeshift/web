@@ -18,9 +18,11 @@ const AVERAGE_BLOCK_TIME_BLOCK_DISTANCE = 10_000
 const client = viemClientByNetworkId[arbitrum.id]
 
 const calcNumberBlocksToMove = (timeDifferenceSeconds: bigint, averageBlockTimeSeconds: number) => {
-  const blocksToMove = BigInt(Math.ceil(Number(timeDifferenceSeconds) / averageBlockTimeSeconds))
+  const blocksToMove = BigInt(
+    Math.floor(Math.abs(Number(timeDifferenceSeconds)) / averageBlockTimeSeconds),
+  )
 
-  return blocksToMove
+  return timeDifferenceSeconds > 0 ? blocksToMove : -blocksToMove
 }
 
 export const getEarliestBlockNumberByTimestampQueryKey = ({

@@ -23,10 +23,14 @@ export const fromBaseUnit = (
   return precisionNumber.toFixed()
 }
 
-export const toBaseUnit = (amount: BigNumber.Value | undefined, precision: number): string => {
+export const toBaseUnit = (
+  amount: BigNumber.Value | undefined,
+  precision: number,
+  roundingMode?: BigNumber.RoundingMode,
+): string => {
   return bnOrZero(amount)
     .times(bn(10).exponentiatedBy(bnOrZero(precision)))
-    .toFixed(0)
+    .toFixed(0, roundingMode)
 }
 
 export const firstNonZeroDecimal = (number: BN) => {

@@ -239,7 +239,7 @@ export const Deposit = ({
         </FormField>
         {children}
         <Button
-          size='lg'
+          size='lg-multiline'
           width='full'
           colorScheme={fieldError ? 'red' : 'blue'}
           isDisabled={!isValid || isLoading}

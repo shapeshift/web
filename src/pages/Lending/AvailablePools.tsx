@@ -4,6 +4,7 @@ import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag, TagLeftIcon } from '@ch
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
+import { BiErrorCircle } from 'react-icons/bi'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useRouteMatch } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -52,6 +53,7 @@ type LendingPoolButtonProps = {
 const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
   const usePoolDataArgs = useMemo(() => ({ poolAssetId: asset.assetId }), [asset.assetId])
   const { data: poolData, isLoading: isPoolDataLoading } = usePoolDataQuery(usePoolDataArgs)
+  const translate = useTranslate()
 
   const { isLoading: isLendingPositionDataLoading } = useAllLendingPositionsData({
     assetId: asset.assetId,
@@ -61,6 +63,33 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
     () => !isPoolDataLoading && !isLendingPositionDataLoading,
     [isLendingPositionDataLoading, isPoolDataLoading],
   )
+
+  const StatusTag = useCallback(() => {
+    if (poolData?.isHardCapReached || poolData?.currentCapFillPercentage === 100) {
+      return (
+        <Tag colorScheme='yellow'>
+          <TagLeftIcon as={BiErrorCircle} />
+          {translate('common.full')}
+        </Tag>
+      )
+    }
+
+    if (poolData?.isTradingActive) {
+      return (
+        <Tag colorScheme='green'>
+          <TagLeftIcon as={CheckCircleIcon} />
+          {translate('common.active')}
+        </Tag>
+      )
+    }
+
+    return (
+      <Tag colorScheme='red'>
+        <TagLeftIcon as={BiErrorCircle} />
+        {translate('common.halted')}
+      </Tag>
+    )
+  }, [poolData, translate])
 
   const handlePoolClick = useCallback(() => {
     onPoolClick(asset.assetId)
@@ -82,10 +111,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
       <AssetCell assetId={asset.assetId} />
       <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
         <Flex>
-          <Tag colorScheme='green'>
-            <TagLeftIcon as={CheckCircleIcon} />
-            Healthy
-          </Tag>
+          <StatusTag />
         </Flex>
       </Skeleton>
       <Skeleton isLoaded={isLoaded}>
@@ -118,7 +144,10 @@ export const AvailablePools = () => {
     [history, path],
   )
   const headerComponent = useMemo(() => <LendingHeader />, [])
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({
+    type: 'collateral',
+    statusFilter: 'All',
+  })
 
   const lendingRows = useMemo(() => {
     if (!lendingSupportedAssets)

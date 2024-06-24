@@ -19,6 +19,16 @@ export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInput, 'suppo
   wallet: HDWallet
 }
 
+type ArbitrumBridgeSpecificMetadata = {
+  direction: 'deposit' | 'withdrawal'
+}
+
+export type ArbitrumBridgeTradeQuote = TradeQuote & ArbitrumBridgeSpecificMetadata
+
+export const isArbitrumBridgeTradeQuote = (
+  quote: TradeQuote | undefined,
+): quote is ArbitrumBridgeTradeQuote => !!quote && 'direction' in quote
+
 export const getTradeQuoteWithWallet = async (inputWithWallet: GetEvmTradeQuoteInputWithWallet) => {
   const { wallet, ...input } = inputWithWallet
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
@@ -34,7 +44,7 @@ export const getTradeQuoteWithWallet = async (inputWithWallet: GetEvmTradeQuoteI
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
+): Promise<Result<ArbitrumBridgeTradeQuote, SwapErrorRight>> {
   const {
     chainId,
     sellAsset,
@@ -98,6 +108,7 @@ export async function getTradeQuote(
           source: SwapperName.ArbitrumBridge,
         },
       ] as SingleHopTradeQuoteSteps,
+      direction: isDeposit ? ('deposit' as const) : ('withdrawal' as const),
     })
   } catch (err) {
     return Err(

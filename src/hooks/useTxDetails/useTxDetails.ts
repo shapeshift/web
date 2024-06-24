@@ -32,6 +32,7 @@ export enum Method {
   ClaimWithdraw = 'claimWithdraw',
   Delegate = 'delegate',
   Deposit = 'deposit',
+  DepositEth = 'depositEth',
   DepositRefund = 'depositRefund',
   DepositRefundNative = 'depositRefundNative',
   Exit = 'exit',

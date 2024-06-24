@@ -587,7 +587,7 @@
     "tradeShort": "取引",
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
-    "arkeo": "Arkeoエアドロップ",
+    "": "Arkeoエアドロップ",
     "lending": "貸し出し",
     "pools": "プール",
     "actionMenu": {
@@ -2112,7 +2112,7 @@
       "cta": "今すぐ入金"
     }
   },
-  "arkeo": {
+  "": {
     "whatIsArkeo": {
       "title": "Arkeoとは",
       "bodyParts": {
@@ -2125,7 +2125,7 @@
       }
     },
     "whoQualifies": {
-      "title": "Arkeo Airdropの参加資格",
+      "title": " Airdropの参加資格",
       "body": "ShapeShift dAppを使用してエアドロップの資格を得るには、さまざまな方法があります。スナップショットは順調に進んでいます。資格を得るにはまだ時間があります。"
     },
     "staking": {

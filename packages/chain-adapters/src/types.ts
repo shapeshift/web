@@ -172,6 +172,8 @@ export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput
 
 export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<BuildSendTxInput<T>, 'wallet'> & {
   xpub: string
+  /** Explicit skip of `to` address validation. Use with extreme care (ex. thorchain vault address) */
+  skipToAddressValidation?: boolean
 }
 
 export type ChainSpecificBuildTxData<T> = ChainSpecific<

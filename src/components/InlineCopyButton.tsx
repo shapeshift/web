@@ -24,9 +24,8 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
 
   const handleCopyClick = useCallback(() => {
-    if (isCopied) return
     copyToClipboard(value)
-  }, [copyToClipboard, isCopied, value])
+  }, [copyToClipboard, value])
 
   // Hide the copy button if it is disabled
   if (isDisabled) return <>{children}</>

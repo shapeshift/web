@@ -153,10 +153,9 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   const fontFamily = useMemo(() => (!isUtxoChainId(chainId) ? 'monospace' : ''), [chainId])
 
   const handleCopyClick = useCallback(() => {
-    if (isCopied) return
     const account = fromAccountId(accountId).account
     copyToClipboard(account)
-  }, [accountId, copyToClipboard, isCopied])
+  }, [accountId, copyToClipboard])
 
   return (
     <ListItem>

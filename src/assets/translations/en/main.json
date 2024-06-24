@@ -640,6 +640,12 @@
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Arbitrum Bridge Withdraw Request",
+        "withdrawEth": "Arbitrum Bridge Withdraw Request",
+        "submitRetryable": "Receive from Arbitrum Bridge",
+        "createRetryableTicket": "Send to Arbitrum Bridge"
+      },
       "rfox": {
         "stake": "Stake",
         "withdraw": "Withdraw",

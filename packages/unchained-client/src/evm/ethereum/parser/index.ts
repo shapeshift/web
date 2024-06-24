@@ -5,6 +5,7 @@ import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 import * as thorchain from '../../parser/thorchain'
 import * as zrx from '../../parser/zrx'
+import * as arbitrumBridge from './arbitrumBridge'
 import * as cowswap from './cowswap'
 import * as foxy from './foxy'
 import * as uniV2 from './uniV2'
@@ -38,6 +39,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
       new cowswap.Parser(),
+      new arbitrumBridge.Parser({ chainId: this.chainId }),
     ])
   }
 }

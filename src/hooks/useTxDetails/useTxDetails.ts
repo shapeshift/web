@@ -28,6 +28,7 @@ export enum Method {
   Approve = 'approve',
   BeginRedelegate = 'begin_redelegate',
   BeginUnbonding = 'begin_unbonding',
+  CreateRetryableTicket = 'createRetryableTicket',
   ClaimWithdraw = 'claimWithdraw',
   Delegate = 'delegate',
   Deposit = 'deposit',
@@ -45,12 +46,14 @@ export enum Method {
   LoanRepaymentRefund = 'loanRepaymentRefund',
   LoanRepaymentRefundNative = 'loanRepaymentRefundNative',
   Out = 'out',
+  OutboundTransfer = 'outboundTransfer',
   RecvPacket = 'recv_packet',
   Refund = 'refund',
   RemoveLiquidityEth = 'removeLiquidityETH',
   Revoke = 'revoke',
   SetRuneAddress = 'setRuneAddress',
   Stake = 'stake',
+  SubmitRetryable = 'submitRetryable',
   SwapOut = 'swapOut',
   SwapRefund = 'swapRefund',
   Transfer = 'transfer',
@@ -60,6 +63,7 @@ export enum Method {
   WithdrawNative = 'withdrawNative',
   WithdrawDelegatorReward = 'withdraw_delegator_reward',
   WithdrawOut = 'withdrawOut',
+  WithdrawEth = 'withdrawEth',
 }
 
 export interface TxDetails {

@@ -20,6 +20,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import {
@@ -78,11 +79,13 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   return (
     <>
       <Td fontWeight='bold'>
-        <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
-          <div ref={ref}>
-            <RawText>{accountLabel}</RawText>
-          </div>
-        </Tooltip>
+        <InlineCopyButton value={pubkey} isDisabled={isUtxoAccount}>
+          <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
+            <div ref={ref}>
+              <RawText>{accountLabel}</RawText>
+            </div>
+          </Tooltip>
+        </InlineCopyButton>
       </Td>
       <Td textAlign='right'>
         {isLoading ? (

@@ -50,7 +50,10 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   )
 
   const handleCheckNumDevices = useCallback(async () => {
-    const devices = await TransportWebUSB.list()
+    const devices = await TransportWebUSB.list().catch(e => {
+      console.error(e)
+      return []
+    })
     const numDevices = devices.length
     return numDevices
   }, [])
@@ -112,7 +115,6 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
-        history.push('/ledger/failure')
       }
     }
 

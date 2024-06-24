@@ -1,13 +1,12 @@
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import type { EpochMetadata } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
+import { epochHistoryQueryFn, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
-  epochMetadata: EpochMetadata
 }
 
 /**
@@ -15,7 +14,6 @@ type UseCurrentEpochRewardsQueryProps = {
  */
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
-  epochMetadata,
 }: UseCurrentEpochRewardsQueryProps) => {
   const queryClient = useQueryClient()
 
@@ -33,15 +31,24 @@ export const useCurrentEpochRewardsQuery = ({
     () =>
       stakingAssetAccountAddress
         ? async () => {
+            const epochHistory = await queryClient.fetchQuery({
+              queryKey: getEpochHistoryQueryKey(),
+              queryFn: epochHistoryQueryFn,
+            })
+
+            const currentEpochMetadata = epochHistory[epochHistory.length - 1]
+
+            if (!currentEpochMetadata) throw new Error('No current epoch metadata')
+
             const [previousEpochEarned, currentEpochEarned] = await Promise.all([
               queryClient.fetchQuery({
                 queryKey: getEarnedQueryKey({
                   stakingAssetAccountAddress,
-                  blockNumber: epochMetadata.startBlockNumber - 1n,
+                  blockNumber: currentEpochMetadata.startBlockNumber - 1n,
                 }),
                 queryFn: getEarnedQueryFn({
                   stakingAssetAccountAddress,
-                  blockNumber: epochMetadata.startBlockNumber - 1n,
+                  blockNumber: currentEpochMetadata.startBlockNumber - 1n,
                 }),
               }),
               queryClient.fetchQuery({
@@ -61,13 +68,13 @@ export const useCurrentEpochRewardsQuery = ({
 
             const epochRewardRuneBaseUnit = calcEpochRewardForAccountRuneBaseUnit(
               epochEarningsForAccount,
-              epochMetadata,
+              currentEpochMetadata,
             )
 
             return epochRewardRuneBaseUnit
           }
         : skipToken,
-    [epochMetadata, queryClient, stakingAssetAccountAddress],
+    [queryClient, stakingAssetAccountAddress],
   )
 
   const epochEarnedHistoryQuery = useQuery({

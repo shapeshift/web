@@ -1,5 +1,7 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertIcon,
   Button,
   Card,
   CardFooter,
@@ -18,6 +20,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { type Asset } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -52,6 +55,7 @@ import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
+import type { ArbitrumBridgeTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
@@ -61,6 +65,7 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectFeeAssetById,
   selectHasUserEnteredAmount,
   selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
@@ -144,6 +149,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const sellAssetSearch = useModal('sellTradeAssetSearch')
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAssetFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, buyAsset?.assetId ?? ''),
+  )
   const percentOptions = useMemo(() => {
     if (!sellAsset?.assetId) return []
     if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
@@ -463,6 +471,22 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
+  const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =
+    useMemo(() => {
+      if (!buyAssetFeeAsset) return
+      // TODO(gomes): Bring me in for all bridges?
+      const isBridge = (activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'deposit'
+
+      if (isBridge)
+        return [
+          'bridge.nativeAssetWarning',
+          {
+            destinationSymbol: buyAssetFeeAsset.symbol,
+            destinationChainName: buyAssetFeeAsset.networkName,
+          },
+        ]
+    }, [activeQuote, buyAssetFeeAsset])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <>
@@ -510,6 +534,12 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
+          {nativeAssetBridgeWarning && (
+            <Alert status='info' borderRadius='lg'>
+              <AlertIcon />
+              <Text translation={nativeAssetBridgeWarning} />
+            </Alert>
+          )}
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
           <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
 
@@ -543,6 +573,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       totalProtocolFees,
       slippageDecimal,
       priceImpactPercentage,
+      nativeAssetBridgeWarning,
       receiveAddress,
       walletSupportsBuyAssetChain,
       quoteHasError,

@@ -735,6 +735,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "Make sure you have %{destinationSymbol} in your %{destinationChainName} account, you’ll need it for transactions",
     "confirm": "Confirm Bridge",
     "selectChain": "Select Chain",
     "selectAsset": "Select Asset",

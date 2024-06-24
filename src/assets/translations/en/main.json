@@ -642,10 +642,12 @@
     "parser": {
       "arbitrumBridge": {
         "outboundTransfer": "Withdraw Request",
+        "outboundTransferDeposit": "Deposit Request",
         "withdrawEth": "Withdraw Request",
         "submitRetryable": "Received",
-        "createRetryableTicket": "Send",
-        "finalizeInboundTransfer": "Received"
+        "createRetryableTicket": "Deposit",
+        "finalizeInboundTransfer": "Received",
+        "depositEth": "Deposit"
       },
       "rfox": {
         "stake": "Stake",

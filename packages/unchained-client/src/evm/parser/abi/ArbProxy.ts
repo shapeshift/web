@@ -1,6 +1,6 @@
 import type { InterfaceAbi } from 'ethers'
 
-export const ETHEREUM_TO_ARBITRUM_PROXY_ABI: InterfaceAbi = [
+export const ARB_PROXY_ABI: InterfaceAbi = [
   {
     inputs: [
       { internalType: 'address', name: '_logic', type: 'address' },

@@ -1,6 +1,6 @@
 import type { InterfaceAbi } from 'ethers'
 
-export const ARBITRUM_NATIVE_BRIDGE_ABI: InterfaceAbi = [
+export const ARB_SYS_ABI: InterfaceAbi = [
   {
     anonymous: false,
     inputs: [

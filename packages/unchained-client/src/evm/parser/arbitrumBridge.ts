@@ -1,25 +1,26 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, type AssetId, toAssetId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, type AssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
-import { ETHEREUM_ARB_BRIDGE_PROXY_CONTRACT } from '../ethereum/parser/constants'
 import type { SubParser, TxSpecific } from '.'
 import { txInteractsWithContract } from '.'
-import { ARBITRUM_BRIDGE_ABI } from './abi/arbitrumBridge'
-import { ARBITRUM_NATIVE_BRIDGE_ABI } from './abi/arbitrumNativeBridge'
-import { ARBITRUM_RETRYABLE_ABI } from './abi/arbitrumRetryable'
-import { ETHEREUM_TO_ARBITRUM_PROXY_ABI } from './abi/ethereumToArbitrumProxy'
-import { L1_ERC20_ARBITRUM_BRIDGE_PROXY_ABI } from './abi/l1Erc20ArbitrumBridgeProxy'
-import { L1_NATIVE_ARBITRUM_BRIDGE_PROXY_ABI } from './abi/l1NativeArbitrumBridgeProxy'
+import { ARB_PROXY_ABI } from './abi/ArbProxy'
+import { ARBITRUM_RETRYABLE_TX_ABI } from './abi/ArbRetryableTx'
+import { ARB_SYS_ABI } from './abi/ArbSys'
+import { L1_ARBITRUM_GATEWAY_ABI } from './abi/L1ArbitrumGateway'
+import { L1_ORBIT_CUSTOM_GATEWAY_ABI } from './abi/L1OrbitCustomGateway'
+import { L2_ARBITRUM_GATEWAY_ABI } from './abi/L2ArbitrumGateway'
 import type { Tx } from './types'
 
-export const ARBITRUM_BRIDGE_PROXY_CONTRACT = '0x5288c571Fd7aD117beA99bF60FE0846C4E84F933'
-export const ARBITRUM_SYS_CONTRACT = '0x0000000000000000000000000000000000000064'
-export const ARBITRUM_RETRYABLE_CONTRACT = '0x000000000000000000000000000000000000006e'
-export const ETHEREUM_TO_ARBITRUM_PROXY_CONTRACT = '0x72ce9c846789fdb6fc1f34ac4ad25dd9ef7031ef'
-export const ARBITRUM_L2_CUSTOM_GATEWAY_PROXY = '0x096760F208390250649E3e8763348E783AEF5562'
+export const ARB_SYS_CONTRACT = '0x0000000000000000000000000000000000000064'
 export const ARBITRUM_L2_ERC20_GATEWAY_PROXY = '0x09e9222E96E7B4AE2a407B98d48e330053351EEe'
+
+export const ARB_RETRYABLE_TX_CONTRACT = '0x000000000000000000000000000000000000006e'
+export const L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT = '0x096760F208390250649E3e8763348E783AEF5562'
+export const L2_ARBITRUM_GATEWAY_CONTRACT = '0x5288c571Fd7aD117beA99bF60FE0846C4E84F933'
+export const L1_ARBITRUM_GATEWAY_CONTRACT = '0x72ce9c846789fdb6fc1f34ac4ad25dd9ef7031ef'
+export const L1_ORBIT_CUSTOM_GATEWAY_CONTRACT = '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'arbitrumBridge'
@@ -33,49 +34,50 @@ export interface ParserArgs {
 
 export class Parser implements SubParser<Tx> {
   readonly chainId: ChainId
-  readonly abiInterface = new ethers.Interface(ARBITRUM_BRIDGE_ABI)
-  readonly nativeAbiInterface = new ethers.Interface(ARBITRUM_NATIVE_BRIDGE_ABI)
-  readonly ethereumToArbitrumAbiInterface = new ethers.Interface(ETHEREUM_TO_ARBITRUM_PROXY_ABI)
-  readonly retryableAbiInterface = new ethers.Interface(ARBITRUM_RETRYABLE_ABI)
 
-  readonly l1NativeAbiInterface = new ethers.Interface(L1_NATIVE_ARBITRUM_BRIDGE_PROXY_ABI)
-  readonly l1NonNativeAbiInterface = new ethers.Interface(L1_ERC20_ARBITRUM_BRIDGE_PROXY_ABI)
+  readonly arbProxyAbi = new ethers.Interface(ARB_PROXY_ABI)
+  readonly arbSysAbi = new ethers.Interface(ARB_SYS_ABI)
+  readonly arbRetryableTxAbi = new ethers.Interface(ARBITRUM_RETRYABLE_TX_ABI)
+  readonly l2ArbitrumGatewayAbi = new ethers.Interface(L2_ARBITRUM_GATEWAY_ABI)
+  readonly l1OrbitCustomGatewayAbi = new ethers.Interface(L1_ORBIT_CUSTOM_GATEWAY_ABI)
+  readonly l1ArbitrumGatewayAbi = new ethers.Interface(L1_ARBITRUM_GATEWAY_ABI)
 
   constructor(args: ParserArgs) {
     this.chainId = args.chainId
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    console.log(tx)
     if (
-      !txInteractsWithContract(tx, ARBITRUM_BRIDGE_PROXY_CONTRACT) &&
-      !txInteractsWithContract(tx, ARBITRUM_SYS_CONTRACT) &&
-      !txInteractsWithContract(tx, ETHEREUM_TO_ARBITRUM_PROXY_CONTRACT) &&
-      !txInteractsWithContract(tx, ARBITRUM_RETRYABLE_CONTRACT) &&
-      !txInteractsWithContract(tx, ARBITRUM_L2_CUSTOM_GATEWAY_PROXY) &&
+      !txInteractsWithContract(tx, L2_ARBITRUM_GATEWAY_CONTRACT) &&
+      !txInteractsWithContract(tx, ARB_SYS_CONTRACT) &&
+      !txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT) &&
+      !txInteractsWithContract(tx, ARB_RETRYABLE_TX_CONTRACT) &&
+      !txInteractsWithContract(tx, L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT) &&
       !txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY) &&
-      !txInteractsWithContract(tx, ETHEREUM_ARB_BRIDGE_PROXY_CONTRACT)
+      !txInteractsWithContract(tx, L1_ORBIT_CUSTOM_GATEWAY_CONTRACT)
     )
       return
 
     if (!tx.inputData) return
 
     let selectedAbi = (() => {
-      if (txInteractsWithContract(tx, ARBITRUM_SYS_CONTRACT)) return this.nativeAbiInterface
-      if (txInteractsWithContract(tx, ARBITRUM_BRIDGE_PROXY_CONTRACT)) return this.abiInterface
-      if (txInteractsWithContract(tx, ARBITRUM_L2_CUSTOM_GATEWAY_PROXY)) return this.abiInterface
-      if (txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY)) return this.abiInterface
+      if (txInteractsWithContract(tx, ARB_SYS_CONTRACT)) return this.arbSysAbi
+      if (txInteractsWithContract(tx, L2_ARBITRUM_GATEWAY_CONTRACT))
+        return this.l2ArbitrumGatewayAbi
+      if (txInteractsWithContract(tx, L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT))
+        return this.l2ArbitrumGatewayAbi
+      if (txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY))
+        return this.l2ArbitrumGatewayAbi
       if (
-        txInteractsWithContract(tx, ETHEREUM_TO_ARBITRUM_PROXY_CONTRACT) &&
+        txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT) &&
         this.chainId === arbitrumChainId
       )
-        return this.ethereumToArbitrumAbiInterface
-      if (txInteractsWithContract(tx, ARBITRUM_RETRYABLE_CONTRACT))
-        return this.retryableAbiInterface
-      if (txInteractsWithContract(tx, ETHEREUM_ARB_BRIDGE_PROXY_CONTRACT))
-        return this.l1NativeAbiInterface
-      if (txInteractsWithContract(tx, ETHEREUM_TO_ARBITRUM_PROXY_CONTRACT))
-        return this.l1NonNativeAbiInterface
+        return this.arbProxyAbi
+      if (txInteractsWithContract(tx, ARB_RETRYABLE_TX_CONTRACT)) return this.arbRetryableTxAbi
+      if (txInteractsWithContract(tx, L1_ORBIT_CUSTOM_GATEWAY_CONTRACT))
+        return this.l1OrbitCustomGatewayAbi
+      if (txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT))
+        return this.l1ArbitrumGatewayAbi
     })()
 
     const decoded = selectedAbi?.parseTransaction({ data: tx.inputData })
@@ -95,6 +97,10 @@ export class Parser implements SubParser<Tx> {
       assetId: maybeAssetId,
       method: decoded.name,
       parser: 'arbitrumBridge',
+    }
+
+    if (txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT) && this.chainId === ethChainId) {
+      data.method = `${decoded.name}Deposit`
     }
 
     return await Promise.resolve({ data })

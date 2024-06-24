@@ -5,6 +5,9 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { Trade } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { Api } from '../../..'
+import { arbitrumBridgeErc20DepositTx } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeErc20DepositTx'
+import { arbitrumBridgeNativeCreateRetryableTicketTx } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeNativeCreateRetryableTicketTx'
+import { arbitrumBridgeNativeDepositTx } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeNativeDepositTx'
 import type { ParsedTx } from '../../../parser'
 import type { V1Api } from '../../index'
 import {
@@ -3090,6 +3093,89 @@ describe('parseTx', () => {
         ],
       }
 
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+  })
+
+  describe('arbitrumBridge', () => {
+    it('should be able to parse erc20 deposit', async () => {
+      const tx = arbitrumBridgeErc20DepositTx
+      const address = '0xa6F15FB2cc5dC96c2EBA18c101AD3fAD27F74839'
+
+      const expected = {
+        address,
+        blockHash: '0xed1bdf1823c6d9fc3f2486d795e79e65fdac065173f13e10fe1fdc11c0afc90d',
+        blockHeight: 20146622,
+        blockTime: 1719051767,
+        chainId: 'eip155:1',
+        confirmations: 15713,
+        data: {
+          assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+          method: 'outboundTransferDeposit',
+          parser: 'arbitrumBridge',
+        },
+        status: 'Confirmed',
+        trade: undefined,
+        transfers: [],
+        txid: '0x2b666f87986ed222e45c5299f893258e2468d59068ed36425f26ee2088baeb60',
+      }
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse native deposit', async () => {
+      const tx = arbitrumBridgeNativeDepositTx
+      const address = '0xa6F15FB2cc5dC96c2EBA18c101AD3fAD27F74839'
+
+      const expected = {
+        address,
+        blockHash: '0x547baea04677590e3c4887cc8ed8d488e383573aee47e32c9308f98e73af4320',
+        blockHeight: 19832035,
+        blockTime: 1715252267,
+        chainId: 'eip155:1',
+        confirmations: 330563,
+        data: {
+          assetId: undefined,
+          method: 'depositEth',
+          parser: 'arbitrumBridge',
+        },
+        status: 'Confirmed',
+        trade: undefined,
+        transfers: [],
+        txid: '0xd115a9c89b5a387fc4da3be84329038e25cb13e36dd054126de9ac9ae3177f19',
+      }
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+
+    it('should be able to parse native create retryable ticket', async () => {
+      const tx = arbitrumBridgeNativeCreateRetryableTicketTx
+      const address = '0xa6F15FB2cc5dC96c2EBA18c101AD3fAD27F74839'
+
+      const expected = {
+        address,
+        blockHash: '0x612914871278754aa065019e9de359340b6c7b22f5e72d276807d2fc426bddf4',
+        blockHeight: 20146557,
+        blockTime: 1719050987,
+        chainId: 'eip155:1',
+        confirmations: 15778,
+        data: {
+          assetId: undefined,
+          method: 'createRetryableTicket',
+          parser: 'arbitrumBridge',
+        },
+        status: 'Confirmed',
+        trade: undefined,
+        transfers: [],
+        txid: '0x75f20f8f2caead042ac63c3175f34e505bc9a388a10b4c4e64a55831ef4d33cf',
+      }
       const txParser = await makeTxParser()
       const actual = await txParser.parse(tx, address)
 

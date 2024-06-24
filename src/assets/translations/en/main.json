@@ -641,10 +641,11 @@
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
       "arbitrumBridge": {
-        "outboundTransfer": "Arbitrum Bridge Withdraw Request",
-        "withdrawEth": "Arbitrum Bridge Withdraw Request",
-        "submitRetryable": "Receive from Arbitrum Bridge",
-        "createRetryableTicket": "Send to Arbitrum Bridge"
+        "outboundTransfer": "Withdraw Request",
+        "withdrawEth": "Withdraw Request",
+        "submitRetryable": "Received",
+        "createRetryableTicket": "Send",
+        "finalizeInboundTransfer": "Received"
       },
       "rfox": {
         "stake": "Stake",

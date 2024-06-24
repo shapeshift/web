@@ -1,6 +1,6 @@
 import type { InterfaceAbi } from 'ethers'
 
-export const ARBITRUM_BRIDGE_PROXY_ABI: InterfaceAbi = [
+export const L1_ERC20_ARBITRUM_BRIDGE_PROXY_ABI: InterfaceAbi = [
   {
     anonymous: false,
     inputs: [

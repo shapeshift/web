@@ -36,6 +36,7 @@ export enum Method {
   DepositRefundNative = 'depositRefundNative',
   Exit = 'exit',
   ExitPool = 'exit_pool',
+  FinalizeInboundTransfer = 'finalizeInboundTransfer',
   InstantUnstake = 'instantUnstake',
   JoinPool = 'join_pool',
   LoanOpen = 'loanOpen',

@@ -2461,7 +2461,6 @@
     "stakePending": "%{amount} %{symbol} をステーキング中...",
     "addressUpdated": "アドレスが更新されました",
     "changeRewardAddressPending": "報酬アドレスを変更しています...",
-    "changeRewardAddressSuccess": "THORCHain 報酬アドレスの変更に成功しました。",
     "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
     "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
     "currentRewardAddress": "現在の報酬アドレス",

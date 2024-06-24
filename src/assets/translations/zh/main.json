@@ -2461,7 +2461,6 @@
     "stakePending": "质押 %{amount} %{symbol}...",
     "addressUpdated": "地址已更新",
     "changeRewardAddressPending": "更改奖励地址...",
-    "changeRewardAddressSuccess": "你已成功更改你的 THORCHain 奖励地址。",
     "unstakePending": "请求提取 %{amount} %{symbol}",
     "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
     "currentRewardAddress": "当前奖励地址",

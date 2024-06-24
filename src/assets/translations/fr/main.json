@@ -2461,7 +2461,6 @@
     "stakePending": "Mise en cours de %{amount} %{symbol}...",
     "addressUpdated": "Adresse mise à jour",
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
-    "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORCHain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
     "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",

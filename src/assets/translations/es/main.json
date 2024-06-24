@@ -2461,7 +2461,6 @@
     "stakePending": "Stake %{amount} %{symbol}...",
     "addressUpdated": "Dirección actualizada",
     "changeRewardAddressPending": "Cambiando dirección de recompensa...",
-    "changeRewardAddressSuccess": "Ha cambiado con éxito su dirección THORCHain para recompensas.",
     "unstakePending": "Solicitando retiro de %{amount} %{symbol}",
     "unstakeSuccess": "Una vez transcurrido el %{cooldownPeriod}, podrás reclamar tu %{amount} %{symbol}",
     "currentRewardAddress": "Dirección de Recompensa Actual",

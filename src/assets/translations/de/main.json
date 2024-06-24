@@ -2461,7 +2461,6 @@
     "stakePending": "Staking %{amount} %{symbol}...",
     "addressUpdated": "Adresse aktualisiert",
     "changeRewardAddressPending": "Belohnungsadresse ändern …",
-    "changeRewardAddressSuccess": "Sie haben Ihre THORCHAin Belohnungsadresse erfolgreich geändert.",
     "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
     "unstakeSuccess": "Sobald die %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
     "currentRewardAddress": "Aktuelle Belohnungsadresse",

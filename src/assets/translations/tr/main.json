@@ -2461,7 +2461,6 @@
     "stakePending": "%{amount} %{symbol} stake ediliyor...",
     "addressUpdated": "Adres güncellendi",
     "changeRewardAddressPending": "Ödül Adresi Değiştiriliyor...",
-    "changeRewardAddressSuccess": "THORChain Ödül Adresinizi başarıyla değiştirdiniz.",
     "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
     "unstakeSuccess": "%{cooldownPeriod} süresi dolduğunda, %{amount} %{symbol} miktarınızı talep edebileceksiniz",
     "currentRewardAddress": "Güncel Ödül Adresi",

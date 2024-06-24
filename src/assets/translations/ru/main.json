@@ -2461,7 +2461,6 @@
     "stakePending": "Стейкинг %{amount} %{symbol}...",
     "addressUpdated": "Адрес обновлен",
     "changeRewardAddressPending": "Изменение адреса вознаграждения...",
-    "changeRewardAddressSuccess": "Вы успешно изменили свой адрес вознаграждения THORCHain.",
     "unstakePending": "Запрос на снятие %{amount} %{symbol}",
     "unstakeSuccess": "По истечении  %{cooldownPeriod} вы сможете забрать свою %{amount} %{symbol}",
     "currentRewardAddress": "Текущий адрес для получения вознаграждения",

@@ -2,9 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import assert from 'assert'
 import { useMemo } from 'react'
 import { arbitrum } from 'viem/chains'
+import { serialize } from 'wagmi'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
-type BlockNumberByTimestampQueryKey = ['blockNumberByTimestamp', { targetTimestamp: bigint }]
+type BlockNumberByTimestampQueryKey = ['blockNumberByTimestamp', string]
 
 /**
  * @param targetTimestamp The target timestamp in seconds - not an actual block timestamp
@@ -29,7 +30,7 @@ export const getEarliestBlockNumberByTimestampQueryKey = ({
   targetTimestamp,
 }: UseEarliestBlockNumberByTimestampQueryProps): BlockNumberByTimestampQueryKey => [
   'blockNumberByTimestamp',
-  { targetTimestamp },
+  serialize({ targetTimestamp }),
 ]
 
 export const getEarliestBlockNumberByTimestampQueryFn =

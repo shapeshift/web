@@ -59,7 +59,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
           informationDescription='RFOX.lifetimeRewards'
           helperTranslation='RFOX.lifetimeRewardsHelper'
           assetId={thorchainAssetId}
-          amountCryptoBaseUnit={lifetimeRewardsCryptoBaseUnit?.toString() ?? '0'}
+          amountCryptoBaseUnit={lifetimeRewardsCryptoBaseUnit?.toString()}
           isLoading={
             isLifetimeRewardsCryptoBaseUnitLoading ||
             isLifetimeRewardsCryptoBaseUnitPaused ||

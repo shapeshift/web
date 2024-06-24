@@ -34,17 +34,18 @@ export const epochHistoryQueryFn = async (): Promise<EpochMetadata[]> => {
 
   while (startTimestamp < now) {
     const nextStartTimestamp = BigInt(dayjs.unix(Number(startTimestamp)).add(1, 'month').unix())
+    startTimestamp = nextStartTimestamp
 
-    if (nextStartTimestamp >= now) {
-      // We cannot fetch blocks in the future using Etherscan's API, or we'll get an "Error! Block timestamp too far in the future" error
+    if (nextStartTimestamp > now) {
+      // Cannot introspect block numbers by timestamp for the future
       break
     }
-
     // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
     const nextBlockNumber = await queryClient.fetchQuery({
       queryKey: getEarliestBlockNumberByTimestampQueryKey({ targetTimestamp: nextStartTimestamp }),
       queryFn: getEarliestBlockNumberByTimestampQueryFn({ targetTimestamp: nextStartTimestamp }),
     })
+    startBlockNumber = nextBlockNumber
 
     const endTimestamp = nextStartTimestamp - 1n
 
@@ -63,9 +64,6 @@ export const epochHistoryQueryFn = async (): Promise<EpochMetadata[]> => {
     }
 
     epochHistory.push(epochMetadata)
-
-    startTimestamp = nextStartTimestamp
-    startBlockNumber = nextBlockNumber
   }
 
   return epochHistory

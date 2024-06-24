@@ -22,7 +22,6 @@ export function useCopyToClipboard({ timeout = 2000 }: useCopyToClipboardProps) 
     setIsCopying(true)
 
     void navigator.clipboard.writeText(value).then(() => {
-      if (isCopying) return
       setIsCopied(true)
 
       setTimeout(() => {

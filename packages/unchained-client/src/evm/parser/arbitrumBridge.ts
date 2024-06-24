@@ -99,6 +99,7 @@ export class Parser implements SubParser<Tx> {
       parser: 'arbitrumBridge',
     }
 
+    // On ethereum side, we wants to tag it as a deposit if it interacts with the L1 Arbitrum Gateway
     if (txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT) && this.chainId === ethChainId) {
       data.method = `${decoded.name}Deposit`
     }

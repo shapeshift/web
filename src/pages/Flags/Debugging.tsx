@@ -1,6 +1,7 @@
 import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Stack } from '@chakra-ui/react'
+import { getCurrentScope } from '@sentry/react'
 import axios from 'axios'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Row } from 'components/Row/Row'
 import { showDeveloperModal } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
@@ -39,6 +40,10 @@ export const Debugging = () => {
     })()
   }, [])
 
+  const sentryUserId = useMemo(() => {
+    return getCurrentScope().getUser()?.id
+  }, [])
+
   return (
     <Stack my={8} spacing={4} flex={1}>
       <Card>
@@ -65,6 +70,14 @@ export const Debugging = () => {
               <Row alignItems='center'>
                 <Row.Label>Latest tag</Row.Label>
                 <Row.Value fontFamily={'monospace'}>{buildMetadata.latestTag}</Row.Value>
+              </Row>
+            </>
+          )}
+          {sentryUserId && (
+            <>
+              <Row alignItems='center'>
+                <Row.Label>Sentry user ID</Row.Label>
+                <Row.Value fontFamily={'monospace'}>{sentryUserId}</Row.Value>
               </Row>
             </>
           )}

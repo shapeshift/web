@@ -18,7 +18,7 @@ type StakingInfoItemProps = {
   | {
       value?: never
       assetId: AssetId
-      amountCryptoBaseUnit: string
+      amountCryptoBaseUnit: string | undefined
     }
   | {
       value: string | undefined

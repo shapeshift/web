@@ -145,7 +145,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
               color={status === ClaimStatus.Available ? 'green.300' : 'yellow.300'}
               align={'end'}
             >
-              {statusText}
+              {onClaimButtonClick ? statusText : status}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'end'}>
               <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />

@@ -2502,7 +2502,7 @@
     "noClaimsAvailable": "No claims available",
     "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",
-    "unstakeNow": "Unstake Now",
+    "unstakeNow": "Unstake To Claim FOX",
     "bridgeAndConfirm": "Bridge & Confirm",
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",

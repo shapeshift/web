@@ -1,6 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
+import { mergeQueryOutputs } from 'react-queries/helpers'
 
 import type { EpochMetadata } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
@@ -20,41 +21,19 @@ export const useCurrentEpochRewardsQuery = ({
 }: UseCurrentEpochRewardsQueryProps) => {
   const combineResults = useCallback(
     (results: [UseQueryResult<bigint, Error>, UseQueryResult<bigint, Error>]) => {
-      const isLoading = results.some(result => result.isLoading)
-      const isPending = results.some(result => result.isError || result.isLoading)
-      const isError = results.some(result => result.isError)
+      const combineResults = (results: bigint[]) => {
+        const [previousEpochEarned, currentEpochEarned] = results
 
-      if (isLoading || isPending) {
-        return {
-          data: undefined,
-          isLoading: true,
-          isError: false,
-        }
+        const epochEarningsForAccount = currentEpochEarned - previousEpochEarned
+
+        const epochRewardRuneBaseUnit = calcEpochRewardForAccountRuneBaseUnit(
+          epochEarningsForAccount,
+          epochMetadata,
+        )
+
+        return epochRewardRuneBaseUnit
       }
-
-      if (isError) {
-        return {
-          data: undefined,
-          isLoading: false,
-          isError: true,
-        }
-      }
-
-      const [previousEpochEarned, currentEpochEarned] = results.map(result => result.data)
-
-      const epochEarningsForAccount =
-        (currentEpochEarned as bigint) - (previousEpochEarned as bigint)
-
-      const epochRewardRuneBaseUnit = calcEpochRewardForAccountRuneBaseUnit(
-        epochEarningsForAccount,
-        epochMetadata,
-      )
-
-      return {
-        data: epochRewardRuneBaseUnit,
-        isLoading: false,
-        isError: false,
-      }
+      return mergeQueryOutputs(results, combineResults)
     },
     [epochMetadata],
   )

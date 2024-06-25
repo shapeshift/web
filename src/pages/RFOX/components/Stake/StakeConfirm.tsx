@@ -10,7 +10,8 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -20,18 +21,21 @@ import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAssetById,
+  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -61,6 +65,19 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
+  )
+  const stakingAssetFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
+  )
+  const stakingAssetFeeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: confirmedQuote.stakingAssetAccountId,
+      assetId: stakingAssetFeeAsset?.assetId,
+    }),
+    [confirmedQuote.stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
+  )
+  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
   const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
@@ -163,6 +180,29 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     [approvalTx?.status],
   )
 
+  const hasEnoughStakingAssetFeeBalance = useMemo(() => {
+    // Staking asset fee asset still loading, assume enough balance not to have a flash of error state on first render
+    if (!stakingAssetFeeAsset) return true
+    if (bnOrZero(stakingAmountCryptoPrecision).isZero()) return true
+    if (bnOrZero(stakingAssetFeeAssetBalanceCryptoPrecision).isZero()) return false
+
+    const fees = approvalFees || stakeFees
+
+    const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
+      toBaseUnit(stakingAssetFeeAssetBalanceCryptoPrecision, stakingAssetFeeAsset.precision),
+    )
+
+    if (!hasEnoughFeeBalance) return false
+
+    return true
+  }, [
+    stakingAssetFeeAsset,
+    stakingAmountCryptoPrecision,
+    stakingAssetFeeAssetBalanceCryptoPrecision,
+    approvalFees,
+    stakeFees,
+  ])
+
   // The approval Tx may be confirmed, but that's not enough to know we're ready to stake
   // Allowance then needs to be succesfully refetched - failure to wait for it will result in jumpy states between
   // the time the Tx is confirmed, and the time the allowance is succesfully refetched
@@ -247,6 +287,22 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     )
   }, [stakeAmountUserCurrency, stakingAmountCryptoPrecision, stakingAsset])
 
+  const confirmCopy = useMemo(() => {
+    if (!hasEnoughStakingAssetFeeBalance)
+      return translate('common.insufficientAmountForGas', {
+        assetSymbol: stakingAssetFeeAsset?.symbol,
+        chainSymbol: getChainShortName(stakingAssetFeeAsset?.chainId as KnownChainIds),
+      })
+    if (isApprovalRequired) return translate('common.approve')
+    return translate('RFOX.confirmAndStake')
+  }, [
+    hasEnoughStakingAssetFeeBalance,
+    isApprovalRequired,
+    stakingAssetFeeAsset?.chainId,
+    stakingAssetFeeAsset?.symbol,
+    translate,
+  ])
+
   return (
     <SlideTransition>
       <CardHeader display='flex' alignItems='center' gap={2}>
@@ -327,9 +383,10 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
         <Button
           size='lg'
           mx={-2}
-          disabled={Boolean(
+          isDisabled={Boolean(
             !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
               isStakeTxPending ||
+              !hasEnoughStakingAssetFeeBalance ||
               isAllowanceDataLoading,
           )}
           isLoading={
@@ -339,10 +396,10 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
             isStakeFeesLoading ||
             isStakeTxPending
           }
-          colorScheme='blue'
+          colorScheme={hasEnoughStakingAssetFeeBalance ? 'blue' : 'red'}
           onClick={handleSubmit}
         >
-          {translate(isApprovalRequired ? 'common.approve' : 'RFOX.confirmAndStake')}
+          {confirmCopy}
         </Button>
       </CardFooter>
     </SlideTransition>

@@ -10,8 +10,6 @@ import { TransactionParser, ZRX_ARBITRUM_PROXY_CONTRACT } from '../index'
 import { arbitrumBridgeErc20GatewayReceive } from './mockData/arbitrumBridgeErc20GatewayReceive'
 import { arbitrumBridgeErc20ReceiveTx } from './mockData/arbitrumBridgeErc20ReceiveTx'
 import { arbitrumBridgeErc20WithdrawTx } from './mockData/arbitrumBridgeErc20WithdrawTx'
-import { arbitrumBridgeNativeCreateRetryableTicketTx } from './mockData/arbitrumBridgeNativeCreateRetryableTicketTx'
-import { arbitrumBridgeNativeDepositTx } from './mockData/arbitrumBridgeNativeDepositTx'
 import { arbitrumBridgeNativeReceiveTx } from './mockData/arbitrumBridgeNativeReceiveTx'
 import { arbitrumBridgeNativeWithdrawRequest } from './mockData/arbitrumBridgeNativeWithdrawRequest'
 import erc20Approve from './mockData/erc20Approve'
@@ -1040,7 +1038,7 @@ describe('parseTx', () => {
   describe('arbitrumBridge', () => {
     it('should be able to parse erc20 gateway receive', async () => {
       const tx = arbitrumBridgeErc20GatewayReceive
-      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
+      const address = '0x94a42DB1E578eFf403B1644FA163e523803241Fd'
 
       const expected = {
         address,
@@ -1065,7 +1063,7 @@ describe('parseTx', () => {
 
     it('should be able to parse erc20 receive', async () => {
       const tx = arbitrumBridgeErc20ReceiveTx
-      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
+      const address = '0x94a42DB1E578eFf403B1644FA163e523803241Fd'
 
       const expected = {
         address,
@@ -1073,7 +1071,7 @@ describe('parseTx', () => {
         blockHeight: 224500284,
         blockTime: 1719052133,
         chainId: 'eip155:42161',
-        confirmations: 763753,
+        confirmations: 1180014,
         data: {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
           method: 'finalizeInboundTransfer',
@@ -1081,7 +1079,27 @@ describe('parseTx', () => {
         },
         status: 'Confirmed',
         trade: undefined,
-        transfers: [],
+        transfers: [
+          {
+            assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+            components: [
+              {
+                value: '2000000',
+              },
+            ],
+            from: '0x0000000000000000000000000000000000000000',
+            id: undefined,
+            to: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+            token: {
+              contract: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+              decimals: 6,
+              name: 'USD Coin (Arb1)',
+              symbol: 'USDC',
+            },
+            totalValue: '2000000',
+            type: 'Receive',
+          },
+        ],
         txid: '0x3e990a071163262202d0c9a412c891c8f8a14007c97cd7a0c347d2ac64b4b98c',
       }
       const actual = await txParser.parse(tx, address)
@@ -1090,23 +1108,47 @@ describe('parseTx', () => {
 
     it('should be able to parse erc20 withdraw', async () => {
       const tx = arbitrumBridgeErc20WithdrawTx
-      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
+      const address = '0x94a42DB1E578eFf403B1644FA163e523803241Fd'
 
       const expected = {
-        address,
+        address: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
         blockHash: '0xbfa51881976c1a05afd00a9e82b778af66766b2cacd6b85e48d29aec44c52061',
         blockHeight: 224270780,
         blockTime: 1718994794,
         chainId: 'eip155:42161',
-        confirmations: 993257,
+        confirmations: 1409518,
         data: {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
           method: 'outboundTransfer',
           parser: 'arbitrumBridge',
         },
+        fee: {
+          assetId: 'eip155:42161/slip44:60',
+          value: '1695320154120',
+        },
         status: 'Confirmed',
         trade: undefined,
-        transfers: [],
+        transfers: [
+          {
+            assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
+            components: [
+              {
+                value: '1000',
+              },
+            ],
+            from: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+            id: undefined,
+            to: '0x0000000000000000000000000000000000000000',
+            token: {
+              contract: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+              decimals: 6,
+              name: 'USD Coin (Arb1)',
+              symbol: 'USDC',
+            },
+            totalValue: '1000',
+            type: 'Send',
+          },
+        ],
         txid: '0x61a27cddd98e33d34a61c10c0a2ea1e608e4bae5469d9f1f5e3ad4649cb57817',
       }
 
@@ -1114,61 +1156,9 @@ describe('parseTx', () => {
       expect(actual).toEqual(expected)
     })
 
-    it('should be able to parse erc20 l1 native create retryable ticket', async () => {
-      const tx = arbitrumBridgeNativeCreateRetryableTicketTx
-      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
-
-      const expected = {
-        address,
-        blockHash: '0x612914871278754aa065019e9de359340b6c7b22f5e72d276807d2fc426bddf4',
-        blockHeight: 20146557,
-        blockTime: 1719050987,
-        chainId: 'eip155:42161',
-        confirmations: 15778,
-        data: {
-          assetId: undefined,
-          method: 'createRetryableTicket',
-          parser: 'arbitrumBridge',
-        },
-        status: 'Confirmed',
-        trade: undefined,
-        transfers: [],
-        txid: '0x75f20f8f2caead042ac63c3175f34e505bc9a388a10b4c4e64a55831ef4d33cf',
-      }
-
-      const actual = await txParser.parse(tx, address)
-      expect(actual).toEqual(expected)
-    })
-
-    it('should be able to parse erc20 l1 native deposit', async () => {
-      const tx = arbitrumBridgeNativeDepositTx
-      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
-
-      const expected = {
-        address,
-        blockHash: '0x547baea04677590e3c4887cc8ed8d488e383573aee47e32c9308f98e73af4320',
-        blockHeight: 19832035,
-        blockTime: 1715252267,
-        chainId: 'eip155:42161',
-        confirmations: 330563,
-        data: {
-          assetId: undefined,
-          method: 'depositEth',
-          parser: 'arbitrumBridge',
-        },
-        status: 'Confirmed',
-        trade: undefined,
-        transfers: [],
-        txid: '0xd115a9c89b5a387fc4da3be84329038e25cb13e36dd054126de9ac9ae3177f19',
-      }
-
-      const actual = await txParser.parse(tx, address)
-      expect(actual).toEqual(expected)
-    })
-
-    it('should be able to parse erc20 l1 native receive', async () => {
+    it('should be able to parse ETH receive', async () => {
       const tx = arbitrumBridgeNativeReceiveTx
-      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
+      const address = '0x94a42DB1E578eFf403B1644FA163e523803241Fd'
 
       const expected = {
         address,
@@ -1191,25 +1181,44 @@ describe('parseTx', () => {
       expect(actual).toEqual(expected)
     })
 
-    it('should be able to parse erc20 l1 native withdraw request', async () => {
+    it('should be able to parse ETH withdraw request', async () => {
       const tx = arbitrumBridgeNativeWithdrawRequest
-      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
+      const address = '0x94a42DB1E578eFf403B1644FA163e523803241Fd'
 
       const expected = {
-        address,
+        address: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
         blockHash: '0x0b530cd0fa06588c075e5627a0ac9e39e7e29af8120b392c1ad4baf61b9d97be',
         blockHeight: 224271569,
         blockTime: 1718994989,
         chainId: 'eip155:42161',
-        confirmations: 995731,
+        confirmations: 1408729,
         data: {
           assetId: undefined,
           method: 'withdrawEth',
           parser: 'arbitrumBridge',
         },
+        fee: {
+          assetId: 'eip155:42161/slip44:60',
+          value: '12725698912890',
+        },
         status: 'Confirmed',
         trade: undefined,
-        transfers: [],
+        transfers: [
+          {
+            assetId: 'eip155:42161/slip44:60',
+            components: [
+              {
+                value: '100000000000',
+              },
+            ],
+            from: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+            id: undefined,
+            to: '0x0000000000000000000000000000000000000064',
+            token: undefined,
+            totalValue: '100000000000',
+            type: 'Send',
+          },
+        ],
         txid: '0x0ea82db2b0bedc5f6ebb8aeaed7e1751f1d974f37fce8d751877350d45721c35',
       }
       const actual = await txParser.parse(tx, address)

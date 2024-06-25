@@ -13,14 +13,13 @@ import { L1_ORBIT_CUSTOM_GATEWAY_ABI } from './abi/L1OrbitCustomGateway'
 import { L2_ARBITRUM_GATEWAY_ABI } from './abi/L2ArbitrumGateway'
 import type { Tx } from './types'
 
-export const ARB_SYS_CONTRACT = '0x0000000000000000000000000000000000000064'
-export const ARBITRUM_L2_ERC20_GATEWAY_PROXY = '0x09e9222E96E7B4AE2a407B98d48e330053351EEe'
-
-export const ARB_RETRYABLE_TX_CONTRACT = '0x000000000000000000000000000000000000006e'
-export const L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT = '0x096760F208390250649E3e8763348E783AEF5562'
-export const L2_ARBITRUM_GATEWAY_CONTRACT = '0x5288c571Fd7aD117beA99bF60FE0846C4E84F933'
-export const L1_ARBITRUM_GATEWAY_CONTRACT = '0x72ce9c846789fdb6fc1f34ac4ad25dd9ef7031ef'
-export const L1_ORBIT_CUSTOM_GATEWAY_CONTRACT = '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f'
+const ARB_SYS_CONTRACT = '0x0000000000000000000000000000000000000064'
+const ARBITRUM_L2_ERC20_GATEWAY_PROXY = '0x09e9222E96E7B4AE2a407B98d48e330053351EEe'
+const ARB_RETRYABLE_TX_CONTRACT = '0x000000000000000000000000000000000000006e'
+const L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT = '0x096760F208390250649E3e8763348E783AEF5562'
+const L2_ARBITRUM_GATEWAY_CONTRACT = '0x5288c571Fd7aD117beA99bF60FE0846C4E84F933'
+const L1_ARBITRUM_GATEWAY_CONTRACT = '0x72ce9c846789fdb6fc1f34ac4ad25dd9ef7031ef'
+const L1_ORBIT_CUSTOM_GATEWAY_CONTRACT = '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'arbitrumBridge'
@@ -47,20 +46,9 @@ export class Parser implements SubParser<Tx> {
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (
-      !txInteractsWithContract(tx, L2_ARBITRUM_GATEWAY_CONTRACT) &&
-      !txInteractsWithContract(tx, ARB_SYS_CONTRACT) &&
-      !txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT) &&
-      !txInteractsWithContract(tx, ARB_RETRYABLE_TX_CONTRACT) &&
-      !txInteractsWithContract(tx, L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT) &&
-      !txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY) &&
-      !txInteractsWithContract(tx, L1_ORBIT_CUSTOM_GATEWAY_CONTRACT)
-    )
-      return
-
     if (!tx.inputData) return
 
-    let selectedAbi = (() => {
+    const selectedAbi = (() => {
       if (txInteractsWithContract(tx, ARB_SYS_CONTRACT)) return this.arbSysAbi
       if (txInteractsWithContract(tx, L2_ARBITRUM_GATEWAY_CONTRACT))
         return this.l2ArbitrumGatewayAbi

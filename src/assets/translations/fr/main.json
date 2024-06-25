@@ -587,7 +587,6 @@
     "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
-    "arkeo": "Airdrop Arkeo",
     "lending": "Prêts",
     "pools": "Pools",
     "actionMenu": {
@@ -2110,67 +2109,6 @@
       "title": "Gagner des récompenses sur vos %{asset}",
       "body": "Misez dans les THORChain Savers Vaults. Sans temps de blocage.",
       "cta": "Déposer maintenant"
-    }
-  },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "Qu'est-ce que c'est Arkeo ?",
-      "bodyParts": {
-        "1": "L'année dernière, aux côtés de",
-        "2": "Coinbase Cloud",
-        "3": "ShapeShift a incubé un projet appelé Arkeo. Le lancement du réseau principal (mainnet) approche à grands pas !",
-        "4": "Arkeo a été créé pour être un backend décentralisé pour toutes les données de nœuds. Les applications qui utilisent Arkeo bénéficieront d'un accroissement de vitesse de développement, de résistance à la censure et de leur",
-        "5": "coefficient nakamoto",
-        "6": "tout en réduisant la dépendance aux sources de données centralisées."
-      }
-    },
-    "whoQualifies": {
-      "title": "Qui peut bénéficier de l'Airdrop Arkeo ?",
-      "body": "Il existe plusieurs façons de se qualifier pour l'Airdrop à l'aide de la dApp ShapeShift. Le snapshot est étalé dans le temps, vous avez encore le temps de vous qualifier !"
-    },
-    "staking": {
-      "title": "Miseurs de %{asset}",
-      "body": "Gagnez jusqu'à %{apy} d'APR sur vos %{asset} inactifs et qualifiez-vous pour l'Airdrop Arkeo. DE PLUS, si vous misez sur %{provider}, un multiplicateur 2x sera appliqué à votre solde misé lors du calcul du montant de votre Airdrop Arkeo.",
-      "cta": "Miser des %{asset}"
-    },
-    "lp": {
-      "title": "Fournisseurs de %{asset1}/%{asset2}",
-      "body": "Vous avez des %{asset1} et des %{asset2} ? Fournissez des liquidités au pool Uniswap V2 pour gagner %{apy} APR. DE PLUS, les FOX sous-jacents dans les jetons LP FOX/ETH que vous détenez se qualifieront pour l'Airdrop Areko.",
-      "cta": "Déposer des liquidités"
-    },
-    "foxTokenHolders": {
-      "title": "Détenteurs de jetons FOX",
-      "body": "Hodler des jetons FOX. Plus votre poche est grande, plus votre Airdrop Arkeo est grand.",
-      "cta": "Échanger pour des FOX",
-      "secondary": "Acheter des FOX"
-    },
-    "foxFarmers": {
-      "title": "Farmeurs de LP FOX/ETH",
-      "body": "Gagnez jusqu'à %{apy} APR en misant vos jetons LP ETH/FOX dans la FOX Farm. DE PLUS, les FOX sous-jacents dans les jetons LP ETH/FOX que vous misez dans le Round 5 de la FOX Farm se qualifieront pour l'Airdrop Arkeo.",
-      "cta": "Miser des LP FOX/ETH"
-    },
-    "foxyTokenHolders": {
-      "title": "Détenteurs de jetons FOXy",
-      "body": "Gagnez jusqu'à %{apy} APR sur vos FOX inactifs avec FOX Yieldy (FOXy). DE PLUS, les FOXy détenus dans votre porte-monnaie seront traités de la même manière que des FOX et se qualifieront pour l'Airdrop Arkeo.",
-      "cta": "Miser des jetons FOX"
-    },
-    "foxEthProviders": {
-      "title": "LP de FOX/ETH sur Uniswap V2",
-      "body": "Vous avez %{asset1} et %{asset2} ? Fournissez des liquidités au pool Uniswap V2 pour gagner %{apy} APR. DE PLUS, les FOX sous-jacents dans les jetons LP FOX/ETH que vous détenez se qualifieront pour l'Airdrop Arkeo.",
-      "cta": "Déposer des liquidités"
-    },
-    "stakeAtom": {
-      "title": "Miser des ATOM",
-      "body": "Gagnez jusqu'à %{apr} APR sur vos ATOM inactifs. DE PLUS, tout les ATOM que vous misez vous rapportent des jetons Arkeo. Si vous misez sur le validateur ShapeShift DAO, vous pouvez doubler votre qualification pour l'Airdrop.",
-      "cta": "Miser des ATOM"
-    },
-    "footer": {
-      "title": "Il existe également d'autres moyens de vous qualifier, en dehors de l'application ShapeShift. Pour une liste complète, consultez la proposition de gouvernance.",
-      "cta": "Consulter la proposition de gouvernance",
-      "disclaimer": {
-        "body": "* Seuls les porte-monnaie auto-dépositaires seront éligibles. Les jetons détenus ou misés dans un porte-monnaie via un échange centralisé ne sont pas éligibles. Besoin d'un porte-monnaie ?",
-        "cta": "En créer un"
-      }
     }
   },
   "nft": {

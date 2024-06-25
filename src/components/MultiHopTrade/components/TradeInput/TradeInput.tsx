@@ -649,7 +649,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   })()
 
   const arbitrumAcknowledgementMessage = useMemo(() => {
-    return translate('TODO')
+    return translate('bridge.arbitrum.waitCta')
   }, [translate])
 
   return (

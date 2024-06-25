@@ -751,6 +751,9 @@
     "waitTimeLabel": "Approx. Wait Time",
     "waitTimeValue": "~5-10 minutes",
     "noSupportedAssets": "No supported assets in portfolio."
+    "arbitrum": {
+      "waitCta": "Arbitrum’s native bridge is more secure but can take up to a week to claim"
+    }
   },
   "trade": {
     "trade": "Trade",

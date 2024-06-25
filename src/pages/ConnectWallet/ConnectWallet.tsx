@@ -51,12 +51,16 @@ const containerPt = { base: 8, lg: 0 }
 const flexAlign = { base: 'center', lg: 'flex-start' }
 const flexRightAlign = { base: 'center', lg: 'flex-end' }
 const textAlign: ResponsiveValue<any> = { base: 'center', lg: 'left' }
-const margin = { base: 0, lg: '130px' }
+const margin = { base: 0, lg: 'auto' }
 const spacing = { base: 6, lg: 8 }
 const display = { base: 'none', lg: 'flex' }
 const width = { base: '100%', lg: 'auto' }
 const maxWidth = { base: '100%', lg: '500px' }
 const hover = { color: 'white' }
+const langSelectorMarginTop = {
+  base: -3,
+  md: 6,
+}
 
 const metamaskIcon = <MetaMaskIcon />
 
@@ -162,13 +166,8 @@ export const ConnectWallet = () => {
           p={6}
           pt={containerPt}
         >
-          <Flex
-            position='absolute'
-            // Account for iOS UI elements such as the Notch or Dynamic Island for top positioning
-            top='calc(var(--chakra-space-6) + env(safe-area-inset-top))'
-            right={6}
-          >
-            <LanguageSelector size='sm' />
+          <Flex justifyContent='flex-end' marginTop={langSelectorMarginTop} width='100%' mb={3}>
+            <LanguageSelector width='auto' size='sm' />
           </Flex>
           <Stack
             alignItems='center'

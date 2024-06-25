@@ -67,7 +67,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
             ml='auto'
             aria-label={translate('navBar.closeNav')}
             variant='ghost'
-            icon={CloseIcon}
+            icon={closeIcon}
             onClick={onClose}
           />
           <Flex gap={2}>
@@ -85,7 +85,6 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           )}
         </Flex>
       )}
-
       <NavBar isCompact={isCompact} mt={6} onClick={onClose} />
       <Stack width='full' mt={6} spacing={spacing}>
         <MainNavLink
@@ -93,7 +92,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           size={secondaryNavSize}
           onClick={handleClickSettings}
           label={translate('common.settings')}
-          leftIcon={SettingsIcon}
+          leftIcon={settingsIcon}
           data-test='navigation-settings-button'
         />
         <MainNavLink
@@ -101,7 +100,7 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           size={secondaryNavSize}
           onClick={handleClickSupport}
           label={translate('common.feedbackAndSupport')}
-          leftIcon={ChatIcon}
+          leftIcon={chatIcon}
         />
       </Stack>
     </Flex>

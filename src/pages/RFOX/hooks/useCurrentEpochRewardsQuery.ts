@@ -70,6 +70,7 @@ export const useCurrentEpochRewardsQuery = ({
           stakingAssetAccountAddress,
           blockNumber: epochMetadata.startBlockNumber - 1n,
         }),
+        staleTime: 60 * 1000, // 1 minute in milliseconds
       },
       {
         queryKey: getEarnedQueryKey({
@@ -80,6 +81,7 @@ export const useCurrentEpochRewardsQuery = ({
           stakingAssetAccountAddress,
           blockNumber: undefined,
         }),
+        staleTime: 60 * 1000, // 1 minute in milliseconds
       },
     ],
     combine: combineResults,

@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
-import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
+import { fetchCurrentEpochMetadata, getCurrentEpochMetadataQueryKey } from './useEpochHistoryQuery'
 
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
@@ -31,14 +31,10 @@ export const useCurrentEpochRewardsQuery = ({
     () =>
       stakingAssetAccountAddress
         ? async () => {
-            const epochHistory = await queryClient.fetchQuery({
-              queryKey: getEpochHistoryQueryKey(),
-              queryFn: fetchEpochHistory,
+            const currentEpochMetadata = await queryClient.fetchQuery({
+              queryKey: getCurrentEpochMetadataQueryKey(),
+              queryFn: fetchCurrentEpochMetadata,
             })
-
-            const currentEpochMetadata = epochHistory[epochHistory.length - 1]
-
-            if (!currentEpochMetadata) throw new Error('No current epoch metadata')
 
             const [previousEpochEarned, currentEpochEarned] = await Promise.all([
               queryClient.fetchQuery({

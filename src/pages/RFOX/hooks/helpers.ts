@@ -1,6 +1,6 @@
 import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
 
-import type { EpochMetadata } from '../types'
+import type { PartialEpochMetadata } from '../types'
 
 /**
  * Calculates the reward for an account in an epoch in RUNE base units.
@@ -11,7 +11,7 @@ import type { EpochMetadata } from '../types'
  */
 export const calcEpochRewardForAccountRuneBaseUnit = (
   epochEarningsForAccount: bigint,
-  epochMetadata: EpochMetadata,
+  epochMetadata: PartialEpochMetadata,
 ) => {
   const secondsInEpoch: bigint = epochMetadata.endTimestamp - epochMetadata.startTimestamp
 

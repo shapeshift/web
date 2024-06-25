@@ -56,7 +56,10 @@ import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
-import type { ArbitrumBridgeTradeQuote } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import {
+  type ArbitrumBridgeTradeQuote,
+  isArbitrumBridgeTradeQuote,
+} from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
@@ -592,7 +595,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   // If the warning acknowledgement is shown, we need to handle the submit differently because we might want to show the streaming acknowledgement
   const handleWarningAcknowledgementSubmit = useCallback(() => {
     if (activeQuote?.isStreaming) return setShouldShowStreamingAcknowledgement(true)
-    if ((activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'withdrawal')
+    if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
     handleFormSubmit()
   }, [activeQuote, handleFormSubmit])
@@ -600,7 +603,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const handleTradeQuoteConfirm = useCallback(() => {
     if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
     if (activeQuote?.isStreaming) return setShouldShowStreamingAcknowledgement(true)
-    if ((activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'withdrawal')
+    if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
 
     handleFormSubmit()

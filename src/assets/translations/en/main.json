@@ -641,13 +641,13 @@
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
       "arbitrumBridge": {
-        "outboundTransfer": "Withdraw Request",
-        "outboundTransferDeposit": "Deposit Request",
-        "withdrawEth": "Withdraw Request",
-        "submitRetryable": "Received",
-        "createRetryableTicket": "Deposit",
-        "finalizeInboundTransfer": "Received",
-        "depositEth": "Deposit"
+        "outboundTransfer": "Withdraw Initiated",
+        "outboundTransferDeposit": "Deposit Initiated",
+        "withdrawEth": "Withdraw Initated",
+        "submitRetryable": "Deposit Received",
+        "createRetryableTicket": "Deposit Initiated",
+        "finalizeInboundTransfer": "Withdraw Received",
+        "depositEth": "Deposit Initiated"
       },
       "rfox": {
         "stake": "Stake",

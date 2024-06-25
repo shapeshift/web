@@ -132,7 +132,6 @@ const validators = {
   REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
   REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
   REACT_APP_FEATURE_YEARN: bool({ default: false }),
-  REACT_APP_FEATURE_ARKEO_AIRDROP: bool({ default: false }),
   REACT_APP_MIXPANEL_TOKEN: str(),
   REACT_APP_FEATURE_TRADE_RATES: bool({ default: false }),
   REACT_APP_SNAPSHOT_BASE_URL: url({

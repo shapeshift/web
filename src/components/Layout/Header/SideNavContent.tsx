@@ -3,8 +3,6 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, IconButton, Stack, useMediaQuery } from '@chakra-ui/react'
 import { lazy, memo, Suspense, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
-import { ArkeoIcon } from 'components/Icons/Arkeo'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
@@ -27,9 +25,12 @@ type HeaderContentProps = {
   onClose?: () => void
 } & FlexProps
 
+const chatIcon = <ChatIcon />
+const closeIcon = <CloseIcon />
+const settingsIcon = <SettingsIcon />
+
 export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
-  const history = useHistory()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
@@ -44,15 +45,6 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
     feedbackSupport.open({})
     onClose && onClose()
   }, [onClose, feedbackSupport])
-
-  const handleClickArkeo = useCallback(() => {
-    history.push('/arkeo')
-  }, [history])
-
-  const closeIcon = useMemo(() => <CloseIcon boxSize={3} />, [])
-  const settingsIcon = useMemo(() => <SettingsIcon />, [])
-  const chatIcon = useMemo(() => <ChatIcon />, [])
-  const arkeoIcon = useMemo(() => <ArkeoIcon />, [])
 
   const secondaryNavSize = useMemo(() => (isLargerThanMd ? 'sm' : 'lg'), [isLargerThanMd])
 
@@ -93,16 +85,8 @@ export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) 
           )}
         </Flex>
       )}
-
       <NavBar isCompact={isCompact} mt={6} onClick={onClose} />
       <Stack width='full' mt={6} spacing={spacing}>
-        <MainNavLink
-          isCompact={isCompact}
-          size={secondaryNavSize}
-          onClick={handleClickArkeo}
-          label={translate('navBar.arkeo')}
-          leftIcon={arkeoIcon}
-        />
         <MainNavLink
           isCompact={isCompact}
           size={secondaryNavSize}

@@ -26,6 +26,7 @@ import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import {
+  ArbitrumBridgeAcknowledgement,
   StreamingAcknowledgement,
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
@@ -648,10 +649,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     return message
   })()
 
-  const arbitrumAcknowledgementMessage = useMemo(() => {
-    return translate('bridge.arbitrum.waitCta')
-  }, [translate])
-
   return (
     <TradeSlideTransition>
       <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
@@ -680,9 +677,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
               visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
               position={isCompactQuoteListOpen ? 'absolute' : undefined}
             >
-              <WarningAcknowledgement
+              <ArbitrumBridgeAcknowledgement
                 onAcknowledge={handleFormSubmit}
-                message={arbitrumAcknowledgementMessage}
                 shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
                 setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
               >
@@ -793,7 +789,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
                     </Stack>
                   </WarningAcknowledgement>
                 </StreamingAcknowledgement>
-              </WarningAcknowledgement>
+              </ArbitrumBridgeAcknowledgement>
             </Card>
 
             <WithLazyMount

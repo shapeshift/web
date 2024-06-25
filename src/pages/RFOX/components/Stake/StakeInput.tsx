@@ -25,6 +25,7 @@ import {
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -85,6 +86,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     formState: { errors },
     control,
     trigger,
+    setValue,
   } = methods
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, selectedAssetId))
@@ -376,6 +378,24 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     translate,
   ])
 
+  const { price: assetUserCurrencyRate } = useAppSelector(state =>
+    selectMarketDataByFilter(state, { assetId: stakingAssetId }),
+  )
+
+  const handleAmountChange = useCallback(
+    (value: string, isFiat: boolean | undefined) => {
+      const amountCryptoPrecision = isFiat
+        ? bnOrZero(value).div(assetUserCurrencyRate).toFixed()
+        : value
+      const amountUserCurrency = !isFiat
+        ? bnOrZero(value).times(assetUserCurrencyRate).toFixed()
+        : value
+      setValue('amountCryptoPrecision', amountCryptoPrecision, { shouldValidate: true })
+      setValue('amountUserCurrency', amountUserCurrency, { shouldValidate: true })
+    },
+    [assetUserCurrencyRate, setValue],
+  )
+
   if (!selectedAsset) return null
 
   return (
@@ -400,9 +420,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               // TODO: remove me when implementing multi-account
               isAccountSelectionDisabled={true}
               onToggleIsFiat={handleToggleIsFiat}
+              onChange={handleAmountChange}
               isFiat={isFiat}
               formControlProps={formControlProps}
-              layout='inline'
+              layout='stacked'
               label={translate('transactionRow.amount')}
               labelPostFix={assetSelectComponent}
               isSendMaxDisabled={false}

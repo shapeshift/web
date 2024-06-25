@@ -19,7 +19,7 @@ export const useCurrentEpochRewardsQuery = ({
 
   const queryKey = useMemo(
     () => [
-      'lifetimeRewards',
+      'currentEpochRewards',
       {
         stakingAssetAccountAddress,
       },

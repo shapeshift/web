@@ -1,5 +1,5 @@
 import type { ComponentWithAs, IconProps, ThemeTypings } from '@chakra-ui/react'
-import { Box, Button, Checkbox, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Checkbox, Link, useColorModeValue } from '@chakra-ui/react'
 import type { AnimationDefinition, MotionStyle } from 'framer-motion'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -81,7 +81,7 @@ const popoverStyle: MotionStyle = {
 type AcknowledgementProps = {
   children: React.ReactNode
   content?: JSX.Element
-  message: string
+  message: string | JSX.Element
   onAcknowledge: (() => void) | undefined
   shouldShowAcknowledgement: boolean
   setShouldShowAcknowledgement: (shouldShow: boolean) => void
@@ -172,16 +172,16 @@ export const Acknowledgement = ({
                 fontWeight='semibold'
                 fontSize='2xl'
               />
-              <RawText
-                align={'center'}
+              <Box
+                textAlign={'center'}
                 maxWidth='90%'
                 mb={8}
                 fontWeight='medium'
                 color='text.subtle'
               >
-                {message}
+                <RawText>{message}</RawText>
                 {content}
-              </RawText>
+              </Box>
               <Button
                 size='lg'
                 mb={2}
@@ -271,11 +271,28 @@ export const ArbitrumBridgeAcknowledgement = (props: ArbitrumAcknowledgementProp
     return props.onAcknowledge
   }, [isDisabled, props])
 
+  const message = useMemo(
+    () => (
+      <>
+        <RawText>{translate('bridge.arbitrum.waitWarning')}</RawText>
+        <Link
+          href='https://docs.arbitrum.io/arbitrum-bridge/quickstart#withdraw-eth-or-erc-20-tokens-from-child-chain-to-parent-chain'
+          isExternal
+          colorScheme='blue'
+          color='blue.500'
+        >
+          {translate('common.learnMore')}
+        </Link>
+      </>
+    ),
+    [translate],
+  )
+
   return (
     <Acknowledgement
       {...props}
       buttonTranslation='common.continue'
-      message={translate('bridge.arbitrum.waitWarning')}
+      message={message}
       content={checkboxes}
       disableButton={isDisabled}
       onAcknowledge={handleAcknowledge}

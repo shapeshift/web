@@ -43,7 +43,6 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({ stakingAssetAccountAdd
   return (
     <Box>
       <Text mb={6} translation='RFOX.myPosition' />
-
       <SimpleGrid spacing={6} columns={gridColumns}>
         <StakingInfoItem
           informationDescription='RFOX.myRewardBalance'

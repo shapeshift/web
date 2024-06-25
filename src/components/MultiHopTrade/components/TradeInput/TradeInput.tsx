@@ -479,9 +479,10 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     useMemo(() => {
       if (!buyAssetFeeAsset) return
       // TODO(gomes): Bring me in for all bridges?
-      const isBridge = (activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'deposit'
+      const isArbitrumBridgeDeposit =
+        (activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'deposit'
 
-      if (isBridge)
+      if (isArbitrumBridgeDeposit)
         return [
           'bridge.nativeAssetWarning',
           {

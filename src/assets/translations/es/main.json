@@ -587,7 +587,6 @@
     "tradeShort": "Intercambie",
     "buyCrypto": "Comprar/Vender Cripto",
     "buyCryptoShort": "Comprar/Vender",
-    "arkeo": "Airdrop Arkeo ",
     "lending": "Préstamo",
     "pools": "Pools",
     "actionMenu": {
@@ -2110,67 +2109,6 @@
       "title": "Obtenga recompensas por su %{asset}",
       "body": "Stake en bóvedas Savers de THORChain. Sin plazo fijo.",
       "cta": "Depositar Ahora"
-    }
-  },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "¿Qué es Arkeo?",
-      "bodyParts": {
-        "1": "El año pasado, junto a",
-        "2": "Coinbase Cloud",
-        "3": "ShapeShift incubó un proyecto llamado Arkeo. ¡El lanzamiento de Mainnet está a la vuelta de la esquina!",
-        "4": "Arkeo se creó para ser un back-end descentralizado para todos los datos de los nodos. Las app que utilizan Arkeo se beneficiarán en una mayor velocidad de desarrollo, resistencia a censura y",
-        "5": "coeficiente nakamoto",
-        "6": "mientras reduce la dependencia en fuentes de datos centralizadas."
-      }
-    },
-    "whoQualifies": {
-      "title": "¿Quién califica para el Arkeo Airdrop?",
-      "body": "Hay varias formas para calificar al airdrop usando ShapeShift dApp. La instantánea está rodando, ¡todavía estás a tiempo de calificar!"
-    },
-    "staking": {
-      "title": "%{asset} Stakers",
-      "body": "Gane hasta %{apy} APR en su %{asset} inactivo y califique para el airdrop Arkeo. ADEMÁS, si stake  a %{provider}, se aplicará un multiplicador 2x a su saldo cuando se calcule el monto de su airdrop de Arkeo.",
-      "cta": "Stake %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} Proveedores",
-      "body": "¿Tienes %{asset1} y %{asset2}? Proporcione liquidez al pool Uniswap V2 para ganar %{apy} APR. ADEMÁS, el FOX token LP FOX/ETH calificará para el airdrop Arkeo.",
-      "cta": "Depositar Liquidez"
-    },
-    "foxTokenHolders": {
-      "title": "Titulares FOX Tokens",
-      "body": "Hodling tokens FOX. Más grande su bolsa, mayor su Airdrop Arkeo.",
-      "cta": "Intercambiar por FOX",
-      "secondary": "Comprar FOX"
-    },
-    "foxFarmers": {
-      "title": "Farmers FOX/ETH LP",
-      "body": "Gane hasta %{apy} APR por Stake sus tokens LP ETH/FOX en FOX Farm. ADEMÁS, el FOX en los tokens LP ETH/FOX Farm V5 califica para el Airdrop Arkeo.",
-      "cta": "Stake LP FOX/ETH"
-    },
-    "foxyTokenHolders": {
-      "title": "Titulares Tokens FOXy",
-      "body": "Gane hasta %{apy} APR en su FOX inactivo con FOX Yieldy (FOXy). Además su FOXy en su billetera será tratado igual que FOX y calificará para el airdrop de Arkeo.",
-      "cta": "Stake Tokens FOX"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "¿Tienes %{asset1} y %{asset2}? Proporcione liquidez al grupo Uniswap V2 para ganar %{apy} APR. ADEMÁS, el FOX subyacente en los tokens LP FOX/ETH califica para el Airdrop Arkeo.",
-      "cta": "Depositar Liquidez"
-    },
-    "stakeAtom": {
-      "title": "Stake ATOM",
-      "body": "Gane hasta %{apr} APR en su ATOM inactivo. ADEMÁS, cualquier ATOM en Stake te otorga tokens Arkeo. Si Stake al Validador ShapeShift DAO, puede 2X su calificación del Airdrop.",
-      "cta": "Stake ATOM"
-    },
-    "footer": {
-      "title": "También hay otras formas de calificar, fuera de ShapeShift dApp. Para obtener una lista completa, consulte la propuesta de gobernanza.",
-      "cta": "Consulta la propuesta de gobernanza",
-      "disclaimer": {
-        "body": "* Solo calificarán las billeteras de auto-custodia. Los tokens retenidos o stake en intercambios centralizados no califican. ¿Necesitas una billetera?",
-        "cta": "Crea una"
-      }
     }
   },
   "nft": {

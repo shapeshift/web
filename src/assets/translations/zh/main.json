@@ -587,7 +587,6 @@
     "tradeShort": "交易",
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "买/卖",
-    "arkeo": "Arkeo 空投",
     "lending": "贷款",
     "pools": "池",
     "actionMenu": {
@@ -2110,67 +2109,6 @@
       "title": "使用你的 %{asset} 赚取奖励",
       "body": "质押到 THORChain 储蓄金库。没有锁定时间。",
       "cta": "立即充值"
-    }
-  },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "什么是 Arkeo ?",
-      "bodyParts": {
-        "1": "去年，与",
-        "2": "Coinbase Cloud",
-        "3": "ShapeShift 孵化了一个名为 Arkeo 的项目。主网启动指日可待！",
-        "4": "Arkeo 的创建是为了成为所有节点数据的去中心化后端。使用 Arkeo 的应用程序将受益于更高的开发速度、抗审查性和",
-        "5": "中本系数，",
-        "6": "同时减少对中心化数据的依赖。"
-      }
-    },
-    "whoQualifies": {
-      "title": "谁有资格获得 Arkeo 空投？",
-      "body": "你可以通过使用 ShapeShift dApp 获得多种空投的资格。快照正在滚动，你还有时间晋级！"
-    },
-    "staking": {
-      "title": "%{asset} 质押者",
-      "body": "闲置的 %{asset} 可获得高达 %{apy} 的年利率，并有资格获得Arkeo空投。此外，如果你向 %{provider} 下注，在计算你的Arkeo空投量时，你的下注余额将乘以2倍。",
-      "cta": "质押 %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} 提供者",
-      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上你持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
-      "cta": "存款流动性"
-    },
-    "foxTokenHolders": {
-      "title": "FOX 代币持有者",
-      "body": "持有 FOX 代币。你持有越多，你的 Arkeo 空投就越多。",
-      "cta": "交易成 FOX",
-      "secondary": "购买 FOX"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LP 农场",
-      "body": "将你的 ETH/FOX LP 代币质押到 FOX 农场 中，可赚取高达 %{apy} 的年利率。再加上你在 FOX 农场第 5 轮中质押的 ETH/FOX LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
-      "cta": "质押 FOX/ETH LP"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXy 代币持有者",
-      "body": "通过 FOX Yieldy (FOXy)，你闲置的 FOX 可赚取高达 %{apy} 的年利率。你钱包中持有的 PLUS FOXy 将被视为与 FOX 相同，并且有资格获得 Arkeo 空投。",
-      "cta": "质押 FOX 代币"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上你持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
-      "cta": "存款流动性"
-    },
-    "stakeAtom": {
-      "title": "质押 ATOM",
-      "body": "使用你闲置 ATOM 可赚取高达 %{apr} 的年利率。再加上你质押的ATOM，你可以赚取 Arkeo 代币。如果你质押到 ShapeShift DAO 验证器，你可以获得 2 倍的空投资格。",
-      "cta": "质押ATOM"
-    },
-    "footer": {
-      "title": "除了 ShapeShift dApp 之外，你还可以通过其他方式获得资格。如需完整列表，请查看治理提案。",
-      "cta": "查看治理提案",
-      "disclaimer": {
-        "body": "* 只有自我托管钱包才符合资格。代币在中心化交易所或质押在钱包里都不具备资格。需要钱包吗？",
-        "cta": "创建一个"
-      }
     }
   },
   "nft": {

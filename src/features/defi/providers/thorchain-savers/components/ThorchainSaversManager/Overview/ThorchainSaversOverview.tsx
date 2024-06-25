@@ -53,7 +53,8 @@ import {
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
+  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectMarketDataByAssetIdUserCurrency,
   selectOpportunitiesApiQueriesByFilter,
   selectStakingOpportunityByFilter,
@@ -112,13 +113,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     () => ({ stakingId: opportunityId }),
     [opportunityId],
   )
-  const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  const highestStakingBalanceAccountId = useAppSelector(state =>
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const maybeAccountId = useMemo(
-    () => accountId ?? highestBalanceAccountId ?? defaultAccountId,
-    [accountId, defaultAccountId, highestBalanceAccountId],
+    () => accountId ?? highestStakingBalanceAccountId ?? defaultAccountId,
+    [accountId, defaultAccountId, highestStakingBalanceAccountId],
   )
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
@@ -154,6 +155,24 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
       : undefined,
   )
+
+  const hasStakedBalance = useMemo(() => {
+    return bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).gt(0)
+  }, [earnOpportunityData?.stakedAmountCryptoBaseUnit])
+
+  const highestAssetBalanceFilter = useMemo(
+    () => ({
+      assetId,
+    }),
+    [assetId],
+  )
+  const highestAssetBalanceAccountId = useAppSelector(state =>
+    selectHighestUserCurrencyBalanceAccountByAssetId(state, highestAssetBalanceFilter),
+  )
+
+  const highestStakedOrAssetBalanceAccountId = hasStakedBalance
+    ? maybeAccountId
+    : highestAssetBalanceAccountId
 
   const opportunityMetadataFilter = useMemo(() => ({ stakingId: assetId as StakingId }), [assetId])
   const opportunityMetadata = useAppSelector(state =>
@@ -366,7 +385,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
   if (
-    (!earnOpportunityData?.isLoaded && maybeAccountId) ||
+    (!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||
     isTradingActiveLoading ||
     isMockDepositQuoteLoading
   ) {
@@ -381,14 +400,14 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
   }
 
-  if (!(maybeAccountId && opportunityDataFilter)) return null
+  if (!(highestStakedOrAssetBalanceAccountId && opportunityDataFilter)) return null
   if (!asset) return null
   if (!underlyingAssetsWithBalancesAndIcons) return null
   if (!earnOpportunityData) return null
 
   return (
     <Overview
-      accountId={maybeAccountId}
+      accountId={highestStakedOrAssetBalanceAccountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       name={earnOpportunityData.name ?? ''}

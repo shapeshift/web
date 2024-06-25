@@ -245,7 +245,7 @@ export const VerifyAddresses = () => {
     if (!buyVerified) {
       return (
         <Button
-          size='lg'
+          size='lg-multiline'
           colorScheme='blue'
           onClick={handleBuyVerify}
           isLoading={isBuyVerifying}
@@ -259,7 +259,7 @@ export const VerifyAddresses = () => {
     if (!sellVerified) {
       return (
         <Button
-          size='lg'
+          size='lg-multiline'
           colorScheme='blue'
           onClick={handleSellVerify}
           isLoading={isSellVerifying}

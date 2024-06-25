@@ -58,7 +58,7 @@ export const Confirm = ({
             {translate('modals.confirm.cancel')}
           </Button>
           <Button
-            size='lg'
+            size='lg-multiline'
             width='full'
             colorScheme='blue'
             data-test='defi-modal-confirm-button'

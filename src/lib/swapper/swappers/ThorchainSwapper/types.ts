@@ -1,5 +1,7 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
+export type ThornodePoolStatuses = 'Available' | 'Staged' | 'Suspended'
+
 export type MidgardPoolResponse = {
   annualPercentageRate: string
   asset: string
@@ -32,7 +34,7 @@ export type ThornodePoolResponse = {
   pool_units: string
   savers_depth: string
   savers_units: string
-  status: string
+  status: ThornodePoolStatuses
   synth_mint_paused: boolean
   synth_supply: string
   synth_supply_remaining: string

@@ -224,6 +224,8 @@ export const thorchainApi: SwapperApi = {
       xpub: xpub!,
       to: vault,
       accountNumber,
+      // skip address validation for thorchain vault addresses as they may exceed the risk score threshold, but are still valid for use
+      skipToAddressValidation: true,
       chainSpecific: {
         accountType,
         opReturnData,

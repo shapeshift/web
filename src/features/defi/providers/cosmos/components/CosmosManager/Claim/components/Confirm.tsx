@@ -224,7 +224,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Value>
         </Row>
         <Button
-          size='lg'
+          size='lg-multiline'
           width='full'
           colorScheme='blue'
           onClick={handleConfirm}

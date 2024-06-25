@@ -5,13 +5,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
 import { FormDivider } from 'components/FormDivider'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -294,8 +294,8 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
           cooldownPeriod,
         })}
         onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={showWarning}
-        setShouldShowWarningAcknowledgement={setShowWarning}
+        shouldShowAcknowledgement={showWarning}
+        setShouldShowAcknowledgement={setShowWarning}
       >
         <FormProvider {...methods}>
           <Stack>

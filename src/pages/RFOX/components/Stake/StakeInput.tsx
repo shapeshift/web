@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FormDivider } from 'components/FormDivider'
@@ -13,7 +14,6 @@ import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopT
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -383,8 +383,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       <WarningAcknowledgement
         message={warningAcknowledgementMessage}
         onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={showWarning}
-        setShouldShowWarningAcknowledgement={setShowWarning}
+        shouldShowAcknowledgement={showWarning}
+        setShouldShowAcknowledgement={setShowWarning}
       >
         <FormProvider {...methods}>
           <Stack>

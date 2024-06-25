@@ -1,4 +1,4 @@
-import { Button, Skeleton, Stack, Text as CText } from '@chakra-ui/react'
+import { Button, Skeleton, Stack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
@@ -39,11 +39,9 @@ export const FoxFarmingEmpty = ({
       <EmptyOverview assets={assets} footer={footer}>
         <Stack spacing={1} justifyContent='center' mb={4}>
           <Text translation={foxFarmingOverviewHeaderTranslation} />
-          <CText color='green.500'>
-            <Skeleton isLoaded={Boolean(apy)}>
-              <Amount.Percent value={apy ?? ''} suffix='APR' />
-            </Skeleton>
-          </CText>
+          <Skeleton isLoaded={Boolean(apy)}>
+            <Amount.Percent color='green.500' value={apy ?? ''} suffix='APR' />
+          </Skeleton>
         </Stack>
         <Text color='text.subtle' translation='defi.modals.foxFarmingOverview.body' />
         <Text color='text.subtle' translation='defi.modals.foxFarmingOverview.rewards' />

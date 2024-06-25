@@ -36,3 +36,5 @@ export const THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM = '0xd37bbe5744d730a1d98d8dc9
 
 // RFOX on Arbitrum ERC1967Proxy contract address
 export const RFOX_PROXY_CONTRACT_ADDRESS = getConfig().REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS
+export const RFOX_REWARD_RATE = 1n * 10n ** 27n
+export const RFOX_WAD = 1n * 10n ** 18n

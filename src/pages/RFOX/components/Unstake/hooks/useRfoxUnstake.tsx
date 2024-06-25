@@ -8,7 +8,6 @@ import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { encodeFunctionData } from 'viem'
-import type { UseQueryReturnType } from 'wagmi/query'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -45,8 +44,8 @@ type UseRfoxUnstakeReturn = {
   unstakeMutation: UseMutationResult<string | undefined, Error, void, unknown>
   isUnstakeTxPending: boolean
   isGetUnstakeFeesEnabled: boolean
-  userStakingBalanceOfQuery: UseQueryReturnType<string, unknown>
-  newContractBalanceOfQuery: UseQueryReturnType<string, unknown>
+  userStakingBalanceOfQuery: UseQueryResult<string, Error>
+  newContractBalanceOfQuery: UseQueryResult<string, Error>
   newShareOfPoolPercentage: string
 }
 

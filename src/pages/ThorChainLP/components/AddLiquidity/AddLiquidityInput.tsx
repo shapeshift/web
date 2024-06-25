@@ -24,6 +24,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -32,6 +33,7 @@ import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FeeModal } from 'components/FeeModal/FeeModal'
@@ -41,7 +43,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -572,6 +573,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision,
         poolAsset?.precision ?? 0,
+        BigNumber.ROUND_UP,
       ),
       wallet: wallet ?? undefined,
       accountNumber: poolAssetAccountNumber,
@@ -1446,8 +1448,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           slippagePercentage: bnOrZero(slippageDecimalPercentage).times(100).toFixed(2).toString(),
         })}
         onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       >
         {renderHeader}
         <Stack divider={divider} spacing={4} pb={4}>
@@ -1550,7 +1552,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               !hasEnoughAssetBalance ||
               !hasEnoughRuneBalance ||
               isApprovalTxPending ||
-              (isSweepNeededEnabled && isSweepNeeded === undefined) ||
+              (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
               isSweepNeededError ||
               isEstimatedPoolAssetFeesDataError ||
               isEstimatedRuneFeesDataError ||
@@ -1568,7 +1570,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isSmartContractAccountAddressLoading ||
               isAllowanceDataLoading ||
               isApprovalTxPending ||
-              (isSweepNeeded === undefined && isSweepNeededLoading) ||
+              (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
               (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
             }
             onClick={handleDepositSubmit}

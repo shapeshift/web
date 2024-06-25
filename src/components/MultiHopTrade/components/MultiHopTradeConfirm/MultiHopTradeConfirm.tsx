@@ -2,12 +2,12 @@ import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from 
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectActiveQuote,
@@ -106,8 +106,8 @@ export const MultiHopTradeConfirm = memo(() => {
             slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
           })}
           onAcknowledge={handleTradeConfirm}
-          shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-          setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+          shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+          setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
         >
           <CardHeader px={6} pt={4}>
             <WithBackButton onBack={handleBack}>

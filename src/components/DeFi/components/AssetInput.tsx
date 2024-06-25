@@ -73,6 +73,7 @@ export type AssetInputProps = {
   showFiatSkeleton?: boolean
   formControlProps?: FormControlProps
   accountSelectionDisabled?: boolean
+  revalidateOnValueChange?: boolean
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -99,6 +100,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   showFiatSkeleton,
   formControlProps,
   accountSelectionDisabled,
+  revalidateOnValueChange = true,
 }) => {
   const {
     number: { localeParts },
@@ -142,9 +144,12 @@ export const AssetInput: React.FC<AssetInputProps> = ({
       // This fires anytime value changes including setting it on max click
       // Store the value in a ref to send when we actually want the onChange to fire
       amountRef.current = values.value
-      handleChange()
+
+      if (revalidateOnValueChange) {
+        handleChange()
+      }
     },
-    [handleChange],
+    [handleChange, revalidateOnValueChange],
   )
 
   return (

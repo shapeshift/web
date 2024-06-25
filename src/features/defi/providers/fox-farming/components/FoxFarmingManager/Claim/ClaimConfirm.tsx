@@ -297,7 +297,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
               {translate('common.cancel')}
             </Button>
             <Button
-              size='lg'
+              size='lg-multiline'
               colorScheme='blue'
               isDisabled={!canClaim || !hasEnoughBalanceForGas}
               onClick={handleConfirm}

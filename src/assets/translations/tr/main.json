@@ -587,7 +587,6 @@
     "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
-    "arkeo": "Arkeo Airdrop",
     "lending": "Borç Verme",
     "pools": "Havuzlar",
     "actionMenu": {
@@ -2110,67 +2109,6 @@
       "title": "%{asset} ile ödüller kazanın",
       "body": "THORChain Savers Vault'a bahis yapın. Kilitlenme süresi yok.",
       "cta": "Para Yatırma"
-    }
-  },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "Arkeo nedir?",
-      "bodyParts": {
-        "1": "Geçen yıl,",
-        "2": "Coinbase Cloud",
-        "3": "Arkeo adlı bir projeyi kuluçkaya yatırdı. Mainnet lansmanı çok yakında!",
-        "4": "Arkeo, tüm düğüm verileri için merkezi olmayan bir arka uç olacak şekilde oluşturuldu. Arkeo kullanan uygulamalar, artan geliştirme hızı, sansür direnci ve",
-        "5": "nakamoto katsayısından",
-        "6": "merkezi veri kaynaklarına bağımlılığı azaltırken."
-      }
-    },
-    "whoQualifies": {
-      "title": "Arkeo Airdrop'a kimler hak kazanır?",
-      "body": "ShapeShift dApp'i kullanarak airdrop'a katılmaya hak kazanmanın birkaç yolu vardır. Anlık görüntü yayınlanıyor, kalifiye olmak için hala zamanınız var!"
-    },
-    "staking": {
-      "title": "%{asset} Staker",
-      "body": "Boşta kalan %{asset} üzerinden %{apy}'ye kadar APR ve Arkeo airdrop'una hak kazanın. AYRICA %{provider}'a bahis yaparsanız, Arkeo airdrop miktarınız hesaplanırken bahis bakiyenize 2 kat çarpan uygulanacaktır.",
-      "cta": "Stake %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} Sağlayıcılar",
-      "body": "Elinizde %{asset1} ve %{asset2} var mı? %{apy} APR kazanmak için Uniswap V2 Havuzuna likidite sağlayın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
-      "cta": "Likidite Ekleyin"
-    },
-    "foxTokenHolders": {
-      "title": "FOX Token Sahipleri",
-      "body": "Cüzdanda tutulan FOX token'ları. Çantanız ne kadar büyükse, Arkeo airdrop'unuz da o kadar büyük olur.",
-      "cta": "FOX Takas yap",
-      "secondary": "FOX Satın Al"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LP Çiftçiler",
-      "body": "FOX Farm'da ETH/FOX LP jetonlarınızı staking yaparak %{apy} APR'ye kadar kazanın. AYRICA FOX Farm'ın 5. Turunda yatırdığınız ETH/FOX LP tokenlerinin temelinde yatan FOX, Arkeo airdrop'u için hak kazanacaktır.",
-      "cta": "FOX/ETH LP Stake Et"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXy Token Sahipleri",
-      "body": "FOX Yieldy (FOXy) ile boştaki FOX'unuzdan %{apy}'ye kadar APR kazanın. AYRICA Cüzdanınızda tutulan FOXy, FOX ile aynı muameleyi görecek ve Arkeo airdrop için uygun olacaktır.",
-      "cta": "FOX Token Stake Et"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LP'ler",
-      "body": "%{asset1} ve %{asset2}'ye sahip misiniz? Uniswap V2 Havuzuna likidite sağlayarak %{apy} APR kazanın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
-      "cta": "Likidite Ekleyin"
-    },
-    "stakeAtom": {
-      "title": "ATOM Stake",
-      "body": "Boş ATOM'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir ATOM size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz.",
-      "cta": "ATOM Stake"
-    },
-    "footer": {
-      "title": "ShapeShift dApp dışında hak kazanabileceğiniz başka yollar da var. Tam liste için yönetişim teklifine göz atın.",
-      "cta": "Yönetişim teklifine göz atın",
-      "disclaimer": {
-        "body": "* Yalnızca kişisel saklama cüzdanları geçerli olacaktır. Merkezi bir borsa aracılığıyla bir cüzdanda tutulan veya stake edilen jetonlar uygun değildir. Cüzdana mı ihtiyacınız var?",
-        "cta": "Bir tane yaratın"
-      }
     }
   },
   "nft": {

@@ -14,7 +14,7 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ScrollToTop } from 'Routes/ScrollToTop'
-import { WagmiConfig } from 'wagmi'
+import { WagmiProvider } from 'wagmi'
 import { ChatwootWidget } from 'components/ChatWoot'
 import { AppProvider } from 'context/AppProvider/AppContext'
 import { BrowserRouterProvider } from 'context/BrowserRouterProvider/BrowserRouterProvider'
@@ -73,8 +73,8 @@ export function AppProviders({ children }: ProvidersProps) {
                       <WalletConnectV2Provider>
                         <KeepKeyProvider>
                           <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                            <WagmiConfig config={wagmiConfig}>
-                              <QueryClientProvider>
+                            <QueryClientProvider>
+                              <WagmiProvider config={wagmiConfig}>
                                 <ModalProvider>
                                   <TransactionsProvider>
                                     <AppProvider>
@@ -84,8 +84,8 @@ export function AppProviders({ children }: ProvidersProps) {
                                     </AppProvider>
                                   </TransactionsProvider>
                                 </ModalProvider>
-                              </QueryClientProvider>
-                            </WagmiConfig>
+                              </WagmiProvider>
+                            </QueryClientProvider>
                           </ErrorBoundary>
                         </KeepKeyProvider>
                       </WalletConnectV2Provider>

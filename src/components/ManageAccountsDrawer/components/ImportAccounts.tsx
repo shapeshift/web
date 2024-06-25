@@ -20,11 +20,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { accountManagement } from 'react-queries/queries/accountManagement'
 import { Amount } from 'components/Amount/Amount'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText } from 'components/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import {
   canAddMetaMaskAccount,
   useIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -76,11 +79,13 @@ const TableRowAccount = forwardRef<TableRowAccountProps, 'div'>(({ asset, accoun
   return (
     <>
       <Td fontWeight='bold'>
-        <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
-          <div ref={ref}>
-            <RawText>{accountLabel}</RawText>
-          </div>
-        </Tooltip>
+        <InlineCopyButton value={pubkey} isDisabled={isUtxoAccount}>
+          <Tooltip label={pubkey} isDisabled={isUtxoAccount}>
+            <div ref={ref}>
+              <RawText>{accountLabel}</RawText>
+            </div>
+          </Tooltip>
+        </InlineCopyButton>
       </Td>
       <Td textAlign='right'>
         {isLoading ? (
@@ -162,7 +167,10 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
-  const { wallet, deviceId: walletDeviceId } = useWallet().state
+  const {
+    state: { wallet, isDemoWallet, deviceId: walletDeviceId },
+    dispatch: walletDispatch,
+  } = useWallet()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const isSnapInstalled = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
@@ -175,6 +183,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const [queryEnabled, setQueryEnabled] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [toggledAccountIds, setToggledAccountIds] = useState<Set<AccountId>>(new Set())
+  const accountManagementPopover = useModal('manageAccounts')
 
   // reset component state when chainId changes
   useEffect(() => {
@@ -210,6 +219,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   })
 
   const supportsMultiAccount = useMemo(() => {
+    if (isDemoWallet) return false
     if (!wallet?.supportsBip44Accounts()) return false
     if (!accounts) return false
     if (!isMetaMaskMultichainWallet) return true
@@ -220,7 +230,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       wallet,
       isSnapInstalled: !!isSnapInstalled,
     })
-  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled])
+  }, [chainId, wallet, accounts, isMetaMaskMultichainWallet, isSnapInstalled, isDemoWallet])
 
   useEffect(() => {
     if (queryEnabled) return
@@ -295,6 +305,13 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   }, [])
 
   const handleDone = useCallback(async () => {
+    if (isDemoWallet) {
+      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+      accountManagementPopover.close()
+      onClose()
+      return
+    }
+
     if (!accounts) {
       console.error('Missing accounts data')
       return
@@ -346,7 +363,16 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     setIsSubmitting(false)
 
     onClose()
-  }, [toggledAccountIds, accounts, dispatch, onClose, walletDeviceId])
+  }, [
+    toggledAccountIds,
+    accounts,
+    dispatch,
+    onClose,
+    walletDeviceId,
+    isDemoWallet,
+    walletDispatch,
+    accountManagementPopover,
+  ])
 
   const accountRows = useMemo(() => {
     if (!asset || !accounts) return null
@@ -392,7 +418,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
             isDisabled={isFetching || isLoading || autoFetching || isSubmitting || !accounts}
             _disabled={disabledProps}
           >
-            {translate('common.done')}
+            {isDemoWallet ? translate('common.connectWallet') : translate('common.done')}
           </Button>
         </>
       }

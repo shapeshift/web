@@ -13,13 +13,15 @@ import { useAppSelector } from 'state/store'
 type StakingInfoItemProps = {
   informationDescription: string
   helperTranslation?: string
-  value?: string
+  isLoading: boolean
 } & (
   | {
+      value?: never
       assetId: AssetId
-      amountCryptoBaseUnit: string
+      amountCryptoBaseUnit: string | undefined
     }
   | {
+      value: string | undefined
       assetId?: never
       amountCryptoBaseUnit?: never
     }
@@ -31,6 +33,7 @@ export const StakingInfoItem = ({
   helperTranslation,
   value,
   amountCryptoBaseUnit,
+  isLoading,
 }: StakingInfoItemProps) => {
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -53,6 +56,24 @@ export const StakingInfoItem = ({
     return { boxSize: !helperTranslation ? 0 : undefined }
   }, [helperTranslation])
 
+  const maybeCryptoAmount = useMemo(() => {
+    if (!(asset && amountCryptoBaseUnit)) return null
+
+    return (
+      <Amount.Crypto
+        fontSize='xl'
+        value={fromBaseUnit(amountCryptoBaseUnit, asset.precision)}
+        symbol={asset?.symbol}
+        fontWeight='medium'
+      />
+    )
+  }, [asset, amountCryptoBaseUnit])
+
+  const maybeValue = useMemo(() => {
+    if (!value) return null
+    return <Text fontSize='xl' fontWeight='medium' translation={value} />
+  }, [value])
+
   return (
     <Stack spacing={0} flex={1} flexDir={'column'}>
       <HelperTooltip label={translate(helperTranslation)} iconProps={helperIconProps}>
@@ -63,20 +84,12 @@ export const StakingInfoItem = ({
           translation={informationDescription}
         />
       </HelperTooltip>
-      <Skeleton isLoaded={true}>
+      <Skeleton height='30px' isLoaded={!isLoading}>
         <Flex alignItems='center' gap={2}>
-          {asset && amountCryptoBaseUnit && (
-            <Amount.Crypto
-              fontSize='xl'
-              value={fromBaseUnit(amountCryptoBaseUnit, asset.precision)}
-              symbol={asset?.symbol}
-              fontWeight='medium'
-            />
-          )}
-          {value && <Text fontSize='xl' fontWeight='medium' translation={value} />}
+          {maybeCryptoAmount}
+          {maybeValue}
         </Flex>
       </Skeleton>
-
       {amountUserCurrency && (
         <Skeleton isLoaded={true}>
           <Amount.Fiat fontSize='xs' value={amountUserCurrency} color='text.subtle' />

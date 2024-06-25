@@ -5,7 +5,6 @@ import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swappe
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
 import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/TradeInput/getQuoteErrorTranslation'
@@ -68,16 +67,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const buyAsset = useAppSelector(selectInputBuyAsset)
     const sellAsset = useAppSelector(selectInputSellAsset)
-    const { isTradingActive: isTradingActiveOnBuyPool } = useIsTradingActive({
-      assetId: buyAsset.assetId,
-      swapperName,
-    })
-    const { isTradingActive: isTradingActiveOnSellPool } = useIsTradingActive({
-      assetId: sellAsset.assetId,
-      swapperName,
-    })
-
-    const isTradingActive = Boolean(isTradingActiveOnBuyPool && isTradingActiveOnSellPool)
 
     const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
@@ -332,7 +321,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         bodyContent={bodyContent}
         onClick={handleQuoteSelection}
         isActive={isActive}
-        isActionable={isTradingActive && hasAmountWithPositiveReceive && errors.length === 0}
+        isActionable={hasAmountWithPositiveReceive && errors.length === 0}
         isDisabled={isDisabled}
       />
     ) : null

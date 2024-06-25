@@ -4,7 +4,6 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { RawText } from 'components/Text'
@@ -14,7 +13,7 @@ import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/sel
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { ClaimRoutePaths, ClaimStatus, type RfoxClaimQuote } from './types'
+import { ClaimStatus, type RfoxClaimQuote } from './types'
 
 type ClaimRowProps = {
   stakingAssetId: AssetId
@@ -25,11 +24,13 @@ type ClaimRowProps = {
   index: number
 } & (
   | {
-      displayClaimButton: boolean
+      onClaimButtonClick: () => void
+      onClaimClick?: never
       actionDescription: string
     }
   | {
-      displayClaimButton?: never
+      onClaimButtonClick?: never
+      onClaimClick: () => void
       actionDescription?: never
     }
 )
@@ -43,11 +44,11 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   setConfirmedQuote,
   cooldownPeriodHuman,
   index,
-  displayClaimButton,
+  onClaimButtonClick,
+  onClaimClick,
   actionDescription,
 }) => {
   const translate = useTranslate()
-  const history = useHistory()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -71,11 +72,11 @@ export const ClaimRow: FC<ClaimRowProps> = ({
       index,
     }
     setConfirmedQuote(claimQuote)
-    history.push(ClaimRoutePaths.Confirm)
-  }, [history, index, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
+    onClaimClick?.()
+  }, [index, onClaimClick, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
 
   const parentProps = useMemo(() => {
-    if (displayClaimButton) return {}
+    if (onClaimButtonClick) return {}
 
     return {
       variant: 'unstyled',
@@ -84,7 +85,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
       onClick: handleClaimClick,
       _hover: hoverProps,
     }
-  }, [displayClaimButton, status, handleClaimClick])
+  }, [onClaimButtonClick, status, handleClaimClick])
 
   const statusText = useMemo(() => {
     if (!isLargerThanMd) return cooldownPeriodHuman
@@ -97,8 +98,8 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const actionTranslation = useMemo(() => {
     if (!stakingAssetSymbol) return
 
-    return [displayClaimButton ? actionDescription : 'RFOX.claim', { stakingAssetSymbol }]
-  }, [displayClaimButton, actionDescription, stakingAssetSymbol])
+    return [onClaimButtonClick ? actionDescription : 'RFOX.claim', { stakingAssetSymbol }]
+  }, [stakingAssetSymbol, onClaimButtonClick, actionDescription])
 
   return (
     <Tooltip
@@ -108,7 +109,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
           : 'RFOX.tooltips.unstakePendingCooldown',
         { cooldownPeriodHuman },
       )}
-      isDisabled={displayClaimButton}
+      isDisabled={Boolean(onClaimButtonClick)}
     >
       <Flex
         justifyContent={'space-between'}
@@ -144,21 +145,23 @@ export const ClaimRow: FC<ClaimRowProps> = ({
               color={status === ClaimStatus.Available ? 'green.300' : 'yellow.300'}
               align={'end'}
             >
-              {statusText}
+              {onClaimButtonClick ? statusText : status}
             </RawText>
             <RawText fontSize='xl' fontWeight='bold' color='white' align={'end'}>
               <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />
             </RawText>
           </Box>
-          {displayClaimButton && (
+          {/* Claim button currently commented out as we don't support dashboard claim button click (yet?)
+          onClaimButtonClick && (
             <Button
               colorScheme='green'
               ml={4}
               isDisabled={status === ClaimStatus.CoolingDown ? true : false}
+              onClick={onClaimButtonClick}
             >
               {translate('RFOX.claim')}
             </Button>
-          )}
+          ) */}
         </Flex>
       </Flex>
     </Tooltip>

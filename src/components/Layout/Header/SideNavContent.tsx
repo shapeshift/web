@@ -25,6 +25,10 @@ type HeaderContentProps = {
   onClose?: () => void
 } & FlexProps
 
+const chatIcon = <ChatIcon />
+const closeIcon = <CloseIcon />
+const settingsIcon = <SettingsIcon />
+
 export const SideNavContent = memo(({ isCompact, onClose }: HeaderContentProps) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)

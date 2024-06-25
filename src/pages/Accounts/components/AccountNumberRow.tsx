@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon, CheckIcon, CopyIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import {
   Avatar,
@@ -15,8 +15,8 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { type AccountId, type ChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo } from 'react'
 import { MdOutlineMoreVert } from 'react-icons/md'
 import { RiWindow2Line } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
@@ -24,6 +24,7 @@ import { useSelector } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
+import { useCopyToClipboard } from 'hooks/useCopyToClipboard'
 import { getAccountTitle } from 'lib/utils/accounts'
 import { isUtxoAccountId, isUtxoChainId } from 'lib/utils/utxo'
 import {
@@ -51,6 +52,8 @@ const mdOutlineMoreVertIcon = <MdOutlineMoreVert />
 const riWindow2LineIcon = <RiWindow2Line />
 const arrowDownIcon = <ArrowDownIcon />
 const arrowUpIcon = <ArrowUpIcon />
+const copyIcon = <CopyIcon />
+const checkIcon = <CheckIcon />
 
 const UtxoAccountEntries: React.FC<UtxoAccountEntriesProps> = ({ accountIds, chainId }) => {
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
@@ -108,6 +111,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   ...buttonProps
 }) => {
   const { isOpen, onToggle } = useDisclosure()
+  const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const translate = useTranslate()
   const assets = useSelector(selectAssets)
   const accountId = useMemo(() => accountIds[0], [accountIds]) // all accountIds belong to the same chain
@@ -147,6 +151,11 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   }, [assets, accountId])
 
   const fontFamily = useMemo(() => (!isUtxoChainId(chainId) ? 'monospace' : ''), [chainId])
+
+  const handleCopyClick = useCallback(() => {
+    const account = fromAccountId(accountId).account
+    copyToClipboard(account)
+  }, [accountId, copyToClipboard])
 
   return (
     <ListItem>
@@ -197,6 +206,9 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
                 </MenuItem>
                 <MenuItem onClick={onToggle} icon={isOpen ? arrowUpIcon : arrowDownIcon}>
                   {translate(isOpen ? 'accounts.hideAssets' : 'accounts.showAssets')}
+                </MenuItem>
+                <MenuItem onClick={handleCopyClick} icon={isCopied ? checkIcon : copyIcon}>
+                  {translate(isCopied ? 'common.copied' : 'common.copy')}
                 </MenuItem>
               </MenuGroup>
             </MenuList>

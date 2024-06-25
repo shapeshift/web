@@ -274,7 +274,7 @@ export const ArbitrumBridgeAcknowledgement = (props: ArbitrumAcknowledgementProp
   const message = useMemo(
     () => (
       <>
-        <RawText as='span'>{translate('bridge.arbitrum.waitWarning')}</RawText>
+        <RawText as='span'>{translate('bridge.arbitrum.waitWarning')}</RawText>{' '}
         <Link
           href='https://docs.arbitrum.io/arbitrum-bridge/quickstart#withdraw-eth-or-erc-20-tokens-from-child-chain-to-parent-chain'
           isExternal

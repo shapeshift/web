@@ -2112,67 +2112,6 @@
       "cta": "今すぐ入金"
     }
   },
-  "": {
-    "whatIsArkeo": {
-      "title": "Arkeoとは",
-      "bodyParts": {
-        "1": "昨年",
-        "2": "Coinbase Cloud",
-        "3": "とともに、ShapeShiftはArkeoというプロジェクトをインキュベートしました。メインネットのローンチはまもなくです！",
-        "4": "Arkeoは、すべてのノードデータの分散型バックエンドとして開発されました。Arkeoを使用するアプリケーションは、中央集権的なデータソースへの依存を減らしながら、開発速度の向上、検閲耐性、",
-        "5": "ナカモト係数",
-        "6": "の恩恵を受けています。"
-      }
-    },
-    "whoQualifies": {
-      "title": " Airdropの参加資格",
-      "body": "ShapeShift dAppを使用してエアドロップの資格を得るには、さまざまな方法があります。スナップショットは順調に進んでいます。資格を得るにはまだ時間があります。"
-    },
-    "staking": {
-      "title": "%{asset} ステーカー",
-      "body": "アイドル状態の %{asset} で最大 %{apy} APRを獲得し、Arkeoエアドロップの資格を獲得しましょう。さらに、%{provider} にステークすると、Arkeoのエアドロップ金額が計算されるときに、ステーク残高に2倍の乗数が適用されます。",
-      "cta": "ステーク %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} プロバイダー",
-      "body": "%{asset1} と %{asset2} を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
-      "cta": "預金の流動性"
-    },
-    "foxTokenHolders": {
-      "title": "FOXトークンホルダー",
-      "body": "FOXトークンを保持しています。FOXトークンが多いほど、Arkeoのエアドロップも大きくなります。",
-      "cta": "FOXを取引する",
-      "secondary": "FOXを購入する"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LPファーマー",
-      "body": "ETH/FOX LPトークンをFOXファームにステーキングすると、最大 %{apy} APRを獲得できます。さらに、FOXファームのラウンド5でステークしたETH/FOX LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
-      "cta": "ステーク FOX/ETH LP"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXyトークンホルダー",
-      "body": "FOX Yieldy (FOXy)を使用すると、アイドル状態のFOXで最大 %{apy} APRを獲得できます。さらに、ウォレットに保持されているFOXyはFOXと同じように扱われ、Arkeoのエアドロップの対象となります。",
-      "cta": "FOXトークンをステークする"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "%{asset1}と%{asset2}を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
-      "cta": "預金の流動性"
-    },
-    "stakeAtom": {
-      "title": "ATOMをステークする",
-      "body": "アイドル状態のATOMで最大 %{apr} APRを獲得できます。さらに、ステークするATOMによりArkeoトークンを獲得できます。 ShapeShift DAO Validatorにステークすると、エアドロップ資格を2倍にすることができます。",
-      "cta": "ATOMをステークする"
-    },
-    "footer": {
-      "title": "ShapeShift dApp以外にも資格を得る方法は他にもあります。フルリストについては、ガバナンス提案を確認してください。",
-      "cta": "ガバナンス提案を確認する",
-      "disclaimer": {
-        "body": "※セルフカストディウォレットのみが対象となります。集中型取引所を介してウォレットに保持またはステーキングされたトークンは対象外です。ウォレットが必要ですか?",
-        "cta": "作成する"
-      }
-    }
-  },
   "nft": {
     "customizeFoxatar": "FOXatarをカスタマイズする",
     "setAsAvatar": "Avatarとして設定",

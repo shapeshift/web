@@ -734,6 +734,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "Make sure you have %{destinationSymbol} in your %{destinationChainName} account, you’ll need it for transactions",
     "confirm": "Confirm Bridge",
     "selectChain": "Select Chain",
     "selectAsset": "Select Asset",
@@ -748,7 +749,12 @@
     "route": "Route",
     "waitTimeLabel": "Approx. Wait Time",
     "waitTimeValue": "~5-10 minutes",
-    "noSupportedAssets": "No supported assets in portfolio."
+    "noSupportedAssets": "No supported assets in portfolio.",
+    "arbitrum": {
+      "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
+      "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
+      "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
+    }
   },
   "trade": {
     "trade": "Trade",
@@ -2439,7 +2445,7 @@
     "noClaimsAvailable": "No claims available",
     "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",
-    "unstakeNow": "Unstake Now",
+    "unstakeNow": "Unstake To Claim FOX",
     "bridgeAndConfirm": "Bridge & Confirm",
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",

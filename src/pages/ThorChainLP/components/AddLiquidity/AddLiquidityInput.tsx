@@ -24,6 +24,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -572,6 +573,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision,
         poolAsset?.precision ?? 0,
+        BigNumber.ROUND_UP,
       ),
       wallet: wallet ?? undefined,
       accountNumber: poolAssetAccountNumber,

@@ -3,51 +3,34 @@ import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
+import type { GetFilterLogsReturnType } from 'viem'
 import { getAbiItem, getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
 const client = viemClientByNetworkId[arbitrum.id]
 
-type UseTimeInPoolProps = {
+type UseTimeInPoolProps<SelectData = bigint> = {
   stakingAssetAccountAddress: string | undefined
+  select?: (timeInPoolSeconds: bigint) => SelectData
 }
 
-/**
- * Calculates the time the account has most recently had a non-zero staking balance to now, in seconds
- */
-const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string) => {
-  const stakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Stake' })
-  const unstakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Unstake' })
+export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {
+  switch (contractAddress) {
+    case '0x1094c4a99fce60e69ffe75849309408f1262d304':
+      return 222952418n
+    case '0xac2a4fd70bcd8bab0662960455c363735f0e2b56':
+      return 222913582n
+    default:
+      throw new Error(`Invalid RFOX proxy contract address`)
+  }
+}
 
-  const [stakeFilter, unstakeFilter] = await Promise.all([
-    client.createEventFilter({
-      address: RFOX_PROXY_CONTRACT_ADDRESS,
-      event: stakeEvent,
-      args: {
-        account: getAddress(stakingAssetAccountAddress),
-      },
-    }),
-    client.createEventFilter({
-      address: RFOX_PROXY_CONTRACT_ADDRESS,
-      event: unstakeEvent,
-      args: {
-        account: getAddress(stakingAssetAccountAddress),
-      },
-    }),
-  ])
-
-  // Fetch all stake and unstake logs. Assumes the user wont generate more than the payload limit of logs
-  const [stakeLogs, unstakeLogs] = await Promise.all([
-    client.getFilterLogs({ filter: stakeFilter }),
-    client.getFilterLogs({ filter: unstakeFilter }),
-  ])
-
-  // Sort all logs by block number then log index
-  const sortedLogs = [...stakeLogs, ...unstakeLogs].sort((a, b) => {
-    if (a.blockNumber !== b.blockNumber) return Number(a.blockNumber - b.blockNumber)
-    return Number(a.logIndex - b.logIndex)
-  })
+export const getTimeInPoolSeconds = async (
+  sortedLogs: GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>,
+) => {
+  // If we don't have stake or unstake events, we know the user was never active in the pool
+  if (!sortedLogs.length) return 0n
 
   let stakingBalance = 0n
   let earliestNonZeroStakingBalanceBlockNumber = undefined
@@ -56,21 +39,28 @@ const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string) => {
     switch (log.eventName) {
       case 'Stake': {
         stakingBalance += log.args.amount ?? 0n
+        // Set the earliest non-zero block number if it's not already set
+        if (earliestNonZeroStakingBalanceBlockNumber === undefined) {
+          earliestNonZeroStakingBalanceBlockNumber = log.blockNumber
+        }
         break
       }
       case 'Unstake': {
         stakingBalance -= log.args.amount ?? 0n
+        // Reset the earliest non-zero block number if balance hits zero
+        if (stakingBalance === 0n) {
+          earliestNonZeroStakingBalanceBlockNumber = undefined
+        }
         break
       }
       default:
         break
     }
+  }
 
-    // Every time the balance hits zero, reset the timestamp
-    if (stakingBalance === 0n) {
-      earliestNonZeroStakingBalanceBlockNumber = log.blockNumber
-      break
-    }
+  // If the balance never reached zero, set the block number to the earliest staking event
+  if (stakingBalance > 0n && earliestNonZeroStakingBalanceBlockNumber === undefined) {
+    earliestNonZeroStakingBalanceBlockNumber = sortedLogs[0].blockNumber
   }
 
   // If the staking balance never got set, the user has never staked
@@ -84,10 +74,57 @@ const getTimeInPoolSeconds = async (stakingAssetAccountAddress: string) => {
   const now = dayjs().unix()
 
   // Return the time the account has most recently had a non-zero staking balance to now
-  return now - Number(earliestNonZeroStakingBalanceTimestamp)
+  return BigInt(now) - BigInt(earliestNonZeroStakingBalanceTimestamp)
 }
 
-export const useTimeInPoolQuery = ({ stakingAssetAccountAddress }: UseTimeInPoolProps) => {
+/**
+ * Calculates the time the account has most recently had a non-zero staking balance to now, in seconds
+ */
+const fetchTimeInPoolSeconds = async (stakingAssetAccountAddress: string): Promise<bigint> => {
+  const stakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Stake' })
+  const unstakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Unstake' })
+
+  const RFOX_CONTRACT_CREATION_BLOCK_NUMBER = getRfoxContractCreationBlockNumber(
+    RFOX_PROXY_CONTRACT_ADDRESS,
+  )
+
+  const [stakeFilter, unstakeFilter] = await Promise.all([
+    client.createEventFilter({
+      address: RFOX_PROXY_CONTRACT_ADDRESS,
+      event: stakeEvent,
+      fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
+      args: {
+        account: getAddress(stakingAssetAccountAddress),
+      },
+    }),
+    client.createEventFilter({
+      address: RFOX_PROXY_CONTRACT_ADDRESS,
+      event: unstakeEvent,
+      fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
+      args: {
+        account: getAddress(stakingAssetAccountAddress),
+      },
+    }),
+  ])
+  // Fetch all stake and unstake logs. Assumes the user wont generate more than the payload limit of logs
+  const [stakeLogs, unstakeLogs] = await Promise.all([
+    client.getFilterLogs({ filter: stakeFilter }),
+    client.getFilterLogs({ filter: unstakeFilter }),
+  ])
+
+  // Sort all logs by block number then log index
+  const sortedLogs = [...stakeLogs, ...unstakeLogs].sort((a, b) => {
+    if (a.blockNumber !== b.blockNumber) return Number(a.blockNumber - b.blockNumber)
+    return Number(a.logIndex - b.logIndex)
+  })
+
+  return getTimeInPoolSeconds(sortedLogs)
+}
+
+export const useTimeInPoolQuery = <SelectData = bigint>({
+  stakingAssetAccountAddress,
+  select,
+}: UseTimeInPoolProps<SelectData>) => {
   const queryKey = useMemo(
     () => ['timeInPool', stakingAssetAccountAddress],
     [stakingAssetAccountAddress],
@@ -95,7 +132,7 @@ export const useTimeInPoolQuery = ({ stakingAssetAccountAddress }: UseTimeInPool
   const queryFn = useMemo(
     () =>
       stakingAssetAccountAddress
-        ? () => getTimeInPoolSeconds(stakingAssetAccountAddress)
+        ? () => fetchTimeInPoolSeconds(stakingAssetAccountAddress)
         : skipToken,
     [stakingAssetAccountAddress],
   )
@@ -103,6 +140,7 @@ export const useTimeInPoolQuery = ({ stakingAssetAccountAddress }: UseTimeInPool
   const timeInPoolQuery = useQuery({
     queryKey,
     queryFn,
+    select,
   })
 
   return timeInPoolQuery

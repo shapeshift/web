@@ -7,6 +7,7 @@ import {
   globalHandlersIntegration,
   httpContextIntegration,
   init as initSentry,
+  setUser,
 } from '@sentry/react'
 import { App } from 'App'
 import { AppProviders } from 'AppProviders'
@@ -15,6 +16,7 @@ import { getConfig } from 'config'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { httpClientIntegration } from 'utils/sentry/httpclient'
+import { v4 as uuid } from 'uuid'
 import { renderConsoleArt } from 'lib/consoleArt'
 import { reportWebVitals } from 'lib/reportWebVitals'
 
@@ -46,6 +48,8 @@ if (window.location.hostname !== 'localhost') {
     environment,
     dsn: getConfig().REACT_APP_SENTRY_DSN_URL,
     attachStacktrace: true,
+    // This is the default value, but we're setting it explicitly to make it clear that we're using it
+    autoSessionTracking: true,
     integrations: [
       // Sentry.browserTracingIntegration(),
       // Sentry.replayIntegration(),
@@ -82,8 +86,10 @@ if (window.location.hostname !== 'localhost') {
           errorPredicate =>
             ((hint.originalException as Error | undefined)?.message ?? '').includes(errorPredicate),
         )
-      )
+      ) {
         return null
+      }
+
       // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint.
       // and the ones with a status (i.e with a URL) by their URL.
       // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade for status 0 errors.
@@ -102,6 +108,16 @@ if (window.location.hostname !== 'localhost') {
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
     tracePropagationTargets: ['localhost'],
   })
+
+  // Set a unique user ID if one is not already set
+  const sentryUserId = localStorage.getItem('sentry.user.id')
+  if (!sentryUserId) {
+    const userId = uuid()
+    localStorage.setItem('sentry.user.id', userId)
+    setUser({ id: userId })
+  } else {
+    setUser({ id: sentryUserId })
+  }
 }
 
 const rootElement = document.getElementById('root')!

@@ -263,7 +263,15 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async buildSendApiTransaction(input: UtxoBuildSendApiTxInput<T>): Promise<SignTx<T>> {
     try {
-      const { value, to, xpub, accountNumber, sendMax = false, chainSpecific } = input
+      const {
+        value,
+        to,
+        xpub,
+        accountNumber,
+        sendMax = false,
+        chainSpecific,
+        skipToAddressValidation,
+      } = input
       const { from, satoshiPerByte, accountType, opReturnData } = chainSpecific
 
       if (!value) throw new Error('value is required')
@@ -305,7 +313,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
 
       const addresses = [...inputs, ...outputs, nextChangeAddressInput, nextReceiveAddressInput]
-        .map(({ address }) => address)
+        .map(({ address }) => (skipToAddressValidation && address === to ? null : address))
         .filter(Boolean) as string[]
 
       const uniqueAddresses = [...new Set(addresses)]

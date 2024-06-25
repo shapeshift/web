@@ -728,7 +728,7 @@ export const RepayInput = ({
           isDisabled={!lendingQuoteCloseError}
         >
           <Button
-            size='lg'
+            size='lg-multiline'
             colorScheme={
               isLendingQuoteCloseError || isEstimatedFeesDataError || quoteErrorTranslation
                 ? 'red'

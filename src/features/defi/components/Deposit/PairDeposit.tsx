@@ -323,7 +323,7 @@ export const PairDeposit = ({
           </Row>
         </FormField>
         <Button
-          size='lg'
+          size='lg-multiline'
           width='full'
           colorScheme={fieldError ? 'red' : 'blue'}
           isDisabled={!isValid}

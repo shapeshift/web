@@ -647,7 +647,7 @@ export const BorrowInput = ({
             borderBottomRadius='xl'
           >
             <Button
-              size='lg'
+              size='lg-multiline'
               colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
               mx={-2}
               onClick={handleBorrowSubmit}

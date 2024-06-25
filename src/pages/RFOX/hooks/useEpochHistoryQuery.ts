@@ -20,7 +20,7 @@ const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs().subtract(1, 'month').uni
 // Instead we will rely on staleTime to refetch at a sensible interval.
 export const getEpochHistoryQueryKey = (): EpochHistoryQueryKey => ['epochHistory']
 
-export const epochHistoryQueryFn = async (): Promise<EpochMetadata[]> => {
+export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
   const now = dayjs().unix()
   let startTimestamp = RFOX_FIRST_EPOCH_START_TIMESTAMP
 
@@ -75,7 +75,7 @@ export const useEpochHistoryQuery = () => {
 
   const query = useQuery({
     queryKey,
-    queryFn: epochHistoryQueryFn,
+    queryFn: fetchEpochHistory,
     staleTime: 60 * 60 * 1000, // 1 hour in milliseconds
   })
 

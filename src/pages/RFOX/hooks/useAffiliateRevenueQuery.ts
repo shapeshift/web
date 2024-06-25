@@ -2,11 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
+import { serialize } from 'wagmi'
 
-type AffiliateRevenueQueryKey = [
-  'affiliateRevenue',
-  { startTimestamp: bigint; endTimestamp: bigint },
-]
+type AffiliateRevenueQueryKey = ['affiliateRevenue', string]
 
 /**
  * @param startTimestamp The start timestamp in seconds - not required to be an actual block timestamp
@@ -22,7 +20,7 @@ export const getAffiliateRevenueQueryKey = ({
   endTimestamp,
 }: UseAffiliateRevenueQueryProps): AffiliateRevenueQueryKey => [
   'affiliateRevenue',
-  { startTimestamp, endTimestamp },
+  serialize({ startTimestamp, endTimestamp }),
 ]
 
 export const getAffiliateRevenueQueryFn =
@@ -31,7 +29,7 @@ export const getAffiliateRevenueQueryFn =
     const baseUrl = getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
 
     // The timestamps are in seconds, but the API expects milliseconds
-    const url = `${baseUrl}/v1/affiliate/revenue?start=${startTimestamp * 1000n}&end=${
+    const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp * 1000n}&end=${
       endTimestamp * 1000n
     }`
     const {

@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { breakpoints } from 'theme/theme'
+
 import { ChainMenu } from './NavBar/ChainMenu'
 import { MainNavLink } from './NavBar/MainNavLink'
 import { NavBar } from './NavBar/NavBar'

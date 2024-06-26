@@ -1,6 +1,7 @@
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
+import * as arbitrumBridge from '../../parser/arbitrumBridge'
 import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 import * as thorchain from '../../parser/thorchain'
@@ -38,6 +39,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       }),
       new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
       new cowswap.Parser(),
+      new arbitrumBridge.Parser({ chainId: this.chainId }),
     ])
   }
 }

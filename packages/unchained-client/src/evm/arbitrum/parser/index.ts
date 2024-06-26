@@ -3,6 +3,7 @@ import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import type { Tx } from '../../../generated/arbitrum'
 import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
+import * as arbitrumBridge from '../../parser/arbitrumBridge'
 import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 import * as rfox from '../../parser/rfox'
@@ -26,6 +27,9 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
       new rfox.Parser({
         proxyContract: process.env.REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS ?? '',
         stakingAssetId: foxOnArbitrumOneAssetId,
+      }),
+      new arbitrumBridge.Parser({
+        chainId: this.chainId,
       }),
     ])
   }

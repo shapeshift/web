@@ -5,6 +5,7 @@ import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/selectors'
@@ -61,7 +62,10 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
           title: 'pools.waitingForConfirmation',
           body: [
             'RFOX.stakePending',
-            { amount: stakingAmountCryptoPrecision, symbol: stakingAsset.symbol },
+            {
+              amount: bnOrZero(stakingAmountCryptoPrecision).toFixed(8),
+              symbol: stakingAsset.symbol,
+            },
           ],
           element: <CircularProgress size='75px' />,
         }
@@ -71,7 +75,10 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
           title: 'common.success',
           body: [
             'RFOX.stakeSuccess',
-            { amount: stakingAmountCryptoPrecision, symbol: stakingAsset.symbol },
+            {
+              amount: bnOrZero(stakingAmountCryptoPrecision).toFixed(8),
+              symbol: stakingAsset.symbol,
+            },
           ],
           element: <CheckCircleIcon color='text.success' boxSize='75px' />,
         }

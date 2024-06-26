@@ -78,9 +78,7 @@ export const Hop = ({
 
   const {
     state: hopExecutionState,
-    approval: {
-      setAllowance: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
-    },
+    approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
     swap: { state: swapTxState },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
@@ -131,6 +129,7 @@ export const Hop = ({
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return -Infinity
+      case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
         return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingSwap:

@@ -23,6 +23,7 @@ export enum TransactionExecutionState {
 
 export enum HopExecutionState {
   Pending = 'Pending',
+  AwaitingApprovalReset = 'AwaitingApprovalReset',
   AwaitingApproval = 'AwaitingApproval',
   AwaitingSwap = 'AwaitingSwap',
   Complete = 'Complete',
@@ -36,13 +37,6 @@ export enum TradeExecutionState {
   TradeComplete = 'Complete',
 }
 
-export const HOP_EXECUTION_STATE_ORDERED = [
-  HopExecutionState.Pending,
-  HopExecutionState.AwaitingApproval,
-  HopExecutionState.AwaitingSwap,
-  HopExecutionState.Complete,
-]
-
 export type StreamingSwapFailedSwap = {
   reason: string
   swapIndex: number
@@ -54,15 +48,10 @@ export type StreamingSwapMetadata = {
   failedSwaps: StreamingSwapFailedSwap[]
 }
 
-export type AllowanceExecutionMetadata = {
+export type ApprovalExecutionMetadata = {
   state: TransactionExecutionState
   txHash?: string
   isRequired?: boolean
-}
-
-export type ApprovalExecutionMetadata = {
-  resetAllowance: AllowanceExecutionMetadata
-  setAllowance: AllowanceExecutionMetadata
 }
 
 export type SwapExecutionMetadata = {
@@ -75,6 +64,7 @@ export type SwapExecutionMetadata = {
 
 export type HopExecutionMetadata = {
   state: HopExecutionState
+  approvalReset: ApprovalExecutionMetadata
   approval: ApprovalExecutionMetadata
   swap: SwapExecutionMetadata
 }

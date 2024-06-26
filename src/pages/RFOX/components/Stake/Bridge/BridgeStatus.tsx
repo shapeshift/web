@@ -44,7 +44,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
         asset: sellAsset,
         headerCopy: (
           <Amount.Crypto
-            prefix={translate('common.sendAmountAsset')}
+            prefix={translate('common.send')}
             value={bridgeAmountCryptoPrecision}
             symbol={sellAsset.symbol}
           />

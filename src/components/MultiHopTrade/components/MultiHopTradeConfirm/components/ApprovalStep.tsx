@@ -242,7 +242,7 @@ const ApprovalStepPending = ({
             width='full'
             size='sm'
             colorScheme='blue'
-            disabled={isAllowanceApprovalLoading || !canAttemptApproval}
+            isDisabled={isAllowanceApprovalLoading || !canAttemptApproval}
             isLoading={isAllowanceApprovalLoading}
             onClick={handleSignAllowanceApproval}
           >

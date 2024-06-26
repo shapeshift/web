@@ -27,16 +27,13 @@ export type FeatureFlags = {
   SaversVaults: boolean
   SaversVaultsDeposit: boolean
   SaversVaultsWithdraw: boolean
-  Yearn: boolean
   DefiDashboard: boolean
-  TradeRates: boolean
   Cowswap: boolean
   CowswapGnosis: boolean
   CowswapArbitrum: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
-  FoxBondCTA: boolean
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
   Jaypegz: boolean
@@ -116,9 +113,7 @@ const initialState: Preferences = {
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     SaversVaultsDeposit: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT,
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
-    Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
-    TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
     CowswapArbitrum: getConfig().REACT_APP_FEATURE_COWSWAP_ARBITRUM,
@@ -126,7 +121,6 @@ const initialState: Preferences = {
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
-    FoxBondCTA: getConfig().REACT_APP_FEATURE_FOX_BOND_CTA,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,

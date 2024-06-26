@@ -31,6 +31,7 @@ export const useLifetimeRewardsQuery = ({
     () =>
       stakingAssetAccountAddress
         ? async () => {
+            // using queryClient.fetchQuery here is ok because historical epoch metadata does not change so reactivity is not needed
             const epochHistory = await queryClient.fetchQuery({
               queryKey: getEpochHistoryQueryKey(),
               queryFn: epochHistoryQueryFn,
@@ -38,6 +39,7 @@ export const useLifetimeRewardsQuery = ({
 
             const earnedByEpoch = await Promise.all(
               epochHistory.map(async epochMetadata => {
+                // using queryClient.fetchQuery here is ok because historical earnings do not change so reactivity is not needed
                 const earned = await queryClient.fetchQuery({
                   queryKey: getEarnedQueryKey({
                     stakingAssetAccountAddress,

@@ -1,5 +1,5 @@
 import { Erc20Bridger, getL2Network } from '@arbitrum/sdk'
-import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { makeSwapErrorRight, type SwapErrorRight, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
@@ -44,9 +44,26 @@ export const assertValidTrade = async ({
   }
 
   const isDeposit = sellAsset.chainId === ethChainId
-  const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
+  const isEthBridge = isDeposit
+    ? sellAsset.assetId === ethAssetId
+    : sellAsset.assetId === arbitrumAssetId
   const isTokenBridge = !isEthBridge
 
+  if (isEthBridge) {
+    const isInvalidPair = isDeposit
+      ? buyAsset.assetId !== arbitrumAssetId
+      : buyAsset.assetId !== ethAssetId
+
+    if (isInvalidPair) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[ArbitrumBridge: tradeQuote] - Invalid ETH bridge pair`,
+          code: TradeQuoteError.UnsupportedTradePair,
+          details: { buyAsset, sellAsset },
+        }),
+      )
+    }
+  }
   if (isTokenBridge) {
     const l2Network = await getL2Network(arbitrum.id)
     const bridger = new Erc20Bridger(l2Network)

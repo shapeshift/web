@@ -1,5 +1,7 @@
-import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
+import { useCallback } from 'react'
+import { mergeQueryOutputs } from 'react-queries/helpers'
 
 import type { EpochMetadata } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
@@ -17,63 +19,52 @@ export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
   epochMetadata,
 }: UseCurrentEpochRewardsQueryProps) => {
-  const queryClient = useQueryClient()
+  const combineResults = useCallback(
+    (results: [UseQueryResult<bigint, Error>, UseQueryResult<bigint, Error>]) => {
+      const combineResults = (results: bigint[]) => {
+        const [previousEpochEarned, currentEpochEarned] = results
 
-  const queryKey = useMemo(
-    () => [
-      'lifetimeRewards',
+        const epochEarningsForAccount = currentEpochEarned - previousEpochEarned
+
+        const epochRewardRuneBaseUnit = calcEpochRewardForAccountRuneBaseUnit(
+          epochEarningsForAccount,
+          epochMetadata,
+        )
+
+        return epochRewardRuneBaseUnit
+      }
+      return mergeQueryOutputs(results, combineResults)
+    },
+    [epochMetadata],
+  )
+
+  const combinedQueries = useQueries({
+    queries: [
       {
-        stakingAssetAccountAddress,
+        queryKey: getEarnedQueryKey({
+          stakingAssetAccountAddress,
+          blockNumber: epochMetadata.startBlockNumber - 1n,
+        }),
+        queryFn: getEarnedQueryFn({
+          stakingAssetAccountAddress,
+          blockNumber: epochMetadata.startBlockNumber - 1n,
+        }),
+        staleTime: 60 * 1000, // 1 minute in milliseconds
+      },
+      {
+        queryKey: getEarnedQueryKey({
+          stakingAssetAccountAddress,
+          blockNumber: undefined,
+        }),
+        queryFn: getEarnedQueryFn({
+          stakingAssetAccountAddress,
+          blockNumber: undefined,
+        }),
+        staleTime: 60 * 1000, // 1 minute in milliseconds
       },
     ],
-    [stakingAssetAccountAddress],
-  )
-
-  const queryFn = useMemo(
-    () =>
-      stakingAssetAccountAddress
-        ? async () => {
-            const [previousEpochEarned, currentEpochEarned] = await Promise.all([
-              queryClient.fetchQuery({
-                queryKey: getEarnedQueryKey({
-                  stakingAssetAccountAddress,
-                  blockNumber: epochMetadata.startBlockNumber - 1n,
-                }),
-                queryFn: getEarnedQueryFn({
-                  stakingAssetAccountAddress,
-                  blockNumber: epochMetadata.startBlockNumber - 1n,
-                }),
-              }),
-              queryClient.fetchQuery({
-                queryKey: getEarnedQueryKey({
-                  stakingAssetAccountAddress,
-                  blockNumber: undefined,
-                }),
-                queryFn: getEarnedQueryFn({
-                  stakingAssetAccountAddress,
-                  blockNumber: undefined,
-                }),
-              }),
-            ])
-
-            const epochEarningsForAccount =
-              (currentEpochEarned as bigint) - (previousEpochEarned as bigint)
-
-            const epochRewardRuneBaseUnit = calcEpochRewardForAccountRuneBaseUnit(
-              epochEarningsForAccount,
-              epochMetadata,
-            )
-
-            return epochRewardRuneBaseUnit
-          }
-        : skipToken,
-    [epochMetadata, queryClient, stakingAssetAccountAddress],
-  )
-
-  const epochEarnedHistoryQuery = useQuery({
-    queryKey,
-    queryFn,
+    combine: combineResults,
   })
 
-  return epochEarnedHistoryQuery
+  return combinedQueries
 }

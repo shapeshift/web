@@ -82,7 +82,7 @@ const ApprovalStepPending = ({
 
   const {
     state,
-    approvalReset: { state: approvalResetTxState, isRequired: requiresAllowanceReset },
+    allowanceReset: { state: approvalResetTxState, isRequired: requiresAllowanceReset },
     approval: { state: approvalTxState },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 

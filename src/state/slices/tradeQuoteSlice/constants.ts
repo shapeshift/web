@@ -7,7 +7,7 @@ const initialTransactionState = {
 
 const initialHopState = {
   state: HopExecutionState.Pending,
-  approvalReset: initialTransactionState,
+  allowanceReset: initialTransactionState,
   approval: initialTransactionState,
   swap: initialTransactionState,
 }

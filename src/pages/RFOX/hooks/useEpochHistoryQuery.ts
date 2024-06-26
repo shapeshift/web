@@ -13,20 +13,19 @@ import {
 type EpochHistoryQueryKey = ['epochHistory']
 type CurrentEpochMetadataQueryKey = ['currentEpochMetadata']
 
+// TODO: Clean up by removing the Math.min after the first epoch starts.
+// This is a temporary hack to ensure we have an epoch to test with prior to rFOX launch,
+// and the correct one after launch (in case we don't action this todo it for any reason).
+// const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
+const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(
+  Math.min(dayjs().subtract(30, 'days').unix(), dayjs('2024-07-01T00:00:00Z').unix()),
+)
+
 // This looks weird but isn't - "now" isn't now, it's "now" when this module was first evaluated
 // This allows all calculations against now to be consistent, since our current monkey patch subtracts 2 epochs (60 days) from the same "now"
 export const now = dayjs().unix()
 // TODO(gomes): this should probably read cooldownPeriod from the contract, but for now we'll hardcode it
 const EPOCH_DURATION_DAYS = 30
-
-// TODO(gomes): revert me -  this obviously won't work until first rewards epoch start
-// But for now this works by emulating two epochs (30 days * 2) for testing purposes
-// const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
-const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(
-  dayjs()
-    .subtract(EPOCH_DURATION_DAYS * 2, 'days')
-    .unix(),
-)
 
 // The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.
 // Instead we will rely on staleTime to refetch at a sensible interval.

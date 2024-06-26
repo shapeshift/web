@@ -17,7 +17,7 @@ type EpochHistoryQueryKey = ['epochHistory']
 // and the correct one after launch (in case we don't action this todo it for any reason).
 // const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
 const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(
-  Math.min(dayjs().subtract(1, 'month').unix(), dayjs('2024-07-01T00:00:00Z').unix()),
+  Math.min(dayjs().startOf('month').unix(), dayjs('2024-07-01T00:00:00Z').unix()),
 )
 
 // The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.

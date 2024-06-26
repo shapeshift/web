@@ -43,7 +43,11 @@ import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
 
-const collapseWidth = { width: '100%' }
+const collapseWidth = {
+  width: '100%',
+  // fixes pulse animation getting cut off
+  overflow: undefined,
+}
 
 export const Hop = ({
   swapperName,
@@ -74,7 +78,9 @@ export const Hop = ({
 
   const {
     state: hopExecutionState,
-    approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
+    approval: {
+      setAllowance: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
+    },
     swap: { state: swapTxState },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 

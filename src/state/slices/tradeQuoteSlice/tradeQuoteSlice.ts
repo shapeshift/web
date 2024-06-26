@@ -75,7 +75,7 @@ export const tradeQuoteSlice = createSlice({
         return
       }
       state.tradeExecution.state = TradeExecutionState.FirstHop
-      const approvalRequired = state.tradeExecution.firstHop.approval.isRequired
+      const approvalRequired = state.tradeExecution.firstHop.approval.setAllowance.isRequired
       state.tradeExecution.firstHop.state = approvalRequired
         ? HopExecutionState.AwaitingApproval
         : HopExecutionState.AwaitingSwap
@@ -83,18 +83,18 @@ export const tradeQuoteSlice = createSlice({
     setApprovalTxPending: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.state = TransactionExecutionState.Pending
+      state.tradeExecution[key].approval.setAllowance.state = TransactionExecutionState.Pending
     },
     setApprovalTxFailed: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.state = TransactionExecutionState.Failed
+      state.tradeExecution[key].approval.setAllowance.state = TransactionExecutionState.Failed
     },
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
     setApprovalTxComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.state = TransactionExecutionState.Complete
+      state.tradeExecution[key].approval.setAllowance.state = TransactionExecutionState.Complete
     },
     // progresses the hop to the swap step after the allowance check has passed
     setApprovalStepComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
@@ -135,7 +135,7 @@ export const tradeQuoteSlice = createSlice({
         if (isMultiHopTrade) {
           // first hop of multi hop trade - begin second hop
           state.tradeExecution.state = TradeExecutionState.SecondHop
-          const approvalRequired = state.tradeExecution.secondHop.approval.isRequired
+          const approvalRequired = state.tradeExecution.secondHop.approval.setAllowance.isRequired
           state.tradeExecution.secondHop.state = approvalRequired
             ? HopExecutionState.AwaitingApproval
             : HopExecutionState.AwaitingSwap
@@ -157,13 +157,13 @@ export const tradeQuoteSlice = createSlice({
       state,
       action: PayloadAction<{ firstHop: boolean; secondHop: boolean } | undefined>,
     ) => {
-      state.tradeExecution.firstHop.approval.isRequired = action.payload?.firstHop
-      state.tradeExecution.secondHop.approval.isRequired = action.payload?.secondHop
+      state.tradeExecution.firstHop.approval.setAllowance.isRequired = action.payload?.firstHop
+      state.tradeExecution.secondHop.approval.setAllowance.isRequired = action.payload?.secondHop
     },
     setApprovalTxHash: (state, action: PayloadAction<{ hopIndex: number; txHash: string }>) => {
       const { hopIndex, txHash } = action.payload
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.txHash = txHash
+      state.tradeExecution[key].approval.setAllowance.txHash = txHash
     },
     setSwapSellTxHash: (state, action: PayloadAction<{ hopIndex: number; sellTxHash: string }>) => {
       const { hopIndex, sellTxHash } = action.payload

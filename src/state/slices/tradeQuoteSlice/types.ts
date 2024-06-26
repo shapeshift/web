@@ -54,10 +54,15 @@ export type StreamingSwapMetadata = {
   failedSwaps: StreamingSwapFailedSwap[]
 }
 
-export type ApprovalExecutionMetadata = {
+export type AllowanceExecutionMetadata = {
   state: TransactionExecutionState
   txHash?: string
   isRequired?: boolean
+}
+
+export type ApprovalExecutionMetadata = {
+  resetAllowance: AllowanceExecutionMetadata
+  setAllowance: AllowanceExecutionMetadata
 }
 
 export type SwapExecutionMetadata = {

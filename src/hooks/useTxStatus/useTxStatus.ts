@@ -8,12 +8,11 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 type UseTxStatusProps = {
-  accountId?: AccountId | null
-  txId?: string | null
+  accountId: AccountId | null
+  txId: string | null
   onTxStatusConfirmed?: () => Promise<void>
   onTxStatusPending?: () => Promise<void>
   onTxStatusFailed?: () => Promise<void>
-  onTxStatusChanged?: (status: TxStatus) => Promise<void>
 }
 
 export const useTxStatus = ({
@@ -22,7 +21,6 @@ export const useTxStatus = ({
   onTxStatusConfirmed,
   onTxStatusFailed,
   onTxStatusPending,
-  onTxStatusChanged,
 }: UseTxStatusProps): TxStatus | undefined => {
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : undefined),
@@ -43,8 +41,6 @@ export const useTxStatus = ({
   useEffect(() => {
     if (!tx?.status || previousStatus === tx?.status) return
 
-    onTxStatusChanged?.(tx.status)
-
     switch (tx.status) {
       case TxStatus.Confirmed:
         onTxStatusConfirmed?.()
@@ -58,14 +54,7 @@ export const useTxStatus = ({
       default:
         break
     }
-  }, [
-    tx?.status,
-    previousStatus,
-    onTxStatusChanged,
-    onTxStatusConfirmed,
-    onTxStatusFailed,
-    onTxStatusPending,
-  ])
+  }, [tx?.status, previousStatus, onTxStatusConfirmed, onTxStatusFailed, onTxStatusPending])
 
   return tx?.status
 }

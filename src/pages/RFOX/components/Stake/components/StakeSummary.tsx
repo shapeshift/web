@@ -83,8 +83,6 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  console.log(stakingAmountCryptoPrecision)
-
   if (!stakingAsset) return null
   return (
     <Stack

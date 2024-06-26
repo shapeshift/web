@@ -385,6 +385,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={showWarning}
         setShouldShowAcknowledgement={setShowWarning}
+        buttonTranslation={'common.yes'}
       >
         <FormProvider {...methods}>
           <Stack>

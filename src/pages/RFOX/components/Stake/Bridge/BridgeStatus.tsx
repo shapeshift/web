@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { Amount } from 'components/Amount/Amount'
 
 import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
@@ -41,10 +42,13 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     return [
       {
         asset: sellAsset,
-        headerCopy: translate('common.sendAmountAsset', {
-          amount: bridgeAmountCryptoPrecision,
-          asset: sellAsset.symbol,
-        }),
+        headerCopy: (
+          <Amount.Crypto
+            prefix={translate('common.sendAmountAsset')}
+            value={bridgeAmountCryptoPrecision}
+            symbol={sellAsset.symbol}
+          />
+        ),
         isActionable: true,
         onSignAndBroadcast: handleBridge,
         serializedTxIndex: serializedL1TxIndex,

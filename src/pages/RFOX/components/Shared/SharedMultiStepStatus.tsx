@@ -17,9 +17,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
+import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectTxById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -29,7 +30,7 @@ import { TransactionRow } from './TransactionRow'
 
 export type MultiStepStatusStep = {
   asset: Asset
-  headerCopy: string
+  headerCopy: string | JSX.Element
   serializedTxIndex: string | undefined
 } & (
   | { isActionable: true; onSignAndBroadcast: () => Promise<string | undefined> }
@@ -158,9 +159,11 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
           {translate(isSubmitted ? 'pools.waitingForConfirmation' : 'common.signTransaction')}
         </Heading>
         <Flex gap={1} justifyContent='center' fontWeight='medium'>
-          <RawText>{`${translate('Bridge')} ${bridgeAmountCryptoPrecision} ${
-            sellAsset?.symbol ?? ''
-          }`}</RawText>
+          <Amount.Crypto
+            value={bridgeAmountCryptoPrecision}
+            prefix={translate('RFOX.bridge')}
+            symbol={sellAsset?.symbol ?? ''}
+          />
         </Flex>
       </CardBody>
     )

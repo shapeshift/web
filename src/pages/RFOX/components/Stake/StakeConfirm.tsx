@@ -242,7 +242,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
         <Stack textAlign='center' spacing={0}>
           <Amount.Crypto
             value={stakingAmountCryptoPrecision}
-            maximumFractionDigits={stakingAsset?.precision}
+            prefix='≈'
             symbol={stakingAsset?.symbol}
           />
           <Amount.Fiat fontSize='sm' color='text.subtle' value={stakeAmountUserCurrency} />

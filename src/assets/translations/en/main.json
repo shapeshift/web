@@ -76,7 +76,7 @@
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
-    "sendAmountAsset": "Send %{amount} %{asset}",
+    "sendAmountAsset": "Send",
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",

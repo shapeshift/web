@@ -102,7 +102,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
           <Skeleton isLoaded={!isLoading}>
             <Amount.Crypto
               value={stakingAmountCryptoPrecision}
-              maximumFractionDigits={stakingAsset?.precision}
+              prefix='≈'
               symbol={stakingAsset.symbol}
             />
           </Skeleton>

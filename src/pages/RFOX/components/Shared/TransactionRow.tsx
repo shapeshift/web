@@ -29,7 +29,7 @@ import type { MultiStepStatusStep } from './SharedMultiStepStatus'
 type TransactionRowProps = {
   assetId: AssetId
   onStart: () => void
-  headerCopy: string
+  headerCopy: string | JSX.Element
   isActive?: boolean
   serializedTxIndex: string | undefined
 } & Pick<MultiStepStatusStep, 'isActionable' | 'onSignAndBroadcast'>

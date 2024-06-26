@@ -1,14 +1,14 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectTxById } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SharedStatus } from '../Shared/SharedStatus'
@@ -33,15 +33,16 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   onTxConfirmed: handleTxConfirmed,
 }) => {
   const history = useHistory()
+  const txStatus = useTxStatus({
+    accountId: confirmedQuote.stakingAssetAccountId,
+    txHash: txId,
+    onTxStatusConfirmed: handleTxConfirmed,
+  })
 
   const handleGoBack = useCallback(() => {
     history.push(StakeRoutePaths.Input)
   }, [history])
 
-  const stakingAssetAccountAddress = useMemo(
-    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
-    [confirmedQuote.stakingAssetAccountId],
-  )
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
   )
@@ -50,22 +51,10 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
-  const serializedTxIndex = useMemo(() => {
-    return serializeTxIndex(confirmedQuote.stakingAssetAccountId, txId, stakingAssetAccountAddress)
-  }, [txId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
-
-  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
-
-  useEffect(() => {
-    if (tx?.status !== TxStatus.Confirmed) return
-
-    handleTxConfirmed()
-  }, [handleTxConfirmed, tx?.status])
-
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null
 
-    switch (tx?.status) {
+    switch (txStatus) {
       case undefined:
       case TxStatus.Pending:
         return {
@@ -73,7 +62,10 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
           title: 'pools.waitingForConfirmation',
           body: [
             'RFOX.stakePending',
-            { amount: stakingAmountCryptoPrecision, symbol: stakingAsset.symbol },
+            {
+              amount: bnOrZero(stakingAmountCryptoPrecision).toFixed(8),
+              symbol: stakingAsset.symbol,
+            },
           ],
           element: <CircularProgress size='75px' />,
         }
@@ -83,7 +75,10 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
           title: 'common.success',
           body: [
             'RFOX.stakeSuccess',
-            { amount: stakingAmountCryptoPrecision, symbol: stakingAsset.symbol },
+            {
+              amount: bnOrZero(stakingAmountCryptoPrecision).toFixed(8),
+              symbol: stakingAsset.symbol,
+            },
           ],
           element: <CheckCircleIcon color='text.success' boxSize='75px' />,
         }
@@ -97,7 +92,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
       default:
         return null
     }
-  }, [tx?.status, stakingAmountCryptoPrecision, stakingAsset])
+  }, [txStatus, stakingAmountCryptoPrecision, stakingAsset])
 
   const txLink = useMemo(
     () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),

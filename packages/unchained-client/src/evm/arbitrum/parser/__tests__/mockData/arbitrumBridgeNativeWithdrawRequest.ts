@@ -1,0 +1,16 @@
+export const arbitrumBridgeNativeWithdrawRequest = {
+  txid: '0x0ea82db2b0bedc5f6ebb8aeaed7e1751f1d974f37fce8d751877350d45721c35',
+  blockHash: '0x0b530cd0fa06588c075e5627a0ac9e39e7e29af8120b392c1ad4baf61b9d97be',
+  blockHeight: 224271569,
+  timestamp: 1718994989,
+  from: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+  to: '0x0000000000000000000000000000000000000064',
+  confirmations: 1408729,
+  value: '100000000000',
+  fee: '12725698912890',
+  gasLimit: '92468',
+  gasUsed: '91522',
+  gasPrice: '139045245',
+  status: 1,
+  inputData: '0x25e1606300000000000000000000000094a42db1e578eff403b1644fa163e523803241fd',
+}

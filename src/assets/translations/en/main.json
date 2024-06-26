@@ -642,6 +642,15 @@
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Withdraw Initiated",
+        "outboundTransferDeposit": "Deposit Initiated",
+        "withdrawEth": "Withdraw Initated",
+        "submitRetryable": "Deposit Received",
+        "createRetryableTicket": "Deposit Initiated",
+        "finalizeInboundTransfer": "Withdraw Received",
+        "depositEth": "Deposit Initiated"
+      },
       "rfox": {
         "stake": "Stake",
         "withdraw": "Withdraw",

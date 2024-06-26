@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectTxById } from 'state/slices/selectors'
@@ -76,7 +77,10 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
           title: 'pools.waitingForConfirmation',
           body: [
             'RFOX.unstakePending',
-            { amount: unstakingAmountCryptoPrecision, symbol: stakingAsset.symbol },
+            {
+              amount: bnOrZero(unstakingAmountCryptoPrecision).toFixed(8),
+              symbol: stakingAsset.symbol,
+            },
           ],
           element: <CircularProgress size='75px' />,
         }
@@ -87,7 +91,7 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
           body: [
             'RFOX.unstakeSuccess',
             {
-              amount: unstakingAmountCryptoPrecision,
+              amount: bnOrZero(unstakingAmountCryptoPrecision).toFixed(8),
               symbol: stakingAsset.symbol,
               cooldownPeriod: confirmedQuote.cooldownPeriod,
             },

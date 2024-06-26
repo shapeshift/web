@@ -5,6 +5,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectTxById } from 'state/slices/selectors'
@@ -64,7 +65,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
           title: 'pools.waitingForConfirmation',
           body: [
             'RFOX.claimPending',
-            { amount: claimAmountCryptoPrecision, symbol: claimAsset.symbol },
+            { amount: bnOrZero(claimAmountCryptoPrecision).toFixed(8), symbol: claimAsset.symbol },
           ],
           element: <CircularProgress size='75px' />,
         }
@@ -75,7 +76,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
           body: [
             'RFOX.claimSuccess',
             {
-              amount: claimAmountCryptoPrecision,
+              amount: bnOrZero(claimAmountCryptoPrecision).toFixed(8),
               symbol: claimAsset.symbol,
             },
           ],

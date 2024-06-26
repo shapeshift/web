@@ -382,6 +382,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectMarketDataByFilter(state, { assetId: stakingAssetId }),
   )
 
+  // Consumed by onMaxClick
   const handleAmountChange = useCallback(
     (value: string, isFiat: boolean | undefined) => {
       const amountCryptoPrecision = isFiat

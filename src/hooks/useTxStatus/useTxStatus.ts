@@ -9,7 +9,7 @@ import { useAppSelector } from 'state/store'
 
 type UseTxStatusProps = {
   accountId: AccountId | null
-  txId: string | null
+  txHash: string | null
   onTxStatusConfirmed?: () => Promise<void>
   onTxStatusPending?: () => Promise<void>
   onTxStatusFailed?: () => Promise<void>
@@ -17,7 +17,7 @@ type UseTxStatusProps = {
 
 export const useTxStatus = ({
   accountId,
-  txId,
+  txHash,
   onTxStatusConfirmed,
   onTxStatusFailed,
   onTxStatusPending,
@@ -28,10 +28,10 @@ export const useTxStatus = ({
   )
 
   const serializedTxIndex = useMemo(() => {
-    return accountId && txId && accountAddress
-      ? serializeTxIndex(accountId, txId, accountAddress)
+    return accountId && txHash && accountAddress
+      ? serializeTxIndex(accountId, txHash, accountAddress)
       : undefined
-  }, [accountId, accountAddress, txId])
+  }, [accountId, accountAddress, txHash])
 
   const tx = useAppSelector(state =>
     serializedTxIndex ? selectTxById(state, serializedTxIndex) : undefined,

@@ -34,7 +34,7 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
   const history = useHistory()
   const txStatus = useTxStatus({
     accountId: confirmedQuote.stakingAssetAccountId,
-    txId,
+    txHash: txId,
     onTxStatusConfirmed: handleTxConfirmed,
   })
 

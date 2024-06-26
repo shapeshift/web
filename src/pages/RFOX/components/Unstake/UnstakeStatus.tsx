@@ -35,7 +35,7 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
   const history = useHistory()
   const txStatus = useTxStatus({
     accountId: confirmedQuote.stakingAssetAccountId,
-    txId,
+    txHash: txId,
     onTxStatusConfirmed: handleTxConfirmed,
   })
 

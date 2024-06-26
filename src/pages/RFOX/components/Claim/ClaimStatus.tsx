@@ -44,7 +44,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
 
   const txStatus = useTxStatus({
     accountId: confirmedQuote.stakingAssetAccountId,
-    txId,
+    txHash: txId,
   })
 
   const bodyContent: BodyContent | null = useMemo(() => {

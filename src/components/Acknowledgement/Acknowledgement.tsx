@@ -85,7 +85,8 @@ type AcknowledgementProps = {
   onAcknowledge: (() => void) | undefined
   shouldShowAcknowledgement: boolean
   setShouldShowAcknowledgement: (shouldShow: boolean) => void
-  colorScheme?: ThemeTypings['colorSchemes']
+  buttonColorScheme?: ThemeTypings['colorSchemes']
+  iconColorScheme?: ThemeTypings['colorSchemes']
   buttonTranslation?: string | [string, InterpolationOptions]
   icon?: ComponentWithAs<'svg', IconProps>
   disableButton?: boolean
@@ -106,7 +107,8 @@ export const Acknowledgement = ({
   onAcknowledge,
   shouldShowAcknowledgement,
   setShouldShowAcknowledgement,
-  colorScheme = 'red',
+  buttonColorScheme = 'red',
+  iconColorScheme = 'red',
   buttonTranslation,
   disableButton,
   icon: CustomIcon,
@@ -114,7 +116,10 @@ export const Acknowledgement = ({
   const translate = useTranslate()
   const [isShowing, setIsShowing] = useState(false)
 
-  const understandHoverProps = useMemo(() => ({ bg: `${colorScheme}.600` }), [colorScheme])
+  const understandHoverProps = useMemo(
+    () => ({ bg: `${buttonColorScheme}.600` }),
+    [buttonColorScheme],
+  )
 
   const handleAcknowledge = useCallback(() => {
     if (!onAcknowledge) return
@@ -162,12 +167,11 @@ export const Acknowledgement = ({
               onAnimationComplete={handleAnimationComplete}
             >
               {CustomIcon ? (
-                <CustomIcon color={`${colorScheme}.500`} boxSize='80px' mb={4} />
+                <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />
               ) : (
-                <Box as={FiAlertTriangle} color={`${colorScheme}.500`} size='80px' mb={4} />
+                <Box as={FiAlertTriangle} color={`${iconColorScheme}.500`} size='80px' mb={4} />
               )}
               <Text
-                colorScheme={colorScheme}
                 translation={'warningAcknowledgement.attention'}
                 fontWeight='semibold'
                 fontSize='2xl'
@@ -185,7 +189,7 @@ export const Acknowledgement = ({
               <Button
                 size='lg'
                 mb={2}
-                colorScheme={colorScheme}
+                colorScheme={buttonColorScheme}
                 width='full'
                 onClick={handleAcknowledge}
                 isDisabled={disableButton}
@@ -213,7 +217,10 @@ export const Acknowledgement = ({
 }
 
 export const WarningAcknowledgement = (props: AcknowledgementProps) =>
-  Acknowledgement({ ...props, colorScheme: 'red' })
+  Acknowledgement({ ...props, buttonColorScheme: 'red', iconColorScheme: 'red' })
+
+export const InfoAcknowledgement = (props: AcknowledgementProps) =>
+  Acknowledgement({ ...props, buttonColorScheme: 'blue', iconColorScheme: 'yellow' })
 
 export const StreamingAcknowledgement = ({
   estimatedTimeSeconds,
@@ -224,7 +231,7 @@ export const StreamingAcknowledgement = ({
   return (
     <Acknowledgement
       {...restProps}
-      colorScheme='blue'
+      buttonColorScheme='blue'
       buttonTranslation='common.continue'
       message={translate('streamingAcknowledgement.description', {
         estimatedTimeSeconds,

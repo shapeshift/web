@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { InfoAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FormDivider } from 'components/FormDivider'
@@ -401,11 +401,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   return (
     <SlideTransition>
-      <WarningAcknowledgement
+      <InfoAcknowledgement
         message={warningAcknowledgementMessage}
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={showWarning}
         setShouldShowAcknowledgement={setShowWarning}
+        buttonTranslation={'common.yes'}
       >
         <FormProvider {...methods}>
           <Stack>
@@ -504,7 +505,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             </Button>
           </CardFooter>
         </FormProvider>
-      </WarningAcknowledgement>
+      </InfoAcknowledgement>
     </SlideTransition>
   )
 }

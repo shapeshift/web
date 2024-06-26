@@ -1,4 +1,4 @@
-import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import { Box, Button, Card, Divider, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -80,7 +80,9 @@ const ApprovalStepPending = ({
 
   const {
     state,
-    approval: { state: approvalTxState },
+    approval: {
+      setAllowance: { state: approvalTxState },
+    },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
@@ -137,6 +139,9 @@ const ApprovalStepPending = ({
     )
   }, [approvalNetworkFeeCryptoFormatted, isError, tradeQuoteStep])
 
+  // TODO: implement allowance reset
+  const requiresAllowanceReset = false
+
   const content = useMemo(() => {
     // only render the approval button when the component is active and we don't yet have a tx hash
     if (approvalTxState !== TransactionExecutionState.AwaitingConfirmation || !isActive) return
@@ -144,6 +149,31 @@ const ApprovalStepPending = ({
     return (
       <Card p='2' width='full'>
         <VStack width='full'>
+          {requiresAllowanceReset && (
+            <>
+              <Row px={2}>
+                <Row.Label display='flex' alignItems='center'>
+                  <Text color='text.subtle' translation='trade.resetAllowance' />
+                  <Tooltip label={translate('trade.resetAllowanceTooltip')}>
+                    <Box ml={1}>
+                      <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+                    </Box>
+                  </Tooltip>
+                </Row.Label>
+              </Row>
+              <Button
+                width='full'
+                size='sm'
+                colorScheme='blue'
+                disabled={isAllowanceApprovalLoading || !canAttemptApproval}
+                isLoading={isAllowanceApprovalLoading}
+                onClick={handleSignAllowanceApproval}
+              >
+                {translate('common.reset')}
+              </Button>
+              <Divider />
+            </>
+          )}
           <Row px={2}>
             <Row.Label display='flex' alignItems='center'>
               <Text color='text.subtle' translation='trade.allowance' />
@@ -193,6 +223,7 @@ const ApprovalStepPending = ({
     isActive,
     isAllowanceApprovalLoading,
     isExactAllowance,
+    requiresAllowanceReset,
     toggleIsExactAllowance,
     translate,
   ])
@@ -220,7 +251,9 @@ const ApprovalStepComplete = ({
   const translate = useTranslate()
   const {
     state,
-    approval: { txHash, state: approvalTxState },
+    approval: {
+      setAllowance: { txHash, state: approvalTxState },
+    },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(

@@ -127,11 +127,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
           <Stack alignItems='center'>
             <AssetIcon size='sm' assetId={sellAsset?.assetId} />
             <Stack textAlign='center' spacing={0}>
-              <Amount.Crypto
-                prefix='≈'
-                value={bridgeAmountCryptoPrecision}
-                symbol={sellAsset.symbol}
-              />
+              <Amount.Crypto value={bridgeAmountCryptoPrecision} symbol={sellAsset.symbol} />
               <Amount.Fiat fontSize='sm' color='text.subtle' value={bridgeAmountUserCurrency} />
             </Stack>
           </Stack>
@@ -139,11 +135,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
           <Stack alignItems='center'>
             <AssetIcon size='sm' assetId={buyAsset?.assetId} />
             <Stack textAlign='center' spacing={0}>
-              <Amount.Crypto
-                prefix='≈'
-                value={bridgeAmountCryptoPrecision}
-                symbol={buyAsset.symbol}
-              />
+              <Amount.Crypto value={bridgeAmountCryptoPrecision} symbol={buyAsset.symbol} />
               <Amount.Fiat fontSize='sm' color='text.subtle' value={bridgeAmountUserCurrency} />
             </Stack>
           </Stack>
@@ -183,7 +175,10 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
               <CustomRow>
                 <Row.Label>{sellAsset?.name ?? ''}</Row.Label>
                 <Row.Value>
-                  <Amount.Crypto symbol='' prefix='≈' value={bridgeAmountCryptoPrecision} />
+                  <Amount.Crypto
+                    symbol={sellAsset?.symbol ?? ''}
+                    value={bridgeAmountCryptoPrecision}
+                  />
                 </Row.Value>
               </CustomRow>
             </TimelineItem>
@@ -215,7 +210,10 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
               <CustomRow>
                 <Row.Label>{buyAsset?.name ?? ''}</Row.Label>
                 <Row.Value>
-                  <Amount.Crypto symbol='' prefix='≈' value={bridgeAmountCryptoPrecision} />
+                  <Amount.Crypto
+                    symbol={buyAsset?.symbol ?? ''}
+                    value={bridgeAmountCryptoPrecision}
+                  />
                 </Row.Value>
               </CustomRow>
             </TimelineItem>

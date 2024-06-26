@@ -100,11 +100,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
         <Row.Label>{translate('RFOX.stakeAmount')}</Row.Label>
         <Row.Value>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto
-              value={stakingAmountCryptoPrecision}
-              prefix='≈'
-              symbol={stakingAsset.symbol}
-            />
+            <Amount.Crypto value={stakingAmountCryptoPrecision} symbol={stakingAsset.symbol} />
           </Skeleton>
         </Row.Value>
       </Row>

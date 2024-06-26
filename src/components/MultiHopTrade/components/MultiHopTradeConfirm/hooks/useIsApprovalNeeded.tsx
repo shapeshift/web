@@ -17,11 +17,19 @@ export const useIsApprovalNeeded = (
       if (tradeQuoteStep === undefined) return undefined
 
       const allowanceCryptoBaseUnit = selectAllowanceCryptoBaseUnit(data)
-      return allowanceCryptoBaseUnit !== undefined
-        ? bn(allowanceCryptoBaseUnit).lt(
-            tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          )
-        : false
+      const isApprovalNeeded =
+        allowanceCryptoBaseUnit !== undefined
+          ? bn(allowanceCryptoBaseUnit).lt(
+              tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            )
+          : false
+
+      const isAllowanceResetNeeded = false // TODO: implement allowance reset logic
+
+      return {
+        isApprovalNeeded,
+        isAllowanceResetNeeded,
+      }
     },
     [tradeQuoteStep],
   )
@@ -44,15 +52,15 @@ export const useIsApprovalNeeded = (
     tradeQuoteStep?.sellAsset.assetId,
   ])
 
-  const { data: isApprovalNeeded, isLoading: isApprovalNeededLoading } = useQuery(queryParams)
+  const { data, isLoading: isApprovalNeededLoading } = useQuery(queryParams)
 
   const result = useMemo(
     () => ({
-      isLoading:
-        isApprovalNeeded === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
-      isApprovalNeeded,
+      isLoading: data === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
+      isApprovalNeeded: data?.isApprovalNeeded,
+      isAllowanceResetNeeded: data?.isAllowanceResetNeeded,
     }),
-    [isApprovalNeeded, isApprovalNeededLoading, tradeQuoteStep],
+    [data, isApprovalNeededLoading, tradeQuoteStep],
   )
 
   return result

@@ -160,6 +160,13 @@ export const tradeQuoteSlice = createSlice({
       state.tradeExecution.firstHop.approval.isRequired = action.payload?.firstHop
       state.tradeExecution.secondHop.approval.isRequired = action.payload?.secondHop
     },
+    setAllowanceResetRequirements: (
+      state,
+      action: PayloadAction<{ firstHop: boolean; secondHop: boolean } | undefined>,
+    ) => {
+      state.tradeExecution.firstHop.allowanceReset.isRequired = action.payload?.firstHop
+      state.tradeExecution.secondHop.allowanceReset.isRequired = action.payload?.secondHop
+    },
     setApprovalTxHash: (state, action: PayloadAction<{ hopIndex: number; txHash: string }>) => {
       const { hopIndex, txHash } = action.payload
       const key = hopIndex === 0 ? 'firstHop' : 'secondHop'

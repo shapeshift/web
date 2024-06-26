@@ -64,7 +64,7 @@ export type SwapExecutionMetadata = {
 
 export type HopExecutionMetadata = {
   state: HopExecutionState
-  approvalReset: ApprovalExecutionMetadata
+  allowanceReset: ApprovalExecutionMetadata
   approval: ApprovalExecutionMetadata
   swap: SwapExecutionMetadata
 }

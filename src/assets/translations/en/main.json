@@ -163,7 +163,8 @@
       "sortedDesc": "Sorted descending",
       "expandRow": "Expand Row"
     },
-    "featureDisabled": "This feature is temporarily disabled."
+    "featureDisabled": "This feature is temporarily disabled.",
+    "yes": "Yes"
   },
   "consentBanner": {
     "body": {

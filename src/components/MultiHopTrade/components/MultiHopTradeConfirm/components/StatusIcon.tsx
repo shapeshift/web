@@ -52,6 +52,7 @@ export const ApprovalStatusIcon = ({
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return TransactionExecutionState.AwaitingConfirmation
+      case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
         // override completed state to pending, isApprovalNeeded dictates this
         if (approvalTxState === TransactionExecutionState.Complete) {

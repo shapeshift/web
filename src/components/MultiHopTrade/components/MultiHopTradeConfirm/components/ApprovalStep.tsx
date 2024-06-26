@@ -80,9 +80,7 @@ const ApprovalStepPending = ({
 
   const {
     state,
-    approval: {
-      setAllowance: { state: approvalTxState },
-    },
+    approval: { state: approvalTxState },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
@@ -251,9 +249,7 @@ const ApprovalStepComplete = ({
   const translate = useTranslate()
   const {
     state,
-    approval: {
-      setAllowance: { txHash, state: approvalTxState },
-    },
+    approval: { txHash, state: approvalTxState },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(

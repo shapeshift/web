@@ -8,12 +8,14 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
+import { AllowanceType } from '../hooks/helpers'
 import { useAllowanceApproval } from '../hooks/useAllowanceApproval'
 import { ApprovalStatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
@@ -80,6 +82,7 @@ const ApprovalStepPending = ({
 
   const {
     state,
+    approvalReset: { state: approvalResetTxState, isRequired: requiresAllowanceReset },
     approval: { state: approvalTxState },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
@@ -92,15 +95,44 @@ const ApprovalStepPending = ({
     executeAllowanceApproval,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(tradeQuoteStep, hopIndex, isExactAllowance)
+  } = useAllowanceApproval(
+    tradeQuoteStep,
+    hopIndex,
+    isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited,
+  )
 
-  const canAttemptApproval = useMemo(
+  // TODO: move useAllowanceApproval into a query and skip if reset not required
+  const {
+    executeAllowanceApproval: executeAllowanceReset,
+    approvalNetworkFeeCryptoBaseUnit: approvalResetNetworkFeeCryptoBaseUnit,
+    isLoading: isAllowanceResetLoading,
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, AllowanceType.Reset)
+
+  const canAttemptAllowanceReset = useMemo(
     () =>
       [TransactionExecutionState.AwaitingConfirmation, TransactionExecutionState.Failed].includes(
-        approvalTxState,
+        approvalResetTxState,
       ),
-    [approvalTxState],
+    [approvalResetTxState],
   )
+
+  const canAttemptApproval = useMemo(() => {
+    return (
+      (!requiresAllowanceReset || approvalResetTxState === TransactionExecutionState.Complete) &&
+      [TransactionExecutionState.AwaitingConfirmation, TransactionExecutionState.Failed].includes(
+        approvalTxState,
+      )
+    )
+  }, [approvalResetTxState, approvalTxState, requiresAllowanceReset])
+
+  const handleSignAllowanceReset = useCallback(async () => {
+    if (!canAttemptAllowanceReset) {
+      console.error('attempted to execute in-progress allowance reset')
+      return
+    }
+
+    await executeAllowanceReset()
+  }, [canAttemptAllowanceReset, executeAllowanceReset])
 
   const handleSignAllowanceApproval = useCallback(async () => {
     if (!canAttemptApproval) {
@@ -111,14 +143,22 @@ const ApprovalStepPending = ({
     await executeAllowanceApproval()
   }, [canAttemptApproval, executeAllowanceApproval])
 
-  const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
-  const approvalNetworkFeeCryptoFormatted =
-    feeAsset && approvalNetworkFeeCryptoBaseUnit
-      ? toCrypto(
-          fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
-          feeAsset.symbol,
-        )
-      : ''
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId),
+  )
+
+  const approvalNetworkFeeCryptoFormatted = useMemo(() => {
+    if (!feeAsset || !approvalNetworkFeeCryptoBaseUnit) return ''
+
+    const totalNetworkFeeCryptoBaseUnit = bnOrZero(approvalNetworkFeeCryptoBaseUnit).plus(
+      approvalResetNetworkFeeCryptoBaseUnit ?? '0',
+    )
+
+    return toCrypto(
+      fromBaseUnit(totalNetworkFeeCryptoBaseUnit, feeAsset.precision),
+      feeAsset.symbol,
+    )
+  }, [approvalNetworkFeeCryptoBaseUnit, approvalResetNetworkFeeCryptoBaseUnit, feeAsset, toCrypto])
 
   const stepIndicator = useMemo(() => {
     return <ApprovalStatusIcon hopExecutionState={state} approvalTxState={approvalTxState} />
@@ -136,9 +176,6 @@ const ApprovalStepPending = ({
       />
     )
   }, [approvalNetworkFeeCryptoFormatted, isError, tradeQuoteStep])
-
-  // TODO: implement allowance reset
-  const requiresAllowanceReset = false
 
   const content = useMemo(() => {
     // only render the approval button when the component is active and we don't yet have a tx hash
@@ -163,9 +200,9 @@ const ApprovalStepPending = ({
                 width='full'
                 size='sm'
                 colorScheme='blue'
-                disabled={isAllowanceApprovalLoading || !canAttemptApproval}
-                isLoading={isAllowanceApprovalLoading}
-                onClick={handleSignAllowanceApproval}
+                disabled={isAllowanceResetLoading || !canAttemptAllowanceReset}
+                isLoading={isAllowanceResetLoading}
+                onClick={handleSignAllowanceReset}
               >
                 {translate('common.reset')}
               </Button>
@@ -216,10 +253,13 @@ const ApprovalStepPending = ({
     )
   }, [
     approvalTxState,
+    canAttemptAllowanceReset,
     canAttemptApproval,
     handleSignAllowanceApproval,
+    handleSignAllowanceReset,
     isActive,
     isAllowanceApprovalLoading,
+    isAllowanceResetLoading,
     isExactAllowance,
     requiresAllowanceReset,
     toggleIsExactAllowance,

@@ -7,8 +7,8 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 type UseTxStatusProps = {
-  accountId: AccountId
-  txId: string
+  accountId?: AccountId | null
+  txId?: string | null
   onTxStatusConfirmed?: () => Promise<void>
   onTxStatusPending?: () => Promise<void>
   onTxStatusFailed?: () => Promise<void>
@@ -22,14 +22,21 @@ export const useTxStatus = ({
   onTxStatusFailed,
   onTxStatusPending,
   onTxStatusChanged,
-}: UseTxStatusProps): TxStatus => {
-  const accountAddress = useMemo(() => fromAccountId(accountId).account, [accountId])
+}: UseTxStatusProps): TxStatus | undefined => {
+  const accountAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : undefined),
+    [accountId],
+  )
 
   const serializedTxIndex = useMemo(() => {
-    return serializeTxIndex(accountId, txId, accountAddress)
+    return accountId && txId && accountAddress
+      ? serializeTxIndex(accountId, txId, accountAddress)
+      : undefined
   }, [accountId, accountAddress, txId])
 
-  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+  const tx = useAppSelector(state =>
+    serializedTxIndex ? selectTxById(state, serializedTxIndex) : undefined,
+  )
 
   useEffect(() => {
     if (!tx?.status) return

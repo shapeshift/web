@@ -1,14 +1,13 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssetById, selectTxById } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SharedStatus } from '../Shared/SharedStatus'
@@ -37,26 +36,21 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
     history.push(ClaimRoutePaths.Select)
   }, [history])
 
-  const claimAssetAccountAddress = useMemo(
-    () => fromAccountId(confirmedQuote.claimAssetAccountId).account,
-    [confirmedQuote.claimAssetAccountId],
-  )
   const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.claimAssetId))
   const claimAmountCryptoPrecision = useMemo(
     () => fromBaseUnit(confirmedQuote.claimAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
     [confirmedQuote.claimAmountCryptoBaseUnit, claimAsset?.precision],
   )
 
-  const serializedTxIndex = useMemo(() => {
-    return serializeTxIndex(confirmedQuote.claimAssetAccountId, txId, claimAssetAccountAddress)
-  }, [confirmedQuote.claimAssetAccountId, claimAssetAccountAddress, txId])
-
-  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
+  const txStatus = useTxStatus({
+    accountId: confirmedQuote.claimAssetAccountId,
+    txId,
+  })
 
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!claimAsset) return null
 
-    switch (tx?.status) {
+    switch (txStatus) {
       case undefined:
       case TxStatus.Pending:
         return {
@@ -91,7 +85,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
       default:
         return null
     }
-  }, [claimAsset, tx?.status, claimAmountCryptoPrecision])
+  }, [claimAsset, txStatus, claimAmountCryptoPrecision])
 
   const txLink = useMemo(
     () => getTxLink({ txId, defaultExplorerBaseUrl: claimAsset?.explorerTxLink ?? '' }),

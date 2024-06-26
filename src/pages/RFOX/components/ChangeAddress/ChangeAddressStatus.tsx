@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -46,12 +46,6 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
     () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),
     [stakingAsset?.explorerTxLink, txId],
   )
-
-  useEffect(() => {
-    if (tx?.status !== TxStatus.Confirmed) return
-
-    handleTxConfirmed()
-  }, [handleTxConfirmed, tx?.status])
 
   const handleGoBack = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Input)

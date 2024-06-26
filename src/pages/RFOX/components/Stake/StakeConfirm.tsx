@@ -240,7 +240,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       >
         <AssetIcon size='sm' assetId={stakingAsset?.assetId} />
         <Stack textAlign='center' spacing={0}>
-          <Amount.Crypto value={stakingAmountCryptoPrecision} symbol={stakingAsset?.symbol} />
+          <Amount.Crypto
+            value={stakingAmountCryptoPrecision}
+            maximumFractionDigits={stakingAsset?.precision}
+            symbol={stakingAsset?.symbol}
+          />
           <Amount.Fiat fontSize='sm' color='text.subtle' value={stakeAmountUserCurrency} />
         </Stack>
       </Card>

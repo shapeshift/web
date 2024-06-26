@@ -83,6 +83,8 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
+  console.log(stakingAmountCryptoPrecision)
+
   if (!stakingAsset) return null
   return (
     <Stack
@@ -100,7 +102,11 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
         <Row.Label>{translate('RFOX.stakeAmount')}</Row.Label>
         <Row.Value>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto value={stakingAmountCryptoPrecision} symbol={stakingAsset.symbol} />
+            <Amount.Crypto
+              value={stakingAmountCryptoPrecision}
+              maximumFractionDigits={stakingAsset?.precision}
+              symbol={stakingAsset.symbol}
+            />
           </Skeleton>
         </Row.Value>
       </Row>

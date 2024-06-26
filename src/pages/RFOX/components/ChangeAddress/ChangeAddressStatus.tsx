@@ -1,13 +1,12 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
 import { getTxLink } from 'lib/getTxLink'
-import { selectAssetById, selectTxById } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SharedStatus } from '../Shared/SharedStatus'
@@ -33,37 +32,27 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
   onTxConfirmed: handleTxConfirmed,
 }) => {
   const history = useHistory()
+  const txStatus = useTxStatus({
+    accountId: confirmedQuote.stakingAssetAccountId,
+    txHash: txId,
+    onTxStatusConfirmed: handleTxConfirmed,
+  })
 
-  const stakingAssetAccountAddress = useMemo(
-    () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
-    [confirmedQuote.stakingAssetAccountId],
-  )
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
   )
-
-  const serializedTxIndex = useMemo(() => {
-    return serializeTxIndex(confirmedQuote.stakingAssetAccountId, txId, stakingAssetAccountAddress)
-  }, [confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress, txId])
 
   const txLink = useMemo(
     () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),
     [stakingAsset?.explorerTxLink, txId],
   )
-  const tx = useAppSelector(state => selectTxById(state, serializedTxIndex))
-
-  useEffect(() => {
-    if (tx?.status !== TxStatus.Confirmed) return
-
-    handleTxConfirmed()
-  }, [handleTxConfirmed, tx?.status])
 
   const handleGoBack = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Input)
   }, [history])
 
   const bodyContent: BodyContent | null = useMemo(() => {
-    switch (tx?.status) {
+    switch (txStatus) {
       case undefined:
       case TxStatus.Pending:
         return {
@@ -89,7 +78,7 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
       default:
         return null
     }
-  }, [tx?.status])
+  }, [txStatus])
 
   return <SharedStatus onBack={handleGoBack} txLink={txLink} body={bodyContent} />
 }

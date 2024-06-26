@@ -1,14 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Center,
-  Collapse,
-  Flex,
-  Link,
-  Text,
-} from '@chakra-ui/react'
+import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -29,14 +19,14 @@ import type { MultiStepStatusStep } from './SharedMultiStepStatus'
 type TransactionRowProps = {
   assetId: AssetId
   onStart: () => void
-  headerCopy: string | JSX.Element
+  header: JSX.Element
   isActive?: boolean
   serializedTxIndex: string | undefined
 } & Pick<MultiStepStatusStep, 'isActionable' | 'onSignAndBroadcast'>
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
-  headerCopy,
+  header,
   onStart,
   isActive,
   isActionable,
@@ -121,7 +111,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     <Card>
       <CardHeader gap={2} display='flex' flexDir='row' alignItems='center' flexWrap='wrap'>
         <AssetIcon size='xs' assetId={asset.assetId} />
-        <Text>{headerCopy}</Text>
+        {header}
         <Flex ml='auto' alignItems='center' gap={2}>
           {txIdLink && (
             <Button as={Link} isExternal href={txIdLink} size='xs'>

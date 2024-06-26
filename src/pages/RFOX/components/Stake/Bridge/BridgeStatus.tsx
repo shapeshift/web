@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/react'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -42,7 +43,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
     return [
       {
         asset: sellAsset,
-        headerCopy: (
+        header: (
           <Amount.Crypto
             prefix={translate('common.send')}
             value={bridgeAmountCryptoPrecision}
@@ -55,7 +56,7 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
       },
       {
         asset: buyAsset,
-        headerCopy: translate('RFOX.bridgeFunds'),
+        header: <Text>{translate('RFOX.bridgeFunds')}</Text>,
         isActionable: false,
         serializedTxIndex: serializedL2TxIndex,
       },

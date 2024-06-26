@@ -30,7 +30,7 @@ import { TransactionRow } from './TransactionRow'
 
 export type MultiStepStatusStep = {
   asset: Asset
-  headerCopy: string | JSX.Element
+  header: JSX.Element
   serializedTxIndex: string | undefined
 } & (
   | { isActionable: true; onSignAndBroadcast: () => Promise<string | undefined> }
@@ -186,7 +186,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
           (
             {
               asset,
-              headerCopy,
+              header,
               isActionable,
               serializedTxIndex,
               onSignAndBroadcast: handleSignAndBroadcast,
@@ -197,7 +197,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
               <TransactionRow
                 key={asset.assetId}
                 assetId={asset.assetId}
-                headerCopy={headerCopy}
+                header={header}
                 onStart={handleStart}
                 onSignAndBroadcast={handleSignAndBroadcast}
                 serializedTxIndex={serializedTxIndex}

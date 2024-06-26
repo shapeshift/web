@@ -30,21 +30,21 @@ const getContracts = (stakingAssetAccountAddress: string | undefined, count: big
 
 type GetContractsReturnType = ReturnType<typeof getContracts>
 
-type GetUnstakingRequestQueryKey = [string, { contracts: string }]
+type GetUnstakingRequestsQueryKey = [string, { contracts: string }]
 
-type UnstakingRequest = MulticallReturnType<GetContractsReturnType, AllowFailure>
+type UnstakingRequests = MulticallReturnType<GetContractsReturnType, AllowFailure>
 
-type UseGetUnstakingRequestQueryProps<SelectData = UnstakingRequest> = {
+type UseGetUnstakingRequestsQueryProps<SelectData = UnstakingRequests> = {
   stakingAssetAccountAddress: string | undefined
-  select?: (unstakingRequest: UnstakingRequest) => SelectData
+  select?: (unstakingRequests: UnstakingRequests) => SelectData
 }
 
 const client = viemClientByNetworkId[arbitrum.id]
 
-export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
+export const useGetUnstakingRequestsQuery = <SelectData = UnstakingRequests>({
   stakingAssetAccountAddress,
   select,
-}: UseGetUnstakingRequestQueryProps<SelectData>) => {
+}: UseGetUnstakingRequestsQueryProps<SelectData>) => {
   const {
     data: unstakingRequestCountResponse,
     isError: isUnstakingRequestCountError,
@@ -61,7 +61,7 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
   )
 
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
-  const queryKey: GetUnstakingRequestQueryKey = useMemo(
+  const queryKey: GetUnstakingRequestsQueryKey = useMemo(
     () => [
       'readContracts',
       {
@@ -74,7 +74,7 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
     [contracts],
   )
 
-  const getUnstakingRequestQueryFn = useMemo(() => {
+  const getUnstakingRequestsQueryFn = useMemo(() => {
     // Unstaking request count is actually loading/pending, fine not to fire a *query* for unstaking request here just yet and skipToken
     // this query will be in pending state, which is correct.
     if (isUnstakingRequestCountLoading || isUnstakingRequestCountPending) return skipToken
@@ -98,13 +98,13 @@ export const useGetUnstakingRequestQuery = <SelectData = UnstakingRequest>({
     unstakingRequestCountResponse,
   ])
 
-  const unstakingRequestQuery = useQuery({
+  const unstakingRequestsQuery = useQuery({
     queryKey,
-    queryFn: getUnstakingRequestQueryFn,
+    queryFn: getUnstakingRequestsQueryFn,
     refetchOnMount: true,
     select,
     retry: false,
   })
 
-  return unstakingRequestQuery
+  return { ...unstakingRequestsQuery, queryKey }
 }

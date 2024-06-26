@@ -36,7 +36,6 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -55,7 +54,9 @@ import {
   selectFeeAssetById,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectTxById,
 } from 'state/slices/selectors'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { store, useAppSelector } from 'state/store'
 
 import { LoanSummary } from '../LoanSummary'
@@ -156,11 +157,6 @@ export const RepayInput = ({
     accountNumber: repaymentAccountNumber,
   })
 
-  const approvalTxStatus = useTxStatus({
-    accountId: repaymentAccountId,
-    txId: approvalTxHash,
-  })
-
   const useLendingQuoteCloseQueryArgs = useMemo(
     () => ({
       collateralAssetId,
@@ -216,15 +212,20 @@ export const RepayInput = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
 
+  const serializedApprovalTxIndex = useMemo(() => {
+    if (!(approvalTxHash && userAddress && repaymentAccountId)) return ''
+    return serializeTxIndex(repaymentAccountId, approvalTxHash, userAddress)
+  }, [approvalTxHash, userAddress, repaymentAccountId])
+  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
   const isApprovalTxPending = useMemo(
     () =>
       isApprovalMutationPending ||
-      (isApprovalMutationSuccess && approvalTxStatus !== TxStatus.Confirmed),
-    [isApprovalMutationPending, isApprovalMutationSuccess, approvalTxStatus],
+      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
+    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
   )
 
   useEffect(() => {
-    if (!approvalTxStatus) return
+    if (!approvalTx) return
     if (isApprovalTxPending) return
     ;(async () => {
       await queryClient.invalidateQueries(
@@ -236,7 +237,7 @@ export const RepayInput = ({
       )
     })()
   }, [
-    approvalTxStatus,
+    approvalTx,
     inboundAddressData?.router,
     isApprovalTxPending,
     repaymentAsset?.assetId,

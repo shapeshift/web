@@ -1,3 +1,4 @@
+import { usePrevious } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -37,9 +38,10 @@ export const useTxStatus = ({
   const tx = useAppSelector(state =>
     serializedTxIndex ? selectTxById(state, serializedTxIndex) : undefined,
   )
+  const previousStatus = usePrevious(tx?.status)
 
   useEffect(() => {
-    if (!tx?.status) return
+    if (!tx?.status || previousStatus === tx?.status) return
 
     onTxStatusChanged?.(tx.status)
 
@@ -56,7 +58,14 @@ export const useTxStatus = ({
       default:
         break
     }
-  }, [tx?.status, onTxStatusChanged, onTxStatusConfirmed, onTxStatusFailed, onTxStatusPending])
+  }, [
+    tx?.status,
+    previousStatus,
+    onTxStatusChanged,
+    onTxStatusConfirmed,
+    onTxStatusFailed,
+    onTxStatusPending,
+  ])
 
   return tx?.status
 }

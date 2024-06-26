@@ -1,4 +1,4 @@
-import { ArrowBackIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Button,
   Card,
@@ -7,52 +7,37 @@ import {
   CardHeader,
   Flex,
   IconButton,
-  Link,
   Skeleton,
   Stack,
-  Text,
-  useToast,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { useQueryClient } from '@tanstack/react-query'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useHistory } from 'react-router'
-import { arbitrum } from 'viem/chains'
-import { encodeFunctionData, getAddress } from 'viem/utils'
-import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
+import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
-  assertGetEvmChainAdapter,
-  buildAndBroadcast,
-  createBuildCustomTxInput,
-} from 'lib/utils/evm'
-import {
-  selectAccountNumberByAccountId,
   selectAssetById,
-  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
+import { useRfoxStake } from './hooks/useRfoxStake'
 import type { RfoxStakingQuote } from './types'
 import { StakeRoutePaths, type StakeRouteProps } from './types'
 
@@ -70,37 +55,17 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   setStakeTxid,
   confirmedQuote,
 }) => {
-  const toast = useToast()
   const queryClient = useQueryClient()
-  const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
 
-  const [approvalTxId, setApprovalTxId] = useState<string | undefined>()
-
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
-  )
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
-  )
-
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
   const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
   )
 
-  const stakingAssetAccountNumberFilter = useMemo(() => {
-    return {
-      assetId: confirmedQuote.stakingAssetId,
-      accountId: confirmedQuote.stakingAssetAccountId,
-    }
-  }, [confirmedQuote.stakingAssetAccountId, confirmedQuote.stakingAssetId])
-  const stakingAssetAccountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
-  )
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
     [confirmedQuote.stakingAssetAccountId],
@@ -120,33 +85,57 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   )
 
   const {
+    approvalFeesQuery: {
+      data: approvalFees,
+      isLoading: isGetApprovalFeesLoading,
+      isSuccess: isGetApprovalFeesSuccess,
+    },
+    isApprovalRequired,
+    approvalMutation: {
+      mutateAsync: handleApprove,
+      isPending: isApprovalMutationPending,
+      isSuccess: isApprovalMutationSuccess,
+    },
+    allowanceQuery: { isLoading: isAllowanceDataLoading },
+    stakeFeesQuery: {
+      data: stakeFees,
+      isLoading: isStakeFeesLoading,
+      isSuccess: isStakeFeesSuccess,
+    },
+    approvalTx,
+    stakeMutation: {
+      mutateAsync: handleStake,
+      isPending: isStakeMutationPending,
+      isSuccess: isStakeMutationSuccess,
+    },
+  } = useRfoxStake({
+    amountCryptoBaseUnit: confirmedQuote.stakingAmountCryptoBaseUnit,
+    runeAddress: confirmedQuote.runeAddress,
+    stakingAssetId: confirmedQuote.stakingAssetId,
+    stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
+    // Assume true at confirm since already validated
+    hasEnoughBalance: true,
+    // We don't have access to form context anymore at this stage
+    methods: undefined,
+    setStakeTxid,
+  })
+
+  const {
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
-  } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(stakingAssetAccountAddress),
-      select: ([stakingBalance]) => stakingBalance.toString(),
-    },
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    select: ([stakingBalance]) => stakingBalance.toString(),
   })
 
   const {
     data: newContractBalanceOfCryptoBaseUnit,
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
-  } = useReadContract({
-    abi: erc20ABI,
-    address: getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference),
-    functionName: 'balanceOf',
-    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
-    chainId: arbitrum.id,
-    query: {
-      select: data =>
-        bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
-    },
+  } = useStakingBalanceOfQuery<string>({
+    stakingAssetId: confirmedQuote.stakingAssetId,
+    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    select: data =>
+      bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
   })
 
   const newShareOfPoolPercentage = useMemo(
@@ -161,119 +150,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       userStakingBalanceOfCryptoBaseUnit,
     ],
   )
-
-  // Approval/Allowance bits
-
-  const { data: allowanceDataCryptoBaseUnit, isLoading: isAllowanceDataLoading } = useAllowance({
-    assetId: stakingAsset?.assetId,
-    spender: RFOX_PROXY_CONTRACT_ADDRESS,
-    from: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
-  })
-
-  const isApprovalRequired = useMemo(
-    () => bnOrZero(allowanceDataCryptoBaseUnit).lt(confirmedQuote.stakingAmountCryptoBaseUnit),
-    [allowanceDataCryptoBaseUnit, confirmedQuote.stakingAmountCryptoBaseUnit],
-  )
-
-  const approvalCallData = useMemo(() => {
-    return encodeFunctionData({
-      abi: erc20ABI,
-      functionName: 'approve',
-      args: [RFOX_PROXY_CONTRACT_ADDRESS, BigInt(confirmedQuote.stakingAmountCryptoBaseUnit)],
-    })
-  }, [confirmedQuote.stakingAmountCryptoBaseUnit])
-
-  const {
-    mutate: sendApprovalTx,
-    isPending: isApprovalMutationPending,
-    isSuccess: isApprovalMutationSuccess,
-    isIdle: isApprovalMutationIdle,
-  } = useMutation({
-    ...reactQueries.mutations.approve({
-      assetId: confirmedQuote.stakingAssetId,
-      spender: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      amount: confirmedQuote.stakingAmountCryptoBaseUnit,
-      wallet,
-      accountNumber: stakingAssetAccountNumber,
-    }),
-    onSuccess: (txId: string) => {
-      setApprovalTxId(txId)
-      toast({
-        title: translate('modals.send.transactionSent'),
-        description: (
-          <Text>
-            {feeAsset?.explorerTxLink && (
-              <Link href={`${feeAsset.explorerTxLink}${txId}`} isExternal>
-                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-              </Link>
-            )}
-          </Text>
-        ),
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
-    },
-  })
-
-  const isGetApprovalFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        isApprovalMutationIdle &&
-          isApprovalRequired &&
-          stakingAssetAccountNumber !== undefined &&
-          feeAsset &&
-          feeAssetMarketData &&
-          wallet,
-      ),
-    [
-      feeAsset,
-      feeAssetMarketData,
-      isApprovalMutationIdle,
-      isApprovalRequired,
-      stakingAssetAccountNumber,
-      wallet,
-    ],
-  )
-
-  const {
-    data: approvalFees,
-    isLoading: isGetApprovalFeesLoading,
-    isSuccess: isGetApprovalFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      value: '0',
-      accountNumber: stakingAssetAccountNumber!, // see isGetApprovalFeesEnabled
-      feeAsset: feeAsset!, // see isGetApprovalFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetApprovalFeesEnabled
-      to: fromAssetId(confirmedQuote.stakingAssetId).assetReference,
-      from: stakingAssetAccountAddress,
-      data: approvalCallData,
-      wallet: wallet!, // see isGetApprovalFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetApprovalFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: isGetApprovalFeesEnabled ? 15_000 : false,
-  })
-
-  const serializedApprovalTxIndex = useMemo(() => {
-    if (!(approvalTxId && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
-      return ''
-    return serializeTxIndex(
-      confirmedQuote.stakingAssetAccountId,
-      approvalTxId,
-      stakingAssetAccountAddress,
-    )
-  }, [approvalTxId, confirmedQuote.stakingAssetAccountId, stakingAssetAccountAddress])
-
-  const approvalTx = useAppSelector(gs => selectTxById(gs, serializedApprovalTxIndex))
-
-  const handleApprove = useCallback(() => sendApprovalTx(undefined), [sendApprovalTx])
 
   const isApprovalTxPending = useMemo(
     () =>
@@ -321,96 +197,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     queryClient,
   ])
 
-  // Stake bits
-
-  const stakeCallData = useMemo(() => {
-    return encodeFunctionData({
-      abi: foxStakingV1Abi,
-      functionName: 'stake',
-      args: [BigInt(confirmedQuote.stakingAmountCryptoBaseUnit), confirmedQuote.runeAddress],
-    })
-  }, [confirmedQuote.runeAddress, confirmedQuote.stakingAmountCryptoBaseUnit])
-
-  const {
-    mutateAsync: handleStake,
-    isPending: isStakeMutationPending,
-    isSuccess: isStakeMutationSuccess,
-    isIdle: isStakeMutationIdle,
-  } = useMutation({
-    mutationFn: async () => {
-      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset) return
-
-      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
-
-      const buildCustomTxInput = await createBuildCustomTxInput({
-        accountNumber: stakingAssetAccountNumber,
-        adapter,
-        data: stakeCallData,
-        value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
-        wallet,
-      })
-
-      const txId = await buildAndBroadcast({
-        adapter,
-        buildCustomTxInput,
-        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-      })
-
-      return txId
-    },
-    onSuccess: (txId: string | undefined) => {
-      if (!txId) return
-
-      setStakeTxid(txId)
-    },
-  })
-
-  const isGetStakeFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        isStakeMutationIdle &&
-          stakingAssetAccountNumber !== undefined &&
-          wallet &&
-          stakingAsset &&
-          !isApprovalRequired &&
-          feeAsset &&
-          feeAssetMarketData,
-      ),
-    [
-      isStakeMutationIdle,
-      stakingAssetAccountNumber,
-      wallet,
-      stakingAsset,
-      isApprovalRequired,
-      feeAsset,
-      feeAssetMarketData,
-    ],
-  )
-
-  const {
-    data: stakeFees,
-    isLoading: isStakeFeesLoading,
-    isSuccess: isStakeFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: stakeCallData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetStakeFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: isGetStakeFeesEnabled ? 15_000 : false,
-  })
-
   const serializedStakeTxIndex = useMemo(() => {
     if (!(stakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
       return ''
@@ -436,7 +222,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
     await handleStake()
     history.push(StakeRoutePaths.Status)
-  }, [handleApprove, handleStake, history, isApprovalRequired])
+  }, [handleStake, history, isApprovalRequired, handleApprove])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null
@@ -468,7 +254,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
           <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
-        <Flex flex={1}></Flex>
+        <Flex flex={1} />
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>

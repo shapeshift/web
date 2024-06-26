@@ -292,7 +292,7 @@ export const ClaimConfirm = ({
               {translate('common.cancel')}
             </Button>
             <Button
-              size='lg'
+              size='lg-multiline'
               colorScheme='blue'
               isDisabled={!hasPendingUndelegation}
               onClick={handleConfirm}

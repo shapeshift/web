@@ -363,6 +363,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           <Text translation='common.receive' />
           <AssetInput
             {...(accountId ? { accountId } : {})}
+            assetId={asset0.assetId}
             cryptoAmount={asset0AmountCryptoPrecision}
             fiatAmount={bnOrZero(asset0AmountCryptoPrecision)
               .times(asset0MarketData.price)
@@ -372,7 +373,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             assetSymbol={asset0.symbol}
             balance={fromBaseUnit(
               bnOrZero(uniV2Opportunity.underlyingToken0AmountCryptoBaseUnit),
-              assets[uniV2Opportunity?.underlyingAssetIds?.[0] ?? '']?.precision ?? 0,
+              assets[assetId0]?.precision ?? 0,
             )}
             fiatBalance={bn(
               fromBaseUnit(
@@ -387,6 +388,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           />
           <AssetInput
             {...(accountId ? { accountId } : {})}
+            assetId={asset1.assetId}
             cryptoAmount={asset1AmountCryptoPrecision}
             fiatAmount={bnOrZero(asset1AmountCryptoPrecision)
               .times(asset1MarketData.price)
@@ -396,7 +398,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
             assetSymbol={asset1.symbol}
             balance={fromBaseUnit(
               bnOrZero(uniV2Opportunity.underlyingToken1AmountCryptoBaseUnit),
-              assets[uniV2Opportunity?.underlyingAssetIds?.[1] ?? '']?.precision ?? 0,
+              assets[assetId1]?.precision ?? 0,
             )}
             fiatBalance={bn(
               fromBaseUnit(

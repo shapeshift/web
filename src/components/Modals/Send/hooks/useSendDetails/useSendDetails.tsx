@@ -153,7 +153,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       if (bnOrZero(amountCryptoPrecision).lt(0)) return null
       if (!asset || !accountId) return null
 
-      const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(amountCryptoPrecision)
+      const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(bnOrZero(amountCryptoPrecision))
 
       // No point to estimate fees if it is guaranteed to fail due to insufficient balance
       if (!hasValidBalance) {
@@ -312,6 +312,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // Since we are debouncing the query, ensure reverting back to an empty input doesn't end up in the previous error being displayed
     if (!hasEnteredPositiveAmount) return setValue(SendFormFields.AmountFieldError, '')
 
+    // openapi-generator error-handling https://github.com/OpenAPITools/openapi-generator/blob/8357cc313be5a099f994c4ffaf56146f40dba911/samples/client/petstore/typescript-fetch/builds/enum/runtime.ts#L221
+    if (
+      error?.message ===
+      'The request failed and the interceptors did not return an alternative response'
+    )
+      return setValue(SendFormFields.AmountFieldError, 'modals.send.getFeesError')
     setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')
   }, [error, hasEnteredPositiveAmount, setValue])
 

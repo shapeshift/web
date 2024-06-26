@@ -22,7 +22,7 @@ import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -82,7 +82,7 @@ export const CosmosClaim: React.FC<CosmosClaimProps> = ({
 
   const highestBalanceAccountIdFilter = useMemo(() => ({ stakingId: validatorId }), [validatorId])
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const defaultAccountId = useAppSelector(state => selectFirstAccountIdByChainId(state, chainId))
   const maybeAccountId = useMemo(

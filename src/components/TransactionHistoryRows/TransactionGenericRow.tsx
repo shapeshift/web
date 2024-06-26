@@ -1,5 +1,5 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { Center, Flex, HStack } from '@chakra-ui/react'
+import { Center, Flex, HStack, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
@@ -17,6 +17,7 @@ import { fromBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 
+import { Amount as CryptoAmount } from './TransactionDetails/Amount'
 import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
 import { TransactionTag } from './TransactionTag'
 import { TransactionTeaser } from './TransactionTeaser'
@@ -175,8 +176,12 @@ export const TransactionGenericRow = ({
 
   // asset(s) label
   const bottomLeft = useMemo(() => {
-    if (type === Method.Approve) {
+    if (type === Method.Approve || txData?.method === Method.UnstakeRequest) {
       return <AssetSymbol fontWeight='bold' assetId={txMetadataWithAssetId?.assetId ?? ''} />
+    }
+
+    if (txData?.parser === 'rfox' && txData?.method === Method.SetRuneAddress) {
+      return <RawText>{txData.runeAddress ?? ''}</RawText>
     }
 
     if (hasNoTransfers) return
@@ -263,6 +268,7 @@ export const TransactionGenericRow = ({
     uniqueAssets,
     transfersByType.Receive,
     transfersByType.Send,
+    txData,
     txMetadataWithAssetId?.assetId,
     type,
     divider,
@@ -278,6 +284,14 @@ export const TransactionGenericRow = ({
           parser={txMetadataWithAssetId?.parser}
           variant='tag'
         />
+      )
+    }
+
+    if (txData?.parser === 'rfox' && txData?.method === Method.UnstakeRequest) {
+      return (
+        <Tag>
+          <CryptoAmount value={txData.value ?? '0'} assetId={txData.assetId} />
+        </Tag>
       )
     }
 
@@ -314,6 +328,7 @@ export const TransactionGenericRow = ({
     hasSingleReceiveAsset,
     hasManyReceiveAssets,
     transfersByType.Receive,
+    txData,
     txMetadataWithAssetId?.assetId,
     txMetadataWithAssetId?.parser,
     txMetadataWithAssetId?.value,

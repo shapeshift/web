@@ -153,7 +153,7 @@ export const useLendingQuoteOpenQuery = ({
   borrowAssetId: _borrowAssetId,
   depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
   enabled = true,
-}: UseLendingQuoteQueryProps & QueryObserverOptions) => {
+}: UseLendingQuoteQueryProps & Pick<QueryObserverOptions, 'enabled'>) => {
   const [_borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet

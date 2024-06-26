@@ -3,6 +3,7 @@ import { Button } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { selectIsAnyTxHistoryApiQueryPending } from 'state/slices/selectors'
@@ -33,14 +34,23 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
 
     return (
       <>
-        {data.length > 0 && (
+        {data.length > 0 ? (
           <TransactionsGroupByDate txIds={data} useCompactMode={useCompactMode} />
+        ) : (
+          <Text
+            color='text.subtle'
+            translation='assets.assetDetails.assetHistory.emptyTransactions'
+            fontWeight='normal'
+            textAlign='center'
+            px='6'
+            mb='4'
+          />
         )}
-        <Button mx={2} onClick={next} isDisabled={!hasMore} rightIcon={loadMoreRightIcon}>
-          {data.length
-            ? translate('common.loadMore')
-            : translate('assets.assetDetails.assetHistory.emptyTransactions')}
-        </Button>
+        {data.length > 0 && (
+          <Button mx={2} my={2} onClick={next} isDisabled={!hasMore} rightIcon={loadMoreRightIcon}>
+            {translate('common.loadMore')}
+          </Button>
+        )}
       </>
     )
   },

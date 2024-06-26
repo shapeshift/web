@@ -1,17 +1,21 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowForwardIcon } from '@chakra-ui/icons'
+import type { FlexProps } from '@chakra-ui/react'
 import { CircularProgressLabel, Divider, Flex, IconButton } from '@chakra-ui/react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { CircularProgress } from './CircularProgress/CircularProgress'
 
 const arrowDownIcon = <ArrowDownIcon />
+const arrowForwardIcon = <ArrowForwardIcon />
 
 type FormDividerProps = {
   onClick?: () => void
   isLoading?: boolean
   isDisabled?: boolean
   icon?: JSX.Element
-}
+  orientation?: 'horizontal' | 'vertical'
+} & FlexProps
 
 const defaultHoverProps = {
   bg: 'transparent',
@@ -21,12 +25,33 @@ export const FormDivider: React.FC<FormDividerProps> = ({
   onClick,
   isLoading,
   isDisabled,
-  icon = arrowDownIcon,
+  icon,
+  orientation = 'horizontal',
+  ...flexProps
 }) => {
   const translate = useTranslate()
+
+  const orientationProps = useMemo<FlexProps>(() => {
+    if (orientation === 'vertical') {
+      return { flexDir: 'column', alignItems: 'center' }
+    }
+
+    return { flexDir: 'row', alignItems: 'center' }
+  }, [orientation])
+
+  const centeredIcon = useMemo(() => {
+    if (icon) return icon
+
+    if (orientation === 'vertical') {
+      return arrowForwardIcon
+    }
+
+    return arrowDownIcon
+  }, [orientation, icon])
+
   return (
-    <Flex alignItems='center' justifyContent='center' my={-2}>
-      <Divider />
+    <Flex justifyContent='center' my={-2} {...orientationProps} {...flexProps}>
+      <Divider flexGrow='1' orientation={orientation} />
       <CircularProgress
         color='blue.500'
         thickness='4px'
@@ -49,7 +74,7 @@ export const FormDivider: React.FC<FormDividerProps> = ({
             borderColor='border.base'
             zIndex={1}
             aria-label={translate('lending.switchAssets')}
-            icon={icon}
+            icon={centeredIcon}
             isDisabled={isDisabled}
             cursor='auto'
             _hover={defaultHoverProps}
@@ -62,7 +87,7 @@ export const FormDivider: React.FC<FormDividerProps> = ({
         </CircularProgressLabel>
       </CircularProgress>
 
-      <Divider />
+      <Divider flexGrow='1' orientation={orientation} />
     </Flex>
   )
 }

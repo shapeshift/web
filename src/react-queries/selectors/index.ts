@@ -1,10 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
+import { bn } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
 import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { EvmFees, Fees } from 'lib/utils/evm'
 
 export const selectInboundAddressData = (
   data: Result<InboundAddressResponse[], SwapErrorRight>,
@@ -57,4 +61,17 @@ export const selectIsTradingActive = ({
     default:
       return true
   }
+}
+
+export const selectEvmFees = (
+  fees: Fees,
+  feeAsset: Asset,
+  feeAssetMarketData: MarketData,
+): EvmFees => {
+  const txFeeFiat = bn(fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision))
+    .times(feeAssetMarketData.price)
+    .toString()
+
+  const { networkFeeCryptoBaseUnit } = fees
+  return { fees, txFeeFiat, networkFeeCryptoBaseUnit }
 }

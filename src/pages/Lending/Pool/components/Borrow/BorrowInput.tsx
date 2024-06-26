@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useQuoteEstimatedFeesQuery } from 'react-queries/hooks/useQuoteEstimatedFeesQuery'
 import { useHistory } from 'react-router'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -25,7 +26,6 @@ import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetI
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
@@ -50,7 +50,6 @@ import {
   selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -130,7 +129,6 @@ export const BorrowInput = ({
   const isThorchainLendingBorrowEnabled = useFeatureFlag('ThorchainLendingBorrow')
 
   const collateralAsset = useAppSelector(state => selectAssetById(state, collateralAssetId))
-  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   useEffect(() => {
     if (!(collateralAsset && borrowAssets)) return
@@ -138,15 +136,6 @@ export const BorrowInput = ({
 
     if (!borrowAsset) setBorrowAsset(collateralAsset)
   }, [borrowAsset, borrowAssets, collateralAsset, setBorrowAsset])
-
-  // If the user disconnects the chain for the currently selected borrow asset, default to the collateral asset
-  useEffect(() => {
-    if (!collateralAsset || !borrowAsset) return
-
-    if (!walletConnectedChainIds.includes(borrowAsset.chainId)) {
-      setBorrowAsset(collateralAsset)
-    }
-  }, [collateralAsset, borrowAsset, setBorrowAsset, walletConnectedChainIds])
 
   const swapIcon = useMemo(() => <ArrowDownIcon />, [])
 
@@ -255,17 +244,15 @@ export const BorrowInput = ({
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: collateralAssetId,
-      address: fromAddress ?? null,
+      address: fromAddress,
       amountCryptoBaseUnit: toBaseUnit(
         depositAmountCryptoPrecision ?? 0,
         collateralAsset?.precision ?? 0,
       ),
-      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', // actually defined at runtime, see "enabled" below
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
-        bnOrZero(depositAmountCryptoPrecision).gt(0) &&
-          isEstimatedFeesDataSuccess &&
-          hasEnoughBalanceForTxPlusFees,
+        bnOrZero(depositAmountCryptoPrecision).gt(0) && hasEnoughBalanceForTxPlusFees,
       ),
     }),
     [
@@ -275,7 +262,6 @@ export const BorrowInput = ({
       estimatedFeesData?.txFeeCryptoBaseUnit,
       fromAddress,
       hasEnoughBalanceForTxPlusFees,
-      isEstimatedFeesDataSuccess,
     ],
   )
   const {
@@ -513,8 +499,8 @@ export const BorrowInput = ({
             .toString(),
         })}
         onAcknowledge={onSubmit}
-        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       >
         <Stack spacing={0}>
           <TradeAssetInput
@@ -661,7 +647,7 @@ export const BorrowInput = ({
             borderBottomRadius='xl'
           >
             <Button
-              size='lg'
+              size='lg-multiline'
               colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
               mx={-2}
               onClick={handleBorrowSubmit}

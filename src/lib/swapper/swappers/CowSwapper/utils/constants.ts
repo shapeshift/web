@@ -3,13 +3,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { zeroAddress } from 'viem'
 import type { SupportedChainIds } from 'lib/swapper/types'
 
-import type { CowChainId } from '../types'
-
-export const MIN_COWSWAP_USD_TRADE_VALUES_BY_CHAIN_ID: Record<CowChainId, string> = {
-  [KnownChainIds.EthereumMainnet]: '20',
-  [KnownChainIds.GnosisMainnet]: '0.01',
-}
-
 export const DEFAULT_ADDRESS = zeroAddress
 
 export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab4667716bfe0110'
@@ -24,9 +17,26 @@ export const ERC20_TOKEN_BALANCE = 'erc20'
 export const COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 export const SUPPORTED_CHAIN_IDS: ChainId[] = [
-  KnownChainIds.GnosisMainnet,
   KnownChainIds.EthereumMainnet,
-]
+  KnownChainIds.GnosisMainnet,
+  KnownChainIds.ArbitrumMainnet,
+].filter(chainId => {
+  if (
+    process.env['REACT_APP_FEATURE_COWSWAP_GNOSIS'] !== 'true' &&
+    chainId === KnownChainIds.GnosisMainnet
+  ) {
+    return false
+  }
+
+  if (
+    process.env['REACT_APP_FEATURE_COWSWAP_ARBITRUM'] !== 'true' &&
+    chainId === KnownChainIds.ArbitrumMainnet
+  ) {
+    return false
+  }
+
+  return true
+})
 
 export const COW_SWAP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: SUPPORTED_CHAIN_IDS,

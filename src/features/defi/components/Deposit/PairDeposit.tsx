@@ -111,22 +111,22 @@ export const PairDeposit = ({
   })
 
   const values = useWatch({ control })
-  const { field: cryptoAmount0 } = useController({
+  const { field: cryptoAmount0 } = useController<DepositValues>({
     name: 'cryptoAmount0',
     control,
     rules: cryptoInputValidation0,
   })
-  const { field: cryptoAmount1 } = useController({
+  const { field: cryptoAmount1 } = useController<DepositValues>({
     name: 'cryptoAmount1',
     control,
     rules: cryptoInputValidation1,
   })
-  const { field: fiatAmount0 } = useController({
+  const { field: fiatAmount0 } = useController<DepositValues>({
     name: 'fiatAmount0',
     control,
     rules: fiatInputValidation0,
   })
-  const { field: fiatAmount1 } = useController({
+  const { field: fiatAmount1 } = useController<DepositValues>({
     name: 'fiatAmount1',
     control,
     rules: fiatInputValidation1,
@@ -323,7 +323,7 @@ export const PairDeposit = ({
           </Row>
         </FormField>
         <Button
-          size='lg'
+          size='lg-multiline'
           width='full'
           colorScheme={fieldError ? 'red' : 'blue'}
           isDisabled={!isValid}

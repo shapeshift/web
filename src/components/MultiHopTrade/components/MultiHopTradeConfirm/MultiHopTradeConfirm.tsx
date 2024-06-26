@@ -2,12 +2,12 @@ import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from 
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectActiveQuote,
@@ -17,7 +17,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { TradeSuccessTemp } from '../TradeSuccess/TradeSuccessTemp'
+import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
 import { Footer } from './components/Footer'
 import { Hops } from './components/Hops'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
@@ -46,10 +46,18 @@ export const MultiHopTradeConfirm = memo(() => {
     dispatch(tradeQuoteSlice.actions.setTradeInitialized())
   }, [dispatch, isLoading])
 
+  const isTradeComplete = useMemo(
+    () => tradeExecutionState === TradeExecutionState.TradeComplete,
+    [tradeExecutionState],
+  )
+
   const handleBack = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.clear())
+    if (isTradeComplete) {
+      dispatch(tradeQuoteSlice.actions.clear())
+    }
+
     history.push(TradeRoutePaths.Input)
-  }, [dispatch, history])
+  }, [dispatch, history, isTradeComplete])
 
   const { isOpen: isFirstHopOpen, onToggle: onToggleFirstHop } = useDisclosure(useDisclosureProps)
   const { isOpen: isSecondHopOpen, onToggle: onToggleSecondHop } = useDisclosure(useDisclosureProps)
@@ -71,11 +79,6 @@ export const MultiHopTradeConfirm = memo(() => {
     previousTradeExecutionState,
     tradeExecutionState,
   ])
-
-  const isTradeComplete = useMemo(
-    () => tradeExecutionState === TradeExecutionState.TradeComplete,
-    [tradeExecutionState],
-  )
 
   const handleTradeConfirm = useCallback(() => {
     dispatch(tradeQuoteSlice.actions.confirmTrade())
@@ -103,8 +106,8 @@ export const MultiHopTradeConfirm = memo(() => {
             slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
           })}
           onAcknowledge={handleTradeConfirm}
-          shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-          setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+          shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+          setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
         >
           <CardHeader px={6} pt={4}>
             <WithBackButton onBack={handleBack}>
@@ -122,9 +125,9 @@ export const MultiHopTradeConfirm = memo(() => {
             </WithBackButton>
           </CardHeader>
           {isTradeComplete ? (
-            <TradeSuccessTemp handleBack={handleBack}>
+            <TradeSuccess handleBack={handleBack}>
               <Hops isFirstHopOpen isSecondHopOpen />
-            </TradeSuccessTemp>
+            </TradeSuccess>
           ) : (
             <>
               <CardBody py={0} px={0}>

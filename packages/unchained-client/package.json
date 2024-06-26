@@ -21,7 +21,7 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/common-api": "^9.3.0",
     "isomorphic-ws": "^4.0.1",
-    "ws": "^8.3.0"
+    "ws": "^8.17.1"
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.5.1"

@@ -74,7 +74,12 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 
         return (
           staking.includes(e.id as OpportunityId) &&
-          walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
+          walletSupportsChain({
+            chainId: e.chainId,
+            wallet,
+            isSnapInstalled,
+            checkConnectedAccountIds: chainAccountIds,
+          })
         )
       }),
     [accountIdsByChainId, isSnapInstalled, staking, stakingOpportunities, wallet],
@@ -89,7 +94,12 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 
         return (
           lp.includes(e.assetId as OpportunityId) &&
-          walletSupportsChain({ chainId: e.chainId, wallet, isSnapInstalled, chainAccountIds })
+          walletSupportsChain({
+            chainId: e.chainId,
+            wallet,
+            isSnapInstalled,
+            checkConnectedAccountIds: chainAccountIds,
+          })
         )
       }),
     [accountIdsByChainId, isSnapInstalled, lp, lpOpportunities, wallet],

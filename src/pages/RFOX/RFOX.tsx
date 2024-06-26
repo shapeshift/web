@@ -1,120 +1,57 @@
-import { Button, Card, Center, Flex, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
-import type { PropsWithChildren } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import type { StackDirection } from '@chakra-ui/react'
+import { Heading, Stack } from '@chakra-ui/react'
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-import { ChangeAddress } from './components/ChangeAddress/ChangeAddress'
-import { Claim } from './components/Claim/Claim'
-import { Stake } from './components/Stake/Stake'
-import { Unstake } from './components/Unstake/Unstake'
+import { Faq } from './components/Faq/Faq'
+import { Overview } from './components/Overview/Overview'
+import { RewardsAndClaims } from './components/RewardsAndClaims/RewardsAndClaims'
+import { Widget } from './Widget'
 
-type FormHeaderTabProps = {
-  index: number
-  onClick: (index: number) => void
-  isActive?: boolean
-} & PropsWithChildren
+const direction: StackDirection = { base: 'column-reverse', xl: 'row' }
+const maxWidth = { base: 'full', lg: 'full', xl: 'sm' }
+const paddingVerticalResponsiveProps = { base: 8, md: 16 }
 
-const activeStyle = { color: 'text.base' }
-
-export const TabIndex = {
-  Stake: 0,
-  Unstake: 1,
-  Claim: 2,
-  ChangeAddress: 3,
-}
-
-const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
-  const handleClick = useCallback(() => {
-    onClick(index)
-  }, [index, onClick])
-  return (
-    <Button
-      onClick={handleClick}
-      isActive={isActive}
-      variant='unstyled'
-      color='text.subtle'
-      _active={activeStyle}
-    >
-      {children}
-    </Button>
-  )
-}
-type FormHeaderProps = {
-  setStepIndex: (index: number) => void
-  activeIndex: number
-}
-const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) => {
-  const translate = useTranslate()
-  const handleClick = useCallback(
-    (index: number) => {
-      setStepIndex(index)
-    },
-    [setStepIndex],
-  )
-  return (
-    <Flex px={6} py={4} gap={4}>
-      <FormHeaderTab
-        index={TabIndex.Stake}
-        onClick={handleClick}
-        isActive={activeIndex === TabIndex.Stake}
-      >
-        {translate('RFOX.stake')}
-      </FormHeaderTab>
-      <FormHeaderTab
-        index={TabIndex.Unstake}
-        onClick={handleClick}
-        isActive={activeIndex === TabIndex.Unstake}
-      >
-        {translate('RFOX.unstake')}
-      </FormHeaderTab>
-      <FormHeaderTab
-        index={TabIndex.Claim}
-        onClick={handleClick}
-        isActive={activeIndex === TabIndex.Claim}
-      >
-        {translate('RFOX.claim')}
-      </FormHeaderTab>
-      <FormHeaderTab
-        index={TabIndex.ChangeAddress}
-        onClick={handleClick}
-        isActive={activeIndex === TabIndex.ChangeAddress}
-      >
-        {translate('RFOX.changeAddress')}
-      </FormHeaderTab>
-    </Flex>
-  )
-}
+const stakingAssetId = foxOnArbitrumOneAssetId
 
 export const RFOX: React.FC = () => {
-  const [stepIndex, setStepIndex] = useState(TabIndex.Stake)
+  const translate = useTranslate()
+  const isRFOXDashboardEnabled = useFeatureFlag('RFOXDashboard')
 
-  const TabHeader = useMemo(
-    () => <FormHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
-    [stepIndex],
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  // TODO(gomes): make this programmatic when we implement multi-account
+  const stakingAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
+
+  if (!stakingAsset) return null
+
   return (
-    <Main py={16}>
-      <Center>
-        <Card width='full' maxWidth='md'>
-          <Tabs variant='unstyled' index={stepIndex} isLazy>
-            <TabPanels>
-              <TabPanel px={0} py={0}>
-                <Stake headerComponent={TabHeader} />
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <Unstake headerComponent={TabHeader} />
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <Claim headerComponent={TabHeader} setStepIndex={setStepIndex} />
-              </TabPanel>
-              <TabPanel px={0} py={0}>
-                <ChangeAddress headerComponent={TabHeader} />
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Card>
-      </Center>
+    <Main py={paddingVerticalResponsiveProps} px={4}>
+      <Heading mb={8}>{translate('RFOX.staking')}</Heading>
+
+      <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
+        <Stack spacing={4} flex='1 1 0%' width='full'>
+          {isRFOXDashboardEnabled && (
+            <Overview
+              stakingAssetId={stakingAssetId}
+              stakingAssetAccountId={stakingAssetAccountId}
+            />
+          )}
+          <RewardsAndClaims
+            stakingAssetId={stakingAssetId}
+            stakingAssetAccountId={stakingAssetAccountId}
+          />
+          <Faq />
+        </Stack>
+        <Stack flex='1 1 0%' width='full' maxWidth={maxWidth} spacing={4}>
+          <Widget />
+        </Stack>
+      </Stack>
     </Main>
   )
 }

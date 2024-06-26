@@ -39,22 +39,25 @@ import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/sel
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
-type WalletDeviceSupportsChainArgs = {
+type WalletSupportsChainArgs = {
   isSnapInstalled: boolean | null
   chainId: ChainId
   wallet: HDWallet | null
+  // The connected account ids to check against. If set to false, the currently connected account
+  // ids will not be checked (used for initial boot)
+  checkConnectedAccountIds: AccountId[] | false
 }
 
-type WalletSupportsChainArgs = {
-  chainAccountIds: AccountId[] // allows dynamic chain-support detection for Ledger
-} & WalletDeviceSupportsChainArgs
-
 // use outside react
-export const walletDeviceSupportsChain = ({
+export const walletSupportsChain = ({
   chainId,
   wallet,
   isSnapInstalled,
-}: WalletDeviceSupportsChainArgs): boolean => {
+  checkConnectedAccountIds,
+}: WalletSupportsChainArgs): boolean => {
+  // If the user has no connected chain account ids, the user can't use it to interact with the chain
+  if (checkConnectedAccountIds !== false && !checkConnectedAccountIds.length) return false
+
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed
@@ -107,22 +110,6 @@ export const walletDeviceSupportsChain = ({
   }
 }
 
-export const walletSupportsChain = ({
-  chainId,
-  chainAccountIds,
-  wallet,
-  isSnapInstalled,
-}: WalletSupportsChainArgs): boolean => {
-  // If the user has no connected chain account ids, the user can't use it to interact with the chain
-  if (!chainAccountIds.length) return false
-
-  return walletDeviceSupportsChain({
-    chainId,
-    wallet,
-    isSnapInstalled,
-  })
-}
-
 export const useWalletSupportsChain = (
   chainId: ChainId,
   wallet: HDWallet | null,
@@ -140,7 +127,12 @@ export const useWalletSupportsChain = (
   )
 
   const result = useMemo(() => {
-    return walletSupportsChain({ isSnapInstalled, chainId, wallet, chainAccountIds })
+    return walletSupportsChain({
+      isSnapInstalled,
+      chainId,
+      wallet,
+      checkConnectedAccountIds: chainAccountIds,
+    })
   }, [chainAccountIds, chainId, isSnapInstalled, wallet])
 
   return result

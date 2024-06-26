@@ -154,6 +154,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     ]
 
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+      isLoaded: true,
       userStakingId,
       stakedAmountCryptoBaseUnit: balance,
       rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: true },

@@ -25,7 +25,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
 } from 'state/slices/selectors'
@@ -68,7 +68,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
     [opportunityId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const opportunityDataFilter = useMemo(
     () => ({
@@ -142,7 +142,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
           asset: asset.symbol,
         }),
         component: ownProps => (
-          <Withdraw {...ownProps} accountId={accountId} fromAddress={fromAddress ?? null} />
+          <Withdraw {...ownProps} accountId={accountId} fromAddress={fromAddress} />
         ),
       },
       [DefiStep.Sweep]: {

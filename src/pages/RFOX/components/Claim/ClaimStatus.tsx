@@ -36,14 +36,14 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
     history.push(ClaimRoutePaths.Select)
   }, [history])
 
-  const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.claimAssetId))
+  const claimAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.stakingAssetId))
   const claimAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.claimAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
-    [confirmedQuote.claimAmountCryptoBaseUnit, claimAsset?.precision],
+    () => fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision ?? 0),
+    [confirmedQuote.stakingAmountCryptoBaseUnit, claimAsset?.precision],
   )
 
   const txStatus = useTxStatus({
-    accountId: confirmedQuote.claimAssetAccountId,
+    accountId: confirmedQuote.stakingAssetAccountId,
     txId,
   })
 

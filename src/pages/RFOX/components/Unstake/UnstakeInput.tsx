@@ -1,33 +1,24 @@
 import { Button, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
-import type { Address } from 'viem'
-import { encodeFunctionData, getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
 import { FormDivider } from 'components/FormDivider'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { formatSecondsToDuration } from 'lib/utils/time'
+import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
 import {
-  selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
   selectFirstAccountIdByChainId,
@@ -37,6 +28,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { UnstakeSummary } from './components/UnstakeSummary'
+import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeInputValues, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
 
@@ -65,7 +57,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   setConfirmedQuote,
   headerComponent,
 }) => {
-  const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
 
@@ -91,12 +82,17 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     name: 'amountUserCurrency',
   })
 
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const amountCryptoBaseUnit = useMemo(
+    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    [amountCryptoPrecision, stakingAsset?.precision],
+  )
+
   const percentage = useWatch<UnstakeInputValues, 'percentage'>({
     control,
     name: 'percentage',
   })
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [], [])
   const [sliderValue, setSliderValue] = useState<number>(100)
@@ -115,36 +111,33 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     [stakingAssetAccountId],
   )
 
-  const stakingAssetAccountNumberFilter = useMemo(() => {
-    return {
-      assetId: stakingAssetId,
-      accountId: stakingAssetAccountId,
-    }
-  }, [stakingAssetAccountId, stakingAssetId])
-  const stakingAssetAccountNumber = useAppSelector(state =>
-    selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter),
-  )
-
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
-  )
   const stakingAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, stakingAsset?.assetId ?? ''),
   )
 
   const {
+    isGetUnstakeFeesEnabled,
+    unstakeFeesQuery: {
+      data: unstakeFees,
+      isLoading: isUnstakeFeesLoading,
+      isSuccess: isUnstakeFeesSuccess,
+    },
+  } = useRfoxUnstake({
+    stakingAssetId,
+    stakingAssetAccountId,
+    amountCryptoBaseUnit,
+    methods,
+    // Not required at this stage just yet, we're only estimating fees
+    unstakeTxid: undefined,
+    setUnstakeTxid: undefined,
+  })
+
+  const {
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess,
-  } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(stakingAssetAccountAddress),
-      select: ([stakingBalance]) => stakingBalance.toString(),
-    },
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    select: ([stakingBalance]) => stakingBalance.toString(),
   })
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
@@ -226,75 +219,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setSliderValue(percentage)
   }, [])
 
-  const { data: cooldownPeriod } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'cooldownPeriod',
-    chainId: arbitrum.id,
-    query: {
-      staleTime: Infinity,
-      select: data => formatSecondsToDuration(Number(data)),
-    },
-  })
-
-  const callData = useMemo(() => {
-    if (!hasEnteredValue) return
-
-    return encodeFunctionData({
-      abi: foxStakingV1Abi,
-      functionName: 'unstake',
-      args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0))],
-    })
-  }, [amountCryptoPrecision, hasEnteredValue, stakingAsset?.precision])
-
-  const isGetUnstakeFeesEnabled = useMemo(
-    () =>
-      Boolean(
-        stakingAssetAccountId &&
-          stakingAssetAccountNumber !== undefined &&
-          hasEnteredValue &&
-          wallet &&
-          stakingAsset &&
-          callData &&
-          feeAsset &&
-          feeAssetMarketData &&
-          !Boolean(errors.amountFieldInput),
-      ),
-    [
-      stakingAssetAccountId,
-      stakingAssetAccountNumber,
-      hasEnteredValue,
-      wallet,
-      stakingAsset,
-      callData,
-      feeAsset,
-      feeAssetMarketData,
-      errors.amountFieldInput,
-    ],
-  )
-
-  const {
-    data: unstakeFees,
-    isLoading: isUnstakeFeesLoading,
-    isSuccess: isUnstakeFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '', // see isGetStakeFeesEnabled
-      accountNumber: stakingAssetAccountNumber!, // see isGetStakeFeesEnabled
-      data: callData!, // see isGetStakeFeesEnabled
-      value: '0', // contract call
-      wallet: wallet!, // see isGetStakeFeesEnabled
-      feeAsset: feeAsset!, // see isGetStakeFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetStakeFeesEnabled
-    }),
-    staleTime: 30_000,
-    enabled: isGetUnstakeFeesEnabled,
-    // Ensures fees are refetched at an interval, including when the app is in the background
-    refetchIntervalInBackground: true,
-    // Yeah this is arbitrary but come on, Arb is cheap
-    refetchInterval: 15_000,
-  })
+  const { data: cooldownPeriod } = useCooldownPeriodQuery()
 
   const handleSubmit = useCallback(() => {
     if (!(stakingAssetAccountId && hasEnteredValue && stakingAsset && cooldownPeriod)) return
@@ -369,8 +294,8 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
           cooldownPeriod,
         })}
         onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={showWarning}
-        setShouldShowWarningAcknowledgement={setShowWarning}
+        shouldShowAcknowledgement={showWarning}
+        setShouldShowAcknowledgement={setShowWarning}
       >
         <FormProvider {...methods}>
           <Stack>

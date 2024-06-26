@@ -587,7 +587,6 @@
     "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
-    "arkeo": "Airdrop Arkeo",
     "lending": "Prêts",
     "pools": "Pools",
     "actionMenu": {
@@ -865,7 +864,8 @@
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant",
       "noQuotesAvailable": "Aucun devis disponible pour cet échange",
       "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge",
-      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds."
+      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds.",
+      "rateLimitExceeded": "Limite de tentatives dépassée, réessayer plus tard"
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
@@ -1813,7 +1813,8 @@
     "importAccounts": {
       "title": "Importer les comptes %{chainNamespaceDisplayName}",
       "description": "Sélectionnez les comptes que vous souhaitez importer dans la liste ci-dessous.",
-      "import": "Importer"
+      "import": "Importer",
+      "loadMoreDisabled": "Ce porte-monnaie ne prend pas en charge les comptes multiples pour cette chaîne."
     },
     "ledgerOpenApp": {
       "title": "Ouvrir l'app %{appName}",
@@ -2110,67 +2111,6 @@
       "cta": "Déposer maintenant"
     }
   },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "Qu'est-ce que c'est Arkeo ?",
-      "bodyParts": {
-        "1": "L'année dernière, aux côtés de",
-        "2": "Coinbase Cloud",
-        "3": "ShapeShift a incubé un projet appelé Arkeo. Le lancement du réseau principal (mainnet) approche à grands pas !",
-        "4": "Arkeo a été créé pour être un backend décentralisé pour toutes les données de nœuds. Les applications qui utilisent Arkeo bénéficieront d'un accroissement de vitesse de développement, de résistance à la censure et de leur",
-        "5": "coefficient nakamoto",
-        "6": "tout en réduisant la dépendance aux sources de données centralisées."
-      }
-    },
-    "whoQualifies": {
-      "title": "Qui peut bénéficier de l'Airdrop Arkeo ?",
-      "body": "Il existe plusieurs façons de se qualifier pour l'Airdrop à l'aide de la dApp ShapeShift. Le snapshot est étalé dans le temps, vous avez encore le temps de vous qualifier !"
-    },
-    "staking": {
-      "title": "Miseurs de %{asset}",
-      "body": "Gagnez jusqu'à %{apy} d'APR sur vos %{asset} inactifs et qualifiez-vous pour l'Airdrop Arkeo. DE PLUS, si vous misez sur %{provider}, un multiplicateur 2x sera appliqué à votre solde misé lors du calcul du montant de votre Airdrop Arkeo.",
-      "cta": "Miser des %{asset}"
-    },
-    "lp": {
-      "title": "Fournisseurs de %{asset1}/%{asset2}",
-      "body": "Vous avez des %{asset1} et des %{asset2} ? Fournissez des liquidités au pool Uniswap V2 pour gagner %{apy} APR. DE PLUS, les FOX sous-jacents dans les jetons LP FOX/ETH que vous détenez se qualifieront pour l'Airdrop Areko.",
-      "cta": "Déposer des liquidités"
-    },
-    "foxTokenHolders": {
-      "title": "Détenteurs de jetons FOX",
-      "body": "Hodler des jetons FOX. Plus votre poche est grande, plus votre Airdrop Arkeo est grand.",
-      "cta": "Échanger pour des FOX",
-      "secondary": "Acheter des FOX"
-    },
-    "foxFarmers": {
-      "title": "Farmeurs de LP FOX/ETH",
-      "body": "Gagnez jusqu'à %{apy} APR en misant vos jetons LP ETH/FOX dans la FOX Farm. DE PLUS, les FOX sous-jacents dans les jetons LP ETH/FOX que vous misez dans le Round 5 de la FOX Farm se qualifieront pour l'Airdrop Arkeo.",
-      "cta": "Miser des LP FOX/ETH"
-    },
-    "foxyTokenHolders": {
-      "title": "Détenteurs de jetons FOXy",
-      "body": "Gagnez jusqu'à %{apy} APR sur vos FOX inactifs avec FOX Yieldy (FOXy). DE PLUS, les FOXy détenus dans votre porte-monnaie seront traités de la même manière que des FOX et se qualifieront pour l'Airdrop Arkeo.",
-      "cta": "Miser des jetons FOX"
-    },
-    "foxEthProviders": {
-      "title": "LP de FOX/ETH sur Uniswap V2",
-      "body": "Vous avez %{asset1} et %{asset2} ? Fournissez des liquidités au pool Uniswap V2 pour gagner %{apy} APR. DE PLUS, les FOX sous-jacents dans les jetons LP FOX/ETH que vous détenez se qualifieront pour l'Airdrop Arkeo.",
-      "cta": "Déposer des liquidités"
-    },
-    "stakeAtom": {
-      "title": "Miser des ATOM",
-      "body": "Gagnez jusqu'à %{apr} APR sur vos ATOM inactifs. DE PLUS, tout les ATOM que vous misez vous rapportent des jetons Arkeo. Si vous misez sur le validateur ShapeShift DAO, vous pouvez doubler votre qualification pour l'Airdrop.",
-      "cta": "Miser des ATOM"
-    },
-    "footer": {
-      "title": "Il existe également d'autres moyens de vous qualifier, en dehors de l'application ShapeShift. Pour une liste complète, consultez la proposition de gouvernance.",
-      "cta": "Consulter la proposition de gouvernance",
-      "disclaimer": {
-        "body": "* Seuls les porte-monnaie auto-dépositaires seront éligibles. Les jetons détenus ou misés dans un porte-monnaie via un échange centralisé ne sont pas éligibles. Besoin d'un porte-monnaie ?",
-        "cta": "En créer un"
-      }
-    }
-  },
   "nft": {
     "customizeFoxatar": "Personnaliser le FOXatar",
     "setAsAvatar": "Définir comme avatar",
@@ -2344,8 +2284,8 @@
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
-    "unsupportedNetworkExplainer": "Votre porte-monnaie ne prend pas en charge %{network}. Veuillez passer à un porte-monnaie prenant en charge ce réseau.",
-    "unsupportedNetworksExplainer": "Votre porte-monnaie ne prend pas en charge %{network1} et %{network2}. Veuillez passer à un porte-monnaie prenant en charge ces réseaux.",
+    "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
+    "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
     "shareOfPool": "Part du pool",
     "assetDepositAmount": "Montant du dépôt %{asset}",
     "totalLiquidity": "Liquidité totale",
@@ -2435,6 +2375,7 @@
     "unstakeAmount": "Montant à démiser",
     "confirmAndStake": "Confirmer et miser",
     "confirmAndUnstake": "Confirmer et démiser",
+    "confirmAndClaim": "Confirmer et réclamer",
     "shapeShiftFee": "Frais ShapeShift",
     "approvalFee": "Frais d'autorisation",
     "lockupPeriod": "Période de verrouillage",
@@ -2450,7 +2391,9 @@
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
       "lockupPeriod": "C'est le temps que vous devrez attendre après avoir démisé pour réclamer vos FOX.",
-      "shareOfPool": "Il s'agit du pourcentage des frais que vous gagnerez."
+      "shareOfPool": "Il s'agit du pourcentage des frais que vous gagnerez.",
+      "unstakePendingCooldown": "Réclamation disponible %{cooldownPeriodHuman}",
+      "cooldownComplete": "Temps de repos terminé %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Vous avez misé %{amount} %{symbol} avec succès",
     "stakePending": "Mise en cours de %{amount} %{symbol}...",
@@ -2458,7 +2401,7 @@
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
     "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORCHain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
-    "unstakeSuccess": "Une fois les %{cooldownPeriod} écoulés, vous pourrez réclamer vos %{amount} %{symbol}",
+    "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",
     "newRewardAddress": "Nouvelle adresse de récompenses",
     "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
@@ -2467,6 +2410,13 @@
     "stakeNow": "Misez maintenant",
     "noAddressFound": "Aucune adresse trouvée",
     "newAddressInfo": "Ceci sera mis à jour pour le prochain cycle de récompenses",
-    "confirmAndUpdateAddress": "Confirmer et mettre à jour l'adresse"
+    "confirmAndUpdateAddress": "Confirmer et mettre à jour l'adresse",
+    "unstakeFrom": "Démiser de r%{assetSymbol}",
+    "claimPending": "En demande de retrait",
+    "claimSuccess": "Vous avez réclamé %{amount} %{symbol} avec succès.",
+    "claimReceiveAddress": "Adresse de réception de réclamation",
+    "noClaimsAvailable": "Aucune réclamation disponible",
+    "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
+    "unstakeNow": "Démiser maintenant"
   }
 }

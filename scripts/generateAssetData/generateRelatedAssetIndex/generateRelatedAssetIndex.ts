@@ -5,6 +5,8 @@ import {
   baseAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
@@ -53,6 +55,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     // WETH on Optimism
     'eip155:10/erc20:0x4200000000000000000000000000000000000006',
   ],
+  [foxAssetId]: [foxOnArbitrumOneAssetId],
 }
 
 export const getManualRelatedAssetIds = (
@@ -231,24 +234,30 @@ const processRelatedAssetIds = async (
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
   // ensure empty results get added so we can use this index to generate distinct asset list
-  const { relatedAssetIds, relatedAssetKey } = manualRelatedAssetsResult ??
-    relatedAssetsResult ?? {
-      relatedAssetIds: [],
-      relatedAssetKey: assetId,
-    }
+  const { relatedAssetIds: manualRelatedAssetIds } = manualRelatedAssetsResult ?? {
+    relatedAssetIds: [],
+  }
+
+  const relatedAssetKey =
+    manualRelatedAssetsResult?.relatedAssetKey || relatedAssetsResult?.relatedAssetKey || assetId
+
+  const zerionRelatedAssetIds = relatedAssetsResult?.relatedAssetIds ?? []
+  const mergedRelatedAssetIds = Array.from(
+    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds]),
+  )
 
   // Has zerion-provided related assets, or manually added ones
-  const hasRelatedAssets = relatedAssetIds.length > 0
+  const hasRelatedAssets = mergedRelatedAssetIds.length > 0
 
   // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
   if (hasRelatedAssets && assetData[relatedAssetKey] !== undefined) {
     assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
   }
 
-  for (const assetId of relatedAssetIds) {
+  for (const assetId of mergedRelatedAssetIds) {
     assetData[assetId].relatedAssetKey = relatedAssetKey
   }
-  relatedAssetIndex[relatedAssetKey] = relatedAssetIds
+  relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
   return
 }
 

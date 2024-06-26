@@ -587,7 +587,6 @@
     "tradeShort": "取引",
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
-    "arkeo": "Arkeoエアドロップ",
     "lending": "貸し出し",
     "pools": "プール",
     "actionMenu": {
@@ -865,7 +864,8 @@
       "tradeFailed": "取引は失敗しました。ガス代を差し引いた額が返還されました",
       "noQuotesAvailable": "この取引には利用可能な見積もりがありません",
       "smartContractWalletNotSupported": "スマートコントラクトウォレットはサポートされていません",
-      "unsafeQuote": "この量は、このペアの推奨最小値 (%{recommendedMin} %{symbol}) を下回っています。これにより、取引が失敗したり、資金が損失したりする可能性があります。"
+      "unsafeQuote": "この量は、このペアの推奨最小値 (%{recommendedMin} %{symbol}) を下回っています。これにより、取引が失敗したり、資金が損失したりする可能性があります。",
+      "rateLimitExceeded": "レート制限を超えました。しばらくしてからもう一度お試しください"
     },
     "swappingComingSoonForWallet": "%{walletName} とのスワップがまもなく開始されます",
     "recentTrades": "最近の取引",
@@ -1813,7 +1813,8 @@
     "importAccounts": {
       "title": "%{chainNamespaceDisplayName} アカウントをインポートする",
       "description": "以下のリストからインポートするアカウントを選択してください。",
-      "import": "インポート"
+      "import": "インポート",
+      "loadMoreDisabled": "このウォレットは、このチェーンの複数のアカウントをサポートしていません。"
     },
     "ledgerOpenApp": {
       "title": "%{appName} アプリを開く",
@@ -2110,67 +2111,6 @@
       "cta": "今すぐ入金"
     }
   },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "Arkeoとは",
-      "bodyParts": {
-        "1": "昨年",
-        "2": "Coinbase Cloud",
-        "3": "とともに、ShapeShiftはArkeoというプロジェクトをインキュベートしました。メインネットのローンチはまもなくです！",
-        "4": "Arkeoは、すべてのノードデータの分散型バックエンドとして開発されました。Arkeoを使用するアプリケーションは、中央集権的なデータソースへの依存を減らしながら、開発速度の向上、検閲耐性、",
-        "5": "ナカモト係数",
-        "6": "の恩恵を受けています。"
-      }
-    },
-    "whoQualifies": {
-      "title": "Arkeo Airdropの参加資格",
-      "body": "ShapeShift dAppを使用してエアドロップの資格を得るには、さまざまな方法があります。スナップショットは順調に進んでいます。資格を得るにはまだ時間があります。"
-    },
-    "staking": {
-      "title": "%{asset} ステーカー",
-      "body": "アイドル状態の %{asset} で最大 %{apy} APRを獲得し、Arkeoエアドロップの資格を獲得しましょう。さらに、%{provider} にステークすると、Arkeoのエアドロップ金額が計算されるときに、ステーク残高に2倍の乗数が適用されます。",
-      "cta": "ステーク %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} プロバイダー",
-      "body": "%{asset1} と %{asset2} を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
-      "cta": "預金の流動性"
-    },
-    "foxTokenHolders": {
-      "title": "FOXトークンホルダー",
-      "body": "FOXトークンを保持しています。FOXトークンが多いほど、Arkeoのエアドロップも大きくなります。",
-      "cta": "FOXを取引する",
-      "secondary": "FOXを購入する"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LPファーマー",
-      "body": "ETH/FOX LPトークンをFOXファームにステーキングすると、最大 %{apy} APRを獲得できます。さらに、FOXファームのラウンド5でステークしたETH/FOX LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
-      "cta": "ステーク FOX/ETH LP"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXyトークンホルダー",
-      "body": "FOX Yieldy (FOXy)を使用すると、アイドル状態のFOXで最大 %{apy} APRを獲得できます。さらに、ウォレットに保持されているFOXyはFOXと同じように扱われ、Arkeoのエアドロップの対象となります。",
-      "cta": "FOXトークンをステークする"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "%{asset1}と%{asset2}を入手しましたか? Uniswap V2プールに流動性を提供して、%{apy} APRを獲得します。さらに、お客様が保有するFOX/ETH LPトークンの基礎となるFOXは、Arkeoエアドロップの対象となります。",
-      "cta": "預金の流動性"
-    },
-    "stakeAtom": {
-      "title": "ATOMをステークする",
-      "body": "アイドル状態のATOMで最大 %{apr} APRを獲得できます。さらに、ステークするATOMによりArkeoトークンを獲得できます。 ShapeShift DAO Validatorにステークすると、エアドロップ資格を2倍にすることができます。",
-      "cta": "ATOMをステークする"
-    },
-    "footer": {
-      "title": "ShapeShift dApp以外にも資格を得る方法は他にもあります。フルリストについては、ガバナンス提案を確認してください。",
-      "cta": "ガバナンス提案を確認する",
-      "disclaimer": {
-        "body": "※セルフカストディウォレットのみが対象となります。集中型取引所を介してウォレットに保持またはステーキングされたトークンは対象外です。ウォレットが必要ですか?",
-        "cta": "作成する"
-      }
-    }
-  },
   "nft": {
     "customizeFoxatar": "FOXatarをカスタマイズする",
     "setAsAvatar": "Avatarとして設定",
@@ -2344,8 +2284,8 @@
     "symAfterRuneAlert": "THOR ネットワークの仕組み上、等価値でない RUNEの 入金の後に、等価値の入金を行うことはできません。",
     "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
-    "unsupportedNetworkExplainer": "お使いのウォレットは %{network} をサポートしていません。このネットワークをサポートするウォレットに切り替えてください。",
-    "unsupportedNetworksExplainer": "使用しているウォレットは %{network1} と %{network2} をサポートしていません。これらのネットワークをサポートするウォレットに切り替えてください。",
+    "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
+    "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
     "shareOfPool": "プールのシェア",
     "assetDepositAmount": "%{asset} 入金額",
     "totalLiquidity": "総流動性",
@@ -2435,6 +2375,7 @@
     "unstakeAmount": "ステーク解除量",
     "confirmAndStake": "確認とステーク",
     "confirmAndUnstake": "確認とステーク解除",
+    "confirmAndClaim": "確認して請求する",
     "shapeShiftFee": "ShapeShift料金",
     "approvalFee": "承認手数料",
     "lockupPeriod": "ロックアップ期間",
@@ -2450,7 +2391,9 @@
       "stakeAmount": "こちらがあなたがステークするFOXの量です",
       "unstakeAmount": "こちらがあなたがステークを解除するFOXの量です",
       "lockupPeriod": "こちらが、FOXを請求するためにステーキング解除後に待つ必要がある時間です。",
-      "shareOfPool": "こちらがあなたが受け取る手数料の割合です。"
+      "shareOfPool": "これはあなたが受け取る手数料の割合です。",
+      "unstakePendingCooldown": " %{cooldownPeriodHuman}は請求可能です",
+      "cooldownComplete": " %{cooldownPeriodHuman}はクールダウンが終了しました"
     },
     "stakeSuccess": "%{amount} %{symbol} のステークに成功しました",
     "stakePending": "%{amount} %{symbol} をステーキング中...",
@@ -2458,7 +2401,7 @@
     "changeRewardAddressPending": "報酬アドレスを変更しています...",
     "changeRewardAddressSuccess": "THORCHain 報酬アドレスの変更に成功しました。",
     "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
-    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります。",
+    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
     "currentRewardAddress": "現在の報酬アドレス",
     "newRewardAddress": "新しい報酬アドレス",
     "rewardCycleExplainer": "これは次の報酬サイクルを通して更新されます。",
@@ -2467,6 +2410,13 @@
     "stakeNow": "今すぐステークする",
     "noAddressFound": "アドレスが見つかりません",
     "newAddressInfo": "これは次の報酬サイクルで更新されます",
-    "confirmAndUpdateAddress": "アドレスの確認と更新"
+    "confirmAndUpdateAddress": "アドレスの確認と更新",
+    "unstakeFrom": "r%{assetSymbol} からステーク解除",
+    "claimPending": "引き出しをリクエスト",
+    "claimSuccess": "%{amount} %{symbol} の請求が完了しました。",
+    "claimReceiveAddress": "請求受取アドレス",
+    "noClaimsAvailable": "請求できません",
+    "noClaimsAvailableDescription": "利用可能な請求はありません",
+    "unstakeNow": "今すぐステーク解除"
   }
 }

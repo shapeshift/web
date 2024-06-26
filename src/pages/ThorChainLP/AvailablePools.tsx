@@ -58,7 +58,6 @@ export const AvailablePools = () => {
 
           const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
             assetId: pool?.assetId,
-            enabled: !!pool,
             swapperName: SwapperName.Thorchain,
           })
 

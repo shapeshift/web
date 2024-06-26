@@ -415,6 +415,12 @@ export const foxStakingV1Abi = [
   {
     type: 'event',
     anonymous: false,
+    inputs: [{ name: 'isPaused', internalType: 'bool', type: 'bool', indexed: false }],
+    name: 'StakingPausedChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
     inputs: [
       {
         name: 'account',
@@ -449,6 +455,12 @@ export const foxStakingV1Abi = [
       },
     ],
     name: 'Unstake',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [{ name: 'isPaused', internalType: 'bool', type: 'bool', indexed: false }],
+    name: 'UnstakingPausedChanged',
   },
   {
     type: 'event',
@@ -494,6 +506,12 @@ export const foxStakingV1Abi = [
       },
     ],
     name: 'Withdraw',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [{ name: 'isPaused', internalType: 'bool', type: 'bool', indexed: false }],
+    name: 'WithdrawalsPausedChanged',
   },
   {
     type: 'error',

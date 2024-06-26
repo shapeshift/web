@@ -18,12 +18,8 @@ import { isUtxoChainId } from 'lib/utils/utxo'
 
 const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
 
-// Note: since this isn't consumes as part of reactQueries queries, but directly as a regular function call within this file,
-// the additional property on top of queryKey and queryFn (i.e staleTime) *is* working
 const liquidityMember = (address: string) => ({
   queryKey: ['thorchainLiquidityMember', { address }] as [string, { address: string }],
-  // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
-  staleTime: Infinity,
   queryFn: async () => {
     try {
       const checksumAddress = isAddress(address) ? getAddress(address) : address
@@ -40,12 +36,8 @@ const liquidityMember = (address: string) => ({
   },
 })
 
-// Note: since this isn't consumes as part of reactQueries queries, but directly as a regular function call within this file,
-// the additional property on top of queryKey and queryFn (i.e staleTime) *is* working
 export const liquidityMembers = () => ({
   queryKey: ['thorchainLiquidityMembers'] as [string],
-  // Don't forget to invalidate me alongside thorchainUserLpData if you want to refresh the data
-  staleTime: Infinity,
   queryFn: async () => {
     const { data } = await axios.get<MidgardMembersList>(`${midgardUrl}/members`)
     return data

@@ -44,12 +44,12 @@ const btcQuoteResponse = {
   fees: {
     affiliate: '0',
     asset: 'BTC/BTC',
+    slippage_bps: 2,
     outbound: '0',
   },
   inbound_address: 'bc1q0vphqevkhc33g94pl0ctnnp58v9mcuhp4e2hnm',
   inbound_confirmation_blocks: 1,
   memo: '+:BTC/BTC',
-  slippage_bps: 2,
 }
 
 const thorchainSaversDepositQuote = Object.assign({}, btcQuoteResponse, { memo: '+:BTC/BTC' })
@@ -70,7 +70,7 @@ const getAssetService = () => {
 }
 
 describe('resolvers/thorchainSavers/utils', () => {
-  describe('getThorchainSaversQuote', () => {
+  describe('getMaybeThorchainSaversDepositQuote', () => {
     it('gets a quote for a valid pool AssetId', async () => {
       mocks.get.mockImplementationOnce(() =>
         Promise.resolve({

@@ -28,7 +28,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioLoading,
@@ -79,17 +79,17 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     () => ({ stakingId: opportunityId }),
     [opportunityId],
   )
-  const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+  const highestStakingBalanceAccountId = useAppSelector(state =>
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const opportunityDataFilter = useMemo(
     () => ({
       userStakingId: serializeUserStakingId(
-        accountId ?? highestBalanceAccountId ?? '',
+        accountId ?? highestStakingBalanceAccountId ?? '',
         opportunityId ?? '',
       ),
     }),
-    [accountId, highestBalanceAccountId, opportunityId],
+    [accountId, highestStakingBalanceAccountId, opportunityId],
   )
   const opportunityData = useAppSelector(state =>
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
@@ -156,7 +156,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
           <Deposit
             {...ownProps}
             accountId={accountId}
-            fromAddress={fromAddress ?? null}
+            fromAddress={fromAddress}
             onAccountIdChange={handleAccountIdChange}
           />
         ),

@@ -671,6 +671,7 @@ export const zapper = createApi({
             // Prepare payload for upsertUserStakingOpportunities
             if (userStakingId) {
               userStakingUpsertPayload.byId[userStakingId] = {
+                isLoaded: true,
                 stakedAmountCryptoBaseUnit,
                 rewardsCryptoBaseUnit,
                 userStakingId,

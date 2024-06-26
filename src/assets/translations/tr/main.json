@@ -587,7 +587,6 @@
     "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
-    "arkeo": "Arkeo Airdrop",
     "lending": "Borç Verme",
     "pools": "Havuzlar",
     "actionMenu": {
@@ -865,7 +864,8 @@
       "tradeFailed": "Takas başarısız oldu. Varlıklar eksi gaz ücreti iade edildi",
       "noQuotesAvailable": "Bu işlem için teklif yok",
       "smartContractWalletNotSupported": "Akıllı sözleşme cüzdanı desteklenmiyor",
-      "unsafeQuote": "Bu miktar, bu çift için önerilen minimum tutarın altındadır (%{recommendedMin} %{symbol}). Bu, işleminizin başarısız olmasına veya fon kaybına neden olabilir."
+      "unsafeQuote": "Bu miktar, bu çift için önerilen minimum tutarın altındadır (%{recommendedMin} %{symbol}). Bu, işleminizin başarısız olmasına veya fon kaybına neden olabilir.",
+      "rateLimitExceeded": "Limit aşıldı, daha sonra tekrar deneyin"
     },
     "swappingComingSoonForWallet": "%{walletName} için takas çok yakında",
     "recentTrades": "Son İşlemler",
@@ -1813,7 +1813,8 @@
     "importAccounts": {
       "title": "%{chainNamespaceDisplayName} Hesaplarını İçe Aktarın",
       "description": "Aşağıdaki listeden içe aktarmak istediğiniz hesapları seçin.",
-      "import": "İçe Aktar"
+      "import": "İçe Aktar",
+      "loadMoreDisabled": "Bu cüzdan, bu zincir için birden fazla hesabı desteklemiyor."
     },
     "ledgerOpenApp": {
       "title": "%{appName} Uygulamasını açın",
@@ -2110,67 +2111,6 @@
       "cta": "Para Yatırma"
     }
   },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "Arkeo nedir?",
-      "bodyParts": {
-        "1": "Geçen yıl,",
-        "2": "Coinbase Cloud",
-        "3": "Arkeo adlı bir projeyi kuluçkaya yatırdı. Mainnet lansmanı çok yakında!",
-        "4": "Arkeo, tüm düğüm verileri için merkezi olmayan bir arka uç olacak şekilde oluşturuldu. Arkeo kullanan uygulamalar, artan geliştirme hızı, sansür direnci ve",
-        "5": "nakamoto katsayısından",
-        "6": "merkezi veri kaynaklarına bağımlılığı azaltırken."
-      }
-    },
-    "whoQualifies": {
-      "title": "Arkeo Airdrop'a kimler hak kazanır?",
-      "body": "ShapeShift dApp'i kullanarak airdrop'a katılmaya hak kazanmanın birkaç yolu vardır. Anlık görüntü yayınlanıyor, kalifiye olmak için hala zamanınız var!"
-    },
-    "staking": {
-      "title": "%{asset} Staker",
-      "body": "Boşta kalan %{asset} üzerinden %{apy}'ye kadar APR ve Arkeo airdrop'una hak kazanın. AYRICA %{provider}'a bahis yaparsanız, Arkeo airdrop miktarınız hesaplanırken bahis bakiyenize 2 kat çarpan uygulanacaktır.",
-      "cta": "Stake %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} Sağlayıcılar",
-      "body": "Elinizde %{asset1} ve %{asset2} var mı? %{apy} APR kazanmak için Uniswap V2 Havuzuna likidite sağlayın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
-      "cta": "Likidite Ekleyin"
-    },
-    "foxTokenHolders": {
-      "title": "FOX Token Sahipleri",
-      "body": "Cüzdanda tutulan FOX token'ları. Çantanız ne kadar büyükse, Arkeo airdrop'unuz da o kadar büyük olur.",
-      "cta": "FOX Takas yap",
-      "secondary": "FOX Satın Al"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LP Çiftçiler",
-      "body": "FOX Farm'da ETH/FOX LP jetonlarınızı staking yaparak %{apy} APR'ye kadar kazanın. AYRICA FOX Farm'ın 5. Turunda yatırdığınız ETH/FOX LP tokenlerinin temelinde yatan FOX, Arkeo airdrop'u için hak kazanacaktır.",
-      "cta": "FOX/ETH LP Stake Et"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXy Token Sahipleri",
-      "body": "FOX Yieldy (FOXy) ile boştaki FOX'unuzdan %{apy}'ye kadar APR kazanın. AYRICA Cüzdanınızda tutulan FOXy, FOX ile aynı muameleyi görecek ve Arkeo airdrop için uygun olacaktır.",
-      "cta": "FOX Token Stake Et"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LP'ler",
-      "body": "%{asset1} ve %{asset2}'ye sahip misiniz? Uniswap V2 Havuzuna likidite sağlayarak %{apy} APR kazanın. AYRICA, sahip olduğunuz FOX/ETH LP tokenlarındaki temel FOX, Arkeo airdrop için uygun olacaktır.",
-      "cta": "Likidite Ekleyin"
-    },
-    "stakeAtom": {
-      "title": "ATOM Stake",
-      "body": "Boş ATOM'nuzdan %{apr} APR'ye kadar kazanın. AYRICA, stake ettiğiniz herhangi bir ATOM size Arkeo jetonları kazandırır. ShapeShift DAO Validator'a stake yaparsanız, airdrop kalifikasyonunuzu 2 kat artırabilirsiniz.",
-      "cta": "ATOM Stake"
-    },
-    "footer": {
-      "title": "ShapeShift dApp dışında hak kazanabileceğiniz başka yollar da var. Tam liste için yönetişim teklifine göz atın.",
-      "cta": "Yönetişim teklifine göz atın",
-      "disclaimer": {
-        "body": "* Yalnızca kişisel saklama cüzdanları geçerli olacaktır. Merkezi bir borsa aracılığıyla bir cüzdanda tutulan veya stake edilen jetonlar uygun değildir. Cüzdana mı ihtiyacınız var?",
-        "cta": "Bir tane yaratın"
-      }
-    }
-  },
   "nft": {
     "customizeFoxatar": "FOXatar'ını Özelleştir",
     "setAsAvatar": "Avatar olarak ayarla",
@@ -2344,8 +2284,8 @@
     "symAfterRuneAlert": "THOR ağının çalışma şekli nedeniyle asimetrik bir RUNE yatırma sonrasında simetrik yatırmalar mümkün değildir.",
     "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
-    "unsupportedNetworkExplainer": "Cüzdanınız %{network}'ı desteklemiyor. Lütfen bu ağı destekleyen bir cüzdana geçin.",
-    "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'yi desteklemiyor. Lütfen bu ağları destekleyen bir cüzdana geçin.",
+    "unsupportedNetworkExplainer": "Cüzdanınız %{network} ağına bağlı değil. Lütfen bu zinciri bağlayın veya bu ağı destekleyen bir cüzdana geçin.",
+    "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'ye bağlı değil. Lütfen bu zinciri bağlayın veya bu ağları destekleyen bir cüzdana geçin.",
     "shareOfPool": "Havuz Payı",
     "assetDepositAmount": "%{asset} Yatırma Tutarı",
     "totalLiquidity": "Toplam Likidite",
@@ -2435,6 +2375,7 @@
     "unstakeAmount": "Kaldırılan Stake Tutarı",
     "confirmAndStake": "Onayla ve Stake Et",
     "confirmAndUnstake": "Onayla ve Stake'i Kaldır",
+    "confirmAndClaim": "Onayla ve Talep Et",
     "shapeShiftFee": "ShapeShift Ücreti",
     "approvalFee": "Onay Ücreti",
     "lockupPeriod": "Kilitleme Süresi",
@@ -2450,7 +2391,9 @@
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
       "unstakeAmount": "Bu, kaldıracağınız FOX miktarıdır",
       "lockupPeriod": "FOX'unuzu talep etmek için bahisi kaldırdıktan sonra bu kadar beklemeniz gerekecek",
-      "shareOfPool": "Bu, kazanacağınız ücretlerin yüzdesidir."
+      "shareOfPool": "Bu, kazanacağınız ücretlerin yüzdesidir.",
+      "unstakePendingCooldown": "Talep edilebilir %{cooldownPeriodHuman} ",
+      "cooldownComplete": "Bekleme süresi bitti %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Başarıyla %{amount} %{symbol} stake ettiniz",
     "stakePending": "%{amount} %{symbol} stake ediliyor...",
@@ -2467,6 +2410,13 @@
     "stakeNow": "Şimdi Stake Edin",
     "noAddressFound": "Adres bulunamadı",
     "newAddressInfo": "Bu, bir sonraki ödül döngüsü için güncellenecektir",
-    "confirmAndUpdateAddress": "Adresi Onayla ve Güncelle"
+    "confirmAndUpdateAddress": "Adresi Onayla ve Güncelle",
+    "unstakeFrom": "r%{assetSymbol}'dan Stake Kaldır",
+    "claimPending": "Çekim isteği",
+    "claimSuccess": "Başarıyla %{amount} %{symbol} talebinde bulundunuz.",
+    "claimReceiveAddress": "Alıcı Adresi Talebi",
+    "noClaimsAvailable": "Talep edilebilir yok",
+    "noClaimsAvailableDescription": "Kullanılabilir talebiniz yok",
+    "unstakeNow": "Stake Kaldır"
   }
 }

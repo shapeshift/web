@@ -232,7 +232,15 @@ const reactAppRewireConfig = {
                     }
                     const definitions = Object.fromEntries(
                       Object.entries(env)
-                        .filter(([k]) => !k.startsWith('REACT_APP_'))
+                        .filter(
+                          ([k]) =>
+                            // Keep only REACT_APP_* env var entries we are using in packages. We *cannot* remove these, else
+                            // consuming them in packages will result in these being undefined
+                            [
+                              'REACT_APP_FEATURE_NFT_METADATA',
+                              'REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS',
+                            ].includes(k) || !k.startsWith('REACT_APP_'),
+                        )
                         .sort((a, b) => {
                           if (a[0] < b[0]) return -1
                           if (a[0] > b[0]) return 1

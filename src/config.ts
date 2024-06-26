@@ -2,6 +2,7 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
+import type { Address } from 'viem'
 
 import env from './env'
 
@@ -78,6 +79,7 @@ const validators = {
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP_GNOSIS: bool({ default: false }),
+  REACT_APP_FEATURE_COWSWAP_ARBITRUM: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
@@ -130,7 +132,6 @@ const validators = {
   REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
   REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
   REACT_APP_FEATURE_YEARN: bool({ default: false }),
-  REACT_APP_FEATURE_ARKEO_AIRDROP: bool({ default: false }),
   REACT_APP_MIXPANEL_TOKEN: str(),
   REACT_APP_FEATURE_TRADE_RATES: bool({ default: false }),
   REACT_APP_SNAPSHOT_BASE_URL: url({
@@ -146,6 +147,7 @@ const validators = {
     default: 'https://api-shapeshift.1inch.io/v5.0',
   }),
   REACT_APP_SENTRY_DSN_URL: url(),
+  REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS: str<Address>(),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),
@@ -176,6 +178,7 @@ const validators = {
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   REACT_APP_FEATURE_RFOX: bool({ default: false }),
+  REACT_APP_FEATURE_RFOX_DASHBOARD: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

@@ -34,9 +34,13 @@ export type CowSwapQuoteError = {
 export enum CowNetwork {
   Mainnet = 'mainnet',
   Xdai = 'xdai',
+  ArbitrumOne = 'arbitrum_one',
 }
 
-export type CowChainId = KnownChainIds.EthereumMainnet | KnownChainIds.GnosisMainnet
+export type CowChainId =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.GnosisMainnet
+  | KnownChainIds.ArbitrumMainnet
 
 export type CowSwapGetTradesResponse = {
   txHash: string

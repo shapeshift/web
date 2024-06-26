@@ -215,6 +215,7 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
           | [string],
         claimable: false,
       },
+      isLoaded: false,
       ...userOpportunity,
       ...opportunityMetadata,
       userStakingId,
@@ -592,7 +593,7 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
 
     const earnUserStakingOpportunity: StakingEarnOpportunityType = {
       ...userStakingOpportunity,
-      isLoaded: true,
+      isLoaded: userStakingOpportunity.isLoaded,
       chainId: fromAssetId(userStakingOpportunity.assetId).chainId,
       cryptoAmountBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       cryptoAmountPrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
@@ -630,7 +631,7 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
 )
 
 // Useful when multiple accounts are staked on the same opportunity, so we can detect the highest staked balance one
-export const selectHighestBalanceAccountIdByStakingId = createSelector(
+export const selectHighestStakingBalanceAccountIdByStakingId = createSelector(
   selectUserStakingOpportunitiesById,
   selectStakingIdParamFromFilter,
   (userStakingOpportunities, stakingId): AccountId | undefined => {

@@ -32,12 +32,12 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -177,7 +177,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
-    enabled: !!poolAsset,
     swapperName: SwapperName.Thorchain,
   })
 
@@ -663,21 +662,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
-      address: poolAssetAccountAddress ?? null,
+      address: poolAssetAccountAddress,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetWithdrawAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
-      // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: Boolean(
         // Symmetrical withdraws do not occur an asset Tx, only a RUNE Tx, hence will never occur a sweep step
-        !isSymWithdraw &&
-          !!poolAsset?.assetId &&
-          bnOrZero(actualAssetWithdrawAmountCryptoPrecision).gt(0) &&
-          estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
+        !isSymWithdraw && bnOrZero(actualAssetWithdrawAmountCryptoPrecision).gt(0),
       ),
     }),
     [
@@ -766,6 +761,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               accountId={accountId}
               cryptoAmount={cryptoAmount}
               onChange={handleRemoveLiquidityInputChange}
+              revalidateOnValueChange={false}
               fiatAmount={fiatAmount}
               showFiatAmount
               assetId={asset.assetId}
@@ -806,7 +802,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
-        chainAccountIds: runeAccountIds,
+        checkConnectedAccountIds: runeAccountIds,
       }),
     [isSnapInstalled, runeAccountIds, wallet],
   )
@@ -944,8 +940,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       <WarningAcknowledgement
         message={translate('defi.modals.saversVaults.dangerousWithdrawWarning')}
         onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       >
         {renderHeader}
         <Stack divider={divider} spacing={4} pb={4}>

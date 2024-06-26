@@ -29,10 +29,10 @@ export type FeatureFlags = {
   SaversVaultsWithdraw: boolean
   Yearn: boolean
   DefiDashboard: boolean
-  ArkeoAirdrop: boolean
   TradeRates: boolean
   Cowswap: boolean
   CowswapGnosis: boolean
+  CowswapArbitrum: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
@@ -62,6 +62,7 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
+  RFOXDashboard: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -73,6 +74,8 @@ export enum CurrencyFormats {
   CommaDecimalSpaceThousands = 'fr-FR', // 123 456,78 $US
   CommaDecimalDotThousands = 'de-DE', // 123.456,78 $
 }
+
+export const allowedDecimalSeparators = ['.', ',']
 
 export enum HomeMarketView {
   TopAssets = 'TopAssets',
@@ -115,10 +118,10 @@ const initialState: Preferences = {
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
     Yearn: getConfig().REACT_APP_FEATURE_YEARN,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
-    ArkeoAirdrop: getConfig().REACT_APP_FEATURE_ARKEO_AIRDROP,
     TradeRates: getConfig().REACT_APP_FEATURE_TRADE_RATES,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
     CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
+    CowswapArbitrum: getConfig().REACT_APP_FEATURE_COWSWAP_ARBITRUM,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
@@ -147,6 +150,7 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
+    RFOXDashboard: getConfig().REACT_APP_FEATURE_RFOX_DASHBOARD,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

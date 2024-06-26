@@ -57,7 +57,7 @@ import {
   selectBIP44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -71,7 +71,6 @@ type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const [quoteLoading, setQuoteLoading] = useState(false)
   const [quote, setQuote] = useState<ThorchainSaversWithdrawQuoteResponseSuccess | null>(null)
-  const [isDangerousWithdraw, setIsDangerousWithdraw] = useState(false)
   const [expiry, setExpiry] = useState<string>('')
   const [fromAddress, setfromAddress] = useState<string | null>(null)
   const [protocolFeeCryptoBaseUnit, setProtocolFeeCryptoBaseUnit] = useState<string>('')
@@ -105,7 +104,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const opportunityDataFilter = useMemo(
     () => ({
@@ -214,12 +213,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
         setExpiry(_expiry)
 
-        const _isDangerousWithdraw = bnOrZero(expected_amount_out).isZero()
-        setIsDangerousWithdraw(_isDangerousWithdraw)
-        // If there's nothing being withdrawn, then the protocol fee is the entire amount
-        const protocolFeeCryptoThorBaseUnit = _isDangerousWithdraw
-          ? amountCryptoThorBaseUnit
-          : amountCryptoThorBaseUnit.minus(expected_amount_out)
+        const protocolFeeCryptoThorBaseUnit = amountCryptoThorBaseUnit.minus(expected_amount_out)
         setProtocolFeeCryptoBaseUnit(
           toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
@@ -249,7 +243,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     opportunityData?.stakedAmountCryptoBaseUnit,
     state?.withdraw.cryptoAmount,
     protocolFeeCryptoBaseUnit,
-    isDangerousWithdraw,
     expiry,
   ])
 
@@ -300,7 +293,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const { isTradingActive, refetch: refetchIsTradingActive } = useIsTradingActive({
     assetId,
-    enabled: !!assetId,
     swapperName: SwapperName.Thorchain,
   })
 
@@ -489,7 +481,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const canWithdraw = useMemo(() => {
     const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
-    return bnOrZero(amountCryptoBaseUnit).gt(protocolFeeCryptoBaseUnit)
+    return bnOrZero(amountCryptoBaseUnit).gte(protocolFeeCryptoBaseUnit)
   }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit])
 
   if (!state || !contextDispatch) return null
@@ -603,12 +595,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               </Box>
             </Row.Value>
           </Row>
-        )}
-        {isDangerousWithdraw && (
-          <Alert status='warning' borderRadius='lg'>
-            <AlertIcon />
-            <Text translation={'defi.modals.saversVaults.dangerousWithdrawWarning'} />
-          </Alert>
         )}
         {!hasEnoughBalanceForGas && (
           <Alert status='error' borderRadius='lg'>

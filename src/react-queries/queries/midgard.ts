@@ -17,7 +17,6 @@ const midgardUrl = getConfig().REACT_APP_MIDGARD_URL
 export const midgard = createQueryKeys('midgard', {
   swapsData: (poolAssetId: string, interval: Interval, count: number) => ({
     queryKey: ['midgardSwapsData', poolAssetId, interval, count],
-    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardSwapHistoryResponse>(
         `${midgardUrl}/history/swaps?pool=${poolAssetId}&interval=${interval}&count=${count}`,
@@ -27,7 +26,6 @@ export const midgard = createQueryKeys('midgard', {
   }),
   tvl: (interval: Interval, count: number) => ({
     queryKey: ['tvl', interval, count],
-    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardTvlHistoryResponse>(
         `${midgardUrl}/history/tvl?interval=${interval}&count=${count}`,
@@ -37,7 +35,6 @@ export const midgard = createQueryKeys('midgard', {
   }),
   poolData: (poolAssetId: string) => ({
     queryKey: ['midgardPoolData', poolAssetId],
-    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardPoolResponse>(
         `${midgardUrl}/pool/${poolAssetId}?period=30d`,
@@ -47,7 +44,6 @@ export const midgard = createQueryKeys('midgard', {
   }),
   poolStats: (poolAssetId: string, period: Period) => ({
     queryKey: ['midgardPoolStats', poolAssetId, period],
-    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardPoolStats>(
         `${midgardUrl}/pool/${poolAssetId}/stats?period=${period}`,
@@ -57,7 +53,6 @@ export const midgard = createQueryKeys('midgard', {
   }),
   poolsData: () => ({
     queryKey: ['midgardPoolsData'],
-    staleTime: 60_000,
     queryFn: async () => {
       const { data } = await axios.get<MidgardPoolResponse[]>(`${midgardUrl}/pools?period=30d`)
       return data

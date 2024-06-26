@@ -12,12 +12,11 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
@@ -25,6 +24,7 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
+import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
 import {
@@ -36,7 +36,6 @@ import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
-  selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -66,8 +65,9 @@ export const ChangeAddressConfirm: React.FC<
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(confirmedQuote.stakingAssetId).chainId),
   )
-  const feeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
+  const adapter = useMemo(
+    () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
+    [feeAsset],
   )
 
   const stakingAssetAccountAddress = useMemo(
@@ -93,28 +93,25 @@ export const ChangeAddressConfirm: React.FC<
     })
   }, [confirmedQuote.newRuneAddress])
 
-  const isGetChangeAddressFeesEnabled = useMemo(
-    () => Boolean(wallet && feeAsset && feeAssetMarketData),
-    [wallet, feeAsset, feeAssetMarketData],
+  const changeAddressFeesQueryInput = useMemo(
+    () => ({
+      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
+      accountNumber: stakingAssetAccountNumber,
+      data: callData,
+      value: '0',
+    }),
+    [callData, confirmedQuote.stakingAssetId, stakingAssetAccountNumber],
   )
 
   const {
     data: changeAddressFees,
     isLoading: isChangeAddressFeesLoading,
     isSuccess: isChangeAddressFeesSuccess,
-  } = useQuery({
-    ...reactQueries.common.evmFees({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
-      accountNumber: stakingAssetAccountNumber!, // see isGetChangeAddressFeesEnabled
-      data: callData,
-      value: '0', // contract call
-      wallet: wallet!, // see isGetChangeAddressFeesEnabled
-      feeAsset: feeAsset!, // see isGetChangeAddressFeesEnabled
-      feeAssetMarketData: feeAssetMarketData!, // see isGetChangeAddressFeesEnabled
-    }),
+  } = useEvmFees({
+    ...changeAddressFeesQueryInput,
+    enabled: true,
     staleTime: 30_000,
-    enabled: isGetChangeAddressFeesEnabled,
     // Ensures fees are refetched at an interval, including when the app is in the background
     refetchIntervalInBackground: true,
     // Yeah this is arbitrary but come on, Arb is cheap
@@ -136,9 +133,14 @@ export const ChangeAddressConfirm: React.FC<
     isSuccess: isChangeAddressMutationSuccess,
   } = useMutation({
     mutationFn: async () => {
-      if (!wallet || stakingAssetAccountNumber === undefined || !stakingAsset || !callData) return
-
-      const adapter = assertGetEvmChainAdapter(stakingAsset.chainId)
+      if (
+        !wallet ||
+        stakingAssetAccountNumber === undefined ||
+        !stakingAsset ||
+        !callData ||
+        !adapter
+      )
+        return
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
@@ -221,7 +223,7 @@ export const ChangeAddressConfirm: React.FC<
           <IconButton onClick={handleGoBack} variant='ghost' aria-label='back' icon={backIcon} />
         </Flex>
         <Flex textAlign='center'>{translate('common.confirm')}</Flex>
-        <Flex flex={1}></Flex>
+        <Flex flex={1} />
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>{changeAddressCard}</Stack>

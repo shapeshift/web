@@ -1,20 +1,17 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { formatSecondsToDuration } from 'lib/utils/time'
+import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -50,17 +47,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     return <Text color='text.subtle' translation='RFOX.tooltips.shareOfPool' />
   }, [])
 
-  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'cooldownPeriod',
-    chainId: arbitrum.id,
-    query: {
-      staleTime: Infinity,
-      select: data => formatSecondsToDuration(Number(data)),
-    },
-  })
-
+  const { data: cooldownPeriod, isSuccess: isCooldownPeriodSuccess } = useCooldownPeriodQuery()
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(stakingAssetAccountId).account,
     [stakingAssetAccountId],
@@ -69,30 +56,18 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
   const {
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
-  } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [getAddress(stakingAssetAccountAddress)], // actually defined, see enabled below
-    chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(stakingAssetAccountAddress),
-      select: ([stakingBalance]) => stakingBalance.toString(),
-    },
+  } = useStakingInfoQuery({
+    stakingAssetAccountAddress,
+    select: ([stakingBalance]) => stakingBalance.toString(),
   })
 
   const {
     data: newContractBalanceOfCryptoBaseUnit,
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
-  } = useReadContract({
-    abi: erc20ABI,
-    address: getAddress(fromAssetId(stakingAssetId).assetReference),
-    functionName: 'balanceOf',
-    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
-    chainId: arbitrum.id,
-    query: {
-      select: data => data.toString(),
-    },
+  } = useStakingBalanceOfQuery({
+    stakingAssetId,
+    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    select: data => data.toString(),
   })
 
   const newShareOfPoolPercentage = useMemo(

@@ -1,0 +1,16 @@
+export const arbitrumBridgeNativeDepositTx = {
+  txid: '0xd115a9c89b5a387fc4da3be84329038e25cb13e36dd054126de9ac9ae3177f19',
+  blockHash: '0x547baea04677590e3c4887cc8ed8d488e383573aee47e32c9308f98e73af4320',
+  blockHeight: 19832035,
+  timestamp: 1715252267,
+  from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
+  to: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
+  confirmations: 330563,
+  value: '10000000000000000',
+  fee: '371613606610871',
+  gasLimit: '97810',
+  gasUsed: '91261',
+  gasPrice: '4071987011',
+  status: 1,
+  inputData: '0x439370b1',
+}

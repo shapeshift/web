@@ -1,16 +1,13 @@
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import type { Address } from 'viem'
 import { getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
@@ -62,29 +59,15 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
 
-  const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [
-      // actually defined by the time we actually consume the queryKey
-      confirmedQuote
-        ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-        : ('' as Address),
-    ],
-
-    chainId: arbitrum.id,
+  const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      : undefined,
   })
 
-  const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useReadContract({
-    abi: erc20ABI,
-    // actually defined by the time we actually consume the queryKey
-    address: confirmedQuote
-      ? getAddress(fromAssetId(confirmedQuote.stakingAssetId).assetReference)
-      : ('' as Address),
-    functionName: 'balanceOf',
-    args: [getAddress(RFOX_PROXY_CONTRACT_ADDRESS)],
-    chainId: arbitrum.id,
+  const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
+    stakingAssetId: confirmedQuote ? confirmedQuote.stakingAssetId : undefined,
+    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
   })
 
   const handleTxConfirmed = useCallback(async () => {

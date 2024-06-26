@@ -6,3 +6,10 @@ export const usdcToken: Token = {
   name: 'USD Coin',
   symbol: 'USDC',
 }
+
+export const foxToken: Token = {
+  contract: '0xf929de51D91C77E42f5090069E0AD7A09e513c73',
+  decimals: 18,
+  name: 'FOX',
+  symbol: 'FOX',
+}

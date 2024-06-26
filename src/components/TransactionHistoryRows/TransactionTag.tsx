@@ -29,6 +29,20 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
       </Tag>
     )
   }
+  if (txData && txData.parser === 'rfox') {
+    return (
+      <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
+        rFOX
+      </Tag>
+    )
+  }
+  if (txData && txData.parser === 'arbitrumBridge') {
+    return (
+      <Tag size='sm' colorScheme='blue' variant='subtle' lineHeight={1}>
+        Arbitrum Bridge
+      </Tag>
+    )
+  }
   if (txData && txData.parser === 'thorchain' && txData.liquidity) {
     return (
       <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>

@@ -587,7 +587,6 @@
     "tradeShort": "Swap",
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
-    "arkeo": "Airdrop da Arkeo",
     "lending": "Empréstimo",
     "pools": "Pools",
     "actionMenu": {
@@ -865,7 +864,8 @@
       "tradeFailed": "A troca falhou. Os ativos foram devolvidos, menos taxa de gás",
       "noQuotesAvailable": "Nenhuma cotação disponível para esta negociação",
       "smartContractWalletNotSupported": "Contrato inteligente da carteira não suportada. ",
-      "unsafeQuote": "Este valor está abaixo do mínimo recomendado para este par (%{recommendedMin} %{symbol}). Isso pode causar falha na negociação ou perda dos fundos."
+      "unsafeQuote": "Este valor está abaixo do mínimo recomendado para este par (%{recommendedMin} %{symbol}). Isso pode causar falha na negociação ou perda dos fundos.",
+      "rateLimitExceeded": "Limite de taxa excedido. Tente novamente mais tarde"
     },
     "swappingComingSoonForWallet": "A troca para %{walletName} logo ocorrerá.",
     "recentTrades": "Negociações recentes",
@@ -1813,7 +1813,8 @@
     "importAccounts": {
       "title": "Importar contas %{chainNamespaceDisplayName}",
       "description": "Selecione as contas que você gostaria de importar na lista abaixo.",
-      "import": "Importar"
+      "import": "Importar",
+      "loadMoreDisabled": "Esta carteira não suporta múltiplas contas para esta rede."
     },
     "ledgerOpenApp": {
       "title": "Abra o aplicativo %{appName}",
@@ -2110,67 +2111,6 @@
       "cta": "Deposite agora"
     }
   },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "O que é Arkeo?",
-      "bodyParts": {
-        "1": "No ano passado, junto da",
-        "2": "Coinbase Cloud,",
-        "3": "a ShapeShift incubou um projeto chamado Arkeo. O lançamento na mainnet é logo logo!",
-        "4": "O Arkeo foi criado para ser um back-end descentralizado para dados de nós de uma blockchain. Os aplicativos que usam o Arkeo se beneficiarão com maior velocidade de desenvolvimento, resistência à censura e",
-        "5": "coeficiente nakamoto",
-        "6": "enquanto reduz a dependência de fontes de dados centralizadas."
-      }
-    },
-    "whoQualifies": {
-      "title": "Quem se qualifica para o Arkeo Airdrop?",
-      "body": "Existem várias maneiras de se qualificar para o airdrop usando o ShapeShift dApp. O Snapshot ainda tá rolando, dá tempo de se qualificar!"
-    },
-    "staking": {
-      "title": "%{asset} Stakers",
-      "body": "Ganhe %{apy} APR sobre seu dinheiro depositado %{asset} e qualifique-se para o airdrop da Arkeo. Além disso, se você fizer o stake %{provider}, poderá ganhar duas vezes mais no airdrop!",
-      "cta": "Stake %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} Provedores",
-      "body": "Tem %{asset1} e %{asset2}? Forneça liquidez na pool da Uniswap v2 e ganhe %{apy} de APR, além do FOX depositado na pool de FOX/ETH também entrar na conta do airdrop!",
-      "cta": "Forneça liquidez"
-    },
-    "foxTokenHolders": {
-      "title": "Holders do token FOX",
-      "body": "Holde tokens FOX. Quanto maior a quantia, maior será seu airdrop de Arkeo. ",
-      "cta": "Troque por FOX.",
-      "secondary": "Compre FOX"
-    },
-    "foxFarmers": {
-      "title": "Farmers de LPs de FOX/ETH",
-      "body": "Ganhe até %{apy} APR por depositar seus LPs de FOX/ETH na pool de FOX. Além disso, o FOX dentro do seu LP em stake na v5 da pool de FOX/ETH, será contado no airdrop da Arkeo!",
-      "cta": "Deposite o LP de FOX/ETH"
-    },
-    "foxyTokenHolders": {
-      "title": "Holders do token FOXy",
-      "body": "Ganhe %{apy} APR no seu FOX parado com o FOX Yieldy (FOXy). Além disso, o FOXy parado na sua carteira também contará no airdrop da Arkeo!",
-      "cta": "Deposite token FOX"
-    },
-    "foxEthProviders": {
-      "title": "LPs de FOX/ETH na Uniswap v2",
-      "body": "Tem %{asset1} e %{asset2}? \nForneça liquidez para a pool da Uniswap V2 e ganhe %{apy} APR. Além disso, seus LPs depositados na pool de FOX/ETH contarão na hora de realizar o airdrop da Arkeo!",
-      "cta": "Forneça Liquidez"
-    },
-    "stakeAtom": {
-      "title": "Deposite ATOM",
-      "body": "Ganhe até %{apr} APR no ATOM na sua carteira. Além disso, os ATOMs em stake possibiltarã você ganha ainda mais tokens Arkeo. Se você depositar no Validador ShapeShift DAO, poderá ganhar duas vezes mais no airdrop!",
-      "cta": "Deposite ATOM"
-    },
-    "footer": {
-      "title": "Existem outras maneiras de se qualificar também, fora do app da ShapeShift. Para obter uma lista completa, confira a proposta de governança.",
-      "cta": "Confira a proposta de governança",
-      "disclaimer": {
-        "body": "* Apenas carteiras autocustodiais serão qualificadas. Os tokens mantidos ou depositados em uma carteira de exchange não se qualificam. Precisa de uma carteira?",
-        "cta": "Crie um"
-      }
-    }
-  },
   "nft": {
     "customizeFoxatar": "Personalize o FOXatar",
     "setAsAvatar": "Define como Avatar",
@@ -2344,8 +2284,8 @@
     "symAfterRuneAlert": "Depósitos simétricos não são possíveis após um depósito RUNE assimétrico devido à forma como a rede THOR funciona.",
     "incompletePositionDepositAlert": "Esta posição está incompleta, por favor deposite o valor correspondente de %{asset} para finalizar esta posição.",
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
-    "unsupportedNetworkExplainer": "Sua carteira não suporta %{network}. Mude para uma carteira que suporte esta rede.",
-    "unsupportedNetworksExplainer": "Sua carteira não suporta %{network1} e %{network2}. Mude para uma carteira que suporte essas redes.",
+    "unsupportedNetworkExplainer": "Sua carteira não está conectada a %{network}. Conecte esta rede ou mude para uma carteira que suporte esta rede.",
+    "unsupportedNetworksExplainer": "Sua carteira não está conectada a %{network1} e %{network2}. Conecte esta rede ou mude para uma carteira que suporte essas redes.",
     "shareOfPool": "Participação na pool",
     "assetDepositAmount": "%{asset} Valor do depósito",
     "totalLiquidity": "Liquidez Total",
@@ -2435,6 +2375,7 @@
     "unstakeAmount": "Quantia para Unstake",
     "confirmAndStake": "Confirme & Stake",
     "confirmAndUnstake": "Confirme & Unstake",
+    "confirmAndClaim": "Confirmar & Resgatar",
     "shapeShiftFee": "Taxa da ShapeShift",
     "approvalFee": "Taxa de Aprovação",
     "lockupPeriod": "Período de Bloqueio",
@@ -2450,7 +2391,9 @@
       "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
       "unstakeAmount": "Esta é a quantidade de FOX que você não fará stake",
       "lockupPeriod": "Este é o tempo que você terá que esperar depois de realizar o unstake para sacar seus FOX",
-      "shareOfPool": "Esta é a sua porcentagem das taxas que você ganhará."
+      "shareOfPool": "Esta é a sua porcentagem das taxas que você ganhará.",
+      "unstakePendingCooldown": "Resgate disponível %{cooldownPeriodHuman}",
+      "cooldownComplete": "Período de espera finalizado %{cooldownPeriodHuman}"
     },
     "stakeSuccess": "Você fez o stake %{amount} %{symbol} com sucesso",
     "stakePending": "Staking %{amount} %{symbol}...",
@@ -2460,13 +2403,20 @@
     "unstakePending": "Solicitando saque de %{amount} %{symbol}",
     "unstakeSuccess": "Assim que %{cooldownPeriod} tiver decorrido, você poderá resgatar seu %{amount} %{symbol}",
     "currentRewardAddress": "Endereço de recompensa atual",
-    "newRewardAddress": "Novo Endereço de Recompensa",
+    "newRewardAddress": "Novo endereço de recompensa",
     "rewardCycleExplainer": "Isso será atualizado para o próximo ciclo de recompensa.",
     "noPositionTitle": "Sem posição ativa",
     "noPositionBody": "Você poderá alterar seu endereço de recompensa aqui assim que tiver uma posição ativa.",
     "stakeNow": "Faça Stake Agora",
     "noAddressFound": "Nenhum endereço encontrado",
     "newAddressInfo": "Isso será atualizado para o próximo ciclo de recompensa",
-    "confirmAndUpdateAddress": "Confirmar e atualizar endereço"
+    "confirmAndUpdateAddress": "Confirmar e atualizar endereço",
+    "unstakeFrom": "Unstake de r%{assetSymbol}",
+    "claimPending": "Solicitando saque",
+    "claimSuccess": "Você resgatou com sucesso %{amount} %{symbol}.",
+    "claimReceiveAddress": "Endereço Para Receber Resgate",
+    "noClaimsAvailable": "Nenhuma resgate disponível",
+    "noClaimsAvailableDescription": "Você não tem nenhum resgate disponível",
+    "unstakeNow": "Unstake agora"
   }
 }

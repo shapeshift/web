@@ -154,6 +154,7 @@ export const ethFoxStakingUserDataResolver = async ({
   const data = {
     byId: {
       [userStakingId]: {
+        isLoaded: true,
         userStakingId,
         stakedAmountCryptoBaseUnit,
         rewardsCryptoBaseUnit,

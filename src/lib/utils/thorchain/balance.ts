@@ -6,7 +6,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
-import { queryFn as isSweepNeededQueryFn } from 'pages/Lending/hooks/useIsSweepNeededQuery'
+import { getIsSweepNeeded, isGetSweepNeededInput } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from 'state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
@@ -15,12 +15,12 @@ import { store } from 'state/store'
 import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
 import {
+  fetchThorchainDepositQuote,
   type GetThorchainSaversDepositQuoteQueryKey,
-  queryFn as getThorchainSaversDepositQuoteQueryFn,
 } from './hooks/useGetThorchainSaversDepositQuoteQuery'
 import {
+  fetchThorchainWithdrawQuote,
   type GetThorchainSaversWithdrawQuoteQueryKey,
-  queryFn as getThorchainSaversWithdrawQuoteQueryFn,
 } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 
 // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
@@ -83,7 +83,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   fromAddress,
 }: {
   asset: Asset
-  fromAddress: string | null
+  fromAddress: string | undefined
   amountCryptoPrecision: string
   accountId: AccountId
   type: 'deposit' | 'withdraw'
@@ -112,7 +112,12 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
         return queryClient.fetchQuery({
           queryKey: thorchainSaversWithdrawQuoteQueryKey,
-          queryFn: getThorchainSaversWithdrawQuoteQueryFn,
+          queryFn: () =>
+            fetchThorchainWithdrawQuote({
+              asset,
+              accountId,
+              amountCryptoBaseUnit: withdrawAmountCryptoBaseUnit,
+            }),
           staleTime: 5000,
         })
       }
@@ -126,7 +131,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
         return await queryClient.fetchQuery({
           queryKey: thorchainSaversDepositQuoteQueryKey,
-          queryFn: getThorchainSaversDepositQuoteQueryFn,
+          queryFn: () => fetchThorchainDepositQuote({ asset, amountCryptoBaseUnit }),
           staleTime: 5000,
         })
       }
@@ -185,13 +190,14 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
 
   const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
 
-  const _isSweepNeeded = isSweepNeededQueryEnabled
-    ? await queryClient.fetchQuery({
-        queryKey: isSweepNeededQueryKey,
-        queryFn: isSweepNeededQueryFn,
-        staleTime: 60_000,
-      })
-    : undefined
+  const _isSweepNeeded =
+    isSweepNeededQueryEnabled && isGetSweepNeededInput(isSweepNeededQueryArgs)
+      ? await queryClient.fetchQuery({
+          queryKey: isSweepNeededQueryKey,
+          queryFn: () => getIsSweepNeeded(isSweepNeededQueryArgs),
+          staleTime: 60_000,
+        })
+      : undefined
 
   const isEstimateSweepFeesQueryEnabled = Boolean(_isSweepNeeded && accountId && isUtxoChain)
 

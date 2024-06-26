@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import type { MarketData } from '@shapeshiftoss/types'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import memoize from 'lodash/memoize'
@@ -40,12 +40,16 @@ const selectLendingCloseQueryData = memoize(
     collateralAssetMarketData,
     repaymentAssetMarketData,
     repaymentPercent,
+    repaymentAsset,
   }: {
     data: LendingWithdrawQuoteResponseSuccess
     collateralAssetMarketData: MarketData
     repaymentAssetMarketData: MarketData
     repaymentPercent: number
+    repaymentAsset: Asset | undefined
   }): LendingQuoteClose => {
+    if (!repaymentAsset) throw new Error('Repayment asset not found')
+
     const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
     const quoteLoanCollateralDecreaseCryptoPrecision = fromThorBaseUnit(
@@ -112,7 +116,9 @@ const selectLendingCloseQueryData = memoize(
       .times(repaymentPercent === 100 ? '1.01' : '1')
       .toFixed()
 
-    const repaymentAmountCryptoPrecision = fromThorBaseUnit(safeExpectedAmountIn).toString()
+    const repaymentAmountCryptoPrecision = fromThorBaseUnit(safeExpectedAmountIn).toFixed(
+      repaymentAsset.precision,
+    )
     const repaymentAmountFiatUserCurrency = fromThorBaseUnit(safeExpectedAmountIn)
       .times(repaymentAssetMarketData.price)
       .toString()
@@ -153,7 +159,7 @@ export const useLendingQuoteCloseQuery = ({
   repaymentAccountId: _repaymentAccountId,
   collateralAccountId: _collateralAccountId,
   enabled = true,
-}: UseLendingQuoteCloseQueryProps & QueryObserverOptions) => {
+}: UseLendingQuoteCloseQueryProps & Pick<QueryObserverOptions, 'enabled'>) => {
   const { data: lendingPositionData } = useLendingPositionData({
     assetId: _collateralAssetId,
     accountId: _collateralAccountId,
@@ -237,6 +243,7 @@ export const useLendingQuoteCloseQuery = ({
         collateralAssetMarketData,
         repaymentAssetMarketData,
         repaymentPercent,
+        repaymentAsset,
       }),
     // Do not refetch if consumers explicitly set enabled to false
     refetchIntervalInBackground: Boolean(enabled),

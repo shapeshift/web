@@ -118,7 +118,6 @@ export const Pool = () => {
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId,
-    enabled: Boolean(assetId),
     swapperName: SwapperName.Thorchain,
   })
 

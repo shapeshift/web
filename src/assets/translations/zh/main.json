@@ -108,6 +108,7 @@
     "search": "搜索",
     "searchAsset": "搜索资产",
     "enterAmount": "输入数量",
+    "enterAddress": "输入地址",
     "pageNotFound": "找不到你要查找的页面",
     "buySell": "买/卖",
     "all": "全部",
@@ -116,6 +117,7 @@
     "feesPlusSlippage": "费用+滑点",
     "best": "最好的",
     "gasFee": "手续费",
+    "approvalFee": "批准费",
     "consolidationFee": "整合费用",
     "fees": "费用",
     "alternative": "可供选择",
@@ -585,7 +587,6 @@
     "tradeShort": "交易",
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "买/卖",
-    "arkeo": "Arkeo 空投",
     "lending": "贷款",
     "pools": "池",
     "actionMenu": {
@@ -609,7 +610,8 @@
         "title": "扫描二维码",
         "body": "轻松扫描以发送或接收加密货币"
       }
-    }
+    },
+    "rFOX": "rFOX"
   },
   "transactionRow": {
     "send": "已发送",
@@ -862,7 +864,8 @@
       "tradeFailed": "交易失败。扣除手续费后退还资产",
       "noQuotesAvailable": "此交易没有可用的报价",
       "smartContractWalletNotSupported": "不支持智能合约钱包",
-      "unsafeQuote": "此金额低于该交易对的建议最小值 (%{recommulatedMin} %{symbol})。这可能会导致你的交易失败或资金损失。"
+      "unsafeQuote": "此金额低于该交易对的建议最小值 (%{recommulatedMin} %{symbol})。这可能会导致你的交易失败或资金损失。",
+      "rateLimitExceeded": "超出速率限制，请稍后重试"
     },
     "swappingComingSoonForWallet": "%{walletName} 的兑换即将推出",
     "recentTrades": "最近的交易",
@@ -877,6 +880,7 @@
     "addressPlaceholder": "%{chainName} 地址",
     "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
     "enableMetaMaskSnap": "使用多链 snap",
+    "connectChain": "连接 %{chainName}",
     "approvalGasFee": "授权手续费 %{fee}",
     "approvalFailed": "额度审批过程中出现问题",
     "tradeComplete": "你现在在 %{chainName} 上的钱包中有 {cryptoAmountFormatted} 。",
@@ -1416,8 +1420,10 @@
       },
       "connect": {
         "header": "匹配 Ledger",
-        "body": "单击“匹配”，然后从弹出窗口中选择你的 Ledger",
-        "button": "匹配"
+        "pairNewDeviceBody": "点击“配对新设备”即可开始",
+        "pairNewDeviceButton": "配对新设备",
+        "pairExistingDeviceButton": "配对现有设备",
+        "pairExistingDeviceBody": "正在连接其他 Ledger 设备？单击“配对新设备”即可重新开始。"
       },
       "failure": {
         "header": "错误",
@@ -1464,7 +1470,8 @@
       "andMore": "...和更多",
       "snapInstalledToast": "ShapeShift 多链 MetaMask Snap 已安装 ",
       "snapUninstalledToast": "ShapeShift 多链 MetaMask Snap 已卸载",
-      "dontAskAgain": "不要再问"
+      "dontAskAgain": "不要再问",
+      "multiAccountUnsupported": "此链不支持使用 MetaMask 上的 Multichain Snap 的多账户"
     },
     "metaMaskSnapConfirm": {
       "title": "安装多链 Snap",
@@ -1806,7 +1813,8 @@
     "importAccounts": {
       "title": "导入 %{chainNamespaceDisplayName} 账户",
       "description": "从下面的列表中选择你想要导入的帐户。",
-      "import": "导入"
+      "import": "导入",
+      "loadMoreDisabled": "此钱包不支持此链的多个账户。"
     },
     "ledgerOpenApp": {
       "title": "打开 %{appName} 应用",
@@ -1939,6 +1947,10 @@
       }
     },
     "walletConnectToDapps": {
+      "errors": {
+        "errorConnectingToDapp": "连接 dApp 时出错",
+        "pairingAlreadyExists": "此 URL 已配对。请尝试其他 WalletConnect URL。"
+      },
       "header": {
         "connectDapp": "连接 dApp",
         "connectAnotherDapp": "连接另一个 dApp",
@@ -2097,67 +2109,6 @@
       "title": "使用你的 %{asset} 赚取奖励",
       "body": "质押到 THORChain 储蓄金库。没有锁定时间。",
       "cta": "立即充值"
-    }
-  },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "什么是 Arkeo ?",
-      "bodyParts": {
-        "1": "去年，与",
-        "2": "Coinbase Cloud",
-        "3": "ShapeShift 孵化了一个名为 Arkeo 的项目。主网启动指日可待！",
-        "4": "Arkeo 的创建是为了成为所有节点数据的去中心化后端。使用 Arkeo 的应用程序将受益于更高的开发速度、抗审查性和",
-        "5": "中本系数，",
-        "6": "同时减少对中心化数据的依赖。"
-      }
-    },
-    "whoQualifies": {
-      "title": "谁有资格获得 Arkeo 空投？",
-      "body": "你可以通过使用 ShapeShift dApp 获得多种空投的资格。快照正在滚动，你还有时间晋级！"
-    },
-    "staking": {
-      "title": "%{asset} 质押者",
-      "body": "闲置的 %{asset} 可获得高达 %{apy} 的年利率，并有资格获得Arkeo空投。此外，如果你向 %{provider} 下注，在计算你的Arkeo空投量时，你的下注余额将乘以2倍。",
-      "cta": "质押 %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} 提供者",
-      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上你持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
-      "cta": "存款流动性"
-    },
-    "foxTokenHolders": {
-      "title": "FOX 代币持有者",
-      "body": "持有 FOX 代币。你持有越多，你的 Arkeo 空投就越多。",
-      "cta": "交易成 FOX",
-      "secondary": "购买 FOX"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LP 农场",
-      "body": "将你的 ETH/FOX LP 代币质押到 FOX 农场 中，可赚取高达 %{apy} 的年利率。再加上你在 FOX 农场第 5 轮中质押的 ETH/FOX LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
-      "cta": "质押 FOX/ETH LP"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXy 代币持有者",
-      "body": "通过 FOX Yieldy (FOXy)，你闲置的 FOX 可赚取高达 %{apy} 的年利率。你钱包中持有的 PLUS FOXy 将被视为与 FOX 相同，并且有资格获得 Arkeo 空投。",
-      "cta": "质押 FOX 代币"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "有 %{asset1} 和 %{asset2} 吗？为 Uniswap V2 池提供流动性以赚取 %{apy} 年利率。再加上你持有的 FOX/ETH LP 代币中的基础 FOX 将有资格获得 Arkeo 空投。",
-      "cta": "存款流动性"
-    },
-    "stakeAtom": {
-      "title": "质押 ATOM",
-      "body": "使用你闲置 ATOM 可赚取高达 %{apr} 的年利率。再加上你质押的ATOM，你可以赚取 Arkeo 代币。如果你质押到 ShapeShift DAO 验证器，你可以获得 2 倍的空投资格。",
-      "cta": "质押ATOM"
-    },
-    "footer": {
-      "title": "除了 ShapeShift dApp 之外，你还可以通过其他方式获得资格。如需完整列表，请查看治理提案。",
-      "cta": "查看治理提案",
-      "disclaimer": {
-        "body": "* 只有自我托管钱包才符合资格。代币在中心化交易所或质押在钱包里都不具备资格。需要钱包吗？",
-        "cta": "创建一个"
-      }
     }
   },
   "nft": {
@@ -2333,8 +2284,8 @@
     "symAfterRuneAlert": "由于 THOR 网络的工作方式，非对称 RUNE 存款之后无法进行对称存款。",
     "incompletePositionDepositAlert": "此仓位尚未完成，请存入相应数量的 %{asset} 来完成此仓位。",
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
-    "unsupportedNetworkExplainer": "你的钱包不支持 %{network} 。请切换到支持该网络的钱包。",
-    "unsupportedNetworksExplainer": "你的钱包不支持 %{network1} 和 %{network2} 。请切换到支持这些网络的钱包。",
+    "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
+    "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
     "shareOfPool": "池份额",
     "assetDepositAmount": "%{asset} 充值数量",
     "totalLiquidity": "总流动性",
@@ -2412,5 +2363,60 @@
       "title": "借贷",
       "body": "用你的资产作为抵押进行借贷。"
     }
+  },
+  "RFOX": {
+    "stake": "质押",
+    "unstake": "取消质押",
+    "claim": "认领",
+    "changeAddress": "更换地址",
+    "sameAddressNotAllowed": "不允许使用相同地址",
+    "stakingDetails": "质押详情",
+    "stakeAmount": "质押数量",
+    "unstakeAmount": "取消质押数量",
+    "confirmAndStake": "确认并质押",
+    "confirmAndUnstake": "确认并取消质押",
+    "confirmAndClaim": "确认并认领",
+    "shapeShiftFee": "ShapeShift 费用",
+    "approvalFee": "批准费",
+    "lockupPeriod": "锁定期",
+    "shareOfPool": "池份额",
+    "networkFee": "网络费",
+    "thorchainRewardAddress": "THORChain 奖励地址",
+    "rewardAddressHelper": "奖励将发送至此处",
+    "useWalletAddress": "使用钱包地址",
+    "useCustomAddress": "使用自定义地址",
+    "stakeWarning": "当你质押 FOX 代币时，请注意有一个 %{cooldownPeriod} 锁定期。这意味着如果你决定取消质押你的代币，则需要等待 %{cooldownPeriod} 才能领取你的资金。",
+    "unstakeWarning": "在你领取 FOX 之前，有一个 %{cooldownPeriod} 的冷却期。这段时间过后，你将能够领取未质押的金额。",
+    "tooltips": {
+      "stakeAmount": "这是你将质押的 FOX 数量",
+      "unstakeAmount": "这是你将要赎回的 FOX 数量",
+      "lockupPeriod": "这是你在取消质押后领取 FOX 所需等待的时间",
+      "shareOfPool": "这是你将获得的费用的百分比。",
+      "unstakePendingCooldown": "领取可用 %{cooldownPeriodHuman}",
+      "cooldownComplete": "冷却完成 %{cooldownPeriodHuman}"
+    },
+    "stakeSuccess": "你已成功质押 %{amount} %{symbol}",
+    "stakePending": "质押 %{amount} %{symbol}...",
+    "addressUpdated": "地址已更新",
+    "changeRewardAddressPending": "更改奖励地址...",
+    "changeRewardAddressSuccess": "你已成功更改你的 THORCHain 奖励地址。",
+    "unstakePending": "请求提取 %{amount} %{symbol}",
+    "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
+    "currentRewardAddress": "当前奖励地址",
+    "newRewardAddress": "新的奖励地址",
+    "rewardCycleExplainer": "这将更新下一个奖励周期。",
+    "noPositionTitle": "没有活跃的位置",
+    "noPositionBody": "一旦你拥有活跃位置，您将可以在这里更改你的奖励地址。",
+    "stakeNow": "立即质押",
+    "noAddressFound": "未找到地址",
+    "newAddressInfo": "这将更新下一个奖励周期",
+    "confirmAndUpdateAddress": "确认并更新地址",
+    "unstakeFrom": "从 r%{assetSymbol} 取消质押",
+    "claimPending": "请求撤回",
+    "claimSuccess": "你已成功领取 %{amount} %{symbol}。",
+    "claimReceiveAddress": "领取接收地址",
+    "noClaimsAvailable": "沒有可认领",
+    "noClaimsAvailableDescription": "您没有任何可认领",
+    "unstakeNow": "立即取消质押"
   }
 }

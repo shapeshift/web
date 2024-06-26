@@ -19,7 +19,7 @@ export const useRepaymentLockData = ({
   // Let the parent pass its own query options
   // enabled will be used in conjunction with this hook's own isRepaymentLockQueryEnabled to determine whether or not to run the query
   enabled = true,
-}: UseLendingPositionDataProps & QueryObserverOptions) => {
+}: UseLendingPositionDataProps & Pick<QueryObserverOptions, 'enabled'>) => {
   const { data: blockHeight } = useQuery({
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
     // We use the block query to get the current height, so we obviously need to mark it stale at the end of each THOR block

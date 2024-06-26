@@ -1,33 +1,16 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import { Card, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import type { AssetId } from '@shapeshiftoss/caip'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { AssetSymbol } from 'components/AssetSymbol'
+import { ChangeTag } from 'components/ChangeTag/ChangeTag'
 import { Text } from 'components/Text'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { useAppSelector } from 'state/store'
-
-type ChangeTagProps = {
-  value?: number
-}
-
-const ChangeTag: React.FC<ChangeTagProps> = ({ value }) => {
-  const icon = (value ?? 0) >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />
-  const color = (value ?? 0) >= 0 ? 'green.500' : 'red.500'
-  return (
-    <Skeleton isLoaded={value !== undefined}>
-      <Flex color={color} fontSize='sm' alignItems='center'>
-        {icon}
-        <Amount.Percent value={value ?? '0'} fontWeight='medium' color={color} />
-      </Flex>
-    </Skeleton>
-  )
-}
 
 type PoolInfoProps = {
   assetIds: AssetId[]
@@ -72,15 +55,15 @@ export const PoolInfo = ({
   )
 
   const volumeChangeTag: JSX.Element = useMemo(() => {
-    return <ChangeTag value={volume24hChange} />
+    return <ChangeTag size='md' percentChangeDecimal={volume24hChange} />
   }, [volume24hChange])
 
   const feeChangeTag: JSX.Element = useMemo(() => {
-    return <ChangeTag value={fee24hChange} />
+    return <ChangeTag size='md' percentChangeDecimal={fee24hChange} />
   }, [fee24hChange])
 
   const tvlChangeTag: JSX.Element | null = useMemo(() => {
-    return <ChangeTag value={tvl24hChange} />
+    return <ChangeTag size='md' percentChangeDecimal={tvl24hChange} />
   }, [tvl24hChange])
 
   if (!(asset0 && asset1 && asset0MarketData && asset1MarketData)) {

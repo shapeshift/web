@@ -6,8 +6,10 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   BTC,
   ETH,
+  ETH_ARBITRUM,
   FOX_GNOSIS,
   FOX_MAINNET,
+  USDC_ARBITRUM,
   WBTC,
   WETH,
   XDAI,
@@ -53,6 +55,8 @@ vi.mock('state/slices/assetsSlice/selectors', async () => {
     WBTC,
     WETH,
     XDAI,
+    ETH_ARBITRUM,
+    USDC_ARBITRUM,
   } = require('lib/swapper/swappers/utils/test-data/assets')
 
   const actual = await vi.importActual('state/slices/assetsSlice/selectors')
@@ -66,11 +70,13 @@ vi.mock('state/slices/assetsSlice/selectors', async () => {
       [WBTC.assetId]: WBTC,
       [WETH.assetId]: WETH,
       [XDAI.assetId]: XDAI,
+      [ETH_ARBITRUM.assetId]: ETH_ARBITRUM,
+      [USDC_ARBITRUM.assetId]: USDC_ARBITRUM,
     })),
   }
 })
 
-const ASSETS = [ETH, WBTC, WETH, BTC, FOX_MAINNET, XDAI]
+const ASSETS = [ETH, WBTC, WETH, BTC, FOX_MAINNET, XDAI, ETH_ARBITRUM, USDC_ARBITRUM]
 
 describe('CowSwapper', () => {
   describe('filterAssetIdsBySellable', () => {
@@ -83,15 +89,17 @@ describe('CowSwapper', () => {
         WBTC.assetId,
         WETH.assetId,
         FOX_MAINNET.assetId,
+        USDC_ARBITRUM.assetId,
       ])
     })
 
     it('returns array filtered out of unsupported tokens', async () => {
-      const assetIds = [FOX_MAINNET, FOX_GNOSIS, BTC]
+      const assetIds = [FOX_MAINNET, FOX_GNOSIS, USDC_ARBITRUM, BTC]
 
       expect(await cowSwapper.filterAssetIdsBySellable(assetIds)).toEqual([
         FOX_MAINNET.assetId,
         FOX_GNOSIS.assetId,
+        USDC_ARBITRUM.assetId,
       ])
     })
   })

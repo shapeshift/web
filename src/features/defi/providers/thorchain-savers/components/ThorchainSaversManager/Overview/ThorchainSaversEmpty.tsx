@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Link, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Alert, Button, Flex, Link, Stack, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
@@ -15,6 +15,7 @@ import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import {
   selectAssetById,
   selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectWalletConnectedChainIdsSorted,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -35,6 +36,12 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   const textShadow = useColorModeValue(
     '--chakra-colors-blackAlpha-50',
     '--chakra-colors-blackAlpha-400',
+  )
+
+  const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
+  const hasAccounts = useMemo(
+    () => (asset && walletConnectedChainIdsSorted.includes(asset.chainId)) ?? false,
+    [walletConnectedChainIdsSorted, asset],
   )
 
   const handleAssetBuyClick = useCallback(() => {
@@ -64,9 +71,17 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
             {translate('common.buyNow')}
           </Button>
         </Alert>
-        <Button size='lg' width='full' colorScheme='blue' onClick={onClick}>
-          <Text translation='common.continue' />
-        </Button>
+        <Tooltip label={translate('defi.noAccountsOpportunities')} isDisabled={hasAccounts}>
+          <Button
+            size='lg'
+            width='full'
+            colorScheme='blue'
+            isDisabled={!hasAccounts}
+            onClick={onClick}
+          >
+            <Text translation='common.continue' />
+          </Button>
+        </Tooltip>
       </Flex>
     )
   }, [
@@ -77,6 +92,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     needAssetTranslation,
     onClick,
     translate,
+    hasAccounts,
   ])
 
   const emptyOverviewAssets = useMemo(() => (asset ? [asset] : []), [asset])
@@ -85,6 +101,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
 
   return (
     <DefiModalContent
+      borderRadius='2xl'
       backgroundImage={SaversVaultTop}
       backgroundSize='cover'
       backgroundPosition='center -160px'

@@ -1,15 +1,10 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import type { Address } from 'viem'
-import { getAddress } from 'viem'
-import { arbitrum } from 'viem/chains'
-import { useReadContract } from 'wagmi'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
 import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths } from './types'
@@ -61,17 +56,10 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
   const [changeAddressTxid, setChangeAddressTxid] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxChangeAddressQuote | undefined>()
 
-  const { queryKey: stakingInfoQueryKey } = useReadContract({
-    abi: foxStakingV1Abi,
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'stakingInfo',
-    args: [
-      // actually defined by the time we actually consume the queryKey
-      confirmedQuote
-        ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
-        : ('' as Address),
-    ],
-    chainId: arbitrum.id,
+  const { queryKey: stakingInfoQueryKey } = useStakingInfoQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+      : undefined,
   })
 
   const handleTxConfirmed = useCallback(async () => {

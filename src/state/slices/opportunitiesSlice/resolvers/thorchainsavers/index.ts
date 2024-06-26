@@ -201,6 +201,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       // No position on that pool - either it was never staked in, or fully withdrawn
       if (!accountPosition) {
         stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+          isLoaded: true,
           userStakingId,
           stakedAmountCryptoBaseUnit: '0',
           rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
@@ -223,6 +224,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       ]
 
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+        isLoaded: true,
         userStakingId,
         stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
         rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },

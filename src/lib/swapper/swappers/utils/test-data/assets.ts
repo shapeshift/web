@@ -133,6 +133,36 @@ export const USDC_GNOSIS: Asset = {
   explorerTxLink: 'https://gnosis.blockscout.com/tx/',
 }
 
+export const ETH_ARBITRUM: Asset = {
+  assetId: 'eip155:42161/slip44:60',
+  chainId: 'eip155:42161',
+  name: 'Ethereum on Arbitrum One',
+  networkName: 'Arbitrum One',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#213147',
+  icon: 'https://assets.coincap.io/assets/icons/256/eth.png',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg?1680097630',
+  explorer: 'https://arbiscan.io',
+  explorerAddressLink: 'https://arbiscan.io/address/',
+  explorerTxLink: 'https://arbiscan.io/tx/',
+}
+
+export const USDC_ARBITRUM: Asset = {
+  assetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831',
+  chainId: 'eip155:42161',
+  name: 'USDC on Arbitrum One',
+  precision: 6,
+  color: '#2E7ACD',
+  icon: 'https://assets.coingecko.com/coins/images/6319/thumb/usdc.png?1696506694',
+  symbol: 'USDC',
+  explorer: 'https://arbiscan.io',
+  explorerAddressLink: 'https://arbiscan.io/address/',
+  explorerTxLink: 'https://arbiscan.io/tx/',
+}
+
 export const AVAX: Asset = {
   assetId: avalancheAssetId,
   chainId: avalancheChainId,

@@ -199,7 +199,7 @@ export const Details = () => {
     [asset?.symbol, translate],
   )
 
-  if (!(asset && !isNil(amountCryptoPrecision) && !isNil(fiatAmount) && fiatSymbol)) {
+  if (!(assetId && asset && !isNil(amountCryptoPrecision) && !isNil(fiatAmount) && fiatSymbol)) {
     return null
   }
 
@@ -254,6 +254,8 @@ export const Details = () => {
           </Box>
           {fieldName === SendFormFields.AmountCryptoPrecision && (
             <TokenRow
+              isFiat={false}
+              assetId={assetId}
               control={control}
               fieldName={SendFormFields.AmountCryptoPrecision}
               onInputChange={handleInputChange}
@@ -265,6 +267,8 @@ export const Details = () => {
           )}
           {fieldName === SendFormFields.FiatAmount && (
             <TokenRow
+              isFiat
+              assetId={assetId}
               control={control}
               fieldName={SendFormFields.FiatAmount}
               onInputChange={handleInputChange}

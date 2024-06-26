@@ -24,6 +24,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
@@ -32,6 +33,7 @@ import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { FeeModal } from 'components/FeeModal/FeeModal'
@@ -41,7 +43,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { WarningAcknowledgement } from 'components/WarningAcknowledgement/WarningAcknowledgement'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -165,7 +166,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const [poolAsset, setPoolAsset] = useState<Asset | undefined>()
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
-  const [isSweepNeeded, setIsSweepNeeded] = useState<boolean | undefined>()
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [activeOpportunityId, setActiveOpportunityId] = useState<string | undefined>()
   const previousOpportunityId = usePrevious(activeOpportunityId)
@@ -242,14 +242,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const getDefaultOpportunityType = useCallback(
     (assetId: AssetId) => {
       const walletSupportsRune = walletSupportsChain({
-        chainAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
+        checkConnectedAccountIds: accountIdsByChainId[thorchainChainId] ?? [],
         chainId: thorchainChainId,
         wallet,
         isSnapInstalled,
       })
 
       const walletSupportsAsset = walletSupportsChain({
-        chainAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
+        checkConnectedAccountIds: accountIdsByChainId[fromAssetId(assetId).chainId] ?? [],
         chainId: fromAssetId(assetId).chainId,
         wallet,
         isSnapInstalled,
@@ -289,7 +289,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     const walletSupportedOpportunity = pools.find(pool => {
       const { chainId } = fromAssetId(pool.assetId)
       const chainAccountIds = accountIdsByChainId[chainId] ?? []
-      return walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+      return walletSupportsChain({
+        checkConnectedAccountIds: chainAccountIds,
+        chainId,
+        wallet,
+        isSnapInstalled,
+      })
     })
 
     const opportunityType = getDefaultOpportunityType(
@@ -399,7 +404,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const walletSupportsRune = useMemo(() => {
     const chainId = thorchainChainId
     const chainAccountIds = accountIdsByChainId[chainId] ?? []
-    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
     return walletSupport && runeAccountIds.length > 0
   }, [accountIdsByChainId, isSnapInstalled, runeAccountIds.length, wallet])
 
@@ -407,7 +417,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!assetId) return false
     const chainId = fromAssetId(assetId).chainId
     const chainAccountIds = accountIdsByChainId[chainId] ?? []
-    const walletSupport = walletSupportsChain({ chainAccountIds, chainId, wallet, isSnapInstalled })
+    const walletSupport = walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
     return walletSupport && poolAssetAccountIds.length > 0
   }, [assetId, accountIdsByChainId, wallet, isSnapInstalled, poolAssetAccountIds.length])
 
@@ -536,7 +551,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId: poolAsset?.assetId,
-    enabled: Boolean(poolAsset?.assetId),
     swapperName: SwapperName.Thorchain,
   })
 
@@ -556,8 +570,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId: poolAsset?.assetId,
       spender: poolAssetInboundAddress,
       from: poolAssetAccountAddress,
-      amount: toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset?.precision ?? 0),
-      wallet,
+      amountCryptoBaseUnit: toBaseUnit(
+        actualAssetDepositAmountCryptoPrecision,
+        poolAsset?.precision ?? 0,
+        BigNumber.ROUND_UP,
+      ),
+      wallet: wallet ?? undefined,
       accountNumber: poolAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {
@@ -692,26 +710,19 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return Boolean(
       poolAsset &&
         bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
-        hasEnoughPoolAssetBalanceForTxPlusFees &&
-        poolAssetTxFeeCryptoBaseUnit,
+        hasEnoughPoolAssetBalanceForTxPlusFees,
     )
-  }, [
-    poolAsset,
-    actualAssetDepositAmountCryptoPrecision,
-    hasEnoughPoolAssetBalanceForTxPlusFees,
-    poolAssetTxFeeCryptoBaseUnit,
-  ])
+  }, [poolAsset, actualAssetDepositAmountCryptoPrecision, hasEnoughPoolAssetBalanceForTxPlusFees])
 
   const isSweepNeededArgs = useMemo(
     () => ({
       assetId: poolAsset?.assetId,
-      address: poolAssetAccountAddress ?? null,
+      address: poolAssetAccountAddress,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision ?? 0,
         poolAsset?.precision ?? 0,
       ),
-      // Effectively defined at runtime because of the enabled check below
-      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit!,
+      txFeeCryptoBaseUnit: poolAssetTxFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)
       enabled: isSweepNeededEnabled,
@@ -726,15 +737,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const {
-    data: _isSweepNeeded,
+    data: isSweepNeeded,
     isLoading: isSweepNeededLoading,
     isError: isSweepNeededError,
   } = useIsSweepNeededQuery(isSweepNeededArgs)
-
-  useEffect(() => {
-    if (_isSweepNeeded === undefined) return
-    setIsSweepNeeded(_isSweepNeeded)
-  }, [_isSweepNeeded])
 
   // Rune balance / gas data and checks
 
@@ -1442,8 +1448,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           slippagePercentage: bnOrZero(slippageDecimalPercentage).times(100).toFixed(2).toString(),
         })}
         onAcknowledge={handleSubmit}
-        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       >
         {renderHeader}
         <Stack divider={divider} spacing={4} pb={4}>
@@ -1546,7 +1552,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               !hasEnoughAssetBalance ||
               !hasEnoughRuneBalance ||
               isApprovalTxPending ||
-              (isSweepNeededEnabled && isSweepNeeded === undefined) ||
+              (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
               isSweepNeededError ||
               isEstimatedPoolAssetFeesDataError ||
               isEstimatedRuneFeesDataError ||
@@ -1564,7 +1570,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isSmartContractAccountAddressLoading ||
               isAllowanceDataLoading ||
               isApprovalTxPending ||
-              (isSweepNeeded === undefined && isSweepNeededLoading) ||
+              (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
               (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
             }
             onClick={handleDepositSubmit}

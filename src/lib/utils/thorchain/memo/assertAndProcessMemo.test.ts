@@ -40,6 +40,31 @@ describe('assertAndProcessMemo', () => {
       expect(assertAndProcessMemo(memo)).toBe(expected)
     })
 
+    it('processes with affiliate name and no fee bps and swapOut parameters', () => {
+      let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss::ae:kd:12345602'
+      let expected =
+        '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0:ae:kd:12345602'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+
+      memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:'
+      expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('processes with swapOut parameters and no affiliate name', () => {
+      const memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345::50:ae:kd:12345602'
+      const expected =
+        '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:50:ae:kd:12345602'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
+    it('processes with no affiliate name and no fee bps and swapOut parameters', () => {
+      let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:::ae:kd:12345602'
+      let expected =
+        '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0:ae:kd:12345602'
+      expect(assertAndProcessMemo(memo)).toBe(expected)
+    })
+
     it('processes with no affiliate name and no fee bps', () => {
       let memo = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345'
       let expected = '=:ETH.ETH:0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6:9786345:ss:0'

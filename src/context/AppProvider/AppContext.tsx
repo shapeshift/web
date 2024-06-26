@@ -1,4 +1,4 @@
-import { useToast } from '@chakra-ui/react'
+import { usePrevious, useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -17,7 +17,7 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { walletDeviceSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
@@ -65,6 +65,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()
   const isSnapInstalled = Boolean(useIsSnapInstalled())
+  const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   useNfts()
 
   // track anonymous portfolio
@@ -92,18 +93,35 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!wallet) return
     const walletSupportedChainIds = supportedChains.filter(chainId => {
-      return walletDeviceSupportsChain({ chainId, wallet, isSnapInstalled })
+      return walletSupportsChain({
+        chainId,
+        wallet,
+        isSnapInstalled,
+        checkConnectedAccountIds: false, // don't check connected account ids, we're detecting initial runtime support for chains
+      })
     })
     dispatch(portfolio.actions.setWalletSupportedChainIds(walletSupportedChainIds))
   }, [accountIdsByChainId, dispatch, isSnapInstalled, wallet, supportedChains])
 
   // Initial account and portfolio fetch for non-ledger wallets
   useEffect(() => {
+    const hasManagedAccounts = (() => {
+      // MM without snap doesn't allow account management - if the user just installed the snap, we know they don't have managed accounts
+      if (!previousIsSnapInstalled && isSnapInstalled) return false
+      // We know snap wasn't just installed in this render - so if there are any requestedAccountIds, we assume the user has managed accounts
+      return requestedAccountIds.length > 0
+    })()
+
     // Skip if wallet is ledger, or if wallet is already connected to accounts - prevents this overriding user selection in account management
-    if (!wallet || isLedger(wallet) || requestedAccountIds.length > 0) return
+    if (!wallet || isLedger(wallet) || hasManagedAccounts) return
     ;(async () => {
-      let chainIds = Array.from(supportedChains).filter(chainId => {
-        return walletDeviceSupportsChain({ chainId, wallet, isSnapInstalled })
+      let chainIds = supportedChains.filter(chainId => {
+        return walletSupportsChain({
+          chainId,
+          wallet,
+          isSnapInstalled,
+          checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+        })
       })
 
       const accountMetadataByAccountId: AccountMetadataById = {}
@@ -184,7 +202,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch(portfolio.actions.enableAccountId(accountId))
       }
     })()
-  }, [dispatch, wallet, supportedChains, isSnapInstalled, requestedAccountIds.length])
+  }, [
+    dispatch,
+    wallet,
+    supportedChains,
+    isSnapInstalled,
+    requestedAccountIds.length,
+    previousIsSnapInstalled,
+    requestedAccountIds,
+  ])
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return

@@ -41,7 +41,8 @@ import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedF
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import {
-  queryFn as isSweepNeededQueryFn,
+  getIsSweepNeeded,
+  isGetSweepNeededInput,
   useIsSweepNeededQuery,
 } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import {
@@ -56,7 +57,7 @@ import {
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
-  selectHighestBalanceAccountIdByStakingId,
+  selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
@@ -68,7 +69,7 @@ import { DepositContext } from '../DepositContext'
 type DepositProps = StepComponentProps & {
   accountId?: AccountId | undefined
   onAccountIdChange: AccountDropdownProps['onChange']
-  fromAddress: string | null
+  fromAddress: string | undefined
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
@@ -125,7 +126,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [opportunityId],
   )
   const highestBalanceAccountId = useAppSelector(state =>
-    selectHighestBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
+    selectHighestStakingBalanceAccountIdByStakingId(state, highestBalanceAccountIdFilter),
   )
   const opportunityDataFilter = useMemo(
     () => ({
@@ -183,7 +184,7 @@ export const Deposit: React.FC<DepositProps> = ({
     accountId: accountId ?? null,
     amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
     memo: thorchainSaversDepositQuote?.memo ?? null,
-    fromAddress,
+    fromAddress: fromAddress ?? null,
     action: 'depositSavers',
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
@@ -255,7 +256,7 @@ export const Deposit: React.FC<DepositProps> = ({
       assetId,
       address: fromAddress,
       amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount ?? 0, feeAsset?.precision ?? 0),
-      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+      txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
         bnOrZero(inputValues?.cryptoAmount).gt(0) &&
@@ -660,12 +661,13 @@ export const Deposit: React.FC<DepositProps> = ({
       }
 
       const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
-      const _isSweepNeeded = isSweepNeededQueryEnabled
-        ? await queryClient.fetchQuery({
-            queryKey: isSweepNeededQueryKey,
-            queryFn: isSweepNeededQueryFn,
-          })
-        : undefined
+      const _isSweepNeeded =
+        isSweepNeededQueryEnabled && isGetSweepNeededInput(isSweepNeededQueryArgs)
+          ? await queryClient.fetchQuery({
+              queryKey: isSweepNeededQueryKey,
+              queryFn: () => getIsSweepNeeded(isSweepNeededQueryArgs),
+            })
+          : undefined
 
       const isEstimateSweepFeesQueryEnabled = Boolean(
         _isSweepNeeded && accountId && isUtxoChainId(asset.chainId),

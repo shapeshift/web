@@ -1,4 +1,5 @@
-import { bchChainId, CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import type { GetTradeQuoteInput, MultiHopTradeQuoteSteps } from '@shapeshiftoss/swapper'
 import {
   makeSwapErrorRight,
@@ -10,7 +11,6 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
-import type { Address } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { isFulfilled, isRejected, isResolvedErr } from 'lib/utils'
 import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
@@ -18,7 +18,7 @@ import { convertDecimalPercentageToBasisPoints } from 'state/slices/tradeQuoteSl
 
 import { ALLOWANCE_CONTRACT } from '../constants'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
-import { addAggregatorAndDestinationToMemo } from './addAggregatorAndDestinationToMemo'
+import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1quote } from './getL1quote'
 import type { AggregatorContract } from './longTailHelpers'
@@ -37,7 +37,18 @@ export const getL1ToLongtailQuote = async (
     slippageTolerancePercentageDecimal,
   } = input
 
-  const { chainNamespace } = fromAssetId(sellAsset.assetId)
+  const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
+  const longtailTokens: AssetId[] = longtailTokensJson.default
+
+  if (!longtailTokens.includes(buyAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Unsupported buyAssetId ${buyAsset.assetId}.`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
 
   /*
     We only support L1 -> ethereum longtail swaps for now.
@@ -53,30 +64,21 @@ export const getL1ToLongtailQuote = async (
   }
 
   const chainAdapterManager = getChainAdapterManager()
-  const sellChainId = sellAsset.chainId
-  const buyChainId = buyAsset.chainId
+  const sellAssetChainId = sellAsset.chainId
+  const buyAssetChainId = buyAsset.chainId
 
-  if (sellChainId !== bchChainId && chainNamespace === CHAIN_NAMESPACE.Utxo) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[getThorTradeQuote] - DOGE, BTC and LTC to ERC20 is not supported.`,
-        code: TradeQuoteError.InternalError,
-      }),
-    )
-  }
-
-  const sellAssetFeeAssetId = chainAdapterManager.get(sellChainId)?.getFeeAssetId()
+  const sellAssetFeeAssetId = chainAdapterManager.get(sellAssetChainId)?.getFeeAssetId()
   const sellAssetFeeAsset = sellAssetFeeAssetId ? assetsById[sellAssetFeeAssetId] : undefined
 
-  const buyAssetFeeAssetId = chainAdapterManager.get(buyChainId)?.getFeeAssetId()
+  const buyAssetFeeAssetId = chainAdapterManager.get(buyAssetChainId)?.getFeeAssetId()
   const buyAssetFeeAsset = buyAssetFeeAssetId ? assetsById[buyAssetFeeAssetId] : undefined
 
   if (!buyAssetFeeAsset) {
     return Err(
       makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No native buy asset found for ${buyChainId}.`,
+        message: `[getThorTradeQuote] - No native buy asset found for ${buyAssetChainId}.`,
         code: TradeQuoteError.InternalError,
-        details: { buyAssetChainId: buyChainId },
+        details: { buyAssetChainId },
       }),
     )
   }
@@ -84,9 +86,9 @@ export const getL1ToLongtailQuote = async (
   if (!sellAssetFeeAsset) {
     return Err(
       makeSwapErrorRight({
-        message: `[getThorTradeQuote] - No native buy asset found for ${sellChainId}.`,
+        message: `[getThorTradeQuote] - No native buy asset found for ${sellAssetChainId}.`,
         code: TradeQuoteError.InternalError,
-        details: { sellAssetChainId: sellChainId },
+        details: { sellAssetChainId },
       }),
     )
   }
@@ -130,18 +132,17 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      const updatedMemo = addAggregatorAndDestinationToMemo({
-        sellChainId,
+      const updatedMemo = addL1ToLongtailPartsToMemo({
+        sellAssetChainId,
         aggregator: bestAggregator,
-        finalAssetAddress: fromAssetId(buyAsset.assetId).assetReference as Address,
-        minAmountOut: quotedAmountOut.toString(),
+        finalAssetAssetId: buyAsset.assetId,
+        finalAssetAmountOut: quotedAmountOut.toString(),
         slippageBps: convertDecimalPercentageToBasisPoints(
           slippageTolerancePercentageDecimal ??
             getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
         ).toString(),
         quotedMemo: quote.memo,
-        finalAssetPrecision: buyAsset.precision,
-        chainNamespace,
+        longtailTokens,
       })
 
       return Ok({

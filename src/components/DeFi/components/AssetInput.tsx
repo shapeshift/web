@@ -18,6 +18,9 @@ import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
 import { Balance } from './Balance'
@@ -48,7 +51,7 @@ const CryptoInput = (props: InputProps) => {
 
 export type AssetInputProps = {
   accountId?: AccountId | undefined
-  assetId?: AssetId
+  assetId: AssetId
   assetSymbol: string
   assetIcon: string
   onChange?: (value: string, isFiat?: boolean) => void
@@ -70,6 +73,7 @@ export type AssetInputProps = {
   showFiatSkeleton?: boolean
   formControlProps?: FormControlProps
   accountSelectionDisabled?: boolean
+  revalidateOnValueChange?: boolean
 } & PropsWithChildren
 
 export const AssetInput: React.FC<AssetInputProps> = ({
@@ -96,6 +100,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   showFiatSkeleton,
   formControlProps,
   accountSelectionDisabled,
+  revalidateOnValueChange = true,
 }) => {
   const {
     number: { localeParts },
@@ -107,22 +112,25 @@ export const AssetInput: React.FC<AssetInputProps> = ({
   const handleBlur = useCallback(() => setIsFocused(false), [])
   const handleFocus = useCallback(() => setIsFocused(true), [])
 
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
-  const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
-  const formattedCryptoAmount = bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
-    ? cryptoAmount
-    : bnOrZero(cryptoAmount).toFixed(3)
+  const cryptoAmountIntegerCount = useMemo(
+    () => bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true),
+    [cryptoAmount],
+  )
+  const formattedCryptoAmount = useMemo(
+    () =>
+      bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
+        ? cryptoAmount
+        : bnOrZero(cryptoAmount).toFixed(3),
+    [cryptoAmount, cryptoAmountIntegerCount],
+  )
 
   const formControlHover = useMemo(
     () => ({ bg: isReadOnly ? 'background.input.base' : 'background.input.hover' }),
     [isReadOnly],
   )
-
-  const handleValueChange = useCallback((values: NumberFormatValues) => {
-    // This fires anytime value changes including setting it on max click
-    // Store the value in a ref to send when we actually want the onChange to fire
-    amountRef.current = values.value
-  }, [])
 
   const handleChange = useCallback(() => {
     // onChange will send us the formatted value
@@ -130,6 +138,19 @@ export const AssetInput: React.FC<AssetInputProps> = ({
     // Now when the max buttons are clicked the onChange will not fire
     onChange(amountRef.current ?? '', isFiat)
   }, [isFiat, onChange])
+
+  const handleValueChange = useCallback(
+    (values: NumberFormatValues) => {
+      // This fires anytime value changes including setting it on max click
+      // Store the value in a ref to send when we actually want the onChange to fire
+      amountRef.current = values.value
+
+      if (revalidateOnValueChange) {
+        handleChange()
+      }
+    },
+    [handleChange, revalidateOnValueChange],
+  )
 
   return (
     <FormControl
@@ -163,6 +184,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         <Stack spacing={0} flex={1} alignItems='flex-end'>
           <Skeleton isLoaded={!showInputSkeleton} width='full'>
             <NumberFormat
+              decimalScale={isFiat ? undefined : asset?.precision}
               customInput={CryptoInput}
               isNumericString={true}
               disabled={isReadOnly}
@@ -170,6 +192,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
               prefix={isFiat ? localeParts.prefix : ''}
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
+              allowedDecimalSeparators={allowedDecimalSeparators}
               thousandSeparator={localeParts.group}
               value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
               onValueChange={handleValueChange}
@@ -222,7 +245,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
           )}
         </Stack>
       )}
-      {handleAccountIdChange && assetId && (
+      {handleAccountIdChange && (
         <AccountDropdown
           {...(accountId ? { defaultAccountId: accountId } : {})}
           assetId={assetId}

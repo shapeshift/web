@@ -8350,13 +8350,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lukemorales/query-key-factory@npm:^1.3.2":
-  version: 1.3.2
-  resolution: "@lukemorales/query-key-factory@npm:1.3.2"
+"@lukemorales/query-key-factory@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "@lukemorales/query-key-factory@npm:1.3.4"
   peerDependencies:
     "@tanstack/query-core": ">= 4.0.0"
     "@tanstack/react-query": ">= 4.0.0"
-  checksum: b7eec057a8dabe8dae0f0b307279127488437f213b93fb899aceff32385bd9eef0e4ae9a8354d45b7073421b7ca58494261f34d00adfcae432d821b3222291fd
+  checksum: 0375e8f0000d7821b450691a2b110edd18a9d75f98e20a70e1a51b9e725cd3ef24f5aaa2d8abd867e1cec53b476fe61ac00b3a10f31ed3b0226ac94decb51fbb
   languageName: node
   linkType: hard
 
@@ -11138,7 +11138,7 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/common-api": ^9.3.0
     isomorphic-ws: ^4.0.1
-    ws: ^8.3.0
+    ws: ^8.17.1
   languageName: unknown
   linkType: soft
 
@@ -11181,7 +11181,7 @@ __metadata:
     "@keepkey/keepkey-sdk": 0.2.57
     "@keplr-wallet/types": ^0.12.21
     "@lifi/sdk": ^2.5.0
-    "@lukemorales/query-key-factory": ^1.3.2
+    "@lukemorales/query-key-factory": ^1.3.4
     "@metamask/detect-provider": ^1.2.0
     "@peculiar/webcrypto": ^1.3.3
     "@react-spring/web": ^9.5.2
@@ -11208,7 +11208,7 @@ __metadata:
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@sniptt/monads": ^0.5.10
-    "@tanstack/react-query": ^5.0.5
+    "@tanstack/react-query": ^5.40.1
     "@testing-library/react": ^13.3.0
     "@types/bignumber.js": ^5.0.0
     "@types/bip21": ^2.0.0
@@ -11344,7 +11344,7 @@ __metadata:
     react-dom: ^18.2.0
     react-error-boundary: ^3.1.4
     react-helmet-async: ^1.3.0
-    react-hook-form: ^7.33.1
+    react-hook-form: ^7.51.5
     react-icons: ^4.10.1
     react-infinite-scroll-component: ^6.1.0
     react-multi-ref: ^1.0.1
@@ -11928,10 +11928,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.0.5":
-  version: 5.0.5
-  resolution: "@tanstack/query-core@npm:5.0.5"
-  checksum: 8df99b29c136d597b89bd49aba49c26c33f5ffc6d034a7c42e57a85e9be831cbb576822b02472cfdba467f76389dd4e0f8c1d3b2f82f68222f7e3e2ad2b749b9
+"@tanstack/query-core@npm:5.40.0":
+  version: 5.40.0
+  resolution: "@tanstack/query-core@npm:5.40.0"
+  checksum: 3c94bc71dd2f80db1e8fdd6f201d9fed7a008636ad6a6a89d24f54824ceb38bbc8c05b24731b8eb7cd895b9e75e7851962660d0aa5fc0841f3295fe95630d70e
   languageName: node
   linkType: hard
 
@@ -11983,21 +11983,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "@tanstack/react-query@npm:5.0.5"
+"@tanstack/react-query@npm:^5.40.1":
+  version: 5.40.1
+  resolution: "@tanstack/react-query@npm:5.40.1"
   dependencies:
-    "@tanstack/query-core": 5.0.5
+    "@tanstack/query-core": 5.40.0
   peerDependencies:
     react: ^18.0.0
-    react-dom: ^18.0.0
-    react-native: "*"
-  peerDependenciesMeta:
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-  checksum: 8c4db91b2dc72e4a9ff94dad1143b2a157fe3516a1f875366ad2dd2e66cde0c37a6613ac828a998401ea21d745591d0c477e6bf62a0676cd6eb3088cae01ec38
+  checksum: 4d906101c797282969cd6cb89606ed4480efe3025eedea56846697f7df5218257eb147ec17c1565b4e8b6dc09a761b17b85b1a1fadb04f704304354e28899168
   languageName: node
   linkType: hard
 
@@ -32419,12 +32412,12 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-hook-form@npm:^7.33.1":
-  version: 7.33.1
-  resolution: "react-hook-form@npm:7.33.1"
+"react-hook-form@npm:^7.51.5":
+  version: 7.51.5
+  resolution: "react-hook-form@npm:7.51.5"
   peerDependencies:
     react: ^16.8.0 || ^17 || ^18
-  checksum: ec8f938b5af32148956edc9a87b6a0a99cc305617925608961cf4352ad1a786daea9fdc4d15106aea2821937d27367a69ab525882f07c0bb7ea45fba5dbf8ff2
+  checksum: 6b6a56b6520ddb68d491e2f07791538aa611c13fcd76052a499ba10bdaf7f77f4a5f7191e6ca9d9ab0af739bf07171c6e8d97f6c4da06f576aa74caed71828f1
   languageName: node
   linkType: hard
 
@@ -39317,6 +39310,21 @@ pvutils@latest:
     utf-8-validate:
       optional: true
   checksum: c3c100a181b731f40b7f2fddf004aa023f79d64f489706a28bc23ff88e87f6a64b3c6651fbec3a84a53960b75159574d7a7385709847a62ddb7ad6af76f49138
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.17.1":
+  version: 8.17.1
+  resolution: "ws@npm:8.17.1"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 442badcce1f1178ec87a0b5372ae2e9771e07c4929a3180321901f226127f252441e8689d765aa5cfba5f50ac60dd830954afc5aeae81609aefa11d3ddf5cecf
   languageName: node
   linkType: hard
 

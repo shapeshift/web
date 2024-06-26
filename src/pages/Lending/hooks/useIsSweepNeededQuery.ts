@@ -1,42 +1,39 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import type { PartialFields } from 'lib/types'
 import { isUtxoChainId } from 'lib/utils/utxo'
 
-type UseIsSweepNeededQueryProps = {
-  assetId: AssetId | undefined
-  address: string | null
+type GetIsSwepNeededInput = {
+  assetId: AssetId
+  address: string
   amountCryptoBaseUnit: string
   txFeeCryptoBaseUnit: string
-  enabled: boolean
 }
 
-export type IsSweepNeededQueryKey = [
-  'isSweepNeeded',
-  {
-    assetId: AssetId | undefined
-    address: string | null
-    amountCryptoBaseUnit: string
-    txFeeCryptoBaseUnit: string
-  },
-]
+type UseIsSweepNeededQueryProps = PartialFields<
+  GetIsSwepNeededInput,
+  'assetId' | 'address' | 'txFeeCryptoBaseUnit'
+> & {
+  enabled?: boolean
+}
 
-const getIsSweepNeeded = async ({
+export const isGetSweepNeededInput = (
+  input: UseIsSweepNeededQueryProps,
+): input is GetIsSwepNeededInput =>
+  Boolean(input.assetId && input.address && input.txFeeCryptoBaseUnit)
+
+export type IsSweepNeededQueryKey = ['isSweepNeeded', UseIsSweepNeededQueryProps]
+
+export const getIsSweepNeeded = async ({
   assetId,
   address,
   amountCryptoBaseUnit,
   txFeeCryptoBaseUnit,
-}: {
-  assetId: AssetId
-  address: string | undefined
-  amountCryptoBaseUnit: string
-  txFeeCryptoBaseUnit: string
-}) => {
-  // This should not be undefined when used with react-query, but may be when used outside of it since there's no "enabled" option
-  if (!address) return
+}: GetIsSwepNeededInput) => {
   const adapter = getChainAdapterManager().get(fromAssetId(assetId).chainId)
   if (!adapter) return
   const { chainId } = fromAssetId(assetId)
@@ -51,37 +48,15 @@ const getIsSweepNeeded = async ({
   return !hasEnoughBalance
 }
 
-export const queryFn = async ({ queryKey }: { queryKey: IsSweepNeededQueryKey }) => {
-  const { assetId, address, amountCryptoBaseUnit, txFeeCryptoBaseUnit } = queryKey[1]
-
-  if (!assetId) throw new Error('assetId is required')
-  if (!address) throw new Error('address is required')
-
-  const isSweepNeeded = await getIsSweepNeeded({
-    assetId,
-    address,
-    amountCryptoBaseUnit,
-    txFeeCryptoBaseUnit,
-  })
-  return isSweepNeeded
-}
-
-export const useIsSweepNeededQuery = ({
-  assetId,
-  address,
-  amountCryptoBaseUnit,
-  txFeeCryptoBaseUnit,
-  enabled,
-}: UseIsSweepNeededQueryProps) => {
+export const useIsSweepNeededQuery = ({ enabled = true, ...input }: UseIsSweepNeededQueryProps) => {
   const isSweepNeededQueryKey: IsSweepNeededQueryKey = useMemo(
-    () => ['isSweepNeeded', { assetId, address, amountCryptoBaseUnit, txFeeCryptoBaseUnit }],
-    [assetId, address, amountCryptoBaseUnit, txFeeCryptoBaseUnit],
+    () => ['isSweepNeeded', input],
+    [input],
   )
 
   const isSweepNeededQuery = useQuery({
     queryKey: isSweepNeededQueryKey,
-    queryFn,
-    enabled: Boolean(enabled && address && assetId),
+    queryFn: enabled && isGetSweepNeededInput(input) ? () => getIsSweepNeeded(input) : skipToken,
   })
 
   return isSweepNeededQuery

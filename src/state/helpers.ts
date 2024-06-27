@@ -1,6 +1,7 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
 
 import { assertUnreachable } from '../lib/utils'
+import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
@@ -16,5 +17,27 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
       return false
     default:
       assertUnreachable(swapperName)
+  }
+}
+
+export const getEnabledSwappers = (
+  { LifiSwap, ThorSwap, ZrxSwap, OneInch, ArbitrumBridge, Cowswap }: FeatureFlags,
+  isCrossAccountTrade: boolean,
+): Record<SwapperName, boolean> => {
+  return {
+    [SwapperName.LIFI]:
+      LifiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.LIFI)),
+    [SwapperName.Thorchain]:
+      ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
+    [SwapperName.Zrx]:
+      ZrxSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Zrx)),
+    [SwapperName.OneInch]:
+      OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
+    [SwapperName.CowSwap]:
+      Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
+    [SwapperName.ArbitrumBridge]:
+      ArbitrumBridge &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ArbitrumBridge)),
+    [SwapperName.Test]: false,
   }
 }

@@ -12,6 +12,8 @@ import type {
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 
+import type { makeSwapperAxiosServiceMonadic } from './utils'
+
 export enum SwapperName {
   Thorchain = 'THORChain',
   CowSwap = 'CoW Swap',
@@ -388,3 +390,5 @@ export type SupportedChainIds = {
   buy: ChainId[]
   sell: ChainId[]
 }
+
+export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>

@@ -1,9 +1,8 @@
-import { SwapperName } from '@shapeshiftoss/swapper'
+import type { MonadicSwapperAxiosService } from '@shapeshiftoss/swapper'
+import { createCache, makeSwapperAxiosServiceMonadic, SwapperName } from '@shapeshiftoss/swapper'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import identity from 'lodash/identity'
 import type { RetryConfig } from 'retry-axios'
-import type { MonadicSwapperAxiosService } from 'lib/swapper/utils'
-import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 5 * 1000 // 5 seconds
 const cachedUrls = ['/swap/v1/price']

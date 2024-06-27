@@ -7,7 +7,6 @@ import {
   arbitrumNovaChainId,
   baseChainId,
   bscChainId,
-  fromAssetId,
   gnosisChainId,
   optimismChainId,
   polygonChainId,
@@ -15,7 +14,6 @@ import {
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import { AssetService } from 'lib/asset-service'
-import { chainIdToFeeAssetId, sha256 } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -57,47 +55,7 @@ export const defaultAsset: Asset = {
   explorerAddressLink: '',
 }
 
-export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
 export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
-
-/**
- * utility to create an asset from minimal asset data from external sources at runtime
- * e.g. zapper/zerion/etherscan
- * required fields are assetId, symbol, name, precision
- * the rest can be inferred from existing data
- */
-export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
-  const { assetId } = minimalAsset
-
-  const color = (() => {
-    if (minimalAsset.color) return minimalAsset.color
-    const shaAssetId = sha256(assetId)
-    return `#${shaAssetId.slice(0, 6)}`
-  })()
-
-  const chainId = (() => {
-    if (minimalAsset.chainId) return minimalAsset.chainId
-    return fromAssetId(assetId).chainId
-  })()
-
-  // currently, dynamic assets are LP pairs, and they have two icon urls and are rendered differently
-  const icon = minimalAsset?.icon ?? ''
-
-  type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
-
-  const explorerLinks = ((): ExplorerLinks => {
-    const feeAssetId = chainIdToFeeAssetId(chainId)
-    if (!feeAssetId) throw new Error('makeAsset: feeAssetId not found')
-    const feeAsset = getAssetService().assetsById[feeAssetId]
-    return {
-      explorer: feeAsset.explorer,
-      explorerTxLink: feeAsset.explorerTxLink,
-      explorerAddressLink: feeAsset.explorerAddressLink,
-    }
-  })()
-
-  return Object.assign({}, minimalAsset, explorerLinks, { chainId, color, icon })
-}
 
 export const assets = createSlice({
   name: 'asset',

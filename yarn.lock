@@ -11218,6 +11218,7 @@ __metadata:
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -11264,6 +11265,17 @@ __metadata:
   checksum: 0cd585a7131a859af175e454f249c8bde50889987733aca9bc0635453b11ca5f9cbe2580bdb2cf630ae88a4c305bc0cf5898f43e7a6c3be0b28784a68896dcf6
   languageName: node
   linkType: hard
+
+"@shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/utils@workspace:packages/utils"
+  dependencies:
+    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
+    crypto-browserify: ^3.12.0
+  languageName: unknown
+  linkType: soft
 
 "@shapeshiftoss/web@workspace:.":
   version: 0.0.0-use.local

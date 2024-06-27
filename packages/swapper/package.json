@@ -17,6 +17,7 @@
     "dev": "yarn run -T tsc --build --watch"
   },
   "dependencies": {
-    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/utils": "workspace:^"
   }
 }

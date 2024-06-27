@@ -10,7 +10,6 @@ import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconn
 import type { NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
@@ -210,36 +209,6 @@ export const isUrl = (x: string) => {
 
 export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
   maybeSkipToken === skipToken
-
-export const timeout = <SuccessType, FallbackType>(
-  promise: Promise<SuccessType>,
-  timeoutMs: number,
-  fallbackValue: FallbackType,
-): Promise<SuccessType | FallbackType> => {
-  return Promise.race([
-    promise,
-    new Promise<FallbackType>(resolve =>
-      setTimeout(() => {
-        resolve(fallbackValue)
-      }, timeoutMs),
-    ),
-  ])
-}
-
-export const timeoutMonadic = <Left, Right>(
-  promise: Promise<Result<Left, Right>>,
-  timeoutMs: number,
-  timeoutRight: Right,
-): Promise<Result<Left, Right>> => {
-  return Promise.race([
-    promise,
-    new Promise<Result<Left, Right>>(resolve =>
-      setTimeout(() => {
-        resolve(Err(timeoutRight) as Result<Left, Right>)
-      }, timeoutMs),
-    ),
-  ])
-}
 
 export const getSupportedChainIdsByChainNamespace = () => {
   return Array.from(getChainAdapterManager().keys()).reduce<

@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { SupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { SupportedChainIds } from 'lib/swapper/types'
 
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 

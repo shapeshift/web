@@ -383,3 +383,8 @@ export type TradeExecutionEventMap = {
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
   [TradeExecutionEvent.Error]: (args: unknown) => void
 }
+
+export type SupportedChainIds = {
+  buy: ChainId[]
+  sell: ChainId[]
+}

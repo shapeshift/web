@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { SupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { zeroAddress } from 'viem'
-import type { SupportedChainIds } from 'lib/swapper/types'
 
 export const DEFAULT_ADDRESS = zeroAddress
 

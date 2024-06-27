@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "取引履歴の質が低下しました",
     "degradedInfo": "アカウントのデータを取得できません。",
     "success": "成功",
+    "happySuccess": "成功！",
     "retry": "リトライ",
     "retryQuestion": "リトライしますか？",
     "transactionFailed": "処理に失敗しました",
     "transactionFailedBody": "処理に失敗しました",
     "submitFeedback": "フィードバックを送信",
     "send": "送信",
+    "sendAmountAsset": "%{amount} %{asset} を送る",
     "receive": "受け取る",
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
@@ -138,7 +140,9 @@
     "showLess": "表示を減らす",
     "yourBalance": "バランス",
     "signTransaction": "トランザクションに署名する",
+    "active": "アクティブ",
     "halted": "停止中",
+    "full": "これ以上入りません",
     "disabled": "無効",
     "staged": "段階的",
     "poolHalted": "プールが停止しています",
@@ -477,6 +481,7 @@
     "earnBalance": "獲得残高",
     "rewardsBalance": "報酬残高",
     "earnBody": "アセットをステーキングするか、DeFiに預けることで受動的収入を獲得します。",
+    "noAccountsOpportunities": "この資産のアカウントがないため、現在ステーキングは利用できません。",
     "clickHereToEarn": "ここをクリックすると、ETH-FOX流動性プールトークンを獲得して年率%{apr}*を獲得できます",
     "overview": "概要",
     "myPositions": "ポジション",
@@ -637,6 +642,12 @@
     "for": "のために",
     "emptyMessage": "%{status} トランザクションがここに表示されます。",
     "parser": {
+      "rfox": {
+        "stake": "ステーク",
+        "withdraw": "引き出す",
+        "unstakeRequest": "ステーク解除リクエスト",
+        "setRuneAddress": "ルーンアドレスの設定"
+      },
       "weth": {
         "deposit": "入金する",
         "approve": "承認する",
@@ -1041,7 +1052,7 @@
         "tooltip": "THORChainとの互換性を確保するために、単一のアドレスに資金を送信します。",
         "consolidateFunds": "統合する"
       },
-      "getBalanceError": "ウォレット残高取得エラー",
+      "getFeesError": "料金取得中のエラー",
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
       "tokenAddress": "宛先アドレス",
@@ -2405,6 +2416,9 @@
     "highSlippageTrade": "この取引は価格変動の影響を受けます (%{slippagePercentage}%)。注意して進めてください。",
     "unsafeTrade": "この取引は安全ではないか、推奨される最小サイズを下回っている可能性がありますので、注意して進めてください。"
   },
+  "streamingAcknowledgement": {
+    "description": "これはストリーミング スワップです。価格は安くなりますが、完了するまでに最大 %{estimatedTimeSeconds} 秒かかる場合があります。"
+  },
   "watchlist": {
     "empty": {
       "title": "ウォッチリストの作成を開始する",
@@ -2427,9 +2441,15 @@
     }
   },
   "RFOX": {
+    "staking": "rFOXステーキング",
+    "bridge": "ブリッジ",
+    "bridgeFunds": "資金のブリッジ",
+    "bridgeSuccess": "資金のブリッジが完了しました。ステーキングを続行できます。",
     "stake": "ステーク",
     "unstake": "ステーク解除",
     "claim": "請求",
+    "rewards": "報酬",
+    "claims": "請求",
     "changeAddress": "アドレスを変える",
     "sameAddressNotAllowed": "同じアドレスは許可されていません",
     "stakingDetails": "ステーキングの詳細",
@@ -2448,6 +2468,7 @@
     "useWalletAddress": "ウォレットアドレスを使用する",
     "useCustomAddress": "カスタムアドレスを使用する",
     "stakeWarning": "FOX トークンをステークする場合、%{cooldownPeriod} のロックアップ期間があることにご注意ください。つまり、トークンのステークを解除することにした場合、資金を請求できるようになるまで %{cooldownPeriod} 待つ必要があります。",
+    "bridgeCta": "%{originNetwork} で %{assetSymbol} を選択しましたが、ステークするには %{destinationNetwork} で %{assetSymbol} が必要になります。%{destinationNetwork} へのブリッジをお手伝いします。手順のガイドが必要ですか?",
     "unstakeWarning": "FOX を請求できるようになる前に、%{cooldownPeriod} のクールダウン期間があります。その時間が経過すると、ステークされていない分の金額を請求できるようになります。",
     "tooltips": {
       "stakeAmount": "こちらがあなたがステークするFOXの量です",
@@ -2461,6 +2482,7 @@
     "stakePending": "%{amount} %{symbol} をステーキング中...",
     "addressUpdated": "アドレスが更新されました",
     "changeRewardAddressPending": "報酬アドレスを変更しています...",
+    "changeRewardAddressSuccess": "THORChain 報酬アドレスの変更に成功しました。",
     "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
     "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
     "currentRewardAddress": "現在の報酬アドレス",
@@ -2477,7 +2499,58 @@
     "claimSuccess": "%{amount} %{symbol} の請求が完了しました。",
     "claimReceiveAddress": "請求受取アドレス",
     "noClaimsAvailable": "請求できません",
+    "errorFetchingClaims": "クレームの取得中にエラーが発生しました",
     "noClaimsAvailableDescription": "利用可能な請求はありません",
-    "unstakeNow": "今すぐステーク解除"
+    "unstakeNow": "今すぐステーク解除",
+    "bridgeAndConfirm": "ブリッジ＆確認",
+    "noSupportedChains": "チェーンはサポートされていません",
+    "noSupportedChainsDescription": "%{chainLabel} を追加するか、それをサポートするウォレットに接続します。",
+    "confirmAndBridge": "確認＆ブリッジ",
+    "myRewardBalance": "自分の報酬残高",
+    "myRewardBalanceHelper": "自分の報酬残高",
+    "pendingRewardsBalance": "保留中の報酬残高",
+    "pendingRewardsBalanceHelper": "保留中の報酬残高",
+    "lifetimeRewards": "生涯報酬",
+    "lifetimeRewardsHelper": "生涯報酬",
+    "timeInPool": "プール中の時間",
+    "timeInPoolHelper": "プール中の時間",
+    "myPosition": "自分のポジション",
+    "faq": {
+      "title": "よくあるご質問",
+      "what": {
+        "title": "rFOXとは何か?",
+        "body": "rFOX は、Arbitrum で FOX トークンをステークしたときに受け取る利益と報酬を表すために使用される用語です。現在、ステーク発行のために、(Arbitrum 上の)バニラ FOXトークンをロックおよびロック解除します。"
+      },
+      "why": {
+        "title": "FOXをステークする理由は何?",
+        "body": "FOX をステーキングすると、DAO のトレジャリーから定期的に RUNE の支払いを受けることができ、エポックごとに RUNE で安定した受動的な収入を得ることができます。さらに、DAO が受け取った RUNE の一部は、オープンマーケットから FOX を購入してバーンするために使用されるため、全体の供給量が減ります。ステーキングはShapeShift DAO と THORChain エコシステムの連携もサポートし、彼らの成長と成功に貢献します。ステーキングプロセスには最低 28 日間のステーキング解除期間が必要であり、コミュニティ内での貢献と安定性を促進します。"
+      },
+      "stake": {
+        "title": "FOXをステークするにはどうすればいいか?",
+        "body": "FOXをステーキングするには、ステーキングインターフェイスを使用して、FOXトークンをステーキングコントラクトにロックします。RUNE 報酬が支払われるアドレスを割り当てるには、メッセージまたはトランザクションに署名する必要があります。ステーキングすると、ステーキングの利益の一部としてブロックごとにRUNEの報酬を獲得できるようになります。"
+      },
+      "unstake": {
+        "title": "ステークを解除するとどうなるか?",
+        "body": "ステーキング解除を決定した場合、最低 28 日間のステーキング解除期間があります。この期間中、FOX はロックされたままとなり、RUNE の発行は停止されます。アンステーキング期間終了後、通常の FOX トークンをロック解除して取得できます。"
+      },
+      "cooldown": {
+        "title": "クールダウン期間はどれくらいか?",
+        "body": "FOX トークンのステーキング解除のクールダウン期間は 28 日間です。この期間中、あなたのトークンはロックされたままとなり、転送することはできません。"
+      },
+      "multipleUnstaking": {
+        "title": "ステーキング解除量を複数持つことはできる?",
+        "body": "はい、ステーキング解除量は複数設定できます。ステーキング解除アクションごとに 28 日間のクールダウン期間があります。"
+      },
+      "connect": {
+        "title": "徴収された合計手数料、ステークされた FOX の合計、発行プール、FOX バーン量はそれぞれどのように関連していますか?",
+        "body": "DAO が徴収する手数料はネイティブ RUNE です。この RUNE の一部は FOX ステーカーに報酬として分配され、別の部分はオープン マーケットから FOX を購入してバーンするために使用され、FOX の総供給量を減らします。ステークされた FOX の合計は RUNE 報酬の分配に影響します。報酬はステークされた FOX の量に基づいて比例配分されるためです。排出プールはステーク報酬に使用できる FOX の量を表し、 バーンするFOXの量は手数料から徴収された RUNE を使用して購入され、バーンされた FOX の部分です。"
+      }
+    },
+    "totals": "rFOX の合計",
+    "totalStaked": "ステークしたFOXの総額",
+    "totalFeesCollected": "徴収された合計手数料（このエポック中で）",
+    "emissionsPool": "発行プール（このエポック中で）",
+    "emissionsPoolHelper": "発行プール（このエポック中で）",
+    "foxBurnAmount": "FOX のバーン量"
   }
 }

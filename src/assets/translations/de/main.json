@@ -592,7 +592,6 @@
     "tradeShort": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
-    "arkeo": "Arkeo Airdrop",
     "lending": "Verleihen",
     "pools": "Pools",
     "actionMenu": {
@@ -2121,67 +2120,6 @@
       "title": "Verdienen Sie Prämien für Ihr %{asset}",
       "body": "Staken Sie auf den THORChain-Vault. Keine Sperrzeit.",
       "cta": "Jetzt einzahlen"
-    }
-  },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "Was ist Arkeo?",
-      "bodyParts": {
-        "1": "Letztes Jahr, mit",
-        "2": "Coinbase Cloud",
-        "3": "ShapeShift hat ein Projekt namens Arkeo ins Leben gerufen. Der Start des Mainnets steht vor der Tür!",
-        "4": "Arkeo wurde als dezentrales Backend für alle Knotendaten entwickelt. Anwendungen, die Arkeo verwenden, profitieren von erhöhter Entwicklungsgeschwindigkeit, Zensurresistenz und",
-        "5": "Nakamoto-Koeffizient",
-        "6": "bei gleichzeitiger Verringerung der Abhängigkeit von zentralisierten Datenquellen."
-      }
-    },
-    "whoQualifies": {
-      "title": "Wer qualifiziert sich für den Arkeo Airdrop?",
-      "body": "Es gibt eine Reihe von Möglichkeiten, wie Sie sich mit der ShapeShift dApp für den Airdrop qualifizieren können. Der Schnappschuss läuft, Sie haben noch Zeit, sich zu qualifizieren!"
-    },
-    "staking": {
-      "title": "%{asset} Staker",
-      "body": "Verdienen Sie bis zu %{apy} APR auf Ihr ungenutztes %{asset} und qualifizieren Sie sich für den Arkeo Airdrop. PLUS: Wenn Sie bei %{provider} einsetzen, wird ein 2-facher Multiplikator auf Ihr eingesetztes Guthaben angewendet, wenn Ihr Arkeo-Airdrop-Betrag berechnet wird.",
-      "cta": "Stake %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} Anbieter",
-      "body": "Haben Sie %{asset1} und %{asset2}? Stellen Sie Liquidität für den Uniswap V2 Pool bereit, um %{apy} APR effektiven Jahreszins zu verdienen. PLUS der zugrunde liegende FOX in den FOX/ETH LP-Token, die Sie besitzen, qualifiziert sich für den Arkeo-Airdrop.",
-      "cta": "Liquidität einzahlen"
-    },
-    "foxTokenHolders": {
-      "title": "FOX-Token-Inhaber",
-      "body": "Hodl FOX Token. Je größer Ihr Anteil, desto größer Ihr Arkeo Airdrop.",
-      "cta": "Handel für FOX",
-      "secondary": "FOX kaufen"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LP Farmer",
-      "body": "Verdienen Sie bis zu %{apy} APR für das Staking Ihrer ETH/FOX LP-Tokens in der FOX Farm. PLUS der zugrunde liegende FOX in den ETH/FOX LP-Token, die Sie in Runde 5 der FOX Farm einsetzen, qualifiziert sich für den Arkeo Airdrop.",
-      "cta": "Stake FOX/ETH LP"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXy-Token-Inhaber",
-      "body": "Verdienen Sie mit FOX Yieldy (FOXy) bis zu %{apy} APR auf Ihren untätigen FOX. PLUS FOXy in Ihrer Wallet wird genauso behandelt wie FOX und qualifiziert sich für den Arkeo Airdrop.",
-      "cta": "Stake FOX Token"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "Haben Sie %{asset1} und %{asset2}? Stellen Sie Liquidität für den Uniswap V2-Pool bereit, um %{apy} APR zu verdienen. PLUS der zugrunde liegende FOX in den FOX/ETH LP-Token, die Sie besitzen, qualifiziert sich für den Arkeo-Airdrop.",
-      "cta": "Liquidität einzahlen"
-    },
-    "stakeAtom": {
-      "title": "Stake ATOM",
-      "body": "Verdienen Sie bis zu %{apr} APR mit Ihrem ungenutzten ATOM. PLUS jedes ATOM, das Sie einsetzen, bringt Ihnen Arkeo-Token ein. Wenn Sie beim ShapeShift DAO Validator einsetzen, können Sie Ihre Airdrop-Qualifikation verdoppeln.",
-      "cta": "Stake ATOM"
-    },
-    "footer": {
-      "title": "Es gibt auch andere Möglichkeiten, sich außerhalb der ShapeShift dApp zu qualifizieren. Eine vollständige Liste finden Sie im Governance-Vorschlag.",
-      "cta": "Sehen Sie sich den Governance-Vorschlag an",
-      "disclaimer": {
-        "body": "* Nur Selbstverwaltende Wallets sind qualifiziert. Token, die über eine zentralisierte Börse in einem Wallet gehalten oder gestaket werden, sind nicht qualifiziert. Brauchen Sie eine Wallet?",
-        "cta": "Erstelle einen"
-      }
     }
   },
   "nft": {

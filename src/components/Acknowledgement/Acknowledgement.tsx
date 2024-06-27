@@ -1,5 +1,5 @@
 import type { ComponentWithAs, IconProps, ThemeTypings } from '@chakra-ui/react'
-import { Box, Button } from '@chakra-ui/react'
+import { Box, Button, Checkbox, Link, useColorModeValue } from '@chakra-ui/react'
 import type { AnimationDefinition, MotionStyle } from 'framer-motion'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -80,38 +80,50 @@ const popoverStyle: MotionStyle = {
 
 type AcknowledgementProps = {
   children: React.ReactNode
-  message: string
-  onAcknowledge: () => void
+  content?: JSX.Element
+  message: string | JSX.Element
+  onAcknowledge: (() => void) | undefined
   shouldShowAcknowledgement: boolean
   setShouldShowAcknowledgement: (shouldShow: boolean) => void
-  colorScheme?: ThemeTypings['colorSchemes']
+  buttonColorScheme?: ThemeTypings['colorSchemes']
+  iconColorScheme?: ThemeTypings['colorSchemes']
   buttonTranslation?: string | [string, InterpolationOptions]
   icon?: ComponentWithAs<'svg', IconProps>
+  disableButton?: boolean
 }
 
 type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
   estimatedTimeSeconds: string
 }
+type ArbitrumAcknowledgementProps = Omit<AcknowledgementProps, 'message'>
 
 const cancelHoverProps = { bg: 'rgba(255, 255, 255, 0.2)' }
 const boxBorderRadius = { base: 'none', md: 'xl' }
 
 export const Acknowledgement = ({
   children,
+  content,
   message,
   onAcknowledge,
   shouldShowAcknowledgement,
   setShouldShowAcknowledgement,
-  colorScheme = 'red',
+  buttonColorScheme = 'red',
+  iconColorScheme = 'red',
   buttonTranslation,
+  disableButton,
   icon: CustomIcon,
 }: AcknowledgementProps) => {
   const translate = useTranslate()
   const [isShowing, setIsShowing] = useState(false)
 
-  const understandHoverProps = useMemo(() => ({ bg: `${colorScheme}.600` }), [colorScheme])
+  const understandHoverProps = useMemo(
+    () => ({ bg: `${buttonColorScheme}.600` }),
+    [buttonColorScheme],
+  )
 
   const handleAcknowledge = useCallback(() => {
+    if (!onAcknowledge) return
+
     setShouldShowAcknowledgement(false)
     onAcknowledge()
   }, [onAcknowledge, setShouldShowAcknowledgement])
@@ -155,31 +167,32 @@ export const Acknowledgement = ({
               onAnimationComplete={handleAnimationComplete}
             >
               {CustomIcon ? (
-                <CustomIcon color={`${colorScheme}.500`} boxSize='80px' mb={4} />
+                <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />
               ) : (
-                <Box as={FiAlertTriangle} color={`${colorScheme}.500`} size='80px' mb={4} />
+                <Box as={FiAlertTriangle} color={`${iconColorScheme}.500`} size='80px' mb={4} />
               )}
               <Text
-                colorScheme={colorScheme}
                 translation={'warningAcknowledgement.attention'}
                 fontWeight='semibold'
                 fontSize='2xl'
               />
-              <RawText
-                align={'center'}
+              <Box
+                textAlign={'center'}
                 maxWidth='90%'
                 mb={8}
                 fontWeight='medium'
                 color='text.subtle'
               >
-                {message}
-              </RawText>
+                <RawText>{message}</RawText>
+                {content}
+              </Box>
               <Button
                 size='lg'
                 mb={2}
-                colorScheme={colorScheme}
+                colorScheme={buttonColorScheme}
                 width='full'
                 onClick={handleAcknowledge}
+                isDisabled={disableButton}
                 _hover={understandHoverProps}
               >
                 <Text translation={buttonTranslation ?? 'warningAcknowledgement.understand'} />
@@ -204,7 +217,10 @@ export const Acknowledgement = ({
 }
 
 export const WarningAcknowledgement = (props: AcknowledgementProps) =>
-  Acknowledgement({ ...props, colorScheme: 'red' })
+  Acknowledgement({ ...props, buttonColorScheme: 'red', iconColorScheme: 'red' })
+
+export const InfoAcknowledgement = (props: AcknowledgementProps) =>
+  Acknowledgement({ ...props, buttonColorScheme: 'blue', iconColorScheme: 'yellow' })
 
 export const StreamingAcknowledgement = ({
   estimatedTimeSeconds,
@@ -215,12 +231,78 @@ export const StreamingAcknowledgement = ({
   return (
     <Acknowledgement
       {...restProps}
-      colorScheme='blue'
+      buttonColorScheme='blue'
       buttonTranslation='common.continue'
       message={translate('streamingAcknowledgement.description', {
         estimatedTimeSeconds,
       })}
       icon={StreamIcon}
+    />
+  )
+}
+
+export const ArbitrumBridgeAcknowledgement = (props: ArbitrumAcknowledgementProps) => {
+  const translate = useTranslate()
+  const [hasAgreed, setHasAgreed] = useState([false, false])
+
+  const isDisabled = useMemo(() => !hasAgreed.every(Boolean), [hasAgreed])
+
+  const handleAgree = useCallback(
+    (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      const updatedAgreements = [...hasAgreed]
+      updatedAgreements[index] = event.target.checked
+      setHasAgreed(updatedAgreements)
+    },
+    [hasAgreed],
+  )
+
+  const checkboxTextColor = useColorModeValue('gray.800', 'gray.50')
+
+  const checkboxes = useMemo(
+    () => (
+      <Box py={4} textAlign='left' color={checkboxTextColor}>
+        <Checkbox onChange={handleAgree(0)} fontWeight='bold' py={2}>
+          {translate('bridge.arbitrum.waitCta')}
+        </Checkbox>
+        <Checkbox onChange={handleAgree(1)} fontWeight='bold' py={2}>
+          {translate('bridge.arbitrum.claimCta')}
+        </Checkbox>
+      </Box>
+    ),
+    [checkboxTextColor, handleAgree, translate],
+  )
+
+  const handleAcknowledge = useMemo(() => {
+    if (isDisabled) return
+
+    return props.onAcknowledge
+  }, [isDisabled, props])
+
+  const message = useMemo(
+    () => (
+      <>
+        <RawText as='span'>{translate('bridge.arbitrum.waitWarning')}</RawText>{' '}
+        <Link
+          href='https://docs.arbitrum.io/arbitrum-bridge/quickstart#withdraw-eth-or-erc-20-tokens-from-child-chain-to-parent-chain'
+          isExternal
+          colorScheme='blue'
+          color='blue.500'
+        >
+          {translate('common.learnMore')}
+        </Link>
+      </>
+    ),
+    [translate],
+  )
+
+  return (
+    <Acknowledgement
+      {...props}
+      buttonTranslation='common.continue'
+      message={message}
+      content={checkboxes}
+      disableButton={isDisabled}
+      onAcknowledge={handleAcknowledge}
     />
   )
 }

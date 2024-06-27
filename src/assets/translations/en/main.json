@@ -76,7 +76,6 @@
     "transactionFailedBody": "Transaction Failed",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
-    "sendAmountAsset": "Send %{amount} %{asset}",
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
@@ -163,7 +162,8 @@
       "sortedDesc": "Sorted descending",
       "expandRow": "Expand Row"
     },
-    "featureDisabled": "This feature is temporarily disabled."
+    "featureDisabled": "This feature is temporarily disabled.",
+    "yes": "Yes"
   },
   "consentBanner": {
     "body": {
@@ -592,7 +592,6 @@
     "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
-    "arkeo": "Arkeo Airdrop",
     "lending": "Lending",
     "pools": "Pools",
     "actionMenu": {
@@ -642,6 +641,15 @@
     "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Withdraw Initiated",
+        "outboundTransferDeposit": "Deposit Initiated",
+        "withdrawEth": "Withdraw Initated",
+        "submitRetryable": "Deposit Received",
+        "createRetryableTicket": "Deposit Initiated",
+        "finalizeInboundTransfer": "Withdraw Received",
+        "depositEth": "Deposit Initiated"
+      },
       "rfox": {
         "stake": "Stake",
         "withdraw": "Withdraw",
@@ -735,6 +743,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "Make sure you have %{destinationSymbol} in your %{destinationChainName} account, you’ll need it for transactions",
     "confirm": "Confirm Bridge",
     "selectChain": "Select Chain",
     "selectAsset": "Select Asset",
@@ -749,7 +758,12 @@
     "route": "Route",
     "waitTimeLabel": "Approx. Wait Time",
     "waitTimeValue": "~5-10 minutes",
-    "noSupportedAssets": "No supported assets in portfolio."
+    "noSupportedAssets": "No supported assets in portfolio.",
+    "arbitrum": {
+      "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
+      "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
+      "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
+    }
   },
   "trade": {
     "trade": "Trade",
@@ -2123,67 +2137,6 @@
       "cta": "Deposit Now"
     }
   },
-  "arkeo": {
-    "whatIsArkeo": {
-      "title": "What is Arkeo?",
-      "bodyParts": {
-        "1": "Last year, alongside",
-        "2": "Coinbase Cloud",
-        "3": "ShapeShift incubated a project called Arkeo. Mainnet launch is just around the corner!",
-        "4": "Arkeo was created to be a decentralized back-end for all node data. Applications that use Arkeo will benefit from increased development velocity, censorship-resistance and",
-        "5": "nakamoto coefficient",
-        "6": "while reducing reliance on centralized data sources."
-      }
-    },
-    "whoQualifies": {
-      "title": "Who qualifies for the Arkeo Airdrop?",
-      "body": "There are a number of ways you can qualify for the airdrop using the ShapeShift dApp. The snapshot is rolling, you still have time to qualify!"
-    },
-    "staking": {
-      "title": "%{asset} Stakers",
-      "body": "Earn up to %{apy} APR on your idle %{asset} and qualify for the Arkeo airdrop. PLUS if you stake to %{provider}, a 2x multiplier will be applied to your staked balance when your Arkeo airdrop amount is calculated.",
-      "cta": "Stake %{asset}"
-    },
-    "lp": {
-      "title": "%{asset1}/%{asset2} Providers",
-      "body": "Got %{asset1} and %{asset2}? Provide liquidity to the Uniswap V2 Pool to earn %{apy} APR. PLUS the underlying FOX in the FOX/ETH LP tokens you hold will qualify for the Arkeo airdrop.",
-      "cta": "Deposit Liquidity"
-    },
-    "foxTokenHolders": {
-      "title": "FOX Token Holders",
-      "body": "Hodling FOX tokens. The larger your bag, the larger your Arkeo airdrop.",
-      "cta": "Trade for FOX",
-      "secondary": "Buy FOX"
-    },
-    "foxFarmers": {
-      "title": "FOX/ETH LP Farmers",
-      "body": "Earn up to %{apy} APR for staking your ETH/FOX LP tokens in the FOX Farm. PLUS the underlying FOX in the ETH/FOX LP tokens you stake in Round 5 of the FOX Farm will qualify for the Arkeo airdrop.",
-      "cta": "Stake FOX/ETH LP"
-    },
-    "foxyTokenHolders": {
-      "title": "FOXy Token Holders",
-      "body": "Earn up to %{apy} APR on your idle FOX with FOX Yieldy (FOXy). PLUS FOXy held in your wallet will be treated the same as FOX and will qualify for the Arkeo airdrop.",
-      "cta": "Stake FOX Tokens"
-    },
-    "foxEthProviders": {
-      "title": "FOX/ETH Uniswap V2 LPs",
-      "body": "Got %{asset1} and %{asset2}? Provide liquidity to the Uniswap V2 Pool to earn %{apy} APR. PLUS the underlying FOX in the FOX/ETH LP tokens you hold will qualify for the Arkeo airdrop.",
-      "cta": "Deposit Liquidity"
-    },
-    "stakeAtom": {
-      "title": "Stake ATOM",
-      "body": "Earn up to %{apr} APR on your idle ATOM. PLUS any ATOM you stake earns you Arkeo tokens. If you stake to the ShapeShift DAO Validator you can 2X your airdrop qualification.",
-      "cta": "Stake ATOM"
-    },
-    "footer": {
-      "title": "There are other ways you can qualify too, outside of the ShapeShift dApp. For a complete list, check out the governance proposal.",
-      "cta": "Check out the governance proposal",
-      "disclaimer": {
-        "body": "* Self-custody wallets only will qualify. Tokens held or staked in a wallet via a centralized exchange do not qualify. Need a wallet?",
-        "cta": "Create one"
-      }
-    }
-  },
   "nft": {
     "customizeFoxatar": "Customize FOXatar",
     "setAsAvatar": "Set as Avatar",
@@ -2467,9 +2420,9 @@
     "rewardAddressHelper": "This is where rewards will be sent",
     "useWalletAddress": "Use wallet address",
     "useCustomAddress": "Use custom address",
-    "stakeWarning": "When you stake your FOX tokens, please be aware that there is a %{cooldownPeriod} lock-up period. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
-    "bridgeCta": "You selected %{assetSymbol} on %{originNetwork}, but you'll need %{assetSymbol} on %{destinationNetwork} to stake. We can help you bridge your to %{destinationNetwork}. Would you like us to guide you through the process?",
-    "unstakeWarning": "Before you can claim your FOX, there is a %{cooldownPeriod} cool down period. After that time has elapsed you will be able to claim your unstaked amount.",
+    "stakeWarning": "When you stake your FOX tokens please be aware that the lock-up period is %{cooldownPeriod}. This means that if you decide to unstake your tokens, you will need to wait %{cooldownPeriod} before you can claim your funds.",
+    "bridgeCta": "You selected %{assetSymbol} on %{originNetwork}, but you'll need %{assetSymbol} on %{destinationNetwork} to stake. We can help you bridge your funds to %{destinationNetwork}. Would you like us to guide you through the process?",
+    "unstakeWarning": "Before you can claim your FOX the cool-down period is %{cooldownPeriod}. After that time has elapsed you will be able to claim your unstaked amount.",
     "tooltips": {
       "stakeAmount": "This is the amount of FOX you will stake",
       "unstakeAmount": "This is amount of FOX you will unstake",
@@ -2484,7 +2437,7 @@
     "changeRewardAddressPending": "Changing Reward Address...",
     "changeRewardAddressSuccess": "You have successfully changed your THORChain Reward Address.",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
-    "unstakeSuccess": "Once the %{cooldownPeriod} has elapsed, you will be able to claim your %{amount} %{symbol}",
+    "unstakeSuccess": "Once %{cooldownPeriod} has elapsed you will be able to claim your %{amount} %{symbol}",
     "currentRewardAddress": "Current Reward Address",
     "newRewardAddress": "New Reward Address",
     "rewardCycleExplainer": "This will update for the next reward cycle.",
@@ -2501,7 +2454,7 @@
     "noClaimsAvailable": "No claims available",
     "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",
-    "unstakeNow": "Unstake Now",
+    "unstakeNow": "Unstake To Claim FOX",
     "bridgeAndConfirm": "Bridge & Confirm",
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",

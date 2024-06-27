@@ -15,6 +15,7 @@ import type { EvmTreasuryChainId } from 'constants/treasury'
 import {
   DAO_TREASURY_ARBITRUM,
   DAO_TREASURY_AVALANCHE,
+  DAO_TREASURY_BASE,
   DAO_TREASURY_BSC,
   DAO_TREASURY_ETHEREUM_MAINNET,
   DAO_TREASURY_GNOSIS,
@@ -55,6 +56,7 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<EvmTreasuryChainId, string> = {
   [KnownChainIds.GnosisMainnet]: DAO_TREASURY_GNOSIS,
   [KnownChainIds.BnbSmartChainMainnet]: DAO_TREASURY_BSC,
   [KnownChainIds.ArbitrumMainnet]: DAO_TREASURY_ARBITRUM,
+  [KnownChainIds.BaseMainnet]: DAO_TREASURY_BASE,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

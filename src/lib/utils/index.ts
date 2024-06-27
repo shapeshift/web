@@ -10,7 +10,7 @@ import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconn
 import type { NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 import crypto from 'crypto-browserify'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
@@ -186,14 +186,6 @@ export const hashCode = (str: string): string =>
 export const sha256 = (input: string): string =>
   crypto.createHash('sha256').update(input).digest('hex')
 
-// https://github.com/sniptt-official/monads/issues/111
-export const AsyncResultOf = async <T>(promise: Promise<T>): Promise<Result<T, Error>> => {
-  try {
-    return Ok(await promise)
-  } catch (err) {
-    return Err(err as Error)
-  }
-}
 // Predicates, to be used with myzod's `withPredicate`, or without if you feel like it
 
 export const isNonEmpty = (x: string | any[] | Set<any>) => {

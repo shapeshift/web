@@ -1,6 +1,5 @@
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { createCache, makeSwapperAxiosServiceMonadic, SwapperName } from '@shapeshiftoss/swapper'
 import type { AxiosRequestConfig } from 'axios'
-import { createCache, makeSwapperAxiosServiceMonadic } from 'lib/swapper/utils'
 
 const maxAge = 5 * 1000 // 5 seconds
 const cachedUrls = ['/mainnet/api/v1/quote', '/xdai/api/v1/quote']

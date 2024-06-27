@@ -2477,7 +2477,7 @@
       },
       "multipleUnstaking": {
         "title": "Puis-je avoir plusieurs montants en cours de démise ?",
-        "body": "Oui, vous pouvez avoir plusieurs montants en cours de mise. Chaque action de démise aura sa propre période de repos de 28 jours."
+        "body": "Oui, vous pouvez avoir plusieurs montants en cours de démise. Chaque action de démise aura sa propre période de repos de 28 jours."
       },
       "connect": {
         "title": "Quel est le rapport entre le total de frais collectés, le total misé en FOX, le pool d'émissions et le montant de FOX brûlés ?",

@@ -9,7 +9,7 @@ export const calcEpochRewardForAccountRuneBaseUnit = (
   epochEarningsForAccount: bigint,
   epochMetadata: PartialEpochMetadata,
 ) => {
-  const secondsInEpoch = epochMetadata.endTimestamp - epochMetadata.startTimestamp
+  const secondsInEpoch = epochMetadata.endTimestamp - epochMetadata.startTimestamp + 1n
 
   // Total raw rewards for the epoch - NOT scaled down for WAD
   const totalEpochRewards = RFOX_REWARD_RATE * secondsInEpoch

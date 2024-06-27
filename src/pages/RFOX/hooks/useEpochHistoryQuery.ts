@@ -24,8 +24,6 @@ const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(
 // This looks weird but isn't - "now" isn't now, it's "now" when this module was first evaluated
 // This allows all calculations against now to be consistent, since our current monkey patch subtracts 2 epochs (60 days) from the same "now"
 export const now = dayjs().unix()
-// TODO(gomes): this should probably read cooldownPeriod from the contract, but for now we'll hardcode it
-const EPOCH_DURATION_DAYS = 30
 
 // The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.
 // Instead we will rely on staleTime to refetch at a sensible interval.
@@ -44,7 +42,7 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
 
   while (startTimestamp < now) {
     const nextStartTimestamp = BigInt(
-      dayjs.unix(Number(startTimestamp)).add(EPOCH_DURATION_DAYS, 'days').unix(),
+      dayjs.unix(Number(startTimestamp)).add(1, 'month').startOf('month').unix(),
     )
     startTimestamp = nextStartTimestamp
 
@@ -86,16 +84,10 @@ export const getCurrentEpochMetadataQueryKey = (): CurrentEpochMetadataQueryKey 
 ]
 
 export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata> => {
-  const epochCount = Math.floor(
-    (now - Number(RFOX_FIRST_EPOCH_START_TIMESTAMP)) / (EPOCH_DURATION_DAYS * 86400),
-  )
-
-  const currentEpochStartTimestamp = BigInt(
-    dayjs
-      .unix(Number(RFOX_FIRST_EPOCH_START_TIMESTAMP))
-      .add(epochCount * EPOCH_DURATION_DAYS, 'days')
-      .unix(),
-  )
+  // Knowing that an epoch starts at the beginning of each calendar month makes things easy - current epoch
+  // starts at the beginning of the current month and ends at the end of it
+  const currentEpochStart = dayjs().startOf('month')
+  const currentEpochStartTimestamp = BigInt(currentEpochStart.unix())
 
   const currentEpochStartBlockNumber = await queryClient.fetchQuery({
     queryKey: getEarliestBlockNumberByTimestampQueryKey({
@@ -106,9 +98,8 @@ export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata>
     }),
   })
 
-  const currentEpochEndTimestamp = BigInt(
-    dayjs.unix(Number(currentEpochStartTimestamp)).add(EPOCH_DURATION_DAYS, 'days').unix(),
-  )
+  // And same here - last second of the month is the end of the epoch
+  const currentEpochEndTimestamp = BigInt(dayjs(currentEpochStart).endOf('month').unix())
 
   const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
     queryKey: getAffiliateRevenueQueryKey({
@@ -121,15 +112,13 @@ export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata>
     }),
   })
 
-  const epochMetadata = {
+  return {
     startBlockNumber: currentEpochStartBlockNumber,
     endBlockNumber: undefined,
     startTimestamp: currentEpochStartTimestamp,
     endTimestamp: currentEpochEndTimestamp,
     distributionAmountRuneBaseUnit,
   }
-
-  return epochMetadata
 }
 
 export const useEpochHistoryQuery = () => {

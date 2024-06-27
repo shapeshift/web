@@ -594,7 +594,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const isEstimatedExecutionTimeOverTreshold = useMemo(() => {
     if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
 
-    if (tradeQuoteStep?.estimatedExecutionTimeMs > STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD)
+    if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD)
       return true
 
     return false
@@ -702,10 +702,10 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
                   onAcknowledge={handleFormSubmit}
                   shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
                   setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-                  estimatedTimeSeconds={
+                  estimatedTimeMs={
                     tradeQuoteStep?.estimatedExecutionTimeMs
-                      ? `${tradeQuoteStep?.estimatedExecutionTimeMs / 1000}`
-                      : ''
+                      ? tradeQuoteStep.estimatedExecutionTimeMs
+                      : 0
                   }
                 >
                   <WarningAcknowledgement

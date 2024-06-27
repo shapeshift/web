@@ -2370,7 +2370,7 @@
     "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution."
   },
   "streamingAcknowledgement": {
-    "description": "This is a streaming swap, while you get a better price it can take up to %{estimatedTimeSeconds}s to complete."
+    "description": "This is a streaming swap, while you get a better price it can take up to %{estimatedTimeHuman} to complete."
   },
   "watchlist": {
     "empty": {

@@ -702,9 +702,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
                   onAcknowledge={handleFormSubmit}
                   shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
                   setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-                  estimatedTimeSeconds={
+                  estimatedTimeMs={
                     tradeQuoteStep?.estimatedExecutionTimeMs
-                      ? tradeQuoteStep?.estimatedExecutionTimeMs / 1000
+                      ? tradeQuoteStep.estimatedExecutionTimeMs
                       : 0
                   }
                 >

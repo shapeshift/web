@@ -94,7 +94,7 @@ type AcknowledgementProps = {
 }
 
 type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
-  estimatedTimeSeconds: number
+  estimatedTimeMs: number
 }
 type ArbitrumAcknowledgementProps = Omit<AcknowledgementProps, 'message'>
 
@@ -224,7 +224,7 @@ export const InfoAcknowledgement = (props: AcknowledgementProps) =>
   Acknowledgement({ ...props, buttonColorScheme: 'blue', iconColorScheme: 'yellow' })
 
 export const StreamingAcknowledgement = ({
-  estimatedTimeSeconds,
+  estimatedTimeMs,
   ...restProps
 }: StreamingAcknowledgementProps) => {
   const translate = useTranslate()
@@ -235,7 +235,7 @@ export const StreamingAcknowledgement = ({
       buttonColorScheme='blue'
       buttonTranslation='common.continue'
       message={translate('streamingAcknowledgement.description', {
-        estimatedTimeSeconds: formatSecondsToDuration(estimatedTimeSeconds),
+        estimatedTimeHuman: formatSecondsToDuration(estimatedTimeMs / 1000),
       })}
       icon={StreamIcon}
     />

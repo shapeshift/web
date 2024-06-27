@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "Transaktionsverlauf verschlechtert",
     "degradedInfo": "Für einige Konten können keine Daten abgerufen werden.",
     "success": "Erfolgreich",
+    "happySuccess": "Erfolg!",
     "retry": "Neuer Versuch",
     "retryQuestion": "Wiederholen?",
     "transactionFailed": "Transaktion fehlgeschlagen",
     "transactionFailedBody": "Transaktion fehlgeschlagen",
     "submitFeedback": "Feedback senden",
     "send": "Senden",
+    "sendAmountAsset": "Sende %{amount} %{asset}",
     "receive": "Empfangen ",
     "privacy": "Datenschutz-Bestimmungen",
     "terms": "Nutzungsbedingungen",
@@ -138,7 +140,9 @@
     "showLess": "Zeige weniger",
     "yourBalance": "Ihr Kontostand",
     "signTransaction": "Transaktion unterzeichnen",
+    "active": "Aktiv",
     "halted": "Angehalten",
+    "full": "Voll",
     "disabled": "Deaktiviert",
     "staged": "Gestaffelt",
     "poolHalted": "Pool angehalten",
@@ -477,6 +481,7 @@
     "earnBalance": "Guthaben Kontostand",
     "rewardsBalance": "Belohnungssaldo",
     "earnBody": "Verdienen Sie passives Einkommen, indem Sie Ihr Guthaben einsetzen oder in eine DeFi-Strategie einzahlen.",
+    "noAccountsOpportunities": "Sie haben keine Konten für diesen Vermögenswert, daher sind Staking-Möglichkeiten derzeit nicht verfügbar.",
     "clickHereToEarn": "Klicken Sie hier, um %{apr} APR* zu verdienen, indem Sie Ihre ETH-FOX-Liquiditätspool-Token farmen",
     "overview": "Übersicht",
     "myPositions": "Meine Positionen",
@@ -637,6 +642,12 @@
     "for": "für",
     "emptyMessage": "Ihre %{status} Transaktionen werden hier angezeigt.",
     "parser": {
+      "rfox": {
+        "stake": "Stake",
+        "withdraw": "Abheben",
+        "unstakeRequest": "Anfrage zur Aufhebung von Staking",
+        "setRuneAddress": "Rune Adresse festlegen"
+      },
       "weth": {
         "deposit": "Einzahlung",
         "approve": "Genehmigen",
@@ -1041,7 +1052,7 @@
         "tooltip": "Senden Sie an eine einzige Adresse, um die THORChain-Kompatibilität zu gewährleisten.",
         "consolidateFunds": "Konsolidieren"
       },
-      "getBalanceError": "Fehler beim Abrufen des Wallet-Guthabens",
+      "getFeesError": "Fehler beim Abrufen der Gebühren",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
       "tokenAddress": "An Adresse",
@@ -2405,6 +2416,9 @@
     "highSlippageTrade": "Dieser Handel wird durch Preisschwankungen (%{slippagePercentage}%) beeinflusst. Gehen Sie mit Vorsicht vor.",
     "unsafeTrade": "Dieser Handel kann unsicher sein oder unter der empfohlenen Mindestgröße liegen. Gehen Sie daher vorsichtig vor."
   },
+  "streamingAcknowledgement": {
+    "description": "Dies ist ein Streaming Swap. Sie erhalten zwar einen besseren Preis, aber die Fertigstellung kann bis zu %{estimatedTimeSeconds}s dauern."
+  },
   "watchlist": {
     "empty": {
       "title": "Beginnen Sie mit dem Aufbau Ihrer Beobachtungsliste",
@@ -2427,9 +2441,15 @@
     }
   },
   "RFOX": {
+    "staking": "rFOX Staking",
+    "bridge": "Bridge",
+    "bridgeFunds": "Bridge Betrag",
+    "bridgeSuccess": "Ihr Betrag wurden erfolgreich gebridged. Sie können jetzt mit dem Staking fortfahren.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Beanspruchen",
+    "rewards": "Belohnung",
+    "claims": "Ansprüche",
     "changeAddress": "Adresse ändern",
     "sameAddressNotAllowed": "Dieselbe Adresse ist nicht zulässig",
     "stakingDetails": "Staking Details",
@@ -2448,6 +2468,7 @@
     "useWalletAddress": "Wallet Adresse verwenden",
     "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
     "stakeWarning": "Wenn Sie Ihre FOX Token einsetzen, beachten Sie bitte, dass es eine Sperrfrist von %{cooldownPeriod} gibt. Das bedeutet, dass Sie, wenn Sie sich entscheiden Ihre Token nicht einzusetzen, %{cooldownPeriod} warten müssen, bevor Sie Ihr Geld einfordern können.",
+    "bridgeCta": "Sie haben %{assetSymbol} auf %{originNetwork} ausgewählt, aber Sie benötigen %{assetSymbol} auf %{destinationNetwork} zum Staken. Wir können Ihnen beim Bridge zu %{destinationNetwork} helfen. Möchten Sie, dass wir Sie durch den Prozess führen?",
     "unstakeWarning": "Bevor Sie Ihren FOX beanspruchen können, gibt es eine Abkühlphase von %{cooldownPeriod}. Nach Ablauf dieser Zeit können Sie Ihren nicht eingesetzten Betrag beanspruchen.",
     "tooltips": {
       "stakeAmount": "Dies ist der Betrag an FOX, den Sie Staken werden",
@@ -2461,6 +2482,7 @@
     "stakePending": "Staking %{amount} %{symbol}...",
     "addressUpdated": "Adresse aktualisiert",
     "changeRewardAddressPending": "Belohnungsadresse ändern …",
+    "changeRewardAddressSuccess": "Sie haben Ihre THORChain-Belohnungsadresse erfolgreich geändert.",
     "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
     "unstakeSuccess": "Sobald die %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
     "currentRewardAddress": "Aktuelle Belohnungsadresse",
@@ -2477,7 +2499,58 @@
     "claimSuccess": "Sie haben %{amount} %{symbol} erfolgreich beansprucht.",
     "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
     "noClaimsAvailable": "Keine Ansprüche vorhanden",
+    "errorFetchingClaims": "Beim Abrufen der Ansprüche ist ein Fehler aufgetreten",
     "noClaimsAvailableDescription": "Sie haben keine verfügbaren Ansprüche",
-    "unstakeNow": "Jetzt Unstaken"
+    "unstakeNow": "Jetzt Unstaken",
+    "bridgeAndConfirm": "Bridge & Bestätigen",
+    "noSupportedChains": "Netzwerk wird nicht unterstützt",
+    "noSupportedChainsDescription": "Fügen Sie %{chainLabel} hinzu oder stellen Sie eine Verbindung zu einer Wallet her, die dies unterstützt.",
+    "confirmAndBridge": "Bestätigen & Bridge",
+    "myRewardBalance": "Mein Belohnungsguthaben",
+    "myRewardBalanceHelper": "Mein Belohnungsguthaben",
+    "pendingRewardsBalance": "Ausstehendes Belohnungsguthaben",
+    "pendingRewardsBalanceHelper": "Ausstehendes Belohnungsguthaben",
+    "lifetimeRewards": "Lebenslange Belohnungen",
+    "lifetimeRewardsHelper": "Lebenslange Belohnungen",
+    "timeInPool": "Zeit im Pool",
+    "timeInPoolHelper": "Zeit im Pool",
+    "myPosition": "Meine Position",
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "Was ist rFOX?",
+        "body": "rFOX ist ein Begriff, der die Vorteile und Belohnungen beschreibt, die Sie erhalten, wenn Sie Ihre FOX-Token auf Arbitrum einsetzen. Derzeit sperren und entsperren Sie Vanilla-FOX-Token (auf Arbitrum) für das Einsetzen von Emissionen."
+      },
+      "why": {
+        "title": "Warum sollten Sie Ihren FOX staken?",
+        "body": "Durch das Staking Ihres FOX können Sie regelmäßige RUNE-Auszahlungen aus der DAO-Schatzkammer erhalten, was Ihnen einen stetigen Strom passiven Einkommens in RUNE pro Epoche verschafft. Darüber hinaus wird ein Teil der von der DAO erhaltenen RUNE verwendet, um FOX auf dem freien Markt zu kaufen und zu verbrennen, wodurch das Gesamtangebot reduziert wird. Das Staking unterstützt auch die Ausrichtung der ShapeShift DAO auf das THORChain-Ökosystem und trägt zu deren Wachstum und Erfolg bei. Der Staking-Prozess erfordert eine Mindest-Destaking-Periode von 28 Tagen, was Engagement und Stabilität innerhalb der Community fördert."
+      },
+      "stake": {
+        "title": "Wie stake ich meinen FOX?",
+        "body": "Um Ihren FOX zu staken, verwenden Sie die Staking-Schnittstelle, um Ihre FOX-Token in den Staking-Vertrag einzubinden. Sie müssen eine Nachricht oder Transaktion unterzeichnen, um die Adresse zuzuweisen, an die Ihre RUNE-Belohnungen ausgezahlt werden. Sobald Sie eingesetzt haben, beginnen Sie, RUNE-Belohnungen pro Block als Teil Ihrer Staking-Vorteile zu verdienen."
+      },
+      "unstake": {
+        "title": "Was passiert, wenn ich mein Staking zurücknehme?",
+        "body": "Wenn Sie sich für die Aufhebung des Stakings entscheiden, gibt es eine Mindestaufhebungsfrist von 28 Tagen. Während dieser Zeit bleiben Ihre FOX gesperrt und Sie erhalten keine RUNE-Emissionen mehr. Nach der Aufhebungsfrist können Sie Ihre regulären FOX-Token entsperren und abrufen."
+      },
+      "cooldown": {
+        "title": "Wie lange ist die Abkühlungsphase?",
+        "body": "Die Abkühlungsphase für das unstaken der FOX-Token beträgt 28 Tage. Während dieser Zeit bleiben Ihre Token gesperrt und können nicht übertragen werden."
+      },
+      "multipleUnstaking": {
+        "title": "Kann ich mehrere Beträge zum Aufheben des Stakings haben?",
+        "body": "Ja, Sie können mehrere Beträge aufheben. Für jede Aufhebungsaktion gilt eine Abkühlungsphase von 28 Tagen."
+      },
+      "connect": {
+        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?",
+        "body": "Die von der DAO erhobenen Gebühren erfolgen in nativem RUNE. Ein Teil dieser RUNE wird als Belohnung an FOX-Staker verteilt, während ein anderer Teil verwendet wird, um FOX auf dem freien Markt zu kaufen und zu verbrennen, wodurch das gesamte FOX-Angebot reduziert wird. Die Gesamtmenge an eingesetzten FOX beeinflusst die Verteilung der RUNE-Belohnungen, da die Belohnungen anteilig basierend auf der Menge an eingesetzten FOX verteilt werden. Der Emissionspool stellt die Menge an FOX dar, die für Einsatzbelohnungen verfügbar ist, und die FOX-Verbrennungsmenge ist der Teil an FOX, der mit den aus den Gebühren eingenommenen RUNE gekauft und verbrannt wird."
+      }
+    },
+    "totals": "rFOX Summen",
+    "totalStaked": "Staking Summe an FOX",
+    "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
+    "emissionsPool": "Emissionspool (diese Epoche)",
+    "emissionsPoolHelper": "Emissionspool (diese Epoche)",
+    "foxBurnAmount": "Verbrannte FOX Menge"
   }
 }

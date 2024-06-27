@@ -12,9 +12,13 @@ import {
 
 type EpochHistoryQueryKey = ['epochHistory']
 
-// TODO(gomes): revert me -  this obviously won't work until first rewards epoch start
+// TODO: Clean up by removing the Math.min after the first epoch starts.
+// This is a temporary hack to ensure we have an epoch to test with prior to rFOX launch,
+// and the correct one after launch (in case we don't action this todo it for any reason).
 // const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
-const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs().subtract(1, 'month').unix())
+const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(
+  Math.min(dayjs().startOf('month').unix(), dayjs('2024-07-01T00:00:00Z').unix()),
+)
 
 // The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.
 // Instead we will rely on staleTime to refetch at a sensible interval.

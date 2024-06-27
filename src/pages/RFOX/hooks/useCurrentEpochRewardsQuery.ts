@@ -65,9 +65,7 @@ export const useCurrentEpochRewardsQuery = ({
         queryFn: currentEpochMetadataQuery.data
           ? getEarnedQueryFn({
               stakingAssetAccountAddress,
-              blockNumber: currentEpochMetadataQuery.data
-                ? currentEpochMetadataQuery.data.startBlockNumber - 1n
-                : undefined,
+              blockNumber: currentEpochMetadataQuery.data.startBlockNumber - 1n,
             })
           : skipToken,
         staleTime: 60 * 1000, // 1 minute in milliseconds

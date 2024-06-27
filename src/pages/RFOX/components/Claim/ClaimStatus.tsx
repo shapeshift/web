@@ -1,6 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -48,13 +48,8 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   const txStatus = useTxStatus({
     accountId: confirmedQuote.stakingAssetAccountId,
     txHash: txId,
+    onTxStatusConfirmed: handleTxConfirmed,
   })
-
-  useEffect(() => {
-    if (tx?.status !== TxStatus.Confirmed) return
-
-    handleTxConfirmed()
-  }, [handleTxConfirmed, tx?.status])
 
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!claimAsset) return null

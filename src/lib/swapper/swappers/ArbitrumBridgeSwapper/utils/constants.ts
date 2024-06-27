@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { SupportedChainIds } from 'lib/swapper/types'
+import type { SupportedChainIds } from '@shapeshiftoss/swapper'
 
 import { arbitrumBridgeSupportedChainIds } from './types'
 

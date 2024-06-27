@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { SupportedChainIds } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { SupportedChainIds } from 'lib/swapper/types'
 
 export const MIN_CROSS_CHAIN_AMOUNT_THRESHOLD_USD_HUMAN = 20 // arbitrary amount deemed by lifi devs to meet minimum amount across all brdiges
 export const MIN_SAME_CHAIN_AMOUNT_THRESHOLD_USD_HUMAN = '0.01' // Same chain bridges can be of any amount, since fees are paid explicitly as miner fees in one chain

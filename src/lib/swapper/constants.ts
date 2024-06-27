@@ -1,4 +1,4 @@
-import type { Swapper, SwapperApi } from '@shapeshiftoss/swapper'
+import type { SupportedChainIds, Swapper, SwapperApi } from '@shapeshiftoss/swapper'
 import { makeSwapErrorRight, SwapperName } from '@shapeshiftoss/swapper'
 import { cowSwapper } from 'lib/swapper/swappers/CowSwapper/CowSwapper'
 import { cowApi } from 'lib/swapper/swappers/CowSwapper/endpoints'
@@ -22,7 +22,6 @@ import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants
 import { ONE_INCH_SUPPORTED_CHAIN_IDS } from './swappers/OneInchSwapper/utils/constants'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
 import { ZRX_SUPPORTED_CHAIN_IDS } from './swappers/ZrxSwapper/utils/constants'
-import type { SupportedChainIds } from './types'
 
 export const DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL = 20_000
 export const QUOTE_TIMEOUT_MS = 60_000

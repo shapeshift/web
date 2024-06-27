@@ -1,8 +1,7 @@
 import { bchChainId, type ChainId } from '@shapeshiftoss/caip'
-import type { SwapSource } from '@shapeshiftoss/swapper'
+import type { SupportedChainIds, SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { SupportedChainIds } from 'lib/swapper/types'
 import { isUtxoChainId } from 'lib/utils/utxo'
 
 export const sellSupportedChainIds: Record<ChainId, boolean> = {

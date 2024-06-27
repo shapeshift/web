@@ -1,6 +1,13 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  CosmosSdkChainAdapter,
+  CosmosSdkChainId,
+  EvmChainAdapter,
+  EvmChainId,
+  UtxoChainAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
@@ -11,8 +18,29 @@ import type {
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import type { ethers as ethersV5 } from 'ethers5'
+import type { Chain, PublicClient, Transport } from 'viem'
 
 import type { makeSwapperAxiosServiceMonadic } from './utils'
+
+// TODO: Rename all properties in this type to be camel case and not react specific
+export type SwapperConfig = {
+  REACT_APP_ONE_INCH_API_URL: string
+  REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_COSMOS_HTTP_URL: string
+  REACT_APP_THORCHAIN_NODE_URL: string
+  REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
+  REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
+  REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
+  REACT_APP_MIDGARD_URL: string
+  REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_LITECOIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: string
+  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: string
+  REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
+  REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
+}
 
 export enum SwapperName {
   Thorchain = 'THORChain',
@@ -86,6 +114,7 @@ export type QuoteFeeData = {
 export type BuyAssetBySellIdInput = {
   sellAsset: Asset
   assets: Asset[]
+  config: SwapperConfig
 }
 
 type CommonTradeInput = {
@@ -122,6 +151,19 @@ export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
+
+export type SwapperDeps = {
+  assetsById: AssetsByIdPartial
+  assertGetChainAdapter: (
+    chainId: ChainId,
+  ) => EvmChainAdapter | UtxoChainAdapter | CosmosSdkChainAdapter
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter
+  assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
+  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
+  viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>>
+  config: SwapperConfig
+}
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -236,7 +278,7 @@ export type CommonGetUnsignedTransactionArgs = {
   chainId: ChainId
   stepIndex: SupportedTradeQuoteStepIndex
   slippageTolerancePercentageDecimal: string
-}
+} & SwapperDeps
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata & { supportsEIP1559: boolean }
@@ -269,7 +311,7 @@ export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
   stepIndex: SupportedTradeQuoteStepIndex
-}
+} & SwapperDeps
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
@@ -293,7 +335,7 @@ export type CowMessageToSign = {
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
-  filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
+  filterAssetIdsBySellable: (assets: Asset[], config: SwapperConfig) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 
@@ -318,11 +360,9 @@ export type Swapper = {
 export type SwapperApi = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
+    deps: SwapperDeps,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (
-    input: GetTradeQuoteInput,
-    assetsById: AssetsByIdPartial,
-  ) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (

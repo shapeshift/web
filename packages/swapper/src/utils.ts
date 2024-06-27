@@ -1,10 +1,20 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 
-import type { SwapErrorRight, SwapperName } from './types'
+import type {
+  EvmTransactionExecutionProps,
+  EvmTransactionRequest,
+  SupportedTradeQuoteStepIndex,
+  SwapErrorRight,
+  SwapperName,
+  TradeQuote,
+} from './types'
 import { TradeQuoteError } from './types'
 
 export const makeSwapErrorRight = ({
@@ -126,3 +136,58 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
       }
     },
   })
+
+export const getHopByIndex = (
+  quote: TradeQuote | undefined,
+  index: SupportedTradeQuoteStepIndex,
+) => {
+  if (quote === undefined) return undefined
+  if (index > 1) {
+    throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
+  }
+  const hop = quote.steps[index]
+
+  return hop
+}
+
+export const executeEvmTransaction = (
+  txToSign: EvmTransactionRequest,
+  callbacks: EvmTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const createDefaultStatusResponse = (buyTxHash?: string) => ({
+  status: TxStatus.Unknown,
+  buyTxHash,
+  message: undefined,
+})
+
+export const checkEvmSwapStatus = async ({
+  txHash,
+  chainId,
+  assertGetEvmChainAdapter,
+}: {
+  txHash: string
+  chainId: ChainId
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+}): Promise<{
+  status: TxStatus
+  buyTxHash: string | undefined
+  message: string | undefined
+}> => {
+  try {
+    const adapter = assertGetEvmChainAdapter(chainId)
+    const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+    const status = getTxStatus(tx)
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
+}

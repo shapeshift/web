@@ -9,15 +9,13 @@ import type {
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { EvmTransactionExecutionProps, EvmTransactionRequest } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
+import type { Fees } from '@shapeshiftoss/utils/dist/evm'
+import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import { getOrCreateContractByType } from 'contracts/contractManager'
 import { ContractType } from 'contracts/types'
 import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import type { PartialFields } from 'lib/types'
 
 import { getSupportedChainIdsByChainNamespace } from '..'
@@ -77,11 +75,6 @@ type GetFeesCommonArgs = {
   value: string
 }
 
-type GetFeesArgs = GetFeesCommonArgs & {
-  from: string
-  supportsEIP1559: boolean
-}
-
 export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
   accountNumber: number
   wallet: HDWallet
@@ -92,17 +85,6 @@ export type MaybeGetFeesWithWalletArgs = PartialFields<
   'adapter' | 'accountNumber' | 'data' | 'to'
 > & {
   wallet: HDWallet | null
-}
-
-export type Fees = evm.Fees & {
-  gasLimit: string
-  networkFeeCryptoBaseUnit: string
-}
-
-export type EvmFees = {
-  fees: Fees
-  txFeeFiat: string
-  networkFeeCryptoBaseUnit: string
 }
 
 export const isGetFeesWithWalletArgs = (
@@ -119,54 +101,6 @@ export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fe
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
   return getFees({ ...rest, adapter, from, supportsEIP1559 })
-}
-
-export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
-  const { adapter, data, to, value, from, supportsEIP1559 } = args
-
-  const {
-    average: { chainSpecific: feeData },
-  } = await adapter.getFeeData({ to, value, chainSpecific: { from, data } })
-
-  const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
-    ...feeData,
-    supportsEIP1559,
-  })
-
-  const { gasLimit, gasPrice, maxFeePerGas, maxPriorityFeePerGas } = feeData
-
-  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
-    return { networkFeeCryptoBaseUnit, gasLimit, maxFeePerGas, maxPriorityFeePerGas }
-  }
-
-  return { networkFeeCryptoBaseUnit, gasLimit, gasPrice }
-}
-
-type CalcNetworkFeeCryptoBaseUnitArgs = evm.FeeData & {
-  supportsEIP1559: boolean
-}
-
-export const calcNetworkFeeCryptoBaseUnit = (args: CalcNetworkFeeCryptoBaseUnitArgs) => {
-  const {
-    supportsEIP1559,
-    gasLimit,
-    gasPrice,
-    l1GasLimit,
-    l1GasPrice,
-    maxFeePerGas,
-    maxPriorityFeePerGas,
-  } = args
-
-  // l1 fee if exists or 0
-  const l1Fee = bnOrZero(l1GasPrice).times(bnOrZero(l1GasLimit))
-
-  // eip1559 fees
-  if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
-    return bn(gasLimit).times(maxFeePerGas).plus(l1Fee).toFixed(0)
-  }
-
-  // legacy fees
-  return bn(gasLimit).times(gasPrice).plus(l1Fee).toFixed(0)
 }
 
 export const createBuildCustomTxInput = async (
@@ -282,46 +216,6 @@ export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmC
   }
 
   return adapter
-}
-
-export const executeEvmTransaction = (
-  txToSign: EvmTransactionRequest,
-  callbacks: EvmTransactionExecutionProps,
-) => {
-  return callbacks.signAndBroadcastTransaction(txToSign)
-}
-
-export const createDefaultStatusResponse = (buyTxHash?: string) => ({
-  status: TxStatus.Unknown,
-  buyTxHash,
-  message: undefined,
-})
-
-export const checkEvmSwapStatus = async ({
-  txHash,
-  chainId,
-}: {
-  txHash: string
-  chainId: ChainId
-}): Promise<{
-  status: TxStatus
-  buyTxHash: string | undefined
-  message: string | undefined
-}> => {
-  try {
-    const adapter = assertGetEvmChainAdapter(chainId)
-    const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
-    const status = getTxStatus(tx)
-
-    return {
-      status,
-      buyTxHash: txHash,
-      message: undefined,
-    }
-  } catch (e) {
-    console.error(e)
-    return createDefaultStatusResponse(txHash)
-  }
 }
 
 export const getSupportedEvmChainIds = () => {

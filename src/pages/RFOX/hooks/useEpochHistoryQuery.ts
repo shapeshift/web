@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
-import type { EpochMetadata, PartialEpochMetadata } from '../types'
+import type { EpochMetadata } from '../types'
 import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
 import {
   getEarliestBlockNumberByTimestampQueryFn,
@@ -11,7 +11,6 @@ import {
 } from './useEarliestBlockNumberByTimestampQuery/useEarliestBlockNumberByTimestampQuery'
 
 type EpochHistoryQueryKey = ['epochHistory']
-type CurrentEpochMetadataQueryKey = ['currentEpochMetadata']
 
 // TODO: Clean up by removing the Math.min after the first epoch starts.
 // This is a temporary hack to ensure we have an epoch to test with prior to rFOX launch,
@@ -36,6 +35,7 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
   let startBlockNumber = await queryClient.fetchQuery({
     queryKey: getEarliestBlockNumberByTimestampQueryKey({ targetTimestamp: startTimestamp }),
     queryFn: getEarliestBlockNumberByTimestampQueryFn({ targetTimestamp: startTimestamp }),
+    staleTime: Infinity, // Block numbers don't change vs timestamp so we can cache this forever
   })
 
   const epochHistory = []
@@ -54,6 +54,7 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
     const nextBlockNumber = await queryClient.fetchQuery({
       queryKey: getEarliestBlockNumberByTimestampQueryKey({ targetTimestamp: nextStartTimestamp }),
       queryFn: getEarliestBlockNumberByTimestampQueryFn({ targetTimestamp: nextStartTimestamp }),
+      staleTime: Infinity, // Block numbers don't change vs timestamp so we can cache this forever
     })
     startBlockNumber = nextBlockNumber
 
@@ -63,6 +64,7 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
     const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
       queryKey: getAffiliateRevenueQueryKey({ startTimestamp, endTimestamp }),
       queryFn: getAffiliateRevenueQueryFn({ startTimestamp, endTimestamp }),
+      staleTime: Infinity, // Historical affiliate revenue does not change so we can cache this forever
     })
 
     const epochMetadata = {
@@ -77,48 +79,6 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
   }
 
   return epochHistory
-}
-
-export const getCurrentEpochMetadataQueryKey = (): CurrentEpochMetadataQueryKey => [
-  'currentEpochMetadata',
-]
-
-export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata> => {
-  // Knowing that an epoch starts at the beginning of each calendar month makes things easy - current epoch
-  // starts at the beginning of the current month and ends at the end of it
-  const currentEpochStart = dayjs().startOf('month')
-  const currentEpochStartTimestamp = BigInt(currentEpochStart.unix())
-
-  const currentEpochStartBlockNumber = await queryClient.fetchQuery({
-    queryKey: getEarliestBlockNumberByTimestampQueryKey({
-      targetTimestamp: currentEpochStartTimestamp,
-    }),
-    queryFn: getEarliestBlockNumberByTimestampQueryFn({
-      targetTimestamp: currentEpochStartTimestamp,
-    }),
-  })
-
-  // And same here - last second of the month is the end of the epoch
-  const currentEpochEndTimestamp = BigInt(dayjs(currentEpochStart).endOf('month').unix())
-
-  const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
-    queryKey: getAffiliateRevenueQueryKey({
-      startTimestamp: currentEpochStartTimestamp,
-      endTimestamp: currentEpochEndTimestamp,
-    }),
-    queryFn: getAffiliateRevenueQueryFn({
-      startTimestamp: currentEpochStartTimestamp,
-      endTimestamp: currentEpochEndTimestamp,
-    }),
-  })
-
-  return {
-    startBlockNumber: currentEpochStartBlockNumber,
-    endBlockNumber: undefined,
-    startTimestamp: currentEpochStartTimestamp,
-    endTimestamp: currentEpochEndTimestamp,
-    distributionAmountRuneBaseUnit,
-  }
 }
 
 export const useEpochHistoryQuery = () => {

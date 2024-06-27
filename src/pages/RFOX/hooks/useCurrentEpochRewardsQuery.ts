@@ -1,12 +1,12 @@
 import type { UseQueryResult } from '@tanstack/react-query'
-import { skipToken, useQueries, useQuery } from '@tanstack/react-query'
+import { skipToken, useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { mergeQueryOutputs } from 'react-queries/helpers'
 
 import type { PartialEpochMetadata } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
+import { useCurrentEpochMetadataQuery } from './useCurrentEpochMetadataQuery'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
-import { fetchCurrentEpochMetadata, getCurrentEpochMetadataQueryKey } from './useEpochHistoryQuery'
 
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
@@ -18,10 +18,7 @@ type UseCurrentEpochRewardsQueryProps = {
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
 }: UseCurrentEpochRewardsQueryProps) => {
-  const currentEpochMetadataQuery = useQuery({
-    queryKey: getCurrentEpochMetadataQueryKey(),
-    queryFn: fetchCurrentEpochMetadata,
-  })
+  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
   const combine = useCallback(
     (_queries: [UseQueryResult<bigint, Error>, UseQueryResult<bigint, Error>]) => {

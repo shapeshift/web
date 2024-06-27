@@ -1,5 +1,7 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertIcon,
   Button,
   Card,
   CardFooter,
@@ -18,11 +20,13 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { type Asset } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import {
+  ArbitrumBridgeAcknowledgement,
   StreamingAcknowledgement,
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
@@ -53,6 +57,10 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
 import {
+  type ArbitrumBridgeTradeQuote,
+  isArbitrumBridgeTradeQuote,
+} from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
 } from 'lib/swapper/swappers/ThorchainSwapper/constants'
@@ -61,6 +69,7 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
+  selectFeeAssetById,
   selectHasUserEnteredAmount,
   selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
@@ -111,6 +120,7 @@ const formControlProps = {
 }
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
+const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD = 1_000 * 60 * 5
 
 type TradeInputProps = {
   isCompact?: boolean
@@ -139,11 +149,16 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [shouldShowStreamingAcknowledgement, setShouldShowStreamingAcknowledgement] =
     useState(false)
+  const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
+    useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
   const buyAssetSearch = useModal('buyTradeAssetSearch')
   const sellAssetSearch = useModal('sellTradeAssetSearch')
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAssetFeeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, buyAsset?.assetId ?? ''),
+  )
   const percentOptions = useMemo(() => {
     if (!sellAsset?.assetId) return []
     if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
@@ -405,6 +420,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     if (shouldShowWarningAcknowledgement) setShouldShowWarningAcknowledgement(false)
     // We also need to reset the streaming acknowledgement if the active quote has changed
     if (shouldShowStreamingAcknowledgement) setShouldShowStreamingAcknowledgement(false)
+    if (shouldShowArbitrumBridgeAcknowledgement) setShouldShowArbitrumBridgeAcknowledgement(false)
     // We need to ignore changes to shouldShowWarningAcknowledgement or this effect will react to itself
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuote])
@@ -463,6 +479,23 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
+  const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =
+    useMemo(() => {
+      if (!buyAssetFeeAsset) return
+      // TODO(gomes): Bring me in for all bridges?
+      const isArbitrumBridgeDeposit =
+        (activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'deposit'
+
+      if (isArbitrumBridgeDeposit)
+        return [
+          'bridge.nativeAssetWarning',
+          {
+            destinationSymbol: buyAssetFeeAsset.symbol,
+            destinationChainName: buyAssetFeeAsset.networkName,
+          },
+        ]
+    }, [activeQuote, buyAssetFeeAsset])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <>
@@ -510,6 +543,12 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
           bg='background.surface.raised.accent'
           borderBottomRadius='xl'
         >
+          {nativeAssetBridgeWarning && (
+            <Alert status='info' borderRadius='lg'>
+              <AlertIcon />
+              <Text translation={nativeAssetBridgeWarning} />
+            </Alert>
+          )}
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
           <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
 
@@ -543,6 +582,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       totalProtocolFees,
       slippageDecimal,
       priceImpactPercentage,
+      nativeAssetBridgeWarning,
       receiveAddress,
       walletSupportsBuyAssetChain,
       quoteHasError,
@@ -551,20 +591,35 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     ],
   )
 
+  const isEstimatedExecutionTimeOverTreshold = useMemo(() => {
+    if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
+
+    if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD)
+      return true
+
+    return false
+  }, [tradeQuoteStep?.estimatedExecutionTimeMs])
+
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   // If the warning acknowledgement is shown, we need to handle the submit differently because we might want to show the streaming acknowledgement
   const handleWarningAcknowledgementSubmit = useCallback(() => {
-    if (activeQuote?.isStreaming) return setShouldShowStreamingAcknowledgement(true)
+    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverTreshold)
+      return setShouldShowStreamingAcknowledgement(true)
+    if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
+      return setShouldShowArbitrumBridgeAcknowledgement(true)
     handleFormSubmit()
-  }, [handleFormSubmit, activeQuote?.isStreaming])
+  }, [activeQuote, isEstimatedExecutionTimeOverTreshold, handleFormSubmit])
 
   const handleTradeQuoteConfirm = useCallback(() => {
     if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
-    if (activeQuote?.isStreaming) return setShouldShowStreamingAcknowledgement(true)
+    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverTreshold)
+      return setShouldShowStreamingAcknowledgement(true)
+    if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
+      return setShouldShowArbitrumBridgeAcknowledgement(true)
 
     handleFormSubmit()
-  }, [handleFormSubmit, isUnsafeQuote, activeQuote?.isStreaming])
+  }, [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverTreshold, handleFormSubmit])
 
   const sellTradeAssetSelect = useMemo(
     () => (
@@ -638,113 +693,119 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
               visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
               position={isCompactQuoteListOpen ? 'absolute' : undefined}
             >
-              <StreamingAcknowledgement
+              <ArbitrumBridgeAcknowledgement
                 onAcknowledge={handleFormSubmit}
-                shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
-                setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-                estimatedTimeSeconds={
-                  tradeQuoteStep?.estimatedExecutionTimeMs
-                    ? `${tradeQuoteStep?.estimatedExecutionTimeMs / 1000}`
-                    : ''
-                }
+                shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
+                setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
               >
-                <WarningAcknowledgement
-                  message={warningAcknowledgementMessage}
-                  onAcknowledge={handleWarningAcknowledgementSubmit}
-                  shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-                  setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+                <StreamingAcknowledgement
+                  onAcknowledge={handleFormSubmit}
+                  shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+                  setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
+                  estimatedTimeMs={
+                    tradeQuoteStep?.estimatedExecutionTimeMs
+                      ? tradeQuoteStep.estimatedExecutionTimeMs
+                      : 0
+                  }
                 >
-                  <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
-                    <CardHeader px={6}>
-                      <Flex alignItems='center' justifyContent='space-between'>
-                        <Heading as='h5' fontSize='md'>
-                          {translate('navBar.trade')}
-                        </Heading>
-                        <Flex gap={2} alignItems='center'>
-                          {activeQuote && (isCompact || isSmallerThanXl) && (
-                            <CountdownSpinner
-                              isLoading={isLoading || isRefetching}
-                              initialTimeMs={pollingInterval}
-                            />
-                          )}
-                          <SlippagePopover />
+                  <WarningAcknowledgement
+                    message={warningAcknowledgementMessage}
+                    onAcknowledge={handleWarningAcknowledgementSubmit}
+                    shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+                    setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+                  >
+                    <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
+                      <CardHeader px={6}>
+                        <Flex alignItems='center' justifyContent='space-between'>
+                          <Heading as='h5' fontSize='md'>
+                            {translate('navBar.trade')}
+                          </Heading>
+                          <Flex gap={2} alignItems='center'>
+                            {activeQuote && (isCompact || isSmallerThanXl) && (
+                              <CountdownSpinner
+                                isLoading={isLoading || isRefetching}
+                                initialTimeMs={pollingInterval}
+                              />
+                            )}
+                            <SlippagePopover />
+                          </Flex>
                         </Flex>
-                      </Flex>
-                    </CardHeader>
-                    <Stack spacing={0}>
-                      <SellAssetInput
-                        accountId={initialSellAssetAccountId}
-                        asset={sellAsset}
-                        label={translate('trade.payWith')}
-                        onAccountIdChange={setSellAssetAccountId}
-                        labelPostFix={sellTradeAssetSelect}
-                        percentOptions={percentOptions}
-                      />
-                      <Flex alignItems='center' justifyContent='center' my={-2}>
-                        <Divider />
-                        <CircularProgress
-                          color='blue.500'
-                          thickness='4px'
-                          size='34px'
-                          trackColor='transparent'
-                          isIndeterminate={isLoading}
-                          borderRadius='full'
-                        >
-                          <CircularProgressLabel
-                            fontSize='md'
-                            display='flex'
-                            alignItems='center'
-                            justifyContent='center'
+                      </CardHeader>
+                      <Stack spacing={0}>
+                        <SellAssetInput
+                          accountId={initialSellAssetAccountId}
+                          asset={sellAsset}
+                          label={translate('trade.payWith')}
+                          onAccountIdChange={setSellAssetAccountId}
+                          labelPostFix={sellTradeAssetSelect}
+                          percentOptions={percentOptions}
+                        />
+                        <Flex alignItems='center' justifyContent='center' my={-2}>
+                          <Divider />
+                          <CircularProgress
+                            color='blue.500'
+                            thickness='4px'
+                            size='34px'
+                            trackColor='transparent'
+                            isIndeterminate={isLoading}
+                            borderRadius='full'
                           >
-                            <IconButton
-                              onClick={handleSwitchAssets}
-                              isRound
-                              size='sm'
-                              position='relative'
-                              variant='outline'
-                              borderColor='border.base'
-                              zIndex={1}
-                              aria-label={translate('lending.switchAssets')}
-                              icon={arrowDownIcon}
-                              isDisabled={shouldDisableSwitchAssets}
-                            />
-                          </CircularProgressLabel>
-                        </CircularProgress>
+                            <CircularProgressLabel
+                              fontSize='md'
+                              display='flex'
+                              alignItems='center'
+                              justifyContent='center'
+                            >
+                              <IconButton
+                                onClick={handleSwitchAssets}
+                                isRound
+                                size='sm'
+                                position='relative'
+                                variant='outline'
+                                borderColor='border.base'
+                                zIndex={1}
+                                aria-label={translate('lending.switchAssets')}
+                                icon={arrowDownIcon}
+                                isDisabled={shouldDisableSwitchAssets}
+                              />
+                            </CircularProgressLabel>
+                          </CircularProgress>
 
-                        <Divider />
-                      </Flex>
-                      <TradeAssetInput
-                        // Disable account selection when user set a manual receive address
-                        isAccountSelectionHidden={Boolean(manualReceiveAddress)}
-                        isReadOnly={true}
-                        accountId={initialBuyAssetAccountId}
-                        assetId={buyAsset.assetId}
-                        assetSymbol={buyAsset.symbol}
-                        assetIcon={buyAsset.icon}
-                        cryptoAmount={
-                          hasUserEnteredAmount
-                            ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-                            : '0'
-                        }
-                        fiatAmount={
-                          hasUserEnteredAmount
-                            ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
-                            : '0'
-                        }
-                        percentOptions={emptyPercentOptions}
-                        showInputSkeleton={isLoading}
-                        showFiatSkeleton={isLoading}
-                        label={translate('trade.youGet')}
-                        onAccountIdChange={setBuyAssetAccountId}
-                        formControlProps={formControlProps}
-                        labelPostFix={buyTradeAssetSelect}
-                        priceImpactPercentage={priceImpactPercentage?.toString()}
-                      />
+                          <Divider />
+                        </Flex>
+                        <TradeAssetInput
+                          // Disable account selection when user set a manual receive address
+                          isAccountSelectionHidden={Boolean(manualReceiveAddress)}
+                          isReadOnly={true}
+                          accountId={initialBuyAssetAccountId}
+                          assetId={buyAsset.assetId}
+                          assetSymbol={buyAsset.symbol}
+                          assetIcon={buyAsset.icon}
+                          cryptoAmount={
+                            hasUserEnteredAmount
+                              ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
+                              : '0'
+                          }
+                          fiatAmount={
+                            hasUserEnteredAmount
+                              ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
+                              : '0'
+                          }
+                          percentOptions={emptyPercentOptions}
+                          showInputSkeleton={isLoading}
+                          showFiatSkeleton={isLoading}
+                          label={translate('trade.youGet')}
+                          onAccountIdChange={setBuyAssetAccountId}
+                          formControlProps={formControlProps}
+                          labelPostFix={buyTradeAssetSelect}
+                          priceImpactPercentage={priceImpactPercentage?.toString()}
+                        />
+                      </Stack>
+                      {ConfirmSummary}
                     </Stack>
-                    {ConfirmSummary}
-                  </Stack>
-                </WarningAcknowledgement>
-              </StreamingAcknowledgement>
+                  </WarningAcknowledgement>
+                </StreamingAcknowledgement>
+              </ArbitrumBridgeAcknowledgement>
             </Card>
 
             <WithLazyMount

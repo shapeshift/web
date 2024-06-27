@@ -1,7 +1,9 @@
 import { Box, SimpleGrid } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { formatSecondsToDuration } from 'lib/utils/time'
+import { useLifetimeRewardsQuery } from 'pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
 
 import { StakingInfoItem } from './StakingInfoItem'
@@ -28,6 +30,13 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
+  const {
+    data: lifetimeRewardsCryptoBaseUnit,
+    isLoading: isLifetimeRewardsCryptoBaseUnitLoading,
+    isPending: isLifetimeRewardsCryptoBaseUnitPending,
+    isPaused: isLifetimeRewardsCryptoBaseUnitPaused,
+  } = useLifetimeRewardsQuery({ stakingAssetAccountAddress })
+
   return (
     <Box>
       <Text mb={6} translation='RFOX.myPosition' />
@@ -50,9 +59,13 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
         <StakingInfoItem
           informationDescription='RFOX.lifetimeRewards'
           helperTranslation='RFOX.lifetimeRewardsHelper'
-          assetId={stakingAssetId}
-          amountCryptoBaseUnit='100000000000'
-          isLoading={false}
+          assetId={thorchainAssetId}
+          amountCryptoBaseUnit={lifetimeRewardsCryptoBaseUnit?.toString()}
+          isLoading={
+            isLifetimeRewardsCryptoBaseUnitLoading ||
+            isLifetimeRewardsCryptoBaseUnitPaused ||
+            isLifetimeRewardsCryptoBaseUnitPending
+          }
         />
         <StakingInfoItem
           informationDescription='RFOX.timeInPool'

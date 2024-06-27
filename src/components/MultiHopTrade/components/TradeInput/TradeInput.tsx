@@ -704,8 +704,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
                   setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
                   estimatedTimeSeconds={
                     tradeQuoteStep?.estimatedExecutionTimeMs
-                      ? `${tradeQuoteStep?.estimatedExecutionTimeMs / 1000}`
-                      : ''
+                      ? tradeQuoteStep?.estimatedExecutionTimeMs / 1000
+                      : 0
                   }
                 >
                   <WarningAcknowledgement

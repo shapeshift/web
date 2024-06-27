@@ -9,6 +9,7 @@ import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 import { StreamIcon } from 'components/Icons/Stream'
 import { RawText, Text } from 'components/Text'
+import { formatSecondsToDuration } from 'lib/utils/time'
 
 const initialProps = { opacity: 0 }
 const animateProps = { opacity: 1 }
@@ -93,7 +94,7 @@ type AcknowledgementProps = {
 }
 
 type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
-  estimatedTimeSeconds: string
+  estimatedTimeSeconds: number
 }
 type ArbitrumAcknowledgementProps = Omit<AcknowledgementProps, 'message'>
 
@@ -234,7 +235,7 @@ export const StreamingAcknowledgement = ({
       buttonColorScheme='blue'
       buttonTranslation='common.continue'
       message={translate('streamingAcknowledgement.description', {
-        estimatedTimeSeconds,
+        estimatedTimeSeconds: formatSecondsToDuration(estimatedTimeSeconds),
       })}
       icon={StreamIcon}
     />

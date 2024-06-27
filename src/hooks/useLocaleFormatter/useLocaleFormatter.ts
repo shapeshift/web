@@ -41,10 +41,7 @@ export type NumberFormatter = {
   number: {
     localeParts: LocaleParts
     toCrypto: (number: NumberValue, symbol?: string, options?: NumberFormatOptions) => string
-    toCryptoInput: (number: NumberValue, symbol?: string, options?: NumberFormatOptions) => string
     toFiat: (number: NumberValue, options?: NumberFormatOptions) => string
-    toFiatInput: (number: NumberValue, options?: NumberFormatOptions) => string
-    toParts: (value: string) => FiatParts
     toPercent: (number: NumberValue, options?: NumberFormatOptions) => string
     toString: (number: NumberValue, options?: NumberFormatOptions) => string
   }
@@ -54,7 +51,6 @@ export type NumberFormatter = {
   }
 }
 
-const parseString = /(\D*)([\d|.,]+)(.*)/
 const toNumber = (number: string | number): number => Number(number) || 0
 const toDate = (date: DateValue): Date | null => {
   if (!date) return null
@@ -136,20 +132,6 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
   }, [fiatTypeToUse, deviceLocale])
 
   /**
-   * Parse a formatted number string into a prefix, number, and postfix
-   * Example inputs: $1.000,00, 0.01 BTC, 10 $, 50.00%
-   */
-  const numberToParts = (value: string): FiatParts => {
-    const parts = parseString.exec(value)
-
-    return {
-      number: parts?.[2],
-      prefix: parts?.[1],
-      postfix: parts?.[3]?.trim(),
-    }
-  }
-
-  /**
    * Helper function to abbreviate number to truncate rather than round fractions
    * @param {number} maximumFractionDigits - truncate fraction after this number of digits. Use 0 for no fraction.
    * @param omitDecimalTrailingZeros
@@ -207,20 +189,6 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     [deviceLocale],
   )
 
-  /** If the number that is being formatted has a trailing decimal, add it back to the formatted number */
-  const showTrailingDecimal = useCallback(
-    (num: NumberValue, formattedNum: string): string => {
-      const parts = numberToParts(formattedNum)
-      const numHasDecimal = String(num).includes(localeParts.decimal)
-      const decimalWasRemoved = !parts?.number?.includes(localeParts.decimal)
-      if (numHasDecimal && decimalWasRemoved) {
-        parts.number = parts.number + localeParts.decimal
-      }
-      return `${parts.prefix}${parts.number} ${parts.postfix}`
-    },
-    [localeParts],
-  )
-
   /** Format a number as a crypto display value */
   const numberToCrypto = (
     num: NumberValue,
@@ -243,22 +211,6 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     return bn(num).decimalPlaces(maximumFractionDigits).toFormat(formatOptions)
   }
 
-  /**
-   * Format a number as a crypto input value.
-   * This shows any trailing decimals and zeros as the user is typing in their number
-   */
-  const numberToCryptoInput = (
-    num: NumberValue,
-    symbol = 'BTC',
-    options?: NumberFormatOptions,
-  ): string => {
-    const fractionDigits = (String(num).split(localeParts.decimal)?.[1] ?? '').length
-    const minimumFractionDigits =
-      fractionDigits < CRYPTO_PRECISION ? fractionDigits : CRYPTO_PRECISION
-    const crypto = numberToCrypto(num, symbol, { ...options, minimumFractionDigits })
-    return showTrailingDecimal(num, crypto)
-  }
-
   /** Format a number as a fiat display value */
   const numberToFiat = useCallback(
     (value: NumberValue, options?: NumberFormatOptions): string => {
@@ -272,26 +224,6 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       }
     },
     [abbreviateNumber, fiatTypeToUse],
-  )
-
-  /**
-   * Format a number as a fiat input value.
-   * This shows any trailing decimals and zeros as the user is typing in their number
-   */
-  const numberToFiatInput = useCallback(
-    (num: NumberValue, options?: NumberFormatOptions): string => {
-      try {
-        const { fraction } = localeParts
-        const fractionDigits = (String(num).split(localeParts.decimal)?.[1] ?? '').length
-        const minimumFractionDigits = Math.min(fractionDigits, fraction)
-        const fiat = numberToFiat(num, { ...options, minimumFractionDigits })
-        return showTrailingDecimal(num, fiat)
-      } catch (e) {
-        console.error(e)
-        return String(num)
-      }
-    },
-    [localeParts, numberToFiat, showTrailingDecimal],
   )
 
   const numberToPercent = (number: NumberValue, options: NumberFormatOptions = {}): string => {
@@ -330,10 +262,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     number: {
       localeParts,
       toCrypto: numberToCrypto,
-      toCryptoInput: numberToCryptoInput,
       toFiat: numberToFiat,
-      toFiatInput: numberToFiatInput,
-      toParts: numberToParts,
       toPercent: numberToPercent,
       toString: numberToString,
     },

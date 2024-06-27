@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import { bn } from 'lib/bignumber/bignumber'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -226,10 +227,20 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     symbol = 'BTC',
     options?: NumberFormatOptions,
   ): string => {
-    return `${toNumber(num).toLocaleString(deviceLocale, {
-      maximumFractionDigits: CRYPTO_PRECISION,
-      ...options,
-    })} ${symbol}`
+    const maximumFractionDigits =
+      options?.maximumFractionDigits !== undefined
+        ? options.maximumFractionDigits
+        : CRYPTO_PRECISION
+
+    const formatOptions = {
+      decimalSeparator: localeParts.decimal,
+      groupSeparator: localeParts.group,
+      groupSize: localeParts.groupSize,
+      secondaryGroupSize: localeParts.secondaryGroupSize,
+      suffix: ` ${symbol}`,
+    }
+
+    return bn(num).decimalPlaces(maximumFractionDigits).toFormat(formatOptions)
   }
 
   /**

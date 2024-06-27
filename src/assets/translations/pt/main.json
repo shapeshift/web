@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "Histórico de transações degradado",
     "degradedInfo": "Incapaz de encontrar dados de algumas contas. ",
     "success": "Sucesso",
+    "happySuccess": "Sucesso!",
     "retry": "Tente novamente",
     "retryQuestion": "Tentar novamente?",
     "transactionFailed": "Falha na transação",
     "transactionFailedBody": "Falha na transação",
     "submitFeedback": "Deixe um comentário",
     "send": "Enviar",
+    "sendAmountAsset": "Enviar %{quantia} %{ativo}",
     "receive": "Receber",
     "privacy": "Política de Privacidade",
     "terms": "Termos de Serviço",
@@ -138,7 +140,9 @@
     "showLess": "Mostrar menos",
     "yourBalance": "Seu saldo",
     "signTransaction": "Assinar transação",
+    "active": "Ativo",
     "halted": "Pausada",
+    "full": "Completo",
     "disabled": "Desabilitado",
     "staged": "Staged",
     "poolHalted": "Pool Pausada",
@@ -477,6 +481,7 @@
     "earnBalance": "Investimentos",
     "rewardsBalance": "Recompensas",
     "earnBody": "Deposite seus ativos em estratégias DeFi de renda passiva.",
+    "noAccountsOpportunities": "Você não tem contas para este ativo, portanto, as oportunidades de staking não estão disponíveis no momento.",
     "clickHereToEarn": "Clique aqui para ganhar %{apr} APR* farmando na sua pool de ETH-FOX",
     "overview": "Visão Geral",
     "myPositions": "Minhas Posições",
@@ -637,6 +642,12 @@
     "for": "Por",
     "emptyMessage": "Suas %{status} transações aparecerão aqui.",
     "parser": {
+      "rfox": {
+        "stake": "Stake",
+        "withdraw": "Retirar",
+        "unstakeRequest": "Solicitação de Unstake",
+        "setRuneAddress": "Definir endereço da Rune"
+      },
       "weth": {
         "deposit": "Depósito",
         "approve": "Aprovar",
@@ -1041,7 +1052,7 @@
         "tooltip": "Enviar fundos para um único endereço compatível com a THORChain.",
         "consolidateFunds": "Consolidar"
       },
-      "getBalanceError": "Erro ao obter saldos da carteira",
+      "getFeesError": "Erro ao receber taxas",
       "broadcastingTransaction": "Transmitindo Transação",
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
       "tokenAddress": "Endereço do token",
@@ -2405,6 +2416,9 @@
     "highSlippageTrade": "Esta negociação é impactada pelo movimento de preços (%{slippagePercentage}%). Prossiga com cuidado.",
     "unsafeTrade": "Esta negociação pode ser insegura ou estar abaixo do tamanho mínimo recomendado, proceda com cautela."
   },
+  "streamingAcknowledgement": {
+    "description": "Este é uma streaming swap. Embora você obtenha um preço melhor, pode levar até %{estimatedTimeSeconds}s para ser concluído."
+  },
   "watchlist": {
     "empty": {
       "title": "Comece a construir sua watchlist",
@@ -2427,9 +2441,15 @@
     }
   },
   "RFOX": {
+    "staking": "rFOX Staking",
+    "bridge": "Ponte",
+    "bridgeFunds": "Faça a ponte de seus fundos",
+    "bridgeSuccess": "Seus fundos foram transferidos com sucesso. Agora você pode continuar com staking.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Resgatar",
+    "rewards": "Recompensas",
+    "claims": "Resgates",
     "changeAddress": "Mudar endereço",
     "sameAddressNotAllowed": "Mesmo endereço não é permitido",
     "stakingDetails": "Detalhes do Staking",
@@ -2448,6 +2468,7 @@
     "useWalletAddress": "Usar endereço de carteira",
     "useCustomAddress": "Usar endereço personalizado",
     "stakeWarning": "Ao realizar o stake dos seus tokens FOX, esteja ciente de que há um período de bloqueio de %{cooldownPeriod}. Isso significa que se você decidir retirar seus tokens, precisará esperar %{cooldownPeriod} antes de poder reivindicar seus fundos.",
+    "bridgeCta": "Você selecionou %{assetSymbol} em %{originNetwork}, mas precisará de %{assetSymbol} em %{destinationNetwork} para fazer stake. Podemos ajudá-lo a conectar sua conexão com %{destinationNetwork}. Gostaria que o orientássemos durante o processo?",
     "unstakeWarning": "Antes de você poder reivindicar seus FOX, há um período de espera de %{cooldownPeriod}. Após esse tempo, você poderá reivindicar o valor que não está em stake.",
     "tooltips": {
       "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
@@ -2461,6 +2482,7 @@
     "stakePending": "Staking %{amount} %{symbol}...",
     "addressUpdated": "Endereço atualizado",
     "changeRewardAddressPending": "Alterando endereço de recompensa...",
+    "changeRewardAddressSuccess": "Você alterou com sucesso seu endereço de recompensa da THORChain.",
     "unstakePending": "Solicitando saque de %{amount} %{symbol}",
     "unstakeSuccess": "Assim que %{cooldownPeriod} tiver decorrido, você poderá resgatar seu %{amount} %{symbol}",
     "currentRewardAddress": "Endereço de recompensa atual",
@@ -2477,7 +2499,58 @@
     "claimSuccess": "Você resgatou com sucesso %{amount} %{symbol}.",
     "claimReceiveAddress": "Endereço Para Receber Resgate",
     "noClaimsAvailable": "Nenhuma resgate disponível",
+    "errorFetchingClaims": "Ocorreu um erro ao buscar resgates",
     "noClaimsAvailableDescription": "Você não tem nenhum resgate disponível",
-    "unstakeNow": "Unstake agora"
+    "unstakeNow": "Unstake agora",
+    "bridgeAndConfirm": "Confirme & Faça a ponte",
+    "noSupportedChains": "Rede não suportada",
+    "noSupportedChainsDescription": "Adicione %{chainLabel} ou conecte-se a uma carteira que suporte isso.",
+    "confirmAndBridge": "Confirme & Faça a ponte",
+    "myRewardBalance": "Meu saldo de recompensas",
+    "myRewardBalanceHelper": "Meu saldo de recompensas",
+    "pendingRewardsBalance": "Saldo de recompensas pendente",
+    "pendingRewardsBalanceHelper": "Saldo de recompensas pendente",
+    "lifetimeRewards": "Recompensas vitalícias",
+    "lifetimeRewardsHelper": "Recompensas vitalícias",
+    "timeInPool": "Tempo na Pool",
+    "timeInPoolHelper": "Tempo na Pool",
+    "myPosition": "Minha posição",
+    "faq": {
+      "title": "Perguntas frequentes",
+      "what": {
+        "title": "O que é rFOX?",
+        "body": "rFOX é um termo usado para descrever os benefícios e recompensas que você recebe ao fazer stake dos seus tokens FOX no Arbitrum. Atualmente, você os trava e desbloqueia tokens vanilla FOX (no Arbitrum) para emissões de staking."
+      },
+      "why": {
+        "title": "Por que fazer o stake de FOX?",
+        "body": "Realizar o stake do seu FOX permite que você receba pagamentos regulares de RUNE do tesouro do DAO, proporcionando um fluxo constante de renda passiva em RUNE por época. Além disso, uma parte do RUNE recebido pela DAO é usada para comprar FOX no mercado aberto e queimá-la, reduzindo a oferta geral. O staking também apoia o alinhamento do ShapeShift DAO com o ecossistema THORChain, contribuindo para o seu crescimento e sucesso. O processo de piquetagem requer um período mínimo de 28 dias, incentivando o comprometimento e a estabilidade na comunidade."
+      },
+      "stake": {
+        "title": "Como faço para realizar stake de FOX?",
+        "body": "Para fazer stake do seu FOX, você usa a interface de staking para bloquear seus tokens FOX no contrato. Você precisará assinar uma mensagem ou transação para atribuir o endereço onde suas recompensas RUNE serão pagas. Depois do staking, você começa a ganhar recompensas RUNE por bloco como parte dos benefícios."
+      },
+      "unstake": {
+        "title": "O que acontece quando realizo o unstake?",
+        "body": "Quando você decide fazer o unstake, há um período mínimo de saque de 28 dias. Durante esse período, seus tokens FOX permanecerão bloqueados e você deixará de receber emissões de RUNE. Após o período de retirada, você pode desbloquear e recuperar seus tokens FOX normais."
+      },
+      "cooldown": {
+        "title": "Quanto tempo dura o período de espera?",
+        "body": "O período de espera para unstaking de tokens FOX é de 28 dias. Durante esse período, seus tokens permanecem bloqueados e não podem ser transferidos."
+      },
+      "multipleUnstaking": {
+        "title": "Posso ter vários valores em unstaking?",
+        "body": "Sim, você pode ter vários valores em unstaking. Cada ação terá seu próprio período de espera de 28 dias."
+      },
+      "connect": {
+        "title": "Como o total de taxas cobradas, o total de FOX em stake, a pool de emissões e o valor queimado da FOX se conectam?",
+        "body": "As taxas cobradas pela DAO estão em RUNE nativo. Uma parte desta RUNE é distribuída aos stakers da FOX como recompensa, enquanto outra parte é usada para comprar a FOX no mercado aberto e queimá-la, reduzindo a oferta geral da FOX. O total FOX em stake influencia a distribuição das recompensas RUNE, uma vez que as recompensas são distribuídas proporcionalmente com base na quantidade de FOX apostada. A pool de emissões representa a quantidade de FOX disponível para recompensas destinados ao staking, e o valor de queima de FOX é a parte de FOX comprada e queimada usando o RUNE coletado das taxas."
+      }
+    },
+    "totals": "Totais de rFOX",
+    "totalStaked": "FOX total em stake",
+    "totalFeesCollected": "Total de taxas coletadas (esta época)",
+    "emissionsPool": "Emissões da Pool (esta época)",
+    "emissionsPoolHelper": "Emissões da Pool (esta época)",
+    "foxBurnAmount": "Quantia de FOX queimado"
   }
 }

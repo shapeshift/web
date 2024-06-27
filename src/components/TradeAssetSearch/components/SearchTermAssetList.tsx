@@ -1,6 +1,8 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import { type ChainId, ethChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import axios, { type AxiosRequestConfig } from 'axios'
 import { useMemo } from 'react'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import {
   selectAssetsSortedByName,
   selectWalletConnectedChainIds,
@@ -9,6 +11,50 @@ import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
+
+interface Logo {
+  uri: string
+  width: number
+  height: number
+}
+
+interface Url {
+  name: string
+  url: string
+}
+
+interface TokenMetadata {
+  contract_address: string
+  decimals: number
+  name: string
+  symbol: string
+  total_supply: string
+  logos: Logo[]
+  urls: Url[]
+  current_usd_price: number
+}
+
+const CHAINBASE_BASE_URL = 'https://api.chainbase.online/v1'
+const CHAINBASE_API_KEY = 'demo' // FIXME: Replace with real API key
+
+const getTokenMetadata = async (contractAddress: string): Promise<TokenMetadata> => {
+  const url = `${CHAINBASE_BASE_URL}/token/metadata?contract_address=${contractAddress}`
+
+  const config: AxiosRequestConfig = {
+    headers: {
+      accept: 'application/json',
+      'x-api-key': CHAINBASE_API_KEY,
+    },
+  }
+
+  try {
+    const response = await axios.get<TokenMetadata>(url, config)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching token metadata:', error)
+    throw error
+  }
+}
 
 export type SearchTermAssetListProps = {
   isLoading: boolean
@@ -44,11 +90,17 @@ export const SearchTermAssetList = ({
     return assets.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
 
-  const searchTermAssets = useMemo(() => {
+  // don't async this - use useEffect
+  const searchTermAssets = useMemo(async () => {
+    const ethChainAdapter = assertGetEvmChainAdapter(ethChainId)
+    const isTokenAddress = (await ethChainAdapter.validateAddress(searchString)).valid
+    const tokenMetadata = isTokenAddress ? getTokenMetadata(searchString) : undefined
+    console.log(tokenMetadata)
+
     return filterAssetsBySearchTerm(searchString, assetsForChain)
   }, [searchString, assetsForChain])
 
-  const { groups, groupCounts } = useMemo(() => {
+  const { groups, groupCounts } = useMemo(async () => {
     return {
       groups: ['modals.assetSearch.searchResults'],
       groupCounts: [searchTermAssets.length],

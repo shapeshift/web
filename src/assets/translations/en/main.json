@@ -109,6 +109,7 @@
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
     "searchAsset": "Search for asset",
+    "searchNameOrAddress": "Search by name or address",
     "enterAmount": "Enter Amount",
     "enterAddress": "Enter Address",
     "pageNotFound": "The page you're looking for cannot be found",

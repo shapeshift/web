@@ -120,6 +120,7 @@ const formControlProps = {
 }
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
+const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD = 1_000 * 60 * 5
 
 type TradeInputProps = {
   isCompact?: boolean
@@ -590,24 +591,35 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     ],
   )
 
+  const isEstimatedExecutionTimeOverTreshold = useMemo(() => {
+    if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
+
+    if (tradeQuoteStep?.estimatedExecutionTimeMs > STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD)
+      return true
+
+    return false
+  }, [tradeQuoteStep?.estimatedExecutionTimeMs])
+
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   // If the warning acknowledgement is shown, we need to handle the submit differently because we might want to show the streaming acknowledgement
   const handleWarningAcknowledgementSubmit = useCallback(() => {
-    if (activeQuote?.isStreaming) return setShouldShowStreamingAcknowledgement(true)
+    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverTreshold)
+      return setShouldShowStreamingAcknowledgement(true)
     if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
     handleFormSubmit()
-  }, [activeQuote, handleFormSubmit])
+  }, [activeQuote, isEstimatedExecutionTimeOverTreshold, handleFormSubmit])
 
   const handleTradeQuoteConfirm = useCallback(() => {
     if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
-    if (activeQuote?.isStreaming) return setShouldShowStreamingAcknowledgement(true)
+    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverTreshold)
+      return setShouldShowStreamingAcknowledgement(true)
     if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
 
     handleFormSubmit()
-  }, [isUnsafeQuote, activeQuote, handleFormSubmit])
+  }, [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverTreshold, handleFormSubmit])
 
   const sellTradeAssetSelect = useMemo(
     () => (

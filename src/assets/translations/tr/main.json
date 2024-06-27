@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "İşlem geçmişi bozuldu",
     "degradedInfo": "Bazı hesaplar için veri gösterilemiyor.",
     "success": "Başarılı",
+    "happySuccess": "Başarılı!",
     "retry": "Tekrar Dene",
     "retryQuestion": "Tekrar dene?",
     "transactionFailed": "İşlem Başarısız",
     "transactionFailedBody": "İşlem Başarısız",
     "submitFeedback": "Geri Bildirim Gönder",
     "send": "Gönder",
+    "sendAmountAsset": "%{amount} %{asset} gönder",
     "receive": "Al",
     "privacy": "Gizlilik Politikası",
     "terms": "Kullanım Şartları",
@@ -138,7 +140,9 @@
     "showLess": "Daha Az",
     "yourBalance": "Bakiyeniz",
     "signTransaction": "İşlemi imzala",
+    "active": "Aktif",
     "halted": "Durduruldu",
+    "full": "Dolu",
     "disabled": "Devre Dışı",
     "staged": "Aşamalı",
     "poolHalted": "Havuz Durduruldu",
@@ -477,6 +481,7 @@
     "earnBalance": "Kazanç Bakiyesi",
     "rewardsBalance": "Ödül Bakiyesi",
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
+    "noAccountsOpportunities": "Bu varlık için hesabınız yok, dolayısıyla stake etme fırsatları şu anda mevcut değil.",
     "clickHereToEarn": "ETH-FOX likidite havuzu belirteçlerinizi biriktirerek %{apr} APR* kazanmak için burayı tıklayın",
     "overview": "Genel Bakış",
     "myPositions": "Pozisyonlarım",
@@ -637,6 +642,12 @@
     "for": "için",
     "emptyMessage": "%{status} işlemleriniz burada görünecek.",
     "parser": {
+      "rfox": {
+        "stake": "Stake",
+        "withdraw": "Çekmek",
+        "unstakeRequest": "Stake Kaldırma Talebi",
+        "setRuneAddress": "Rune Adresini Ayarla"
+      },
       "weth": {
         "deposit": "Depozit",
         "approve": "Onayla",
@@ -1041,7 +1052,7 @@
         "tooltip": "THORChain uyumluluğu için fonları tek bir adrese gönderin.",
         "consolidateFunds": "Birleştir"
       },
-      "getBalanceError": "Cüzdan bakiyeleri alınırken hata oluştu",
+      "getFeesError": "Ücret alınırken hata oluştu",
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
       "tokenAddress": "Adrese",
@@ -2405,6 +2416,9 @@
     "highSlippageTrade": "Bu takas fiyat hareketinden (%{slippagePercentage}%) etkileniyor. Dikkatle ilerle.",
     "unsafeTrade": "Bu takas güvensiz olabilir veya önerilen minimum boyutun altında olabilir, dikkatli ilerleyin."
   },
+  "streamingAcknowledgement": {
+    "description": "Bu bir yayın takasıdır; daha iyi bir fiyata sahip olsanız da, tamamlanması %{estimatedTimeSeconds}s kadar sürebilir."
+  },
   "watchlist": {
     "empty": {
       "title": "İzleme listenizi oluşturmaya başlayın",
@@ -2427,9 +2441,15 @@
     }
   },
   "RFOX": {
+    "staking": "rFOX Stake Etme",
+    "bridge": "Köprü",
+    "bridgeFunds": "Köprü Fonları",
+    "bridgeSuccess": "Paranız başarıyla köprülendi. Artık stake etmeye devam edebilirsiniz.",
     "stake": "Stake",
     "unstake": "Stake Kaldır",
     "claim": "Topla",
+    "rewards": "Ödüller",
+    "claims": "Toplanabilir",
     "changeAddress": "Adres değiştir",
     "sameAddressNotAllowed": "Aynı adrese izin verilmiyor",
     "stakingDetails": "Stake Detayları",
@@ -2448,6 +2468,7 @@
     "useWalletAddress": "Cüzdan adresini kullan",
     "useCustomAddress": "Özel adres kullan",
     "stakeWarning": "FOX tokenlarınızı stake ettiğinizde lütfen %{cooldownPeriod} kilitlenme süresi olduğunu unutmayın. Bu, tokenlarınızı geri almaya karar verirseniz, paranızı talep etmeden önce %{cooldownPeriod} beklemeniz gerekeceği anlamına gelir.",
+    "bridgeCta": "%{originNetwork} üzerinde %{assetSymbol}'ı seçtiniz, ancak stake etmek için %{destinationNetwork} üzerinde %{assetSymbol}'a ihtiyacınız olacak. %{destinationNetwork} ile köprü oluşturmanıza yardımcı olabiliriz. Süreç boyunca size rehberlik etmemizi ister misiniz?",
     "unstakeWarning": "FOX'unuzu alabilmeniz için %{cooldownPeriod} bekleme süresi vardır. Bu süre geçtikten sonra, stake edilmemiş tutarınızı talep edebileceksiniz.",
     "tooltips": {
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
@@ -2461,6 +2482,7 @@
     "stakePending": "%{amount} %{symbol} stake ediliyor...",
     "addressUpdated": "Adres güncellendi",
     "changeRewardAddressPending": "Ödül Adresi Değiştiriliyor...",
+    "changeRewardAddressSuccess": "THORChain Ödül Adresinizi başarıyla değiştirdiniz.",
     "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
     "unstakeSuccess": "%{cooldownPeriod} süresi dolduğunda, %{amount} %{symbol} miktarınızı talep edebileceksiniz",
     "currentRewardAddress": "Güncel Ödül Adresi",
@@ -2477,7 +2499,58 @@
     "claimSuccess": "Başarıyla %{amount} %{symbol} talebinde bulundunuz.",
     "claimReceiveAddress": "Alıcı Adresi Talebi",
     "noClaimsAvailable": "Talep edilebilir yok",
+    "errorFetchingClaims": "Hak talepleri alınırken bir hata oluştu",
     "noClaimsAvailableDescription": "Kullanılabilir talebiniz yok",
-    "unstakeNow": "Stake Kaldır"
+    "unstakeNow": "Stake Kaldır",
+    "bridgeAndConfirm": "Köprüle ve Onayla",
+    "noSupportedChains": "Zincir desteklenmiyor",
+    "noSupportedChainsDescription": "%{chainLabel} ekleyin veya onu destekleyen bir cüzdana bağlanın.",
+    "confirmAndBridge": "Onayla ve Köprüle",
+    "myRewardBalance": "Ödül Bakiyem",
+    "myRewardBalanceHelper": "Ödül Bakiyem",
+    "pendingRewardsBalance": "Bekleyen Ödül Bakiyesi",
+    "pendingRewardsBalanceHelper": "Bekleyen Ödül Bakiyesi",
+    "lifetimeRewards": "Ömür Boyu Ödüller",
+    "lifetimeRewardsHelper": "Ömür Boyu Ödüller",
+    "timeInPool": "Havuzda Kalma Süresi",
+    "timeInPoolHelper": "Havuzda Kalma Süresi",
+    "myPosition": "Pozisyonum",
+    "faq": {
+      "title": "SSS",
+      "what": {
+        "title": "rFOX nedir?",
+        "body": "rFOX, FOX tokenlarınızı Arbitrum'da stake ettiğinizde elde ettiğiniz avantajları ve ödülleri tanımlamak için kullanılan bir terimdir. Şu anda, emisyonları stake etmek için vanilya FOX (Arbitrum'da) tokenlerini kilitliyor ve kilidini açıyorsunuz."
+      },
+      "why": {
+        "title": "Neden FOX'unuzu stake etmelisiniz?",
+        "body": "FOX'unuzu stake etmek, DAO'nun hazinesinden düzenli RUNE ödemeleri kazanmanıza olanak tanır ve dönem başına RUNE cinsinden istikrarlı bir pasif gelir akışı sağlar. Ek olarak, DAO tarafından alınan RUNE'un bir kısmı FOX'u açık piyasadan satın almak ve yakmak için kullanılıyor ve bu da genel arzı azaltıyor. Staking ayrıca ShapeShift DAO'nun THORChain ekosistemiyle uyumunu destekleyerek büyümelerine ve başarılarına katkıda bulunur. Staking süreci, topluluk içinde kararlılığı ve istikrarı teşvik edecek şekilde minimum 28 günlük bir stake etme süresi gerektirir."
+      },
+      "stake": {
+        "title": "FOX'umu nasıl stake ederim?",
+        "body": "FOX'unuzu stake etmek için, FOX tokenlarınızı stake etme sözleşmesine kilitlemek amacıyla stake etme arayüzünü kullanırsınız. RUNE ödüllerinizin ödeneceği adresi atamak için bir mesaj veya işlem imzalamanız gerekecektir. Stake etme avantajlarınızın bir parçası olarak blok başına RUNE ödülleri kazanmaya başlarsınız."
+      },
+      "unstake": {
+        "title": "Stake kaldırdığımda ne olur?",
+        "body": "Stake etmeye karar verdiğinizde minimum 28 günlük bir stake kaldırma süresi vardır. Bu süre zarfında FOX'unuz kilitli kalır ve RUNE emisyonlarını almayı bırakırsınız. Stake kaldırma süresinin ardından normal FOX tokenlarınızın kilidini açabilir ve geri alabilirsiniz."
+      },
+      "cooldown": {
+        "title": "Soğuma süresi ne kadardır?",
+        "body": "FOX tokenlerini geri almak için bekleme süresi 28 gündür. Bu süre zarfında jetonlarınız kilitli kalır ve aktarılamaz."
+      },
+      "multipleUnstaking": {
+        "title": "Birden fazla stake etme tutarına sahip olabilir miyim?",
+        "body": "Evet, birden fazla stake etme tutarınız olabilir. Her bir stake kaldırma eyleminin kendine ait 28 günlük bekleme süresi olacaktır."
+      },
+      "connect": {
+        "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?",
+        "body": "DAO tarafından toplanan ücretler yerel RUNE cinsindendir. Bu RUNE'un bir kısmı FOX stakerlarına ödül olarak dağıtılırken, bir kısmı da FOX'u açık piyasadan satın almak ve yakmak için kullanılıyor ve bu da genel FOX arzını azaltıyor. Ödüller, yatırılan FOX miktarına göre orantılı olarak dağıtıldığından, toplam FOX stake miktarı RUNE ödüllerinin dağıtımını etkiler. Emisyon havuzu, staking ödülleri için mevcut FOX miktarını temsil eder ve FOX yakma miktarı, ücretlerden toplanan RUNE kullanılarak satın alınan ve yakılan FOX'un kısmıdır."
+      }
+    },
+    "totals": "rFOX Toplamı",
+    "totalStaked": "Toplam Stake Edilmiş FOX ",
+    "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
+    "emissionsPool": "Emisyon Havuzu (Bu Dönem)",
+    "emissionsPoolHelper": "Emisyon Havuzu (Bu Dönem)",
+    "foxBurnAmount": "FOX Yakma Miktarı"
   }
 }

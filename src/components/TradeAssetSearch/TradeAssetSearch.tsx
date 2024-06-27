@@ -84,7 +84,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     () => ({
       ...register('search'),
       type: 'text',
-      placeholder: translate('common.searchAsset'),
+      placeholder: translate('common.searchNameOrAddress'),
       pl: 10,
       variant: 'filled',
       borderWidth: 0,

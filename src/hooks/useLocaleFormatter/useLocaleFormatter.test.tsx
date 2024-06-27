@@ -7,7 +7,7 @@ import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
 import { describe, expect, it } from 'vitest'
 
-import type { FiatParts, NumberFormatter, NumberValue } from './useLocaleFormatter'
+import type { NumberFormatter, NumberValue } from './useLocaleFormatter'
 import { useLocaleFormatter } from './useLocaleFormatter'
 
 type Scenario = [string, FiatTypeEnum, string[]]
@@ -276,38 +276,6 @@ describe('useLocaleFormatter', () => {
       const { result } = setup({})
       expect(result.current.deviceLocale).toBe('en-US')
       expect(result.current.number.toFiat(123.456)).toBe('$123.45')
-    })
-  })
-
-  describe('toParts', () => {
-    const scenarios: [string, FiatParts][] = [
-      ['$1.000,00', { number: '1.000,00', prefix: '$', postfix: '' }],
-      ['0.01 BTC', { number: '0.01', prefix: '', postfix: 'BTC' }],
-      ['10 $', { number: '10', prefix: '', postfix: '$' }],
-      ['10.52$', { number: '10.52', prefix: '', postfix: '$' }],
-      ['$10.52', { number: '10.52', prefix: '$', postfix: '' }],
-      ['50.00%', { number: '50.00', prefix: '', postfix: '%' }],
-      ['42.3 1INCH', { number: '42.3', prefix: '', postfix: '1INCH' }],
-      ['5 1INCH', { number: '5', prefix: '', postfix: '1INCH' }],
-    ]
-    it.each(scenarios)('correctly parses %s parts', (input, expected) => {
-      const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
-      expect(result.current.number.toParts(input)).toStrictEqual(expected)
-    })
-  })
-
-  describe('toCryptoInput', () => {
-    const scenarios: [{ number: NumberValue; symbol?: string }, string][] = [
-      [{ number: 12.3 }, '12.3 BTC'],
-      [{ number: '0.066044968372961102', symbol: 'ETH' }, '0.06604497 ETH'],
-      [{ number: '12.', symbol: '1INCH' }, '12. 1INCH'],
-      [{ number: '.01', symbol: '' }, '0.01 '],
-    ]
-
-    it.each(scenarios)('parses %p and returns %s', ({ number, symbol }, expected) => {
-      const { result } = setup({ locale: 'en-US', fiat: FiatTypeEnum.USD })
-
-      expect(result.current.number.toCryptoInput(number, symbol)).toEqual(expected)
     })
   })
 

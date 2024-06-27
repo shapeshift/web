@@ -39,12 +39,10 @@ export function Amount({
 type CryptoAmountProps = {
   value: string
   symbol: string
-  cryptoSymbolStyle?: TextProps
   maximumFractionDigits?: number
 } & AmountProps
 
 type FiatAmountProps = {
-  fiatSymbolStyle?: TextProps
   fiatType?: string
 } & AmountProps
 
@@ -56,7 +54,6 @@ type PercentAmountProps = AmountProps & {
 const Crypto = ({
   value,
   symbol,
-  cryptoSymbolStyle,
   maximumFractionDigits = 8,
   prefix,
   suffix,
@@ -65,7 +62,7 @@ const Crypto = ({
   ...props
 }: CryptoAmountProps) => {
   const {
-    number: { toCrypto, toParts },
+    number: { toCrypto },
   } = useLocaleFormatter()
 
   const crypto = toCrypto(value, symbol, {
@@ -74,38 +71,17 @@ const Crypto = ({
     abbreviated,
   })
 
-  if (!cryptoSymbolStyle) {
-    return (
-      <RawText {...props}>
-        {prefix && `${prefix} `}
-        {crypto}
-        {suffix && ` ${suffix}`}
-      </RawText>
-    )
-  }
-
-  const parts = toParts(crypto)
-
   return (
     <RawText {...props}>
-      {parts.prefix && (
-        <RawText {...props} {...cryptoSymbolStyle}>
-          {parts.prefix}
-        </RawText>
-      )}
-      {parts.number}
-      {parts.postfix && (
-        <RawText {...props} {...cryptoSymbolStyle}>
-          {parts.postfix}
-        </RawText>
-      )}
+      {prefix && `${prefix} `}
+      {crypto}
+      {suffix && ` ${suffix}`}
     </RawText>
   )
 }
 
 const Fiat = ({
   value,
-  fiatSymbolStyle,
   fiatType,
   prefix,
   suffix,
@@ -115,7 +91,7 @@ const Fiat = ({
   ...props
 }: FiatAmountProps) => {
   const {
-    number: { toFiat, toParts },
+    number: { toFiat },
   } = useLocaleFormatter({ fiatType })
 
   const fiat = toFiat(value, {
@@ -125,31 +101,11 @@ const Fiat = ({
     maximumFractionDigits,
   })
 
-  if (!fiatSymbolStyle) {
-    return (
-      <RawText {...props}>
-        {prefix && `${prefix} `}
-        {fiat}
-        {suffix && ` ${suffix}`}
-      </RawText>
-    )
-  }
-
-  const parts = toParts(fiat)
-
   return (
     <RawText {...props}>
-      {parts.prefix && (
-        <RawText {...props} {...fiatSymbolStyle}>
-          {parts.prefix}
-        </RawText>
-      )}
-      {parts.number}
-      {parts.postfix && (
-        <RawText {...props} {...fiatSymbolStyle}>
-          {parts.postfix}
-        </RawText>
-      )}
+      {prefix && `${prefix} `}
+      {fiat}
+      {suffix && ` ${suffix}`}
     </RawText>
   )
 }

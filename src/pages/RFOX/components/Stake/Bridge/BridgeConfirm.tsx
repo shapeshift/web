@@ -174,7 +174,12 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{sellAsset?.name ?? ''}</Row.Label>
-                <Row.Value>{bridgeAmountCryptoPrecision}</Row.Value>
+                <Row.Value>
+                  <Amount.Crypto
+                    symbol={sellAsset?.symbol ?? ''}
+                    value={bridgeAmountCryptoPrecision}
+                  />
+                </Row.Value>
               </CustomRow>
             </TimelineItem>
             {isGetApprovalFeesEnabled && (
@@ -204,7 +209,12 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{buyAsset?.name ?? ''}</Row.Label>
-                <Row.Value>{bridgeAmountCryptoPrecision}</Row.Value>
+                <Row.Value>
+                  <Amount.Crypto
+                    symbol={buyAsset?.symbol ?? ''}
+                    value={bridgeAmountCryptoPrecision}
+                  />
+                </Row.Value>
               </CustomRow>
             </TimelineItem>
           </Timeline>

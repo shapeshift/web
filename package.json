@@ -84,6 +84,7 @@
     "@formatjs/intl-pluralrules": "^5.0.2",
     "@keepkey/hdwallet-keepkey-rest": "1.40.42",
     "@keepkey/keepkey-sdk": "0.2.57",
+    "@ledgerhq/hw-transport-webusb": "^6.28.6",
     "@lifi/sdk": "^2.5.0",
     "@lukemorales/query-key-factory": "^1.3.4",
     "@metamask/detect-provider": "^1.2.0",

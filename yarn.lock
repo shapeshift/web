@@ -7761,6 +7761,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/devices@npm:^8.3.0":
+  version: 8.3.0
+  resolution: "@ledgerhq/devices@npm:8.3.0"
+  dependencies:
+    "@ledgerhq/errors": ^6.16.4
+    "@ledgerhq/logs": ^6.12.0
+    rxjs: ^7.8.1
+    semver: ^7.3.5
+  checksum: ca876ae590bd056b2b45ba2e335b9ed53d302960ce23b0de42535969472560fb97f5b3ce99decc043dfb646cd6657e765ef29502c5659b24b181a9d1d121570d
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/domain-service@npm:^1.1.12":
   version: 1.1.12
   resolution: "@ledgerhq/domain-service@npm:1.1.12"
@@ -7802,6 +7814,13 @@ __metadata:
   version: 6.16.1
   resolution: "@ledgerhq/errors@npm:6.16.1"
   checksum: 6bbcedee7103d8aa878a7e84e4824796e1505ef32013e1e98679827a72696d01da897adb95a996ad30fa120bf126b98d68107870001b950a55bf9af4372f42af
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/errors@npm:^6.16.4":
+  version: 6.16.4
+  resolution: "@ledgerhq/errors@npm:6.16.4"
+  checksum: e2d9b7e8bb61c6e22ed481d4a17e3c169c95870c2fe98e4e982425f5642ae2b25f9ae595c032f0bc98cc26cb17c28d902cd6c7bfd3b79a651c8bd7b55e753e23
   languageName: node
   linkType: hard
 
@@ -8038,6 +8057,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-transport-webusb@npm:^6.28.6":
+  version: 6.28.6
+  resolution: "@ledgerhq/hw-transport-webusb@npm:6.28.6"
+  dependencies:
+    "@ledgerhq/devices": ^8.3.0
+    "@ledgerhq/errors": ^6.16.4
+    "@ledgerhq/hw-transport": ^6.30.6
+    "@ledgerhq/logs": ^6.12.0
+  checksum: 3307fd2043861b67a62b57e6bfb02c17f6c369d85bb68341d8c73958ac78bc2c503a5847ecc3071ad460bc0ea76c8fc16a2174e446d177ed4fb1c61d0f50466a
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/hw-transport-webusb@npm:^6.7.0":
   version: 6.27.19
   resolution: "@ledgerhq/hw-transport-webusb@npm:6.27.19"
@@ -8092,6 +8123,18 @@ __metadata:
     "@ledgerhq/logs": ^6.12.0
     events: ^3.3.0
   checksum: 5bfaa9c939408b1d2033884c45b08d56e98318442d3bad82bb2e291fdea570eaa1be79efd646e6a5b2093115576068ef25ff9436156ed7b0b7b1224c2632c0da
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-transport@npm:^6.30.6":
+  version: 6.30.6
+  resolution: "@ledgerhq/hw-transport@npm:6.30.6"
+  dependencies:
+    "@ledgerhq/devices": ^8.3.0
+    "@ledgerhq/errors": ^6.16.4
+    "@ledgerhq/logs": ^6.12.0
+    events: ^3.3.0
+  checksum: 89118ebc429a47043efe62ef83058a080bfa4340861272a0e3ceb2a6f898ae77ae8cdeae19b693eb7c05dd10c5d55d1eaf0ad0fab9a45db09def46afa8d1a8c0
   languageName: node
   linkType: hard
 
@@ -11180,6 +11223,7 @@ __metadata:
     "@keepkey/hdwallet-keepkey-rest": 1.40.42
     "@keepkey/keepkey-sdk": 0.2.57
     "@keplr-wallet/types": ^0.12.21
+    "@ledgerhq/hw-transport-webusb": ^6.28.6
     "@lifi/sdk": ^2.5.0
     "@lukemorales/query-key-factory": ^1.3.4
     "@metamask/detect-provider": ^1.2.0

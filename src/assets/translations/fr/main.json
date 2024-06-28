@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "Historique des transactions dégradé",
     "degradedInfo": "Impossible de récupérer les données de certains comptes.",
     "success": "Succès",
+    "happySuccess": "Succès !",
     "retry": "Réessayer",
     "retryQuestion": "Réessayer ?",
     "transactionFailed": "Échec de la transaction",
     "transactionFailedBody": "Échec de la transaction",
     "submitFeedback": "Envoyer un commentaire",
     "send": "Envoyer",
+    "sendAmountAsset": "Envoyer %{amount} %{asset}",
     "receive": "Recevoir",
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
@@ -138,7 +140,9 @@
     "showLess": "Montrer moins",
     "yourBalance": "Votre solde",
     "signTransaction": "Signer la transaction",
+    "active": "Actif",
     "halted": "Arrêté",
+    "full": "Complet",
     "disabled": "Désactivé",
     "staged": "Aménagé",
     "poolHalted": "Pool arrêté",
@@ -477,6 +481,7 @@
     "earnBalance": "Solde dans Gagner",
     "rewardsBalance": "Solde des récompenses",
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
+    "noAccountsOpportunities": "Vous n'avez aucun compte pour cet actif, les opportunités de mise ne sont donc pas disponibles actuellement.",
     "clickHereToEarn": "Cliquez ici pour gagner %{apr} d'APR* avec le farming de vos jetons de pool de liquidités ETH-FOX",
     "overview": "Vue d'ensemble",
     "myPositions": "Mes positions",
@@ -636,6 +641,12 @@
     "for": "pour",
     "emptyMessage": "Vos transactions %{status} apparaîtront ici.",
     "parser": {
+      "rfox": {
+        "stake": "Miser",
+        "withdraw": "Retirer",
+        "unstakeRequest": "Demande de démise",
+        "setRuneAddress": "Définir l'adresse Rune"
+      },
       "weth": {
         "deposit": "Dépôt",
         "approve": "Autorisation",
@@ -1040,7 +1051,7 @@
         "tooltip": "Envoyer les fonds à une seule adresse pour la compatibilité THORChain.",
         "consolidateFunds": "Consolider"
       },
-      "getBalanceError": "Erreur dans la récupération des soldes du porte-monnaie",
+      "getFeesError": "Erreur lors de l'obtention des frais",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
       "tokenAddress": "Adresse de destination",
@@ -2343,6 +2354,9 @@
     "highSlippageTrade": "Cet échange est influencé par les mouvements de cours (%{slippagePercentage}%). Procédez avec prudence.",
     "unsafeTrade": "Cet échange peut être risqué ou inférieur à la taille minimale recommandée, procédez avec prudence."
   },
+  "streamingAcknowledgement": {
+    "description": "Il s'agit d'un échange en streaming, vous obtenez un meilleur prix, mais il peut prendre jusqu'à %{estimatedTimeSeconds}s pour se terminer."
+  },
   "watchlist": {
     "empty": {
       "title": "Commencez à créer votre liste de suivi",
@@ -2365,10 +2379,16 @@
     }
   },
   "RFOX": {
+    "staking": "Mises en rFOX",
+    "bridge": "Bridger",
+    "bridgeFunds": "Bridger des fonds",
+    "bridgeSuccess": "Vos fonds ont été bridgés avec succès. Vous pouvez maintenant continuer vers les mises.",
     "stake": "Miser",
     "unstake": "Démiser",
     "claim": "Réclamer",
-    "changeAddress": "Adresse de change",
+    "rewards": "Récompenses",
+    "claims": "Réclamations",
+    "changeAddress": "Adr. de change",
     "sameAddressNotAllowed": "Même adresse non autorisée",
     "stakingDetails": "Détails de mise",
     "stakeAmount": "Montant à miser",
@@ -2386,6 +2406,7 @@
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
     "stakeWarning": "Lorsque vous misez vos jetons FOX, sachez qu'il y a une période de verrouillage de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
+    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à bridger vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans ce processus ?",
     "unstakeWarning": "Avant de pouvoir réclamer vos FOX, il y a une période de repos de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
@@ -2399,7 +2420,7 @@
     "stakePending": "Mise en cours de %{amount} %{symbol}...",
     "addressUpdated": "Adresse mise à jour",
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
-    "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORCHain.",
+    "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORChain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
     "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",
@@ -2416,7 +2437,58 @@
     "claimSuccess": "Vous avez réclamé %{amount} %{symbol} avec succès.",
     "claimReceiveAddress": "Adresse de réception de réclamation",
     "noClaimsAvailable": "Aucune réclamation disponible",
+    "errorFetchingClaims": "Une erreur s'est produite lors de la récupération des réclamations",
     "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
-    "unstakeNow": "Démiser maintenant"
+    "unstakeNow": "Démiser maintenant",
+    "bridgeAndConfirm": "Bridger et confirmer",
+    "noSupportedChains": "Chaîne non prise en charge",
+    "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",
+    "confirmAndBridge": "Confirmer et bridger",
+    "myRewardBalance": "Mon solde de récompense",
+    "myRewardBalanceHelper": "Mon solde de récompense",
+    "pendingRewardsBalance": "Solde des récompenses en attente",
+    "pendingRewardsBalanceHelper": "Solde des récompenses en attente",
+    "lifetimeRewards": "Récompenses cumulées",
+    "lifetimeRewardsHelper": "Récompenses cumulées",
+    "timeInPool": "Temps dans le pool",
+    "timeInPoolHelper": "Temps dans le pool",
+    "myPosition": "Ma position",
+    "faq": {
+      "title": "FAQ",
+      "what": {
+        "title": "Qu’est-ce que rFOX ?",
+        "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous misez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons \"vanilla\" FOX (sur Arbitrum) pour les émissions de mises."
+      },
+      "why": {
+        "title": "Pourquoi miser vos FOX ?",
+        "body": "La mise de vos FOX vous permet de gagner régulièrement des paiements en RUNE provenant de la trésorerie de la DAO, fournissant un flux constant de revenus passifs en RUNE par époque. De plus, une partie des RUNE reçus par la DAO est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire totale. La mise promeut également un alignement de ShapeShift DAO avec l'écosystème THORChain, contribuant ainsi à leur croissance et à leurs succès. Le processus de mise nécessite une période minimale de 28 jours avant la démise, encourageant l'engagement et la stabilité au sein de la communauté."
+      },
+      "stake": {
+        "title": "Comment miser mes FOX ?",
+        "body": "Pour miser vos FOX, vous utilisez l'interface de mise pour verrouiller vos jetons FOX dans le contrat de mise. Vous devrez signer un message ou une transaction pour désigner l'adresse où vos récompenses RUNE seront payées. Lorsque vous aurez misé, vous commencerez à gagner des récompenses RUNE par bloc dans le cadre de vos avantages de mise."
+      },
+      "unstake": {
+        "title": "Que se passe-t-il lorsque je démise ?",
+        "body": "Lorsque vous décidez de démiser, il y a une période minimale de 28 jours avant la démise. Pendant ce temps, vos FOX restent verrouillés et vous cessez de recevoir des émissions RUNE. Après la période de démise, vous pourrez débloquer et récupérer vos jetons FOX normaux."
+      },
+      "cooldown": {
+        "title": "Quelle est la durée de la période de repos ?",
+        "body": "La période de repos pour le retrait des jetons FOX est de 28 jours. Pendant ce temps, vos jetons restent verrouillés et ne peuvent être transférés."
+      },
+      "multipleUnstaking": {
+        "title": "Puis-je avoir plusieurs montants en cours de démise ?",
+        "body": "Oui, vous pouvez avoir plusieurs montants en cours de démise. Chaque action de démise aura sa propre période de repos de 28 jours."
+      },
+      "connect": {
+        "title": "Quel est le rapport entre le total de frais collectés, le total misé en FOX, le pool d'émissions et le montant de FOX brûlés ?",
+        "body": "Les frais collectés par la DAO sont en RUNE natifs. Une partie de ces RUNE est distribuée aux miseurs FOX en guise de récompenses, tandis qu'une autre partie est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire globale de FOX. Le montant total misé en FOX influence la distribution des récompenses en RUNE, car les récompenses sont distribuées au prorata du montant des FOX misés. Le pool d'émissions représente la quantité de FOX disponibles pour les récompenses des mises, et le montant de FOX brûlés est la partie des FOX achetés et brûlés à l'aide des RUNE collectés grâce aux frais."
+      }
+    },
+    "totals": "Totaux rFOX",
+    "totalStaked": "Total de FOX misés",
+    "totalFeesCollected": "Total des frais collectés (cette époque)",
+    "emissionsPool": "Pool d’émissions (cette époque)",
+    "emissionsPoolHelper": "Pool d’émissions (cette époque)",
+    "foxBurnAmount": "Montant de FOX brulés"
   }
 }

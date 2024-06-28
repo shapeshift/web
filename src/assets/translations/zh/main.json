@@ -69,12 +69,14 @@
     "degradedTransactionHistory": "交易历史记录已降级",
     "degradedInfo": "无法获取某些帐户的数据。",
     "success": "成功",
+    "happySuccess": "成功！",
     "retry": "重试",
     "retryQuestion": "重试？",
     "transactionFailed": "交易失败",
     "transactionFailedBody": "交易失败",
     "submitFeedback": "提交反馈",
     "send": "发送",
+    "sendAmountAsset": "发送 %{amount} %{asset}",
     "receive": "接收",
     "privacy": "隐私政策",
     "terms": "服务条款",
@@ -138,7 +140,9 @@
     "showLess": "显示较少",
     "yourBalance": "你的余额",
     "signTransaction": "签署交易",
+    "active": "活跃",
     "halted": "暂停的",
+    "full": "满员",
     "disabled": "已禁用",
     "staged": "进行的",
     "poolHalted": "已暂停的池",
@@ -477,6 +481,7 @@
     "earnBalance": "赚取余额",
     "rewardsBalance": "奖励余额",
     "earnBody": "通过质押你的资产或将其存入 DeFi 策略来赚取被动收入。",
+    "noAccountsOpportunities": "你没有此资产的账户，因此目前无法获得质押机会。",
     "clickHereToEarn": "单击此处通过收益挖矿 ETH-FOX 流动性池代币赚取 %{apr} APR*",
     "overview": "总览",
     "myPositions": "我的仓位",
@@ -636,6 +641,12 @@
     "for": "对于",
     "emptyMessage": "你的 %{status} 交易将显示在此处。",
     "parser": {
+      "rfox": {
+        "stake": "质押",
+        "withdraw": "提现",
+        "unstakeRequest": "取消质押请求",
+        "setRuneAddress": "设置符文地址"
+      },
       "weth": {
         "deposit": "充值",
         "approve": "授权",
@@ -1040,7 +1051,7 @@
         "tooltip": "将资金发送到单个地址以实现 THORChain 兼容性。",
         "consolidateFunds": "合并"
       },
-      "getBalanceError": "获取钱包余额时出错",
+      "getFeesError": "获取费用错误",
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
       "tokenAddress": "到地址",
@@ -2343,6 +2354,9 @@
     "highSlippageTrade": "此交易受价格变动影响 (%{slippagePercentage}%)。请谨慎操作。",
     "unsafeTrade": "此交易可能不安全或低于建议的最小规模，请谨慎进行。"
   },
+  "streamingAcknowledgement": {
+    "description": "这是一个流式交换，虽然你可以获得更优惠的价格，但最多可能需要 %{estimatedTimeSeconds} 秒才能完成。"
+  },
   "watchlist": {
     "empty": {
       "title": "开始建立您的关注列表",
@@ -2365,9 +2379,15 @@
     }
   },
   "RFOX": {
+    "staking": "rFOX 质押",
+    "bridge": "桥接",
+    "bridgeFunds": "过渡基金",
+    "bridgeSuccess": "你的资金已成功转入。你现在可以继续质押。",
     "stake": "质押",
     "unstake": "取消质押",
     "claim": "认领",
+    "rewards": "奖励",
+    "claims": "认领",
     "changeAddress": "更换地址",
     "sameAddressNotAllowed": "不允许使用相同地址",
     "stakingDetails": "质押详情",
@@ -2386,6 +2406,7 @@
     "useWalletAddress": "使用钱包地址",
     "useCustomAddress": "使用自定义地址",
     "stakeWarning": "当你质押 FOX 代币时，请注意有一个 %{cooldownPeriod} 锁定期。这意味着如果你决定取消质押你的代币，则需要等待 %{cooldownPeriod} 才能领取你的资金。",
+    "bridgeCta": "你选择了 %{originNetwork} 上的 %{assetSymbol}，但你需要 %{destinationNetwork} 上的 %{assetSymbol} 才能进行质押。我们可以帮助你连接到 %{destinationNetwork}。你希望我们指导您完成整个过程吗？",
     "unstakeWarning": "在你领取 FOX 之前，有一个 %{cooldownPeriod} 的冷却期。这段时间过后，你将能够领取未质押的金额。",
     "tooltips": {
       "stakeAmount": "这是你将质押的 FOX 数量",
@@ -2399,7 +2420,7 @@
     "stakePending": "质押 %{amount} %{symbol}...",
     "addressUpdated": "地址已更新",
     "changeRewardAddressPending": "更改奖励地址...",
-    "changeRewardAddressSuccess": "你已成功更改你的 THORCHain 奖励地址。",
+    "changeRewardAddressSuccess": "你已成功更改你的 THORChain 奖励地址。",
     "unstakePending": "请求提取 %{amount} %{symbol}",
     "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
     "currentRewardAddress": "当前奖励地址",
@@ -2416,7 +2437,58 @@
     "claimSuccess": "你已成功领取 %{amount} %{symbol}。",
     "claimReceiveAddress": "领取接收地址",
     "noClaimsAvailable": "沒有可认领",
+    "errorFetchingClaims": "获取声明时出错",
     "noClaimsAvailableDescription": "您没有任何可认领",
-    "unstakeNow": "立即取消质押"
+    "unstakeNow": "立即取消质押",
+    "bridgeAndConfirm": "桥接与确认",
+    "noSupportedChains": "链不被支持",
+    "noSupportedChainsDescription": "添加 %{chainLabel} 或连接到支持它的钱包。",
+    "confirmAndBridge": "确认与桥接",
+    "myRewardBalance": "我的奖励余额",
+    "myRewardBalanceHelper": "我的奖励余额",
+    "pendingRewardsBalance": "待定奖励余额",
+    "pendingRewardsBalanceHelper": "待定奖励余额",
+    "lifetimeRewards": "终生奖励",
+    "lifetimeRewardsHelper": "终生奖励",
+    "timeInPool": "池的时间",
+    "timeInPoolHelper": "池的时间",
+    "myPosition": "我的位置",
+    "faq": {
+      "title": "常见问题",
+      "what": {
+        "title": "什么是rFOX?",
+        "body": "rFOX 是一个术语，用于描述你在 Arbitrum 上质押 FOX 代币时获得的收益和奖励。目前，你可以锁定和解锁原版 FOX（在 Arbitrum 上）代币以进行质押。"
+      },
+      "why": {
+        "title": "为什么要质押你的 FOX？",
+        "body": "质押 FOX 可让您从 DAO 的金库中定期获得 RUNE 支出，从而在每个时期提供稳定的 RUNE 被动收入流。此外，DAO 收到的一部分 RUNE 用于从公开市场购买 FOX 并销毁，从而减少总供应量。质押还支持 ShapeShift DAO 与 THORChain 生态系统保持一致，为其成长和成功做出贡献。质押过程需要至少 28 天的质押解除期，以鼓励社区内的承诺和稳定。"
+      },
+      "stake": {
+        "title": "我该如何质押我的 FOX？",
+        "body": "要质押您的 FOX，你可以使用质押界面将你的 FOX 代币锁定到质押合约中。你需要签署一条消息或交易来指定支付 RUNE 奖励的地址。一旦质押，你便会开始获得每个区块的 RUNE 奖励，作为质押收益的一部分。"
+      },
+      "unstake": {
+        "title": "当我取消质押时会发生什么？",
+        "body": "当你决定取消质押时，至少需要 28 天的取消质押期。在此期间，你的 FOX 仍处于锁定状态，你将不再收到 RUNE 发放。取消质押期过后，你可以解锁并取回您的常规 FOX 代币。"
+      },
+      "cooldown": {
+        "title": "冷却时间是多长时间？",
+        "body": "解除质押 FOX 代币的冷却期为 28 天。在此期间，你的代币将保持锁定状态，无法转移。"
+      },
+      "multipleUnstaking": {
+        "title": "我可以有多个取消质押金额吗？",
+        "body": "是的，你可以有多个取消质押金额。每个取消质押操作都有各自的 28 天冷却期。"
+      },
+      "connect": {
+        "title": "收取的总费用、FOX 总质押量、排放池和 FOX 销毁量有何关联？",
+        "body": "DAO 收取的费用以原生 RUNE 的形式收取。这部分 RUNE 的一部分作为奖励分配给 FOX 质押者，而另一部分则用于从公开市场购买 FOX 并销毁，从而减少 FOX 的总供应量。质押的 FOX 总量会影响 RUNE 奖励的分配，因为奖励是根据质押的 FOX 数量按比例分配的。排放池代表可用于质押奖励的 FOX 数量，而 FOX 销毁量是使用从费用中收取的 RUNE 购买和销毁的 FOX 部分。"
+      }
+    },
+    "totals": "rFOX 总计",
+    "totalStaked": "FOX 总质押量",
+    "totalFeesCollected": "收取的费用总额（本期）",
+    "emissionsPool": "排放池（本期）",
+    "emissionsPoolHelper": "排放池（本期）",
+    "foxBurnAmount": "FOX 销毁数量"
   }
 }

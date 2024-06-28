@@ -1,5 +1,5 @@
 import { Box, SimpleGrid } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { formatSecondsToDuration } from 'lib/utils/time'
 import { useCurrentEpochRewardsQuery } from 'pages/RFOX/hooks/useCurrentEpochRewardsQuery'
@@ -11,10 +11,18 @@ import { StakingInfoItem } from './StakingInfoItem'
 const gridColumns = { base: 1, md: 2 }
 
 type StakingInfoProps = {
+  stakingAssetId: AssetId
   stakingAssetAccountAddress: string | undefined
+  userStakingBalanceCryptoPrecision: string | undefined
+  isUserStakingBalanceCryptoPrecisionLoading: boolean
 }
 
-export const StakingInfo: React.FC<StakingInfoProps> = ({ stakingAssetAccountAddress }) => {
+export const StakingInfo: React.FC<StakingInfoProps> = ({
+  stakingAssetId,
+  stakingAssetAccountAddress,
+  userStakingBalanceCryptoPrecision,
+  isUserStakingBalanceCryptoPrecisionLoading,
+}) => {
   const {
     data: timeInPoolHuman,
     isLoading: isTimeInPoolHumanLoading,
@@ -45,15 +53,11 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({ stakingAssetAccountAdd
       <Text mb={6} translation='RFOX.myPosition' />
       <SimpleGrid spacing={6} columns={gridColumns}>
         <StakingInfoItem
-          informationDescription='RFOX.myRewardBalance'
-          helperTranslation='RFOX.myRewardBalanceHelper'
-          assetId={thorchainAssetId}
-          amountCryptoBaseUnit={currentEpochRewardsCryptoBaseUnit?.toString()}
-          isLoading={
-            isCurrentEpochRewardsCryptoBaseUnitLoading ||
-            isCurrentEpochRewardsCryptoBaseUnitPaused ||
-            isCurrentEpochRewardsCryptoBaseUnitPending
-          }
+          informationDescription='RFOX.myStakedBalance'
+          helperTranslation='RFOX.myStakedBalanceHelper'
+          assetId={stakingAssetId}
+          amountCryptoBaseUnit={userStakingBalanceCryptoPrecision}
+          isLoading={isUserStakingBalanceCryptoPrecisionLoading}
         />
         <StakingInfoItem
           informationDescription='RFOX.pendingRewardsBalance'

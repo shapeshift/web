@@ -18,14 +18,16 @@ type OverviewProps = {
 
 export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAssetAccountId }) => {
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
 
   const {
-    data: userStakingBalanceOfCryptoPrecision,
-    isSuccess: isUserStakingBalanceOfCryptoPrecisionSuccess,
+    data: userStakingBalanceCryptoPrecision,
+    isSuccess: isUserStakingBalanceCryptoPrecisionSuccess,
+    isLoading: isUserStakingBalanceCryptoPrecisionLoading,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
     select: ([stakingBalance]) =>
@@ -40,17 +42,22 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
         <Flex alignItems='center' gap={2} mb={6}>
           <AssetIcon size='sm' assetId={stakingAssetId} key={stakingAssetId} showNetworkIcon />
           <Flex flexDir='column'>
-            <Skeleton isLoaded={isUserStakingBalanceOfCryptoPrecisionSuccess}>
+            <Skeleton isLoaded={isUserStakingBalanceCryptoPrecisionSuccess}>
               <Amount.Crypto
                 fontWeight='bold'
                 fontSize='2xl'
-                value={userStakingBalanceOfCryptoPrecision ?? '0'}
+                value={userStakingBalanceCryptoPrecision ?? '0'}
                 symbol={stakingAsset.symbol}
               />
             </Skeleton>
           </Flex>
         </Flex>
-        <StakingInfo stakingAssetAccountAddress={stakingAssetAccountAddress} />
+        <StakingInfo
+          stakingAssetId={stakingAssetId}
+          stakingAssetAccountAddress={stakingAssetAccountAddress}
+          userStakingBalanceCryptoPrecision={userStakingBalanceCryptoPrecision}
+          isUserStakingBalanceCryptoPrecisionLoading={isUserStakingBalanceCryptoPrecisionLoading}
+        />
       </CardHeader>
       <CardBody pb={6}>
         <Stats stakingAssetId={stakingAssetId} />

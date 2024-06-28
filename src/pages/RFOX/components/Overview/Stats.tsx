@@ -1,8 +1,7 @@
-import { Box, Flex, SimpleGrid, Skeleton, Tag } from '@chakra-ui/react'
+import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
@@ -35,26 +34,27 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
 
   if (!stakingAsset) return null
 
+  // The commented out code is a placeholder for when we have the data to display
   return (
     <Box>
       <Flex alignItems='center' gap={2} mb={6} mt={2}>
         <Text translation='RFOX.totals' />
-        <Skeleton isLoaded={true} display='flex' alignItems='center'>
+        {/* <Skeleton isLoaded={true} display='flex' alignItems='center'>
           <Tag colorScheme='green' size='sm' alignItems='center'>
             ~
             <Amount.Percent value={1.67} fontWeight='medium' />
           </Tag>
-        </Skeleton>
+        </Skeleton> */}
       </Flex>
 
       <SimpleGrid spacing={6} columns={gridColumns}>
         <StatItem
           description='RFOX.totalStaked'
-          percentChangeDecimal={'0.0209'}
+          // percentChangeDecimal={'0.0209'}
           amountUserCurrency={contractBalanceOfUserCurrency}
           isLoading={!isContractBalanceOfUserCurrencySuccess}
         />
-        <StatItem
+        {/* <StatItem
           description='RFOX.totalFeesCollected'
           amountUserCurrency='30600000'
           isLoading={false}
@@ -71,7 +71,7 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
           percentChangeDecimal={'0.3445'}
           amountUserCurrency='15820310'
           isLoading={false}
-        />
+        /> */}
       </SimpleGrid>
     </Box>
   )

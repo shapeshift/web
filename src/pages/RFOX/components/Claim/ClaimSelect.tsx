@@ -14,7 +14,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { chainIdToChainDisplayName } from 'lib/utils'
-import { useGetUnstakingRequestQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestQuery'
+import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { RfoxTabIndex } from 'pages/RFOX/Widget'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -106,7 +106,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     isPaused: isUnstakingRequestPaused,
     isError: isUnstakingRequestError,
     isRefetching: isUnstakingRequestRefetching,
-  } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
+  } = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
 

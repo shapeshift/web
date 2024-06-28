@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
-import { useGetUnstakingRequestQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestQuery'
+import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -38,7 +38,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     isPaused: isUnstakingRequestPaused,
     isRefetching: isUnstakingRequestRefetching,
     isSuccess: isUnstakingRequestSuccess,
-  } = useGetUnstakingRequestQuery({ stakingAssetAccountAddress })
+  } = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
     if (!stakingAsset) return null

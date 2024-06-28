@@ -6,6 +6,8 @@ import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { getAddress } from 'viem'
+import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
+import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
@@ -70,12 +72,28 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
   })
 
+  const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      : undefined,
+  })
+
+  const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      : undefined,
+  })
+
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: unstakingRequestCountQueryKey })
+    await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
   }, [
     newContractBalanceOfCryptoBaseUnitQueryKey,
     queryClient,
+    unstakingRequestCountQueryKey,
+    unstakingRequestQueryKey,
     userStakingBalanceOfCryptoBaseUnitQueryKey,
   ])
 

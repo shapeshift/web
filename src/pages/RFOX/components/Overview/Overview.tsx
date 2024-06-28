@@ -35,7 +35,7 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
     if (!(userStakingBalanceCryptoBaseUnit && stakingAsset)) return
-    return fromBaseUnit(userStakingBalanceCryptoBaseUnit, stakingAsset?.precision)
+    return fromBaseUnit(userStakingBalanceCryptoBaseUnit, stakingAsset.precision)
   }, [stakingAsset, userStakingBalanceCryptoBaseUnit])
 
   if (!stakingAsset) return null

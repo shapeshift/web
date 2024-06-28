@@ -1,4 +1,5 @@
 import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
+import { bn } from 'lib/bignumber/bignumber'
 
 import type { PartialEpochMetadata } from '../types'
 
@@ -16,9 +17,11 @@ export const calcEpochRewardForAccountRuneBaseUnit = (
   const secondsInEpoch: bigint = epochMetadata.endTimestamp - epochMetadata.startTimestamp + 1n
 
   const totalEpochReward = (RFOX_REWARD_RATE / RFOX_WAD) * secondsInEpoch
+  const epochEarningsForAccountAdjustedForWAD = epochEarningsForAccount / RFOX_WAD
+  const epochRewardRuneBaseUnit = bn(epochEarningsForAccountAdjustedForWAD.toString())
+    .div(totalEpochReward.toString())
+    .times(epochMetadata.distributionAmountRuneBaseUnit.toString())
+    .toFixed(0)
 
-  const epochRewardRuneBaseUnit =
-    (epochEarningsForAccount / totalEpochReward) * epochMetadata.distributionAmountRuneBaseUnit
-
-  return epochRewardRuneBaseUnit
+  return BigInt(epochRewardRuneBaseUnit)
 }

@@ -109,6 +109,7 @@ export const useEarliestBlockNumberByTimestampQuery = ({
   const query = useQuery({
     queryKey,
     queryFn,
+    staleTime: Infinity,
   })
 
   return query

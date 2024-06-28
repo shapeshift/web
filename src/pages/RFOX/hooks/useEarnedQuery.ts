@@ -37,13 +37,16 @@ export const getEarnedQueryFn = ({
   blockNumber,
 }: UseStakingInfoQueryProps) =>
   stakingAssetAccountAddress
-    ? () =>
-        readContract(client, {
+    ? async () =>
+        await readContract(client, {
           abi: foxStakingV1Abi,
           address: RFOX_PROXY_CONTRACT_ADDRESS,
           functionName: 'earned',
           args: [getAddress(stakingAssetAccountAddress)],
           blockNumber,
+        }).catch((error: unknown) => {
+          console.error(error)
+          return 0n
         })
     : skipToken
 

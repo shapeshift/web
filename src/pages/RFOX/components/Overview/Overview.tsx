@@ -50,10 +50,7 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
             </Skeleton>
           </Flex>
         </Flex>
-        <StakingInfo
-          stakingAssetAccountAddress={stakingAssetAccountAddress}
-          stakingAssetId={stakingAssetId}
-        />
+        <StakingInfo stakingAssetAccountAddress={stakingAssetAccountAddress} />
       </CardHeader>
       <CardBody pb={6}>
         <Stats stakingAssetId={stakingAssetId} />

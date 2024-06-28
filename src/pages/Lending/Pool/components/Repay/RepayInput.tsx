@@ -622,13 +622,13 @@ export const RepayInput = ({
         assetSymbol={collateralAsset?.symbol ?? ''}
         assetIcon={collateralAsset?.icon ?? ''}
         // Both cryptoAmount and fiatAmount actually defined at display time, see showFiatSkeleton below
-        cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision}
-        fiatAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesUserCurrency}
+        cryptoAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesCryptoPrecision ?? '0'}
+        fiatAmount={lendingQuoteCloseData?.quoteWithdrawnAmountAfterFeesUserCurrency ?? '0'}
         isAccountSelectionDisabled={isAccountSelectionDisabled}
         isSendMaxDisabled={false}
         percentOptions={percentOptions}
         showInputSkeleton={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
-        showFiatSkeleton={false}
+        showFiatSkeleton={isLendingQuoteCloseLoading || isLendingQuoteCloseRefetching}
         label={translate('lending.unlockedCollateral')}
         onAccountIdChange={handleCollateralAccountIdChange}
         isReadOnly

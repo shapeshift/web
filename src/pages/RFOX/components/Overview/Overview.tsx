@@ -18,19 +18,25 @@ type OverviewProps = {
 
 export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAssetAccountId }) => {
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
 
   const {
-    data: userStakingBalanceOfCryptoPrecision,
-    isSuccess: isUserStakingBalanceOfCryptoPrecisionSuccess,
+    data: userStakingBalanceCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceCryptoBaseUnitSuccess,
+    isLoading: isUserStakingBalanceCryptoBaseUnitLoading,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
-    select: ([stakingBalance]) =>
-      fromBaseUnit(stakingBalance.toString(), stakingAsset?.precision ?? 0),
+    select: ([stakingBalance]) => stakingBalance.toString(),
   })
+
+  const userStakingBalanceCryptoPrecision = useMemo(() => {
+    if (!(userStakingBalanceCryptoBaseUnit && stakingAsset)) return
+    return fromBaseUnit(userStakingBalanceCryptoBaseUnit, stakingAsset.precision)
+  }, [stakingAsset, userStakingBalanceCryptoBaseUnit])
 
   if (!stakingAsset) return null
 
@@ -40,19 +46,21 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
         <Flex alignItems='center' gap={2} mb={6}>
           <AssetIcon size='sm' assetId={stakingAssetId} key={stakingAssetId} showNetworkIcon />
           <Flex flexDir='column'>
-            <Skeleton isLoaded={isUserStakingBalanceOfCryptoPrecisionSuccess}>
+            <Skeleton isLoaded={isUserStakingBalanceCryptoBaseUnitSuccess}>
               <Amount.Crypto
                 fontWeight='bold'
                 fontSize='2xl'
-                value={userStakingBalanceOfCryptoPrecision ?? '0'}
+                value={userStakingBalanceCryptoPrecision ?? '0'}
                 symbol={stakingAsset.symbol}
               />
             </Skeleton>
           </Flex>
         </Flex>
         <StakingInfo
-          stakingAssetAccountAddress={stakingAssetAccountAddress}
           stakingAssetId={stakingAssetId}
+          stakingAssetAccountAddress={stakingAssetAccountAddress}
+          userStakingBalanceCryptoBaseUnit={userStakingBalanceCryptoBaseUnit}
+          isUserStakingBalanceCryptoPrecisionLoading={isUserStakingBalanceCryptoBaseUnitLoading}
         />
       </CardHeader>
       <CardBody pb={6}>

@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
-import { epochHistoryQueryFn, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
+import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
 type UseLifetimeRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
@@ -34,7 +34,7 @@ export const useLifetimeRewardsQuery = ({
             // using queryClient.fetchQuery here is ok because historical epoch metadata does not change so reactivity is not needed
             const epochHistory = await queryClient.fetchQuery({
               queryKey: getEpochHistoryQueryKey(),
-              queryFn: epochHistoryQueryFn,
+              queryFn: fetchEpochHistory,
             })
 
             const earnedByEpoch = await Promise.all(

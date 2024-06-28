@@ -1,6 +1,7 @@
 import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
+import { bn } from 'lib/bignumber/bignumber'
 
-import type { EpochMetadata } from '../types'
+import type { PartialEpochMetadata } from '../types'
 
 /**
  * Calculates the reward for an account in an epoch in RUNE base units.
@@ -11,14 +12,16 @@ import type { EpochMetadata } from '../types'
  */
 export const calcEpochRewardForAccountRuneBaseUnit = (
   epochEarningsForAccount: bigint,
-  epochMetadata: EpochMetadata,
+  epochMetadata: PartialEpochMetadata,
 ) => {
-  const secondsInEpoch: bigint = epochMetadata.endTimestamp - epochMetadata.startTimestamp
+  const secondsInEpoch: bigint = epochMetadata.endTimestamp - epochMetadata.startTimestamp + 1n
 
   const totalEpochReward = (RFOX_REWARD_RATE / RFOX_WAD) * secondsInEpoch
+  const epochEarningsForAccountAdjustedForWAD = epochEarningsForAccount / RFOX_WAD
+  const epochRewardRuneBaseUnit = bn(epochEarningsForAccountAdjustedForWAD.toString())
+    .div(totalEpochReward.toString())
+    .times(epochMetadata.distributionAmountRuneBaseUnit.toString())
+    .toFixed(0)
 
-  const epochRewardRuneBaseUnit =
-    (epochEarningsForAccount / totalEpochReward) * epochMetadata.distributionAmountRuneBaseUnit
-
-  return epochRewardRuneBaseUnit
+  return BigInt(epochRewardRuneBaseUnit)
 }

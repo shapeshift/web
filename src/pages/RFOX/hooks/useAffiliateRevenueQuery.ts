@@ -39,8 +39,8 @@ export const getAffiliateRevenueQueryFn =
     try {
       // Parse string directly to BigInt.
       // This will throw if the string is not a valid number
-      const parsedBlockNumber = BigInt(amount)
-      return parsedBlockNumber
+      const parsedRevenue = BigInt(amount)
+      return parsedRevenue
     } catch (error) {
       console.error({ address, amount })
       throw Error('Error parsing affiliate revenue')

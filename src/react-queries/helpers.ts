@@ -50,7 +50,7 @@ export const mergeQueryOutputs = <QueryOutputType, QueryErrorType, MergedOutputT
 
   return {
     data: combineResults(queryOutputs.map(result => result.data as QueryOutputType)),
-    error: null,
+    error,
     isLoading,
     isPending,
     isError,

@@ -474,6 +474,7 @@ export const RepayInput = ({
   }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
+    if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!isThorchainLendingRepayEnabled) return translate('lending.errors.repaymentsDisabled')
     if (_isSmartContractAddress) return translate('trade.errors.smartContractWalletNotSupported')
     if (lendingQuoteCloseData && (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx))

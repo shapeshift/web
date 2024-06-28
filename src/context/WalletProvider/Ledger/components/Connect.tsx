@@ -1,4 +1,5 @@
 import { Button } from '@chakra-ui/react'
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import React, { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -32,6 +33,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
   const dispatch = useAppDispatch()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
   const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
 
@@ -47,6 +49,15 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     selectPortfolioHasWalletId(state, LEDGER_DEVICE_ID),
   )
 
+  const handleCheckNumDevices = useCallback(async () => {
+    const devices = await TransportWebUSB.list().catch(e => {
+      console.error(e)
+      return []
+    })
+    const numDevices = devices.length
+    return numDevices
+  }, [])
+
   const handlePair = useCallback(async () => {
     setError(null)
     setIsLoading(true)
@@ -57,7 +68,25 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
         // Remove all provider event listeners from previously connected wallets
         await removeAccountsAndChainListeners()
 
+        // Pair the device, which gets approval from the browser to communicate with the Ledger USB device
         const wallet = await adapter.pairDevice()
+
+        // Check the number of connected devices. Needs a device to be paired for this to work (see above)
+        const numDevices = await handleCheckNumDevices()
+
+        // Ensure exactly one device is connected
+        switch (true) {
+          case numDevices < 1:
+            setDeviceCountError('walletProvider.ledger.errors.noDeviceConnected')
+            setIsLoading(false)
+            return
+          case numDevices > 1:
+            setDeviceCountError('walletProvider.ledger.errors.multipleDevicesConnected')
+            setIsLoading(false)
+            return
+          default:
+            setDeviceCountError(null)
+        }
 
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
@@ -86,7 +115,6 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
-        history.push('/ledger/failure')
       }
     }
 
@@ -95,6 +123,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     // setIsLoading(false)
   }, [
     getAdapter,
+    handleCheckNumDevices,
     history,
     isAccountManagementEnabled,
     isLedgerAccountManagementEnabled,
@@ -128,7 +157,8 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
       }
       onPairDeviceClick={handlePair}
       loading={isLoading}
-      error={error}
+      isButtonDisabled={isLoading}
+      error={error ?? deviceCountError}
     >
       {/* Hide the whole button while loading to prevent UI glitching during pairing */}
       {!isLoading && isPreviousLedgerDeviceDetected && (
@@ -138,7 +168,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
           width='full'
           colorScheme='blue'
           variant='outline'
-          isDisabled={isLoading}
+          isDisabled={isLoading || Boolean(deviceCountError)}
         >
           {translate('walletProvider.ledger.connect.pairNewDeviceButton')}
         </Button>

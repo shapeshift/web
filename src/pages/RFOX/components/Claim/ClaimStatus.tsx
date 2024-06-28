@@ -25,11 +25,13 @@ type BodyContent = {
 type ClaimStatusProps = {
   confirmedQuote: RfoxClaimQuote
   txId: string
+  onTxConfirmed: () => Promise<void>
 }
 
 export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimStatusProps> = ({
   confirmedQuote,
   txId,
+  onTxConfirmed: handleTxConfirmed,
 }) => {
   const history = useHistory()
 
@@ -46,6 +48,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   const txStatus = useTxStatus({
     accountId: confirmedQuote.stakingAssetAccountId,
     txHash: txId,
+    onTxStatusConfirmed: handleTxConfirmed,
   })
 
   const bodyContent: BodyContent | null = useMemo(() => {

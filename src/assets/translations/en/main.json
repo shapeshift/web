@@ -105,6 +105,7 @@
     "switchNetwork": "Switch Network",
     "selectNetwork": "Select a network",
     "unsupportedNetwork": "Unsupported Network",
+    "unsupportedWallet": "Unsupported Wallet",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
     "searchAsset": "Search for asset",
@@ -1442,7 +1443,9 @@
         "connectFailure": "Unable to connect Ledger wallet",
         "unknown": "An unexpected error occurred communicating with Ledger wallet",
         "appNotOpen": "%{app} not open on Ledger",
-        "appNotOpenDescription": "Please open the %{app} app on your device and try again."
+        "appNotOpenDescription": "Please open the %{app} app on your device and try again.",
+        "noDeviceConnected": "No Ledger device connected",
+        "multipleDevicesConnected": "Multiple Ledger devices connected. Please disconnect all but one device."
       },
       "connect": {
         "header": "Pair Ledger",
@@ -2459,8 +2462,8 @@
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "confirmAndBridge": "Confirm & Bridge",
-    "myRewardBalance": "My Reward Balance",
-    "myRewardBalanceHelper": "My Reward Balance",
+    "myStakedBalance": "My Staked Balance",
+    "myStakedBalanceHelper": "My Staked Balance",
     "pendingRewardsBalance": "Pending Rewards Balance",
     "pendingRewardsBalanceHelper": "Pending Rewards Balance",
     "lifetimeRewards": "Lifetime Rewards",

@@ -1,24 +1,43 @@
+import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 
 import type { PartialEpochMetadata } from '../types'
 
-/**
- * Calculates the reward for an account in an epoch in RUNE base units.
- *
- * NOTE: This is a simplified version of the calculation that is only accurate enough for
- * display purposes due to precision differences between this approach and the internal
- * accounting on-chain.
- */
 export const calcEpochRewardForAccountRuneBaseUnit = (
   epochEarningsForAccount: bigint,
   epochMetadata: PartialEpochMetadata,
 ) => {
-  const secondsInEpoch: bigint = epochMetadata.endTimestamp - epochMetadata.startTimestamp + 1n
+  const secondsInEpoch = epochMetadata.endTimestamp - epochMetadata.startTimestamp + 1n
 
-  const totalEpochReward = (RFOX_REWARD_RATE / RFOX_WAD) * secondsInEpoch
+  // Total raw rewards for the epoch - NOT scaled down for WAD
+  const totalEpochRewards = RFOX_REWARD_RATE * secondsInEpoch
 
-  const epochRewardRuneBaseUnit =
-    (epochEarningsForAccount / totalEpochReward) * epochMetadata.distributionAmountRuneBaseUnit
+  // Scaled down to crypto precision using RFOX_WAD - we'll speak the same precision language for everything from now on
+  const totalEpochRewardsCryptoPrecision = bnOrZero(totalEpochRewards.toString()).dividedBy(
+    RFOX_WAD.toString(),
+  )
 
-  return epochRewardRuneBaseUnit
+  const epochEarningsForAccountCryptoPrecision = bnOrZero(
+    epochEarningsForAccount.toString(),
+  ).dividedBy(RFOX_WAD.toString())
+
+  const userRewardsProportionCryptoPrecision = epochEarningsForAccountCryptoPrecision.dividedBy(
+    totalEpochRewardsCryptoPrecision,
+  )
+
+  const distributionAmountCryptoPrecision = fromBaseUnit(
+    epochMetadata.distributionAmountRuneBaseUnit.toString(),
+    THOR_PRECISION,
+  )
+
+  const userRewardsCryptoPrecision = userRewardsProportionCryptoPrecision.multipliedBy(
+    distributionAmountCryptoPrecision,
+  )
+
+  // We're done speaking precision everywhere, convert the epoch rewards back to THOR base unit
+  const epochRewardRuneBaseUnit = toBaseUnit(userRewardsCryptoPrecision, THOR_PRECISION)
+
+  return BigInt(epochRewardRuneBaseUnit)
 }

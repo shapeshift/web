@@ -26,6 +26,7 @@ import { selectInboundAddressData } from 'react-queries/selectors'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
@@ -36,6 +37,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -109,6 +111,7 @@ export const RepayInput = ({
     selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
   )
   const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
+  const isDemoWallet = useWallet().state.isDemoWallet
 
   const repaymentAccountNumberFilter = useMemo(
     () => ({ accountId: repaymentAccountId ?? '' }),
@@ -727,7 +730,8 @@ export const RepayInput = ({
           label={translate(quoteErrorTooltipTranslation)}
           isDisabled={!lendingQuoteCloseError}
         >
-          <Button
+          <ButtonWalletPredicate
+            isValidWallet={!isDemoWallet}
             size='lg-multiline'
             colorScheme={
               isLendingQuoteCloseError || isEstimatedFeesDataError || quoteErrorTranslation
@@ -765,7 +769,7 @@ export const RepayInput = ({
             )}
           >
             {quoteErrorTranslation ? quoteErrorTranslation : confirmTranslation}
-          </Button>
+          </ButtonWalletPredicate>
         </Tooltip>
       </Stack>
     </Stack>

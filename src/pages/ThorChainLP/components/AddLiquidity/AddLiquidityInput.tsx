@@ -145,6 +145,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
+  const isDemoWallet = useWallet().state.isDemoWallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -431,11 +432,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
   // doesn't support one of the two
   const walletSupportsOpportunity = useMemo(() => {
+    if (isDemoWallet) return false
     if (!opportunityType) return false
     if (opportunityType === 'sym') return walletSupportsAsset && walletSupportsRune
     if (opportunityType === AsymSide.Rune) return walletSupportsRune
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
-  }, [opportunityType, walletSupportsAsset, walletSupportsRune])
+  }, [opportunityType, walletSupportsAsset, walletSupportsRune, isDemoWallet])
 
   const handleToggleRuneIsFiat = useCallback(
     (_isFiat: boolean) => {
@@ -1360,6 +1362,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (isTradingActive === false) return translate('common.poolHalted')
+    if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
     if (isSmartContractAccountAddress === true)

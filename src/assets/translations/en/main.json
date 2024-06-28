@@ -105,7 +105,6 @@
     "switchNetwork": "Switch Network",
     "selectNetwork": "Select a network",
     "unsupportedNetwork": "Unsupported Network",
-    "unsupportedWallet": "Unsupported Wallet",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
     "searchAsset": "Search for asset",

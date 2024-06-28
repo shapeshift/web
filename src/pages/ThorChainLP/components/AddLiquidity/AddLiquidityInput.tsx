@@ -1209,12 +1209,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       const runeAssetNetworkName =
         runeAsset.networkName ?? chainIdToChainDisplayName(runeAsset.chainId)
 
-      if (!walletSupportsRune && !walletSupportsAsset)
+      if ((!walletSupportsRune && !walletSupportsAsset) || isDemoWallet)
         return translate('pools.unsupportedNetworksExplainer', {
           network1: poolAssetNetworkName,
           network2: runeAssetNetworkName,
         })
-      if (!walletSupportsRune)
+      if (!walletSupportsRune || isDemoWallet)
         return translate('pools.unsupportedNetworkExplainer', { network: runeAssetNetworkName })
       if (!walletSupportsAsset)
         return translate('pools.unsupportedNetworkExplainer', { network: poolAssetNetworkName })
@@ -1235,6 +1235,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     walletSupportsAsset,
     walletSupportsOpportunity,
     walletSupportsRune,
+    isDemoWallet,
   ])
 
   const handleAssetChange = useCallback(

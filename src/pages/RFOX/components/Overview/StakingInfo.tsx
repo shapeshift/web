@@ -13,14 +13,14 @@ const gridColumns = { base: 1, md: 2 }
 type StakingInfoProps = {
   stakingAssetId: AssetId
   stakingAssetAccountAddress: string | undefined
-  userStakingBalanceCryptoPrecision: string | undefined
+  userStakingBalanceCryptoBaseUnit: string | undefined
   isUserStakingBalanceCryptoPrecisionLoading: boolean
 }
 
 export const StakingInfo: React.FC<StakingInfoProps> = ({
   stakingAssetId,
   stakingAssetAccountAddress,
-  userStakingBalanceCryptoPrecision,
+  userStakingBalanceCryptoBaseUnit: userStakingBalanceCryptoPrecision,
   isUserStakingBalanceCryptoPrecisionLoading,
 }) => {
   const {

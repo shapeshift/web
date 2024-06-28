@@ -25,14 +25,18 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
   )
 
   const {
-    data: userStakingBalanceCryptoPrecision,
-    isSuccess: isUserStakingBalanceCryptoPrecisionSuccess,
-    isLoading: isUserStakingBalanceCryptoPrecisionLoading,
+    data: userStakingBalanceCryptoBaseUnit,
+    isSuccess: isUserStakingBalanceCryptoBaseUnitSuccess,
+    isLoading: isUserStakingBalanceCryptoBaseUnitLoading,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
-    select: ([stakingBalance]) =>
-      fromBaseUnit(stakingBalance.toString(), stakingAsset?.precision ?? 0),
+    select: ([stakingBalance]) => stakingBalance.toString(),
   })
+
+  const userStakingBalanceCryptoPrecision = useMemo(() => {
+    if (!(userStakingBalanceCryptoBaseUnit && stakingAsset)) return
+    return fromBaseUnit(userStakingBalanceCryptoBaseUnit, stakingAsset?.precision)
+  }, [stakingAsset, userStakingBalanceCryptoBaseUnit])
 
   if (!stakingAsset) return null
 
@@ -42,7 +46,7 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
         <Flex alignItems='center' gap={2} mb={6}>
           <AssetIcon size='sm' assetId={stakingAssetId} key={stakingAssetId} showNetworkIcon />
           <Flex flexDir='column'>
-            <Skeleton isLoaded={isUserStakingBalanceCryptoPrecisionSuccess}>
+            <Skeleton isLoaded={isUserStakingBalanceCryptoBaseUnitSuccess}>
               <Amount.Crypto
                 fontWeight='bold'
                 fontSize='2xl'
@@ -55,8 +59,8 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
         <StakingInfo
           stakingAssetId={stakingAssetId}
           stakingAssetAccountAddress={stakingAssetAccountAddress}
-          userStakingBalanceCryptoPrecision={userStakingBalanceCryptoPrecision}
-          isUserStakingBalanceCryptoPrecisionLoading={isUserStakingBalanceCryptoPrecisionLoading}
+          userStakingBalanceCryptoBaseUnit={userStakingBalanceCryptoBaseUnit}
+          isUserStakingBalanceCryptoPrecisionLoading={isUserStakingBalanceCryptoBaseUnitLoading}
         />
       </CardHeader>
       <CardBody pb={6}>

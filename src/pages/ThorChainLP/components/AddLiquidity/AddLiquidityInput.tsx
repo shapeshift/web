@@ -1214,7 +1214,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           network1: poolAssetNetworkName,
           network2: runeAssetNetworkName,
         })
-      if (!walletSupportsRune || isDemoWallet)
+      if (!walletSupportsRune)
         return translate('pools.unsupportedNetworkExplainer', { network: runeAssetNetworkName })
       if (!walletSupportsAsset)
         return translate('pools.unsupportedNetworkExplainer', { network: poolAssetNetworkName })

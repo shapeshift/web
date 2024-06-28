@@ -174,7 +174,7 @@ const validators = {
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   REACT_APP_FEATURE_RFOX: bool({ default: false }),
-  REACT_APP_FEATURE_RFOX_DASHBOARD: bool({ default: false }),
+  REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

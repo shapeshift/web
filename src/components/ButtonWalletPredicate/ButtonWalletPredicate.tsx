@@ -31,7 +31,11 @@ export const ButtonWalletPredicate = ({
       {isValidWallet ? (
         <Button {...restProps}>{children}</Button>
       ) : (
-        <Button {...restProps} onClick={onWalletNotConnectedClick ?? handleConnect}>
+        <Button
+          {...restProps}
+          onClick={onWalletNotConnectedClick ?? handleConnect}
+          isDisabled={false}
+        >
           {translate(invalidWalletTranslation)}
         </Button>
       )}

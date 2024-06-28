@@ -3,7 +3,6 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Button,
   CardFooter,
   CardHeader,
   Center,
@@ -36,6 +35,7 @@ import { useHistory } from 'react-router'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FeeModal } from 'components/FeeModal/FeeModal'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
@@ -43,6 +43,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -144,8 +145,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
-  const wallet = useWallet().state.wallet
-  const isDemoWallet = useWallet().state.isDemoWallet
+  const {
+    state: { wallet, isDemoWallet },
+    dispatch: walletDispatch,
+  } = useWallet()
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -432,12 +435,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
   // doesn't support one of the two
   const walletSupportsOpportunity = useMemo(() => {
-    if (isDemoWallet) return false
     if (!opportunityType) return false
     if (opportunityType === 'sym') return walletSupportsAsset && walletSupportsRune
     if (opportunityType === AsymSide.Rune) return walletSupportsRune
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
-  }, [opportunityType, walletSupportsAsset, walletSupportsRune, isDemoWallet])
+  }, [opportunityType, walletSupportsAsset, walletSupportsRune])
 
   const handleToggleRuneIsFiat = useCallback(
     (_isFiat: boolean) => {
@@ -1362,7 +1364,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (isTradingActive === false) return translate('common.poolHalted')
-    if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
     if (isSmartContractAccountAddress === true)
@@ -1441,6 +1442,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const handleDepositSubmit = useCallback(() => {
     return isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : handleSubmit()
   }, [handleSubmit, isUnsafeQuote])
+
+  const handleOnWalletNotConnectedClick = useCallback(() => {
+    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    handleBackClick()
+  }, [walletDispatch, handleBackClick])
 
   if (!poolAsset || !runeAsset) return null
 
@@ -1542,7 +1548,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {maybeAlert}
           {maybeSymAfterRuneAlert}
 
-          <Button
+          <ButtonWalletPredicate
+            isValidWallet={!isDemoWallet}
+            onWalletNotConnectedClick={handleOnWalletNotConnectedClick}
             mx={-2}
             size='lg'
             colorScheme={errorCopy ? 'red' : 'blue'}
@@ -1579,7 +1587,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             onClick={handleDepositSubmit}
           >
             {confirmCopy}
-          </Button>
+          </ButtonWalletPredicate>
         </CardFooter>
         <FeeModal
           isOpen={showFeeModal}

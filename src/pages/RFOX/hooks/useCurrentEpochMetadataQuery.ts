@@ -34,7 +34,7 @@ export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata>
   // And same here - last second of the month is the end of the epoch
   const currentEpochEndTimestamp = BigInt(dayjs(currentEpochStart).endOf('month').unix())
 
-  const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
+  const affiliateRevenueRuneBaseUnit = await queryClient.fetchQuery({
     queryKey: getAffiliateRevenueQueryKey({
       startTimestamp: currentEpochStartTimestamp,
       endTimestamp: currentEpochEndTimestamp,
@@ -44,6 +44,9 @@ export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata>
       endTimestamp: currentEpochEndTimestamp,
     }),
   })
+
+  // We distribute 50% of the affiliate revenue to the stakers
+  const distributionAmountRuneBaseUnit = affiliateRevenueRuneBaseUnit / 2n
 
   return {
     startBlockNumber: currentEpochStartBlockNumber,

@@ -61,11 +61,14 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
     const endTimestamp = nextStartTimestamp - 1n
 
     // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
-    const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
+    const affiliateRevenueRuneBaseUnit = await queryClient.fetchQuery({
       queryKey: getAffiliateRevenueQueryKey({ startTimestamp, endTimestamp }),
       queryFn: getAffiliateRevenueQueryFn({ startTimestamp, endTimestamp }),
       staleTime: Infinity, // Historical affiliate revenue does not change so we can cache this forever
     })
+
+    // We distribute 50% of the affiliate revenue to the stakers
+    const distributionAmountRuneBaseUnit = affiliateRevenueRuneBaseUnit / 2n
 
     const epochMetadata = {
       startBlockNumber,

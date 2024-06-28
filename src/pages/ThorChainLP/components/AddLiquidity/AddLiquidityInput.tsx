@@ -1383,6 +1383,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return null
   }, [
+    isDemoWallet,
     isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
     isTradingActive,

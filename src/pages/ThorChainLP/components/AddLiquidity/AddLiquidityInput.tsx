@@ -1122,8 +1122,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               onChange={handleAddLiquidityInputChange}
               onToggleIsFiat={isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat}
               isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
-              cryptoAmount={cryptoAmount}
-              fiatAmount={fiatAmount}
+              cryptoAmount={cryptoAmount ?? '0'}
+              fiatAmount={fiatAmount ?? '0'}
             />
           )
         })}

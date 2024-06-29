@@ -10,13 +10,14 @@ import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import type { AllowanceType } from './helpers'
 import { useIsApprovalNeeded } from './useIsApprovalNeeded'
 
 // handles allowance approval tx execution, fees, and state orchestration
 export const useAllowanceApproval = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
-  isExactAllowance: boolean,
+  allowanceType: AllowanceType,
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
@@ -28,7 +29,7 @@ export const useAllowanceApproval = (
     buildCustomTxInput,
     stopPolling: stopPollingBuildApprovalTx,
     isLoading,
-  } = useApprovalTx(tradeQuoteStep, hopIndex, isExactAllowance)
+  } = useApprovalTx(tradeQuoteStep, hopIndex, allowanceType)
 
   const { isLoading: isApprovalNeededLoading, isApprovalNeeded } = useIsApprovalNeeded(
     tradeQuoteStep,

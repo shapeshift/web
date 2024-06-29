@@ -6,24 +6,44 @@ import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { selectAllowanceCryptoBaseUnit } from 'react-queries/hooks/selectors'
 import type { GetAllowanceErr } from 'react-queries/types'
-import { bn } from 'lib/bignumber/bignumber'
+import { usdtAssetId } from 'components/Modals/FiatRamps/config'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { selectRelatedAssetIdsInclusive } from 'state/slices/related-assets-selectors'
+import { useAppSelector } from 'state/store'
 
 export const useIsApprovalNeeded = (
   tradeQuoteStep: TradeQuoteStep | undefined,
   sellAssetAccountId: AccountId | undefined,
 ) => {
+  const relatedAssetIdsFilter = useMemo(() => ({ assetId: usdtAssetId }), [])
+  const usdtAssetIds = useAppSelector(state =>
+    selectRelatedAssetIdsInclusive(state, relatedAssetIdsFilter),
+  )
   const selectIsApprovalNeeded = useCallback(
     (data: Result<string, GetAllowanceErr>) => {
       if (tradeQuoteStep === undefined) return undefined
 
       const allowanceCryptoBaseUnit = selectAllowanceCryptoBaseUnit(data)
-      return allowanceCryptoBaseUnit !== undefined
-        ? bn(allowanceCryptoBaseUnit).lt(
-            tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          )
-        : false
+      const isApprovalNeeded =
+        allowanceCryptoBaseUnit !== undefined
+          ? bn(allowanceCryptoBaseUnit).lt(
+              tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            )
+          : false
+
+      const isAllowanceResetNeeded = (() => {
+        if (!usdtAssetIds.some(usdtAssetId => usdtAssetId === tradeQuoteStep?.sellAsset.assetId))
+          return false
+        if (bnOrZero(allowanceCryptoBaseUnit).isZero()) return false
+        return isApprovalNeeded
+      })()
+
+      return {
+        isApprovalNeeded,
+        isAllowanceResetNeeded,
+      }
     },
-    [tradeQuoteStep],
+    [tradeQuoteStep, usdtAssetIds],
   )
 
   const queryParams = useMemo(() => {
@@ -44,15 +64,15 @@ export const useIsApprovalNeeded = (
     tradeQuoteStep?.sellAsset.assetId,
   ])
 
-  const { data: isApprovalNeeded, isLoading: isApprovalNeededLoading } = useQuery(queryParams)
+  const { data, isLoading: isApprovalNeededLoading } = useQuery(queryParams)
 
   const result = useMemo(
     () => ({
-      isLoading:
-        isApprovalNeeded === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
-      isApprovalNeeded,
+      isLoading: data === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
+      isApprovalNeeded: data?.isApprovalNeeded,
+      isAllowanceResetNeeded: data?.isAllowanceResetNeeded,
     }),
-    [isApprovalNeeded, isApprovalNeededLoading, tradeQuoteStep],
+    [data, isApprovalNeededLoading, tradeQuoteStep],
   )
 
   return result

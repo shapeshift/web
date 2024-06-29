@@ -3,26 +3,42 @@ import { type evm, type EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
+import { assertUnreachable } from 'lib/utils'
 import { getApproveContractData, getFees } from 'lib/utils/evm'
+
+export enum AllowanceType {
+  Exact,
+  Unlimited,
+  Reset,
+}
 
 export const getApprovalTxData = async ({
   tradeQuoteStep,
   adapter,
   wallet,
-  isExactAllowance,
   from,
   supportsEIP1559,
+  allowanceType,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
   adapter: EvmChainAdapter
   wallet: ETHWallet
-  isExactAllowance: boolean
   from: string
   supportsEIP1559: boolean
+  allowanceType: AllowanceType
 }): Promise<{ buildCustomTxInput: evm.BuildCustomTxInput; networkFeeCryptoBaseUnit: string }> => {
-  const approvalAmountCryptoBaseUnit = isExactAllowance
-    ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    : MAX_ALLOWANCE
+  const approvalAmountCryptoBaseUnit = (() => {
+    switch (allowanceType) {
+      case AllowanceType.Exact:
+        return tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
+      case AllowanceType.Unlimited:
+        return MAX_ALLOWANCE
+      case AllowanceType.Reset:
+        return '0'
+      default:
+        assertUnreachable(allowanceType)
+    }
+  })()
 
   const { assetReference } = fromAssetId(tradeQuoteStep.sellAsset.assetId)
 

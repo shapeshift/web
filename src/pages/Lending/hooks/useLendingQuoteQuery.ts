@@ -20,7 +20,6 @@ import type {
   LendingDepositQuoteResponseSuccess,
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
-import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -52,6 +51,8 @@ const selectLendingQuoteQuery = memoize(
     const quote = data
     const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
+    const isStreaming = bnOrZero(quote.streaming_swap_blocks).gt(0)
+
     const quoteCollateralAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_collateral_deposited,
     ).toString()
@@ -69,6 +70,7 @@ const selectLendingQuoteQuery = memoize(
       .toString()
     const quoteDebtAmountUsd = bn(quoteDebtAmountUserCurrency).div(userCurrencyToUsdRate).toString()
 
+    const quoteBorrowedAmountThorBaseUnit = quote.expected_amount_out
     const quoteBorrowedAmountCryptoPrecision = fromThorBaseUnit(
       quote.expected_amount_out,
     ).toString()
@@ -85,6 +87,7 @@ const selectLendingQuoteQuery = memoize(
     const quoteCollateralizationRatioPercentDecimal = bnOrZero(quoteCollateralizationRatioPercent)
       .div(100)
       .toString()
+    const quoteSlippageBps = quote.fees.slippage_bps
     const quoteSlippagePercentageDecimal = bnOrZero(quote.fees.slippage_bps)
       .div(BASE_BPS_POINTS)
       .toString()
@@ -108,8 +111,7 @@ const selectLendingQuoteQuery = memoize(
       .toString()
 
     const quoteInboundAddress = quote.inbound_address
-    // TODO: return quote as is once borrow is using useSendThorTx
-    const quoteMemo = assertAndProcessMemo(quote.memo)
+    const quoteMemo = quote.memo
     const quoteExpiry = quote.expiry
     const quoteOutboundDelayMs = bnOrZero(quote.outbound_delay_seconds).times(1000).toNumber()
     const quoteInboundConfirmationMs = bnOrZero(quote.inbound_confirmation_seconds)
@@ -127,6 +129,7 @@ const selectLendingQuoteQuery = memoize(
       quoteCollateralAmountFiatUserCurrency,
       quoteCollateralAmountFiatUsd,
       quoteDebtAmountUserCurrency,
+      quoteBorrowedAmountThorBaseUnit,
       quoteDebtAmountUsd,
       quoteBorrowedAmountCryptoPrecision,
       quoteBorrowedAmountUserCurrency,
@@ -134,6 +137,7 @@ const selectLendingQuoteQuery = memoize(
       quoteCollateralizationRatioPercentDecimal,
       quoteSlippageBorrowedAssetCryptoPrecision,
       quoteSlippageBorrowedAssetUsd,
+      quoteSlippageBps,
       quoteTotalFeesFiatUserCurrency,
       quoteTotalFeesFiatUsd,
       quoteInboundAddress,
@@ -142,6 +146,7 @@ const selectLendingQuoteQuery = memoize(
       quoteInboundConfirmationMs,
       quoteTotalTimeMs,
       quoteExpiry,
+      isStreaming,
     }
   },
 )

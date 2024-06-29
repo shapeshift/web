@@ -24,6 +24,9 @@ type BaseQuoteResponse = {
   recommended_min_amount_in: string
   router: string
   warning: string
+  streaming_swap_blocks?: number
+  streaming_swap_seconds?: number
+  total_open_loan_seconds?: number
 }
 
 export type LendingDepositQuoteResponseSuccess = BaseQuoteResponse & {
@@ -81,12 +84,14 @@ export type LendingQuoteOpen = {
   quoteCollateralAmountFiatUsd: string
   quoteDebtAmountUserCurrency: string
   quoteDebtAmountUsd: string
+  quoteBorrowedAmountThorBaseUnit: string
   quoteBorrowedAmountCryptoPrecision: string
   quoteBorrowedAmountUserCurrency: string
   quoteBorrowedAmountUsd: string
   quoteCollateralizationRatioPercentDecimal: string
   quoteSlippageBorrowedAssetCryptoPrecision: string
   quoteSlippageBorrowedAssetUsd: string
+  quoteSlippageBps: number
   quoteTotalFeesFiatUserCurrency: string
   quoteTotalFeesFiatUsd: string
   quoteInboundAddress: string
@@ -95,6 +100,7 @@ export type LendingQuoteOpen = {
   quoteInboundConfirmationMs: number
   quoteTotalTimeMs: number
   quoteExpiry: number
+  isStreaming: boolean
 }
 
 export type LendingQuoteClose = {

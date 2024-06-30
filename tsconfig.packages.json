@@ -25,6 +25,9 @@
       "path": "./packages/unchained-client"
     },
     {
+      "path": "./packages/utils"
+    },
+    {
       "path": "./packages/swapper"
     },
   ]

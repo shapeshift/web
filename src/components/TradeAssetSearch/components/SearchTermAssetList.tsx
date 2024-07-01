@@ -1,7 +1,9 @@
-import { type ChainId, ethChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, type ChainId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import axios, { type AxiosRequestConfig } from 'axios'
-import { useMemo } from 'react'
+import type { TokenMetadataResponse } from 'alchemy-sdk'
+import { useEffect, useMemo, useState } from 'react'
+import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
+import { isFulfilled, isSome } from 'lib/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import {
   selectAssetsSortedByName,
@@ -12,48 +14,18 @@ import { useAppSelector } from 'state/store'
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
-interface Logo {
-  uri: string
-  width: number
-  height: number
+type TokenMetadata = TokenMetadataResponse & {
+  chainId: ChainId
+  contractAddress: string
 }
 
-interface Url {
-  name: string
-  url: string
-}
-
-interface TokenMetadata {
-  contract_address: string
-  decimals: number
-  name: string
-  symbol: string
-  total_supply: string
-  logos: Logo[]
-  urls: Url[]
-  current_usd_price: number
-}
-
-const CHAINBASE_BASE_URL = 'https://api.chainbase.online/v1'
-const CHAINBASE_API_KEY = 'demo' // FIXME: Replace with real API key
-
-const getTokenMetadata = async (contractAddress: string): Promise<TokenMetadata> => {
-  const url = `${CHAINBASE_BASE_URL}/token/metadata?contract_address=${contractAddress}`
-
-  const config: AxiosRequestConfig = {
-    headers: {
-      accept: 'application/json',
-      'x-api-key': CHAINBASE_API_KEY,
-    },
-  }
-
-  try {
-    const response = await axios.get<TokenMetadata>(url, config)
-    return response.data
-  } catch (error) {
-    console.error('Error fetching token metadata:', error)
-    throw error
-  }
+const getTokenMetadata = async (
+  contractAddress: string,
+  chainId: ChainId,
+): Promise<TokenMetadata | null> => {
+  const alchemy = getAlchemyInstanceByChainId(chainId)
+  const tokenMetadataResponse = await alchemy.core.getTokenMetadata(contractAddress)
+  return { ...tokenMetadataResponse, chainId, contractAddress }
 }
 
 export type SearchTermAssetListProps = {
@@ -71,6 +43,9 @@ export const SearchTermAssetList = ({
   allowWalletUnsupportedAssets,
   onAssetClick,
 }: SearchTermAssetListProps) => {
+  const [customAssets, setCustomAssets] = useState<Asset[]>([])
+  const [isSearchingCustomTokens, setIsSearchingCustomTokens] = useState(false)
+
   const assets = useAppSelector(selectAssetsSortedByName)
   const groupIsLoading = useMemo(() => {
     return [Boolean(isLoading)]
@@ -90,17 +65,62 @@ export const SearchTermAssetList = ({
     return assets.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
 
-  // don't async this - use useEffect
-  const searchTermAssets = useMemo(async () => {
+  useEffect(() => {
     const ethChainAdapter = assertGetEvmChainAdapter(ethChainId)
-    const isTokenAddress = (await ethChainAdapter.validateAddress(searchString)).valid
-    const tokenMetadata = isTokenAddress ? getTokenMetadata(searchString) : undefined
-    console.log(tokenMetadata)
+    ;(async () => {
+      const isTokenAddress = (await ethChainAdapter.validateAddress(searchString)).valid
+      const chainIds = activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]
+      if (!isTokenAddress || isSearchingCustomTokens) return
 
-    return filterAssetsBySearchTerm(searchString, assetsForChain)
-  }, [searchString, assetsForChain])
+      // For loading state, and to avoid duplicate requests
+      setIsSearchingCustomTokens(true)
 
-  const { groups, groupCounts } = useMemo(async () => {
+      const customTokensMetadataPromises = chainIds.map(chainId =>
+        getTokenMetadata(searchString, chainId),
+      )
+
+      const customTokensMetadataAwaited = await Promise.allSettled(customTokensMetadataPromises)
+      const customTokensMetadata = customTokensMetadataAwaited
+        .filter(isFulfilled)
+        .map(r => r.value)
+        .filter(isSome)
+
+      const customTokenAssets: Asset[] = (
+        await Promise.all(
+          customTokensMetadata?.map(metadata => {
+            const { name, symbol, decimals, logo } = metadata
+            // If we can't get all the information we need to create an Asset, don't allow the custom token
+            if (!name || !symbol || !decimals) return null
+            return {
+              chainId: metadata.chainId,
+              assetId: toAssetId({
+                chainId: metadata.chainId,
+                assetNamespace: ASSET_NAMESPACE.erc20, // FIXME: make this dynamic based on the ChainId
+                assetReference: metadata.contractAddress,
+              }),
+              name,
+              symbol,
+              precision: decimals,
+              icon: logo ?? '',
+              explorer: '', // FIXME
+              explorerTxLink: '', // FIXME
+              explorerAddressLink: '', // FIXME
+              color: '', // FIXME: hexColor,
+            }
+          }),
+        )
+      ).filter(isSome)
+      setCustomAssets(customTokenAssets)
+      setIsSearchingCustomTokens(false)
+    })()
+  }, [activeChainId, isSearchingCustomTokens, searchString, walletConnectedChainIds])
+
+  const searchTermAssets = useMemo(() => {
+    const baseAndCustomAssets = [...assetsForChain, ...customAssets].filter(isSome)
+    return filterAssetsBySearchTerm(searchString, baseAndCustomAssets)
+  }, [assetsForChain, customAssets, searchString])
+
+  const { groups, groupCounts } = useMemo(() => {
     return {
       groups: ['modals.assetSearch.searchResults'],
       groupCounts: [searchTermAssets.length],

@@ -49,7 +49,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
       isUnstakingRequestPaused ||
       isUnstakingRequestRefetching
     )
-      return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
+      return new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} my={2} />)
 
     if (!isUnstakingRequestSuccess) {
       return <Text color='text.subtle' translation='RFOX.errorFetchingClaims' />

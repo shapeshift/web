@@ -57,11 +57,11 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
     [setStepIndex],
   )
 
-  const isRFOXDashboardEnabled = useFeatureFlag('RFOXDashboard')
+  const isRfoxRewardsTxHistoryEnabled = useFeatureFlag('RfoxRewardsTxHistory')
 
   return (
     <Flex gap={4}>
-      {isRFOXDashboardEnabled && (
+      {isRfoxRewardsTxHistoryEnabled && (
         <RewardsAndClaimsTab
           index={RewardsAndClaimsTabIndex.Rewards}
           onClick={handleClick}
@@ -90,9 +90,11 @@ export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
   stakingAssetId,
   stakingAssetAccountId,
 }) => {
-  const isRFOXDashboardEnabled = useFeatureFlag('RFOXDashboard')
+  const isRfoxRewardsTxHistoryEnabled = useFeatureFlag('RfoxRewardsTxHistory')
   const [stepIndex, setStepIndex] = useState(
-    isRFOXDashboardEnabled ? RewardsAndClaimsTabIndex.Rewards : RewardsAndClaimsTabIndex.Claims,
+    isRfoxRewardsTxHistoryEnabled
+      ? RewardsAndClaimsTabIndex.Rewards
+      : RewardsAndClaimsTabIndex.Claims,
   )
 
   const TabHeader = useMemo(

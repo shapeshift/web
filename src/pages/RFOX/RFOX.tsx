@@ -3,7 +3,6 @@ import { Heading, Stack } from '@chakra-ui/react'
 import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -20,7 +19,6 @@ const stakingAssetId = foxOnArbitrumOneAssetId
 
 export const RFOX: React.FC = () => {
   const translate = useTranslate()
-  const isRFOXDashboardEnabled = useFeatureFlag('RFOXDashboard')
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   // TODO(gomes): make this programmatic when we implement multi-account
@@ -36,12 +34,7 @@ export const RFOX: React.FC = () => {
 
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
-          {isRFOXDashboardEnabled && (
-            <Overview
-              stakingAssetId={stakingAssetId}
-              stakingAssetAccountId={stakingAssetAccountId}
-            />
-          )}
+          <Overview stakingAssetId={stakingAssetId} stakingAssetAccountId={stakingAssetAccountId} />
           <RewardsAndClaims
             stakingAssetId={stakingAssetId}
             stakingAssetAccountId={stakingAssetAccountId}

@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import type { PartialEpochMetadata } from '../types'
+import { scaleDistributionAmount } from './helpers'
 import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
 import {
   getEarliestBlockNumberByTimestampQueryFn,
@@ -34,7 +35,7 @@ export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata>
   // And same here - last second of the month is the end of the epoch
   const currentEpochEndTimestamp = BigInt(dayjs(currentEpochStart).endOf('month').unix())
 
-  const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
+  const affiliateRevenueRuneBaseUnit = await queryClient.fetchQuery({
     queryKey: getAffiliateRevenueQueryKey({
       startTimestamp: currentEpochStartTimestamp,
       endTimestamp: currentEpochEndTimestamp,
@@ -44,6 +45,8 @@ export const fetchCurrentEpochMetadata = async (): Promise<PartialEpochMetadata>
       endTimestamp: currentEpochEndTimestamp,
     }),
   })
+
+  const distributionAmountRuneBaseUnit = scaleDistributionAmount(affiliateRevenueRuneBaseUnit)
 
   return {
     startBlockNumber: currentEpochStartBlockNumber,

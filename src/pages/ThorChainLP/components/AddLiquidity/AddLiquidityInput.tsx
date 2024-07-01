@@ -61,7 +61,13 @@ import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { assertUnreachable, chainIdToChainDisplayName, isSome, isToken } from 'lib/utils'
+import {
+  assertUnreachable,
+  chainIdToChainDisplayName,
+  isNonEmptyString,
+  isSome,
+  isToken,
+} from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -145,6 +151,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
+  const isDemoWallet = useWallet().state.isDemoWallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -431,11 +438,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   // - when routed from "Your Positions" where an active opportunity was found from the RUNE or asset address, but the wallet
   // doesn't support one of the two
   const walletSupportsOpportunity = useMemo(() => {
+    if (isDemoWallet) return false
     if (!opportunityType) return false
     if (opportunityType === 'sym') return walletSupportsAsset && walletSupportsRune
     if (opportunityType === AsymSide.Rune) return walletSupportsRune
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
-  }, [opportunityType, walletSupportsAsset, walletSupportsRune])
+  }, [opportunityType, walletSupportsAsset, walletSupportsRune, isDemoWallet])
 
   const handleToggleRuneIsFiat = useCallback(
     (_isFiat: boolean) => {
@@ -1122,8 +1130,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               onChange={handleAddLiquidityInputChange}
               onToggleIsFiat={isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat}
               isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
-              cryptoAmount={cryptoAmount ?? '0'}
-              fiatAmount={fiatAmount ?? '0'}
+              cryptoAmount={isNonEmptyString(cryptoAmount) ? cryptoAmount : '0'}
+              fiatAmount={isNonEmptyString(fiatAmount) ? fiatAmount : '0'}
             />
           )
         })}
@@ -1207,7 +1215,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       const runeAssetNetworkName =
         runeAsset.networkName ?? chainIdToChainDisplayName(runeAsset.chainId)
 
-      if (!walletSupportsRune && !walletSupportsAsset)
+      if ((!walletSupportsRune && !walletSupportsAsset) || isDemoWallet)
         return translate('pools.unsupportedNetworksExplainer', {
           network1: poolAssetNetworkName,
           network2: runeAssetNetworkName,
@@ -1233,6 +1241,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     walletSupportsAsset,
     walletSupportsOpportunity,
     walletSupportsRune,
+    isDemoWallet,
   ])
 
   const handleAssetChange = useCallback(
@@ -1360,6 +1369,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // 7. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (isTradingActive === false) return translate('common.poolHalted')
+    if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
     if (isSmartContractAccountAddress === true)
@@ -1380,6 +1390,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return null
   }, [
+    isDemoWallet,
     isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
     isTradingActive,

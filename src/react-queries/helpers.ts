@@ -12,7 +12,7 @@ export const mergeQueryOutputs = <QueryOutputType, QueryErrorType, MergedOutputT
   combineResults: (results: QueryOutputType[]) => MergedOutputType,
 ): UseQueryResult<MergedOutputType, QueryErrorType[]> => {
   const isLoading = queryOutputs.some(result => result.isLoading)
-  const isPending = queryOutputs.some(result => result.isError || result.isLoading)
+  const isPending = queryOutputs.some(result => result.isPending)
   const isError = queryOutputs.some(result => result.isError)
   const isLoadingError = queryOutputs.some(result => result.isLoadingError)
   const isRefetchError = queryOutputs.some(result => result.isRefetchError)

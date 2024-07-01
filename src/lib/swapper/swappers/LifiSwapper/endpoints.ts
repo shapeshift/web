@@ -1,10 +1,5 @@
-import {
-  type ChainKey,
-  type ExtendedTransactionInfo,
-  type GetStatusRequest,
-  getStepTransaction,
-  type Route,
-} from '@lifi/sdk'
+import type { ChainKey, ExtendedTransactionInfo, GetStatusRequest, Route } from '@lifi/sdk'
+import { getStepTransaction } from '@lifi/sdk'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
 import type {
   EvmTransactionRequest,

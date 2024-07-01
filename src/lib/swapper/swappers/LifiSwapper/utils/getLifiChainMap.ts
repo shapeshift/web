@@ -1,4 +1,5 @@
-import { type ChainId as LifiChainId, type ChainKey, getChains } from '@lifi/sdk'
+import type { ChainId as LifiChainId, ChainKey } from '@lifi/sdk'
+import { getChains } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { arbitrumNovaChainId, fromChainId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'

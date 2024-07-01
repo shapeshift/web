@@ -67,8 +67,9 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
       staleTime: Infinity, // Historical affiliate revenue does not change so we can cache this forever
     })
 
-    // We distribute 50% of the affiliate revenue to the stakers
-    const distributionAmountRuneBaseUnit = affiliateRevenueRuneBaseUnit / 2n
+    // We distribute 25% of the affiliate revenue to the stakers, so divide by 4
+    // https://snapshot.org/#/shapeshiftdao.eth/proposal/0x0bb84bdf838fb90da922ce62293336bf7c0c67a9a1d6fe451ffaa29284722f9f
+    const distributionAmountRuneBaseUnit = affiliateRevenueRuneBaseUnit / 4n
 
     const epochMetadata = {
       startBlockNumber,

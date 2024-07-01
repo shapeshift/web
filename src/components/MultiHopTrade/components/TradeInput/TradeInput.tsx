@@ -16,9 +16,8 @@ import {
   Stack,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { type Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -46,7 +45,6 @@ import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -60,10 +58,6 @@ import {
   type ArbitrumBridgeTradeQuote,
   isArbitrumBridgeTradeQuote,
 } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_LONGTAIL_SWAP_SOURCE,
-} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -272,12 +266,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     setBuyAssetAccountId,
   } = useAccountIds()
 
-  const userAddress = useMemo(() => {
-    if (!initialSellAssetAccountId) return ''
-
-    return fromAccountId(initialSellAssetAccountId).account
-  }, [initialSellAssetAccountId])
-
   const useReceiveAddressArgs = useMemo(
     () => ({
       fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
@@ -288,35 +276,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
-  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress)
-
-  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '')
-
-  const disableSmartContractSwap = useMemo(() => {
-    // Swappers other than THORChain shouldn't be affected by this limitation
-    if (activeSwapperName !== SwapperName.Thorchain) return false
-
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractSellAddress !== false) return true
-    if (
-      [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
-        tradeQuoteStep?.source!,
-      ) &&
-      _isSmartContractReceiveAddress !== false
-    )
-      return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [
-    _isSmartContractReceiveAddress,
-    _isSmartContractSellAddress,
-    activeSwapperName,
-    tradeQuoteStep?.source,
-  ])
-
   const isRefetching = useMemo(
     () => Boolean(activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName] === true),
     [activeSwapperName, isTradeQuoteApiQueryPending],
@@ -326,8 +285,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     () =>
       (!isAnyTradeQuoteLoaded && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
-      isSellAddressByteCodeLoading ||
-      isReceiveAddressByteCodeLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
@@ -336,8 +293,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       isAnyTradeQuoteLoaded,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
-      isSellAddressByteCodeLoading,
-      isReceiveAddressByteCodeLoading,
       isVotingPowerLoading,
     ],
   )
@@ -440,8 +395,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       manualReceiveAddressIsValid === false ||
       // don't execute trades while in loading state
       isLoading ||
-      // don't execute trades for smart contract addresses where they aren't supported
-      disableSmartContractSwap ||
       // don't allow non-existent quotes to be executed
       !activeSwapperName ||
       !activeQuote ||
@@ -457,7 +410,6 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
-    disableSmartContractSwap,
     activeSwapperName,
     activeQuote,
     hasUserEnteredAmount,

@@ -33,7 +33,6 @@ import { RawText, Text } from 'components/Text'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useApprove } from 'hooks/mutations/useApprove'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -461,21 +460,9 @@ export const RepayInput = ({
     feeAssetBalanceCryptoBaseUnit,
   ])
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress)
-
-  const disableSmartContractRepayment = useMemo(() => {
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [_isSmartContractAddress])
-
   const quoteErrorTranslation = useMemo(() => {
     if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!isThorchainLendingRepayEnabled) return translate('lending.errors.repaymentsDisabled')
-    if (_isSmartContractAddress) return translate('trade.errors.smartContractWalletNotSupported')
     if (lendingQuoteCloseData && (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx))
       return translate('common.insufficientFunds')
     if (isLendingQuoteCloseError) {
@@ -507,7 +494,6 @@ export const RepayInput = ({
     }
     return null
   }, [
-    _isSmartContractAddress,
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
     isLendingQuoteCloseError,
@@ -747,7 +733,6 @@ export const RepayInput = ({
               isLendingQuoteCloseRefetching ||
               isEstimatedFeesDataLoading ||
               isApprovalFeesDataLoading ||
-              isAddressByteCodeLoading ||
               isInboundAddressLoading ||
               isAllowanceDataLoading
             }
@@ -764,7 +749,6 @@ export const RepayInput = ({
                 isApprovalFeesDataLoading ||
                 isLendingQuoteCloseError ||
                 isEstimatedFeesDataError ||
-                disableSmartContractRepayment ||
                 quoteErrorTranslation,
             )}
           >

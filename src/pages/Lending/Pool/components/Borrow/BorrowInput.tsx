@@ -9,7 +9,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
@@ -27,7 +27,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -351,23 +350,6 @@ export const BorrowInput = ({
     setConfirmedQuote(lendingQuoteData ?? null)
   }, [isLendingQuoteSuccess, lendingQuoteData, setConfirmedQuote])
 
-  const userAddress = useMemo(() => {
-    if (!collateralAccountId) return ''
-
-    return fromAccountId(collateralAccountId).account
-  }, [collateralAccountId])
-
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress)
-
-  const disableSmartContractDeposit = useMemo(() => {
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [_isSmartContractAddress])
-
   const mixpanel = getMixPanel()
   const onSubmit = useCallback(() => {
     if (!lendingQuoteData || !collateralAsset || !borrowAsset) return
@@ -448,7 +430,6 @@ export const BorrowInput = ({
   const quoteErrorTranslation = useMemo(() => {
     if (!isThorchainLendingBorrowEnabled) return 'lending.errors.borrowingDisabled'
     if (isHardCapReached) return 'lending.errors.borrowingHalted'
-    if (_isSmartContractAddress) return 'trade.errors.smartContractWalletNotSupported'
     if (
       !hasEnoughBalanceForTx ||
       (isLendingQuoteSuccess &&
@@ -469,7 +450,6 @@ export const BorrowInput = ({
     }
     return null
   }, [
-    _isSmartContractAddress,
     collateralAsset,
     hasEnoughBalanceForTx,
     hasEnoughBalanceForTxPlusFees,
@@ -658,8 +638,7 @@ export const BorrowInput = ({
                 isEstimatedFeesDataLoading ||
                 isEstimatedSweepFeesDataLoading ||
                 isEstimatedSweepFeesDataLoading ||
-                isSweepNeededLoading ||
-                isAddressByteCodeLoading
+                isSweepNeededLoading
               }
               isDisabled={Boolean(
                 isHardCapReached ||
@@ -670,8 +649,7 @@ export const BorrowInput = ({
                   isLendingQuoteRefetching ||
                   quoteErrorTranslation ||
                   isEstimatedFeesDataError ||
-                  isEstimatedFeesDataLoading ||
-                  disableSmartContractDeposit,
+                  isEstimatedFeesDataLoading,
               )}
             >
               {quoteErrorTranslation

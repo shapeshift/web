@@ -1,14 +1,4 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
-  Box,
-  Flex,
-  Skeleton,
-  Stack,
-  useToast,
-} from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Skeleton, Stack, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -35,7 +25,6 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -333,49 +322,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [feeAsset.symbol],
   )
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(fromAddress ?? '')
-
-  const disableSmartContractDeposit = useMemo(() => {
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [_isSmartContractAddress])
-
-  const preFooter = useMemo(() => {
-    if (!_isSmartContractAddress) return null
-
-    return (
-      <Flex direction='column' gap={2}>
-        <Alert status='error' width='auto' fontSize='sm'>
-          <AlertIcon />
-          <Stack spacing={0}>
-            <AlertTitle>{translate('trade.errors.smartContractWalletNotSupported')}</AlertTitle>
-            <AlertDescription lineHeight='short'>
-              {translate('trade.thorSmartContractWalletUnsupported')}
-            </AlertDescription>
-          </Stack>
-        </Alert>
-      </Flex>
-    )
-  }, [_isSmartContractAddress, translate])
-
   if (!state || !contextDispatch) return null
 
   return (
     <ReusableConfirm
       onCancel={handleCancel}
       onConfirm={handleDeposit}
-      preFooter={preFooter}
-      isDisabled={
-        !hasEnoughBalanceForGas ||
-        !fromAddress ||
-        disableSmartContractDeposit ||
-        isTradingActive === false
-      }
-      loading={state.loading || !fromAddress || isAddressByteCodeLoading}
+      isDisabled={!hasEnoughBalanceForGas || !fromAddress || isTradingActive === false}
+      loading={state.loading || !fromAddress}
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
     >

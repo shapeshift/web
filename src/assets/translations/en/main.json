@@ -890,7 +890,6 @@
       "quoteError": "An error occurred getting a quote",
       "tradeFailed": "Trade failed. Assets returned minus gas fee",
       "noQuotesAvailable": "No quotes available for this trade",
-      "smartContractWalletNotSupported": "Smart contract wallet not supported",
       "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds.",
       "rateLimitExceeded": "Rate limit exceeded, try again later"
     },

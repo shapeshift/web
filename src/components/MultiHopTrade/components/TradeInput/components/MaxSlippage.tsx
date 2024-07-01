@@ -2,6 +2,14 @@ import { Divider, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { Tag } from '@chakra-ui/tag'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { AmountDisplayMeta, SwapSource } from '@shapeshiftoss/swapper'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_STREAM_SWAP_SOURCE,
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+import {
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -11,16 +19,8 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_STREAM_SWAP_SOURCE,
-} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
 import { selectDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
-import {
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from 'state/slices/tradeQuoteSlice/utils'
 import { useAppSelector } from 'state/store'
 
 type MaxSlippageProps = {

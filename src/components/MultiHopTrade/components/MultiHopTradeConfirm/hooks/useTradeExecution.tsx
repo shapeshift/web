@@ -6,20 +6,19 @@ import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/t
 import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmTransactionRequest, SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
-import { SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
+import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
+import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from 'lib/swapper/swappers/LifiSwapper/LifiSwapper'
-import { TradeExecution } from 'lib/swapper/tradeExecution'
+import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
-import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuote,
   selectActiveSwapperName,

@@ -1,10 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { ethereum } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockStore } from 'test/mocks/store'
 import { describe, expect, it, vi } from 'vitest'
-import { ETH } from 'lib/swapper/swappers/utils/test-data/assets'
 import { assertUnreachable } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import {
@@ -27,7 +27,7 @@ vi.mock('state/slices/assetsSlice/selectors', async importActual => {
         case ethAssetId:
         case usdcAssetId:
         case foxAssetId:
-          return ETH
+          return ethereum
         default:
           assertUnreachable(assetId as never)
       }

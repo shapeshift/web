@@ -11,6 +11,10 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_STREAM_SWAP_SOURCE,
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import { AnimatePresence } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
 import { type FC, memo, useMemo } from 'react'
@@ -24,10 +28,6 @@ import { SlideTransitionX } from 'components/SlideTransitionX'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_STREAM_SWAP_SOURCE,
-} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 
 import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
 

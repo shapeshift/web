@@ -1,8 +1,8 @@
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 import { assertUnreachable } from 'lib/utils'
-import type { ErrorWithMeta } from 'state/apis/swapper'
-import { type TradeQuoteError, TradeQuoteValidationError } from 'state/apis/swapper'
+import type { ErrorWithMeta } from 'state/apis/swapper/types'
+import { type TradeQuoteError, TradeQuoteValidationError } from 'state/apis/swapper/types'
 
 export const getQuoteErrorTranslation = (
   tradeQuoteError: ErrorWithMeta<TradeQuoteError>,

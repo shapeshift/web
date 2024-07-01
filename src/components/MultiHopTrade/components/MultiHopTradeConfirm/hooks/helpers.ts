@@ -2,8 +2,9 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import { type evm, type EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { type ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
-import { MAX_ALLOWANCE } from 'lib/swapper/swappers/utils/constants'
-import { getApproveContractData, getFees } from 'lib/utils/evm'
+import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
+import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import { getApproveContractData } from 'lib/utils/evm'
 
 export const getApprovalTxData = async ({
   tradeQuoteStep,

@@ -1,14 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import type { InboundAddressResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import { isRune } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/isRune/isRune'
+import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
+import type { EvmFees, Fees } from '@shapeshiftoss/utils/dist/evm'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { InboundAddressResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { isRune } from 'lib/swapper/swappers/ThorchainSwapper/utils/isRune/isRune'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { EvmFees, Fees } from 'lib/utils/evm'
 
 export const selectInboundAddressData = (
   data: Result<InboundAddressResponse[], SwapErrorRight>,

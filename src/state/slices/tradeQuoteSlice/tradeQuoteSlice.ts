@@ -2,7 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import { orderBy, uniqBy } from 'lodash'
-import type { ApiQuote } from 'state/apis/swapper'
+import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
 import {

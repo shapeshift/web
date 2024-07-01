@@ -4,6 +4,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
 import { type Account, type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
+import { makeAsset } from '@shapeshiftoss/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -17,7 +18,7 @@ import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
 import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
-import { assets as assetSlice, makeAsset } from '../assetsSlice/assetsSlice'
+import { assets as assetSlice } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
@@ -204,7 +205,7 @@ export const portfolioApi = createApi({
                     return isSpammyTokenText(text)
                   })
                   if (state.assets.byId[token.assetId] || isSpam) return prev
-                  prev.byId[token.assetId] = makeAsset({ ...token })
+                  prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
                   prev.ids.push(token.assetId)
                   return prev
                 },

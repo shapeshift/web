@@ -1,12 +1,11 @@
 import type { SwapSource } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { Dex } from '@shapeshiftoss/unchained-client'
-
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_LONGTAIL_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
-} from './swapper/swappers/ThorchainSwapper/constants'
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+import { Dex } from '@shapeshiftoss/unchained-client'
 
 type GetTxBaseUrl = {
   name?: Dex | SwapSource

@@ -1,14 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee } from '@shapeshiftoss/swapper'
+import { BTC, ETH, FOX_MAINNET } from '@shapeshiftoss/swapper/dist/swappers/utils/test-data/assets'
+import { marketDataByAssetIdUsd } from '@shapeshiftoss/swapper/dist/swappers/utils/test-data/cryptoMarketDataById'
+import { subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
 import { baseUnitToHuman, bn, convertPrecision } from 'lib/bignumber/bignumber'
-import { BTC, ETH, FOX_MAINNET } from 'lib/swapper/swappers/utils/test-data/assets'
-import { marketDataByAssetIdUsd } from 'lib/swapper/swappers/utils/test-data/cryptoMarketDataById'
-import {
-  subtractBasisPointAmount,
-  sumProtocolFeesToDenom,
-} from 'state/slices/tradeQuoteSlice/utils'
+import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 describe('sumProtocolFeesToDenom', () => {
   it("returns '0' for empty object", () => {

@@ -1,7 +1,11 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
+import {
+  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  swappers,
+  TradeQuoteError as SwapperTradeQuoteError,
+} from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,8 +15,7 @@ import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/Tr
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from 'lib/swapper/constants'
-import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper'
+import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper/types'
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,

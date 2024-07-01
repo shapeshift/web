@@ -151,15 +151,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
-<<<<<<< HEAD
   const {
     state: { wallet, isDemoWallet },
     dispatch: walletDispatch,
   } = useWallet()
-=======
-  const wallet = useWallet().state.wallet
-  const isDemoWallet = useWallet().state.isDemoWallet
->>>>>>> develop
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()

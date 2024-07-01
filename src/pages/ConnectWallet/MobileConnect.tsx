@@ -27,7 +27,6 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet, listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -67,7 +66,7 @@ const BodyText: React.FC<TextProps> = props => (
 )
 
 export const MobileConnect = () => {
-  const { create, importWallet, dispatch, getAdapter } = useWallet()
+  const { create, importWallet, dispatch, getAdapter, load } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
@@ -112,7 +111,6 @@ export const MobileConnect = () => {
       const adapter = await getAdapter(KeyManager.Mobile)
       const deviceId = item?.id
       if (adapter && deviceId) {
-        const { name, icon } = MobileConfig
         try {
           const revoker = await getWallet(deviceId)
           if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
@@ -123,22 +121,10 @@ export const MobileConnect = () => {
           if (!(await wallet?.isInitialized())) {
             await wallet?.initialize()
           }
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet,
-              name,
-              icon,
-              deviceId,
-              meta: { label: item.label },
-              connectedType: KeyManager.Mobile,
-            },
-          })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
           localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
+          load()
         } catch (e) {
           console.log(e)
           setError('walletProvider.shapeShift.load.error.pair')
@@ -147,7 +133,7 @@ export const MobileConnect = () => {
         setError('walletProvider.shapeShift.load.error.pair')
       }
     },
-    [dispatch, getAdapter, localWallet],
+    [getAdapter, localWallet, load],
   )
 
   const handleToggleWallets = useCallback(() => {

@@ -800,8 +800,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         }
       })()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.adapters, state.keyring])
+  }, [
+    state.adapters,
+    state.keyring,
+    disconnect,
+    getAdapter,
+    onProviderChange,
+    walletType,
+    localWalletDeviceId,
+  ])
 
   const handleAccountsOrChainChanged = useCallback(
     async (localWalletType: KeyManagerWithProvider | null, accountsOrChains: string[] | string) => {

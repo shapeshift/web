@@ -271,7 +271,7 @@ export const getFullAppData = async (
   const APP_CODE = 'shapeshift'
   const orderClass: OrderClass = { orderClass: 'market' }
   const quote = {
-    slippageBips: convertDecimalPercentageToBasisPoints(slippageTolerancePercentage).toString(),
+    slippageBips: convertDecimalPercentageToBasisPoints(slippageTolerancePercentage).toNumber(),
   }
 
   const appDataDoc = await metadataApi.generateAppDataDoc({

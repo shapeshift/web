@@ -161,7 +161,7 @@ export const swapperApi = createApi({
               }
             }
 
-            const { errors, warnings } = await validateTradeQuote(state, {
+            const { errors, warnings } = validateTradeQuote(state, {
               swapperName,
               quote,
               error,

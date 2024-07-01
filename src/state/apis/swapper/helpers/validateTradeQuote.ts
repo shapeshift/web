@@ -1,16 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, SwapSource, TradeQuote } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
-import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_LONGTAIL_SWAP_SOURCE,
-} from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -35,7 +30,7 @@ import {
 import type { ErrorWithMeta } from '../types'
 import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
-export const validateTradeQuote = async (
+export const validateTradeQuote = (
   state: ReduxState,
   {
     swapperName,
@@ -56,10 +51,10 @@ export const validateTradeQuote = async (
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
   },
-): Promise<{
+): {
   errors: ErrorWithMeta<TradeQuoteError>[]
   warnings: ErrorWithMeta<TradeQuoteWarning>[]
-}> => {
+} => {
   if (!quote || error) {
     const tradeQuoteError = (() => {
       const errorCode = error?.code
@@ -232,33 +227,6 @@ export const validateTradeQuote = async (
       bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
     )
 
-  const disableSmartContractSwap = await (async () => {
-    // Swappers other than THORChain shouldn't be affected by this limitation
-    if (swapperName !== SwapperName.Thorchain) return false
-
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    const _isSmartContractSellAddress = await isSmartContractAddress(sendAddress)
-    const _isSmartContractReceiveAddress = await isSmartContractAddress(quote.receiveAddress)
-    // For long-tails, the *destination* address cannot be a smart contract
-    // https://dev.thorchain.org/aggregators/aggregator-overview.html#admonition-warning
-    // This doesn't apply to regular THOR swaps however, which docs have no mention of *destination* having to be an EOA
-    // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?search=smart%20contract
-    if (
-      [firstHop.source, secondHop?.source ?? ('' as SwapSource)].some(source =>
-        [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(source),
-      ) &&
-      _isSmartContractReceiveAddress !== false
-    )
-      return true
-    // Regardless of whether this is a long-tail or not, the *source* address should never be a smart contract
-    // https://dev.thorchain.org/concepts/sending-transactions.html?highlight=smart%20congtract%20address#admonition-danger-2
-    // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html?highlight=smart%20congtract%20address#admonition-warning-1
-    if (_isSmartContractSellAddress !== false) return true
-
-    // All checks passed - this is an EOA address
-    return false
-  })()
-
   // Ensure the trade is not selling an amount higher than the user input, within a very safe threshold.
   // Threshold is required because cowswap sometimes quotes a sell amount a teeny-tiny bit more than you input.
   const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit).lt(
@@ -267,9 +235,6 @@ export const validateTradeQuote = async (
 
   return {
     errors: [
-      !!disableSmartContractSwap && {
-        error: TradeQuoteValidationError.SmartContractWalletNotSupported,
-      },
       !isTradingActiveOnSellPool && {
         error: TradeQuoteValidationError.TradingInactiveOnSellChain,
         meta: {

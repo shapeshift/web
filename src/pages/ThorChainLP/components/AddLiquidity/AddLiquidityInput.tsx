@@ -45,7 +45,6 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
@@ -240,9 +239,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     accountMetadata: poolAssetAccountMetadata,
     getPosition: getThorchainLpPosition,
   })
-
-  const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
-    useIsSmartContractAddress(poolAssetAccountAddress ?? '')
 
   const accountIdsByAssetId = useAppSelector(selectPortfolioAccountIdsByAssetId)
 
@@ -1362,18 +1358,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
     // 1. pool halted/disabled
     // 2. Asset unsupported by wallet
-    // 3. smart contract deposits disabled
-    // 4. pool asset balance
-    // 5. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
-    // 6. RUNE balance
-    // 7. RUNE fee balance
+    // 3. pool asset balance
+    // 4. pool asset fee balance, since gas would usually be more expensive on the pool asset fee side vs. RUNE side
+    // 5. RUNE balance
+    // 6. RUNE fee balance
     // Not enough *pool* asset, but possibly enough *fee* asset
     if (isTradingActive === false) return translate('common.poolHalted')
     if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositEnabled) return translate('common.poolDisabled')
-    if (isSmartContractAccountAddress === true)
-      return translate('trade.errors.smartContractWalletNotSupported')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
     // Not enough *fee* asset
     if (poolAssetFeeAsset && notEnoughFeeAssetError)
@@ -1391,7 +1384,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return null
   }, [
     isDemoWallet,
-    isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
     isTradingActive,
     notEnoughFeeAssetError,
@@ -1578,7 +1570,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
               isVotingPowerLoading ||
               isTradingActiveLoading ||
-              isSmartContractAccountAddressLoading ||
               isAllowanceDataLoading ||
               isApprovalTxPending ||
               (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||

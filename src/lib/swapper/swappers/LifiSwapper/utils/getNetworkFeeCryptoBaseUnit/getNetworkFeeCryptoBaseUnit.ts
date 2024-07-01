@@ -7,8 +7,8 @@ import { ethers } from 'ethers'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 
+import { configureLiFi } from '../configureLiFi'
 import { L1_FEE_CHAIN_IDS, L1_GAS_ORACLE_ADDRESS } from '../constants'
-import { configureLiFi } from '../getLifi'
 
 type GetNetworkFeeArgs = {
   chainId: ChainId

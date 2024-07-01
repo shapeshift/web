@@ -24,7 +24,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter, createDefaultStatusResponse, getFees } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { configureLiFi } from './utils/getLifi'
+import { configureLiFi } from './utils/configureLiFi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
 
 const tradeQuoteMetadata: Map<string, Route> = new Map()

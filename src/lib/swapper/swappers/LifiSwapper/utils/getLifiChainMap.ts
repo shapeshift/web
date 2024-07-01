@@ -3,8 +3,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { arbitrumNovaChainId, fromChainId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 
+import { configureLiFi } from './configureLiFi'
 import { createLifiChainMap } from './createLifiChainMap/createLifiChainMap'
-import { configureLiFi } from './getLifi'
 
 export const getLifiChainMap = async (): Promise<Map<ChainId, ChainKey>> => {
   configureLiFi()

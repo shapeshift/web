@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import type { EpochMetadata } from '../types'
+import { scaleDistributionAmount } from './helpers'
 import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
 import {
   getEarliestBlockNumberByTimestampQueryFn,
@@ -61,11 +62,13 @@ export const fetchEpochHistory = async (): Promise<EpochMetadata[]> => {
     const endTimestamp = nextStartTimestamp - 1n
 
     // using queryClient.fetchQuery here is ok because block timestamps do not change so reactivity is not needed
-    const distributionAmountRuneBaseUnit = await queryClient.fetchQuery({
+    const affiliateRevenueRuneBaseUnit = await queryClient.fetchQuery({
       queryKey: getAffiliateRevenueQueryKey({ startTimestamp, endTimestamp }),
       queryFn: getAffiliateRevenueQueryFn({ startTimestamp, endTimestamp }),
       staleTime: Infinity, // Historical affiliate revenue does not change so we can cache this forever
     })
+
+    const distributionAmountRuneBaseUnit = scaleDistributionAmount(affiliateRevenueRuneBaseUnit)
 
     const epochMetadata = {
       startBlockNumber,

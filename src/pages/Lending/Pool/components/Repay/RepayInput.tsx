@@ -517,6 +517,7 @@ export const RepayInput = ({
     lendingQuoteCloseError?.message,
     repaymentPercent,
     translate,
+    isDemoWallet,
   ])
 
   const quoteErrorTooltipTranslation = useMemo(() => {

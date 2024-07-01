@@ -88,37 +88,37 @@ const fetchTimeInPoolSeconds = async (stakingAssetAccountAddress: string): Promi
     RFOX_PROXY_CONTRACT_ADDRESS,
   )
 
-  const [stakeFilter, unstakeFilter] = await Promise.all([
-    client.createEventFilter({
-      address: RFOX_PROXY_CONTRACT_ADDRESS,
-      event: stakeEvent,
-      fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
-      args: {
-        account: getAddress(stakingAssetAccountAddress),
-      },
-    }),
-    client.createEventFilter({
-      address: RFOX_PROXY_CONTRACT_ADDRESS,
-      event: unstakeEvent,
-      fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
-      args: {
-        account: getAddress(stakingAssetAccountAddress),
-      },
-    }),
-  ])
-  // Fetch all stake and unstake logs. Assumes the user wont generate more than the payload limit of logs
-  const [stakeLogs, unstakeLogs] = await Promise.all([
-    client.getFilterLogs({ filter: stakeFilter }),
-    client.getFilterLogs({ filter: unstakeFilter }),
-  ])
+  try {
+    const [stakeLogs, unstakeLogs] = await Promise.all([
+      client.getLogs({
+        address: RFOX_PROXY_CONTRACT_ADDRESS,
+        event: stakeEvent,
+        fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
+        args: {
+          account: getAddress(stakingAssetAccountAddress),
+        },
+      }),
+      client.getLogs({
+        address: RFOX_PROXY_CONTRACT_ADDRESS,
+        event: unstakeEvent,
+        fromBlock: RFOX_CONTRACT_CREATION_BLOCK_NUMBER,
+        args: {
+          account: getAddress(stakingAssetAccountAddress),
+        },
+      }),
+    ])
 
-  // Sort all logs by block number then log index
-  const sortedLogs = [...stakeLogs, ...unstakeLogs].sort((a, b) => {
-    if (a.blockNumber !== b.blockNumber) return Number(a.blockNumber - b.blockNumber)
-    return Number(a.logIndex - b.logIndex)
-  })
+    // Sort all logs by block number then log index
+    const sortedLogs = [...stakeLogs, ...unstakeLogs].sort((a, b) => {
+      if (a.blockNumber !== b.blockNumber) return Number(a.blockNumber - b.blockNumber)
+      return Number(a.logIndex - b.logIndex)
+    })
 
-  return getTimeInPoolSeconds(sortedLogs)
+    return getTimeInPoolSeconds(sortedLogs)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
 }
 
 export const useTimeInPoolQuery = <SelectData = bigint>({

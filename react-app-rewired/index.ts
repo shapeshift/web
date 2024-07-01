@@ -13,6 +13,7 @@ import WorkBoxPlugin from 'workbox-webpack-plugin'
 
 import { cspMeta, headers, serializeCsp } from './headers'
 import { progressPlugin } from './progress'
+import { ContextReplacementPlugin } from 'webpack'
 
 type DevServerConfigFunction = (
   proxy: unknown,
@@ -348,6 +349,19 @@ const reactAppRewireConfig = {
           },
         },
       }),
+    )
+
+    _.merge(
+      config,
+      {
+        plugins: [
+          // Webpack is unable to resolve imports within the @cowprotocol/app-data package due to
+          // expressions in the imports, resulting in a compiler warning. As a result, Webpack 
+          // bundles all imports from this package. This plugin silences the warning.
+          // https://webpack.js.org/guides/dependency-management/#require-with-expression
+          new ContextReplacementPlugin(/@cowprotocol\/app-data/)
+        ]
+      }
     )
 
     const MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES = 50 * 1024 * 1024 // 50MB

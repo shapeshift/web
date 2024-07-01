@@ -1,10 +1,9 @@
 import { type AssetId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, toAssetId } from '@shapeshiftoss/caip/src/assetId/assetId'
+import { toAssetId } from '@shapeshiftoss/caip/src/assetId/assetId'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
+import { makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
-// @ts-ignore we don't have typings for this bad boi
-import crypto from 'crypto-browserify'
 import qs from 'qs'
 
 import { WETH_TOKEN_CONTRACT_ADDRESS } from '../../../src/contracts/constants'
@@ -16,9 +15,6 @@ import {
   zapperNetworkToChainId,
 } from '../../../src/state/apis/zapper/validators'
 
-const sha256 = (input: string): string => crypto.createHash('sha256').update(input).digest('hex')
-
-export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | 'name' | 'precision'>
 export type AssetsState = {
   byId: AssetsByIdPartial
   ids: AssetId[]
@@ -51,45 +47,6 @@ const headers = {
 }
 
 const assets = generatedAssetData as Record<AssetId, Asset>
-
-/**
- * utility to create an asset from minimal asset data from external sources at runtime
- * e.g. zapper/zerion/etherscan
- * required fields are assetId, symbol, name, precision
- * the rest can be inferred from existing data
- */
-export const makeAsset = (minimalAsset: MinimalAsset): Asset => {
-  const { assetId } = minimalAsset
-
-  const color = (() => {
-    if (minimalAsset.color) return minimalAsset.color
-    const shaAssetId = sha256(assetId)
-    return `#${shaAssetId.slice(0, 6)}`
-  })()
-
-  const chainId = (() => {
-    if (minimalAsset.chainId) return minimalAsset.chainId
-    return fromAssetId(assetId).chainId
-  })()
-
-  // currently, dynamic assets are LP pairs, and they have two icon urls and are rendered differently
-  const icon = minimalAsset?.icon ?? ''
-
-  type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
-
-  const explorerLinks = ((): ExplorerLinks => {
-    // UNI-V2 pools only supported on Ethereum mainnet
-    const feeAssetId = ethAssetId
-    const feeAsset = assets[feeAssetId]
-    return {
-      explorer: feeAsset.explorer,
-      explorerTxLink: feeAsset.explorerTxLink,
-      explorerAddressLink: feeAsset.explorerAddressLink,
-    }
-  })()
-
-  return Object.assign({}, minimalAsset, explorerLinks, { chainId, color, icon })
-}
 
 export const getUniswapV2Pools = async () => {
   const evmNetworks = [chainIdToZapperNetwork(ethChainId)]

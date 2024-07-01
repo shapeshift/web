@@ -14,5 +14,7 @@ export const csp: Csp = {
     'https://base-mainnet.g.alchemy.com/nft/v3/',
     // Mercle IPNS gateway for NFT resolution
     'https://backend.mercle.xyz/ipns/',
+    // Custom token metadata resolution
+    'https://*.g.alchemy.com/v2/',
   ],
 }

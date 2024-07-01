@@ -107,6 +107,9 @@ export const tokenOrUndefined = (assetReference: AssetReference | string) =>
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
 
+export const isNonEmptyString = (value: string | undefined): value is string =>
+  typeof value === 'string' && value.length > 0
+
 // export const isTruthy = <T>(value: T | false): value is T => Boolean(value)
 
 type Falsy = false | null | undefined | '' | 0

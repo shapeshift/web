@@ -16,7 +16,7 @@ export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | '
 export const makeAsset = (
   assetsById: Partial<Record<AssetId, Asset>>,
   minimalAsset: MinimalAsset,
-): Asset | undefined => {
+): Asset => {
   const { assetId } = minimalAsset
 
   const color = (() => {

@@ -11326,6 +11326,7 @@ __metadata:
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:^"
     "@sniptt/monads": ^0.5.10
     "@tanstack/react-query": ^5.40.1
     "@testing-library/react": ^13.3.0

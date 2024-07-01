@@ -4,7 +4,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { depositWithExpiry } from '@shapeshiftoss/swapper/thorchain-utils'
+import { assertAndProcessMemo, depositWithExpiry, SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -39,7 +39,6 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { fromThorBaseUnit, getThorchainTransactionType } from '..'
-import { assertAndProcessMemo } from '../memo'
 
 type Action =
   | 'swap'

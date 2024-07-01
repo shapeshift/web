@@ -1,8 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { InboundAddressResponse } from '@shapeshiftoss/swapper/src/swappers/ThorchainSwapper/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
+import type { InboundAddressResponse } from '../swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../swappers/ThorchainSwapper/utils/thorService'
 import { type SwapErrorRight, TradeQuoteError } from '../types'

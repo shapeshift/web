@@ -11,12 +11,21 @@ import type {
   TradeExecutionEventMap,
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
-import { TradeExecutionEvent } from '@shapeshiftoss/swapper'
-import { swappers, TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/constants'
-import { getHopByIndex } from '@shapeshiftoss/swapper/utils'
+import {
+  getHopByIndex,
+  swappers,
+  TRADE_POLL_INTERVAL_MILLISECONDS,
+  TradeExecutionEvent,
+} from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { getConfig } from 'config'
 import EventEmitter from 'events'
 import { poll } from 'lib/poll/poll'
+
+import { getEthersV5Provider } from './ethersProviderSingleton'
+import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from './utils/evm'
+import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 export class TradeExecution {
   private emitter = new EventEmitter()
@@ -62,6 +71,7 @@ export class TradeExecution {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
+        config: getConfig(),
       })
 
       const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
@@ -74,6 +84,11 @@ export class TradeExecution {
             txHash: sellTxHash,
             chainId,
             stepIndex,
+            config: getConfig(),
+            assertGetEvmChainAdapter,
+            getEthersV5Provider,
+            assertGetUtxoChainAdapter,
+            assertGetCosmosSdkChainAdapter,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }
@@ -116,6 +131,7 @@ export class TradeExecution {
           chainId,
           stepIndex,
           slippageTolerancePercentageDecimal,
+          config,
         }: CommonGetUnsignedTransactionArgs,
       ) => {
         if (!swapper.getUnsignedEvmTransaction) {
@@ -132,6 +148,9 @@ export class TradeExecution {
           slippageTolerancePercentageDecimal,
           from,
           supportsEIP1559: _supportsEIP1559,
+          config,
+          assertGetEvmChainAdapter,
+          getEthersV5Provider,
         })
 
         return await swapper.executeEvmTransaction(unsignedTxResult, {
@@ -165,6 +184,7 @@ export class TradeExecution {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
+        config,
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedEvmMessage) {
@@ -180,6 +200,9 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
         from,
+        config,
+        assertGetEvmChainAdapter,
+        getEthersV5Provider,
       })
 
       return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
@@ -212,6 +235,7 @@ export class TradeExecution {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
+        config,
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedUtxoTransaction) {
@@ -228,6 +252,8 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
         xpub,
         accountType,
+        config,
+        assertGetUtxoChainAdapter,
       })
 
       return await swapper.executeUtxoTransaction(unsignedTxResult, { signAndBroadcastTransaction })
@@ -259,6 +285,7 @@ export class TradeExecution {
         chainId,
         stepIndex,
         slippageTolerancePercentageDecimal,
+        config,
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedCosmosSdkTransaction) {
@@ -274,6 +301,8 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
         from,
+        config,
+        assertGetCosmosSdkChainAdapter,
       })
 
       return await swapper.executeCosmosSdkTransaction(unsignedTxResult, {

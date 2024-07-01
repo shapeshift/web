@@ -1,6 +1,7 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
+  ChainAdapter,
   CosmosSdkChainAdapter,
   CosmosSdkChainId,
   EvmChainAdapter,
@@ -13,6 +14,7 @@ import type {
   AccountMetadata,
   Asset,
   AssetsByIdPartial,
+  KnownChainIds,
   PartialRecord,
   UtxoAccountType,
 } from '@shapeshiftoss/types'
@@ -152,18 +154,23 @@ export type GetTradeQuoteInput =
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
+export type EvmSwapperDeps = {
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
+}
+export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
+export type CosmosSdkSwapperDeps = {
+  assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
+}
+
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
-  assertGetChainAdapter: (
-    chainId: ChainId,
-  ) => EvmChainAdapter | UtxoChainAdapter | CosmosSdkChainAdapter
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
-  assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter
-  assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
   viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>>
   config: SwapperConfig
-}
+  assertGetChainAdapter: (chainId: ChainId) => ChainAdapter<KnownChainIds>
+} & EvmSwapperDeps &
+  UtxoSwapperDeps &
+  CosmosSdkSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -278,14 +285,20 @@ export type CommonGetUnsignedTransactionArgs = {
   chainId: ChainId
   stepIndex: SupportedTradeQuoteStepIndex
   slippageTolerancePercentageDecimal: string
-} & SwapperDeps
+  config: SwapperConfig
+}
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
-  EvmAccountMetadata & { supportsEIP1559: boolean }
-export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
-export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs & UtxoAccountMetadata
+  EvmAccountMetadata & { supportsEIP1559: boolean } & EvmSwapperDeps
+export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
+  EvmAccountMetadata &
+  EvmSwapperDeps
+export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
+  UtxoAccountMetadata &
+  UtxoSwapperDeps
 export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionArgs &
-  CosmosSdkAccountMetadata
+  CosmosSdkAccountMetadata &
+  CosmosSdkSwapperDeps
 
 // the client should never need to know anything about this payload, and since it varies from
 // swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
@@ -311,7 +324,10 @@ export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
   stepIndex: SupportedTradeQuoteStepIndex
-} & SwapperDeps
+  config: SwapperConfig
+} & EvmSwapperDeps &
+  UtxoSwapperDeps &
+  CosmosSdkSwapperDeps
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
@@ -360,7 +376,6 @@ export type Swapper = {
 export type SwapperApi = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
-    deps: SwapperDeps,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
   getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>

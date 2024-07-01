@@ -326,10 +326,10 @@ export const thorchainApi: SwapperApi = {
     }
   },
 
-  checkTradeStatus: async (
-    { txHash },
-    deps,
-  ): Promise<{
+  checkTradeStatus: async ({
+    txHash,
+    config,
+  }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
     message: string | undefined
@@ -339,7 +339,7 @@ export const thorchainApi: SwapperApi = {
 
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
       const { data } = await axios.get<ThornodeStatusResponse>(
-        `${deps.config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+        `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
       )
 
       if ('error' in data) {
@@ -360,7 +360,7 @@ export const thorchainApi: SwapperApi = {
         const outboundTxConfirmations = await checkOutboundTxConfirmations(
           buyTxHash,
           latestOutTx,
-          deps.config,
+          config,
         )
 
         if (outboundTxConfirmations !== undefined && outboundTxConfirmations > 0) {

@@ -1,12 +1,12 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { getAddress, isAddress } from 'viem'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { getAccountAddresses } from 'lib/utils/thorchain'
 import type {
   MidgardEarningsHistoryResponse,

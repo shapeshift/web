@@ -97,7 +97,7 @@ export const getUniswapV2Pools = async () => {
 
       if (!(appTokenData.decimals && appTokenData.symbol)) return null
 
-      return makeAsset({
+      return makeAsset(assets, {
         assetId,
         symbol: appTokenData.symbol,
         // WETH should be displayed as ETH in the UI due to the way UNI-V2 works

@@ -1,9 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import {
+  getDefaultSlippageDecimalPercentageForSwapper,
+  getHopByIndex,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { identity } from 'lodash'
 import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
@@ -13,10 +16,10 @@ import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { selectVotingPower } from 'state/apis/snapshot/selectors'
-import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper'
-import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
+import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper/types'
+import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper/types'
 import { getEnabledSwappers } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -38,7 +41,6 @@ import {
 import {
   getActiveQuoteMetaOrDefault,
   getBuyAmountAfterFeesCryptoPrecision,
-  getHopByIndex,
   getHopTotalNetworkFeeUserCurrencyPrecision,
   getHopTotalProtocolFeesFiatPrecision,
   getTotalProtocolFeeByAsset,

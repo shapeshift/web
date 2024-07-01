@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome, makeAsset } from '@shapeshiftoss/utils'
-import assert from 'assert'
 
 import type { AmountDisplayMeta } from '../../../../types'
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
@@ -32,8 +31,6 @@ export const getIntermediaryTransactionOutputs = (
           symbol: step.action.toToken.symbol,
           precision: step.action.toToken.decimals,
         })
-
-      assert(asset !== undefined, 'Unable to create placeholder asset')
 
       return {
         asset,

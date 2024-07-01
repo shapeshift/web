@@ -224,9 +224,7 @@ export const getSupportedChainIdsByChainNamespace = () => {
   )
 }
 
-export const assertGetChainAdapter = (
-  chainId: ChainId | KnownChainIds,
-): ChainAdapter<KnownChainIds> => {
+export const assertGetChainAdapter = (chainId: ChainId): ChainAdapter<KnownChainIds> => {
   const chainAdapterManager = getChainAdapterManager()
   const adapter = chainAdapterManager.get(chainId)
 

@@ -1,5 +1,10 @@
-import type { ExtendedTransactionInfo } from '@lifi/sdk'
-import type { ChainKey, GetStatusRequest, Route } from '@lifi/sdk/dist/types'
+import {
+  type ChainKey,
+  type ExtendedTransactionInfo,
+  type GetStatusRequest,
+  getStepTransaction,
+  type Route,
+} from '@lifi/sdk'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
 import type {
   EvmTransactionRequest,
@@ -19,7 +24,7 @@ import { bn } from 'lib/bignumber/bignumber'
 import { assertGetEvmChainAdapter, createDefaultStatusResponse, getFees } from 'lib/utils/evm'
 
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { getLifi } from './utils/getLifi'
+import { configureLiFi } from './utils/getLifi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
 
 const tradeQuoteMetadata: Map<string, Route> = new Map()
@@ -77,14 +82,14 @@ export const lifiApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    configureLiFi()
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
 
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
 
     const lifiStep = lifiRoute.steps[stepIndex]
 
-    const lifi = getLifi()
-    const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
+    const { transactionRequest } = await getStepTransaction(lifiStep)
 
     if (!transactionRequest) {
       throw Error('undefined transactionRequest')

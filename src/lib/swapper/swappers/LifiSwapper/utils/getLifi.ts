@@ -1,22 +1,15 @@
-import type { ConfigUpdate } from '@lifi/sdk'
-import { LiFi } from '@lifi/sdk'
+import type { SDKConfig } from '@lifi/sdk'
+import { config } from '@lifi/sdk'
 
 import { LIFI_INTEGRATOR_ID } from './constants'
 
-// don't export me, access me through the getter
-let _lifi: LiFi | null = null
-
 // Mandatory to pass the configuration object
-const lifiConfig: ConfigUpdate = {
+const lifiConfig: SDKConfig = {
   disableVersionCheck: true, // prevent console fetching and notifying client about updates
   integrator: LIFI_INTEGRATOR_ID,
 }
 
-export const getLifi = (): LiFi => {
-  if (_lifi) return _lifi
-
-  // instantiate if it doesn't already exist
-  _lifi = new LiFi(lifiConfig)
-
-  return _lifi
+// Configure LiFi SDK as a singleton, i.e in case it hasn't been already
+export const configureLiFi = () => {
+  config.set(lifiConfig)
 }

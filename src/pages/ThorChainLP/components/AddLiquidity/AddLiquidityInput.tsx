@@ -61,7 +61,13 @@ import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
 } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { assertUnreachable, chainIdToChainDisplayName, isSome, isToken } from 'lib/utils'
+import {
+  assertUnreachable,
+  chainIdToChainDisplayName,
+  isNonEmptyString,
+  isSome,
+  isToken,
+} from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -1124,8 +1130,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               onChange={handleAddLiquidityInputChange}
               onToggleIsFiat={isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat}
               isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
-              cryptoAmount={cryptoAmount ?? '0'}
-              fiatAmount={fiatAmount ?? '0'}
+              cryptoAmount={isNonEmptyString(cryptoAmount) ? cryptoAmount : '0'}
+              fiatAmount={isNonEmptyString(fiatAmount) ? fiatAmount : '0'}
             />
           )
         })}

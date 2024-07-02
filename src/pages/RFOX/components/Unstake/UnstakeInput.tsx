@@ -298,7 +298,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const chainNotSupportedByWalletCopy = useMemo(() => {
     if (isChainSupportedByWallet) return
-    return translate('RFOX.chainNotSupported')
+    return translate('trade.errors.quoteUnsupportedChain')
   }, [isChainSupportedByWallet, translate])
 
   if (!stakingAsset) return null

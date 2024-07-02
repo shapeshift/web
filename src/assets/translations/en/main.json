@@ -2407,7 +2407,7 @@
     "claim": "Claim",
     "rewards": "Rewards",
     "claims": "Claims",
-    "chainNotSupported": "Chain not supported",
+    "chainNotSupportedByWallet": "Chain not supported by wallet",
     "changeAddress": "Change address",
     "sameAddressNotAllowed": "Same address not allowed",
     "stakingDetails": "Staking Details",

@@ -409,7 +409,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const chainNotSupportedByWalletCopy = useMemo(() => {
     if (isChainSupportedByWallet) return
-    return translate('RFOX.chainNotSupported')
+    return translate('RFOX.chainNotSupportedByWallet')
   }, [isChainSupportedByWallet, translate])
 
   if (!selectedAsset) return null

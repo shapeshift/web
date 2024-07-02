@@ -729,7 +729,7 @@ export const RepayInput = ({
           isDisabled={!lendingQuoteCloseError}
         >
           <ButtonWalletPredicate
-            isValidWallet={!Boolean(disableSmartContractRepayment)}
+            isValidWallet={!disableSmartContractRepayment}
             isDisabled={Boolean(
               !isThorchainLendingRepayEnabled ||
                 isApprovalTxPending ||

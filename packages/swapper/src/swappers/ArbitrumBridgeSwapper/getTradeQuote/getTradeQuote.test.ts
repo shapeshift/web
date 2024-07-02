@@ -58,6 +58,7 @@ describe('getTradeQuote', () => {
 
     const maybeQuote = await getTradeQuote(commonInput, {
       assertGetEvmChainAdapter,
+      getEthersV5Provider: vi.fn(),
     } as unknown as SwapperDeps)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
@@ -89,6 +90,7 @@ describe('getTradeQuote', () => {
 
     const maybeQuote = await getTradeQuote(withdrawInput, {
       assertGetEvmChainAdapter,
+      getEthersV5Provider: vi.fn(),
     } as unknown as SwapperDeps)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
@@ -123,6 +125,7 @@ describe('getTradeQuote', () => {
 
     const maybeQuote = await getTradeQuote(erc20DepositInput, {
       assertGetEvmChainAdapter,
+      getEthersV5Provider: vi.fn(),
     } as unknown as SwapperDeps)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
@@ -157,6 +160,7 @@ describe('getTradeQuote', () => {
 
     const maybeQuote = await getTradeQuote(erc20WithdrawInput, {
       assertGetEvmChainAdapter,
+      getEthersV5Provider: vi.fn(),
     } as unknown as SwapperDeps)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()
@@ -170,6 +174,7 @@ describe('getTradeQuote', () => {
   it('returns an error monad if non-EVM chain IDs are used', async () => {
     const result = await getTradeQuote({ ...commonInput, sellAsset: BTC }, {
       assertGetEvmChainAdapter,
+      getEthersV5Provider: vi.fn(),
     } as unknown as SwapperDeps)
     expect(result.isErr()).toBe(true)
     expect(result.unwrapErr().message).toBe(

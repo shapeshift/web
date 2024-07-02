@@ -290,6 +290,7 @@ describe('cowApi', () => {
         tradeQuote,
         stepIndex,
         chainId,
+        config: MOCK_COWSWAP_CONFIG,
       } as unknown as GetUnsignedEvmMessageArgs)
 
       const expected = {

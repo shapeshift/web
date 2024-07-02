@@ -96,13 +96,17 @@ describe('getTradeQuote', () => {
             } as unknown as AxiosResponse<OneInchBaseResponse>),
           )
         default:
+          console.log({ url })
           return await Promise.resolve(Ok({} as unknown as AxiosResponse<OneInchBaseResponse>))
       }
     })
 
     const { quoteInput } = setupQuote()
     const maybeQuote = await getTradeQuote(quoteInput, {
-      mockGetEvmChainAdapter,
+      assertGetEvmChainAdapter: mockGetEvmChainAdapter,
+      config: {
+        REACT_APP_ONE_INCH_API_URL: apiUrl,
+      },
     } as unknown as SwapperDeps)
     expect(maybeQuote.isOk()).toBe(true)
     const quote = maybeQuote.unwrap()

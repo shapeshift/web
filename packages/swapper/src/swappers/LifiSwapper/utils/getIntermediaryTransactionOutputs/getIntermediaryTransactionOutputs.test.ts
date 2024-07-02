@@ -16,7 +16,7 @@ describe('getIntermediaryTransactionOutputs', () => {
 
     const expectation: AmountDisplayMeta[] = [
       { asset: USDC_MAINNET, amountCryptoBaseUnit: '120527596' },
-      { asset: USDC_ARBITRUM, amountCryptoBaseUnit: '12032824∂9' },
+      { asset: USDC_ARBITRUM, amountCryptoBaseUnit: '120328249' },
     ]
 
     expect(result).toEqual(expectation)

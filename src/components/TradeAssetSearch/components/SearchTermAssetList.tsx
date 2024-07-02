@@ -1,6 +1,6 @@
 import { ASSET_NAMESPACE, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { isSome } from 'lib/utils'
 import {
   selectAssetsSortedByName,
@@ -89,6 +89,10 @@ export const SearchTermAssetList = ({
     }
   }, [assetListLoading, customAssets.length, isLoadingCustomTokens, searchTermAssets.length])
 
+  const onImportClick = useCallback(() => {
+    console.log('import click')
+  }, [])
+
   return (
     <GroupedAssetList
       assets={searchTermAssets}
@@ -97,6 +101,7 @@ export const SearchTermAssetList = ({
       hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
       onAssetClick={onAssetClick}
+      onImportClick={onImportClick}
     />
   )
 }

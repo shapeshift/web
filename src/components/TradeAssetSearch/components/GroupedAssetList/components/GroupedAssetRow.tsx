@@ -22,14 +22,16 @@ export type GroupedAssetRowProps = {
   assets: Asset[]
   hideZeroBalanceAmounts: boolean
   index: number
-  onClick: (asset: Asset) => void
+  onAssetClick: (asset: Asset) => void
+  onImportClick?: (asset: Asset) => void
 }
 
 export const GroupedAssetRow = ({
   index,
-  onClick,
+  onAssetClick,
   assets,
   hideZeroBalanceAmounts,
+  onImportClick,
 }: GroupedAssetRowProps) => {
   const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
   const {
@@ -37,6 +39,8 @@ export const GroupedAssetRow = ({
   } = useWallet()
   const asset: Asset | undefined = assets[index]
   const assetId = asset?.assetId
+  // If the asset isn't in the store we are rendering a custom token
+  const isAssetInStore = useAppSelector(s => s.assets.ids.some(a => a === assetId))
   const filter = useMemo(() => ({ assetId }), [assetId])
   const isSupported = assetId && wallet && isAssetSupportedByWallet(assetId, wallet)
   const cryptoPrecisionBalance = useAppSelector(s =>
@@ -44,7 +48,10 @@ export const GroupedAssetRow = ({
   )
   const userCurrencyBalance =
     useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
-  const handleClick = useCallback(() => onClick(asset), [asset, onClick])
+  const handleClick = useCallback(
+    () => (isAssetInStore ? onAssetClick(asset) : onImportClick && onImportClick(asset)),
+    [asset, isAssetInStore, onAssetClick, onImportClick],
+  )
 
   if (!asset) return null
 

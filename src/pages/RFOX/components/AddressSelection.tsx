@@ -165,7 +165,12 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
           <FormLabel fontSize='sm' mb={0}>
             {addressSelectionLabel}
           </FormLabel>
-          <Button variant='link' colorScheme='blue' size='sm' onClick={handleToggleInputMethod}>
+          <Button
+            variant='link'
+            colorScheme='blue'
+            size='sm-multiline'
+            onClick={handleToggleInputMethod}
+          >
             {isManualAddress
               ? translate('RFOX.useWalletAddress')
               : translate('RFOX.useCustomAddress')}

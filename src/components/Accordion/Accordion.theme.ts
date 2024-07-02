@@ -4,6 +4,12 @@ export const AccordionStyle = {
   // Styles for the visual style variations
   variants: {
     default: {
+      button: {
+        textAlign: 'left',
+      },
+      panel: {
+        textAlign: 'left',
+      },
       container: {
         borderTopWidth: 0,
         '&:first-of-type:last-of-type': {

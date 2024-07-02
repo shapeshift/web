@@ -30,7 +30,7 @@ import zrxTradeUsdcToWbtc from './mockData/zrxTradeUsdcToWbtc'
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
-  vi.stubEnv('RFOX_PROXY_CONTRACT_ADDRESS', '0xaC2a4fD70BCD8Bab0662960455c363735f0e2b56')
+  vi.stubEnv('REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS', '0xac2a4fd70bcd8bab0662960455c363735f0e2b56')
 })
 
 const mockedApi = vi.mocked(new V1Api())
@@ -896,6 +896,7 @@ describe('parseTx', () => {
 
       const expected: ParsedTx = {
         txid: tx.txid,
+        trade: undefined,
         blockHeight: tx.blockHeight,
         blockTime: tx.timestamp,
         blockHash: tx.blockHash,
@@ -918,7 +919,7 @@ describe('parseTx', () => {
             assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
             components: [{ value: '1000000000000000000' }],
             from: address,
-            to: process.env.RFOX_PROXY_CONTRACT_ADDRESS!,
+            to: '0xaC2a4fD70BCD8Bab0662960455c363735f0e2b56',
             token: foxToken,
             totalValue: '1000000000000000000',
             type: TransferType.Send,
@@ -989,7 +990,7 @@ describe('parseTx', () => {
           {
             assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
             components: [{ value: '4364832128906250000' }],
-            from: process.env.RFOX_PROXY_CONTRACT_ADDRESS!,
+            from: '0xaC2a4fD70BCD8Bab0662960455c363735f0e2b56',
             to: address,
             token: foxToken,
             totalValue: '4364832128906250000',

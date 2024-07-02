@@ -10,7 +10,6 @@ import * as rfox from '../../parser/rfox'
 import * as zrx from '../../parser/zrx'
 
 export const ZRX_ARBITRUM_PROXY_CONTRACT = '0xDef1C0ded9bec7F1a1670819833240f027b25EfF'
-export const RFOX_PROXY_CONTRACT_ADDRESS = '0xaC2a4fD70BCD8Bab0662960455c363735f0e2b56'
 
 export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: BaseTransactionParserArgs) {

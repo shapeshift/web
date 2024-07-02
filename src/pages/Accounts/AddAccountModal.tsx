@@ -34,7 +34,7 @@ export const AddAccountModal = () => {
   const dispatch = useAppDispatch()
 
   const {
-    state: { wallet, deviceId: walletDeviceId },
+    state: { wallet },
   } = useWallet()
 
   const assets = useSelector(selectAssets)
@@ -44,8 +44,6 @@ export const AddAccountModal = () => {
 
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
   const [inputAddress, setInputAddress] = useState<string>()
-
-  console.log({ inputAddress })
 
   const { close, isOpen } = useModal('addAccount')
 
@@ -75,9 +73,8 @@ export const AddAccountModal = () => {
     }
 
     dispatch(
-      portfolio.actions.upsertAccountMetadata({
+      portfolio.actions.upsertViewOnlyAccountMetadata({
         accountMetadataByAccountId,
-        walletId: walletDeviceId,
       }),
     )
 
@@ -99,17 +96,7 @@ export const AddAccountModal = () => {
       isClosable: true,
     })
     close()
-  }, [
-    assets,
-    close,
-    dispatch,
-    inputAddress,
-    selectedChainId,
-    toast,
-    translate,
-    wallet,
-    walletDeviceId,
-  ])
+  }, [assets, close, dispatch, inputAddress, selectedChainId, toast, translate, wallet])
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setInputAddress(e.target.value),

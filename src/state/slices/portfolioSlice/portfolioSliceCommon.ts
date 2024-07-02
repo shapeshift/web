@@ -58,6 +58,10 @@ export type Portfolio = {
    * lookup of accountId -> accountMetadata
    */
   accountMetadata: PortfolioAccountMetadata
+  /**
+   * lookup of accountId -> accountMetadata - view only! Isn't tied to a wallet
+   */
+  viewOnlyAccountMetadata: PortfolioAccountMetadata
   accounts: PortfolioAccounts
   accountBalances: PortfolioAccountBalances
   /**
@@ -78,6 +82,10 @@ export const initialState: Portfolio = {
     ids: [],
   },
   accountMetadata: {
+    byId: {},
+    ids: [],
+  },
+  viewOnlyAccountMetadata: {
     byId: {},
     ids: [],
   },

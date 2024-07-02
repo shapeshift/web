@@ -1,5 +1,5 @@
 import type { Token } from '@lifi/sdk'
-import type { LifiStep } from '@lifi/types'
+import type { LiFiStep } from '@lifi/types'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProtocolFee } from '@shapeshiftoss/swapper'
@@ -14,7 +14,7 @@ export const transformLifiStepFeeData = ({
   assets,
 }: {
   chainId: ChainId
-  lifiStep: LifiStep
+  lifiStep: LiFiStep
   assets: Partial<Record<AssetId, Asset>>
 }): Record<AssetId, ProtocolFee> => {
   if (!isEvmChainId(chainId)) {

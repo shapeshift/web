@@ -1,4 +1,5 @@
-import type { LifiStep } from '@lifi/types'
+import { getStepTransaction } from '@lifi/sdk'
+import type { LiFiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -6,12 +7,12 @@ import { ethers } from 'ethers'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { assertGetEvmChainAdapter, calcNetworkFeeCryptoBaseUnit } from 'lib/utils/evm'
 
+import { configureLiFi } from '../configureLiFi'
 import { L1_FEE_CHAIN_IDS, L1_GAS_ORACLE_ADDRESS } from '../constants'
-import { getLifi } from '../getLifi'
 
 type GetNetworkFeeArgs = {
   chainId: ChainId
-  lifiStep: LifiStep
+  lifiStep: LiFiStep
   supportsEIP1559: boolean
 }
 
@@ -20,7 +21,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   lifiStep,
   supportsEIP1559,
 }: GetNetworkFeeArgs) => {
-  const lifi = getLifi()
+  configureLiFi()
   const adapter = assertGetEvmChainAdapter(chainId)
 
   const { average } = await adapter.getGasFeeData()
@@ -28,7 +29,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const l1GasLimit = await (async () => {
     if (!L1_FEE_CHAIN_IDS.includes(chainId as KnownChainIds)) return
 
-    const { transactionRequest } = await lifi.getStepTransaction(lifiStep)
+    const { transactionRequest } = await getStepTransaction(lifiStep)
     const { data, gasLimit } = transactionRequest ?? {}
 
     if (!data || !gasLimit) {

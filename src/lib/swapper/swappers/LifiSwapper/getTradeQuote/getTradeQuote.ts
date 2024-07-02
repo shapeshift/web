@@ -1,5 +1,5 @@
 import type { ChainKey, RoutesRequest } from '@lifi/sdk'
-import { LifiError, LifiErrorCode } from '@lifi/sdk'
+import { getRoutes, LiFiError, LiFiErrorCode } from '@lifi/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type {
@@ -19,9 +19,9 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from 'constants/constants'
 import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { configureLiFi } from 'lib/swapper/swappers/LifiSwapper/utils/configureLiFi'
 import { LIFI_INTEGRATOR_ID } from 'lib/swapper/swappers/LifiSwapper/utils/constants'
 import { getIntermediaryTransactionOutputs } from 'lib/swapper/swappers/LifiSwapper/utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
-import { getLifi } from 'lib/swapper/swappers/LifiSwapper/utils/getLifi'
 import { getLifiEvmAssetAddress } from 'lib/swapper/swappers/LifiSwapper/utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'
 import { transformLifiStepFeeData } from 'lib/swapper/swappers/LifiSwapper/utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from 'lib/swapper/swappers/LifiSwapper/utils/types'
@@ -72,7 +72,7 @@ export async function getTradeQuote(
     )
   }
 
-  const lifi = getLifi()
+  configureLiFi()
 
   const affiliateBpsDecimalPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
   const routesRequest: RoutesRequest = {
@@ -101,17 +101,16 @@ export async function getTradeQuote(
   //   // Note, this may change if the Li.Fi SDK changes
   //   url: 'https://li.quest/v1/advanced/routes',
   // })
-  const routesResponse = await lifi
-    .getRoutes(routesRequest)
+  const routesResponse = await getRoutes(routesRequest)
     .then(response => Ok(response))
-    .catch((e: LifiError) => {
+    .catch((e: LiFiError) => {
       const code = (() => {
         switch (e.code) {
-          case LifiErrorCode.ValidationError:
+          case LiFiErrorCode.ValidationError:
             // our input was incorrect - the error is internal to us
             return TradeQuoteError.InternalError
-          case LifiErrorCode.InternalError:
-          case LifiErrorCode.Timeout:
+          case LiFiErrorCode.InternalError:
+          case LiFiErrorCode.Timeout:
           default:
             return TradeQuoteError.QueryFailed
         }
@@ -243,7 +242,7 @@ export async function getTradeQuote(
 
   if (promises.every(isRejected)) {
     for (const promise of promises) {
-      if (promise.reason instanceof LifiError) {
+      if (promise.reason instanceof LiFiError) {
         if (promise.reason.stack?.includes('Request failed with status code 429')) {
           return Err(
             makeSwapErrorRight({

@@ -88,8 +88,8 @@ export type TradeAmountInputProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
   isReadOnly?: boolean
   isSendMaxDisabled?: boolean
-  cryptoAmount?: string
-  fiatAmount?: string
+  cryptoAmount: string
+  fiatAmount: string
   showFiatAmount?: boolean
   priceImpactPercentage?: string
   balance?: string

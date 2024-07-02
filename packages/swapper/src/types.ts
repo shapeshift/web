@@ -42,6 +42,7 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: string
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
+  REACT_APP_COWSWAP_BASE_URL: string
 }
 
 export enum SwapperName {
@@ -362,6 +363,7 @@ export type Swapper = {
   executeEvmMessage?: (
     txMetaToSign: EvmMessageToSign,
     callbacks: EvmMessageExecutionProps,
+    config: SwapperConfig,
   ) => Promise<string>
   executeUtxoTransaction?: (
     txToSign: BTCSignTx,

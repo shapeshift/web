@@ -19,7 +19,6 @@ import type {
 import { SwapperName } from '../../types'
 import { createDefaultStatusResponse, getHopByIndex } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { COWSWAP_BASE_URL } from './constants'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type {
   CowSwapGetTradesResponse,
@@ -46,8 +45,9 @@ const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 export const cowApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
+    { config },
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput)
+    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput, config)
 
     return tradeQuoteResult.map(tradeQuote => {
       // A quote always has a first step
@@ -63,6 +63,7 @@ export const cowApi: SwapperApi = {
     tradeQuote,
     stepIndex,
     chainId,
+    config,
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const hop = getHopByIndex(tradeQuote, stepIndex)
 
@@ -95,7 +96,7 @@ export const cowApi: SwapperApi = {
     )
     // https://api.cow.fi/docs/#/default/post_api_v1_quote
     const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-      `${COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
+      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
       {
         sellToken: fromAssetId(sellAsset.assetId).assetReference,
         buyToken: buyTokenAddress,
@@ -157,6 +158,7 @@ export const cowApi: SwapperApi = {
   checkTradeStatus: async ({
     txHash, // TODO: this is not a tx hash, its an ID
     chainId,
+    config,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
@@ -170,7 +172,7 @@ export const cowApi: SwapperApi = {
     // order uid to fetch the trades and use their existence as indicating "complete"
     // https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/6.-checking-order-status
     const maybeTradesResponse = await cowService.get<CowSwapGetTradesResponse>(
-      `${COWSWAP_BASE_URL}/${network}/api/v1/trades`,
+      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/trades`,
       { params: { orderUid: txHash } },
     )
 
@@ -181,7 +183,7 @@ export const cowApi: SwapperApi = {
     if (!buyTxHash) return createDefaultStatusResponse(undefined)
 
     const maybeGetOrdersResponse = await cowService.get<CowSwapGetTransactionsResponse>(
-      `${COWSWAP_BASE_URL}/${network}/api/v1/transactions/${buyTxHash}/orders`,
+      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/transactions/${buyTxHash}/orders`,
     )
 
     if (maybeGetOrdersResponse.isErr()) throw maybeGetOrdersResponse.unwrapErr()

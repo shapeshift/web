@@ -8,8 +8,8 @@ import type {
   EvmMessageExecutionProps,
   EvmMessageToSign,
   Swapper,
+  SwapperConfig,
 } from '../../types'
-import { COWSWAP_BASE_URL } from './constants'
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { COW_SWAP_SETTLEMENT_ADDRESS, SIGNING_SCHEME } from './utils/constants'
@@ -20,6 +20,7 @@ export const cowSwapper: Swapper = {
   executeEvmMessage: async (
     { chainId, orderToSign }: EvmMessageToSign,
     { signMessage }: EvmMessageExecutionProps,
+    config: SwapperConfig,
   ): Promise<string> => {
     const { chainReference } = fromChainId(chainId)
     const signingDomain = Number(chainReference)
@@ -53,7 +54,7 @@ export const cowSwapper: Swapper = {
     const network = maybeNetwork.unwrap()
 
     const maybeOrdersResponse = await cowService.post<string>(
-      `${COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
+      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
       {
         ...orderToSign,
         signingScheme: SIGNING_SCHEME,

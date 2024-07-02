@@ -3,7 +3,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../types'
+import type { GetTradeQuoteInput, SwapperConfig, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   ETH,
@@ -315,7 +315,9 @@ describe('getCowTradeQuote', () => {
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
     }
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+    } as SwapperConfig)
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
       cause: undefined,
@@ -360,7 +362,9 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+    } as SwapperConfig)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteWethToFox)
@@ -404,7 +408,9 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+    } as SwapperConfig)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
@@ -448,7 +454,9 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+    } as SwapperConfig)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)
@@ -492,7 +500,9 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+    } as SwapperConfig)
 
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToEthArbitrum)
@@ -536,7 +546,9 @@ describe('getCowTradeQuote', () => {
       ),
     )
 
-    const maybeTradeQuote = await getCowSwapTradeQuote(input)
+    const maybeTradeQuote = await getCowSwapTradeQuote(input, {
+      REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+    } as SwapperConfig)
 
     expect(maybeTradeQuote.isErr()).toBe(false)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)

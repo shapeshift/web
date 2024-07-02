@@ -205,7 +205,7 @@ export class TradeExecution {
         getEthersV5Provider,
       })
 
-      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage })
+      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage }, config)
     }
 
     return await this._execWalletAgnostic(

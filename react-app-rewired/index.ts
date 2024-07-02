@@ -8,12 +8,12 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import * as path from 'path'
 import * as ssri from 'ssri'
 import * as webpack from 'webpack'
+import { ContextReplacementPlugin } from 'webpack'
 import { SubresourceIntegrityPlugin } from 'webpack-subresource-integrity'
 import WorkBoxPlugin from 'workbox-webpack-plugin'
 
 import { cspMeta, headers, serializeCsp } from './headers'
 import { progressPlugin } from './progress'
-import { ContextReplacementPlugin } from 'webpack'
 
 type DevServerConfigFunction = (
   proxy: unknown,
@@ -351,18 +351,16 @@ const reactAppRewireConfig = {
       }),
     )
 
-    _.merge(
-      config,
-      {
-        plugins: [
-          // Webpack is unable to resolve imports within the @cowprotocol/app-data package due to
-          // expressions in the imports, resulting in a compiler warning. As a result, Webpack 
-          // bundles all imports from this package. This plugin silences the warning.
-          // https://webpack.js.org/guides/dependency-management/#require-with-expression
-          new ContextReplacementPlugin(/@cowprotocol\/app-data/)
-        ]
-      }
-    )
+    _.merge(config, {
+      plugins: [
+        ...(config.plugins ?? []),
+        // Webpack is unable to resolve imports within the @cowprotocol/app-data package due to
+        // expressions in the imports, resulting in a compiler warning. As a result, Webpack
+        // bundles all imports from this package. This plugin silences the warning.
+        // https://webpack.js.org/guides/dependency-management/#require-with-expression
+        new ContextReplacementPlugin(/@cowprotocol\/app-data/),
+      ],
+    })
 
     const MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES = 50 * 1024 * 1024 // 50MB
 
